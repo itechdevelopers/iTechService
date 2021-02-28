@@ -62,6 +62,9 @@
       = f.input :user_comment, input_html: {rows: 3}
       = f.input :cost
       = f.input :done, as: :done_status, disabled: @device_task.done
+      - if @device_task.mac_service?
+        = f.association :performer, label: 'Кто выполнил задачу?', collection: mac_service_helper_options,
+                        label_method: :presentation
 
       - if can? :write_tech_notice, @device_task.service_job || ServiceJob
         = f.simple_fields_for :service_job do |ff|

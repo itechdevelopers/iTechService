@@ -1,0 +1,13 @@
+%table#mac_service_report.table.table-bordered.table-hover
+  %thead
+    %tr
+      %th.center Кто выполнил
+      %th.center Количество
+  %tbody
+    - report.result[:data].each_pair do |user_id, details|
+      %tr.detailable
+        %td.name= user_id.present? ? link_to(details[:name], user_path(user_id), target: '_blank') : '-'
+        %td.number= details[:jobs_qty]
+      - details[:jobs].each do |job|
+        %tr.details
+          %td{colspan: 2}= link_to job[:presentation], service_job_path(job[:id]), target: '_blank'

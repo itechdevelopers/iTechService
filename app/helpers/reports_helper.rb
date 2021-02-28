@@ -43,6 +43,7 @@ module ReportsHelper
       repeated_repair
       repeated_repair2
       users_jobs
+      mac_service
     ].freeze
   end
 

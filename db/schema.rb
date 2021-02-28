@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20210221214526) do
+ActiveRecord::Schema.define(version: 20210223090846) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -1431,6 +1431,7 @@ ActiveRecord::Schema.define(version: 20210221214526) do
     t.string   "phone_number",              limit: 255
     t.boolean  "department_autochangeable",             default: true,  null: false
     t.boolean  "can_help_in_repair",                    default: false
+    t.boolean  "can_help_in_mac_service",               default: false
     t.string   "uniform_sex"
     t.string   "uniform_size"
     t.integer  "activities_mask"

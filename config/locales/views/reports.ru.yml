@@ -43,7 +43,8 @@ ru:
       title: 'Бесплатный сервис'
       subject/receiver: 'По приёмщикам'
       subject/performer: 'По исполнителям'
-
+    mac_service:
+      title: 'Обновление или восстановление MacOs устройств'
     salary:
       title: 'Отчет по зарплате'
     tasks_duration:

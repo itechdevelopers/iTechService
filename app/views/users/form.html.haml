@@ -94,6 +94,7 @@
               = hidden_field_tag 'user[activities][]', ''
 
       = f.input :can_help_in_repair
+      = f.input :can_help_in_mac_service
       = f.association :department, prompt: false, as: :grouped_select, collection: City.all, group_method: :selectable_departments
       = f.association :location, as: :location
       = f.input :department_autochangeable

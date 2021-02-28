@@ -16,12 +16,12 @@ class DeviceTask < ActiveRecord::Base
   has_many :repair_parts, through: :repair_tasks
   has_one :sale_item, inverse_of: :device_task
 
-  delegate :name, :role, :code, :is_important?, :is_repair?, :item, to: :task, allow_nil: true
+  delegate :name, :role, :code, :is_important?, :is_repair?, :item, :mac_service?, to: :task, allow_nil: true
   delegate :cost, to: :task, prefix: true, allow_nil: true
   delegate :client_presentation, :ticket_number, to: :service_job, allow_nil: true
   delegate :department, :department_id, :user, to: :service_job
 
-  attr_accessible :done, :done_at, :comment, :user_comment, :cost, :task, :service_job, :service_job_id, :task_id, :performer_id, :task, :service_job_attributes, :repair_tasks_attributes
+  attr_accessible :done, :done_at, :comment, :user_comment, :cost, :task, :service_job, :service_job_id, :task_id, :performer_id, :performer, :task, :service_job_attributes, :repair_tasks_attributes
 
   accepts_nested_attributes_for :service_job, reject_if: proc { |attr| attr['tech_notice'].blank? }
   accepts_nested_attributes_for :repair_tasks, allow_destroy: true
@@ -38,7 +38,7 @@ class DeviceTask < ActiveRecord::Base
     old_done = dt.done_was
     if dt.done != 0 and old_done == 0
       dt.done_at = DateTime.current
-      dt.performer_id = User.current.try(:id)
+      dt.performer_id ||= User.current&.id
     elsif dt.done != 1 and old_done == 1
       dt.done_at = nil
     end

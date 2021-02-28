@@ -94,6 +94,8 @@ class User < ActiveRecord::Base
                                   true, true, 'technician')
                           }
 
+  scope :helps_in_mac_service, -> { active.where(can_help_in_mac_service: true) }
+
   belongs_to :location
   belongs_to :department
   has_many :history_records, as: :object, dependent: :nullify
@@ -147,7 +149,7 @@ class User < ActiveRecord::Base
                   :abilities, :activities, :schedule, :is_fired, :job_title, :position, :salaries_attributes,
                   :installment_plans_attributes, :installment, :department_id, :session_duration,
                   :phone_number, :department_autochangeable, :can_help_in_repair, :uniform_sex, :uniform_size,
-                  :hobby, :wishlist
+                  :hobby, :wishlist, :can_help_in_mac_service
 
   # Include default devise modules. Others available are:
   # :token_authenticatable, :confirmable, :registerable, :rememberable,

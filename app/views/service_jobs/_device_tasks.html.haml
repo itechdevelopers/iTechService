@@ -9,6 +9,8 @@
       %th= DeviceTask.human_attribute_name :comment
       - if superadmin? || able_to?(:edit_tasks_user_comment)
         %th= DeviceTask.human_attribute_name :user_comment
+      - if superadmin?
+        %th Кто выполнил задачу?
       - if can?(:remove_device_tasks, f.object)
         %th
   %tbody
