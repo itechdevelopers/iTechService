@@ -70,6 +70,24 @@ jQuery ->
         alert status
     event.preventDefault()
 
+  $('#edit_uniform_link').click (event) ->
+    $('#uniform_view, #uniform_edit').toggleClass 'hide'
+
+  $('#edit_wishlist_hobby_link').click (event) ->
+    $('#wishlist_hobby_view, #wishlist_hobby_edit').toggleClass 'hide'
+
+  $(document).ready () ->
+    $(".add_wishlist_fields").click (event) ->
+      $("#wishlist_list").append($(this).data("field"))
+      $('a.remove_field').click (event) ->
+        $(this).closest('p').remove()
+        event.preventDefault()
+      event.preventDefault()
+
+    $('a.remove_field').click (event) ->
+      $(this).closest('p').remove()
+      event.preventDefault()
+
   if $('#staff_schedule').length > 0
     $legend = $('#staff_schedule_legend')
     $table = $('#job_schedule_table')

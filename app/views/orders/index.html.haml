@@ -1,4 +1,5 @@
 .page-header
+  .input-small
   %h1
     = auto_title
     %small= link_to t('orders.spare_parts'), orders_path(kind: 'spare_parts')
@@ -8,33 +9,26 @@
 
 .table_filter.navbar.container
   .navbar-inner
-    = form_tag orders_path, method: 'get', id: 'search_form', class: 'navbar-search form-search', remote: true do
+    = simple_form_for :filter, url: orders_path, wrapper: :search_inputs,
+      method: 'get', html: {class: 'navbar-search form-search', id: 'search_form'}, remote: true do |f|
+      =f.input :order_number, placeholder: t('orders.index.search_number_placeholder'), input_html: { class: 'input-small' }
+      =f.input :customer, placeholder: Order.human_attribute_name(:customer)
+      =f.input :user, input_html: { class: 'input-medium'}, placeholder: t('orders.index.search_user_placeholder')
+      =f.input :object_kind, as: :select, include_blank: t("orders.object_kinds.all_kinds"),
+        collection: Order::OBJECT_KINDS.map {|s| [t("orders.object_kinds.#{s}"), s] }
+      %br
+        .search-query
+      =f.input :object, as: :object, placeholder: Order.human_attribute_name(:object), input_html: { class: 'input-xxlarge' }
+      %br
+      =f.input :department_ids, as: :select, input_html: { multiple: true },
+        collection: Department.all.order(:name), selected: current_department&.id,
+        placeholder: Order.human_attribute_name(:department)
+      =f.input :statuses, as: :select, input_html: { multiple: true },
+        collection: Order::STATUSES.map {|s| [t("orders.statuses.#{s}"), s] }, selected: %w[new done]
+      =f.button :submit, "Найти"
 
-      = hidden_field_tag :object_kind, params[:object_kind]
-      = hidden_field_tag :status, params[:status]
+      -# = orders_department_filter_tag
+      -# = orders_object_kind_filter_tag
+      -# = orders_status_filter_tag
 
-      .input-append
-        = text_field_tag :order_number, params[:order_number], id: 'search_order_input', class: 'search-query input-small', placeholder: t('orders.index.search_number_placeholder')
-        %span.add-on.btn.clear_search_input
-          %i.icon-remove
-
-      .input-append
-        = text_field_tag :customer, params[:customer], id: 'search_customer_input', class: 'search-query input-medium', placeholder: t('orders.index.search_customer_placeholder')
-        %span.add-on.btn.clear_search_input
-          %i.icon-remove
-
-      .input-append
-        = text_field_tag :object, params[:object], id: 'search_object_input', class: 'search-query input-medium', placeholder: t('orders.index.search_object_placeholder')
-        %span.add-on.btn.clear_search_input
-          %i.icon-remove
-
-      .input-append
-        = text_field_tag :user, params[:user], id: 'search_user_input', class: 'search-query input-small', placeholder: t('orders.index.search_user_placeholder')
-        %span.add-on.btn.clear_search_input
-          %i.icon-remove
-
-    = orders_department_filter_tag
-    = orders_object_kind_filter_tag
-    = orders_status_filter_tag
-
-#resource_table= render 'table'
+#orders_table= render 'table'

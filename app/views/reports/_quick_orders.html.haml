@@ -4,12 +4,15 @@
     %tr
       %th= t 'activerecord.models.user'
       %th= t 'reports.qty'
+      %th= t 'reports.qty_done'
   %tbody
     - report.result[:users].each do |user|
       %tr.user_row
         %td= user[:name]
         %td= user[:qty]
+        %td= user[:qty_done]
   %tfoot
     %tr
       %td= t 'reports.total'
       %td= report.result[:total_qty]
+      %td

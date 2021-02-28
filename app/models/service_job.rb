@@ -40,7 +40,7 @@ class ServiceJob < ActiveRecord::Base
   belongs_to :user, inverse_of: :service_jobs
   belongs_to :client, inverse_of: :service_jobs
   belongs_to :device_type
-  belongs_to :item, -> { includes(product: [:product_group, :product_category]) }
+  belongs_to :item, -> { includes(:features, product: [:product_group, :product_category]) }
   belongs_to :location
   belongs_to :receiver, class_name: 'User', foreign_key: 'user_id'
   belongs_to :sale, inverse_of: :service_job
@@ -81,7 +81,7 @@ class ServiceJob < ActiveRecord::Base
                   :contact_phone, :is_tray_present, :carrier_id, :keeper_id, :data_storages, :email,
                   :substitute_phone_id, :substitute_phone_icloud_connected, :client_address, :claimed_defect,
                   :device_condition, :client_comment, :type_of_work, :estimated_cost_of_repair, :trademark,
-                  :device_group, :completeness
+                  :device_group, :completeness, :user_id
 
   validates_presence_of :ticket_number, :user, :client, :location, :device_tasks, :return_at, :department
   validates_presence_of :contact_phone, on: :create
@@ -451,6 +451,8 @@ class ServiceJob < ActiveRecord::Base
     self.user_id ||= User&.current&.id
     self.location_id ||= User&.current&.location_id
     self.department_id ||= Department.current&.id
+  rescue StandardError
+    nil
   end
 
   def validate_location
@@ -538,6 +540,8 @@ class ServiceJob < ActiveRecord::Base
 
   def set_contact_phone
     self.contact_phone = self.client.try(:contact_phone) || '-' if self.contact_phone.blank?
+  rescue StandardError
+    nil
   end
 
   def set_department

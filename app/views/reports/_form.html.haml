@@ -5,15 +5,17 @@
         = button_tag glyph(:filter), class: 'btn btn-info', type: 'submit'
         = f.hidden_field :base_name
         = f.hidden_field :kind
-        = f.text_field :start_date, class: 'bootstrap-datepicker input-small'
+        = f.text_field :start_date, class: 'bootstrap-datepicker input-small' if report.show_param?(:start_date)
         - unless report.only_day?
           %span
             = '_'
           = f.text_field :end_date, class: 'bootstrap-datepicker input-small'
-        = f.select :department_id,
-          departments_collection(report.department_id),
-          @new_type_report ? {} : { include_blank: 'Все подразделения' },
-          { multiple: @new_type_report, class: @new_type_report ? 'multiselect' : '' } unless report.respond_to?(:store_id) || report.respond_to?(:location_id)
-        = f.select :store_id, stores_collection(report.store_id), prompt: t('activerecord.models.store') if report.respond_to?(:store_id)
-        = f.select :location_id, locations_collection(report.location_id), prompt: t('activerecord.models.location') if report.respond_to?(:location_id)
-        = f.select :subject, report.subjects_collection if report.respond_to?(:subject)
+        - if report.show_param?(:department_id) # unless report.respond_to?(:store_id) || report.respond_to?(:location_id)
+          = f.select :department_id,
+            departments_collection(report.department_id),
+            @new_type_report ? {} : { include_blank: 'Все подразделения' },
+            { multiple: @new_type_report, class: @new_type_report ? 'multiselect' : '' }
+        = f.select :store_id, stores_collection(report.store_id), prompt: t('activerecord.models.store') if report.show_param?(:store_id)
+        = f.select :location_id, locations_collection(report.location_id), prompt: t('activerecord.models.location') if report.show_param?(:location_id)
+        = f.select :subject, report.subjects_collection if report.show_param?(:subject)
+        = f.select :user_id, users_collection(report.user_id), include_blank: true if report.show_param?(:user)

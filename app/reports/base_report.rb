@@ -1,5 +1,17 @@
+# frozen_string_literal: true
 class BaseReport
   attr_reader :kind, :department_id
+  class_attribute :report_params
+
+  def self.params(items = [])
+    self.report_params = items
+  end
+
+  params %i[start_date end_date department_id]
+
+  def show_param?(name)
+    report_params.include?(name)
+  end
 
   def self.call(attributes = {})
     new(attributes).call
@@ -8,7 +20,7 @@ class BaseReport
   def name
     @name ||= self.class.name.underscore.gsub('_report', '')
   end
-  alias_method :base_name, :name
+  alias base_name name
 
   def initialize(attributes = {})
     attributes.each do |name, value|
@@ -51,13 +63,16 @@ class BaseReport
     @department_id = value.presence
   end
 
+  def department_ids
+    @department_ids ||= [department_id].flatten.reject(&:blank?)
+  end
+
   def department
-    return @department if defined? @department
-    if department_id.class == Array
-      @department = Department.where(id: department_id)
-    else
-      @department = department_id ? Department.find(department_id) : nil
-    end
+    @department ||= if department_id.instance_of?(Array)
+                      Department.where(id: department_id)
+                    else
+                      department_id ? Department.find(department_id) : nil
+                    end
   end
 
   def model_name

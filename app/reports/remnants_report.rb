@@ -1,6 +1,8 @@
 class RemnantsReport < BaseReport
   attr_accessor :store_id
 
+  params [:start_date, :end_date, :store_id]
+
   def call
     result[:data] = []
 

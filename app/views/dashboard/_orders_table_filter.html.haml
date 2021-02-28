@@ -1,18 +1,15 @@
 #orders_table_filter.table_filter.navbar.container
   .navbar-inner
-    = form_tag actual_orders_path, method: 'get', id: 'search_form', class: 'navbar-search form-search', remote: true do
+    = simple_form_for :params, url: actual_orders_path, method: 'get', id: 'search_form', class: 'navbar-search form-search', remote: true do |f|
       .input-append
-        = text_field_tag :order_number, params[:order_number], id: 'search_order_input', class: 'search-query input-medium',
-            placeholder: Order.human_attribute_name(:number)
+        =f.input :order_number, as: :string, id: 'search_order_input', class: 'search-query input-medium', placeholder: Order.human_attribute_name(:number)
         %span.add-on.btn.clear_search_input
           %i.icon-remove
       .input-append
-        = text_field_tag :object, params[:object], id: 'search_order_object_input', class: 'search-query input-medium',
-            placeholder: Order.human_attribute_name(:object)
+        =f.input :object, id: 'search_order_object_input', class: 'search-query input-medium', placeholder: Order.human_attribute_name(:object)
         %span.add-on.btn.clear_search_input
           %i.icon-remove
       .input-append
-        = text_field_tag :customer, params[:customer], id: 'search_customer_input', class: 'search-query input-medium',
-            placeholder: Order.human_attribute_name(:customer)
+        =f.input :customer, id: 'search_customer_input', class: 'search-query input-medium', placeholder: Order.human_attribute_name(:customer)
         %span.add-on.btn.clear_search_input
           %i.icon-remove

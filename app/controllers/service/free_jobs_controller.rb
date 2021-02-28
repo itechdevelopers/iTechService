@@ -19,12 +19,15 @@ module Service
         free_jobs = free_jobs.in_department(params[:department_id])
       end
 
+      free_jobs = FreeJobFilter.call(collection: free_jobs, **filter_params).collection
+
       free_jobs = free_jobs.new_first.page(params[:page])
-      content = cell(FreeJob::Cell::Index, free_jobs).call
 
       respond_to do |format|
-        format.html { return render(html: content, layout: true) }
-        format.js { return render('index', locals: {content: content}) }
+        format.html do
+          return render(html: cell(FreeJob::Cell::Index, free_jobs).call, layout: true)
+        end
+        format.js { return render('index', locals: { free_jobs: free_jobs }) }
       end
     end
 

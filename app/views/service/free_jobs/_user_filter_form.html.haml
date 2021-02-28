@@ -1,0 +1,14 @@
+- form_id = :users_free_jobs_search_form
+= simple_form_for :filter, url: service_free_jobs_path, wrapper: :search_inputs,
+    method: 'get', html: {class: 'form-search', id: form_id}, remote: true do |f|
+  =f.hidden_field :user_id, value: user.id
+  =f.input :month, collection: (1..12).map{|i| [I18n.t("date.month_names")[i], i]},
+    selected: Date.today.strftime("%m").to_i,
+    include_blank: true
+  - year = Date.today.strftime("%YYYY").to_i
+  =f.input :year, collection: (0..2).map{|i| year - i}, selected: year
+  =f.button :submit, "Найти", id: "b_users_free_jobs_search_form"
+
+#free_jobs_table
+
+=render partial: 'shared/search_form', locals: {form_id: form_id}

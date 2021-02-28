@@ -1,0 +1,16 @@
+
+
+= pagination
+
+table.table.table-hover
+  thead
+    tr
+      th = t_attribute :department
+      th = t_attribute :performed_at
+      th = t_attribute :performer
+      th = t_attribute :task
+      th = t_attribute :client
+      th
+  tbody = free_job_rows
+
+= pagination

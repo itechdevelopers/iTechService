@@ -64,6 +64,7 @@ ru:
       free_service: 'Бесплатный сервис'
       free_tasks: :service.free_task.view.index
       misc: 'Прочее'
+      quick_orders: 'Быстрый заказ'
       quick_order: 'Быстрый заказ'
       rating: 'Рейтинг'
       repair_return: 'Возврат ремонта'

@@ -1,0 +1,15 @@
+= simple_form_for user,
+                  url: update_photo_user_path(user),
+                  remote: true,
+                  method: :patch,
+                  id: 'update_uniform_user_form',
+                  html: { class: 'form-horizontal user_form', autocomplete: 'off' } do |f|
+  .control-group
+    #user_photo_fields.controls
+      = image_tag f.object.photo.medium.url if f.object.photo?
+      = f.file_field :photo
+      = f.hidden_field :photo_cache
+      %label
+        = f.check_box :remove_photo
+        = t 'remove_photo'
+  = submit_button f

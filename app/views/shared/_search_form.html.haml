@@ -1,0 +1,6 @@
+- form_id = form_id
+:coffee
+  $(document).on 'click', '##{form_id} .clear_search_input', (event) ->
+    $(this).siblings('.search-query').val ''
+    $('##{form_id}').submit()
+    event.preventDefault()

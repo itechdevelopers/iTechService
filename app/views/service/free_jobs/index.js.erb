@@ -1,2 +1,2 @@
-$('#main_content').html('<%= j content %>');
+$('#free_jobs_table').html('<%= j cell(Service::FreeJob::Cell::UserTable, free_jobs).() %>');
 $('#date_filter').datepicker();

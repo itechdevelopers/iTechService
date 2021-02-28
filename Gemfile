@@ -14,7 +14,7 @@ gem 'hamlit', '~> 2.2.0'
 # gem 'slim-rails'
 gem 'jquery-rails', '~> 4.1.1'
 gem 'jquery-ui-rails', '~> 5.0.5'
-gem 'simple_form', '~> 3.2.1'
+gem 'simple_form', '~> 3.5.1'
 gem 'jbuilder', '~> 2.0'
 gem 'devise', '~> 4.0.3'
 gem 'devise_token_auth', '~> 0.1.37'
@@ -101,7 +101,7 @@ group :development do
 end
 
 group :test do
-  gem 'rspec-rails', '~> 3.8.0'
+  # gem 'rspec-rails', '~> 3.8.0'
   gem 'capybara', '~> 2.15.4'
   gem 'capybara-selenium', '~> 0.0.6'
   gem 'chromedriver-helper', '~> 1.1.0'
@@ -112,8 +112,18 @@ group :test do
   gem 'simplecov', '~> 0.12.0', :require => false
 
   gem 'shoulda', '~> 3.5.0'
-  gem 'shoulda-matchers', '~> 2.8.0'
+  # gem 'shoulda-matchers', '~> 2.8.0'
   gem 'mocha', '~> 1.1.0'
+end
+
+group :development, :test do
+  gem "rspec-rails"
+  gem "rubocop"
+  gem "rubocop-faker"
+  gem "rubocop-rails"
+  gem "rubocop-rspec"
+  gem "shoulda-matchers"
+  gem "standard"
 end
 
 # group :production do

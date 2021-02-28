@@ -1,0 +1,27 @@
+- if @service_jobs.any?
+  %table.table.table-condensed.table-hover
+    %thead
+      %tr
+        %th= t 'service_jobs.received'
+        %th= ServiceJob.human_attribute_name(:ticket_number)
+        %th= ServiceJob.model_name.human
+        %th= ServiceJob.human_attribute_name(:client)
+        %th= ServiceJob.human_attribute_name(:location)
+        %th
+    %tbody
+      - @service_jobs.each do |service_job|
+        %tr{class: row_class_for_service_job(service_job)}
+          %td= t 'moved', user: '', time: distance_of_time_in_words_to_now(service_job.created_at)
+          %td= link_to service_job.ticket_number, service_job_path(service_job)
+          %td
+            = link_to service_job.type_name, service_job_path(service_job)
+            %small= service_job.serial_number
+            %p.service_job_comment_tooltip{'data-title' => service_job.comment}
+              %i.icon-comment
+          %td= h service_job.client_presentation
+          %td= service_job.location.try :name
+          %td
+            .btn-group
+              = link_to_show_small service_job
+              = link_to_edit_small service_job# if can? :update, service_job
+              = link_to_destroy_small service_job if can? :destroy, service_job

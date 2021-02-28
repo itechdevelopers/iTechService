@@ -19,7 +19,7 @@
   = new_sms_notification_link(@service_job) if @service_job.at_done?
 
 .row-fluid
-  .span6
+  .span4
     %table.attributes_table
       %tr{class: ('text-error' if @service_job.transferred?)}
         %td= ServiceJob.human_attribute_name :initial_department
@@ -166,7 +166,15 @@
               %td= repair_part.quantity
               %td= repair_part.defect_qty
 
-  .span6
+  .span4
+    %table.attributes_table
+      - %i[client_address trademark device_group completeness claimed_defect device_condition client_comment type_of_work estimated_cost_of_repair].each do |attr|
+        - unless @service_job.send(attr).blank?
+          %tr
+            %td= ServiceJob.human_attribute_name attr
+            %td= @service_job.send(attr)
+
+  .span4
     #sms_notification_form_container
     #device_notes_container= render 'device_notes'
     = cell(Service::Job::Cell::Feedbacks, @service_job)

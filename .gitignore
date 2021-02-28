@@ -40,3 +40,4 @@ pickle-email-*.html
 
 .tool-versions
 .ruby-version
+/.idea/
