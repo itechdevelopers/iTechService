@@ -1,10 +1,12 @@
 default: &default
   adapter: postgresql
   encoding: unicode
+  host: <%= ENV['DB_HOST'] %>
+  port:  <%= ENV['DB_PORT'] %>
+  username: <%= ENV['DB_USERNAME'] %>
+  password: <%= ENV['DB_PASSWORD'] %>
+  database: <%= ENV['DB_NAME'] %>
   pool: <%= ENV.fetch("RAILS_MAX_THREADS", 5) %>
-  database: <%= ENV["ITECHSERVICE_DB"] %>
-  username: <%= ENV["ITECHSERVICE_DB_USERNAME"] %>
-  password: <%= ENV["ITECHSERVICE_DB_PASSWORD"] %>
 
 development:
   <<: *default
@@ -12,7 +14,7 @@ development:
 
 test:
   <<: *default
-  database: itechservice_test
+  database: <%= ENV['DB_NAME_TEST'] || 'itechservice_test' %>
 
 staging:
   <<: *default
