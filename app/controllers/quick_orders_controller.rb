@@ -5,8 +5,8 @@ class QuickOrdersController < ApplicationController
 
     if params[:done].eql? 'true' #and current_user.any_admin?
       @quick_orders = @quick_orders.done
-    # else
-    #   @quick_orders = policy_scope(QuickOrder).in_month.undone
+    elsif request.format == :html
+      @quick_orders = policy_scope(QuickOrder).in_month.undone
     end
 
     if params[:department_id].present? && can?(:view_everywhere, QuickOrder)
