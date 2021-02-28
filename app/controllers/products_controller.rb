@@ -15,7 +15,7 @@ class ProductsController < ApplicationController
     if params[:form] == 'sale'
       @products = @products.available
     end
-
+    @products = @products.preload(:product_group, :product_category)
     @products = @products.page(params[:page])
 
     if params[:choose] == 'true'

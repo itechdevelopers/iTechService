@@ -10,6 +10,7 @@ ru:
     qty: Количество
     qty_paid: платных
     qty_free: бесплатных
+    qty_done: готовые
     moved: Перемещено
     moved_at: Перемещен
     new_clients_count: Количество новых клиентов
@@ -146,3 +147,14 @@ ru:
       place: 'местонахождение'
       ticket_number: 'Номер талона'
       title: 'Устройства в "Готово"'
+
+    uniform:
+      title: Футболки сотрудников
+      staff: Сотрудники
+
+    repeated_repair:
+      title: Повторные устройства
+    repeated_repair2:
+      title: Повторные устройства2
+    users_jobs:
+      title: Отчёт о работах по сотруднику

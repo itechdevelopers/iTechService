@@ -12,49 +12,32 @@
 .row-fluid
   .span6
     %ul.nav.nav-tabs
-      %li= link_to User.human_attribute_name(:service_jobs), "#service_jobs_tab", 'data-toggle' => 'tab'
+      %li= link_to 'Длинная приёмка', "#service_jobs_tab", 'data-toggle' => 'tab', id: 'a_service_jobs_tab',
+        onclick: "$('#b_users_service_jobs_search_form').click();"
+      %li= link_to t("users.tabs.quick_orders"), "#quick_orders_tab", 'data-toggle' => 'tab', id: "a_quick_orders_tab",
+        onclick: "$('#b_users_quick_orders_search_form').click();"
+      %li= link_to 'Бесплатный сервис', "#free_service_tab", 'data-toggle' => 'tab', id: "a_free_service_tab",
+        onclick: "$('#b_users_free_jobs_search_form').click();"
       %li= link_to t("users.info"), "#info_tab", 'data-toggle' => 'tab'
       %li= link_to t('users.schedule'), '#schedule_tab', 'data-toggle' => 'tab'
       %li.user-fautls= link_to t('faults.index.title'), '#faults_tab', class: 'user-faults-link', data: {toggle: 'tab', source: user_faults_path(@user)}
       -#- if can? :manage, Salary
       -#  %li= link_to t('salaries.index.title'), '#salary_tab', 'data-toggle' => 'tab'
       %li.active= link_to t("users.account"), '#account_tab', 'data-toggle' => 'tab'
+      %li= link_to t("users.uniform"), '#uniform_tab', 'data-toggle' => 'tab'
 
     .tab-content
       #service_jobs_tab.tab-pane
-        - if @service_jobs.any?
-          %table.table.table-condensed.table-hover
-            %thead
-              %tr
-                %th= t 'service_jobs.received'
-                %th= ServiceJob.human_attribute_name(:ticket_number)
-                %th= ServiceJob.model_name.human
-                %th= ServiceJob.human_attribute_name(:client)
-                %th= ServiceJob.human_attribute_name(:location)
-                %th
-            %tbody
-              - @service_jobs.each do |service_job|
-                %tr{class: row_class_for_service_job(service_job)}
-                  %td= t 'moved', user: '', time: distance_of_time_in_words_to_now(service_job.created_at)
-                  %td= link_to service_job.ticket_number, service_job_path(service_job)
-                  %td
-                    = link_to service_job.type_name, service_job_path(service_job)
-                    %small= service_job.serial_number
-                    %p.service_job_comment_tooltip{'data-title' => service_job.comment}
-                      %i.icon-comment
-                  %td= h service_job.client_presentation
-                  %td= service_job.location.try :name
-                  %td
-                    .btn-group
-                      = link_to_show_small service_job
-                      = link_to_edit_small service_job# if can? :update, service_job
-                      = link_to_destroy_small service_job if can? :destroy, service_job
+        =render partial: 'service_jobs/user_filter_form', locals: { user: @user }
+
+      #quick_orders_tab.tab-pane
+        =render partial: 'quick_orders/user_filter_form', locals: { user: @user }
+
+      #free_service_tab.tab-pane
+        =render partial: 'service/free_jobs/user_filter_form', locals: { user: @user }
 
       #info_tab.tab-pane
         %dl.dl-horizontal
-
-          %dt
-          %dd= image_tag @user.photo.medium.url if @user.photo?
 
           %dt= User.human_attribute_name :fio
           %dd= @user.full_name
@@ -73,6 +56,36 @@
 
           %dt= User.human_attribute_name :prepayment
           %dd= @user.prepayment.present? ? @user.prepayment : '-'
+
+          #wishlist_hobby_view
+            %dl.dl-horizontal
+              %dt= User.human_attribute_name :wishlist
+              %dd
+                - if @user.wishlist.blank?
+                  -
+                - else
+                  - @user.wishlist.each do |wish|
+                    %p= link_to wish, wish
+
+              -#%dd= @user.wishlist&.any? ? @user.wishlist : '-'
+
+              %dt= User.human_attribute_name :hobby
+              %dd= @user.hobby.present? ? @user.hobby : '-'
+
+            - if can? :update_self, @user
+              %a#edit_wishlist_hobby_link.btn
+                %i.icon-edit
+                Редактировать
+          - if can? :update_self, @user
+            %dl#wishlist_hobby_edit.hide
+              = simple_form_for @user, url: update_self_user_path(@user),
+                method: :patch, id: 'update_uniform_user_form',
+                html: { class: 'form-horizontal user_form', autocomplete: 'off' } do |f|
+                = f.input :wishlist, as: :array, size: 300,
+                    input_html: {id: :input_wishlist }
+                = f.input :hobby, as: :text, input_html: {id: :input_hobby}
+                = submit_button f
+
 
           %dt= User.human_attribute_name :karmas
           %dd
@@ -157,12 +170,49 @@
             %dt Auth Token
             %dd= @user.authentication_token
 
+      #uniform_tab.tab-pane
+        #uniform_view
+          %dl.dl-horizontal
+            %dt= User.human_attribute_name :uniform_sex
+            %dd#uniform_sex_value= @user.uniform_sex
+
+            %dt= User.human_attribute_name :uniform_size
+            %dd#uniform_size_value= @user.uniform_size
+          - if can? :update_uniform, @user
+            %a#edit_uniform_link.btn
+              %i.icon-edit
+              Редактировать
+        - if can? :update_uniform, @user
+          %dl#uniform_edit.hide
+            = simple_form_for @user, url: update_uniform_user_path(@user), remote: true, method: :patch, id: 'update_uniform_user_form', html: { class: 'form-horizontal user_form', autocomplete: 'off' } do |f|
+              = f.input :uniform_sex, collection: User::UNIFORM_SEX, value_method: :to_s, selected: @user.uniform_sex, input_html: {id: :input_uniform_sex}
+              = f.input :uniform_size, collection: User::UNIFORM_SIZE, value_method: :to_s, selected: @user.uniform_size, input_html: {id: :input_uniform_size}
+              = submit_button f
+
+
     - if can? :manage, User
       .form-actions
         - if can? :manage, Salary
           = link_to (icon_tag(:money) + ' ' + t('salaries.issue')), new_salary_path(user_id: @user.id), class: 'btn'
 
   .span6
+
+
+    - if can? :update_photo, @user
+      #update_user_photo
+        = simple_form_for @user, url: update_photo_user_path(@user), html: { class: 'form-horizontal user_form', autocomplete: 'off' } do |f|
+          .control-group
+            #user_photo_fields.controls
+              = image_tag f.object.photo.medium.url, class: 'avatar-medium' if f.object.photo?
+              = f.file_field :photo
+              = f.hidden_field :photo_cache
+              %label
+                = f.check_box :remove_photo
+                = t 'remove_photo'
+          = submit_button f
+    - elsif @user.photo?
+      %dt
+      %dd= image_tag @user.photo.medium.url, class: 'avatar-medium'
     - if current_user.superadmin? || able_to?(:comment_users)
       #comments.comments_list= comments_list_for @user
       = comment_form_for @user

@@ -1,6 +1,7 @@
 class ApplicationController < ActionController::Base
   include Pundit
   include ApplicationHelper
+  include FilterSortPagination
   protect_from_forgery
   before_action :authenticate_user!
   before_action :set_current_user

@@ -5,7 +5,8 @@
     $('#top_salable_product_select').text("#{@product.name}");
     hideModal();
   - elsif params[:form] == 'order'
-    $('#order_object').val("#{j(@product.name.html_safe)}");
+    - parent_input_id = params[:parent_input_id] || 'order_object'
+    $("##{parent_input_id}").val("#{j(@product.name.html_safe)}");
     hideModal();
   - elsif params[:form] == 'print_tags'
     $('#print_tags_form').attr('action', "#{item_path(@item, format: 'pdf')}");
@@ -15,6 +16,7 @@
     hideModal();
   - else
     $selector = $("##{params[:association]}>tbody");
+    - item = is_product_only ? @product : @item
     - if is_product_only
       == if($("tr[data-product=#{@product.id}]:visible", $selector).length > 0){
     - else
@@ -23,16 +25,21 @@
         alert("#{t('documents.errors.product_already_present')}");
       }
       else{
-        $selector.append("#{j(product_fields(params[:form], params[:association], is_product_only ? @product : @item, params[:options]))}");
-        enumerate_table('table.enumerable');
-        if($('#repair_service_form').length > 0){
-          calculateTableTotal('#spare_parts', '.cost', '.quantity');
-        }
-        //calculateSaleItemsTotal();
-        if($('#sale_form').length > 0){
-          saveSale();
-          $.get("/products/#{@product.id}/related");
-        }
+        if($("#movement_act_movement_items_attributes_#{item.id}_quantity").length > 0){
+          $("#movement_act_movement_items_attributes_#{item.id}_quantity")[0].value ++
+        }else{
+          $selector.append("#{j(product_fields(params[:form], params[:association], is_product_only ? @product : @item, params[:options]))}");
+          enumerate_table('table.enumerable');
+          if($('#repair_service_form').length > 0){
+            calculateTableTotal('#spare_parts', '.cost', '.quantity');
+          }
+          //calculateSaleItemsTotal();
+          if($('#sale_form').length > 0){
+            saveSale();
+            $.get("/products/#{@product.id}/related");
+          }
+        };
+        $("#item_search_field")[0].value = null
       }
 - elsif @product.present?
   :plain

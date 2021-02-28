@@ -588,6 +588,7 @@ ru:
 
       user:
         abilities: 'Возможности'
+        activities: Уведомления в верхней строке
         announcements: 'Оповещение'
         authentication_token: 'authentication_token'  #g
         birthday: 'День рождения'
@@ -602,6 +603,8 @@ ru:
         email: 'E-mail'
         encrypted_password: 'encrypted_password'  #g
         hiring_date: 'Дата приема на работу'
+        wishlist: Список желаний
+        hobby: Увлечения, интересы, хобби
         history_records: 'history_records'  #g
         is_fired: 'Уволен'
         job_title: "Должность"
@@ -630,6 +633,8 @@ ru:
         surname: 'Фамилия'
         username: 'Логин'
         wish: 'Пожелание'
+        uniform_sex: Тип футболки
+        uniform_size: Размер футболки
 
     errors:
       models:

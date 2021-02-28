@@ -1,2 +1,8 @@
-:plain
-  $("#resource_table").html("#{j(render(params[:table_name] || @table_name || 'table'))}");
+- if defined?(resource_table_id)&&resource_table_id
+  :plain
+    let table = $("#resource_table")
+    if(!table.length){table = $("##{resource_table_id}")}
+    table.html("#{j(render(params[:table_name] || @table_name || 'table'))}");
+- else
+  :plain
+    $("#resource_table").html("#{j(render(params[:table_name] || @table_name || 'table'))}");

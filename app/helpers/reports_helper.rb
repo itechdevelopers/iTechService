@@ -39,6 +39,10 @@ module ReportsHelper
       defected_spare_parts
       service_job_viewings
       contractors_defected_spare_parts
+      uniform
+      repeated_repair
+      repeated_repair2
+      users_jobs
       mac_service
     ].freeze
   end
@@ -82,5 +86,9 @@ module ReportsHelper
 
   def locations_collection(selected)
     option_groups_from_collection_for_select Department.all, :locations, :full_name, :id, :name, selected
+  end
+
+  def users_collection(selected)
+    options_from_collection_for_select User.active.staff.order(:name), :id, :full_name, selected
   end
 end

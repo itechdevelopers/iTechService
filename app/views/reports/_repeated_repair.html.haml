@@ -1,0 +1,11 @@
+%table#users_report.table.table-bordered.table-hover
+  %caption= t '.title'
+  %thead
+    %tr
+      %th.center{rowspan: 2}= ServiceJob.human_attribute_name :item
+      %th.center{colspan: 2}= t('reports.qty')
+  %tbody
+    - report.result[:jobs].each do |job|
+      %tr.detailable
+        %td= job.presentation
+        %td= job['qty']

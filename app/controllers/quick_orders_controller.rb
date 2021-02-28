@@ -1,21 +1,25 @@
 class QuickOrdersController < ApplicationController
   def index
     authorize QuickOrder
+    @quick_orders = policy_scope(QuickOrder)
+
     if params[:done].eql? 'true' #and current_user.any_admin?
-      @quick_orders = policy_scope(QuickOrder).done
-    else
-      @quick_orders = policy_scope(QuickOrder).in_month.undone
+      @quick_orders = @quick_orders.done
+    # else
+    #   @quick_orders = policy_scope(QuickOrder).in_month.undone
     end
 
     if params[:department_id].present? && can?(:view_everywhere, QuickOrder)
       @quick_orders = @quick_orders.in_department(params[:department_id])
     end
 
+    @quick_orders = QuickOrderFilter.call(collection: @quick_orders, **filter_params).collection
+
     @quick_orders = @quick_orders.search(params).created_desc.page(params[:page])
 
     respond_to do |format|
       format.html # index.html.erb
-      format.js { render 'shared/index' }
+      format.js { render 'shared/index', locals: { resource_table_id: 'quick_orders_table' } }
     end
   end
 

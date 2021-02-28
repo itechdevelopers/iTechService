@@ -1,0 +1,15 @@
+%table#users_report.table.table-bordered.table-hover
+  %caption= t '.title'
+  %thead
+    %tr
+      %th.center= User.human_attribute_name :uniform_sex
+      %th.center= User.human_attribute_name :uniform_size
+      %th.center= t('reports.qty')
+      %th.center= t('reports.uniform.staff')
+  %tbody
+    - report.result[:uniforms].each do |uniform|
+      %tr.detailable
+        %td= uniform['uniform_sex']
+        %td= uniform['uniform_size']
+        %td= uniform['qty']
+        %td= uniform['staff'].join(', ')

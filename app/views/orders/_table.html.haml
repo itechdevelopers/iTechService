@@ -22,7 +22,7 @@
     %tbody
       - @orders.each do |order|
         - row_class = order.status
-        %tr{class: row_class}
+        %tr{class: row_class, id: "edit_order_#{ order.id }_info"}
           %td= link_to order.id, order_path(order)
           %td= link_to order.number, order_path(order)
           %td= order.department_name
@@ -49,10 +49,10 @@
               = link_to_edit_small order if can? :edit, order
               = link_to_destroy_small order if can? :destroy, order
             = button_to_change_order_status(order) unless order.canceled?
-        %tr{class: row_class}
+        %tr{class: row_class, id: "edit_order_#{ order.id }_comment"}
           %td{colspan: 12}= order.comment
 
-        %tr{class: row_class}
+        %tr{class: row_class, id: "edit_order_#{ order.id }_user_comment"}
           %td{colspan: 12}= order.user_comment
 
         %tr

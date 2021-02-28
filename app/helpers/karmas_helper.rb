@@ -9,11 +9,12 @@ module KarmasHelper
   end
 
   def link_to_add_karma(user, good, options={})
-    icon_name = good ? 'thumbs-up' : 'thumbs-down'
-    class_name = 'new_karma_link '
-    class_name << (good ? 'good ' : 'bad ')
-    class_name << options[:class]
-    link_to image_tag("karma_#{good ? 'good' : 'bad'}.png"), new_karma_path(karma: {user_id: user.id, good: good}), class: class_name, remote: true, id: "new_#{(good ? 'good' : 'bad')}_karma_for_#{user.id}"
+    link_to new_karma_path(karma: { user_id: user.id, good: good }),
+            class: "new_karma_link #{good ? 'good' : 'bad'} #{options[:class]}",
+            remote: true,
+            id: "new_#{good ? 'good' : 'bad'}_karma_for_#{user.id}" do
+      image_tag("karma_#{good ? 'good' : 'bad'}.png")
+    end
   end
 
   def header_karma_button

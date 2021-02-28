@@ -17,6 +17,10 @@ module Service
         cell(Preview, collection: model).()
       end
 
+      def free_jobs_table
+        cell(UserTable, collection: collection).()
+      end
+
       def new_link
         link_to icon(:plus), new_service_free_job_path, class: 'btn btn-success btn-large'
       end

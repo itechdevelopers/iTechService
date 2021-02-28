@@ -22,6 +22,10 @@ ru:
       view_quick_orders_and_free_jobs_everywhere: 'Просмотр бесплтного сервиса и быстрых заказов на всех подразделениях'
       view_repair_parts: 'Смотреть запчасти устройства'
       view_reports: 'Смотреть отчёты'
+    activities:
+      free: Бесплатные
+      fast: Быстрые
+      long: Длинные
     index:
       title: 'Пользователи'
     edit:
@@ -44,6 +48,7 @@ ru:
     errors:
       not_found: 'Пользователь не найден.'
     account: 'Учётка'
+    uniform: Униформа
     add_karma: 'Карма'
     add_fault: 'Добавить минус'
     all: 'Все'
@@ -66,3 +71,5 @@ ru:
     purchased_devices: "Купленные девайсы"
     department_blank_error: '!!! Необходимо указать подразделение !!!'
     actual_orders: "Актуальные заказы"
+    tabs:
+      quick_orders: :quick_orders.index.title

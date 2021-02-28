@@ -1,27 +1,27 @@
 module OrdersHelper
 
   def order_row_tag(order)
-    content_tag(:tr, class: order.status, data: {order_id: order.id}) do
+    content_tag(:tr, class: order.status, data: { order_id: order.id }) do
       content_tag(:td, link_to(order.number, order_path(order)), class: 'order_number_column') +
-      content_tag(:td, t("orders.statuses.#{order.status}"), class: 'order_status_column') +
-      content_tag(:td, t("orders.object_kinds.#{order.object_kind}"), class: 'order_object_kind_column') +
-      content_tag(:td, order.object, class: 'order_object_column') +
-      content_tag(:td, class: 'order_customer_column') do
-        if order.customer_type == 'User'
-          order.customer_presentation
-        else
-          (order.customer.present? ? link_to(order.customer_presentation, client_path(order.customer)) : '-')
-        end.html_safe +
-        tag(:br, false) +
-        order.comment
-      end +
-      content_tag(:td, class: 'order_created_at_column') do
-        l(order.created_at, format: :date_time).html_safe +
-        (order.user.present? ? (tag(:br, false) + order.user.short_name) : '')
-      end +
-      content_tag(:td, class: 'order_actions_column') do
-        link_to(icon_tag('edit'), edit_order_path(order), class: 'btn btn-small')
-      end
+        content_tag(:td, t("orders.statuses.#{order.status}"), class: 'order_status_column') +
+        content_tag(:td, t("orders.object_kinds.#{order.object_kind}"), class: 'order_object_kind_column') +
+        content_tag(:td, order.object, class: 'order_object_column') +
+        content_tag(:td, class: 'order_customer_column') do
+          if order.customer_type == 'User'
+            order.customer_presentation
+          else
+            (order.customer.present? ? link_to(order.customer_presentation, client_path(order.customer)) : '-')
+          end.html_safe +
+            tag(:br, false) +
+            order.comment
+        end +
+        content_tag(:td, class: 'order_created_at_column') do
+          l(order.created_at, format: :date_time).html_safe +
+            (order.user.present? ? (tag(:br, false) + order.user.short_name) : '')
+        end +
+        content_tag(:td, class: 'order_actions_column') do
+          link_to(icon_tag('edit'), edit_order_path(order), class: 'btn btn-small')
+        end
     end.html_safe
   end
 
@@ -31,12 +31,12 @@ module OrdersHelper
       content_tag(:li, class: 'dropdown') do
         link_to('#', class: 'dropdown-toggle', 'data-toggle' => 'dropdown') do
           (params[:department].present? ? departments[params[:department]] : Order.human_attribute_name(:department)).html_safe +
-          caret_tag
+            caret_tag
         end +
-        content_tag(:ul, class: 'dropdown-menu') do
-          content_tag(:li, link_to(t('departments.all'), orders_path(params.except(:department)))) +
-          departments.to_a.map { |id, name| content_tag(:li, link_to(name, orders_path(params.merge({department: id})))) }.join.html_safe
-        end
+          content_tag(:ul, class: 'dropdown-menu') do
+            content_tag(:li, link_to(t('departments.all'), orders_path(params.except(:department)))) +
+              departments.to_a.map { |id, name| content_tag(:li, link_to(name, orders_path(params.merge({ department: id })))) }.join.html_safe
+          end
       end
     end
   end
@@ -46,12 +46,12 @@ module OrdersHelper
       content_tag(:li, class: 'dropdown') do
         link_to('#', class: 'dropdown-toggle', 'data-toggle' => 'dropdown') do
           t("orders.object_kinds.#{(params[:object_kind].blank? ? 'all_kinds' : params[:object_kind])}").html_safe +
-          caret_tag
+            caret_tag
         end +
-        content_tag(:ul, class: 'dropdown-menu') do
-          content_tag(:li, link_to(t('orders.object_kinds.all_kinds'), orders_path(params.except(:object_kind)))) +
-          Order::OBJECT_KINDS.map { |object_kind| content_tag(:li, link_to(t("orders.object_kinds.#{object_kind}"), orders_path(params.merge({object_kind: object_kind})))) }.join.html_safe
-        end
+          content_tag(:ul, class: 'dropdown-menu') do
+            content_tag(:li, link_to(t('orders.object_kinds.all_kinds'), orders_path(params.except(:object_kind)))) +
+              Order::OBJECT_KINDS.map { |object_kind| content_tag(:li, link_to(t("orders.object_kinds.#{object_kind}"), orders_path(params.merge({ object_kind: object_kind })))) }.join.html_safe
+          end
       end
     end
   end
@@ -61,12 +61,12 @@ module OrdersHelper
       content_tag(:li, class: 'dropdown') do
         link_to('#', class: 'dropdown-toggle', 'data-toggle' => 'dropdown') do
           t("orders.statuses.#{params[:status].blank? ? 'all_statuses' : params[:status]}").html_safe +
-          caret_tag
+            caret_tag
         end +
-        content_tag(:ul, class: 'dropdown-menu') do
-          content_tag(:li, link_to(t('orders.statuses.all_statuses'), orders_path(params.except(:status)))) +
-          Order::STATUSES.map { |status| content_tag(:li, link_to(t("orders.statuses.#{status}"), orders_path(params.merge({status: status})))) }.join.html_safe
-        end
+          content_tag(:ul, class: 'dropdown-menu') do
+            content_tag(:li, link_to(t('orders.statuses.all_statuses'), orders_path(params.except(:status)))) +
+              Order::STATUSES.map { |status| content_tag(:li, link_to(t("orders.statuses.#{status}"), orders_path(params.merge({ status: status })))) }.join.html_safe
+          end
       end
     end
   end
@@ -75,14 +75,12 @@ module OrdersHelper
     statuses = Order::STATUSES
     statuses.delete 'canceled'
     next_status = statuses[statuses.index(order.status).next]
-    if next_status.present?
-      name = t "orders.statuses.short.#{next_status}"
-      form_for order, html: {class: 'button_to'} do |f|
-        hidden_field_tag('order[status]', next_status) +
+    return unless next_status.present?
+
+    name = t "orders.statuses.short.#{next_status}"
+    form_for order, html: { class: 'button_to' }, remote: true do |f|
+      hidden_field_tag('order[status]', next_status) +
         f.submit(name, class: 'btn btn-primary btn-small')
-      end
-    else
-      nil
     end
   end
 

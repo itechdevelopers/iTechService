@@ -3,6 +3,8 @@ class FreeJobsReport < BaseReport
 
   attr_accessor :subject
 
+  params [:start_date, :end_date, :department_id, :subject]
+
   def call
     result[:users] = []
     free_jobs = Service::FreeJob.joins(subject.to_sym, :task)

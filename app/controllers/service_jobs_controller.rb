@@ -1,3 +1,4 @@
+# frozen_string_literal: true
 class ServiceJobsController < ApplicationController
   include ServiceJobsHelper
   helper_method :sort_column, :sort_direction
@@ -5,24 +6,23 @@ class ServiceJobsController < ApplicationController
   skip_after_action :verify_authorized, only: %i[index check_status device_type_select quick_search]
 
   def index
-    if params.key? :search
-      @service_jobs = policy_scope(ServiceJob).search(params[:search])
-      @location_name = Location.select(:name).find(params[:search][:location_id]).name unless params[:search][:location_id].blank?
-    else
-      if params[:location] == 'archive'
-        @service_jobs = policy_scope(ServiceJob).at_archive
-      else
-        @service_jobs = policy_scope(ServiceJob).not_at_archive
-      end
+    @service_jobs = policy_scope(ServiceJob)
+    @service_jobs = ServiceJobFilter.call(collection: @service_jobs, **filter_params).collection
 
+    if params.key? :search
+      @service_jobs = @service_jobs.search(params[:search])
+      unless params[:search][:location_id].blank?
+        @location_name = Location.select(:name).find(params[:search][:location_id]).name
+      end
+    end
+
+    unless params.key?(:search) || params.key?(:filter)
+      @service_jobs = @service_jobs.send(params[:location] == 'archive' ? :at_archive : :not_at_archive)
       @service_jobs = @service_jobs.in_department(current_department)
     end
 
-    if params.key?(:sort) and params.key?(:direction)
-      @service_jobs = @service_jobs.reorder("service_jobs.#{sort_column} #{sort_direction}")
-    else
-      @service_jobs = @service_jobs.newest
-    end
+    @service_jobs = @service_jobs.reorder("service_jobs.#{sort_column} #{sort_direction}") if params.key?(:sort)
+    @service_jobs = @service_jobs.newest
 
     @service_jobs = @service_jobs.page params[:page]
     @locations = current_department.locations.visible
@@ -30,7 +30,7 @@ class ServiceJobsController < ApplicationController
     respond_to do |format|
       format.html
       format.json { render json: @service_jobs }
-      format.js { render 'shared/index' }
+      format.js { render 'shared/index', locals: { resource_table_id: 'service_jobs_table' } }
     end
   end
 
@@ -122,7 +122,7 @@ class ServiceJobsController < ApplicationController
     respond_to do |format|
       if @service_job.save
         create_phone_substitution if @service_job.phone_substituted?
-        Service::Feedback::Create.(service_job: @service_job)
+        Service::Feedback::Create.call(service_job: @service_job)
         format.html { redirect_to @service_job, notice: t('service_jobs.created') }
         format.json { render json: @service_job, status: :created, location: @service_job }
       else
@@ -167,7 +167,7 @@ class ServiceJobsController < ApplicationController
     service_job = find_record ServiceJob
 
     if service_job.repair_parts.any?
-      flash.alert = "Работа не может быть удалена (привязаны запчасти)."
+      flash.alert = 'Работа не может быть удалена (привязаны запчасти).'
     else
       service_job_presentation = "[Талон: #{service_job.ticket_number}] #{service_job.decorate.presentation}"
       DeletionMailer.notice({presentation: service_job_presentation, tasks: service_job.tasks.map(&:name).join(', ')}, current_user.presentation, I18n.l(Time.current, format: :date_time)).deliver_later
@@ -271,12 +271,10 @@ class ServiceJobsController < ApplicationController
           else
             format.html { redirect_to service_job.sale }
           end
-        else
-          if (sale = service_job.create_filled_sale).present?
-            format.html { redirect_to edit_sale_path(sale) }
+        elsif (sale = service_job.create_filled_sale).present?
+          format.html { redirect_to edit_sale_path(sale) }
           else
             format.html { render nothing: true }
-          end
         end
       else
         format.html { render text: 'Вы находитесь на разных подразделениях с устройством. Смените подразделение' }
@@ -335,7 +333,7 @@ class ServiceJobsController < ApplicationController
   end
 
   def sort_direction
-    %w[asc desc].include?(params[:direction]) ? params[:direction] : ''
+    %w[asc desc].include?(params[:direction]) ? params[:direction] : 'asc'
   end
 
   def generate_barcode_to(pdf, num)

@@ -3,6 +3,8 @@ class ServiceJobsAtDoneReport < BaseReport
 
   attr_accessor :location_id
 
+  params [:start_date, :end_date, :location_id]
+
   def call
     records = []
     self.location_id ||= Location.select(:id).where(code: 'done').pluck(:id)

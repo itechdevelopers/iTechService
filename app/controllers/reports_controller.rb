@@ -1,9 +1,12 @@
+# frozen_string_literal: true
+
 class ReportsController < ApplicationController
 
-  INDENT_JOBS = %w[users repair_jobs device_orders orders_statuses technicians_jobs technicians_difficult_jobs repairers sales quick_orders free_jobs]
+  INDENT_JOBS = %w[users repair_jobs device_orders orders_statuses technicians_jobs technicians_difficult_jobs
+                   repairers sales quick_orders free_jobs users_jobs].freeze
 
   before_action -> { authorize :report, :manage? }
-  before_filter :indent_jobs, only: [:new, :create]
+  before_filter :indent_jobs, only: %i[new create]
 
   def index
     respond_to do |format|
@@ -31,7 +34,8 @@ class ReportsController < ApplicationController
 
   def indent_jobs
     @indent_jobs = INDENT_JOBS
-    base_name, kind = params[:report][:base_name], params[:report][:kind]
+    base_name = params[:report][:base_name]
+    kind = params[:report][:kind]
     @new_type_report = INDENT_JOBS.include?(base_name) || (base_name == 'few_remnants' && kind == 'spare_parts')
   end
 

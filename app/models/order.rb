@@ -1,5 +1,7 @@
+# frozen_string_literal: true
+
 class Order < ActiveRecord::Base
-  OBJECT_KINDS = %w[device accessory soft misc spare_part]
+  OBJECT_KINDS = %w[device accessory soft misc spare_part].freeze
   STATUSES = %w[new pending done canceled notified issued archive]
 
   scope :in_department, ->(department) { where department_id: department }
@@ -19,7 +21,9 @@ class Order < ActiveRecord::Base
   scope :soft, -> { where(object_kind: 'soft') }
   scope :misc, -> { where(object_kind: 'misc') }
   scope :spare_part, -> { where(object_kind: 'spare_part') }
-  scope :done_at, ->(period) { joins(:history_records).where(history_records: {column_name: 'status', new_value: 'done', created_at: period}) }
+  scope :done_at, lambda { |period|
+                    joins(:history_records).where(history_records: { column_name: 'status', new_value: 'done', created_at: period })
+                  }
 
   belongs_to :department, required: true
   belongs_to :customer, polymorphic: true
@@ -33,9 +37,10 @@ class Order < ActiveRecord::Base
 
   delegate :name, to: :department, prefix: true, allow_nil: true
 
-  attr_accessible :customer_id, :customer_type, :comment, :desired_date, :object, :object_kind, :status, :user_id, :user_comment, :department_id, :quantity, :approximate_price, :priority, :object_url, :model, :prepayment, :payment_method, :picture, :picture_cache, :remove_picture
+  attr_accessible :customer_id, :customer_type, :comment, :desired_date, :object, :object_kind, :status, :user_id,
+                  :user_comment, :department_id, :quantity, :approximate_price, :priority, :object_url, :model, :prepayment, :payment_method, :picture, :picture_cache, :remove_picture
   validates :customer, :department, :quantity, :object, :object_kind, presence: true
-  validates :priority, numericality: {greater_than_or_equal_to: 0, less_than_or_equal_to: 10}
+  validates :priority, numericality: { greater_than_or_equal_to: 0, less_than_or_equal_to: 10 }
   after_initialize { self.department_id ||= Department.current.id }
   before_validation :generate_number
 
@@ -54,11 +59,11 @@ class Order < ActiveRecord::Base
   after_update :make_announcement
 
   def self.order_by_status
-    ret = "CASE"
+    ret = 'CASE'
     STATUSES.each_with_index do |s, i|
       ret << " WHEN status = '#{s}' THEN #{i}"
     end
-    ret << " END"
+    ret << ' END'
   end
 
   scope :by_status, -> { order order_by_status }
@@ -96,20 +101,20 @@ class Order < ActiveRecord::Base
   end
 
   def done_at
-    history_records.where({column_name: 'status', new_value: 'done'}).last.try :created_at
+    history_records.where({ column_name: 'status', new_value: 'done' }).last.try :created_at
   end
 
-  def self.search params
+  def self.search(params)
     orders = Order.all
 
-    if (status_q = params[:status]).present?
-      orders = orders.where status: status_q if STATUSES.include? status_q
-    else
-      orders = orders.actual_orders
-    end
+    orders = if (statuses = params[:statuses] & STATUSES).any?
+               orders.where status: statuses
+             else
+               orders.actual_orders
+             end
 
-    if (object_kind_q = params[:object_kind]).present?
-      orders = orders.send object_kind_q if OBJECT_KINDS.include? object_kind_q
+    if (object_kind_q = params[:object_kind]).present? && (OBJECT_KINDS.include? object_kind_q)
+      orders = orders.send object_kind_q
     end
 
     if (number_q = params[:order_number]).present?
@@ -117,21 +122,32 @@ class Order < ActiveRecord::Base
     end
 
     if (object_q = params[:object]).present?
-      orders = orders.where 'LOWER(object) LIKE :q', q: "%#{object_q.mb_chars.downcase.to_s}%"
+      orders = orders.where 'LOWER(object) LIKE :q', q: "%#{object_q.mb_chars.downcase}%"
     end
 
     if (customer_q = params[:customer]).present?
-      client_ids = Client.where('LOWER(clients.surname) LIKE :q OR LOWER(clients.name) LIKE :q OR LOWER(clients.patronymic) LIKE :q OR clients.phone_number LIKE :q OR clients.full_phone_number LIKE :q OR LOWER(clients.card_number) LIKE :q', q: "%#{customer_q.mb_chars.downcase.to_s}%").map { |c| c.id }
-      user_ids = User.where('LOWER(name) LIKE :q OR LOWER(surname) LIKE :q OR LOWER(username) LIKE :q', q: "%#{customer_q.mb_chars.downcase.to_s}%").select(:id).map { |u| u.id }
-      orders = orders.where('(customer_type = ? AND customer_id IN (?)) OR (customer_type = ? AND customer_id IN (?))', 'Client', client_ids, 'User', user_ids)
+      client_ids = Client.where(
+        'LOWER(clients.surname) LIKE :q OR LOWER(clients.name) LIKE :q OR LOWER(clients.patronymic) LIKE :q OR clients.phone_number LIKE :q OR clients.full_phone_number LIKE :q OR LOWER(clients.card_number) LIKE :q',
+        q: "%#{customer_q.mb_chars.downcase}%"
+      ).map(&:id)
+      user_ids = User.where('LOWER(name) LIKE :q OR LOWER(surname) LIKE :q OR LOWER(username) LIKE :q',
+                            q: "%#{customer_q.mb_chars.downcase}%").select(:id).map(&:id)
+      orders = orders.where(
+        '(customer_type = ? AND customer_id IN (?)) OR (customer_type = ? AND customer_id IN (?))',
+        'Client', client_ids, 'User', user_ids
+      )
     end
 
     if (user_q = params[:user]).present?
-      orders = orders.joins(:user).where 'LOWER(users.name) LIKE :q OR LOWER(users.surname) LIKE :q OR LOWER(users.username) LIKE :q OR LOWER(users.card_number) LIKE :q', q: "%#{user_q.mb_chars.downcase.to_s}%"
+      orders = orders.joins(:user).where(
+        'LOWER(users.name) LIKE :q OR LOWER(users.surname) LIKE :q OR LOWER(users.username) LIKE :q OR LOWER(users.card_number) LIKE :q',
+        q: "%#{user_q.mb_chars.downcase}%"
+      )
     end
 
-    (department = params[:department]).present? and
-      (orders = orders.where(department_id: department))
+    if (department_ids = params[:department_ids]).any?
+      orders = orders.where(department_id: department_ids)
+    end
 
     orders
   end
@@ -158,10 +174,8 @@ class Order < ActiveRecord::Base
   end
 
   def make_announcement
-    unless changed_attributes[:status].present?
-      if (announcement = create_announcement).present?
-        AnnouncementRelayJob.perform_later(announcement.id)
-      end
+    if !changed_attributes[:status].present? && (announcement = create_announcement).present?
+      AnnouncementRelayJob.perform_later(announcement.id)
     end
   end
 
