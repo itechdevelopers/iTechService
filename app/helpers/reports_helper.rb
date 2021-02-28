@@ -39,6 +39,7 @@ module ReportsHelper
       defected_spare_parts
       service_job_viewings
       contractors_defected_spare_parts
+      mac_service
     ].freeze
   end
 

@@ -4,6 +4,7 @@ class Task < ApplicationRecord
   scope :important, -> { where('priority > ?', IMPORTANCE_BOUND) }
   scope :tasks_for, ->(user) { where(task: {role: user.role}) }
   scope :visible, -> { where hidden: [false, nil] }
+  scope :mac_service, -> { where code: 'mac' }
 
   belongs_to :product, inverse_of: :task
   has_many :device_tasks, dependent: :restrict_with_error
@@ -38,5 +39,9 @@ class Task < ApplicationRecord
 
   def role_name
     role.blank? ? '-' : I18n.t("users.roles.#{role}")
+  end
+
+  def mac_service?
+    code == 'mac'
   end
 end

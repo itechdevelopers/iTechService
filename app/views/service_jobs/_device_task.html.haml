@@ -8,6 +8,11 @@
     - if superadmin? || able_to?(:edit_tasks_user_comment)
       %td= f.text_area :user_comment, rows: 3
 
+    - if superadmin?
+      %td
+        - if f.object.mac_service?
+          = f.association :performer, label: false, collection: mac_service_helper_options, label_method: :presentation
+
     - if can? :remove_device_tasks, f.object.service_job
       %td= link_to_remove_fields f
   - else

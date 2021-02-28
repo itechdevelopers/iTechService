@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20210104093836) do
+ActiveRecord::Schema.define(version: 20210223090846) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -1431,6 +1431,7 @@ ActiveRecord::Schema.define(version: 20210104093836) do
     t.string   "phone_number",              limit: 255
     t.boolean  "department_autochangeable",             default: true,  null: false
     t.boolean  "can_help_in_repair",                    default: false
+    t.boolean  "can_help_in_mac_service",               default: false
   end
 
   add_index "users", ["authentication_token"], name: "index_users_on_authentication_token", unique: true, using: :btree

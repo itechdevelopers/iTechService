@@ -593,6 +593,7 @@ ru:
         birthday: 'День рождения'
         card_number: 'Номер карты'
         can_help_in_repair: 'Может помогать в ремонте'
+        can_help_in_mac_service: 'Может помогать закрывать Маки'
         comments: 'Комментарии'
         current_sign_in_at: 'Время авторизации'
         current_sign_in_ip: 'IP авторизации'
