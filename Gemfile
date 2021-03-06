@@ -81,7 +81,7 @@ gem 'bootstrap-colorpicker-rails', '~> 0.3.1', :require => 'bootstrap-colorpicke
 # gem 'turbo-sprockets-rails3', '~> 0.3.14'
 
 # gem 'nokogiri', github: 'sparklemotion/nokogiri'
-gem 'nokogiri', '~> 1.6.7.2'
+gem 'nokogiri', '~> 1.10.10'
 gem 'ru_propisju', '~> 2.5.0'
 
 group :development do
