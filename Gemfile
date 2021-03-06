@@ -79,6 +79,7 @@ gem 'uglifier', '>= 1.3.0'
 gem 'bootstrap-colorpicker-rails', '~> 0.3.1', :require => 'bootstrap-colorpicker-rails'
 #, :git => 'git://github.com/alessani/bootstrap-colorpicker-rails.git'
 # gem 'turbo-sprockets-rails3', '~> 0.3.14'
+gem 'sprockets', '3.6.3'
 
 # gem 'nokogiri', github: 'sparklemotion/nokogiri'
 gem 'nokogiri', '~> 1.10.10'
