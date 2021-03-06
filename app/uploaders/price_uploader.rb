@@ -1,7 +1,8 @@
-# encoding: utf-8
-require 'carrierwave/processing/mime_types'
+# frozen_string_literal: true
+
+# require 'carrierwave/processing/mime_types'
 class PriceUploader < CarrierWave::Uploader::Base
-  include CarrierWave::MimeTypes
+  # include CarrierWave::MimeTypes
   # Include RMagick or MiniMagick support:
   # include CarrierWave::RMagick
   # include CarrierWave::MiniMagick
@@ -18,7 +19,7 @@ class PriceUploader < CarrierWave::Uploader::Base
     "uploads/#{model.class.to_s.underscore}/#{mounted_as}/#{model.id}"
   end
 
-  permissions 0777
+  permissions 0o777
 
   # Provide a default URL as a default if there hasn't been a file uploaded:
   # def default_url
@@ -51,5 +52,4 @@ class PriceUploader < CarrierWave::Uploader::Base
   # def filename
   #   "something.jpg" if original_filename
   # end
-
 end
