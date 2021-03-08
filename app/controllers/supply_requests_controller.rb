@@ -55,7 +55,7 @@ class SupplyRequestsController < ApplicationController
     @supply_request = find_record SupplyRequest
 
     respond_to do |format|
-      if @supply_request.update_attributes(params[:supply_request])
+      if @supply_request.update_attributes(supply_request_params)
         format.html { redirect_to supply_requests_path, notice: t('supply_requests.updated') }
       else
         format.html { render 'form' }

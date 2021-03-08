@@ -48,7 +48,7 @@ class SupplyReportsController < ApplicationController
   def update
     @supply_report = find_record SupplyReport
     respond_to do |format|
-      if @supply_report.update_attributes(params[:supply_report])
+      if @supply_report.update_attributes(supply_report_params)
         format.html { redirect_to @supply_report, notice: t('supply_reports.updated') }
       else
         format.html { render 'form' }

@@ -52,7 +52,7 @@ class MediaOrdersController < ApplicationController
     @media_order = find_record MediaOrder
 
     respond_to do |format|
-      if @media_order.update_attributes(params[:media_order])
+      if @media_order.update_attributes(media_order_params)
         format.html { redirect_to @media_order, notice: 'Media order was successfully updated.' }
         format.json { head :no_content }
       else

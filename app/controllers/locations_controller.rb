@@ -46,7 +46,7 @@ class LocationsController < ApplicationController
     @location = find_record Location
 
     respond_to do |format|
-      if @location.update_attributes(params[:location])
+      if @location.update_attributes(location_params)
         format.html { redirect_to locations_path, notice: t('locations.updated') }
         format.json { head :no_content }
       else

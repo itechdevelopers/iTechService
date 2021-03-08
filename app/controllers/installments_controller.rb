@@ -43,7 +43,7 @@ class InstallmentsController < ApplicationController
     @installment = find_record Installment
 
     respond_to do |format|
-      if @installment.update_attributes(params[:installment])
+      if @installment.update_attributes(installment_params)
         format.html { redirect_to @installment, notice: 'Installment was successfully updated.' }
         format.json { head :no_content }
       else

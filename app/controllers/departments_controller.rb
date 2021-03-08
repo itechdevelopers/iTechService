@@ -44,7 +44,7 @@ class DepartmentsController < ApplicationController
   def update
     @department = find_record Department
     respond_to do |format|
-      if @department.update_attributes(params[:department])
+      if @department.update_attributes(department_params)
         format.html { redirect_to @department, notice: t('departments.updated') }
       else
         format.html { render 'form' }

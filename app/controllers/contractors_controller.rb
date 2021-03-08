@@ -56,7 +56,7 @@ class ContractorsController < ApplicationController
     @contractor = find_record Contractor
 
     respond_to do |format|
-      if @contractor.update_attributes(params[:contractor])
+      if @contractor.update_attributes(contractor_params)
         format.html { redirect_to contractors_path, notice: t('contractors.updated') }
         format.json { head :no_content }
       else

@@ -48,7 +48,7 @@ class RepairGroupsController < ApplicationController
     @repair_group = find_record RepairGroup
     @repair_groups = RepairGroup.roots.order('id asc')
     respond_to do |format|
-      if @repair_group.update_attributes(params[:repair_group])
+      if @repair_group.update_attributes(repair_group_params)
         format.js
       else
         format.js { render 'shared/show_modal_form' }

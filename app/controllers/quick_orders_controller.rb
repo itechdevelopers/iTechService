@@ -74,7 +74,7 @@ class QuickOrdersController < ApplicationController
     @quick_order = find_record QuickOrder
 
     respond_to do |format|
-      if @quick_order.update_attributes(params[:quick_order])
+      if @quick_order.update_attributes(quick_order_params)
         format.html { redirect_to quick_orders_path, notice: t('quick_orders.updated') }
       else
         format.html { render 'form' }

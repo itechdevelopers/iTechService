@@ -35,7 +35,7 @@ class ClientCategoriesController < ApplicationController
   def update
     @client_category = find_record ClientCategory
     respond_to do |format|
-      if @client_category.update_attributes(params[:client_category])
+      if @client_category.update_attributes(client_category_params)
         format.html { redirect_to client_categories_path, notice: 'Client category was successfully updated.' }
       else
         format.html { render 'form' }

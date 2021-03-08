@@ -37,7 +37,7 @@ class BanksController < ApplicationController
   def update
     @bank = find_record(Bank)
     respond_to do |format|
-      if @bank.update_attributes(params[:bank])
+      if @bank.update_attributes(bank_params)
         format.html { redirect_to banks_path, notice: t('banks.updated') }
       else
         format.html { render 'form' }

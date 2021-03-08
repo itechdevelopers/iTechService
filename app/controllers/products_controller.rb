@@ -68,7 +68,7 @@ class ProductsController < ApplicationController
   def update
     @product = find_record Product
     respond_to do |format|
-      if @product.update_attributes(params[:product])
+      if @product.update_attributes(product_params)
         format.html { redirect_to @product, notice: t('products.updated') }
         format.json { head :no_content }
       else

@@ -36,7 +36,7 @@ class BonusesController < ApplicationController
   def update
     @bonus = find_record Bonus
     respond_to do |format|
-      if @bonus.update_attributes(params[:bonus])
+      if @bonus.update_attributes(bonus_params)
         format.html { redirect_to @bonus, notice: t('bonuses.updated') }
         format.js
       else

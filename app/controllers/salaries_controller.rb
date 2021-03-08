@@ -49,7 +49,7 @@ class SalariesController < ApplicationController
     @salary = find_record Salary
 
     respond_to do |format|
-      if @salary.update_attributes(params[:salary])
+      if @salary.update_attributes(salary_params)
         format.html { redirect_back_or salaries_path, notice: t('salaries.updated') }
         format.json { head :no_content }
       else

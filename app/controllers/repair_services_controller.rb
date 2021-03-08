@@ -57,7 +57,7 @@ class RepairServicesController < ApplicationController
   def update
     @repair_service = find_record RepairService
     respond_to do |format|
-      if @repair_service.update_attributes(params[:repair_service])
+      if @repair_service.update_attributes(repair_service_params)
         format.html { redirect_to repair_services_path, notice: t('repair_services.udpated') }
       else
         format.html { render 'form' }

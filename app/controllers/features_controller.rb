@@ -51,7 +51,7 @@ class FeaturesController < ApplicationController
     @feature = find_record Feature
 
     respond_to do |format|
-      if @feature.update_attributes(params[:feature])
+      if @feature.update_attributes(feature_params)
         format.html { redirect_to @feature, notice: 'Feature was successfully updated.' }
         format.json { head :no_content }
       else

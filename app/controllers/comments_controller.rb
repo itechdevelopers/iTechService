@@ -71,7 +71,7 @@ class CommentsController < ApplicationController
     @comment = find_record Comment
 
     respond_to do |format|
-      if @comment.update_attributes(params[:comment])
+      if @comment.update_attributes(comment_params)
         format.html { redirect_to @comment, notice: t('comments.updated') }
         format.json { head :no_content }
       else

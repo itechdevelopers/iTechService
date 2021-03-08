@@ -55,7 +55,7 @@ class StolenPhonesController < ApplicationController
     @stolen_phone = find_record StolenPhone
 
     respond_to do |format|
-      if @stolen_phone.update_attributes(params[:stolen_phone])
+      if @stolen_phone.update_attributes(stolen_phone_params)
         format.html { redirect_to stolen_phones_url, notice: t('stolen_phones.updated') }
         format.json { head :no_content }
       else

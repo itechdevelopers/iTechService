@@ -34,7 +34,7 @@ class DeviceTypesController < ApplicationController
     @device_type = find_record DeviceType
 
     respond_to do |format|
-      if @device_type.update_attributes(params[:device_type])
+      if @device_type.update_attributes(device_type_params)
         format.js { render 'edit' }
         format.json { head :no_content }
       else

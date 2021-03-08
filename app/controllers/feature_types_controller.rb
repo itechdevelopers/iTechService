@@ -45,7 +45,7 @@ class FeatureTypesController < ApplicationController
     @feature_type = find_record FeatureType
 
     respond_to do |format|
-      if @feature_type.update_attributes(params[:feature_type])
+      if @feature_type.update_attributes(feature_type_params)
         format.html { redirect_to feature_types_path, notice: t('feature_types.updated') }
         format.json { head :no_content }
       else

@@ -78,7 +78,7 @@ class InfosController < ApplicationController
     @info = find_record Info
 
     respond_to do |format|
-      if @info.update_attributes(params[:info])
+      if @info.update_attributes(info_params)
         format.html { redirect_to @info, notice: t('infos.updated') }
         format.json { head :no_content }
       else

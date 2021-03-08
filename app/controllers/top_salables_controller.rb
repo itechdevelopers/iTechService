@@ -47,7 +47,7 @@ class TopSalablesController < ApplicationController
   def update
     @top_salable = find_record TopSalable
     respond_to do |format|
-      if @top_salable.update_attributes(params[:top_salable])
+      if @top_salable.update_attributes(top_salable_params)
         format.html { redirect_to (@top_salable.parent || top_salables_path), notice: t('top_salables.updated') }
       else
         format.html { render 'form' }

@@ -44,7 +44,7 @@ class CashDrawersController < ApplicationController
   def update
     @cash_drawer = find_record CashDrawer
     respond_to do |format|
-      if @cash_drawer.update_attributes(params[:cash_drawer])
+      if @cash_drawer.update_attributes(cash_drawer_params)
         format.html { redirect_to @cash_drawer, notice: 'Cash drawer was successfully updated.' }
       else
         format.html { render 'form' }

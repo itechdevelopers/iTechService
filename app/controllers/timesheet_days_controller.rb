@@ -44,7 +44,7 @@ class TimesheetDaysController < ApplicationController
     @timesheet_day = find_record TimesheetDay
     @data = { user: @timesheet_day.user, date: @timesheet_day.date }
     respond_to do |format|
-      if @timesheet_day.update_attributes(params[:timesheet_day])
+      if @timesheet_day.update_attributes(timesheet_day_params)
         format.js { render 'update_cell' }
         format.json { head :no_content }
       else

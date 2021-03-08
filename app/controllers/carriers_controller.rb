@@ -42,7 +42,7 @@ class CarriersController < ApplicationController
     @carrier = find_record Carrier
 
     respond_to do |format|
-      if @carrier.update_attributes(params[:carrier])
+      if @carrier.update_attributes(carrier_params)
         format.html { redirect_to carriers_path, notice: 'Carrier was successfully updated.' }
         format.json { head :no_content }
       else

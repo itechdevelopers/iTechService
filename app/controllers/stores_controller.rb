@@ -54,7 +54,7 @@ class StoresController < ApplicationController
   def update
     @store = find_record Store
     respond_to do |format|
-      if @store.update_attributes(params[:store])
+      if @store.update_attributes(store_params)
         format.html { redirect_to stores_path, notice: t('stores.updated') }
         format.json { head :no_content }
       else

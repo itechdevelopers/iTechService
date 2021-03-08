@@ -59,7 +59,7 @@ class GiftCertificatesController < ApplicationController
     @gift_certificate = find_record GiftCertificate
 
     respond_to do |format|
-      if @gift_certificate.update_attributes(params[:gift_certificate])
+      if @gift_certificate.update_attributes(gift_certificate_params)
         format.html { redirect_to gift_certificates_path, notice: t('gift_certificates.updated') }
         format.json { head :no_content }
       else

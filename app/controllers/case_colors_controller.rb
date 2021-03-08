@@ -42,7 +42,7 @@ class CaseColorsController < ApplicationController
   def update
     @case_color = find_record CaseColor
     respond_to do |format|
-      if @case_color.update_attributes(params[:case_color])
+      if @case_color.update_attributes(case_color_params)
         format.html { redirect_to case_colors_path, notice: t('case_colors.updated') }
       else
         format.html { render 'form' }

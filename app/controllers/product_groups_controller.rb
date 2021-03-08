@@ -75,7 +75,7 @@ class ProductGroupsController < ApplicationController
 
   def update
     respond_to do |format|
-      if @product_group.update_attributes(params[:product_group])
+      if @product_group.update_attributes(product_group_params)
         format.js
         format.json { render json: @product_group }
       else

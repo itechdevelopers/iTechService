@@ -66,7 +66,7 @@ class ClientsController < ApplicationController
   def update
     @client = find_record Client
     respond_to do |format|
-      if @client.update_attributes(params[:client])
+      if @client.update_attributes(client_params)
         format.html { redirect_to @client, notice: t('clients.updated') }
         format.json { head :no_content }
         format.js { render params[:form] == 'modal' ? 'select' : 'saved' }

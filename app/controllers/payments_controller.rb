@@ -57,7 +57,7 @@ class PaymentsController < ApplicationController
     @sale = find_sale
     @payment = find_record Payment
     respond_to do |format|
-      if @payment.update_attributes(params[:payment])
+      if @payment.update_attributes(payment_params)
         format.html { redirect_to @payment, notice: 'Payment was successfully updated.' }
         format.js { render 'save' }
       else

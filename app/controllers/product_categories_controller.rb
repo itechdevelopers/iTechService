@@ -44,7 +44,7 @@ class ProductCategoriesController < ApplicationController
     @product_category = find_record ProductCategory
 
     respond_to do |format|
-      if @product_category.update_attributes(params[:product_category])
+      if @product_category.update_attributes(product_category_params)
         format.html { redirect_to product_categories_path, notice: t('product_categories.updated') }
         format.json { head :no_content }
       else

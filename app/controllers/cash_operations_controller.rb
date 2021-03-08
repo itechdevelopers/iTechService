@@ -44,7 +44,7 @@ class CashOperationsController < ApplicationController
   def update
     @cash_operation = find_record CashOperation
     respond_to do |format|
-      if @cash_operation.update_attributes(params[:cash_operation])
+      if @cash_operation.update_attributes(cash_operation_params)
         format.html { redirect_to @cash_operation, notice: 'Cash operation was successfully updated.' }
       else
         format.html { render action: 'edit' }

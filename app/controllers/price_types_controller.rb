@@ -45,7 +45,7 @@ class PriceTypesController < ApplicationController
 
   def update
     respond_to do |format|
-      if @price_type.update_attributes(params[:price_type])
+      if @price_type.update_attributes(price_type_params)
         format.html { redirect_to price_types_path, notice: 'Price type was successfully updated.' }
         format.json { head :no_content }
       else

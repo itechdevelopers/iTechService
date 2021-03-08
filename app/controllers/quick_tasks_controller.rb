@@ -47,7 +47,7 @@ class QuickTasksController < ApplicationController
     @quick_task = find_record QuickTask
 
     respond_to do |format|
-      if @quick_task.update_attributes(params[:quick_task])
+      if @quick_task.update_attributes(quick_task_params)
         format.html { redirect_to quick_tasks_path, notice: t('quick_tasks.updated') }
         format.json { head :no_content }
       else

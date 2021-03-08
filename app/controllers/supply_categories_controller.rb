@@ -49,7 +49,7 @@ class SupplyCategoriesController < ApplicationController
   def update
     @supply_category = find_record SupplyCategory
     respond_to do |format|
-      if @supply_category.update_attributes(params[:supply_category])
+      if @supply_category.update_attributes(supply_category_params)
         format.js
         format.json { head :no_content }
       else

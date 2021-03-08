@@ -103,7 +103,7 @@ class ItemsController < ApplicationController
   def update
     @item = find_record Item
     respond_to do |format|
-      if @item.update_attributes(params[:item])
+      if @item.update_attributes(item_params)
         format.js { render 'update' }
       else
         format.js { render 'shared/show_modal_form' }

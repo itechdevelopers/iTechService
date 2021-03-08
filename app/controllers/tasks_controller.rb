@@ -51,7 +51,7 @@ class TasksController < ApplicationController
     @task = find_record Task
 
     respond_to do |format|
-      if @task.update_attributes(params[:task])
+      if @task.update_attributes(task_params)
         format.html { redirect_to tasks_path, notice: t('tasks.updated') }
         format.json { head :no_content }
       else

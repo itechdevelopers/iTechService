@@ -67,7 +67,7 @@ class DeductionActsController < ApplicationController
     @deduction_act = find_record DeductionAct
 
     respond_to do |format|
-      if @deduction_act.update_attributes(params[:deduction_act])
+      if @deduction_act.update_attributes(deduction_act_params)
         format.html { redirect_to @deduction_act, notice: t('deduction_acts.updated') }
         format.json { head :no_content }
       else

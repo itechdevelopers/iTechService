@@ -51,7 +51,7 @@ class PricesController < ApplicationController
     @price = find_record Price
 
     respond_to do |format|
-      if @price.update_attributes(params[:price])
+      if @price.update_attributes(price_params)
         format.html { redirect_to prices_url, notice: t('prices.updated') }
         format.json { head :no_content }
       else

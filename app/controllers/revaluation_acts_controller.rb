@@ -52,7 +52,7 @@ class RevaluationActsController < ApplicationController
   def update
     @revaluation_act = find_record RevaluationAct
     respond_to do |format|
-      if @revaluation_act.update_attributes(params[:revaluation_act])
+      if @revaluation_act.update_attributes(revaluation_act_params)
         format.html { redirect_to @revaluation_act, notice: t('revaluation_acts.updated') }
         format.json { head :no_content }
       else

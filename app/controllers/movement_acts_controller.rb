@@ -67,7 +67,7 @@ class MovementActsController < ApplicationController
     @movement_act = find_record MovementAct
 
     respond_to do |format|
-      if @movement_act.update_attributes(params[:movement_act])
+      if @movement_act.update_attributes(movement_act_params)
         format.html { redirect_to @movement_act, notice: t('movement_acts.updated') }
         format.json { head :no_content }
       else

@@ -64,7 +64,7 @@ class UsersController < ApplicationController
     params[:user].delete :hiring_date
 
     respond_to do |format|
-      if @user.update_attributes(params[:user])
+      if @user.update_attributes(user_params)
         format.html { redirect_to @user, notice: t('users.updated') }
         format.json { head :no_content }
         format.js { render 'shared/close_modal_form' }
@@ -88,7 +88,7 @@ class UsersController < ApplicationController
 
   def update_photo
     @user = find_record User
-    @user.update_attributes(params[:user])
+    @user.update_attributes(user_params)
     respond_to do |format|
       format.html { redirect_to :profile }
       format.js
