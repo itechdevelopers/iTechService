@@ -37,7 +37,7 @@ class KarmasController < ApplicationController
   def update
     @karma = find_record Karma
     respond_to do |format|
-      if @karma.update_attributes params[:karma]
+      if @karma.update_attributes(karma_params)
         format.js
       else
         format.js { render 'show_form' }

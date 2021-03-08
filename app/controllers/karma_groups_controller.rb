@@ -40,7 +40,7 @@ class KarmaGroupsController < ApplicationController
   def update
     @karma_group = find_record KarmaGroup
     respond_to do |format|
-      if @karma_group.update_attributes params[:karma_group]
+      if @karma_group.update_attributes(karma_group_params)
         format.js
       else
         format.js { render 'shared/show_modal_form' }

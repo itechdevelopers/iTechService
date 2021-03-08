@@ -69,7 +69,7 @@ class SalesController < ApplicationController
   def update
     @sale = find_record Sale
     respond_to do |format|
-      if @sale.update_attributes params[:sale]
+      if @sale.update_attributes(sale_params)
         format.html { redirect_back_or root_path, notice: t('sales.updated') }
         format.js { render 'save' }
       else
