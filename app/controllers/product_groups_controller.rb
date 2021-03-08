@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 class ProductGroupsController < ApplicationController
   before_action :set_product_group, only: %i[show select edit update destroy]
   before_action :set_option_types, only: %i[new edit create update]
@@ -21,12 +23,8 @@ class ProductGroupsController < ApplicationController
   def show
     @products = @product_group.products.search(params)
 
-    if params[:form] == 'sale' and !@product_group.is_service
-      @products = @products.available
-    end
-    if params[:choose] == 'true'
-      params[:table_name] = 'products/small_table'
-    end
+    @products = @products.available if (params[:form] == 'sale') && !@product_group.is_service
+    params[:table_name] = 'products/small_table' if params[:choose] == 'true'
     @products = @products.page(params[:page])
     respond_to do |format|
       format.js
@@ -35,7 +33,7 @@ class ProductGroupsController < ApplicationController
 
   def select
     if @product_group.is_childless?
-      @available_options = @product_group.option_values.ordered.group_by {|ov|ov.option_type.name}
+      @available_options = @product_group.option_values.ordered.group_by { |ov| ov.option_type.name }
     end
 
     respond_to do |format|
@@ -44,7 +42,7 @@ class ProductGroupsController < ApplicationController
   end
 
   def new
-    @product_group = authorize ProductGroup.new(params[:product_group])
+    @product_group = authorize ProductGroup.new(product_group_params)
 
     respond_to do |format|
       format.js { render 'shared/show_modal_form' }
@@ -62,7 +60,7 @@ class ProductGroupsController < ApplicationController
   end
 
   def create
-    @product_group = authorize ProductGroup.new(params[:product_group])
+    @product_group = authorize ProductGroup.new(product_group_params)
 
     respond_to do |format|
       if @product_group.save
@@ -104,5 +102,10 @@ class ProductGroupsController < ApplicationController
 
   def set_option_types
     @option_types = OptionType.includes(:option_values)
+  end
+
+  def product_group_params
+    params.require(:product_group)
+          .permit(:ancestry, :ancestry_depth, :code, :name, :position, :product_category_id, :warranty_term)
   end
 end

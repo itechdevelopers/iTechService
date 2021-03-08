@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 class Info < ActiveRecord::Base
   scope :newest, -> { order('created_at desc') }
   scope :oldest, -> { order('created_at asc') }
@@ -12,11 +14,12 @@ class Info < ActiveRecord::Base
   belongs_to :recipient, class_name: 'User', foreign_key: 'recipient_id'
   has_many :comments, as: :commentable, dependent: :destroy
 
+  # TODO check
   accepts_nested_attributes_for :comments, allow_destroy: true, reject_if: proc { |attr| attr['content'].blank? }
 
   attr_accessor :comment
 
-  attr_accessible :content, :title, :important, :is_archived, :comment, :comments_attributes, :recipient_id, :department_id
+  # attr_accessible :content, :title, :important, :is_archived, :comment, :comments_attributes, :recipient_id, :department_id
 
   validates :title, :content, presence: true
   validates_associated :comments
@@ -26,7 +29,7 @@ class Info < ActiveRecord::Base
   end
 
   def self.grouped_by_date
-    select("date(created_at) as info_date, count(id) as total_infos").group("infos.created_at::date")
+    select('date(created_at) as info_date, count(id) as total_infos').group('infos.created_at::date')
   end
 
   def comment=(content)

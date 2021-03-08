@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 class CashOperation < ActiveRecord::Base
   scope :in_department, ->(department) { where(cash_shift_id: CashShift.in_department(department)) }
   scope :created_desc, -> { order('created_at desc') }
@@ -7,7 +9,7 @@ class CashOperation < ActiveRecord::Base
   delegate :short_name, to: :user, prefix: true, allow_nil: true
   delegate :department, :department_id, to: :cash_shift
 
-  attr_accessible :is_out, :value, :comment
+  # attr_accessible :is_out, :value, :comment
   validates_presence_of :value, :user, :cash_shift
   validates_presence_of :comment, if: :is_out
   validates_numericality_of :value, greater_than: 0

@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 class KarmasController < ApplicationController
   def index
     authorize Karma
@@ -6,9 +8,9 @@ class KarmasController < ApplicationController
       format.html { render 'index', layout: false }
     end
   end
-  
+
   def new
-    @karma = authorize Karma.new(params[:karma])
+    @karma = authorize Karma.new(karma_params)
     respond_to do |format|
       format.js { render 'show_form' }
     end
@@ -22,7 +24,7 @@ class KarmasController < ApplicationController
   end
 
   def create
-    @karma = authorize Karma.new(params[:karma])
+    @karma = authorize Karma.new(karma_params)
     respond_to do |format|
       if @karma.save
         format.js
@@ -87,5 +89,10 @@ class KarmasController < ApplicationController
         format.js
       end
     end
+  end
+
+  def karma_params
+    params.require(:karma)
+          .permit(:comment, :good, :karma_group_id, :user_id)
   end
 end

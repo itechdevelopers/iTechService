@@ -8,7 +8,7 @@ class SaleItem < ActiveRecord::Base
   delegate :store, :client, :date, :is_return, to: :sale, allow_nil: true
   delegate :id, to: :product, prefix: true, allow_nil: true
 
-  attr_accessible :sale_id, :item_id, :price, :quantity, :discount, :device_task_id
+  # attr_accessible :sale_id, :item_id, :price, :quantity, :discount, :device_task_id
   validates_presence_of :item, :price, :quantity
   validates_numericality_of :quantity, only_integer: true, greater_than: 0, unless: :feature_accounting
   validates_numericality_of :quantity, only_integer: true, equal_to: 1, if: :feature_accounting

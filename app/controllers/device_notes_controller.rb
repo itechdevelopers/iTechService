@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 class DeviceNotesController < ApplicationController
   def index
     authorize DeviceNote
@@ -19,7 +21,7 @@ class DeviceNotesController < ApplicationController
 
   def create
     @service_job = find_service_job
-    @device_note = authorize @service_job.device_notes.build(params[:device_note])
+    @device_note = authorize @service_job.device_notes.build(device_note_params)
     @device_note.user = current_user
 
     respond_to do |format|
@@ -36,5 +38,9 @@ class DeviceNotesController < ApplicationController
 
   def find_service_job
     policy_scope(ServiceJob).find(params[:service_job_id])
+  end
+
+  def device_note_params
+    params.require(:device_note).permit(:content, :service_job_id, :user_id)
   end
 end

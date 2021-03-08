@@ -1,4 +1,4 @@
-# encoding: utf-8
+# frozen_string_literal: true
 
 class Location < ApplicationRecord
   CODES = %w[
@@ -37,14 +37,12 @@ class Location < ApplicationRecord
   has_many :users
   delegate :name, to: :department, prefix: true, allow_nil: true
   delegate :city, to: :department, allow_nil: true
-
-  attr_accessible :name, :schedule, :position, :code, :department_id, :hidden, :storage_term
   validates_presence_of :name
 
   def self.search(params)
     locations = all
     locations = locations.where(department_id: params[:department_id]) if params.key?(:department_id)
-    locations = locations.visible if !!params[:visible]
+    locations = locations.visible unless params[:visible].nil?
     locations
   end
 
@@ -56,7 +54,7 @@ class Location < ApplicationRecord
     if user.admin?
       visible
     else
-      department = (service_job.present? && service_job.department.present?) ? service_job.department : Department.current
+      department = service_job.present? && service_job.department.present? ? service_job.department : Department.current
       visible.where(department_id: department.id)
     end
   end
@@ -66,7 +64,7 @@ class Location < ApplicationRecord
   end
 
   def full_name
-    path.all.map { |l| l.name }.join(' / ')
+    path.all.map(&:name).join(' / ')
   end
 
   def is_done?

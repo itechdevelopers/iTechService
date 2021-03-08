@@ -1,8 +1,10 @@
+# frozen_string_literal: true
+
 class Task < ApplicationRecord
   IMPORTANCE_BOUND = 5
 
   scope :important, -> { where('priority > ?', IMPORTANCE_BOUND) }
-  scope :tasks_for, ->(user) { where(task: {role: user.role}) }
+  scope :tasks_for, ->(user) { where(task: { role: user.role }) }
   scope :visible, -> { where hidden: [false, nil] }
   scope :mac_service, -> { where code: 'mac' }
 
@@ -12,11 +14,14 @@ class Task < ApplicationRecord
   delegate :item, :is_repair?, :is_service?, to: :product, allow_nil: true
   delegate :name, :id, to: :location, prefix: true, allow_nil: true
 
-  attr_accessible :cost, :duration, :name, :code, :priority, :role, :location_code, :product_id, :hidden
+  # attr_accessible :cost, :duration, :name, :code, :priority, :role, :location_code, :product_id, :hidden
 
   after_initialize do
-    if persisted? and product.nil?
-      update_attribute :product_id, Product.services.where(code: "task#{id}").first_or_create(name: name, product_group_id: ProductGroup.services.first_or_create(name: 'Services', product_category_id: ProductCategory.where(kind: 'service').first_or_create(name: 'Service', kind: 'service').id).id).id
+    if persisted? && product.nil?
+      product_category = ProductCategory.where(kind: 'service').first_or_create(name: 'Service', kind: 'service')
+      product_group =  ProductGroup.services.first_or_create(name: 'Services', product_category_id: product_category.id)
+      product = Product.services.where(code: "task#{id}").first_or_create(name: name, product_group_id: product_group.id)
+      update_attribute :product_id, product.id
     end
   end
 

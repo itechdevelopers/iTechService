@@ -1,5 +1,7 @@
+# frozen_string_literal: true
+
 class QuickOrder < ActiveRecord::Base
-  DEVICE_KINDS = %w[iPhone iPad iPod Storage]
+  DEVICE_KINDS = %w[iPhone iPad iPod Storage].freeze
 
   scope :in_department, ->(department) { where department_id: department }
   scope :id_asc, -> { order('quick_orders.id asc') }
@@ -14,8 +16,6 @@ class QuickOrder < ActiveRecord::Base
   has_and_belongs_to_many :quick_tasks, join_table: 'quick_orders_quick_tasks'
   has_many :history_records, as: :object, dependent: :destroy
   has_many :comments, as: :commentable, dependent: :destroy
-
-  attr_accessible :client_id, :client_name, :comment, :contact_phone, :number, :is_done, :quick_task_ids, :security_code, :department_id, :device_kind
   validates_presence_of :security_code, :device_kind
 
   delegate :short_name, to: :user, prefix: true, allow_nil: true
@@ -41,16 +41,20 @@ class QuickOrder < ActiveRecord::Base
     end
 
     if (client_name = params[:client_name]).present?
-      quick_orders = quick_orders.includes(:client).where('LOWER(quick_orders.client_name) LIKE :q OR LOWER(clients.name) LIKE :q OR LOWER(clients.surname) LIKE :q', q: "%#{client_name.mb_chars.downcase.to_s}%").references(:clients)
+      quick_orders = quick_orders.includes(:client).where(
+        'LOWER(quick_orders.client_name) LIKE :q OR LOWER(clients.name) LIKE :q OR LOWER(clients.surname) LIKE :q', q: "%#{client_name.mb_chars.downcase}%"
+      ).references(:clients)
     end
 
     if (contact_phone = params[:contact_phone]).present?
-      quick_orders = quick_orders.includes(:client).where('quick_orders.contact_phone LIKE :q OR clients.phone_number LIKE :q OR clients.full_phone_number LIKE :q', q: "%#{contact_phone}%").references(:clients)
+      quick_orders = quick_orders.includes(:client).where(
+        'quick_orders.contact_phone LIKE :q OR clients.phone_number LIKE :q OR clients.full_phone_number LIKE :q', q: "%#{contact_phone}%"
+      ).references(:clients)
     end
 
     if (task = params[:task]).present?
       quick_orders = quick_orders.includes(:quick_tasks).where('LOWER(quick_tasks.name) LIKE ?',
-                                                               "%#{task.mb_chars.downcase.to_s}%")
+                                                               "%#{task.mb_chars.downcase}%")
     end
 
     quick_orders
@@ -61,7 +65,7 @@ class QuickOrder < ActiveRecord::Base
   end
 
   def number_s
-    sprintf('%04d', number)
+    format('%04d', number)
   end
 
   def client_presentation
@@ -84,6 +88,6 @@ class QuickOrder < ActiveRecord::Base
 
   def set_number
     last_number = QuickOrder.created_desc.first.try(:number)
-    self.number = (last_number.present? and last_number < 9999) ? last_number.next : 1
+    self.number = last_number.present? && (last_number < 9999) ? last_number.next : 1
   end
 end

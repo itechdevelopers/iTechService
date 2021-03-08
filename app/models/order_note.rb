@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 class OrderNote < ActiveRecord::Base
   scope :oldest_first, -> { order(created_at: :asc) }
 
@@ -5,8 +7,6 @@ class OrderNote < ActiveRecord::Base
   belongs_to :author, class_name: 'User'
 
   delegate :department, :department_id, to: :order
-
-  attr_accessible :order_id, :author_id, :content
   validates_presence_of :content
 
   def author_color

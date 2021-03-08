@@ -9,7 +9,7 @@ class RepairPart < ActiveRecord::Base
   delegate :department, :store, to: :repair_task, allow_nil: true
 
   attr_accessor :is_warranty, :contractor_id
-  attr_accessible :quantity, :warranty_term, :repair_task_id, :item_id, :spare_part_defects_attributes, :is_warranty, :contractor_id
+  # attr_accessible :quantity, :warranty_term, :repair_task_id, :item_id, :spare_part_defects_attributes, :is_warranty, :contractor_id
   accepts_nested_attributes_for :spare_part_defects
 
   validates_presence_of :item

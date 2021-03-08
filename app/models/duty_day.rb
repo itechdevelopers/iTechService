@@ -12,7 +12,7 @@ class DutyDay < ActiveRecord::Base
 
   delegate :department, :department_id, to: :user
 
-  attr_accessible :day, :user_id, :kind
+  # attr_accessible :day, :user_id, :kind
 
   validates_presence_of :day, :user_id, :kind
   validates_inclusion_of :kind, in: KINDS

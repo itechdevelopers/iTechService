@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 class DeviceTypesController < ApplicationController
   def index
     authorize DeviceType
@@ -11,14 +13,14 @@ class DeviceTypesController < ApplicationController
   end
 
   def create
-    @device_type = authorize DeviceType.new(params[:device_type])
+    @device_type = authorize DeviceType.new(device_type_params)
 
     respond_to do |format|
       if @device_type.save
         format.html { redirect_to device_types_path, notice: t('device_types.created') }
         format.json { render json: @device_type, status: :created, location: @device_type }
       else
-        format.html { render action: "new" }
+        format.html { render action: 'new' }
         format.json { render json: @device_type.errors, status: :unprocessable_entity }
       end
     end
@@ -57,5 +59,10 @@ class DeviceTypesController < ApplicationController
     new_reserve = new_reserve.next if params[:direction] == '+'
     new_reserve = new_reserve.pred if params[:direction] == '-'
     @device_type.update_attribute :qty_reserve, new_reserve
+  end
+
+  def device_type_params
+    params.require(:device_type)
+          .permit(:ancestry, :code_1c, :expected_during, :name, :qty_for_replacement, :qty_replaced, :qty_reserve, :qty_shop, :qty_store)
   end
 end

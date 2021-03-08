@@ -104,7 +104,9 @@ class User < ActiveRecord::Base
   has_many :orders, as: :customer, dependent: :nullify
   has_many :announcements, inverse_of: :user, dependent: :destroy
   has_many :comments, as: :commentable, dependent: :destroy
-  has_many :service_jobs, -> { includes(:client, :features, department: :city, item: { product: :product_group }) }, inverse_of: :user
+  has_many :service_jobs, lambda {
+                            includes(:client, :features, department: :city, item: { product: :product_group })
+                          }, inverse_of: :user
   has_many :karmas, dependent: :destroy, inverse_of: :user
   has_many :karma_groups, through: :karmas
   has_many :bonuses, through: :karma_groups
@@ -123,7 +125,7 @@ class User < ActiveRecord::Base
   has_many :favorite_links, foreign_key: 'owner_id', dependent: :destroy
   has_many :faults, foreign_key: :causer_id, dependent: :destroy
   has_many :quick_orders
-  has_many :service_free_jobs, -> { includes(:client) }, :class_name => 'Service::FreeJob', foreign_key: :receiver_id
+  has_many :service_free_jobs, -> { includes(:client) }, class_name: 'Service::FreeJob', foreign_key: :receiver_id
 
   attr_accessor :login, :auth_token
 
@@ -141,19 +143,6 @@ class User < ActiveRecord::Base
   delegate :name, to: :location, prefix: true, allow_nil: true
   delegate :time_zone, to: :city, allow_nil: true
 
-  # Setup accessible (or protected) attributes for your model
-  attr_accessible :auth_token, :login, :username, :email, :role, :password, :password_confirmation,
-                  :remember_me, :location_id, :surname, :name, :patronymic, :position, :birthday,
-                  :hiring_date, :salary_date, :prepayment, :wish, :photo, :remove_photo, :photo_cache,
-                  :schedule_days_attributes, :duty_days_attributes, :card_number, :color, :karmas_attributes,
-                  :abilities, :activities, :schedule, :is_fired, :job_title, :position, :salaries_attributes,
-                  :installment_plans_attributes, :installment, :department_id, :session_duration,
-                  :phone_number, :department_autochangeable, :can_help_in_repair, :uniform_sex, :uniform_size,
-                  :hobby, :wishlist, :can_help_in_mac_service
-
-  # Include default devise modules. Others available are:
-  # :token_authenticatable, :confirmable, :registerable, :rememberable,
-  # :lockable, :timeoutable and :omniauthable
   devise :database_authenticatable, :timeoutable, :recoverable, :trackable, :validatable
 
   validates_presence_of :username, :role, :department
@@ -162,7 +151,6 @@ class User < ActiveRecord::Base
   validates :role, inclusion: { in: ROLES }
   validates_numericality_of :session_duration, only_integer: true, greater_than: 0, allow_nil: true
   before_validation :validate_rights_changing
-  # before_save :ensure_authentication_token
 
   mount_uploader :photo, PhotoUploader
 

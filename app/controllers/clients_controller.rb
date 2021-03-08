@@ -1,5 +1,7 @@
+# frozen_string_literal: true
+
 class ClientsController < ApplicationController
-  skip_after_action :verify_authorized, only: [:check_phone_number, :questionnaire, :autocomplete, :select]
+  skip_after_action :verify_authorized, only: %i[check_phone_number questionnaire autocomplete select]
 
   def index
     authorize Client
@@ -11,12 +13,13 @@ class ClientsController < ApplicationController
     respond_to do |format|
       format.html
       format.json { render json: @clients }
-      format.js { render (params[:search] == 'true' ? 'shared/show_modal_form' : 'shared/index') }
+      format.js { render(params[:search] == 'true' ? 'shared/show_modal_form' : 'shared/index') }
     end
   end
 
   def show
-    @client = find_record(Client.includes(:sale_items, :orders, :free_jobs, :quick_orders, :trade_in_devices, service_jobs: :device_tasks))
+    @client = find_record(Client.includes(:sale_items, :orders, :free_jobs, :quick_orders, :trade_in_devices,
+                                          service_jobs: :device_tasks))
 
     respond_to do |format|
       format.html
@@ -46,7 +49,7 @@ class ClientsController < ApplicationController
   end
 
   def create
-    @client = authorize Client.new(params[:client])
+    @client = authorize Client.new(client_params)
     respond_to do |format|
       if @client.save
         format.html { redirect_to @client, notice: t('clients.created') }
@@ -123,9 +126,20 @@ class ClientsController < ApplicationController
     respond_to do |format|
       format.html
       format.vcf do
-        file = ExportClients.(params[:city_id])
+        file = ExportClients.call(params[:city_id])
         send_file file, filename: 'clients.vcf', type: 'application/vcf', disposition: 'inline'
       end
     end
+  end
+
+  def client_params
+    params.require(:client)
+          .permit(:admin_info, :birthday, :card_number, :category,
+                  :contact_phone, :email, :full_phone_number, :name, :patronymic, :phone_number, :surname,
+                  # TODO: check nested attributes for: comments, client_characteristic
+                  :client_characteristic_id, :department_id,
+                  :phone_number_checked, :comments_attributes, :comment, :client_characteristic_attributes
+          )
+
   end
 end

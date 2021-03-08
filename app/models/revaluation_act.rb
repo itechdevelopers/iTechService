@@ -1,19 +1,22 @@
+# frozen_string_literal: true
+
 class RevaluationAct < ActiveRecord::Base
   include Document
 
   belongs_to :price_type, inverse_of: :revaluation_acts
   has_many :revaluations, inverse_of: :revaluation_act, dependent: :destroy
-  accepts_nested_attributes_for :revaluations, allow_destroy: true, reject_if: lambda { |a| a[:product_id].blank? or a[:price].blank? }
-  #attr_accessor :product_ids
-  attr_accessible :date, :price_type_id, :revaluations_attributes, :product_ids
+  accepts_nested_attributes_for :revaluations, allow_destroy: true, reject_if: lambda { |a|
+                                                                                 a[:product_id].blank? or a[:price].blank?
+                                                                               }
+  # attr_accessor :product_ids
   validates_presence_of :price_type, :date, :status
   validates_inclusion_of :status, in: Document::STATUSES.keys
 
-  scope :posted, ->{where(status: 1)}
-  scope :deleted, ->{where(status: 2)}
+  scope :posted, -> { where(status: 1) }
+  scope :deleted, -> { where(status: 2) }
 
   after_initialize do
-    self.status = 'new' if self.status.blank?
+    self.status = 'new' if status.blank?
     self.date ||= DateTime.current
     self.price_type_id ||= PriceType.retail.id
   end
@@ -49,7 +52,8 @@ class RevaluationAct < ActiveRecord::Base
       transaction do
         cur_time = Time.current
         revaluations.each do |revaluation|
-          ProductPrice.create(product_id: revaluation.product_id, price_type_id: self.price_type_id, date: cur_time, value: revaluation.price)
+          ProductPrice.create(product_id: revaluation.product_id, price_type_id: self.price_type_id, date: cur_time,
+                              value: revaluation.price)
         end
         update_attribute :status, 1
         update_attribute :date, DateTime.current
@@ -62,7 +66,7 @@ class RevaluationAct < ActiveRecord::Base
   def product_ids=(product_ids)
     if product_ids.present?
       product_ids.split(',').each do |product_id|
-        self.revaluations.build product_id: product_id
+        revaluations.build product_id: product_id
       end
     end
   end
@@ -75,5 +79,4 @@ class RevaluationAct < ActiveRecord::Base
     end
     is_valid
   end
-
 end

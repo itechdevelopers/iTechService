@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 class SupplyRequestsController < ApplicationController
   helper_method :sort_column, :sort_direction
 
@@ -36,7 +38,7 @@ class SupplyRequestsController < ApplicationController
   end
 
   def create
-    @supply_request = authorize SupplyRequest.new(params[:supply_request])
+    @supply_request = authorize SupplyRequest.new(supply_request_params)
 
     respond_to do |format|
       if @supply_request.save
@@ -101,5 +103,10 @@ class SupplyRequestsController < ApplicationController
 
   def sort_direction
     %w[asc desc].include?(params[:direction]) ? params[:direction] : ''
+  end
+
+  def supply_request_params
+    params.require(:supply_request)
+          .permit(:department_id, :description, :object, :status, :user_id)
   end
 end

@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 class QuickTasksController < ApplicationController
   def index
     authorize QuickTask
@@ -28,7 +30,7 @@ class QuickTasksController < ApplicationController
   end
 
   def create
-    @quick_task = authorize QuickTask.new(params[:quick_task])
+    @quick_task = authorize QuickTask.new(quick_task_params)
 
     respond_to do |format|
       if @quick_task.save
@@ -63,5 +65,10 @@ class QuickTasksController < ApplicationController
       format.html { redirect_to quick_tasks_url }
       format.json { head :no_content }
     end
+  end
+
+  def quick_task_params
+    params.require(:quick_task)
+          .permit(:name)
   end
 end

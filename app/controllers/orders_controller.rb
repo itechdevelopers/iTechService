@@ -65,7 +65,7 @@ class OrdersController < ApplicationController
   end
 
   def create
-    @order = authorize Order.new(params[:order])
+    @order = authorize Order.new(order_params)
 
     respond_to do |format|
       if @order.save
@@ -158,5 +158,10 @@ class OrdersController < ApplicationController
         p[:statuses] = %w[new done] if p[:statuses].blank?
       end
     end
+  end
+
+  def order_params
+    params.require(:order)
+          .permit(:approximate_price, :comment, :customer_id, :customer_type, :department_id, :desired_date, :model, :number, :object, :object_kind, :object_url, :payment_method, :picture, :prepayment, :priority, :quantity, :status, :user_comment, :user_id)
   end
 end

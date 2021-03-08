@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 class DeviceNote < ActiveRecord::Base
   scope :newest_first, -> { order('device_notes.created_at desc') }
   scope :oldest_first, -> { order('device_notes.created_at asc') }
@@ -6,8 +8,6 @@ class DeviceNote < ActiveRecord::Base
   belongs_to :user, required: true
 
   delegate :department, :department_id, to: :service_job
-
-  attr_accessible :content, :service_job_id, :user_id
   validates_presence_of :content
 
   before_validation do |device_note|

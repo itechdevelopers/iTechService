@@ -8,7 +8,7 @@ class BonusesController < ApplicationController
   end
 
   def new
-    @bonus = authorize Bonus.new(params[:bonus])
+    @bonus = authorize Bonus.new(bonus_params)
     respond_to do |format|
       format.html { render 'form' }
     end
@@ -22,7 +22,7 @@ class BonusesController < ApplicationController
   end
 
   def create
-    @bonus = authorize Bonus.new(params[:bonus])
+    @bonus = authorize Bonus.new(bonus_params)
     @karma_group_id = params[:bonus][:karma_group_id]
     respond_to do |format|
       if @bonus.save
@@ -53,5 +53,9 @@ class BonusesController < ApplicationController
       format.html { redirect_to bonus_url }
       format.js
     end
+  end
+
+  def bonus_type_params
+    params.require(:bonus).permit(:comment, :bonus_type_id)
   end
 end

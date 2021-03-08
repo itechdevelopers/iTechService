@@ -9,7 +9,7 @@ class StoreItem < ActiveRecord::Base
   delegate :feature_accounting, :features, :name, :code, :quantity_threshold, :comment, :product, :product_group, :purchase_price, :retail_price, :features_s, to: :item, allow_nil: true
   delegate :name, :code, to: :store, prefix: true, allow_nil: true
 
-  attr_accessible :item_id, :store_id, :quantity
+  # attr_accessible :item_id, :store_id, :quantity
   validates_presence_of :item, :store, :quantity
   validates_uniqueness_of :item_id, scope: :store_id
   validates_numericality_of :quantity, only_integer: true

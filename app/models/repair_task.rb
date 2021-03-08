@@ -11,7 +11,7 @@ class RepairTask < ActiveRecord::Base
   delegate :price, to: :repair_service, prefix: true, allow_nil: true
   delegate :user, :service_job, :performer, :done, :done?, :pending?, :undone?, :department, to: :device_task, allow_nil: true
 
-  attr_accessible :price, :repair_service_id, :device_task_id, :store_id, :repairer_id, :repair_parts_attributes
+  # attr_accessible :price, :repair_service_id, :device_task_id, :store_id, :repairer_id, :repair_parts_attributes
   accepts_nested_attributes_for :repair_parts
 
   validates :price, :repair_service, :store, presence: true

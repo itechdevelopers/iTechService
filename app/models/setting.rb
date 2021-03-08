@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 class Setting < ActiveRecord::Base
   TYPES = {
     address: 'string',
@@ -27,17 +29,15 @@ class Setting < ActiveRecord::Base
     sms_gateway_lines_qty: 'integer',
     ticket_notice: 'text',
     ticket_prefix: 'string'
-  }
+  }.freeze
 
-  VALUE_TYPES = %w[boolean integer string text json]
+  VALUE_TYPES = %w[boolean integer string text json].freeze
 
   default_scope { order(:department_id, :presentation) }
   scope :for_department, ->(department) { where(department_id: department) }
 
   belongs_to :department
   delegate :name, to: :department, prefix: true, allow_nil: true
-
-  attr_accessible :name, :presentation, :value, :department_id
   validates :name, presence: true
   validates_uniqueness_of :name, scope: :department_id
   validate :json_value_correct
@@ -49,7 +49,8 @@ class Setting < ActiveRecord::Base
 
   class << self
     def get_value(name, department = Department.current)
-      setting = Setting.for_department(department).find_by_name(name.to_s) || Setting.find_by(department_id: nil, name: name.to_s)
+      setting = Setting.for_department(department).find_by_name(name.to_s) || Setting.find_by(department_id: nil,
+                                                                                              name: name.to_s)
       setting.present? ? setting.value : ''
     end
 
@@ -80,8 +81,8 @@ class Setting < ActiveRecord::Base
 
       begin
         JSON.parse(value)
-      rescue => error
-        return error
+      rescue StandardError => e
+        e
       end
     end
   end
@@ -97,9 +98,9 @@ class Setting < ActiveRecord::Base
 
     begin
       JSON.parse value
-      return true
-    rescue => error
-      errors.add :value, error.message
+      true
+    rescue StandardError => e
+      errors.add :value, e.message
     end
   end
 end

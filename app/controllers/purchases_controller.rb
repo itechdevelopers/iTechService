@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 class PurchasesController < ApplicationController
   helper_method :sort_column, :sort_direction
 
@@ -5,11 +7,11 @@ class PurchasesController < ApplicationController
     authorize Purchase
     @purchases = policy_scope(Purchase).search(params).page(params[:page])
 
-    if params.has_key?(:sort) && params.has_key?(:direction)
-      @purchases = @purchases.order("purchases.#{sort_column} #{sort_direction}")
-    else
-      @purchases = @purchases.order(date: :desc)
-    end
+    @purchases = if params.key?(:sort) && params.key?(:direction)
+                   @purchases.order("purchases.#{sort_column} #{sort_direction}")
+                 else
+                   @purchases.order(date: :desc)
+                 end
 
     @purchases = @purchases.page(params[:page])
 
@@ -45,7 +47,7 @@ class PurchasesController < ApplicationController
   end
 
   def create
-    @purchase = authorize Purchase.new(params[:purchase])
+    @purchase = authorize Purchase.new(purchase_params)
     respond_to do |format|
       if @purchase.save
         format.html { redirect_to @purchase, notice: t('purchases.created') }
@@ -145,5 +147,13 @@ class PurchasesController < ApplicationController
 
   def sort_direction
     %w[asc desc].include?(params[:direction]) ? params[:direction] : ''
+  end
+
+  def purchase_params
+    params.require(:purchase)
+          .permit(:comment, :contractor_id, :date, :skip_revaluation, :status, :store_id,
+                  batches: [:price, :quantity, :item_id]
+          )
+    # TODO: check nested attributes for: batches
   end
 end

@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 class ItemsController < ApplicationController
   def index
     authorize Item
@@ -17,12 +19,10 @@ class ItemsController < ApplicationController
     #   @items = @items.available
     # end
 
-    if params[:choose] == 'true'
-      @table_name = 'small_table'
-    end
+    @table_name = 'small_table' if params[:choose] == 'true'
 
     if @items.many?
-      @products = Product.where(id: @items.map { |i| i.product_id })
+      @products = Product.where(id: @items.map(&:product_id))
       @products.page(params[:page])
     end
 
@@ -41,7 +41,7 @@ class ItemsController < ApplicationController
       else
         format.html
         format.js
-        format.json { render json: @items.any? ? @items : {message: t('devices.not_found')} }
+        format.json { render json: @items.any? ? @items : { message: t('devices.not_found') } }
       end
     end
   end
@@ -61,7 +61,7 @@ class ItemsController < ApplicationController
         filename = "product_tag_#{@item.barcode_num}.pdf"
         if params[:print]
           pdf = ProductTagPdf.new @item, view_context, params
-          filepath = "#{Rails.root.to_s}/tmp/pdf/#{filename}"
+          filepath = "#{Rails.root}/tmp/pdf/#{filename}"
           pdf.render_file filepath
           PrinterTools.print_file filepath, type: :tags, printer: current_department.printer
         else
@@ -88,13 +88,13 @@ class ItemsController < ApplicationController
   end
 
   def create
-    @item = authorize Item.new(params[:item])
+    @item = authorize Item.new(item_params)
     respond_to do |format|
       if @item.save
         format.html { redirect_to @item, notice: 'Item was successfully created.' }
         format.json { render json: @item, status: :created, location: @item }
       else
-        format.html { render action: "new" }
+        format.html { render action: 'new' }
         format.json { render json: @item.errors, status: :unprocessable_entity }
       end
     end
@@ -126,12 +126,20 @@ class ItemsController < ApplicationController
     store = Store.find(params[:store_id])
     quantity = item.actual_quantity(store)
     respond_to do |format|
-      format.json { render json: {quantity: quantity} }
+      format.json { render json: { quantity: quantity } }
     end
   end
 
   def check_status
     item = find_record(Item).decorate
-    render json: {status: item.status, status_info: item.status_info}
+    render json: { status: item.status, status_info: item.status_info }
+  end
+
+  def item_params
+    params.require(:item)
+          .permit(:barcode_num, :product_id,
+                  features: [:value, :item, :item_id, :feature_type, :feature_type_id]
+          )
+    # TODO: check nested attributes for: features
   end
 end

@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 class CashDrawersController < ApplicationController
   def index
     authorize CashDrawer
@@ -29,7 +31,7 @@ class CashDrawersController < ApplicationController
   end
 
   def create
-    @cash_drawer = authorize CashDrawer.new(params[:cash_drawer])
+    @cash_drawer = authorize CashDrawer.new(cash_drawer_params)
     respond_to do |format|
       if @cash_drawer.save
         format.html { redirect_to @cash_drawer, notice: 'Cash drawer was successfully created.' }
@@ -56,5 +58,9 @@ class CashDrawersController < ApplicationController
     respond_to do |format|
       format.html { redirect_to cash_drawers_url }
     end
+  end
+
+  def cash_drawer_params
+    params.require(:cash_drawer).permit(:department_id, :name)
   end
 end

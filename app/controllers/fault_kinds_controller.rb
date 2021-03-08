@@ -1,10 +1,12 @@
+# frozen_string_literal: true
+
 class FaultKindsController < ApplicationController
   skip_after_action :verify_authorized
   respond_to :html
 
   def index
     run FaultKind::Index do
-      return render 'index', locals: {fault_kinds: operation_model}
+      return render 'index', locals: { fault_kinds: operation_model }
     end
     failed
   end
@@ -42,5 +44,10 @@ class FaultKindsController < ApplicationController
       return redirect_to_index notice: operation_message
     end
     redirect_to_index alert: operation_message
+  end
+
+  def fault_kind_params
+    params.require(:fault_kind)
+          .permit(:description, :financial, :icon, :is_permanent, :name, :penalties)
   end
 end

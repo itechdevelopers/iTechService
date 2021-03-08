@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 class BonusTypesController < ApplicationController
   def index
     authorize BonusType
@@ -22,7 +24,7 @@ class BonusTypesController < ApplicationController
   end
 
   def create
-    @bonus_type = authorize BonusType.new(params[:bonus_type])
+    @bonus_type = authorize BonusType.new(bonus_type_params)
     respond_to do |format|
       if @bonus_type.save
         format.html { redirect_to bonus_types_path, notice: t('bonus_types.created') }
@@ -49,5 +51,10 @@ class BonusTypesController < ApplicationController
     respond_to do |format|
       format.html { redirect_to bonus_types_url }
     end
+  end
+
+  def bonus_type_params
+    params.require(:bonus_type)
+          .permit(:name)
   end
 end

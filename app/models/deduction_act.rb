@@ -1,13 +1,15 @@
+# frozen_string_literal: true
+
 class DeductionAct < ActiveRecord::Base
   include Document
-  scope :posted, ->{where(status: 1)}
-  scope :deleted, ->{where(status: 2)}
+  scope :posted, -> { where(status: 1) }
+  scope :deleted, -> { where(status: 2) }
   belongs_to :store
   belongs_to :user
   has_many :deduction_items, inverse_of: :deduction_act, dependent: :destroy
-  accepts_nested_attributes_for :deduction_items, allow_destroy: true
+  # accepts_nested_attributes_for :deduction_items, allow_destroy: true
   delegate :name, to: :store, prefix: true, allow_nil: true
-  attr_accessible :date, :status, :store_id, :comment, :deduction_items_attributes
+  # attr_accessible :date, :status, :store_id, :comment, :deduction_items_attributes
   validates_presence_of :status, :date, :store, :comment
   validates_inclusion_of :status, in: Document::STATUSES.keys
   before_validation :set_user
@@ -75,5 +77,4 @@ class DeductionAct < ActiveRecord::Base
     end
     is_valid
   end
-
 end

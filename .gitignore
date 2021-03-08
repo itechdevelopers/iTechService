@@ -37,7 +37,6 @@ pickle-email-*.html
 .env*.local
 
 .capistrano
-
 .tool-versions
-.ruby-version
 /.idea/
+/.ruby-gemset

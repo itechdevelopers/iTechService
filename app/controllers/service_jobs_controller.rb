@@ -1,4 +1,5 @@
 # frozen_string_literal: true
+
 class ServiceJobsController < ApplicationController
   include ServiceJobsHelper
   helper_method :sort_column, :sort_direction
@@ -80,7 +81,7 @@ class ServiceJobsController < ApplicationController
             filename = "ticket_#{@service_job.ticket_number}.pdf"
             if params[:print]
               pdf = TicketPdf.new @service_job, view_context
-              filepath = "#{Rails.root.to_s}/tmp/pdf/#{filename}"
+              filepath = "#{Rails.root}/tmp/pdf/#{filename}"
               pdf.render_file filepath
               PrinterTools.print_file filepath, type: :ticket, printer: current_department.printer
             else
@@ -96,7 +97,7 @@ class ServiceJobsController < ApplicationController
   end
 
   def new
-    @service_job = authorize ServiceJob.new(params[:service_job])
+    @service_job = authorize ServiceJob.new(service_job_params)
     @service_job.department_id = current_user.department_id
 
     respond_to do |format|
@@ -116,7 +117,7 @@ class ServiceJobsController < ApplicationController
   end
 
   def create
-    @service_job = authorize ServiceJob.new(params[:service_job])
+    @service_job = authorize ServiceJob.new(service_job_params)
     @service_job.initial_department = current_user.department
 
     respond_to do |format|
@@ -170,7 +171,8 @@ class ServiceJobsController < ApplicationController
       flash.alert = 'Работа не может быть удалена (привязаны запчасти).'
     else
       service_job_presentation = "[Талон: #{service_job.ticket_number}] #{service_job.decorate.presentation}"
-      DeletionMailer.notice({presentation: service_job_presentation, tasks: service_job.tasks.map(&:name).join(', ')}, current_user.presentation, I18n.l(Time.current, format: :date_time)).deliver_later
+      DeletionMailer.notice({ presentation: service_job_presentation, tasks: service_job.tasks.map(&:name).join(', ') },
+                            current_user.presentation, I18n.l(Time.current, format: :date_time)).deliver_later
 
       if service_job.destroy
         flash.notice = 'Работа удалена!'
@@ -249,7 +251,7 @@ class ServiceJobsController < ApplicationController
       stolen_phone = StolenPhone.by_imei(item.imei).first
       msg = t('devices.phone_stolen') if stolen_phone.present?
     end
-    render json: {present: stolen_phone.present?, msg: msg}
+    render json: { present: stolen_phone.present?, msg: msg }
   end
 
   # TODO
@@ -273,8 +275,8 @@ class ServiceJobsController < ApplicationController
           end
         elsif (sale = service_job.create_filled_sale).present?
           format.html { redirect_to edit_sale_path(sale) }
-          else
-            format.html { render nothing: true }
+        else
+          format.html { render nothing: true }
         end
       else
         format.html { render text: 'Вы находитесь на разных подразделениях с устройством. Смените подразделение' }
@@ -337,23 +339,25 @@ class ServiceJobsController < ApplicationController
   end
 
   def generate_barcode_to(pdf, num)
-    #require 'barby'
+    # require 'barby'
     require 'barby/barcode/ean_13'
     require 'barby/outputter/prawn_outputter'
     require 'barby/outputter/pdfwriter_outputter'
 
-    code = '0'*(12-num.length) + num
+    code = '0' * (12 - num.length) + num
     code = Barby::EAN13.new code
     out = Barby::PrawnOutputter.new code
     out.to_pdf document: pdf
   end
 
   def log_viewing
-    ServiceJobViewing.create(service_job: @service_job, user:current_user, time: Time.current, ip: request.ip)
+    ServiceJobViewing.create(service_job: @service_job, user: current_user, time: Time.current, ip: request.ip)
   end
 
   def create_phone_substitution
-    PhoneSubstitution.create_with(issuer_id: current_user.id, issued_at: Time.current).find_or_create_by(service_job_id: @service_job.id, substitute_phone_id: @service_job.substitute_phone_id, withdrawn_at: nil)
+    PhoneSubstitution.create_with(issuer_id: current_user.id, issued_at: Time.current).find_or_create_by(
+      service_job_id: @service_job.id, substitute_phone_id: @service_job.substitute_phone_id, withdrawn_at: nil
+    )
     # PhoneSubstitution.create service_job_id: @service_job.id,
     #                          substitute_phone_id: @service_job.substitute_phone_id,
     #                          issuer_id: current_user.id,
@@ -367,5 +371,19 @@ class ServiceJobsController < ApplicationController
 
   def set_job_templates
     @job_templates = Service::JobTemplate.select(:field_name, :content).all.to_a.group_by(&:field_name)
+  end
+
+  def service_job_params
+    params.require(:service_job)
+          .permit(:app_store_pass, :carrier_id, :case_color_id, :claimed_defect, :client_address, :client_comment,
+                  :client_id, :client_notified, :comment, :completeness, :contact_phone, :data_storages, :department_id,
+                  :device_condition, :device_group, :device_type_id, :done_at, :email, :estimated_cost_of_repair, :imei,
+                  :initial_department_id, :is_tray_present, :item_id, :keeper_id, :location_id, :notify_client,
+                  :replaced, :return_at, :sale_id, :security_code, :serial_number, :status, :tech_notice,
+                  :ticket_number, :trademark, :type_of_work, :user_id,
+                  device_tasks: [:done, :done_at, :comment, :user_comment, :cost, :task, :service_job, :service_job_id,
+                                 :task_id, :performer_id, :performer, :task, :service_job_attributes,
+                                 :repair_tasks_attributes])
+    # TODO: check nested attributes for: device_tasks
   end
 end

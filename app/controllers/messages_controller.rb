@@ -1,10 +1,10 @@
+# frozen_string_literal: true
+
 class MessagesController < ApplicationController
   def index
     authorize Message
     @messages = policy_scope(Message).newest
-    unless params[:range] == 'all'
-      @messages = @messages.today
-    end
+    @messages = @messages.today unless params[:range] == 'all'
 
     respond_to do |format|
       format.html
@@ -20,7 +20,7 @@ class MessagesController < ApplicationController
   end
 
   def create
-    message_params = params[:message].merge(user_id: current_user.id, department_id: current_user.department_id)
+    # message_params = params[:message].merge(user_id: current_user.id, department_id: current_user.department_id)
     @message = authorize Message.new(message_params)
 
     respond_to do |format|
@@ -29,7 +29,7 @@ class MessagesController < ApplicationController
         format.json { render json: @message, status: :created, location: @message }
         format.js
       else
-        format.html { render action: "new" }
+        format.html { render action: 'new' }
         format.json { render json: @message.errors, status: :unprocessable_entity }
       end
     end
@@ -43,5 +43,11 @@ class MessagesController < ApplicationController
       format.html { redirect_to messages_url }
       format.json { head :no_content }
     end
+  end
+
+  def message_params
+    params.require(:message)
+          .permit(:content, :department_id, :recipient_id, :recipient_type, :user_id)
+          .merge(user_id: current_user.id, department_id: current_user.department_id)
   end
 end

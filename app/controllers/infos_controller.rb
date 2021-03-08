@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 class InfosController < ApplicationController
   helper_method :sort_column, :sort_direction
 
@@ -22,9 +24,7 @@ class InfosController < ApplicationController
       @infos = params[:archive].present? ? policy_scope(Info).archived.newest : policy_scope(Info).actual.newest
       if policy(Info).manage?
         @infos = @infos.newest
-        unless sort_column.blank? and sort_direction.blank?
-          @infos = @infos.reorder("#{sort_column} #{sort_direction}")
-        end
+        @infos = @infos.reorder("#{sort_column} #{sort_direction}") unless sort_column.blank? && sort_direction.blank?
       else
         @infos = @infos.newest.available_for(current_user)
       end
@@ -61,14 +61,14 @@ class InfosController < ApplicationController
   end
 
   def create
-    @info = authorize Info.new(params[:info])
+    @info = authorize Info.new(info_params)
 
     respond_to do |format|
       if @info.save
         format.html { redirect_to @info, notice: t('infos.created') }
         format.json { render json: @info, status: :created, location: @info }
       else
-        format.html { render action: "new" }
+        format.html { render action: 'new' }
         format.json { render json: @info.errors, status: :unprocessable_entity }
       end
     end
@@ -82,7 +82,7 @@ class InfosController < ApplicationController
         format.html { redirect_to @info, notice: t('infos.updated') }
         format.json { head :no_content }
       else
-        format.html { render action: "edit" }
+        format.html { render action: 'edit' }
         format.json { render json: @info.errors, status: :unprocessable_entity }
       end
     end
@@ -106,5 +106,14 @@ class InfosController < ApplicationController
 
   def sort_direction
     %w[asc desc].include?(params[:direction]) ? params[:direction] : ''
+  end
+
+  def info_params
+    params.require(:info)
+          .permit(:content, :department_id, :important, :is_archived, :recipient_id, :title,
+                  comment: [:content, :commentable_id, :commentable_type],
+                  comments: [[:content, :commentable_id, :commentable_type]]
+          )
+    # TODO: check nested attributes for: comments
   end
 end

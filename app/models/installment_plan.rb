@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 class InstallmentPlan < ActiveRecord::Base
   scope :issued_at, ->(period) { where(issued_at: period) }
   scope :closed, -> { where(is_closed: true) }
@@ -8,9 +10,10 @@ class InstallmentPlan < ActiveRecord::Base
 
   delegate :department, :department_id, to: :user
 
-  accepts_nested_attributes_for :installments, reject_if: lambda { |attrs| attrs['installment_plan_id'].blank? or attrs['value'].blank? or attrs['paid_at'].blank? }
-
-  attr_accessible :cost, :issued_at, :object, :user, :user_id, :installments_attributes, :is_closed
+  accepts_nested_attributes_for :installments, reject_if: lambda { |attrs|
+                                                            attrs['installment_plan_id'].blank? or attrs['value'].blank? or attrs['paid_at'].blank?
+                                                          }
+  # attr_accessible :cost, :issued_at, :object, :user, :user_id, :installments_attributes, :is_closed
 
   validates_presence_of :user, :object, :cost, :issued_at
 
@@ -19,11 +22,10 @@ class InstallmentPlan < ActiveRecord::Base
   end
 
   def paid_sum
-    self.installments.sum(:value)
+    installments.sum(:value)
   end
 
   def presentation
-    "#{self.object}, #{self.paid_sum}/#{self.cost}, #{self.issued_at.strftime('%d.%m.%y')}"
+    "#{object}, #{paid_sum}/#{cost}, #{issued_at.strftime('%d.%m.%y')}"
   end
-
 end

@@ -1,20 +1,24 @@
+# frozen_string_literal: true
+
 class MovementAct < ActiveRecord::Base
   include Document
 
-  scope :posted, ->{ where(status: 1) }
-  scope :deleted, ->{ where(status: 2) }
+  scope :posted, -> { where(status: 1) }
+  scope :deleted, -> { where(status: 2) }
 
   belongs_to :user
   belongs_to :store
   belongs_to :dst_store, class_name: 'Store'
   has_many :movement_items, dependent: :destroy, inverse_of: :movement_act
 
-  accepts_nested_attributes_for :movement_items, allow_destroy: true, reject_if: lambda { |a| a[:item_id].blank? or a[:quantity].blank? }
+  accepts_nested_attributes_for :movement_items, allow_destroy: true, reject_if: lambda { |a|
+                                                                                   a[:item_id].blank? or a[:quantity].blank?
+                                                                                 }
 
   delegate :name, to: :store, prefix: true, allow_nil: true
   delegate :name, to: :dst_store, prefix: true, allow_nil: true
 
-  attr_accessible :date, :dst_store_id, :store_id, :user_id, :movement_items_attributes, :comment
+  # attr_accessible :date, :dst_store_id, :store_id, :user_id, :movement_items_attributes, :comment
   validates_presence_of :date, :dst_store, :store, :status, :user
   validates_presence_of :comment, if: :is_to_defect?
   validates_inclusion_of :status, in: Document::STATUSES.keys
@@ -54,7 +58,7 @@ class MovementAct < ActiveRecord::Base
   end
 
   def is_insufficient?
-    movement_items.any? { |movement_item| movement_item.is_insufficient? }
+    movement_items.any?(&:is_insufficient?)
   end
 
   def post
@@ -97,10 +101,10 @@ class MovementAct < ActiveRecord::Base
   private
 
   def stores_must_be_different
-    if self.store_id == self.dst_store_id
+    if store_id == dst_store_id
       msg = I18n.t 'movement_acts.errors.stores_same'
-      self.errors.add :store_id, msg
-      self.errors.add :dst_store_id, msg
+      errors.add :store_id, msg
+      errors.add :dst_store_id, msg
     end
   end
 

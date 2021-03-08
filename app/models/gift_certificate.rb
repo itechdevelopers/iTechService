@@ -1,5 +1,7 @@
+# frozen_string_literal: true
+
 class GiftCertificate < ActiveRecord::Base
-  STATUSES = %w[available issued used]
+  STATUSES = %w[available issued used].freeze
   NOMINAL_MIN = 1000
   NOMINAL_MAX = 100_000
   NOMINAL_STEP = 500
@@ -7,10 +9,9 @@ class GiftCertificate < ActiveRecord::Base
   belongs_to :department, required: true
   has_many :payments, dependent: :nullify
   has_many :history_records, as: :object, dependent: :destroy
-
-  attr_accessible :number, :nominal, :status, :consumed, :consume, :department_id
-  validates :number, presence: true, uniqueness: {case_sensitive: false}
-  validates :nominal, presence: true, numericality: {only_integer: true, greater_than_or_equal_to: NOMINAL_MIN, less_than_or_equal_to: NOMINAL_MAX}
+  validates :number, presence: true, uniqueness: { case_sensitive: false }
+  validates :nominal, presence: true,
+                      numericality: { only_integer: true, greater_than_or_equal_to: NOMINAL_MIN, less_than_or_equal_to: NOMINAL_MAX }
   before_validation { |cert| cert.status ||= 0 }
   before_validation :validate_consumption
   before_validation :validate_status, on: :update
@@ -46,7 +47,7 @@ class GiftCertificate < ActiveRecord::Base
   end
 
   def available?
-    status == 0
+    status.zero?
   end
 
   def issued?
@@ -58,8 +59,8 @@ class GiftCertificate < ActiveRecord::Base
   end
 
   def consume=(amount)
-    self.consumed = (self.consumed || 0) + amount
-    self.status = 2 if self.consumed == nominal
+    self.consumed = (consumed || 0) + amount
+    self.status = 2 if consumed == nominal
     save
   end
 
@@ -83,18 +84,16 @@ class GiftCertificate < ActiveRecord::Base
 
   def validate_status
     if (old_status = changed_attributes['status'].present? ? changed_attributes['status'].to_i : nil).present?
-      errors.add :base, I18n.t('gift_certificates.errors.not_available') if issued? and old_status != 0
-      errors.add :base, I18n.t('gift_certificates.errors.not_issued') if used? and old_status != 1
-      errors.add :base, I18n.t('gift_certificates.errors.not_used') if available? and old_status != 2
+      errors.add :base, I18n.t('gift_certificates.errors.not_available') if issued? && (old_status != 0)
+      errors.add :base, I18n.t('gift_certificates.errors.not_issued') if used? && (old_status != 1)
+      errors.add :base, I18n.t('gift_certificates.errors.not_used') if available? && (old_status != 2)
     end
   end
 
   def validate_consumption
     if changed_attributes['consumed'].present?
-      if issued? or used?
-        unless (consumed || 0) <= nominal
-          errors.add :base, I18n.t('gift_certificates.errors.consumption_exceeded')
-        end
+      if issued? || used?
+        errors.add :base, I18n.t('gift_certificates.errors.consumption_exceeded') unless (consumed || 0) <= nominal
       elsif consumed != 0
         errors.add :base, I18n.t('gift_certificates.errors.not_issued')
       end
@@ -104,8 +103,6 @@ class GiftCertificate < ActiveRecord::Base
   def nominal_must_be_multiple_of_step
     return unless nominal
 
-    if (nominal % NOMINAL_STEP) > 0
-      errors.add :nominal, :multiple_of, step: NOMINAL_STEP
-    end
+    errors.add :nominal, :multiple_of, step: NOMINAL_STEP if (nominal % NOMINAL_STEP).positive?
   end
 end

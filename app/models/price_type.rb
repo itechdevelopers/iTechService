@@ -1,15 +1,15 @@
-class PriceType < ActiveRecord::Base
+# frozen_string_literal: true
 
+class PriceType < ActiveRecord::Base
   KINDS = {
     0 => 'purchase',
     1 => 'retail',
     2 => 'other'
-  }
+  }.freeze
 
   has_many :product_prices, inverse_of: :price_type
   has_many :revaluation_acts, inverse_of: :price_type
   has_and_belongs_to_many :stores
-  attr_accessible :name, :kind
   validates_presence_of :name, :kind
   validates_inclusion_of :kind, in: KINDS.keys
   validates_uniqueness_of :kind
@@ -27,11 +27,10 @@ class PriceType < ActiveRecord::Base
   end
 
   def is_purchase?
-    kind == 0
+    kind.zero?
   end
 
   def is_retail?
     kind == 1
   end
-
 end

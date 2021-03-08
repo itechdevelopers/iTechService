@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 class SalesController < ApplicationController
   helper_method :sort_column, :sort_direction
 
@@ -30,7 +32,7 @@ class SalesController < ApplicationController
   end
 
   def new
-    @sale = authorize Sale.new(params[:sale])
+    @sale = authorize Sale.new(sale_params)
     load_top_salables
     respond_to do |format|
       format.html { render 'form' }
@@ -51,7 +53,7 @@ class SalesController < ApplicationController
   end
 
   def create
-    @sale = authorize Sale.new(params[:sale])
+    @sale = authorize Sale.new(sale_params)
     respond_to do |format|
       if @sale.save
         format.html { redirect_back_or root_path, notice: t('sales.created') }
@@ -97,9 +99,10 @@ class SalesController < ApplicationController
         if Setting.print_sale_check?
           pdf = SaleCheckPdf.new @sale, params[:copy].present?
           filename = "sale_check_#{@sale.id}.pdf"
-          filepath = "#{Rails.root.to_s}/tmp/pdf/#{filename}"
+          filepath = "#{Rails.root}/tmp/pdf/#{filename}"
           pdf.render_file filepath
-          PrinterTools.print_file filepath, type: :sale_check, height: pdf.page_height_mm, printer: current_department.printer
+          PrinterTools.print_file filepath, type: :sale_check, height: pdf.page_height_mm,
+                                            printer: current_department.printer
         end
 
         message = 'Продажа проведена.'
@@ -129,14 +132,15 @@ class SalesController < ApplicationController
   def print_check
     if Setting.print_sale_check?
       @sale = find_record Sale
-      if can?(:reprint_check, @sale)
-        pdf = SaleCheckPdf.new @sale, params[:copy].present?
-      else
-        pdf = SaleCheckPdf.new @sale, true
-      end
-      filepath = "#{Rails.root.to_s}/tmp/pdf/sale_check_#{@sale.id}.pdf"
+      pdf = if can?(:reprint_check, @sale)
+              SaleCheckPdf.new @sale, params[:copy].present?
+            else
+              SaleCheckPdf.new @sale, true
+            end
+      filepath = "#{Rails.root}/tmp/pdf/sale_check_#{@sale.id}.pdf"
       pdf.render_file filepath
-      PrinterTools.print_file filepath, type: :sale_check, height: pdf.page_height_mm, printer: current_department.printer
+      PrinterTools.print_file filepath, type: :sale_check, height: pdf.page_height_mm,
+                                        printer: current_department.printer
       message = 'Чек отправлен на печать.'
     else
       message = 'Печать чеков продаж отключена.'
@@ -184,5 +188,15 @@ class SalesController < ApplicationController
 
   def load_top_salables
     @top_salables = TopSalable.roots.ordered
+  end
+
+  def sale_params
+    params.require(:sale)
+          .permit(:cash_shift_id, :client_id, :date, :is_return, :status, :store_id, :user_id,
+                    sale_items: [:sale_id, :item_id, :price, :quantity, :discount, :device_task_id],
+                    payments: [:value, :kind, :sale_id, :bank_id, :gift_certificate_id, :device_name,
+                               :device_number, :client_info, :appraiser, :device_logout]
+                  )
+    # TODO: check nested attributes for: sale_items, payments
   end
 end

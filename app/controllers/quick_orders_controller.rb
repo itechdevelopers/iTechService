@@ -1,9 +1,11 @@
+# frozen_string_literal: true
+
 class QuickOrdersController < ApplicationController
   def index
     authorize QuickOrder
     @quick_orders = policy_scope(QuickOrder)
 
-    if params[:done].eql? 'true' #and current_user.any_admin?
+    if params[:done].eql? 'true' # and current_user.any_admin?
       @quick_orders = @quick_orders.done
     elsif request.format == :html
       @quick_orders = policy_scope(QuickOrder).in_month.undone
@@ -54,7 +56,7 @@ class QuickOrdersController < ApplicationController
   end
 
   def create
-    @quick_order = authorize QuickOrder.new(params[:quick_order])
+    @quick_order = authorize QuickOrder.new(quick_order_params)
 
     respond_to do |format|
       if @quick_order.save
@@ -112,8 +114,13 @@ class QuickOrdersController < ApplicationController
   private
 
   def print_ticket(pdf, filename)
-    filepath = "#{Rails.root.to_s}/tmp/pdf/#{filename}"
+    filepath = "#{Rails.root}/tmp/pdf/#{filename}"
     pdf.render_file filepath
     PrinterTools.print_file filepath, type: :quick_order, printer: current_department.printer
+  end
+
+  def quick_order_params
+    params.require(:quick_order)
+          .permit(:client_id, :client_name, :comment, :contact_phone, :department_id, :device_kind, :is_done, :number, :security_code, :user_id)
   end
 end

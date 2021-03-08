@@ -32,7 +32,7 @@ class SalariesController < ApplicationController
   end
 
   def create
-    @salary = authorize Salary.new(params[:salary])
+    @salary = authorize Salary.new(salary_params)
 
     respond_to do |format|
       if @salary.save
@@ -69,4 +69,8 @@ class SalariesController < ApplicationController
     end
   end
 
+  def salary_params
+    params.require(:salary)
+          .permit(:amount, :user, :user_id, :issued_at, :comment, :is_prepayment)
+  end
 end

@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 class Purchase < ActiveRecord::Base
   include Document
 
@@ -8,9 +10,9 @@ class Purchase < ActiveRecord::Base
   belongs_to :store, inverse_of: :purchases
   has_many :batches, inverse_of: :purchase, dependent: :destroy
   has_many :items, through: :batches
-  accepts_nested_attributes_for :batches, allow_destroy: true, reject_if: lambda { |a| a[:id].blank? && (a[:price].blank? || a[:quantity].blank? || a[:item_id].blank?) }
-
-  attr_accessible :batches_attributes, :contractor_id, :store_id, :date, :comment, :skip_revaluation
+  accepts_nested_attributes_for :batches, allow_destroy: true, reject_if: lambda { |a|
+                                                                            a[:id].blank? && (a[:price].blank? || a[:quantity].blank? || a[:item_id].blank?)
+                                                                          }
   validates_presence_of :contractor, :store, :status, :date
   validates_inclusion_of :status, in: Document::STATUSES.keys
   validates_associated :batches
@@ -55,7 +57,7 @@ class Purchase < ActiveRecord::Base
   end
 
   def total_sum
-    batches.to_a.sum &:sum
+    batches.to_a.sum(&:sum)
   end
 
   def post
@@ -66,7 +68,7 @@ class Purchase < ActiveRecord::Base
         batches.each do |batch|
           unless skip_revaluation?
             price_type = PriceType.purchase
-            new_price = if batch.product.quantity_in_store > 0
+            new_price = if batch.product.quantity_in_store.positive?
                           (batch.product.remnants_cost + batch.sum) / (batch.product.quantity_in_store + batch.quantity)
                         else
                           batch.price
@@ -75,7 +77,13 @@ class Purchase < ActiveRecord::Base
           end
 
           if batch.feature_accounting
-            batch.store_item.present? ? batch.store_item.update_attributes(store_id: store_id) : StoreItem.create(store_id: store_id, item_id: batch.item_id, quantity: 1)
+            if batch.store_item.present?
+              batch.store_item.update_attributes(store_id: store_id)
+            else
+              StoreItem.create(
+                store_id: store_id, item_id: batch.item_id, quantity: 1
+              )
+            end
           else
             batch.store_item(store).add batch.quantity
           end
@@ -95,19 +103,19 @@ class Purchase < ActiveRecord::Base
         update new_attributes
 
         batches.each do |batch|
-          unless skip_revaluation?
-            price = batch.prices.purchase.find_for_time_or_date(date)
-            previous_price = price.find_previous
+          next if skip_revaluation?
 
-            new_value = if previous_price.present?
-                          remnants_quantity = batch.product.quantity_in_store - batch.quantity
-                          remnants_cost = remnants_quantity * previous_price.value
-                          (remnants_cost + batch.sum) / (remnants_quantity + batch.quantity)
-                        else
-                          batch.price
-                        end
-            price.update value: new_value
-          end
+          price = batch.prices.purchase.find_for_time_or_date(date)
+          previous_price = price.find_previous
+
+          new_value = if previous_price.present?
+                        remnants_quantity = batch.product.quantity_in_store - batch.quantity
+                        remnants_cost = remnants_quantity * previous_price.value
+                        (remnants_cost + batch.sum) / (remnants_quantity + batch.quantity)
+                      else
+                        batch.price
+                      end
+          price.update value: new_value
         end
       end
     end
@@ -143,7 +151,7 @@ class Purchase < ActiveRecord::Base
     dst_store_id = nil
     (selected_item_ids || item_ids).map do |item_id|
       if (batch = batches.where(item_id: item_id).first).present?
-        movement_items_attributes << {item_id: item_id, quantity: batch.quantity}
+        movement_items_attributes << { item_id: item_id, quantity: batch.quantity }
         dst_store_id ||= batch.is_spare_part ? Store.for_spare_parts&.id : Store.for_retail&.id
       end
     end
@@ -156,11 +164,9 @@ class Purchase < ActiveRecord::Base
     is_valid = true
     if is_new?
       batches.each do |batch|
-        if batch.feature_accounting
-          if batch.store_item.present?
-            errors[:base] << I18n.t('purchases.errors.store_item_already_present', product: batch.name)
-            is_valid = false
-          end
+        if batch.feature_accounting && batch.store_item.present?
+          errors[:base] << I18n.t('purchases.errors.store_item_already_present', product: batch.name)
+          is_valid = false
         end
       end
     else

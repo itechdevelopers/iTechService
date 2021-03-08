@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 class RevaluationActsController < ApplicationController
   def index
     authorize RevaluationAct
@@ -19,7 +21,7 @@ class RevaluationActsController < ApplicationController
   end
 
   def new
-    @revaluation_act = authorize RevaluationAct.new(params[:revaluation_act])
+    @revaluation_act = authorize RevaluationAct.new(revaluation_act_params)
     respond_to do |format|
       format.html { render 'form' }
       format.json { render json: @revaluation_act }
@@ -35,7 +37,7 @@ class RevaluationActsController < ApplicationController
   end
 
   def create
-    @revaluation_act = authorize RevaluationAct.new(params[:revaluation_act])
+    @revaluation_act = authorize RevaluationAct.new(revaluation_act_params)
     respond_to do |format|
       if @revaluation_act.save
         format.html { redirect_to @revaluation_act, notice: t('revaluation_acts.created') }
@@ -91,5 +93,14 @@ class RevaluationActsController < ApplicationController
         format.html { redirect_to @revaluation_act, error: t('documents.not_unposted') }
       end
     end
+  end
+
+  def revaluation_act_params
+    params.require(:revaluation_act)
+          .permit(:date, :price_type_id, :status,
+                  revaluations: [:price, :product_id, :revaluation_act_id]
+
+          )
+    # TODO: check nested attributes for: revaluations
   end
 end

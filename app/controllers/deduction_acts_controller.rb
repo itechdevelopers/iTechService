@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 class DeductionActsController < ApplicationController
   helper_method :sort_column, :sort_direction
 
@@ -5,11 +7,11 @@ class DeductionActsController < ApplicationController
     authorize DeductionAct
     @deduction_acts = policy_scope(DeductionAct).search(params)
 
-    if params.has_key?(:sort) && params.has_key?(:direction)
-      @deduction_acts = @deduction_acts.order("deduction_acts.#{sort_column} #{sort_direction}")
-    else
-      @deduction_acts = @deduction_acts.order(date: :desc)
-    end
+    @deduction_acts = if params.key?(:sort) && params.key?(:direction)
+                        @deduction_acts.order("deduction_acts.#{sort_column} #{sort_direction}")
+                      else
+                        @deduction_acts.order(date: :desc)
+                      end
 
     @deduction_acts = @deduction_acts.page(params[:page])
 
@@ -48,7 +50,7 @@ class DeductionActsController < ApplicationController
   end
 
   def create
-    @deduction_act = authorize DeductionAct.new(params[:deduction_act])
+    @deduction_act = authorize DeductionAct.new(deduction_act_params)
 
     respond_to do |format|
       if @deduction_act.save
@@ -107,5 +109,13 @@ class DeductionActsController < ApplicationController
 
   def sort_direction
     %w[asc desc].include?(params[:direction]) ? params[:direction] : ''
+  end
+
+  def deduction_act_params
+    params.require(:deduction_act)
+          .permit(:comment, :date, :status, :store_id, :user_id,
+                  deduction_items: [:quantity, :item_id])
+    # :deduction_items_attributes
+    # TODO: check nested attributes for: deduction_items
   end
 end

@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 class FeatureTypesController < ApplicationController
   def index
     authorize FeatureType
@@ -26,7 +28,7 @@ class FeatureTypesController < ApplicationController
   end
 
   def create
-    @feature_type = authorize FeatureType.new(params[:feature_type])
+    @feature_type = authorize FeatureType.new(feature_type_params)
 
     respond_to do |format|
       if @feature_type.save
@@ -61,5 +63,9 @@ class FeatureTypesController < ApplicationController
       format.html { redirect_to feature_types_url }
       format.json { head :no_content }
     end
+  end
+
+  def feature_type_params
+    params.require(:feature_type).permit(:kind, :name)
   end
 end

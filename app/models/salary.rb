@@ -10,7 +10,7 @@ class Salary < ActiveRecord::Base
   belongs_to :user, inverse_of: :salaries
   has_many :comments, as: :commentable, dependent: :destroy
 
-  attr_accessible :amount, :user, :user_id, :issued_at, :comment, :is_prepayment
+  # attr_accessible :amount, :user, :user_id, :issued_at, :comment, :is_prepayment
   validates_presence_of :user, :amount
   attr_accessor :comment
 

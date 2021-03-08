@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 class CashDrawer < ActiveRecord::Base
   scope :in_department, ->(department) { where(department_id: department) }
 
@@ -6,7 +8,7 @@ class CashDrawer < ActiveRecord::Base
 
   delegate :name, to: :department, prefix: true, allow_nil: true
 
-  attr_accessible :name, :department_id
+  # attr_accessible :name, :department_id
 
   validates_presence_of :name, :department
 

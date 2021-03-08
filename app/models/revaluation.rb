@@ -5,7 +5,7 @@ class Revaluation < ActiveRecord::Base
 
   delegate :code, :name, :prices, :purchase_price, :retail_price, to: :product, allow_nil: true
 
-  attr_accessible :price, :product_id, :revaluation_act_id
+  # attr_accessible :price, :product_id, :revaluation_act_id
   validates_presence_of :revaluation_act, :product, :price
 
   after_initialize do

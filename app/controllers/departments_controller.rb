@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 class DepartmentsController < ApplicationController
   def index
     authorize Department
@@ -29,7 +31,7 @@ class DepartmentsController < ApplicationController
   end
 
   def create
-    @department = authorize Department.new(params[:department])
+    @department = authorize Department.new(department_params)
     respond_to do |format|
       if @department.save
         format.html { redirect_to @department, notice: t('departments.created') }
@@ -56,5 +58,10 @@ class DepartmentsController < ApplicationController
     respond_to do |format|
       format.html { redirect_to departments_url }
     end
+  end
+
+  def department_params
+    params.require(:department)
+          .permit(:address, :brand_id, :city_id, :code, :contact_phone, :ip_network, :name, :printer, :role, :schedule, :short_name, :url)
   end
 end

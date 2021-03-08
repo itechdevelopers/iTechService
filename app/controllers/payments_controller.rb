@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 class PaymentsController < ApplicationController
   def index
     skip_authorization
@@ -19,7 +21,7 @@ class PaymentsController < ApplicationController
 
   def new
     @sale = find_sale
-    @payment = authorize Payment.new(params[:payment])
+    @payment = authorize Payment.new(payment_params)
     respond_to do |format|
       format.html { render 'form' }
       format.js { render 'shared/show_modal_form' }
@@ -36,7 +38,7 @@ class PaymentsController < ApplicationController
 
   def create
     @sale = find_sale
-    payment = authorize Payment.new(params[:payment])
+    payment = authorize Payment.new(payment_params)
     outcome = Sales::AddPayment.run(sale: @sale, payment: payment)
     @payment = outcome.result
 
@@ -77,5 +79,10 @@ class PaymentsController < ApplicationController
 
   def find_sale
     policy_scope(Sale).find(params[:sale_id])
+  end
+
+  def payment_params
+    params.require(:payment)
+          .permit(:appraiser, :bank_id, :client_info, :device_name, :device_number, :gift_certificate_id, :kind, :sale_id, :value)
   end
 end

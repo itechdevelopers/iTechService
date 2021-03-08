@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 class PaymentTypesController < ApplicationController
   def index
     authorize PaymentType
@@ -26,7 +28,7 @@ class PaymentTypesController < ApplicationController
   end
 
   def create
-    @payment_type = authorize PaymentType.new(params[:payment_type])
+    @payment_type = authorize PaymentType.new(payment_type_params)
 
     respond_to do |format|
       if @payment_type.save
@@ -61,5 +63,10 @@ class PaymentTypesController < ApplicationController
       format.html { redirect_to payment_types_url }
       format.json { head :no_content }
     end
+  end
+
+  def payment_type_params
+    params.require(:payment_type)
+          .permit(:kind, :name)
   end
 end

@@ -1,8 +1,11 @@
+# frozen_string_literal: true
+
 require 'barby/barcode/ean_13'
 class Item < ActiveRecord::Base
-
   scope :available, -> { includes(:store_items).where('store_items.quantity > ?', 0).references(:store_items) }
-  scope :in_store, ->(store) { includes(:store_items).where(store_items: {store_id: store.is_a?(Store) ? store.id : store}) }
+  scope :in_store, lambda { |store|
+                     includes(:store_items).where(store_items: { store_id: store.is_a?(Store) ? store.id : store })
+                   }
 
   belongs_to :product, inverse_of: :items
   has_many :store_items, inverse_of: :item, dependent: :destroy
@@ -16,21 +19,21 @@ class Item < ActiveRecord::Base
   has_one :trade_in_device
   accepts_nested_attributes_for :features, allow_destroy: true
 
-  delegate :name, :code, :feature_accounting, :prices, :feature_types, :retail_price, :actual_prices, :quantity_in_store, :product_category, :product_group, :product_group_id, :discount_for, :is_service, :is_equipment, :is_spare_part, :is_equipment?, :is_spare_part?, :is_service?, :is_repair?, :request_price, :warranty_term, :quantity_threshold, :comment, :options, :option_ids, :available_options, to: :product, allow_nil: true
+  delegate :name, :code, :feature_accounting, :prices, :feature_types, :retail_price, :actual_prices,
+           :quantity_in_store, :product_category, :product_group, :product_group_id, :discount_for, :is_service, :is_equipment, :is_spare_part, :is_equipment?, :is_spare_part?, :is_service?, :is_repair?, :request_price, :warranty_term, :quantity_threshold, :comment, :options, :option_ids, :available_options, to: :product, allow_nil: true
 
   validates_presence_of :product
   validates_length_of :barcode_num, is: 13, allow_nil: true
   validates_uniqueness_of :barcode_num, allow_nil: true
   validates_uniqueness_of :product_id, unless: :feature_accounting
 
-
-  attr_accessible :product, :product_id, :features_attributes, :barcode_num
+  # attr_accessible :product, :product_id, :features_attributes, :barcode_num
 
   paginates_per 5
 
   after_create :generate_barcode_num
 
-  def as_json(options={})
+  def as_json(_options = {})
     {
       id: id,
       barcode_num: barcode_num,
@@ -47,29 +50,31 @@ class Item < ActiveRecord::Base
     items = Item.all
 
     unless (q = params[:q]).blank?
-      items = items.includes(:features, :product).where('features.value = :q OR products.code = :q OR items.barcode_num = :q OR LOWER(products.name) LIKE :ql', q: q, ql: "%#{q.mb_chars.downcase.to_s}%").references(:features)
+      items = items.includes(:features, :product).where(
+        'features.value = :q OR products.code = :q OR items.barcode_num = :q OR LOWER(products.name) LIKE :ql', q: q, ql: "%#{q.mb_chars.downcase}%"
+      ).references(:features)
     end
 
     items
   end
 
-  def self.filter(params={})
+  def self.filter(params = {})
     items = Item.all
     unless (search = params[:search] || params[:term]).blank?
       search.chomp.split(/\s+/).each do |q|
-        items = items.joins(:features).includes(:product).where('LOWER(features.value) LIKE :q OR LOWER(products.code) LIKE :q OR items.barcode_num LIKE :q OR LOWER(products.name) LIKE :q', q: "%#{q.mb_chars.downcase.to_s}%").references(:products)
+        items = items.joins(:features).includes(:product).where(
+          'LOWER(features.value) LIKE :q OR LOWER(products.code) LIKE :q OR items.barcode_num LIKE :q OR LOWER(products.name) LIKE :q', q: "%#{q.mb_chars.downcase}%"
+        ).references(:products)
       end
     end
     items
   end
 
-  def store_item(store=nil)
+  def store_item(store = nil)
     if feature_accounting
       store_items.first
     elsif store.present?
       store_items.in_store(store).first_or_create quantity: 0
-    else
-      nil
     end
   end
 
@@ -94,10 +99,10 @@ class Item < ActiveRecord::Base
   end
 
   def add_to_store(store, amount)
-    if store.present? and store.is_a? Store
+    if store.present? && store.is_a?(Store)
       if feature_accounting
         if store_items.any?
-          return false
+          false
         else
           store_items.create store_id: store.id, quantity: 1
         end
@@ -107,29 +112,25 @@ class Item < ActiveRecord::Base
     end
   end
 
-  def remove_from_store(store, amount=nil)
-    if store.present? and store.is_a? Store
+  def remove_from_store(store, amount = nil)
+    if store.present? && store.is_a?(Store)
       if feature_accounting
         if store_item.present?
           store_item.destroy
         else
-          return false
+          false
         end
+      elsif amount.nil?
+        store_item(store).update_attribute :quantity, 0
+      elsif store_item(store).quantity < amount
+        false
       else
-        if amount.nil?
-          store_item(store).update_attribute :quantity, 0
-        else
-          if store_item(store).quantity < amount
-            return false
-          else
-            store_item(store).dec amount
-          end
-        end
+        store_item(store).dec amount
       end
     end
   end
 
-  def actual_quantity(store=nil)
+  def actual_quantity(store = nil)
     if store.present?
       store_items.in_store(store).try(:first).try(:quantity) || 0
     else
@@ -138,9 +139,9 @@ class Item < ActiveRecord::Base
   end
 
   def generate_barcode_num
-    if self.barcode_num.blank?
-      num = self.id.to_s
-      code = Product::BARCODE_PREFIX + '0'*(9-num.length) + num
+    if barcode_num.blank?
+      num = id.to_s
+      code = Product::BARCODE_PREFIX + '0' * (9 - num.length) + num
       update_attribute :barcode_num, Barby::EAN13.new(code).to_s
     end
   end
@@ -157,10 +158,13 @@ class Item < ActiveRecord::Base
     if (posted_sales = sales.posted.order('date asc')).present?
       # {sale_info: {date: sale.date, is_return: sale.is_return, price: sale_items.where(sale_id: sale.id).first.price}}
       # {sale_info: "[#{sale.date.strftime('%d.%m.%y')}: #{'-' if sale.is_return}#{sale_items.where(sale_id: sale.id).first.price}]"}
-      {sale_info: posted_sales.map{|s|"[#{s.date.strftime('%d.%m.%y')}: #{'-' if s.is_return}#{sale_items.where(sale_id: s.id).first.price}]"}.join(' ')}
+      { sale_info: posted_sales.map do |s|
+                     "[#{s.date.strftime('%d.%m.%y')}: #{if s.is_return
+                                                           '-'
+                                                         end}#{sale_items.where(sale_id: s.id).first.price}]"
+                   end.join(' ') }
     else
       {}
     end
   end
-
 end

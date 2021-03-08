@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 class TasksController < ApplicationController
   def index
     authorize Task
@@ -32,14 +34,14 @@ class TasksController < ApplicationController
   end
 
   def create
-    @task = authorize Task.new(params[:task])
+    @task = authorize Task.new(task_params)
 
     respond_to do |format|
       if @task.save
         format.html { redirect_to tasks_path, notice: t('tasks.created') }
         format.json { render json: @task, status: :created, location: @task }
       else
-        format.html { render action: "new" }
+        format.html { render action: 'new' }
         format.json { render json: @task.errors, status: :unprocessable_entity }
       end
     end
@@ -53,7 +55,7 @@ class TasksController < ApplicationController
         format.html { redirect_to tasks_path, notice: t('tasks.updated') }
         format.json { head :no_content }
       else
-        format.html { render action: "edit" }
+        format.html { render action: 'edit' }
         format.json { render json: @task.errors, status: :unprocessable_entity }
       end
     end
@@ -67,5 +69,10 @@ class TasksController < ApplicationController
       format.html { redirect_to tasks_url }
       format.json { head :no_content }
     end
+  end
+
+  def task_params
+    params.require(:task)
+          .permit(:code, :cost, :duration, :hidden, :location_code, :name, :priority, :product_id, :role)
   end
 end

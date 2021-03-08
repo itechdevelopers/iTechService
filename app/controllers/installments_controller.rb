@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 class InstallmentsController < ApplicationController
   def show
     @installment = find_record Installment
@@ -22,7 +24,7 @@ class InstallmentsController < ApplicationController
   end
 
   def create
-    @installment = authorize Installment.new(params[:installment])
+    @installment = authorize Installment.new(installment_params)
 
     respond_to do |format|
       if @installment.save
@@ -30,7 +32,7 @@ class InstallmentsController < ApplicationController
         format.json { render json: @installment, status: :created, location: @installment }
         format.js { render 'shared/close_modal_form' }
       else
-        format.html { render action: "new" }
+        format.html { render action: 'new' }
         format.json { render json: @installment.errors, status: :unprocessable_entity }
         format.js
       end
@@ -45,7 +47,7 @@ class InstallmentsController < ApplicationController
         format.html { redirect_to @installment, notice: 'Installment was successfully updated.' }
         format.json { head :no_content }
       else
-        format.html { render action: "edit" }
+        format.html { render action: 'edit' }
         format.json { render json: @installment.errors, status: :unprocessable_entity }
       end
     end
@@ -59,5 +61,10 @@ class InstallmentsController < ApplicationController
       format.html { redirect_to installments_url }
       format.json { head :no_content }
     end
+  end
+
+  def installment_params
+    params.require(:installment)
+          .permit(:installment_plan_id, :paid_at, :value)
   end
 end

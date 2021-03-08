@@ -1,22 +1,24 @@
+# frozen_string_literal: true
+
 class CommentsController < ApplicationController
   helper_method :sort_column, :sort_direction
 
   def index
     authorize Comment
 
-    # TODO refactor
-    if (commentable_type = params[:commentable_type]).present? and
-        (commentable_id = params[:commentable_id]).present?
+    # TODO: refactor
+    if (commentable_type = params[:commentable_type]).present? &&
+       (commentable_id = params[:commentable_id]).present?
       if commentable_type.constantize.respond_to?(:find)
         @commentable = commentable_type.constantize.find(commentable_id)
         @comments = @commentable.comments
       end
     else
-      if params.has_key?(:sort) and params.has_key?(:direction)
-        @comments = Comment.order("comments.+#{sort_column} #{sort_direction}")
-      else
-        @comments = Comment.newest.page(params[:page])
-      end
+      @comments = if params.key?(:sort) && params.key?(:direction)
+                    Comment.order("comments.+#{sort_column} #{sort_direction}")
+                  else
+                    Comment.newest.page(params[:page])
+                  end
       @comments = @comments.page(params[:page])
     end
 
@@ -50,7 +52,7 @@ class CommentsController < ApplicationController
   end
 
   def create
-    @comment = authorize Comment.new(params[:comment])
+    @comment = authorize Comment.new(comment_params)
     @comment.user_id = current_user.id
 
     respond_to do |format|
@@ -59,7 +61,7 @@ class CommentsController < ApplicationController
         format.json { render json: @comment, status: :created, location: @comment }
         format.js
       else
-        format.html { render action: "new" }
+        format.html { render action: 'new' }
         format.json { render json: @comment.errors, status: :unprocessable_entity }
       end
     end
@@ -73,7 +75,7 @@ class CommentsController < ApplicationController
         format.html { redirect_to @comment, notice: t('comments.updated') }
         format.json { head :no_content }
       else
-        format.html { render action: "edit" }
+        format.html { render action: 'edit' }
         format.json { render json: @comment.errors, status: :unprocessable_entity }
       end
     end
@@ -97,5 +99,10 @@ class CommentsController < ApplicationController
 
   def sort_direction
     %w[asc desc].include?(params[:direction]) ? params[:direction] : ''
+  end
+
+  def comment_params
+    params.require(:comment)
+          .permit(:commentable_id, :commentable_type, :content, :user_id)
   end
 end

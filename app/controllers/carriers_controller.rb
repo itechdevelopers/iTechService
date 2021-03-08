@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 class CarriersController < ApplicationController
   def index
     authorize Carrier
@@ -23,14 +25,14 @@ class CarriersController < ApplicationController
   end
 
   def create
-    @carrier = authorize Carrier.new(params[:carrier])
+    @carrier = authorize Carrier.new(carrier_params)
 
     respond_to do |format|
       if @carrier.save
         format.html { redirect_to carriers_path, notice: 'Carrier was successfully created.' }
         format.json { render json: @carrier, status: :created, location: @carrier }
       else
-        format.html { render action: "new" }
+        format.html { render action: 'new' }
         format.json { render json: @carrier.errors, status: :unprocessable_entity }
       end
     end
@@ -44,7 +46,7 @@ class CarriersController < ApplicationController
         format.html { redirect_to carriers_path, notice: 'Carrier was successfully updated.' }
         format.json { head :no_content }
       else
-        format.html { render action: "edit" }
+        format.html { render action: 'edit' }
         format.json { render json: @carrier.errors, status: :unprocessable_entity }
       end
     end
@@ -58,5 +60,9 @@ class CarriersController < ApplicationController
       format.html { redirect_to carriers_url }
       format.json { head :no_content }
     end
+  end
+
+  def carrier_params
+    params.require(:carrier).permit(:name)
   end
 end

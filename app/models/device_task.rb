@@ -1,12 +1,16 @@
+# frozen_string_literal: true
+
 class DeviceTask < ActiveRecord::Base
   scope :in_department, ->(department) { where(service_job_id: ServiceJob.in_department(department)) }
-  scope :ordered, ->{joins(:task).order('done asc, tasks.priority desc')}
-  scope :pending, ->{where(done: 0)}
-  scope :done, ->{where(done: 1)}
-  scope :undone, ->{where(done: 2)}
-  scope :processed, ->{where(done: [1,2])}
-  scope :tasks_for, ->(user) { joins(:service_job, :task).where(service_jobs: {location_id: user.location_id}, tasks: {role: user.role}) }
-  scope :paid, ->{where('device_tasks.cost > 0')}
+  scope :ordered, -> { joins(:task).order('done asc, tasks.priority desc') }
+  scope :pending, -> { where(done: 0) }
+  scope :done, -> { where(done: 1) }
+  scope :undone, -> { where(done: 2) }
+  scope :processed, -> { where(done: [1, 2]) }
+  scope :tasks_for, lambda { |user|
+                      joins(:service_job, :task).where(service_jobs: { location_id: user.location_id }, tasks: { role: user.role })
+                    }
+  scope :paid, -> { where('device_tasks.cost > 0') }
 
   belongs_to :service_job
   belongs_to :task
@@ -21,7 +25,7 @@ class DeviceTask < ActiveRecord::Base
   delegate :client_presentation, :ticket_number, to: :service_job, allow_nil: true
   delegate :department, :department_id, :user, to: :service_job
 
-  attr_accessible :done, :done_at, :comment, :user_comment, :cost, :task, :service_job, :service_job_id, :task_id, :performer_id, :performer, :task, :service_job_attributes, :repair_tasks_attributes
+  # attr_accessible :done, :done_at, :comment, :user_comment, :cost, :task, :service_job, :service_job_id, :task_id, :performer_id, :performer, :task, :service_job_attributes, :repair_tasks_attributes
 
   accepts_nested_attributes_for :service_job, reject_if: proc { |attr| attr['tech_notice'].blank? }
   accepts_nested_attributes_for :repair_tasks, allow_destroy: true
@@ -36,15 +40,15 @@ class DeviceTask < ActiveRecord::Base
 
   before_save do |dt|
     old_done = dt.done_was
-    if dt.done != 0 and old_done == 0
+    if (dt.done != 0) && old_done.zero?
       dt.done_at = DateTime.current
       dt.performer_id ||= User.current&.id
-    elsif dt.done != 1 and old_done == 1
+    elsif (dt.done != 1) && (old_done == 1)
       dt.done_at = nil
     end
   end
 
-  def as_json(options={})
+  def as_json(_options = {})
     {
       id: id,
       name: name,
@@ -62,7 +66,7 @@ class DeviceTask < ActiveRecord::Base
   def task_cost
     task.try(:cost) || 0
   end
-  
+
   def task_duration
     task.try :duration
   end
@@ -80,11 +84,11 @@ class DeviceTask < ActiveRecord::Base
   end
 
   def done_s
-    %w(pending done undone)[done]
+    %w[pending done undone][done]
   end
 
   def pending?
-    done == 0
+    done.zero?
   end
 
   def done?
@@ -100,8 +104,8 @@ class DeviceTask < ActiveRecord::Base
   def update_service_job_done_attribute
     return if service_job.nil?
 
-    done_time = self.service_job.done? ? self.service_job.device_tasks.maximum(:done_at).getlocal : nil
-    self.service_job.update_attribute :done_at, done_time
+    done_time = service_job.done? ? service_job.device_tasks.maximum(:done_at).getlocal : nil
+    service_job.update_attribute :done_at, done_time
   end
 
   # def deduct_spare_parts
@@ -116,10 +120,9 @@ class DeviceTask < ActiveRecord::Base
 
   def valid_repair
     is_valid = true
-    if done_change == [0, 1]
-      if done_was > 0
-        errors.add :done, :already_done
-        is_valid = false
+    if done_change == [0, 1] && done_was.positive?
+      errors.add :done, :already_done
+      is_valid = false
       # else
       #   repair_tasks.each do |repair_task|
       #     repair_task.repair_parts.each do |repair_part|
@@ -138,13 +141,12 @@ class DeviceTask < ActiveRecord::Base
       #       is_valid = false
       #     end
       #   end
-      end
     end
     is_valid
   end
 
   def set_performer
-    if performer_id.nil? and done and (user = history_records.task_completions.order_by_newest.where(new_value: true).first.try(:user)).present?
+    if performer_id.nil? && done && (user = history_records.task_completions.order_by_newest.where(new_value: true).first.try(:user)).present?
       update_attribute :performer_id, user.id
     end
   end

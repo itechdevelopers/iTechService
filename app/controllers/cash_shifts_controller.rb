@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 class CashShiftsController < ApplicationController
   def show
     @cash_shift = find_record CashShift
@@ -17,5 +19,10 @@ class CashShiftsController < ApplicationController
     else
       redirect_to cash_drawer_path(@cash_shift.cash_drawer)
     end
+  end
+
+  def cash_shift_params
+    params.require(:cash_shift)
+          .permit(:cash_drawer_id, :closed_at, :is_closed, :user_id)
   end
 end

@@ -1,5 +1,6 @@
-class SettingsController < ApplicationController
+# frozen_string_literal: true
 
+class SettingsController < ApplicationController
   def index
     authorize Setting
     @settings = Setting.all
@@ -23,7 +24,7 @@ class SettingsController < ApplicationController
   end
 
   def create
-    @setting = authorize Setting.new(params[:setting])
+    @setting = authorize Setting.new(setting_params)
 
     respond_to do |format|
       if @setting.save
@@ -58,5 +59,10 @@ class SettingsController < ApplicationController
       format.html { redirect_to settings_url }
       format.json { head :no_content }
     end
+  end
+
+  def setting_params
+    params.require(:setting)
+          .permit(:department_id, :name, :presentation, :value, :value_type)
   end
 end

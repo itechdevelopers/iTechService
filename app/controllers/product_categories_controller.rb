@@ -27,7 +27,7 @@ class ProductCategoriesController < ApplicationController
   end
 
   def create
-    @product_category = authorize ProductCategory.new(params[:product_category])
+    @product_category = authorize ProductCategory.new(product_category_params)
 
     respond_to do |format|
       if @product_category.save
@@ -62,5 +62,11 @@ class ProductCategoriesController < ApplicationController
       format.html { redirect_to product_categories_url }
       format.json { head :no_content }
     end
+  end
+
+  def product_category_params
+    params.require(:product_category)
+          .permit(:name, :kind, :feature_accounting, :request_price, :warranty_term, :feature_type_ids)
+
   end
 end

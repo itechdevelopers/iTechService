@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 class TimesheetDaysController < ApplicationController
   def index
     authorize TimesheetDay
@@ -10,7 +12,7 @@ class TimesheetDaysController < ApplicationController
   end
 
   def new
-    @timesheet_day = authorize TimesheetDay.new(params[:timesheet_day])
+    @timesheet_day = authorize TimesheetDay.new(timesheet_day_params)
     respond_to do |format|
       format.js { render 'show_form' }
       format.json { render json: @timesheet_day }
@@ -25,8 +27,8 @@ class TimesheetDaysController < ApplicationController
   end
 
   def create
-    @timesheet_day = authorize TimesheetDay.new(params[:timesheet_day])
-    @data = {user: @timesheet_day.user, date: @timesheet_day.date}
+    @timesheet_day = authorize TimesheetDay.new(timesheet_day_params)
+    @data = { user: @timesheet_day.user, date: @timesheet_day.date }
     respond_to do |format|
       if @timesheet_day.save
         format.js { render 'update_cell' }
@@ -40,7 +42,7 @@ class TimesheetDaysController < ApplicationController
 
   def update
     @timesheet_day = find_record TimesheetDay
-    @data = {user: @timesheet_day.user, date: @timesheet_day.date}
+    @data = { user: @timesheet_day.user, date: @timesheet_day.date }
     respond_to do |format|
       if @timesheet_day.update_attributes(params[:timesheet_day])
         format.js { render 'update_cell' }
@@ -60,5 +62,10 @@ class TimesheetDaysController < ApplicationController
       format.js { render 'update_cell' }
       format.json { head :no_content }
     end
+  end
+
+  def timesheet_day_params
+    params.require(:timesheet_day)
+          .permit(:date, :status, :time, :user_id, :work_mins)
   end
 end

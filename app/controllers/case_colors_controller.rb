@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 class CaseColorsController < ApplicationController
   def index
     authorize CaseColor
@@ -25,7 +27,7 @@ class CaseColorsController < ApplicationController
   end
 
   def create
-    @case_color = authorize CaseColor.new(params[:case_color])
+    @case_color = authorize CaseColor.new(case_color_params)
     respond_to do |format|
       if @case_color.save
         format.html { redirect_to case_colors_path, notice: t('case_colors.created') }
@@ -56,5 +58,9 @@ class CaseColorsController < ApplicationController
       format.html { redirect_to case_colors_url }
       format.json { head :no_content }
     end
+  end
+
+  def case_color_params
+    params.require(:case_color).permit(:color, :name)
   end
 end

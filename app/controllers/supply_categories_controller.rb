@@ -32,7 +32,7 @@ class SupplyCategoriesController < ApplicationController
   end
 
   def create
-    @supply_category = authorize SupplyCategory.new(params[:supply_category])
+    @supply_category = authorize SupplyCategory.new(supply_category_params)
     respond_to do |format|
       if @supply_category.save
         @supply_categories = SupplyCategory.arrange(order: :name)
@@ -66,5 +66,10 @@ class SupplyCategoriesController < ApplicationController
       #format.js { redirect_to supply_categories_url }
       format.json { head :no_content }
     end
+  end
+
+  def supply_category_params
+    params.require(:store)
+          .permit( :name, :ancestry, :parent_id)
   end
 end

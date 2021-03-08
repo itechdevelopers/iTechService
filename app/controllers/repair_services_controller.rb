@@ -1,11 +1,11 @@
+# frozen_string_literal: true
+
 class RepairServicesController < ApplicationController
   def index
     authorize RepairService
     @repair_groups = RepairGroup.roots.order('name asc')
 
-    if params[:group].present?
-      @repair_services = RepairService.includes(spare_parts: :product).in_group(params[:group])
-    end
+    @repair_services = RepairService.includes(spare_parts: :product).in_group(params[:group]) if params[:group].present?
 
     params[:table_name] = {
       'prices' => 'prices_table',
@@ -28,7 +28,7 @@ class RepairServicesController < ApplicationController
   end
 
   def new
-    @repair_service = authorize RepairService.new(params[:repair_service])
+    @repair_service = authorize RepairService.new(repair_service_params)
     build_prices
     respond_to do |format|
       format.html { render 'form' }
@@ -44,7 +44,7 @@ class RepairServicesController < ApplicationController
   end
 
   def create
-    @repair_service = authorize RepairService.new(params[:repair_service])
+    @repair_service = authorize RepairService.new(repair_service_params)
     respond_to do |format|
       if @repair_service.save
         format.html { redirect_to repair_services_path, notice: t('repair_services.created') }
@@ -103,5 +103,14 @@ class RepairServicesController < ApplicationController
     Department.real.each do |department|
       @repair_service.prices.find_or_initialize_by(department_id: department.id)
     end
+  end
+
+  def repair_service_params
+    params.require(:repair_service)
+          .permit(:client_info, :difficult, :is_body_repair, :is_positive_price, :name, :repair_group_id,
+                    spare_parts: [:quantity, :warranty_term, :repair_service_id, :product_id],
+                    prices: [:value, :repair_service_id, :department_id]
+                  )
+    # TODO: check nested attributes for: spare_parts, prices
   end
 end

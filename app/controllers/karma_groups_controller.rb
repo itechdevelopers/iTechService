@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 class KarmaGroupsController < ApplicationController
   before_action :convert_karma_ids, only: [:create]
 
@@ -17,7 +19,7 @@ class KarmaGroupsController < ApplicationController
   end
 
   def create
-    @karma_group = authorize KarmaGroup.new(params[:karma_group])
+    @karma_group = authorize KarmaGroup.new(karma_group_params)
     respond_to do |format|
       if @karma_group.save
         format.js
@@ -60,5 +62,11 @@ class KarmaGroupsController < ApplicationController
 
   def convert_karma_ids
     params[:karma_group][:karma_ids] = params[:karma_group][:karma_ids].split(',') if params[:karma_group].present?
+  end
+
+  def karma_group_params
+    params.require(:karma_group)
+          .permit(:bonus_id, :karma_ids, bonus: [:comment, :bonus_type_id])
+    # TODO: check nested attributes for: bonus
   end
 end

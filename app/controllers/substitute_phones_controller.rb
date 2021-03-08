@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 class SubstitutePhonesController < ApplicationController
   skip_after_action :verify_authorized
   respond_to :html
@@ -55,5 +57,10 @@ class SubstitutePhonesController < ApplicationController
 
   def render_form
     render_cell SubstitutePhone::Cell::Form
+  end
+
+  def substitute_phone_params
+    params.require(:substitute_phone)
+          .permit(:archived, :condition, :department_id, :item_id, :service_job_id)
   end
 end

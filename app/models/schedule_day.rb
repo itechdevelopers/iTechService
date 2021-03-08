@@ -3,7 +3,7 @@ class ScheduleDay < ActiveRecord::Base
 
   delegate :department, :department_id, to: :user
 
-  attr_accessible :day, :hours, :user, :user_id
+  # attr_accessible :day, :hours, :user, :user_id
 
   default_scope {order('day asc')}
 

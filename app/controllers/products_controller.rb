@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 class ProductsController < ApplicationController
   skip_after_action :verify_authorized, except: %i[create update destroy remains_in_store show_prices show_remains]
 
@@ -8,19 +10,15 @@ class ProductsController < ApplicationController
       @products = Product.search(params)
     else
       @current_product_group = ProductGroup.find params[:group]
-      @opened_product_groups = @current_product_group.path_ids[1..-1].map { |g| "product_group_#{g}" }#.join(', ')
+      @opened_product_groups = @current_product_group.path_ids[1..-1].map { |g| "product_group_#{g}" } # .join(', ')
       @products = @current_product_group.products.search(params)
     end
 
-    if params[:form] == 'sale'
-      @products = @products.available
-    end
+    @products = @products.available if params[:form] == 'sale'
     @products = @products.preload(:product_group, :product_category)
     @products = @products.page(params[:page])
 
-    if params[:choose] == 'true'
-      params[:table_name] = 'small_table'
-    end
+    params[:table_name] = 'small_table' if params[:choose] == 'true'
 
     respond_to do |format|
       format.html
@@ -30,7 +28,7 @@ class ProductsController < ApplicationController
   end
 
   def show
-    # TODO optimize query
+    # TODO: optimize query
     @product = find_record Product
     @items = @product.items.available
     respond_to do |format|
@@ -40,7 +38,7 @@ class ProductsController < ApplicationController
   end
 
   def new
-    @product = authorize Product.new(params[:product])
+    @product = authorize Product.new(product_params)
     respond_to do |format|
       format.html { render 'form' }
       format.json { render json: @product }
@@ -55,7 +53,7 @@ class ProductsController < ApplicationController
   end
 
   def create
-    @product = authorize Product.new(params[:product])
+    @product = authorize Product.new(product_params)
     respond_to do |format|
       if @product.save
         format.html { redirect_to @product, notice: t('products.created') }
@@ -93,7 +91,7 @@ class ProductsController < ApplicationController
     @product = Product.find_by_group_and_options(params[:product_group_id], params[:option_ids])
     if @product.present?
       @item = @product.items.build
-      @item.features.build @product.feature_types.map{|ft|{feature_type_id: ft.id}}
+      @item.features.build @product.feature_types.map { |ft| { feature_type_id: ft.id } }
     end
   end
 
@@ -123,13 +121,9 @@ class ProductsController < ApplicationController
       end
     end
 
-    if params[:item_id].present?
-      @item = Item.find params[:item_id]
-    end
+    @item = Item.find params[:item_id] if params[:item_id].present?
 
-    if params[:item].present?
-      @item = Item.create params[:item]
-    end
+    @item = Item.create params[:item] if params[:item].present?
 
     respond_to do |format|
       format.js
@@ -160,7 +154,7 @@ class ProductsController < ApplicationController
   def show_remains
     @product = find_record Product
     @stores = Store.all
-    #@store_items = @product.store_items.order('store_id asc')
+    # @store_items = @product.store_items.order('store_id asc')
     respond_to do |format|
       format.js
     end
@@ -171,7 +165,7 @@ class ProductsController < ApplicationController
     store = Store.find params[:store_id]
     quantity = product.quantity_in_store store
     respond_to do |format|
-      format.json { render json: {quantity: quantity} }
+      format.json { render json: { quantity: quantity } }
     end
   end
 
@@ -182,5 +176,15 @@ class ProductsController < ApplicationController
     respond_to do |format|
       format.js
     end
+  end
+
+  def product_params
+    params.require(:product)
+          .permit(:code, :comment, :device_type_id, :name, :product_category_id, :product_group_id, :quantity_threshold, :warranty_term,
+                  items: [:product, :product_id, :features_attributes, :barcode_num],
+                  task: [:cost, :duration, :name, :code, :priority, :role, :location_code, :product_id, :hidden],
+                  store_products: [:warning_quantity, :store_id, :product_id]
+          )
+    # TODO: check nested attributes for: items, task, store_products
   end
 end

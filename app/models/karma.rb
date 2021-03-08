@@ -1,12 +1,14 @@
+# frozen_string_literal: true
+
 class Karma < ActiveRecord::Base
   GROUP_SIZE = 50
 
-  scope :created_asc, ->{order('karmas.created_at asc')}
-  scope :good, ->{where(good: true)}
-  scope :bad, ->{where(good: false)}
-  scope :used, ->{includes(:karma_group).where('karma_groups.bonus_id != ?', nil)}
-  scope :unused, ->{includes(:karma_group).where(karma_groups: {bonus_id: nil})}
-  scope :ungrouped, ->{where(karma_group_id: nil)}
+  scope :created_asc, -> { order('karmas.created_at asc') }
+  scope :good, -> { where(good: true) }
+  scope :bad, -> { where(good: false) }
+  scope :used, -> { includes(:karma_group).where('karma_groups.bonus_id != ?', nil) }
+  scope :unused, -> { includes(:karma_group).where(karma_groups: { bonus_id: nil }) }
+  scope :ungrouped, -> { where(karma_group_id: nil) }
   scope :created_at, ->(date) { where(created_at: date.beginning_of_day..date.end_of_day) }
 
   belongs_to :user, inverse_of: :karmas
@@ -14,7 +16,7 @@ class Karma < ActiveRecord::Base
 
   delegate :department, :department_id, to: :user
 
-  attr_accessible :comment, :user_id, :karma_group_id, :good
+  # attr_accessible :comment, :user_id, :karma_group_id, :good
   validates_presence_of :user, :comment
 
   def kind
@@ -34,9 +36,9 @@ class Karma < ActiveRecord::Base
   end
 
   def group_with(karma2)
-    if self.is_ungrouped? and self.good? and karma2.is_ungrouped? and karma2.good?
+    if is_ungrouped? && good? && karma2.is_ungrouped? && karma2.good?
       new_karma_group = KarmaGroup.create
-      self.update_attributes karma_group_id: new_karma_group.id
+      update_attributes karma_group_id: new_karma_group.id
       karma2.update_attributes karma_group_id: new_karma_group.id
       true
     else
@@ -45,10 +47,10 @@ class Karma < ActiveRecord::Base
   end
 
   def add_to_group(new_karma_group)
-    if self.good?
-      old_karma_group = self.karma_group.present? ? KarmaGroup.find(self.karma_group_id) : nil
-      self.update_attributes karma_group_id: new_karma_group.id
-      old_karma_group.destroy if old_karma_group.present? and old_karma_group.karmas.empty?
+    if good?
+      old_karma_group = karma_group.present? ? KarmaGroup.find(karma_group_id) : nil
+      update_attributes karma_group_id: new_karma_group.id
+      old_karma_group.destroy if old_karma_group.present? && old_karma_group.karmas.empty?
       true
     else
       false
@@ -56,13 +58,12 @@ class Karma < ActiveRecord::Base
   end
 
   def ungroup
-    old_karma_group = KarmaGroup.find self.karma_group_id
-    if self.update_attributes karma_group_id: nil
-      old_karma_group.destroy if old_karma_group.present? and old_karma_group.karmas.empty?
+    old_karma_group = KarmaGroup.find karma_group_id
+    if update_attributes karma_group_id: nil
+      old_karma_group.destroy if old_karma_group.present? && old_karma_group.karmas.empty?
       true
     else
       false
     end
   end
-
 end

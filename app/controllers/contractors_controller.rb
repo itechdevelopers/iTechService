@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 class ContractorsController < ApplicationController
   def index
     authorize Contractor
@@ -37,7 +39,7 @@ class ContractorsController < ApplicationController
   end
 
   def create
-    @contractor = authorize Contractor.new(params[:contractor])
+    @contractor = authorize Contractor.new(contractor_params)
 
     respond_to do |format|
       if @contractor.save
@@ -72,5 +74,9 @@ class ContractorsController < ApplicationController
       format.html { redirect_to contractors_url }
       format.json { head :no_content }
     end
+  end
+
+  def contractor_params
+    params.require(:contractor).permit(:name)
   end
 end

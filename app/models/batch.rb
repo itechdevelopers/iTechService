@@ -7,7 +7,7 @@ class Batch < ActiveRecord::Base
   belongs_to :purchase, inverse_of: :batches
   belongs_to :item, inverse_of: :batches
 
-  attr_accessible :price, :quantity, :item_id
+  # attr_accessible :price, :quantity, :item_id
 
   validates_presence_of :item, :price, :quantity
   validates_numericality_of :quantity, only_integer: true, greater_than: 0, unless: :feature_accounting

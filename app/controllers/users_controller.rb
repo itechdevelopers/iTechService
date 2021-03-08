@@ -40,7 +40,7 @@ class UsersController < ApplicationController
   end
 
   def create
-    @user = authorize User.new(params[:user])
+    @user = authorize User.new(user_params)
 
     respond_to do |format|
       if @user.save
@@ -170,7 +170,7 @@ class UsersController < ApplicationController
   end
 
   def create_duty_day
-    @duty_day = authorize DutyDay.new(params[:duty_day]), :manage?
+    @duty_day = authorize DutyDay.new(duty_day_params), :manage?
     @duty_day.save
     @day = @duty_day.day
     @kind = @duty_day.kind
@@ -230,5 +230,22 @@ class UsersController < ApplicationController
 
   def update_self_params
     params.require(:user).permit(:hobby, wishlist: [])
+  end
+
+  def user_params
+    params.require(:user)
+          .permit(:abilities_mask, :activities_mask, :birthday, :can_help_in_mac_service, :can_help_in_repair,
+                  :card_number, :color, :current_sign_in_at, :current_sign_in_ip, :department_autochangeable,
+                  :department_id, :email, :encrypted_password, :hiring_date, :hobby, :is_fired, :job_title,
+                  :last_sign_in_at, :last_sign_in_ip, :location_id, :name, :patronymic, :phone_number, :photo,
+                  :position, :prepayment, :remember_created_at, :reset_password_sent_at, :role, :salary_date, :schedule,
+                  :session_duration, :store_id, :surname, :uniform_sex, :uniform_size, :username, :wish, :wishlist,
+                  schedule_days: [:day, :hours, :user, :user_id],
+                  duty_days: [:day, :user_id, :kind],
+                  karmas: [:comment, :user_id, :karma_group_id, :good],
+                  salaries: [:amount, :user, :user_id, :issued_at, :comment, :is_prepayment],
+                  installment_plans: [:cost, :issued_at, :object, :user, :user_id, :installments_attributes, :is_closed]
+          )
+    # TODO: check nested attributes for: schedule_days, duty_days, karmas, salaries, installment_plans
   end
 end

@@ -1,12 +1,12 @@
+# frozen_string_literal: true
+
 class FeatureType < ActiveRecord::Base
+  KINDS = %w[imei serial_number].freeze
 
-  KINDS = %w[imei serial_number]
-
-  default_scope {order('feature_types.kind asc')}
-  scope :ordered, ->{order('feature_types.kind asc')}
+  default_scope { order('feature_types.kind asc') }
+  scope :ordered, -> { order('feature_types.kind asc') }
 
   has_and_belongs_to_many :product_categories
-  attr_accessible :name, :kind, :product_category_ids
   validates_presence_of :name, :kind
   validates_uniqueness_of :kind, unless: :is_other?
   validates_inclusion_of :kind, in: KINDS
@@ -30,5 +30,4 @@ class FeatureType < ActiveRecord::Base
   def self.serial_number
     FeatureType.where(kind: 'serial_number').first
   end
-
 end

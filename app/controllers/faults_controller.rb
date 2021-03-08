@@ -1,10 +1,12 @@
+# frozen_string_literal: true
+
 class FaultsController < ApplicationController
   skip_after_action :verify_authorized
   respond_to :js
 
   def index
     run Fault::Index do
-      return render 'index', locals: {faults: operation_model}
+      return render 'index', locals: { faults: operation_model }
     end
     failed
   end
@@ -28,5 +30,10 @@ class FaultsController < ApplicationController
       return render 'destroy'
     end
     failed
+  end
+
+  def fault_params
+    params.require(:fault)
+          .permit(:causer_id, :comment, :date, :kind_id, :penalty)
   end
 end

@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 class Department < ApplicationRecord
   ROLES = {
     0 => 'main',
@@ -5,7 +7,7 @@ class Department < ApplicationRecord
     2 => 'store',
     3 => 'remote',
     4 => 'transfer'
-  }
+  }.freeze
 
   default_scope { order('departments.id asc') }
   scope :branches, -> { where(role: 1) }
@@ -22,7 +24,7 @@ class Department < ApplicationRecord
   has_many :service_jobs, inverse_of: :department
   has_many :locations, inverse_of: :department
 
-  attr_accessible :name, :short_name, :role, :code, :url, :city_id, :brand_id, :address, :contact_phone, :schedule, :printer, :ip_network
+  # attr_accessible :name, :short_name, :role, :code, :url, :city_id, :brand_id, :address, :contact_phone, :schedule, :printer, :ip_network
   validates_presence_of :name, :role, :code
   validates :url, presence: true, if: :has_server?
   validate :only_one_main
@@ -58,7 +60,7 @@ class Department < ApplicationRecord
   end
 
   def is_main?
-    role == 0
+    role.zero?
   end
 
   def is_branch?
@@ -104,7 +106,7 @@ class Department < ApplicationRecord
   private
 
   def only_one_main
-    errors.add :role, :main_exists if role == 0 and Department.where('id <> ? AND role = ?', self.id, 0).count > 1
+    errors.add :role, :main_exists if role.zero? && (Department.where('id <> ? AND role = ?', id, 0).count > 1)
     false
   end
 end

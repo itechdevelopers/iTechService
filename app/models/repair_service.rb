@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 class RepairService < ActiveRecord::Base
   default_scope { order('name asc') }
   scope :in_group, ->(group) { where repair_group_id: group }
@@ -10,9 +12,6 @@ class RepairService < ActiveRecord::Base
 
   accepts_nested_attributes_for :spare_parts, allow_destroy: true
   accepts_nested_attributes_for :prices
-  attr_accessible :name, :client_info, :repair_group_id, :is_positive_price, :difficult, :is_body_repair,
-                  :spare_parts_attributes, :prices_attributes
-
   validates_presence_of :name, :repair_group
   validates_associated :spare_parts
 

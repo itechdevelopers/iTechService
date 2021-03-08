@@ -5,7 +5,7 @@ class ProductCategory < ActiveRecord::Base
   has_many :product_groups, inverse_of: :product_category
   has_many :products, inverse_of: :product_category
   has_and_belongs_to_many :feature_types, uniq: true
-  attr_accessible :name, :kind, :feature_accounting, :request_price, :warranty_term, :feature_type_ids
+  # attr_accessible :name, :kind, :feature_accounting, :request_price, :warranty_term, :feature_type_ids
   validates_presence_of :name, :kind
   validates_inclusion_of :kind, in: KINDS
 

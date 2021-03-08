@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 class MovementActsController < ApplicationController
   helper_method :sort_column, :sort_direction
 
@@ -5,11 +7,11 @@ class MovementActsController < ApplicationController
     authorize MovementAct
     @movement_acts = policy_scope(MovementAct).search(params).page(params[:page])
 
-    if params.has_key?(:sort) && params.has_key?(:direction)
-      @movement_acts = @movement_acts.order("movement_acts.#{sort_column} #{sort_direction}")
-    else
-      @movement_acts = @movement_acts.order(date: :desc)
-    end
+    @movement_acts = if params.key?(:sort) && params.key?(:direction)
+                       @movement_acts.order("movement_acts.#{sort_column} #{sort_direction}")
+                     else
+                       @movement_acts.order(date: :desc)
+                     end
 
     @movement_acts = @movement_acts.page(params[:page])
 
@@ -30,7 +32,7 @@ class MovementActsController < ApplicationController
   end
 
   def new
-    @movement_act = authorize MovementAct.new(params[:movement_act])
+    @movement_act = authorize MovementAct.new(movement_act_params)
 
     respond_to do |format|
       format.html { render 'form' }
@@ -48,7 +50,7 @@ class MovementActsController < ApplicationController
   end
 
   def create
-    @movement_act = authorize MovementAct.new(params[:movement_act])
+    @movement_act = authorize MovementAct.new(movement_act_params)
 
     respond_to do |format|
       if @movement_act.save
@@ -126,5 +128,12 @@ class MovementActsController < ApplicationController
 
   def sort_direction
     %w[asc desc].include?(params[:direction]) ? params[:direction] : ''
+  end
+
+  def movement_act_params
+    params.require(:movement_act)
+          .permit(:comment, :date, :dst_store_id, :status, :store_id, :user_id,
+                  movement_items: [:movement_act_id, :item_id, :quantity])
+    # TODO: check nested attributes for: movement_items
   end
 end

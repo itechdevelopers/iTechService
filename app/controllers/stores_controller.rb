@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 class StoresController < ApplicationController
   def index
     authorize Store
@@ -12,8 +14,8 @@ class StoresController < ApplicationController
     @store = find_record Store
     @product_groups = ProductGroup.search(params.symbolize_keys.merge(roots: true, store_kind: @store.kind)).ordered
     @products = @store.products
-                  .includes(:product_group, :product_category, :prices, :batches, :items, :store_items)
-                  .search(params)
+                      .includes(:product_group, :product_category, :prices, :batches, :items, :store_items)
+                      .search(params)
     respond_to do |format|
       format.html
       format.js
@@ -37,7 +39,7 @@ class StoresController < ApplicationController
   end
 
   def create
-    @store = authorize Store.new(params[:store])
+    @store = authorize Store.new(store_params)
     respond_to do |format|
       if @store.save
         format.html { redirect_to stores_path, notice: t('stores.created') }
@@ -79,5 +81,10 @@ class StoresController < ApplicationController
     respond_to do |format|
       format.js
     end
+  end
+
+  def store_params
+    params.require(:store)
+          .permit(:code, :department_id, :hidden, :kind, :name)
   end
 end

@@ -22,7 +22,7 @@ class ClientCategoriesController < ApplicationController
   end
 
   def create
-    @client_category = authorize ClientCategory.new(params[:client_category])
+    @client_category = authorize ClientCategory.new(client_category_params)
     respond_to do |format|
       if @client_category.save
         format.html { redirect_to client_categories_path, notice: 'Client category was successfully created.' }
@@ -49,5 +49,11 @@ class ClientCategoriesController < ApplicationController
     respond_to do |format|
       format.html { redirect_to client_categories_url }
     end
+  end
+
+  private
+
+  def client_category_params
+    params.require(:client_category).permit(:color, :name)
   end
 end

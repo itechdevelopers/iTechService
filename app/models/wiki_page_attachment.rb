@@ -9,5 +9,5 @@ class WikiPageAttachment < ActiveRecord::Base
                                       message: ' must be a JPEG, PNG or GIF.'
   end
 
-  attr_accessible :wiki_page_attachment, :page_id
+  # attr_accessible :wiki_page_attachment, :page_id
 end

@@ -11,7 +11,7 @@ class ProductPrice < ActiveRecord::Base
   belongs_to :product
   belongs_to :price_type
 
-  attr_accessible :value, :date, :product_id, :price_type_id, :department_id
+  # attr_accessible :value, :date, :product_id, :price_type_id, :department_id
 
   validates_presence_of :product, :price_type, :date, :value
 

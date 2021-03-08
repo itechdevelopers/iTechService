@@ -12,7 +12,7 @@ class CitiesController < ApplicationController
   end
 
   def create
-    @city = authorize(City.new(params[:city]))
+    @city = authorize(City.new(city_params))
 
     if @city.save
       redirect_to cities_path, notice: 'Город создан'
@@ -40,5 +40,9 @@ class CitiesController < ApplicationController
     @city = find_record(City)
     @city.destroy
     redirect_to cities_path, notice: 'Город удалён'
+  end
+
+  def city_params
+    params.require(:city).permit(:name, :color, :time_zone)
   end
 end

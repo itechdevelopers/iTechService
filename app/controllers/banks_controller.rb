@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 class BanksController < ApplicationController
   def index
     authorize Bank
@@ -22,7 +24,7 @@ class BanksController < ApplicationController
   end
 
   def create
-    @bank = authorize(Bank.new(params[:bank]))
+    @bank = authorize(Bank.new(bank_params))
     respond_to do |format|
       if @bank.save
         format.html { redirect_to banks_path, notice: t('banks.created') }
@@ -49,5 +51,10 @@ class BanksController < ApplicationController
     respond_to do |format|
       format.html { redirect_to banks_url }
     end
+  end
+
+  def bank_params
+    params.require(:bank)
+          .permit(:name)
   end
 end

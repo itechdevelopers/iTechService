@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 class AnnouncementsController < ApplicationController
   def index
     authorize Announcement
@@ -37,7 +39,7 @@ class AnnouncementsController < ApplicationController
   end
 
   def create
-    @announcement = authorize(Announcement.new(params[:announcement]))
+    @announcement = authorize(Announcement.new(announcement_params))
 
     respond_to do |format|
       if @announcement.save
@@ -59,7 +61,7 @@ class AnnouncementsController < ApplicationController
         format.json { render json: @announcement }
         format.js { render nothing: true }
       else
-        format.html { render action: "edit" }
+        format.html { render action: 'edit' }
         format.json { render json: @announcement.errors, status: :unprocessable_entity }
         format.js { render nothing: true }
       end
@@ -79,11 +81,14 @@ class AnnouncementsController < ApplicationController
   def make_announce
     authorize Announcement
 
-    if params[:kind] == 'for_coffee'
-      @announcement = current_user.announcements.create kind: params[:kind], content: params[:content], active: true
-    else
-      @announcement = current_user.announced? ? nil : current_user.announcements.create(kind: params[:kind], active: true)
-    end
+    @announcement = if params[:kind] == 'for_coffee'
+                      current_user.announcements.create kind: params[:kind], content: params[:content], active: true
+                    elsif current_user.announced?
+                      nil
+                    else
+                      current_user.announcements.create(kind: params[:kind],
+                                                        active: true)
+                    end
   end
 
   def cancel_announce
@@ -104,10 +109,14 @@ class AnnouncementsController < ApplicationController
   def close_all
     authorize Announcement
     user_announcements = current_user.addressed_announcements
-    @announcement_ids = user_announcements.map &:id
+    @announcement_ids = user_announcements.map(&:id)
     user_announcements.find_each do |announcement|
       announcement.exclude_recipient(current_user)
     end
   end
 
+  def announcement_params
+    params.require(:announcement)
+          .permit(:active, :content, :department_id, :kind, :user_id)
+  end
 end

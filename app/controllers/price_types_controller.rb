@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 class PriceTypesController < ApplicationController
   before_action :set_price_type, only: %i[edit update destroy]
 
@@ -28,7 +30,7 @@ class PriceTypesController < ApplicationController
   end
 
   def create
-    @price_type = authorize PriceType.new(params[:price_type])
+    @price_type = authorize PriceType.new(price_type_params)
 
     respond_to do |format|
       if @price_type.save
@@ -66,5 +68,10 @@ class PriceTypesController < ApplicationController
 
   def set_price_type
     @price_type = find_record PriceType
+  end
+
+  def price_type_params
+    params.require(:price_type)
+          .permit(:kind, :name)
   end
 end

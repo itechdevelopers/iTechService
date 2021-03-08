@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 class MediaOrdersController < ApplicationController
   def index
     authorize MediaOrder
@@ -33,7 +35,6 @@ class MediaOrdersController < ApplicationController
   end
 
   def create
-    media_order_params = params[:media_order].merge(department_id: current_user.department_id)
     @media_order = authorize MediaOrder.new(media_order_params)
 
     respond_to do |format|
@@ -41,7 +42,7 @@ class MediaOrdersController < ApplicationController
         format.html { redirect_to @media_order, notice: 'Media order was successfully created.' }
         format.json { render json: @media_order, status: :created, location: @media_order }
       else
-        format.html { render action: "new" }
+        format.html { render action: 'new' }
         format.json { render json: @media_order.errors, status: :unprocessable_entity }
       end
     end
@@ -55,7 +56,7 @@ class MediaOrdersController < ApplicationController
         format.html { redirect_to @media_order, notice: 'Media order was successfully updated.' }
         format.json { head :no_content }
       else
-        format.html { render action: "edit" }
+        format.html { render action: 'edit' }
         format.json { render json: @media_order.errors, status: :unprocessable_entity }
       end
     end
@@ -69,5 +70,11 @@ class MediaOrdersController < ApplicationController
       format.html { redirect_to media_orders_url }
       format.json { head :no_content }
     end
+  end
+
+  def media_order_params
+    params.require(:media_order)
+          .permit(:content, :name, :phone, :time)
+          .merge(department_id: current_user.department_id)
   end
 end

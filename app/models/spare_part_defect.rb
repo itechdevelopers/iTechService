@@ -12,7 +12,7 @@ class SparePartDefect < ActiveRecord::Base
   delegate :department, to: :repair_part
   delegate :store_item, to: :item
 
-  attr_accessible :item_id, :repair_part_id, :contractor_id, :qty, :is_warranty
+  # attr_accessible :item_id, :repair_part_id, :contractor_id, :qty, :is_warranty
   validates_presence_of :qty
   validates_numericality_of :qty, only_integer: true, greater_than: 0
 end

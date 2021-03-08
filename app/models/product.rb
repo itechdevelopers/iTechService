@@ -1,17 +1,24 @@
-class Product < ActiveRecord::Base
+# frozen_string_literal: true
 
+class Product < ActiveRecord::Base
   BARCODE_PREFIX = '243'
 
   scope :name_asc, -> { order('name asc') }
   scope :available, -> { includes(:store_items).where('store_items.quantity > ?', 0).references(:store_items) }
-  scope :in_store, ->(store) { includes(:store_items).where(store_items: {store_id: store.is_a?(Store) ? store.id : store}).references(:store_items) }
-  scope :devices, ->{joins(product_group: :product_category).where(product_categories: {kind: 'equipment'})}
-  scope :goods, ->{joins(product_group: :product_category).where(product_categories: {kind: %w[equipment accessory protector]})}
-  scope :services, ->{joins(product_group: :product_category).where(product_categories: {kind: 'service'})}
-  scope :spare_parts, ->{joins(product_group: :product_category).where(product_categories: {kind: 'spare_part'})}
+  scope :in_store, lambda { |store|
+                     includes(:store_items).where(store_items: { store_id: store.is_a?(Store) ? store.id : store }).references(:store_items)
+                   }
+  scope :devices, -> { joins(product_group: :product_category).where(product_categories: { kind: 'equipment' }) }
+  scope :goods, lambda {
+                  joins(product_group: :product_category).where(product_categories: { kind: %w[equipment accessory protector] })
+                }
+  scope :services, -> { joins(product_group: :product_category).where(product_categories: { kind: 'service' }) }
+  scope :spare_parts, -> { joins(product_group: :product_category).where(product_categories: { kind: 'spare_part' }) }
   scope :defined, -> { where.not code: '?' }
   scope :undefined, -> { where code: '?' }
-  scope :with_type_and_options, -> (product_type_id, option_ids) { product_type_id.present? && option_ids.present? ? where(id: includes(:options).where(product_type_id: product_type_id, product_options: {option_value_id: option_ids}).group('product_options.product_id').having('count(product_options.product_id) = ?', option_ids.length).count('products.id').keys.first) : none }
+  scope :with_type_and_options, lambda { |product_type_id, option_ids|
+                                  product_type_id.present? && option_ids.present? ? where(id: includes(:options).where(product_type_id: product_type_id, product_options: { option_value_id: option_ids }).group('product_options.product_id').having('count(product_options.product_id) = ?', option_ids.length).count('products.id').keys.first) : none
+                                }
 
   belongs_to :product_category, inverse_of: :products
   belongs_to :product_group, inverse_of: :products
@@ -38,7 +45,8 @@ class Product < ActiveRecord::Base
 
   alias_attribute :defined?, :options_defined?
 
-  delegate :feature_accounting, :feature_types, :is_service, :is_equipment, :is_spare_part, :is_service?, :is_equipment?, :is_spare_part?, :request_price, to: :product_category, allow_nil: true
+  delegate :feature_accounting, :feature_types, :is_service, :is_equipment, :is_spare_part, :is_service?,
+           :is_equipment?, :is_spare_part?, :request_price, to: :product_category, allow_nil: true
   delegate :name, to: :product_category, prefix: :category, allow_nil: true
   delegate :available_options, to: :product_group, allow_nil: true
   delegate :warranty_term, to: :product_group, prefix: :default, allow_nil: true
@@ -46,15 +54,13 @@ class Product < ActiveRecord::Base
   delegate :full_name, to: :device_type, prefix: true, allow_nil: true
   delegate :color, to: :top_salable, allow_nil: true
   delegate :cost, to: :task, prefix: true, allow_nil: true
-
-  attr_accessible :code, :name, :product_group_id, :product_category_id, :device_type_id, :warranty_term, :quantity_threshold, :warning_quantity, :comment, :option_ids, :items_attributes, :task_attributes, :related_product_ids, :related_product_group_ids, :store_products_attributes
   validates_presence_of :name, :code, :product_group, :product_category
-  #validates_presence_of :device_type, if: :is_equipment
+  # validates_presence_of :device_type, if: :is_equipment
   validates_uniqueness_of :code, unless: :undefined?
   after_initialize do
     self.warranty_term ||= default_warranty_term
     self.product_category_id ||= product_group.try(:product_category).try(:id)
-    #self.build_task if self.is_service and self.task.nil?
+    # self.build_task if self.is_service and self.task.nil?
   end
 
   def self.search(params)
@@ -64,24 +70,24 @@ class Product < ActiveRecord::Base
     unless query.blank?
       query = query.mb_chars.downcase.to_s
       products = products.includes(items: :features).references(:features, :items)
-                   .where('LOWER(products.name) LIKE :ql OR products.code LIKE :ql OR features.value = :q OR items.barcode_num = :q',
-                          q: query, ql: "%#{query}%")
+                         .where('LOWER(products.name) LIKE :ql OR products.code LIKE :ql OR features.value = :q OR items.barcode_num = :q',
+                                q: query, ql: "%#{query}%")
     end
 
     unless (product_group_id = params[:product_group_id]).blank?
-      products = products.where(products: {product_group_id: product_group_id})
+      products = products.where(products: { product_group_id: product_group_id })
     end
 
     products
   end
 
-  def self.find_by_group_and_options(product_group_id, option_ids=nil)
+  def self.find_by_group_and_options(product_group_id, option_ids = nil)
     if product_group_id.present? && option_ids.present?
-      where(id: includes(:options).where(product_group_id: product_group_id, product_options: {option_value_id: option_ids}).group('product_options.product_id').having('count(product_options.product_id) = ?', option_ids.length).count('products.id').keys.first).first
+      where(id: includes(:options).where(product_group_id: product_group_id, product_options: { option_value_id: option_ids }).group('product_options.product_id').having(
+        'count(product_options.product_id) = ?', option_ids.length
+      ).count('products.id').keys.first).first
     elsif product_group_id.present? && option_ids.blank? && ProductGroup.find(product_group_id).option_values.none?
       (products = where(product_group_id: product_group_id)).many? ? nil : products.first
-    else
-      nil
     end
   end
 
@@ -108,7 +114,7 @@ class Product < ActiveRecord::Base
     batches.for_date(date).newest.last&.price
   end
 
-  def quantity_in_store(store=nil)
+  def quantity_in_store(store = nil)
     if store.present?
       store_items.in_store(store).sum(:quantity)
     else
@@ -117,7 +123,7 @@ class Product < ActiveRecord::Base
   end
 
   def quantity_by_stores
-    Store.visible.collect { |store| {id: id, code: store.code, name: store.name, quantity: quantity_in_store(store)} }
+    Store.visible.collect { |store| { id: id, code: store.code, name: store.name, quantity: quantity_in_store(store) } }
   end
 
   def item

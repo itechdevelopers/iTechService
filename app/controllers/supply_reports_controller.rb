@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 class SupplyReportsController < ApplicationController
   helper_method :sort_column, :sort_direction
 
@@ -31,7 +33,7 @@ class SupplyReportsController < ApplicationController
   end
 
   def create
-    @supply_report = authorize SupplyReport.new(params[:supply_report])
+    @supply_report = authorize SupplyReport.new(supply_report_params)
     @supply_report.department_id ||= current_department.id
 
     respond_to do |format|
@@ -70,5 +72,11 @@ class SupplyReportsController < ApplicationController
 
   def sort_direction
     %w[asc desc].include?(params[:direction]) ? params[:direction] : ''
+  end
+
+  def supply_report_params
+    params.require(:supply_report)
+          .permit(:date, :department_id, supplies: [:date, :supplies_attributes, :department_id])
+    # TODO: check nested attributes for: supplies
   end
 end

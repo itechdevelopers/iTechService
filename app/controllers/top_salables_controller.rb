@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 class TopSalablesController < ApplicationController
   def index
     authorize TopSalable
@@ -18,7 +20,7 @@ class TopSalablesController < ApplicationController
   end
 
   def new
-    @top_salable = authorize TopSalable.new(params[:top_salable])
+    @top_salable = authorize TopSalable.new(top_salable_params)
     respond_to do |format|
       format.html { render 'form' }
     end
@@ -32,7 +34,7 @@ class TopSalablesController < ApplicationController
   end
 
   def create
-    @top_salable = authorize TopSalable.new(params[:top_salable])
+    @top_salable = authorize TopSalable.new(top_salable_params)
     respond_to do |format|
       if @top_salable.save
         format.html { redirect_to (@top_salable.parent || top_salables_path), notice: t('top_salables.created') }
@@ -59,5 +61,10 @@ class TopSalablesController < ApplicationController
     respond_to do |format|
       format.html { redirect_to top_salables_url }
     end
+  end
+
+  def top_salable_params
+    params.require(:top_salable)
+          .permit(:ancestry, :color, :name, :position, :product_id)
   end
 end
