@@ -119,7 +119,6 @@ class ServiceJobsController < ApplicationController
   def create
     @service_job = authorize ServiceJob.new(service_job_params)
     @service_job.initial_department = current_user.department
-
     respond_to do |format|
       if @service_job.save
         create_phone_substitution if @service_job.phone_substituted?
@@ -317,19 +316,6 @@ class ServiceJobsController < ApplicationController
     @device_note = DeviceNote.new user_id: current_user.id, service_job_id: @service_job.id
   end
 
-  def params_for_update
-    allowed_params = params[:service_job]
-    if allowed_params.key?(:device_tasks_attributes)
-      allowed_params[:device_tasks_attributes].each do |_key, device_task_attributes|
-        if device_task_attributes.key?(:id)
-          device_task = DeviceTask.find(device_task_attributes[:id])
-          device_task_attributes[:_destroy] = false if device_task.repair_parts.any?
-        end
-      end
-    end
-    allowed_params
-  end
-
   def sort_column
     ServiceJob.column_names.include?(params[:sort]) ? params[:sort] : ''
   end
@@ -358,10 +344,6 @@ class ServiceJobsController < ApplicationController
     PhoneSubstitution.create_with(issuer_id: current_user.id, issued_at: Time.current).find_or_create_by(
       service_job_id: @service_job.id, substitute_phone_id: @service_job.substitute_phone_id, withdrawn_at: nil
     )
-    # PhoneSubstitution.create service_job_id: @service_job.id,
-    #                          substitute_phone_id: @service_job.substitute_phone_id,
-    #                          issuer_id: current_user.id,
-    #                          issued_at: @service_job.created_at
   end
 
   def render_form
@@ -380,10 +362,22 @@ class ServiceJobsController < ApplicationController
                   :device_condition, :device_group, :device_type_id, :done_at, :email, :estimated_cost_of_repair, :imei,
                   :initial_department_id, :is_tray_present, :item_id, :keeper_id, :location_id, :notify_client,
                   :replaced, :return_at, :sale_id, :security_code, :serial_number, :status, :tech_notice,
-                  :ticket_number, :trademark, :type_of_work, :user_id,
-                  device_tasks: [:done, :done_at, :comment, :user_comment, :cost, :task, :service_job, :service_job_id,
-                                 :task_id, :performer_id, :performer, :task, :service_job_attributes,
-                                 :repair_tasks_attributes])
-    # TODO: check nested attributes for: device_tasks
+                  :ticket_number, :trademark, :type_of_work, :user_id)
+          .merge(
+            device_tasks_attributes: params[:service_job][:device_tasks_attributes].permit!
+          )
+  end
+
+  def params_for_update
+    allowed_params = service_job_params
+    if allowed_params.key?(:device_tasks_attributes)
+      allowed_params[:device_tasks_attributes].each do |_key, device_task_attributes|
+        if device_task_attributes.key?(:id)
+          device_task = DeviceTask.find(device_task_attributes[:id])
+          device_task_attributes[:_destroy] = false if device_task.repair_parts.any?
+        end
+      end
+    end
+    allowed_params
   end
 end
