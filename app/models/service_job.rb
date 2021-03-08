@@ -408,6 +408,7 @@ price: device_task.cost.to_f, quantity: 1 }
 
   def generate_ticket_number
     if ticket_number.blank?
+      number = nil
       loop do
         number = UUIDTools::UUID.random_create.hash.to_s
       break unless ServiceJob.exists? ticket_number: number
