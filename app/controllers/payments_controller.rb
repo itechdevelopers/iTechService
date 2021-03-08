@@ -21,7 +21,7 @@ class PaymentsController < ApplicationController
 
   def new
     @sale = find_sale
-    @payment = authorize Payment.new(payment_params)
+    @payment = authorize Payment.new
     respond_to do |format|
       format.html { render 'form' }
       format.js { render 'shared/show_modal_form' }

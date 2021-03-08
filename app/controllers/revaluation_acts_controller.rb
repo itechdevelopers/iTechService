@@ -21,7 +21,7 @@ class RevaluationActsController < ApplicationController
   end
 
   def new
-    @revaluation_act = authorize RevaluationAct.new(revaluation_act_params)
+    @revaluation_act = authorize RevaluationAct.new
     respond_to do |format|
       format.html { render 'form' }
       format.json { render json: @revaluation_act }

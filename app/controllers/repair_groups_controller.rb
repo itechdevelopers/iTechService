@@ -19,7 +19,7 @@ class RepairGroupsController < ApplicationController
   end
 
   def new
-    @repair_group = authorize RepairGroup.new(repair_group_params)
+    @repair_group = authorize RepairGroup.new
     respond_to do |format|
       format.js { render 'shared/show_modal_form' }
     end

@@ -10,7 +10,7 @@ class KarmasController < ApplicationController
   end
 
   def new
-    @karma = authorize Karma.new(karma_params)
+    @karma = authorize Karma.new
     respond_to do |format|
       format.js { render 'show_form' }
     end

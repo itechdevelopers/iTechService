@@ -8,7 +8,7 @@ class BonusesController < ApplicationController
   end
 
   def new
-    @bonus = authorize Bonus.new(bonus_params)
+    @bonus = authorize Bonus.new
     respond_to do |format|
       format.html { render 'form' }
     end
@@ -55,7 +55,7 @@ class BonusesController < ApplicationController
     end
   end
 
-  def bonus_type_params
+  def bonus_params
     params.require(:bonus).permit(:comment, :bonus_type_id)
   end
 end

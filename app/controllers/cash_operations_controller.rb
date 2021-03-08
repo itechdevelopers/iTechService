@@ -17,7 +17,7 @@ class CashOperationsController < ApplicationController
   end
 
   def new
-    @cash_operation = authorize CashOperation.new(cash_operation_params)
+    @cash_operation = authorize CashOperation.new
     respond_to do |format|
       format.html
       format.js { render 'shared/show_modal_form' }

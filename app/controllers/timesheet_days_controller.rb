@@ -12,7 +12,7 @@ class TimesheetDaysController < ApplicationController
   end
 
   def new
-    @timesheet_day = authorize TimesheetDay.new(timesheet_day_params)
+    @timesheet_day = authorize TimesheetDay.new
     respond_to do |format|
       format.js { render 'show_form' }
       format.json { render json: @timesheet_day }

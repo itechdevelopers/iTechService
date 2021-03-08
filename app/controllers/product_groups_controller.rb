@@ -42,7 +42,7 @@ class ProductGroupsController < ApplicationController
   end
 
   def new
-    @product_group = authorize ProductGroup.new(product_group_params)
+    @product_group = authorize ProductGroup.new
 
     respond_to do |format|
       format.js { render 'shared/show_modal_form' }

@@ -38,7 +38,7 @@ class ProductsController < ApplicationController
   end
 
   def new
-    @product = authorize Product.new(product_params)
+    @product = authorize Product.new
     respond_to do |format|
       format.html { render 'form' }
       format.json { render json: @product }

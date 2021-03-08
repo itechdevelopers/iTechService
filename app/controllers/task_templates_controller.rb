@@ -10,7 +10,7 @@ class TaskTemplatesController < ApplicationController
   end
 
   def new
-    @task_template = authorize TaskTemplate.new(parent_id: params[:parent_id], position: params[:position])
+    @task_template = authorize TaskTemplate.new(parent_id: params[:parent_id], position: params[:position].permit!)
     respond_to do |format|
       format.html { render 'form' }
     end

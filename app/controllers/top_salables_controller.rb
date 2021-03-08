@@ -20,7 +20,7 @@ class TopSalablesController < ApplicationController
   end
 
   def new
-    @top_salable = authorize TopSalable.new(top_salable_params)
+    @top_salable = authorize TopSalable.new
     respond_to do |format|
       format.html { render 'form' }
     end

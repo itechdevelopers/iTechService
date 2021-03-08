@@ -32,7 +32,7 @@ class MovementActsController < ApplicationController
   end
 
   def new
-    @movement_act = authorize MovementAct.new(movement_act_params)
+    @movement_act = authorize MovementAct.new
 
     respond_to do |format|
       format.html { render 'form' }
