@@ -163,6 +163,7 @@ class Order < ActiveRecord::Base
 
   def generate_number
     if number.blank?
+      num = nil
       loop do
         num = UUIDTools::UUID.random_create.hash.to_s
         break unless Order.exists?(number: num)

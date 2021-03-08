@@ -83,7 +83,7 @@ class OrdersController < ApplicationController
     @order = find_record Order
 
     respond_to do |format|
-      if @order.update_attributes(params[:order])
+      if @order.update_attributes(order_params)
         format.html { redirect_to orders_url, notice: t('orders.updated') }
         format.json { head :no_content }
         format.js
