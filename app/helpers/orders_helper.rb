@@ -72,7 +72,7 @@ module OrdersHelper
   end
 
   def button_to_change_order_status(order)
-    statuses = Order::STATUSES
+    statuses = Order::STATUSES.dup
     statuses.delete 'canceled'
     next_status = statuses[statuses.index(order.status).next]
     return unless next_status.present?

@@ -32,7 +32,7 @@ class SalesController < ApplicationController
   end
 
   def new
-    @sale = authorize Sale.new(sale_params)
+    @sale = authorize Sale.new
     load_top_salables
     respond_to do |format|
       format.html { render 'form' }
