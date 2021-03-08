@@ -363,9 +363,9 @@ class ServiceJobsController < ApplicationController
                   :initial_department_id, :is_tray_present, :item_id, :keeper_id, :location_id, :notify_client,
                   :replaced, :return_at, :sale_id, :security_code, :serial_number, :status, :tech_notice,
                   :ticket_number, :trademark, :type_of_work, :user_id)
-          .merge(
-            device_tasks_attributes: params[:service_job][:device_tasks_attributes].permit!
-          )
+          .tap do |p|
+      p[:device_tasks_attributes] = params[:service_job][:device_tasks_attributes].permit! if params[:service_job][:device_tasks_attributes]
+    end
   end
 
   def params_for_update
