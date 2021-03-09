@@ -232,6 +232,10 @@ class UsersController < ApplicationController
     params.require(:user).permit(:hobby, wishlist: [])
   end
 
+  def duty_day_params
+    params.require(:duty_day).permit(:day, :user_id, :kind)
+  end
+
   def user_params
     params.require(:user)
           .permit(:abilities_mask, :activities_mask, :birthday, :can_help_in_mac_service, :can_help_in_repair,
