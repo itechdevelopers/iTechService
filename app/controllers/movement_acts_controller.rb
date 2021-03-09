@@ -134,6 +134,9 @@ class MovementActsController < ApplicationController
     params.require(:movement_act)
           .permit(:comment, :date, :dst_store_id, :status, :store_id, :user_id,
                   movement_items: [:movement_act_id, :item_id, :quantity])
+          .tap do |p|
+      p[:movement_items_attributes] = params[:movement_act][:movement_items_attributes].permit! if params[:movement_act][:movement_items_attributes]
+    end
     # TODO: check nested attributes for: movement_items
   end
 end
