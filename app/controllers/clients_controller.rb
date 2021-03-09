@@ -139,7 +139,9 @@ class ClientsController < ApplicationController
                   # TODO: check nested attributes for: comments, client_characteristic
                   :client_characteristic_id, :department_id,
                   :phone_number_checked, :comments_attributes, :comment, :client_characteristic_attributes
-          )
-
+          ).tap do |p|
+      p[:comments_attributes] = params[:client][:comments_attributes].permit! if params[:client][:comments_attributes]
+      p[:client_characteristic_attributes] = params[:client][:client_characteristic_attributes].permit! if params[:client][:client_characteristic_attributes]
+    end
   end
 end
