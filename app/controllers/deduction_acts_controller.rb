@@ -113,8 +113,10 @@ class DeductionActsController < ApplicationController
 
   def deduction_act_params
     params.require(:deduction_act)
-          .permit(:comment, :date, :status, :store_id, :user_id,
-                  deduction_items: [:quantity, :item_id])
+          .permit(:comment, :date, :status, :store_id, :user_id, deduction_items: [:quantity, :item_id])
+          .tap do |p|
+      p[:deduction_items_attributes] = params[:deduction_act][:deduction_items_attributes].permit! if params[:deduction_act][:deduction_items_attributes]
+    end
     # :deduction_items_attributes
     # TODO: check nested attributes for: deduction_items
   end
