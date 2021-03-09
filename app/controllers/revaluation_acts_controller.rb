@@ -99,8 +99,9 @@ class RevaluationActsController < ApplicationController
     params.require(:revaluation_act)
           .permit(:date, :price_type_id, :status,
                   revaluations: [:price, :product_id, :revaluation_act_id]
-
-          )
+          ).tap do |p|
+      p[:revaluations_attributes] = params[:revaluation_act][:revaluations_attributes].permit! if params[:revaluation_act][:revaluations_attributes]
+    end
     # TODO: check nested attributes for: revaluations
   end
 end
