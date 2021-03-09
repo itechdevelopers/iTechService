@@ -153,7 +153,9 @@ class PurchasesController < ApplicationController
     params.require(:purchase)
           .permit(:comment, :contractor_id, :date, :skip_revaluation, :status, :store_id,
                   batches: [:price, :quantity, :item_id]
-          )
+          ).tap do |p|
+      p[:batches_attributes] = params[:purchase][:batches_attributes].permit! if params[:purchase][:batches_attributes]
+    end
     # TODO: check nested attributes for: batches
   end
 end
