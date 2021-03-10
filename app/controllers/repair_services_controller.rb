@@ -28,7 +28,7 @@ class RepairServicesController < ApplicationController
   end
 
   def new
-    @repair_service = authorize RepairService.new
+    @repair_service = authorize RepairService.new(repair_service_params)
     build_prices
     respond_to do |format|
       format.html { render 'form' }
