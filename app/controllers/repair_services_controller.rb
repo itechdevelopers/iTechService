@@ -110,7 +110,9 @@ class RepairServicesController < ApplicationController
           .permit(:client_info, :difficult, :is_body_repair, :is_positive_price, :name, :repair_group_id,
                     spare_parts: [:quantity, :warranty_term, :repair_service_id, :product_id],
                     prices: [:value, :repair_service_id, :department_id]
-                  )
-    # TODO: check nested attributes for: spare_parts, prices
+                  ).tap do |p|
+      p[:prices_attributes] = params[:repair_service][:prices_attributes].permit! if params[:repair_service][:prices_attributes]
+      p[:spare_parts_attributes] = params[:repair_service][:spare_parts_attributes].permit! if params[:repair_service][:spare_parts_attributes]
+    end
   end
 end
