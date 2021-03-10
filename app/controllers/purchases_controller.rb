@@ -62,7 +62,7 @@ class PurchasesController < ApplicationController
   def update
     @purchase = find_record Purchase
     respond_to do |format|
-      if @purchase.is_posted? ? @purchase.update_prices(params[:purchase]) : @purchase.update(params[:purchase])
+      if @purchase.is_posted? ? @purchase.update_prices(purchase_params) : @purchase.update(purchase_params)
         format.html { redirect_to @purchase, notice: t('purchases.updated') }
         format.json { head :no_content }
       else
