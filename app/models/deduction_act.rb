@@ -7,7 +7,7 @@ class DeductionAct < ActiveRecord::Base
   belongs_to :store
   belongs_to :user
   has_many :deduction_items, inverse_of: :deduction_act, dependent: :destroy
-  # accepts_nested_attributes_for :deduction_items, allow_destroy: true
+  accepts_nested_attributes_for :deduction_items, allow_destroy: true
   delegate :name, to: :store, prefix: true, allow_nil: true
   # attr_accessible :date, :status, :store_id, :comment, :deduction_items_attributes
   validates_presence_of :status, :date, :store, :comment
