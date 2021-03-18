@@ -244,6 +244,7 @@ class UsersController < ApplicationController
                   :last_sign_in_at, :last_sign_in_ip, :location_id, :name, :patronymic, :phone_number, :photo,
                   :position, :prepayment, :remember_created_at, :reset_password_sent_at, :role, :salary_date, :schedule,
                   :session_duration, :store_id, :surname, :uniform_sex, :uniform_size, :username, :wish, :wishlist,
+                  abilities: [], activities: [],
                   schedule_days: [:day, :hours, :user, :user_id],
                   duty_days: [:day, :user_id, :kind],
                   karmas: [:comment, :user_id, :karma_group_id, :good],
