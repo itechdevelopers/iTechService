@@ -27,6 +27,22 @@ class ClientsController < ApplicationController
     end
   end
 
+  def show_caller
+    authorize Client
+    number = params[:id][-10, 10]
+    clients = policy_scope(Client).search(phone_number: number)
+
+    if clients.one?
+      @client = clients.includes(:sale_items, :orders, :free_jobs, :quick_orders, :trade_in_devices,
+                                 service_jobs: :device_tasks).first
+      render 'show'
+    else
+      params[:client_q] = params[:id][/\d+/]
+      @clients = clients.id_asc.page(params[:page])
+      render 'index'
+    end
+  end
+
   def new
     @client = authorize Client.new
     @client.build_client_characteristic

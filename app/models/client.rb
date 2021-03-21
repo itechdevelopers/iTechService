@@ -66,6 +66,11 @@ class Client < ActiveRecord::Base
       end
       # clients = Client.where 'LOWER(clients.surname) LIKE :q OR LOWER(clients.name) LIKE :q OR LOWER(clients.patronymic) LIKE :q OR clients.phone_number LIKE :q OR clients.full_phone_number LIKE :q OR LOWER(clients.card_number) LIKE :q', q: "%#{client_q.mb_chars.downcase.to_s}%"
     end
+
+    if params.key?(:phone_number)
+      clients = Client.where('full_phone_number LIKE :n OR phone_number LIKE :n', n: "%#{params[:phone_number]}")
+    end
+
     clients
   end
 

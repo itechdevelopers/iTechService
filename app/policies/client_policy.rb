@@ -15,6 +15,8 @@ class ClientPolicy < CommonPolicy
 
   def find?; read?; end
 
+  def show_caller?; read?; end
+
   def export?
     superadmin?
   end
