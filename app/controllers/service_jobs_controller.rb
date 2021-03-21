@@ -362,7 +362,7 @@ class ServiceJobsController < ApplicationController
                   :device_condition, :device_group, :device_type_id, :done_at, :email, :estimated_cost_of_repair, :imei,
                   :initial_department_id, :is_tray_present, :item_id, :keeper_id, :location_id, :notify_client,
                   :replaced, :return_at, :sale_id, :security_code, :serial_number, :status, :tech_notice,
-                  :ticket_number, :trademark, :type_of_work, :user_id)
+                  :ticket_number, :trademark, :type_of_work, :user_id, :substitute_phone_id)
           .tap do |p|
       p[:device_tasks_attributes] = params[:service_job][:device_tasks_attributes].permit! if params[:service_job][:device_tasks_attributes]
     end

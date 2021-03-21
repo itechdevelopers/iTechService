@@ -451,15 +451,15 @@ price: device_task.cost.to_f, quantity: 1 }
   def validate_location
     old_location = location_id_changed? ? Location.find_by(id: location_id_was) : nil
 
-    if location.is_done? && pending?
+    if location&.is_done? && pending?
       errors.add :location_id, I18n.t('service_jobs.errors.pending_tasks')
     end
 
-    if location.is_done? && notify_client? && client_notified.nil?
+    if location&.is_done? && notify_client? && client_notified.nil?
       errors.add :client_notified, I18n.t('service_jobs.errors.client_notification')
     end
 
-    if location.is_archive? && old_location && !old_location.is_done?
+    if location&.is_archive? && old_location && !old_location&.is_done?
       errors.add :location_id, 'Работа не в "Готово".'
     end
 
@@ -475,7 +475,7 @@ price: device_task.cost.to_f, quantity: 1 }
       end
     end
 
-    if location.is_repair_notebooks? && old_location.present?
+    if location&.is_repair_notebooks? && old_location.present?
       MovementMailer.notice(id).deliver_later
     end
 
@@ -538,7 +538,7 @@ price: device_task.cost.to_f, quantity: 1 }
   end
 
   def set_department
-    self.department_id = location.department_id
+    self.department_id = location&.department_id
   end
 
   def deduct_spare_parts
