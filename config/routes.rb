@@ -91,6 +91,7 @@ Rails.application.routes.draw do
     get :autocomplete, on: :collection
     get :select, on: :member
     get :find, on: :member
+    get :show_caller, on: :member
     get :export, on: :collection
   end
 
