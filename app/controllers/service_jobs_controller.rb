@@ -358,11 +358,11 @@ class ServiceJobsController < ApplicationController
   def service_job_params
     params.require(:service_job)
           .permit(:app_store_pass, :carrier_id, :case_color_id, :claimed_defect, :client_address, :client_comment,
-                  :client_id, :client_notified, :comment, :completeness, :contact_phone, :data_storages, :department_id,
+                  :client_id, :client_notified, :comment, :completeness, :contact_phone, :department_id,
                   :device_condition, :device_group, :device_type_id, :done_at, :email, :estimated_cost_of_repair, :imei,
                   :initial_department_id, :is_tray_present, :item_id, :keeper_id, :location_id, :notify_client,
                   :replaced, :return_at, :sale_id, :security_code, :serial_number, :status, :tech_notice,
-                  :ticket_number, :trademark, :type_of_work, :user_id, :substitute_phone_id)
+                  :ticket_number, :trademark, :type_of_work, :user_id, :substitute_phone_id, data_storages: [])
           .tap do |p|
       p[:device_tasks_attributes] = params[:service_job][:device_tasks_attributes].permit! if params[:service_job][:device_tasks_attributes]
     end
