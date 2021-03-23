@@ -49,5 +49,8 @@ set :rbenv_ruby, '2.4.10'
 set :conditionally_migrate, true
 set :whenever_identifier, fetch(:application)
 
-# TODO add sidekiq hooks
-#
+after 'deploy:published', :restart_sidekiq do
+  on roles(:app) do
+    sudo :systemctl, 'restart', 'sidekiq.service'
+  end
+end
