@@ -191,12 +191,14 @@ class SalesController < ApplicationController
   end
 
   def sale_params
-    params.require(:sale)
-          .permit(:cash_shift_id, :client_id, :date, :is_return, :status, :store_id, :user_id,
-                    sale_items: [:sale_id, :item_id, :price, :quantity, :discount, :device_task_id],
-                    payments: [:value, :kind, :sale_id, :bank_id, :gift_certificate_id, :device_name,
-                               :device_number, :client_info, :appraiser, :device_logout]
-                  )
+    params.require(:sale).permit(
+      :cash_shift_id, :client_id, :date, :is_return, :status, :store_id, :user_id, :total_discount,
+      sale_items_attributes: [:id, :sale_id, :item_id, :price, :quantity, :discount, :device_task_id],
+      payments_attributes: [
+        :id, :value, :kind, :sale_id, :bank_id, :gift_certificate_id, :device_name, :device_number, :client_info,
+        :appraiser, :device_logout
+      ]
+    )
     # TODO: check nested attributes for: sale_items, payments
   end
 end
