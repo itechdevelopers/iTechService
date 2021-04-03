@@ -52,7 +52,9 @@ class OrdersController < ApplicationController
   end
 
   def new
-    @order = authorize Order.new(status: 'new')
+    params = order_params rescue {}
+    params.merge!(status: 'new')
+    @order = authorize Order.new(params)
 
     respond_to do |format|
       format.html
