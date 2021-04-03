@@ -97,7 +97,8 @@ class ServiceJobsController < ApplicationController
   end
 
   def new
-    @service_job = authorize ServiceJob.new
+    params = service_job_params rescue {}
+    @service_job = authorize ServiceJob.new(params)
     @service_job.department_id = current_user.department_id
 
     respond_to do |format|
