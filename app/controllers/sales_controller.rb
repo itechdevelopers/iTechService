@@ -32,7 +32,8 @@ class SalesController < ApplicationController
   end
 
   def new
-    @sale = authorize Sale.new
+    new_params = params.permit(sale: :client_id)[:sale]
+    @sale = authorize Sale.new(new_params)
     load_top_salables
     respond_to do |format|
       format.html { render 'form' }
