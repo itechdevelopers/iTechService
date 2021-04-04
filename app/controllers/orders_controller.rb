@@ -52,9 +52,9 @@ class OrdersController < ApplicationController
   end
 
   def new
-    new_params = params.permit(order: [:customer_type, :customer_id])[:order] || {}
-    new_params.merge!(status: 'new')
-    @order = authorize Order.new(new_params)
+    params = order_params rescue {}
+    params.merge!(status: 'new')
+    @order = authorize Order.new(params)
 
     respond_to do |format|
       format.html
