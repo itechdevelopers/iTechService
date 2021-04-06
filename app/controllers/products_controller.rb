@@ -180,7 +180,9 @@ class ProductsController < ApplicationController
 
   def product_params
     params.require(:product)
-          .permit(:code, :comment, :device_type_id, :name, :product_category_id, :product_group_id, :quantity_threshold, :warranty_term,
+          .permit(:code, :comment, :device_type_id, :name, :product_category_id, :product_group_id,
+                  :quantity_threshold, :warranty_term,
+                  option_ids: [],
                   items: [:product, :product_id, :features_attributes, :barcode_num],
                   task: [:cost, :duration, :name, :code, :priority, :role, :location_code, :product_id, :hidden],
                   store_products: [:warning_quantity, :store_id, :product_id]
