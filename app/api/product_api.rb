@@ -14,13 +14,13 @@ class ProductApi < Grape::API
 
   desc 'Get products remnants for shops'
   post 'products_sync' do
-    authorize! :sync, Product
+    authorize :sync, Product
     products_hash Product.goods
   end
 
   desc 'Get products remnants'
   get 'remnants' do
-    authorize! :read, Product
+    authorize :read, Product
     if (store = current_user.default_store).present?
       if params[:group_id].present?
         product_group = ProductGroup.find params[:group_id]

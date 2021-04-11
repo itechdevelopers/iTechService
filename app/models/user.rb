@@ -536,6 +536,10 @@ class User < ActiveRecord::Base
     service_jobs.where('created_at > ?', Date.today.at_beginning_of_month.to_time(:local)).count
   end
 
+  def update_authentication_token
+    update_column :authentication_token, SecureRandom.uuid
+  end
+
   private
 
   def validate_rights_changing

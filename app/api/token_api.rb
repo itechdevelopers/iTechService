@@ -1,7 +1,7 @@
 class TokenApi < Grape::API
   version 'v1', using: :path
 
-  desc 'Sings in user and creates auth token'
+  desc 'Sings in user'
   params do
     requires :username
     requires :password
@@ -12,7 +12,7 @@ class TokenApi < Grape::API
 
     if (user = User.find_first_by_auth_conditions auth_token: username.downcase).present?
 
-      user.reset_authentication_token!
+      user.update_authentication_token
 
       if user.valid_password? password
         {token: user.authentication_token}.merge(user.as_json)
@@ -24,15 +24,10 @@ class TokenApi < Grape::API
     end
   end
 
-  #rescue_from :all
-
-  desc 'Sings out user and resets auth token'
+  desc 'Sings out user and updates authentication token'
   delete 'signout' do
     authenticate!
-    current_user.reset_authentication_token!
-    {token: params[:token]}
+    current_user.update_authentication_token
+    {success: 'signed_out'}
   end
-
-  #rescue_from :all
-
 end

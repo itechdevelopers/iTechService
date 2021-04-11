@@ -3,7 +3,7 @@ class UserApi < Grape::API
 
   before { authenticate! }
 
-  desc 'Show client info'
+  desc 'Show user info'
   get 'profile' do
     present current_user
   end
