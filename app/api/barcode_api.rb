@@ -16,7 +16,7 @@ class BarcodeApi < Grape::API
       barcode_num = barcode_num.gsub(/^0+/, '').chop if barcode_num.length == 13
       if (service_job = ServiceJob.find_by_ticket_number(barcode_num)).present?
         #present service_job
-        {device: service_job}
+        {service_job: service_job}
       else
         error!({error: I18n.t('errors.nothing_found')}, 404)
       end

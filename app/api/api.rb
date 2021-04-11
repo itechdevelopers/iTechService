@@ -34,8 +34,35 @@ class API < Grape::API
       error!({error: 'Unauthorized'}, 401) unless current_user
     end
 
-    def authorize!(action, object)
-      Pundit.policy!(current_user, object).public_send("#{action}?")
+    def authorize(action, record)
+      query = "#{action}?"
+      policy = Pundit.policy(current_user, record)
+      raise NotAuthorizedError, query: query, record: record, policy: policy unless policy.public_send(query)
+      record
+    end
+
+    def find_record(scope, action)
+      authorize action, scope.find(params[:id])
+    end
+
+    def present_record(record, presenter_class: nil, type: nil)
+      presenter_class ||= "Entities::#{record.model_name.name}Entity".safe_constantize
+      type ||= :full unless record.respond_to?(:any?)
+      present record, with: presenter_class, type: type
+    end
+
+    def present_error(error, status: 400)
+      error!({error: error}, status)
+    end
+
+    def present_record_errors(record)
+      present_error record.errors.full_messages.to_sentence
+    end
+
+    def action_params
+      return {} if params.empty?
+
+      declared(params, include_parent_namespaces: false, include_missing: false).deep_symbolize_keys
     end
   end
 
@@ -43,10 +70,14 @@ class API < Grape::API
     Rack::Response.new({error: e.message}.to_json, 403).finish
   end
 
+  rescue_from ActiveRecord::RecordNotFound do |exception|
+    present_error exception.message, status: 404
+  end
+
   mount TokenApi
   mount UserApi
   mount BarcodeApi
-  mount DeviceApi
+  mount ServiceJobApi
   mount ProductApi
   mount QuickOrderApi
   mount RepairApi

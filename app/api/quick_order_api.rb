@@ -12,7 +12,7 @@ class QuickOrderApi < Grape::API
   end
   post 'quick_orders' do
     authenticate!
-    authorize! :create, QuickOrder
+    authorize :create, QuickOrder
     quick_order = QuickOrder.new(params[:quick_order])
     if quick_order.save
       pdf = QuickOrderPdf.new quick_order
