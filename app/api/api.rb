@@ -30,6 +30,10 @@ class API < Grape::API
       end
     end
 
+    def current_department
+      current_user.department
+    end
+
     def authenticate!
       error!({error: 'Unauthorized'}, 401) unless current_user
     end
@@ -76,6 +80,7 @@ class API < Grape::API
 
   mount TokenApi
   mount UserApi
+  mount DepartmentApi
   mount BarcodeApi
   mount ServiceJobApi
   mount ProductApi
