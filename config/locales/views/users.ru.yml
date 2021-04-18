@@ -23,6 +23,8 @@ ru:
       view_repair_parts: 'Смотреть запчасти устройства'
       view_reports: 'Смотреть отчёты'
       show_spare_parts_qty: 'Показывать количество запчастей в видах ремонта'
+      request_review: Запрашивать оценку у клиента
+      show_reviews: Просматривать оценки
     activities:
       free: Бесплатные
       fast: Быстрые

@@ -28,7 +28,9 @@ class Setting < ActiveRecord::Base
     sms_gateway_uri: 'string',
     sms_gateway_lines_qty: 'integer',
     ticket_notice: 'text',
-    ticket_prefix: 'string'
+    ticket_prefix: 'string',
+    request_review_text: 'string',
+    request_review_time_out: 'integer'
   }.freeze
 
   VALUE_TYPES = %w[boolean integer string text json].freeze

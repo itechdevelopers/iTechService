@@ -304,6 +304,7 @@ class ServiceJobsController < ApplicationController
     @service_job = find_record ServiceJob
     respond_to do |format|
       if @service_job.archive
+        make_review_url
         format.js
       else
         format.js { render_error @service_job.errors.full_messages }
@@ -312,6 +313,20 @@ class ServiceJobsController < ApplicationController
   end
 
   private
+
+  def make_review_url
+    return unless current_user.able_to?(:request_review)
+
+    review = Review.create(
+      service_job: @service_job,
+      client: @service_job.client,
+      phone: @service_job.client.full_phone_number,
+      token: SecureRandom.urlsafe_base64
+    )
+    SendSmsWithReviewUrlJob.perform_later(review.id, wait: 1800)
+  rescue
+    nil
+  end
 
   def build_device_note
     @device_note = DeviceNote.new user_id: current_user.id, service_job_id: @service_job.id

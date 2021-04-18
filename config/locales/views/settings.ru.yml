@@ -32,6 +32,7 @@ ru:
     sms_gateway_lines_qty: 'Количество линий СМС-шлюза'
     ticket_notice: 'Примечание на талоне'
     ticket_prefix: 'Префикс талона'
-
+    request_review_text: Текст смс запроса оценки работы сотрудника
+    request_review_time_out: Таймаут отправки смс запроса оценки работы сотрудника, мин
     errors:
       not_found: 'Параметр "%{name}" не найден!'

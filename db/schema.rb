@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20210223090846) do
+ActiveRecord::Schema.define(version: 20210418165634) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -954,6 +954,24 @@ ActiveRecord::Schema.define(version: 20210223090846) do
   add_index "revaluations", ["product_id"], name: "index_revaluations_on_product_id", using: :btree
   add_index "revaluations", ["revaluation_act_id"], name: "index_revaluations_on_revaluation_act_id", using: :btree
 
+  create_table "reviews", force: :cascade do |t|
+    t.integer  "user_id"
+    t.integer  "service_job_id"
+    t.integer  "client_id"
+    t.string   "phone"
+    t.integer  "value"
+    t.text     "content"
+    t.string   "token"
+    t.datetime "sent_at"
+    t.datetime "reviewed_at"
+    t.datetime "created_at",     null: false
+    t.datetime "updated_at",     null: false
+  end
+
+  add_index "reviews", ["client_id"], name: "index_reviews_on_client_id", using: :btree
+  add_index "reviews", ["service_job_id"], name: "index_reviews_on_service_job_id", using: :btree
+  add_index "reviews", ["user_id"], name: "index_reviews_on_user_id", using: :btree
+
   create_table "salaries", force: :cascade do |t|
     t.integer  "user_id"
     t.integer  "amount"
@@ -1431,12 +1449,12 @@ ActiveRecord::Schema.define(version: 20210223090846) do
     t.string   "phone_number",              limit: 255
     t.boolean  "department_autochangeable",             default: true,  null: false
     t.boolean  "can_help_in_repair",                    default: false
-    t.boolean  "can_help_in_mac_service",               default: false
     t.string   "uniform_sex"
     t.string   "uniform_size"
     t.integer  "activities_mask"
     t.string   "wishlist",                              default: [],                 array: true
     t.text     "hobby"
+    t.boolean  "can_help_in_mac_service",               default: false
   end
 
   add_index "users", ["authentication_token"], name: "index_users_on_authentication_token", unique: true, using: :btree
@@ -1511,6 +1529,9 @@ ActiveRecord::Schema.define(version: 20210223090846) do
   add_foreign_key "repair_prices", "departments"
   add_foreign_key "repair_prices", "repair_services"
   add_foreign_key "repair_tasks", "users", column: "repairer_id"
+  add_foreign_key "reviews", "clients"
+  add_foreign_key "reviews", "service_jobs"
+  add_foreign_key "reviews", "users"
   add_foreign_key "service_feedbacks", "service_jobs"
   add_foreign_key "service_free_jobs", "clients"
   add_foreign_key "service_free_jobs", "departments"

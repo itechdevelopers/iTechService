@@ -56,6 +56,8 @@ class User < ActiveRecord::Base
     see_all_users
     access_all_departments
     show_spare_parts_qty
+    request_review
+    show_reviews
   ].freeze
 
   ACTIVITIES = %w[free fast long].freeze
