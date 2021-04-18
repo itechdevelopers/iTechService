@@ -69,6 +69,7 @@ class ProductsController < ApplicationController
     @product = find_record Product
     respond_to do |format|
       if @product.update_attributes(product_params)
+        update_barcode_num
         format.html { redirect_to @product, notice: t('products.updated') }
         format.json { head :no_content }
       else
@@ -175,6 +176,15 @@ class ProductsController < ApplicationController
     @related_product_groups = @product.related_product_groups.limit(5)
     respond_to do |format|
       format.js
+    end
+  end
+
+  private
+
+  def update_barcode_num
+    if (item_params = params.dig(:product, :item))
+      item = Item.find(item_params[:id])
+      item.update(barcode_num: item_params[:barcode_num])
     end
   end
 
