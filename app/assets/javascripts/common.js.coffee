@@ -278,8 +278,8 @@ window.closeBarcodeReader = ->
 window.showSpinner = ()->
   $spinner = $('#spinner')
   $spinner.css
-    left: cursorX-$spinner.outerWidth()/2,
-    top: cursorY-$spinner.outerHeight()/2
+#    left: cursorX-$spinner.outerWidth()/2,
+#    top: cursorY-$spinner.outerHeight()/2
   $spinner.fadeIn()
 
 window.hideSpinner = ->
