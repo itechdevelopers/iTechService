@@ -22,6 +22,7 @@ ru:
       view_quick_orders_and_free_jobs_everywhere: 'Просмотр бесплтного сервиса и быстрых заказов на всех подразделениях'
       view_repair_parts: 'Смотреть запчасти устройства'
       view_reports: 'Смотреть отчёты'
+      show_spare_parts_qty: 'Показывать количество запчастей в видах ремонта'
     activities:
       free: Бесплатные
       fast: Быстрые

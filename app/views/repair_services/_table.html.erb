@@ -11,7 +11,7 @@
     </thead>
 
     <tbody>
-    <% show_qty = Setting.show_spare_parts_qty %>
+    <% show_qty = current_user.able_to?(:show_spare_parts_qty) || current_user.superadmin? # Setting.show_spare_parts_qty %>
     <% @repair_services.find_each do |repair_service| %>
       <% parts_qty = repair_service.spare_parts.count %>
       <tr>

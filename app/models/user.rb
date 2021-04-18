@@ -55,6 +55,7 @@ class User < ActiveRecord::Base
     move_transfers
     see_all_users
     access_all_departments
+    show_spare_parts_qty
   ].freeze
 
   ACTIVITIES = %w[free fast long].freeze
