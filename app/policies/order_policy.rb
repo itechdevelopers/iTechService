@@ -6,7 +6,7 @@ class OrderPolicy < CommonPolicy
   end
 
   def destroy?
-    manage? || (record.user_id == user.id)
+    manage? || (record.user_id == user.id) || has_role?(:software)
   end
 
   def history?
