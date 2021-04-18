@@ -316,14 +316,14 @@ class ServiceJobsController < ApplicationController
 
   def make_review_url
     return unless current_user.able_to?(:request_review)
-
+    time_out = Setting.request_review_time_out(service_job.department) * 60
     review = Review.create(
       service_job: @service_job,
       client: @service_job.client,
       phone: @service_job.client.full_phone_number,
       token: SecureRandom.urlsafe_base64
     )
-    SendSmsWithReviewUrlJob.perform_later(review.id, wait: 1800)
+    SendSmsWithReviewUrlJob.perform_later(review.id, wait: time_out)
   rescue
     nil
   end
