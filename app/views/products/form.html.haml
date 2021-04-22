@@ -35,11 +35,6 @@
           = f.input :quantity_threshold
           = f.input :comment, input_html: {rows: 3}
 
-          - unless @product.feature_accounting or @product.is_service
-            = f.simple_fields_for :item, @product.item do |fi|
-              = fi.hidden_field :id
-              = fi.input :barcode_num
-
           - if @product.is_service
             - @product.task || @product.build_task
             = f.simple_fields_for :task do |ff|

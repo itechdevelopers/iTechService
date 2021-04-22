@@ -69,7 +69,6 @@ class ProductsController < ApplicationController
     @product = find_record Product
     respond_to do |format|
       if @product.update_attributes(product_params)
-        update_barcode_num
         format.html { redirect_to @product, notice: t('products.updated') }
         format.json { head :no_content }
       else

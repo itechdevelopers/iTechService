@@ -127,7 +127,7 @@ class Product < ActiveRecord::Base
   end
 
   def item
-    feature_accounting ? nil : items.first_or_initialize
+    feature_accounting ? nil : items.first_or_create
   end
 
   def discount_for(client)
