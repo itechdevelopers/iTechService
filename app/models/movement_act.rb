@@ -67,8 +67,7 @@ class MovementAct < ActiveRecord::Base
         movement_items.each do |movement_item|
           movement_item.store_item(store).move_to dst_store, movement_item.quantity
         end
-        update_attribute :status, 1
-        update_attribute :date, DateTime.current
+        update! status: 1, date: DateTime.current, user_id: User.current.id
       end
     else
       false
