@@ -5,6 +5,8 @@
 
 %dl.dl-horizontal
   - if can? :manage, DeductionAct
+    %dt= DeductionAct.human_attribute_name :user
+    %dd= link_to_unless @deduction_act.user.nil?, @deduction_act.user&.presentation, @deduction_act.user
     %dt= DeductionAct.human_attribute_name :status
     %dd= status_presentation @deduction_act
     %dt= DeductionAct.human_attribute_name :store
