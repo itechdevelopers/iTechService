@@ -8,7 +8,9 @@
     %dt= DeductionAct.human_attribute_name :user
     %dd= link_to_unless @deduction_act.user.nil?, @deduction_act.user&.presentation, @deduction_act.user
     %dt= DeductionAct.human_attribute_name :status
-    %dd= status_presentation @deduction_act
+    %dd
+      = status_presentation @deduction_act
+      = " [#{human_datetime(@deduction_act.date)}]"
     %dt= DeductionAct.human_attribute_name :store
     %dd= link_to @deduction_act.store_name, store_path(@deduction_act.store)
   %dt= DeductionAct.human_attribute_name :comment
