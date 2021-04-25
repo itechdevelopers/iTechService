@@ -6,6 +6,8 @@
 
 .dl.dl-horizontal
   - if can? :manage, MovementAct
+    %dt= MovementAct.human_attribute_name :user
+    %dd= link_to_unless @movement_act.user.nil?, @movement_act.user&.presentation, @movement_act.user
     %dt= MovementAct.human_attribute_name :status
     %dd= status_presentation @movement_act
     %dt= MovementAct.human_attribute_name :store
