@@ -12,6 +12,10 @@
       %strong= t('mail.deletion.object')
       = @object[:presentation]
 
+    %p
+      %strong= t('mail.deletion.reason')
+      = @object[:reason]
+
     - if @object[:tasks].present?
       %p
         %strong= t('mail.deletion.tasks')

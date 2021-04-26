@@ -33,9 +33,14 @@
             .btn-group
               = link_to_show_small service_job
               = link_to_edit_small service_job# if can? :update, service_job
-              = link_to_destroy_small service_job if can? :destroy, service_job
+
+              - if can? :destroy, service_job
+                %a.destroy_service_job_btn.btn.btn-small.btn-danger{'data-target': "#modalConfirmDeleteJob", 'data-row-id': service_job.id, 'data-toggle': "modal", type: "button"}
+                  %i.icon-trash{:style => "pointer-events:none;"}
 
   = paginate @service_jobs, remote: true
   
 - else
   = render 'shared/empty'
+
+=render 'confirm_delete'

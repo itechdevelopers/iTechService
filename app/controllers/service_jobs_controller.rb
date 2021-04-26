@@ -171,8 +171,13 @@ class ServiceJobsController < ApplicationController
       flash.alert = 'Работа не может быть удалена (привязаны запчасти).'
     else
       service_job_presentation = "[Талон: #{service_job.ticket_number}] #{service_job.decorate.presentation}"
-      DeletionMailer.notice({ presentation: service_job_presentation, tasks: service_job.tasks.map(&:name).join(', ') },
-                            current_user.presentation, I18n.l(Time.current, format: :date_time)).deliver_later
+      DeletionMailer.notice({
+                              presentation: service_job_presentation,
+                              tasks: service_job.tasks.map(&:name).join(', '),
+                              reason: params[:reason]
+                            },
+                            current_user.presentation,
+                            I18n.l(Time.current, format: :date_time)).deliver_later
 
       if service_job.destroy
         flash.notice = 'Работа удалена!'

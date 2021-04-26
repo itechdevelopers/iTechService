@@ -147,4 +147,5 @@ group :deploy, :development do
   gem 'capistrano-sidekiq', '~> 1.0.3'
   gem 'ed25519', '>= 1.2', '< 2.0'
   gem 'bcrypt_pbkdf', '>= 1.0', '< 2.0'
+  gem 'mimemagic', git: 'https://github.com/vaallery/mimemagic', tag: 'v0.3.0'
 end

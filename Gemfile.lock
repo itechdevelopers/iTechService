@@ -1,3 +1,10 @@
+GIT
+  remote: https://github.com/vaallery/mimemagic
+  revision: a4b038c6c1b9d76dac33d5711d28aaa9b4c42c66
+  tag: v0.3.0
+  specs:
+    mimemagic (0.3.0)
+
 GEM
   remote: https://rubygems.org/
   specs:
@@ -349,7 +356,6 @@ GEM
     mime-types (3.3.1)
       mime-types-data (~> 3.2015)
     mime-types-data (3.2021.0225)
-    mimemagic (0.3.0)
     mini_magick (4.9.4)
     mini_mime (1.0.2)
     mini_portile2 (2.4.0)
@@ -706,6 +712,7 @@ DEPENDENCIES
   less-rails (~> 2.7.1)
   letter_opener (~> 1.4.1)
   meta_request (~> 0.2.8)
+  mimemagic!
   mini_magick (~> 4.9.4)
   mocha (~> 1.1.0)
   nokogiri (~> 1.10.10)

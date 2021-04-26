@@ -7,6 +7,7 @@ ru:
       warning_text: 'На складе %{store} осталось %{quantity} %{product}'
     deletion:
       subject: "Айс. Удаление объекта."
+      reason: Причина
     service_jobs:
       done_notice:
         subject: 'Ваше устройство готово'

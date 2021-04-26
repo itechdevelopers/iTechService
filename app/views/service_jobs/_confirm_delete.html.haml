@@ -1,0 +1,26 @@
+.modal-confirm.modal.fade#modalConfirmDeleteJob{tabindex: "-1", role: "dialog", 'aria-labelledby': "modalConfirmDeleteJobLabel", 'aria-hidden': "true"}
+  .modal-dialog{role: "document"}
+    .modal-content
+      = form_tag  "/", id: "service-job-delete-form", method: :delete, remote: true do
+        .modal-header
+          = button_to_close_modal
+          %h3 Внимание
+        .modal-body
+          .form-group
+            =label_tag :reason, 'Причина удаления записи'
+            =text_field_tag :reason, '', class: "form-control", :required => true
+        .modal-footer
+          %button.btn.btn-secondary{'data-dismiss': :modal} Отмена
+          %button#destroyServiceJob.btn.btn-danger{'type': 'submit' } Удалить
+
+:javascript
+  $(document).ready(() => {
+    let rowId;
+    $('.destroy_service_job_btn').on('click', (e) => {
+      rowId = e.target.dataset.rowId;
+      $('#service-job-delete-form').attr('action', `/service_jobs/${rowId}`);
+    });
+    $('#service-job-delete-form').submit((e) => {
+      $('#modalConfirmDeleteJob').modal('hide');
+    });
+  });
