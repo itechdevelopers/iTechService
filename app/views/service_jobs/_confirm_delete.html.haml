@@ -1,7 +1,7 @@
 .modal-confirm.modal.fade#modalConfirmDeleteJob{tabindex: "-1", role: "dialog", 'aria-labelledby': "modalConfirmDeleteJobLabel", 'aria-hidden': "true"}
   .modal-dialog{role: "document"}
     .modal-content
-      = form_tag  "/", id: "service-job-delete-form", method: :delete, remote: true do
+      = form_tag  "/", id: "service-job-delete-form", method: :delete do
         .modal-header
           = button_to_close_modal
           %h3 Внимание

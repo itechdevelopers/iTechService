@@ -169,25 +169,31 @@ class ServiceJobsController < ApplicationController
 
     if service_job.repair_parts.any?
       flash.alert = 'Работа не может быть удалена (привязаны запчасти).'
+      redirection_url = request.referrer
     else
       service_job_presentation = "[Талон: #{service_job.ticket_number}] #{service_job.decorate.presentation}"
-      DeletionMailer.notice({
-                              presentation: service_job_presentation,
-                              tasks: service_job.tasks.map(&:name).join(', '),
-                              reason: params[:reason]
-                            },
-                            current_user.presentation,
-                            I18n.l(Time.current, format: :date_time)).deliver_later
-
+      tasks = service_job.tasks.map(&:name).join(', ')
       if service_job.destroy
         flash.notice = 'Работа удалена!'
+        DeletionMailer.notice({
+                                presentation: service_job_presentation,
+                                tasks: tasks,
+                                reason: params[:reason]
+                              },
+                              current_user.presentation,
+                              I18n.l(Time.current, format: :date_time))
+                      .deliver_later
+        redirection_url = service_jobs_url
       else
         flash.alert = 'Работа не удалена!'
+        redirection_url = request.referrer
       end
     end
 
     respond_to do |format|
-      format.html { redirect_to(request.referrer || service_jobs_url) }
+      format.html do
+        redirect_to(redirection_url)
+      end
       format.json { head :no_content }
     end
   end
