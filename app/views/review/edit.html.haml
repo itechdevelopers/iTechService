@@ -1,0 +1,19 @@
+%h1 Предварительный вариант
+
+- if (service_job = @review.service_job)
+  %p
+    Вы оставляли оборудование на ремонт
+    = (service_job.item.present? ? service_job.item.name : service_job.type_name)
+- if (stuff = @review.user) && stuff.photo?
+  %p Работу выполнил наш сотрудник
+  %p= image_tag stuff.photo.medium.url, class: 'avatar-medium'
+%p
+  Просим оценить нашу работу
+  = simple_form_for @review, url: "/review/#{@review.token}" do |f|
+    .form-inputs
+      Тут будут звездочки
+      = f.input :value
+      = f.input :content
+
+    .form-actions
+      = submit_button f, name: 'Отправить'

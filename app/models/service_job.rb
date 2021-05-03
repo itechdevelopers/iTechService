@@ -57,6 +57,7 @@ class ServiceJob < ActiveRecord::Base
   has_many :inactive_feedbacks, -> { inactive }, class_name: Service::Feedback.name, dependent: :destroy
   has_one :substitute_phone, dependent: :nullify
   has_many :viewings, class_name: ServiceJobViewing.name, dependent: :destroy
+  has_one :review
 
   has_and_belongs_to_many :subscribers,
                           join_table: :service_job_subscriptions,
@@ -512,15 +513,11 @@ price: device_task.cost.to_f, quantity: 1 }
   end
 
   def presence_of_payment
-    is_valid = true
-    if location_id_changed? && location&.is_archive?
-      if tasks_cost.positive?
-        if sale.nil? || !sale.is_posted?
-          errors.add :base, :not_paid
-        end
-      end
-    end
-    is_valid
+    return true unless location_id_changed? && location&.is_archive?
+    return true unless tasks_cost.positive?
+    return true unless sale.nil? || !sale.is_posted?
+
+    errors.add :base, :not_paid
   end
 
   def substitute_phone_absence

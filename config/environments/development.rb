@@ -42,6 +42,8 @@ Rails.application.configure do
   config.action_mailer.delivery_method = :letter_opener
   # config.action_mailer.smtp_settings = { address: 'localhost', port: 1025 }
   config.action_mailer.default_url_options = { host: 'localhost:9000' }
-  # config.active_job.queue_adapter = :sidekiq
+  config.active_job.queue_adapter = :sidekiq
   Paperclip.options[:command_path] = '/usr/local/bin'
 end
+
+Rails.application.routes.default_url_options[:host] = 'localhost:3000'

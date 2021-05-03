@@ -9,9 +9,9 @@
   %tbody
     - @service_jobs.each do |service_job|
       - device_tasks = service_job.device_tasks
-      = service_job_row_tag service_job
+      = render 'service_jobs/row', service_job: service_job
       - device_tasks.each do |device_task|
-        = device_task_row_tag device_task
+        = render 'device_tasks/row', device_task: device_task
       %tr.empty_row
         %td{colspan: 4}
 

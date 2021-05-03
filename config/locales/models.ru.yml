@@ -411,7 +411,11 @@ ru:
       repair_task:
         repair_parts: 'Запчасти'
         repairer: 'Кто произвёл ремонт?'
-
+      review:
+        value: Оценка
+        content: Отзыв
+        sent_at: Отправлено
+        reviewed_at: Оценено
       salary:
         amount: 'Сумма'
         is_prepayment: 'Аванс'

@@ -52,6 +52,11 @@ Rails.application.routes.draw do
   resources :departments
   resources :brands, except: :show
   resources :reports, only: [:index, :new, :create]
+  resources :reviews
+  get   'review/:token', to: 'review#edit'
+  patch 'review/:token', to: 'review#update'
+  get :review, to: 'review#welcome'
+
 
   resources :users do
     get :duty_calendar, on: :member

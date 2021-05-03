@@ -19,6 +19,9 @@
         onclick: "$('#b_users_quick_orders_search_form').click();"
       %li= link_to 'Бесплатный сервис', "#free_service_tab", 'data-toggle' => 'tab', id: "a_free_service_tab",
         onclick: "$('#b_users_free_jobs_search_form').click();"
+      - if current_user.able_to?(:show_reviews)
+        %li= link_to 'Отзывы клиентов', "#reviews_tab", 'data-toggle' => 'tab', id: "a_reviews_tab",
+          onclick: "$('#b_users_reviews_search_form').click();"
       %li= link_to t("users.info"), "#info_tab", 'data-toggle' => 'tab'
       %li= link_to t('users.schedule'), '#schedule_tab', 'data-toggle' => 'tab'
       %li.user-fautls= link_to t('faults.index.title'), '#faults_tab', class: 'user-faults-link', data: {toggle: 'tab', source: user_faults_path(@user)}
@@ -66,6 +69,10 @@
 
       #free_service_tab.tab-pane
         =render partial: 'service/free_jobs/user_filter_form', locals: { user: @user }
+
+      - if current_user.able_to?(:show_reviews)
+        #reviews_tab.tab-pane
+          =render partial: 'reviews/user_filter_form', locals: { user: @user }
 
       #info_tab.tab-pane
         %dl.dl-horizontal

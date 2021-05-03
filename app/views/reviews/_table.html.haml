@@ -1,0 +1,26 @@
+= hidden_field_tag :direction, params[:direction]
+= hidden_field_tag :sort, params[:sort]
+- if @reviews.any?
+
+  %table.table.table-hover
+    %thead
+      %tr
+        %th= sortable 'id', Review.human_attribute_name(:id), remote: true
+        %th= Review.human_attribute_name(:value)
+        %th= Review.human_attribute_name(:content)
+        %th= sortable 'sent_at', Review.human_attribute_name(:sent_at), remote: true
+        %th= sortable 'reviewed_at', Review.human_attribute_name(:reviewed_at), remote: true
+        %th
+    %tbody
+      - @reviews.each do |review|
+        %tr
+          %td= review.id
+          %td= review.value
+          %td= review.content
+          %td= human_datetime review.sent_at
+          %td= human_datetime review.reviewed_at
+
+  = paginate @reviews, remote: true
+
+- else
+  = render 'shared/empty'

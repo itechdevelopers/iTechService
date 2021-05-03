@@ -98,3 +98,5 @@ Rails.application.configure do
   config.active_job.queue_adapter = :sidekiq
   Paperclip.options[:command_path] = '/usr/local/bin'
 end
+
+Rails.application.routes.default_url_options[:host] = ENV['SERVER_HOST']

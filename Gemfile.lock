@@ -743,7 +743,7 @@ DEPENDENCIES
   seedbank (~> 0.4.0)
   shoulda (~> 3.5.0)
   shoulda-matchers
-  sidekiq (~> 5.2.6)
+  sidekiq (~> 5.2.8)
   sidekiq-cron (~> 1.1)
   simple_form (~> 3.5.1)
   simplecov (~> 0.12.0)

@@ -18,6 +18,10 @@
 
   = new_sms_notification_link(@service_job) if @service_job.at_done?
 
+  - if current_user.able_to?(:show_reviews) && (review = @service_job.review)
+    -# TODO: Replace to star
+    "#{review.value} - #{review.content}"
+
 .row-fluid
   .span4
     %table.attributes_table

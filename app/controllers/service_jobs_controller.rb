@@ -327,7 +327,7 @@ class ServiceJobsController < ApplicationController
 
   def make_review_url
     return unless current_user.able_to?(:request_review)
-    time_out = Setting.request_review_time_out(service_job.department) * 60
+    time_out = Setting.request_review_time_out(@service_job.department) * 60
     review = Review.create(
       service_job: @service_job,
       client: @service_job.client,

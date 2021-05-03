@@ -52,7 +52,7 @@ gem 'roo-xls', '~> 1.2'
 gem 'paperclip', '~> 4.3.6'
 gem 'barby', '~> 0.6.4'
 gem 'acts_as_list', '~> 0.7.4'
-gem 'sidekiq', '~> 5.2.6'
+gem 'sidekiq', '~> 5.2.8'
 # gem 'sidekiq-statistic'
 gem 'sinatra', '~> 1.0', require: false
 gem 'sidekiq-cron', '~> 1.1'

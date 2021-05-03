@@ -1,0 +1,29 @@
+- service_job = service_job
+%tr{class: 'info service_job_row', data: { service_job_id: service_job.id }}
+  %td.device_movement_column= device_movement_information_tag(service_job)
+  %td.device_task_column
+    %span{class: "device_tasks_toggle #{progress_badge_class_for_service_job(service_job)}"}
+      = service_job.progress
+    = link_to(service_job.presentation, service_job_path(service_job))
+    = service_job_row_tag_device_attribute(service_job, [:ticket_number])
+    - spoiler = service_job_row_tag_device_attribute(service_job, %i[claimed_defect device_condition client_comment type_of_work estimated_cost_of_repair])
+    - unless spoiler.blank?
+      %details=spoiler
+  %td.client_comment_column
+    - if service_job.client.present?
+      = link_to(service_job.client_short_name, client_path(service_job.client))
+    - else
+      ='-'
+    = " #{contact_phones_for(service_job)}"
+    %br
+    = service_job.note
+    - if current_user.able_to?(:show_reviews) && (review = @service_job.review)
+      %br
+      -# TODO: Replace to stars
+      "#{review.value} - #{review.content}"
+  %td.device_task_action_column
+    - notes_icon_name = service_job.device_notes.exists? ? 'file-text-alt' : 'file-alt'
+    = link_to_edit_service_job(service_job)
+    = link_to(glyph(notes_icon_name), service_job_device_notes_path(service_job), class: 'device_notes-button btn btn-small', remote: true)
+    = service_job.decorate.subscription_button
+    = button_to_set_keeper_of_device(service_job)

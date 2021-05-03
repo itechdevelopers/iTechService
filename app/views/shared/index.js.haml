@@ -1,4 +1,5 @@
-- if defined?(resource_table_id)&&resource_table_id
+- resource_table_id = local_assigns[:resource_table_id]
+- if resource_table_id
   :plain
     let table = $("#resource_table")
     if(!table.length){table = $("##{resource_table_id}")}

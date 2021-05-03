@@ -1,0 +1,10 @@
+- device_task = device_task
+%tr{class: "device_task_row #{device_task.done_s} #{'actual' if is_actual_task?(device_task)}",
+    data: { device_task_id: device_task.id, service_job_id: device_task.service_job.id, task_id: device_task.task.id }}
+  %td
+  %td=device_task.task_name
+  %td
+    %span= h(device_task.comment)
+    %br
+    %strong.user_comment= h(device_task.user_comment)
+  %td= policy(device_task).edit? ? link_to_edit_device_task(device_task) : nil
