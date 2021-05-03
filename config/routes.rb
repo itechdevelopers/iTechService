@@ -18,6 +18,9 @@ Rails.application.routes.draw do
   get 'app_logo', to: 'app_logo#edit'
   post 'app_logo', to: 'app_logo#update'
 
+  get 'forma', to: 'forma#edit'
+  post 'forma', to: 'forma#update'
+
   devise_for :users, controllers: {
     sessions: 'users/sessions'
   }

@@ -1,0 +1,6 @@
+<%= form_tag forma_path, multipart: true do %>
+  <p>
+    <%= file_field_tag :file, accept: '.pdf' %>
+  </p>
+  <%= submit_tag 'Загрузить' %>
+<% end %>

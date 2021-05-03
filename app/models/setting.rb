@@ -5,6 +5,7 @@ class Setting < ActiveRecord::Base
     address: 'string',
     address_for_check: 'string',
     app_logo_filename: 'string',
+    forma_filename: 'string',
     contact_phone: 'string',
     contact_phone_short: 'string',
     data_storage_qty: 'integer',

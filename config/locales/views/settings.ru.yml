@@ -12,6 +12,7 @@ ru:
     address: 'Адрес'
     address_for_check: 'Адрес на чеке'
     app_logo_filename: 'Файл логотипа'
+    forma_filename: 'Файл формы'
     contact_phone: 'Контактный телефон'
     data_storage_qty: 'Количество хранилищ данных'
     email: 'E-mail'
