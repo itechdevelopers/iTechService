@@ -46,4 +46,7 @@ Rails.application.configure do
   Paperclip.options[:command_path] = '/usr/local/bin'
 end
 
-Rails.application.routes.default_url_options[:host] = 'localhost:3000'
+Rails.application.routes.default_url_options = {
+  host: 'localhost:3000',
+  protocol: :http
+}
