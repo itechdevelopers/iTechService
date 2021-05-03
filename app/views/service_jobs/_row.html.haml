@@ -17,7 +17,7 @@
     = " #{contact_phones_for(service_job)}"
     %br
     = service_job.note
-    - if current_user.able_to?(:show_reviews) && (review = @service_job.review)
+    - if current_user.able_to?(:show_reviews) && (review = service_job.review)
       %br
       -# TODO: Replace to stars
       "#{review.value} - #{review.content}"
