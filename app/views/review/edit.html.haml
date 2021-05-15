@@ -1,19 +1,32 @@
-%h1 Предварительный вариант
-
+= stylesheet_link_tag 'review.css'
 - if (service_job = @review.service_job)
-  %p
-    Вы оставляли оборудование на ремонт
-    = (service_job.item.present? ? service_job.item.name : service_job.type_name)
-- if (stuff = @review.user) && stuff.photo?
-  %p Работу выполнил наш сотрудник
-  %p= image_tag stuff.photo.medium.url, class: 'avatar-medium'
-%p
-  Просим оценить нашу работу
-  = simple_form_for @review, url: "/review/#{@review.token}" do |f|
-    .form-inputs
-      Тут будут звездочки
-      = f.input :value
-      = f.input :content
+  .card.feedback
+    .card-body
+      .card-title
+        Вы оставляли оборудование на ремонт
+        = (service_job.item.present? ? service_job.item.name : service_job.type_name)
+      .card-text
+        - if (stuff = @review.user) && stuff.photo?
+          .card-subtitle Работу выполнил наш сотрудник
+          .avatar= image_tag stuff.photo.medium.url, class: 'avatar-medium'
+        %span Просим оценить нашу работу
+        = simple_form_for @review, url: "/review/#{@review.token}" do |f|
+          .form-inputs
+            %select#rating
+              %option{:value => "1"} 1
+              %option{:value => "2"} 2
+              %option{:value => "3"} 3
+              %option{:value => "4"} 4
+              %option{:value => "5"} 5
+          
+            //= f.input :value
 
-    .form-actions
-      = submit_button f, name: 'Отправить'
+            .form-textarea
+              = f.input :content
+          .form-actions
+            = submit_button f, name: 'Отправить'
+
+
+%script{:src => "http://ajax.googleapis.com/ajax/libs/jquery/2.0.0/jquery.min.js"}
+= javascript_include_tag 'rating_bar/jquery.barrating.min.js'
+= javascript_include_tag 'review_page.js'

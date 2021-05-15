@@ -34,4 +34,7 @@ Rails.application.config.assets.precompile += %w[
   font-awesome/*
   media_menu/framework.css
   media_menu/framework.js
+  rating_bar/jquery.barrating.min.js
+  review_page.js
+  review.css
 ]

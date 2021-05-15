@@ -1,0 +1,114 @@
+.br-theme-css-stars .br-widget {
+  height: 60px;
+  white-space: nowrap;
+}
+.br-theme-css-stars .br-widget a {
+  text-decoration: none;
+  height: 48px;
+  width: 48px;
+  float: left;
+  font-size: 40px;
+  margin-right: 5px;
+}
+.br-theme-css-stars .br-widget a:after {
+  content: "\2605";
+  color: #d2d2d2;
+}
+.br-theme-css-stars .br-widget a.br-active:after {
+  color: #fec518;
+}
+.br-theme-css-stars .br-widget a.br-selected:after {
+  color: #fec518;
+}
+.br-theme-css-stars .br-widget .br-current-rating {
+  display: none;
+}
+.br-theme-css-stars .br-readonly a {
+  cursor: default;
+}
+@media print {
+  .br-theme-css-stars .br-widget a:after {
+      content: "\2606";
+      color: black;
+ }
+  .br-theme-css-stars .br-widget a.br-active:after, .br-theme-css-stars .br-widget a.br-selected:after {
+      content: "\2605";
+      color: black;
+ }
+}
+body {
+ /* background: #ecf6ff;
+  */
+  background: #e2f0fe;
+  margin: 0;
+}
+.card-title {
+  color: #161539;
+  font-size: 1.5rem;
+}
+.card {
+  font-family: -apple-system,BlinkMacSystemFont,Segoe UI,Helvetica,Arial,sans-serif,Apple Color Emoji,Segoe UI Emoji;
+  font-size: 14px;
+  line-height: 1.5;
+  background: #ffffff;
+  padding: 10px;
+  margin: 30px 40px;
+  border-radius: 10px;
+}
+.avatar {
+  margin-bottom: 30px;
+}
+.avatar img{
+  border-radius: 50%;
+  width:120px;
+  margin:20px 
+}
+.card-subtitle {
+  margin:20px 0 0;
+  font-size: 1rem;
+  color: #717578;
+}
+.card-text span {
+  font-size:1rem;
+  font-weight: 500;
+  color:#f56c98;
+}
+.card.feedback {
+  text-align:center;
+  max-width: 420px;
+  margin: 30px auto;
+}
+.review_content textarea {
+  width:100%;
+  border: 1px solid #ccc;
+  border-radius:4px;
+  padding: 5px;
+  height: 90px;
+  color:#333;
+}
+.review_content textarea:focus {
+  border: 1px solid #888;
+}
+.review_content textarea:focus-visible {
+  border: 1px solid #888!important;
+}
+.br-widget {
+  display: inline-block;
+}
+.form-textarea {
+  margin: 10px;
+  display: block;
+  text-align: left;
+}
+label.text.optional.control-label {
+  display:none;
+}
+.submit_button {
+  background:#3aa1f1;
+  border:0;
+  padding:16px 46px;
+  margin-top:20px;
+  color:#fff;
+  font-size:1rem;
+  border-radius:25px;
+}
