@@ -9,11 +9,11 @@
         - if (stuff = @review.user) && stuff.photo?
           .card-subtitle Работу выполнил наш сотрудник
           .avatar= image_tag stuff.photo.medium.url, class: 'avatar-medium'
-          %span Просим оценить нашу работу
-          = simple_form_for @review, url: "/review/#{@review.token}" do |f|
-            = f.input :value, collection: 1..5
-            = f.input :content
-            = submit_button f, name: 'Отправить'
+        %span Просим оценить нашу работу
+        = simple_form_for @review, url: "/review/#{@review.token}" do |f|
+          = f.input :value, collection: 1..5
+          = f.input :content
+          = submit_button f, name: 'Отправить'
 
 = javascript_include_tag 'jquery-2.2.4.min.js'
 = javascript_include_tag 'rating_bar/jquery.barrating.min.js'
