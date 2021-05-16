@@ -3,16 +3,17 @@
   .card.feedback
     .card-body
       .card-title
+        -#Оцените пожалуйста нашу работу
         Вы оставляли оборудование на ремонт
         = (service_job.item.present? ? service_job.item.name : service_job.type_name)
       .card-text
         - if (stuff = @review.user) && stuff.photo?
-          .card-subtitle Работу выполнил наш сотрудник
+          .card-subtitle="Вам помогал #{stuff.full_name}"
           .avatar= image_tag stuff.photo.medium.url, class: 'avatar-medium'
-        %span Просим оценить нашу работу
+        %span Оцените пожалуйста нашу работу
         = simple_form_for @review, url: "/review/#{@review.token}" do |f|
-          = f.input :value, collection: 1..5
-          = f.input :content
+          = f.input :value, collection: 1..5, label: false
+          = f.input :content, label: false
           = submit_button f, name: 'Отправить'
 
 = javascript_include_tag 'jquery-2.2.4.min.js'
