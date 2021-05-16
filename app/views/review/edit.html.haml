@@ -9,24 +9,12 @@
         - if (stuff = @review.user) && stuff.photo?
           .card-subtitle Работу выполнил наш сотрудник
           .avatar= image_tag stuff.photo.medium.url, class: 'avatar-medium'
-        %span Просим оценить нашу работу
-        = simple_form_for @review, url: "/review/#{@review.token}" do |f|
-          .form-inputs
-            %select#rating
-              %option{:value => "1"} 1
-              %option{:value => "2"} 2
-              %option{:value => "3"} 3
-              %option{:value => "4"} 4
-              %option{:value => "5"} 5
-          
-            //= f.input :value
-
-            .form-textarea
-              = f.input :content
-          .form-actions
+          %span Просим оценить нашу работу
+          = simple_form_for @review, url: "/review/#{@review.token}" do |f|
+            = f.input :value, collection: 1..5
+            = f.input :content
             = submit_button f, name: 'Отправить'
 
-
-%script{:src => "http://ajax.googleapis.com/ajax/libs/jquery/2.0.0/jquery.min.js"}
+= javascript_include_tag 'jquery-2.2.4.min.js'
 = javascript_include_tag 'rating_bar/jquery.barrating.min.js'
 = javascript_include_tag 'review_page.js'
