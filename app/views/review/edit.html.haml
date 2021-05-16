@@ -1,20 +1,22 @@
 = stylesheet_link_tag 'review.css'
-- if (service_job = @review.service_job)
-  .card.feedback
-    .card-body
-      .card-title
-        -#Оцените пожалуйста нашу работу
-        Вы оставляли оборудование на ремонт
-        = (service_job.item.present? ? service_job.item.name : service_job.type_name)
-      .card-text
-        - if (stuff = @review.user) && stuff.photo?
-          .card-subtitle="Вам помогал #{stuff.full_name}"
+
+.card.feedback
+  .card-body
+    .card-title
+      - if (service_job = @review.service_job)
+        Оцените пожалуйста нашу работу с вашим устройством №
+        = service_job.ticket_number
+        -# = (service_job.item.present? ? service_job.item.name : service_job.type_name)
+    .card-text
+      - if (stuff = @review.user)
+        .card-subtitle="Вам помогал #{stuff.full_name}"
+        - if stuff.photo?
           .avatar= image_tag stuff.photo.medium.url, class: 'avatar-medium'
-        %span Оцените пожалуйста нашу работу
-        = simple_form_for @review, url: "/review/#{@review.token}" do |f|
-          = f.input :value, collection: 1..5, label: false
-          = f.input :content, label: false
-          = submit_button f, name: 'Отправить'
+      -#%span Оцените пожалуйста нашу работу
+      = simple_form_for @review, url: "/review/#{@review.token}" do |f|
+        = f.input :value, collection: 1..5, label: false
+        = f.input :content, label: false
+        = submit_button f, name: 'Отправить'
 
 = javascript_include_tag 'jquery-2.2.4.min.js'
 = javascript_include_tag 'rating_bar/jquery.barrating.min.js'
