@@ -197,7 +197,7 @@ class SalesController < ApplicationController
       sale_items_attributes: [:id, :sale_id, :item_id, :price, :quantity, :discount, :device_task_id],
       payments_attributes: [
         :id, :value, :kind, :sale_id, :bank_id, :gift_certificate_id, :device_name, :device_number, :client_info,
-        :appraiser, :device_logout
+        :appraiser, :device_logout, :_destroy
       ]
     )
     # TODO: check nested attributes for: sale_items, payments

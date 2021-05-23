@@ -10,3 +10,5 @@
       = f.input :client_info
       = f.input :appraiser
       = f.input :device_logout, as: :boolean, label: false, inline_label: t('activerecord.attributes.payment.device_logout')
+
+  %td= link_to_remove_fields f

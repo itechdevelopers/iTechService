@@ -19,7 +19,7 @@ $(document).on 'change, blur', '#payments_table .payment_value', ->
 calculateSalePayments = ->
   total_sum = 0
   if $('#payments_table').length > 0
-    $('#payments_table .payment_value').each ->
+    $('#payments_table .payment_value:visible').each ->
       total_sum += Number $(this).val()
   $('#payments_table #sale_payments_sum').text(accounting.formatMoney(total_sum))
   calculation_amount = Number $('#sale_calculation_amount').data('amount')

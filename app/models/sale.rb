@@ -198,6 +198,11 @@ device_number: payment.device_name, client_info: payment.client_info, appraiser:
   def is_valid_for_posting?
     is_valid = true
     if is_new?
+      unless paid?
+        errors[:base] << 'Не оплачено!'
+        is_valid = false
+      end
+
       sale_items.each do |sale_item|
         next if sale_item.is_service
         store_item = sale_item.store_item(store)
