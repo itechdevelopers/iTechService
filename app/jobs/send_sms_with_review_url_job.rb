@@ -9,7 +9,9 @@ class SendSmsWithReviewUrlJob  < ActiveJob::Base
     review_url = "#{root_url}review/#{review.token}"
     if SendSMS.(number: review.phone, message: review_url).success? &&
       SendSMS.(number: review.phone, message: message).success?
-      review.update(sent_at: DateTime.now)
+      review.update(sent_at: DateTime.now, status: :sent)
+    else
+      review.update(status: :error)
     end
   end
 end

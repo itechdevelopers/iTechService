@@ -11,6 +11,7 @@
         %th= Review.human_attribute_name(:service_job)
         %th= sortable 'sent_at', Review.human_attribute_name(:sent_at), remote: true
         %th= sortable 'reviewed_at', Review.human_attribute_name(:reviewed_at), remote: true
+        %th= Review.human_attribute_name(:status)
         %th
     %tbody
       - @reviews.each do |review|
@@ -22,6 +23,7 @@
           %td= link_to(service_job.presentation, service_job_path(service_job))
           %td= human_datetime review.sent_at
           %td= human_datetime review.reviewed_at
+          %td= t("reviews.statuses.#{review.status}")
 
   = paginate @reviews, remote: true
 

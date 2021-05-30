@@ -5,11 +5,12 @@ class ReviewController < ActionController::Base
   def edit
     #TODO: Если @review не найден, либо отзыв уже оставили ранее - редирект на страницу с благодярностью
     redirect_to '/review' unless @review
+    @review.state = :viewed if @review.state == 'sent'
   end
 
   # POST /review/<token>
   def update
-    @review.update review_params.merge(reviewed_at: DateTime.current)
+    @review.update review_params.merge(reviewed_at: DateTime.current, state: :reviewed)
     redirect_to '/review'
   end
 

@@ -333,7 +333,8 @@ class ServiceJobsController < ApplicationController
       user: current_user,
       client: @service_job.client,
       phone: @service_job.client.full_phone_number,
-      token: SecureRandom.urlsafe_base64
+      token: SecureRandom.urlsafe_base64,
+      status: :draft
     )
     SendSmsWithReviewUrlJob.set(wait: time_out).perform_later(review.id)
   rescue
