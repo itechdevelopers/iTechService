@@ -416,6 +416,7 @@ ru:
         content: Отзыв
         sent_at: Отправлено
         reviewed_at: Оценено
+        service_job: Работа
       salary:
         amount: 'Сумма'
         is_prepayment: 'Аванс'

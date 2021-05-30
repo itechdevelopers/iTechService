@@ -8,15 +8,18 @@
         %th= sortable 'id', Review.human_attribute_name(:id), remote: true
         %th= Review.human_attribute_name(:value)
         %th= Review.human_attribute_name(:content)
+        %th= Review.human_attribute_name(:service_job)
         %th= sortable 'sent_at', Review.human_attribute_name(:sent_at), remote: true
         %th= sortable 'reviewed_at', Review.human_attribute_name(:reviewed_at), remote: true
         %th
     %tbody
       - @reviews.each do |review|
+        - service_job = review.service_job
         %tr
           %td= review.id
           %td= review.value
           %td= review.content
+          %td= link_to(service_job.presentation, service_job_path(service_job))
           %td= human_datetime review.sent_at
           %td= human_datetime review.reviewed_at
 
