@@ -66,6 +66,6 @@ class RepairGroupsController < ApplicationController
 
   def repair_group_params
     params.require(:repair_group)
-          .permit(:ancestry, :ancestry_depth, :name)
+          .permit(:ancestry, :ancestry_depth, :name, :parent_id)
   end
 end
