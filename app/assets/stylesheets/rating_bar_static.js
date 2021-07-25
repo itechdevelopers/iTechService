@@ -14,7 +14,5 @@ $( document ).ready(function() {
     showSelectedRating: false,
     readonly: true,
   });
-  tippy('.rating-bar-static', {
-    content,
-  });
+  tippy('.rating-bar-static', {content});
 });
