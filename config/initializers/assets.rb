@@ -38,4 +38,8 @@ Rails.application.config.assets.precompile += %w[
   rating_bar/jquery.barrating.min.js
   review_page.js
   review.css
+  popper.min.js
+  tippy-bundle.umd.min.js
+  rating_bar_static.css
+  rating_bar_static.js
 ]

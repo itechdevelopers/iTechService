@@ -1,3 +1,4 @@
+= stylesheet_link_tag 'rating_bar_static.css'
 - service_job = @service_job.decorate
 .page-header
   %h1
@@ -19,8 +20,10 @@
   = new_sms_notification_link(@service_job) if @service_job.at_done?
 
   - if current_user.able_to?(:show_reviews) && (review = @service_job.review)
-    -# TODO: Replace to star
-    "#{review.value} - #{review.content}"
+    %div.rating-bar-static
+      %input#rating-bar-static-value.hidden{:value => review.value}
+      %input#rating-bar-static-content.hidden{:value => review.content}
+      %select#rating-bar-static-select
 
 .row-fluid
   .span4
@@ -191,3 +194,8 @@
       = "#{glyph(:trash)} #{t 'destroy'}".html_safe
 
 =render 'confirm_delete', remote: false
+
+= javascript_include_tag 'rating_bar/jquery.barrating.min.js'
+= javascript_include_tag 'popper.min.js'
+= javascript_include_tag 'tippy-bundle.umd.min.js'
+= javascript_include_tag 'rating_bar_static.js'
