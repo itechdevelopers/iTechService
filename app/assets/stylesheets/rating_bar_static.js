@@ -1,7 +1,7 @@
 $( document ).ready(function() {
-  const value = $('#rating-bar-static-value').val();
-  const content = $('#rating-bar-static-content').val();
-  const items = [1,2,3,4,5];
+  var value = $('#rating-bar-static-value').val();
+  var content = $('#rating-bar-static-content').val();
+  var items = [1,2,3,4,5];
   $.each(items, function (_i, item) {
     $('#rating-bar-static-select').append($('<option>', { 
         value: item,
