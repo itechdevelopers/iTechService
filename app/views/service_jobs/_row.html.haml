@@ -1,4 +1,3 @@
-= stylesheet_link_tag 'rating_bar_static.css'
 - service_job = service_job
 %tr{class: 'info service_job_row', data: { service_job_id: service_job.id }}
   %td.device_movement_column= device_movement_information_tag(service_job)
@@ -30,8 +29,3 @@
     = link_to(glyph(notes_icon_name), service_job_device_notes_path(service_job), class: 'device_notes-button btn btn-small', remote: true)
     = service_job.decorate.subscription_button
     = button_to_set_keeper_of_device(service_job)
-
-= javascript_include_tag 'rating_bar/jquery.barrating.min.js'
-= javascript_include_tag 'popper.min.js'
-= javascript_include_tag 'tippy-bundle.umd.min.js'
-= javascript_include_tag 'rating_bar_static.js'
