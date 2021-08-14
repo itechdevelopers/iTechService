@@ -75,8 +75,9 @@ class SupplyReportsController < ApplicationController
   end
 
   def supply_report_params
-    params.require(:supply_report)
-          .permit(:date, :department_id, supplies: [:date, :supplies_attributes, :department_id])
-    # TODO: check nested attributes for: supplies
+    params.require(:supply_report).permit(
+      :date, :department_id,
+      supplies_attributes: %i[id supply_category_id name quantity cost _destroy]
+    )
   end
 end
