@@ -106,6 +106,6 @@ class ProductGroupsController < ApplicationController
 
   def product_group_params
     params.require(:product_group)
-          .permit(:ancestry, :ancestry_depth, :code, :name, :position, :product_category_id, :warranty_term, option_value_ids: [])
+          .permit(:ancestry, :ancestry_depth, :code, :name, :parent_id, :position, :product_category_id, :warranty_term, option_value_ids: [], related_product_ids: [], related_product_group_ids: [])
   end
 end
