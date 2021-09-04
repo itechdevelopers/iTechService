@@ -3,7 +3,7 @@
 class ProductGroup < ActiveRecord::Base
   include Tree
 
-  # default_scope ->{ ordered }
+  default_scope -> { ordered }
   scope :ordered, -> { order :position }
   scope :name_asc, -> { order('name asc') }
   scope :services, -> { joins(:product_category).where(product_categories: { kind: 'service' }) }
