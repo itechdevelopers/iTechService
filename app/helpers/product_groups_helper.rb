@@ -25,6 +25,7 @@ module ProductGroupsHelper
   end
 
   def nested_product_groups_list(product_groups, opened = [], current_id = nil, options = {})
+    opened ||= []
     product_groups.map do |product_group, sub_product_groups|
       is_current = product_group.id == current_id
       li_class = (opened.include?(product_group.id)) ? 'opened' : 'closed'
