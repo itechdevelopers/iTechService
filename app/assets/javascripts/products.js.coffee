@@ -12,10 +12,11 @@ $(document).on 'keyup', '#product_choose_form #product_search_field', ->
   clearTimeout(search_timeout) if search_timeout?
   search_timeout = setTimeout (->
     $.get '/products.js', q: q, choose: true, form: $('#modal_form #form').val()
-  ), 250
+  ), 500
 
 $(document).on 'keyup', '#product_choose_form #item_search_field', ->
   q = $(this).val()
+  return if q.length < 2
   clearTimeout(search_timeout) if search_timeout?
   search_timeout = setTimeout (->
     $.get '/items.js',
@@ -24,7 +25,7 @@ $(document).on 'keyup', '#product_choose_form #item_search_field', ->
       choose: true,
       form: $('#modal_form #form').val(),
       association: $('#modal_form #association').val()
-  ), 250
+  ), 500
 
 $(document).on 'click', '#product_choose_form #clear_product_search_field', ->
   $('#product_choose_form #product_search_field').val('')
@@ -70,7 +71,7 @@ $(document).on 'keyup', '#product_choose_form #new_item_fields input', ->
       $('#product_choose_form #submit_product_button').removeAttr('disabled')
     else
       $('#product_choose_form #submit_product_button').attr('disabled', true)
-  ), 250
+  ), 500
 
 $(document).on 'click', '.add_fields', ->
   $('.product_select_button:last').click()
