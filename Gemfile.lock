@@ -475,6 +475,7 @@ GEM
       railties (>= 4.2.0, < 6.0)
     rexml (3.2.4)
     rmagick (2.15.4)
+    rollbar (3.2.0)
     roo (2.4.0)
       nokogiri (~> 1)
       rubyzip (~> 1.1, < 2.0.0)
@@ -731,6 +732,7 @@ DEPENDENCIES
   rails-ujs (~> 0.1.0)
   reform-rails (~> 0.1)
   rmagick (~> 2.15.4)
+  rollbar
   roo (~> 2.4.0)
   roo-xls (~> 1.2)
   rspec-rails

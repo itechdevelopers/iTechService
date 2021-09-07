@@ -149,3 +149,5 @@ group :deploy, :development do
   gem 'bcrypt_pbkdf', '>= 1.0', '< 2.0'
   gem 'mimemagic', git: 'https://github.com/vaallery/mimemagic', tag: 'v0.3.0'
 end
+
+gem 'rollbar'
