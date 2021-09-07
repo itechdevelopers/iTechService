@@ -337,8 +337,8 @@ class ServiceJobsController < ApplicationController
       status: :draft
     )
     SendSmsWithReviewUrlJob.set(wait: time_out).perform_later(review.id)
-  rescue
-    nil
+  rescue StandardError => e
+    Rails.logger.debug(e.message)
   end
 
   def build_device_note
