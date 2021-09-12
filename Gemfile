@@ -22,6 +22,7 @@ gem 'devise_token_auth', '~> 0.1.37'
 gem 'active_interaction', '~> 3.6'
 gem 'dry-validation', '~> 0.12.0'
 gem 'dry-transaction', '~> 0.13.0'
+gem 'dry-initializer'
 gem 'trailblazer', '~> 2.0.7'
 gem 'trailblazer-rails', '~> 1.0.4'
 

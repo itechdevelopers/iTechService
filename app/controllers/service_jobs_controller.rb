@@ -315,7 +315,7 @@ class ServiceJobsController < ApplicationController
     @service_job = find_record ServiceJob
     respond_to do |format|
       if @service_job.archive
-        make_review_url
+        ServiceJobs::MakeReview.call(service_job: @service_job, user: current_user)
         format.js
       else
         format.js { render_error @service_job.errors.full_messages }
