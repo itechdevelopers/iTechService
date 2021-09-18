@@ -315,7 +315,7 @@ class ServiceJobsController < ApplicationController
     @service_job = find_record ServiceJob
     respond_to do |format|
       if @service_job.archive
-        Rails.logger.debug('Старт отправки СМС после перевода задачи в архив')
+        Rollbar.debug('Старт отправки СМС после перевода задачи в архив')
         ServiceJobs::MakeReview.call(service_job: @service_job, user: current_user)
         format.js
       else

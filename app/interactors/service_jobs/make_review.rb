@@ -6,10 +6,10 @@ module ServiceJobs
     option :service_job
 
     def call
-      Rails.logger.debug(log_info)
+      Rollbar.debug(log_info)
       return unless user.able_to?(:request_review)
       time_out = Setting.request_review_time_out(service_job.department) * 60
-      Rails.logger.debug({token: token, time_out: time_out}.to_s)
+      Rollbar.debug({token: token, time_out: time_out}.to_s)
       review = Review.create(
         service_job: service_job,
         user: current_user,
@@ -18,10 +18,11 @@ module ServiceJobs
         token: token,
         status: :draft
       )
-      Rails.logger.debug({review: review}.to_s)
+      Rollbar.debug({review: review}.to_s)
       SendSmsWithReviewUrlJob.set(wait: time_out).perform_later(review.id)
     rescue StandardError => e
       Rails.logger.debug(e.message)
+      Rollbar.error(e)
     end
 
     private
