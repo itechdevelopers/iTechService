@@ -315,7 +315,8 @@ class ServiceJobsController < ApplicationController
     @service_job = find_record ServiceJob
     respond_to do |format|
       if @service_job.archive
-        make_review_url
+        Rollbar.debug('Старт отправки СМС после перевода задачи в архив')
+        ServiceJobs::MakeReview.call(service_job: @service_job, user: current_user)
         format.js
       else
         format.js { render_error @service_job.errors.full_messages }
@@ -337,8 +338,8 @@ class ServiceJobsController < ApplicationController
       status: :draft
     )
     SendSmsWithReviewUrlJob.set(wait: time_out).perform_later(review.id)
-  rescue
-    nil
+  rescue StandardError => e
+    Rails.logger.debug(e.message)
   end
 
   def build_device_note

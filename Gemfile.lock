@@ -200,6 +200,7 @@ GEM
       dry-core (~> 0.4)
       dry-equalizer (~> 0.2)
     dry-inflector (0.2.0)
+    dry-initializer (3.0.4)
     dry-logic (0.4.2)
       dry-container (~> 0.2, >= 0.2.6)
       dry-core (~> 0.2)
@@ -475,6 +476,7 @@ GEM
       railties (>= 4.2.0, < 6.0)
     rexml (3.2.4)
     rmagick (2.15.4)
+    rollbar (3.2.0)
     roo (2.4.0)
       nokogiri (~> 1)
       rubyzip (~> 1.1, < 2.0.0)
@@ -692,6 +694,7 @@ DEPENDENCIES
   devise_token_auth (~> 0.1.37)
   dotenv-rails (~> 2.2.1)
   draper (~> 2.1.0)
+  dry-initializer
   dry-transaction (~> 0.13.0)
   dry-validation (~> 0.12.0)
   ed25519 (>= 1.2, < 2.0)
@@ -731,6 +734,7 @@ DEPENDENCIES
   rails-ujs (~> 0.1.0)
   reform-rails (~> 0.1)
   rmagick (~> 2.15.4)
+  rollbar
   roo (~> 2.4.0)
   roo-xls (~> 1.2)
   rspec-rails
