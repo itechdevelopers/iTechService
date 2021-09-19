@@ -18,6 +18,8 @@ class WorkOrderPdf < Prawn::Document
     font 'DroidSans'
     font_size base_font_size
 
+    draw_text "«#{service_job.client.surname.first}»", at: [page_width/2-10, cursor], size: base_font_size*2
+
     # Logo
     image department.logo_path, fit: [100, 30], at: [20, cursor]
 
