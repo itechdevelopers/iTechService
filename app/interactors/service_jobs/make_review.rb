@@ -6,19 +6,20 @@ module ServiceJobs
     option :service_job
 
     def call
-      Rollbar.debug(log_info)
-      return unless user.able_to?(:request_review)
+      unless user_able_to_request_review
+        Rollbar.debug('User unable to request review', log_info)
+        return
+      end
+
       time_out = Setting.request_review_time_out(service_job.department) * 60
-      Rollbar.debug({token: token, time_out: time_out}.to_s)
       review = Review.create(
         service_job: service_job,
-        user: current_user,
+        user: user,
         client: service_job.client,
         phone: service_job.client.full_phone_number,
         token: token,
         status: :draft
       )
-      Rollbar.debug({review: review}.to_s)
       SendSmsWithReviewUrlJob.set(wait: time_out).perform_later(review.id)
     rescue StandardError => e
       Rails.logger.debug(e.message)
@@ -26,6 +27,10 @@ module ServiceJobs
     end
 
     private
+
+    def user_able_to_request_review
+      @user_able_to_request_review ||= user.able_to?(:request_review)
+    end
 
     def token
       @token ||= SecureRandom.urlsafe_base64
@@ -35,6 +40,7 @@ module ServiceJobs
       {
         message: 'ServiceJobs::MakeReview.call start',
         token: token,
+        user_able_to_request_review: user_able_to_request_review,
         user: user.to_json,
         service_job: service_job.as_json
       }.to_s
