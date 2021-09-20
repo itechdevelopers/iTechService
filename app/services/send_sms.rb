@@ -63,7 +63,7 @@ class SendSMS
     response = nil
 
     while true do
-      1.upto(Setting.sms_gateway_lines_qty).each do |line|
+      2.upto(Setting.sms_gateway_lines_qty).each do |line|
         response = self.class.post('/default/en_US/send_sms_status.xml', body: {line: line}, query: {u: username, p: password})
         response = response.parsed_response['send_sms_status']
         response_key = response['smskey']

@@ -110,7 +110,6 @@ class SalesController < ApplicationController
 
         if @sale.service_job.present?
           @sale.service_job.archive
-          Rollbar.debug('Старт отправки СМС после оплаты задачи')
           ServiceJobs::MakeReview.call(service_job: @sale.service_job, user: current_user)
           message += ' Устройство переведено в архив.'
         end
