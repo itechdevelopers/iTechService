@@ -8,7 +8,17 @@ class SendSMS
 
   base_uri Setting.sms_gateway_uri
 
-  def initialize(line: 3, number:, message:)
+  def self.call(**args)
+    res = nil
+    1.upto(max_line).each do |line|
+      args[:line] = line
+      res = new(args).call
+      return res if res.success?
+    end
+    res
+  end
+
+  def initialize(line: 1, number:, message:)
     @line = line
     @sms_key = generate_sms_key
     @number = number
@@ -33,15 +43,15 @@ class SendSMS
     self
   end
 
-  def self.call(**args)
-    new(args).call
-  end
-
   def success?
     result == :success
   end
 
   private
+
+  def max_line
+    Setting.sms_gateway_lines_qty
+  end
 
   def generate_sms_key
     rand(16**8).to_s(16)
@@ -63,7 +73,7 @@ class SendSMS
     response = nil
 
     while true do
-      2.upto(Setting.sms_gateway_lines_qty).each do |line|
+      1.upto(max_line).each do |line|
         response = self.class.post('/default/en_US/send_sms_status.xml', body: {line: line}, query: {u: username, p: password})
         response = response.parsed_response['send_sms_status']
         response_key = response['smskey']
