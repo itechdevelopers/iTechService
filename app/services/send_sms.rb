@@ -47,11 +47,11 @@ class SendSMS
     result == :success
   end
 
-  private
-
-  def max_line
+  def self.max_line
     Setting.sms_gateway_lines_qty
   end
+
+  private
 
   def generate_sms_key
     rand(16**8).to_s(16)
@@ -73,7 +73,7 @@ class SendSMS
     response = nil
 
     while true do
-      1.upto(max_line).each do |line|
+      1.upto(SendSMS.max_line).each do |line|
         response = self.class.post('/default/en_US/send_sms_status.xml', body: {line: line}, query: {u: username, p: password})
         response = response.parsed_response['send_sms_status']
         response_key = response['smskey']
