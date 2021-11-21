@@ -152,3 +152,4 @@ group :deploy, :development do
 end
 
 gem 'rollbar'
+gem 'data_migrate'

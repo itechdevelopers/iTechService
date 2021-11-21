@@ -57,11 +57,16 @@ class Product < ActiveRecord::Base
   validates_presence_of :name, :code, :product_group, :product_category
   # validates_presence_of :device_type, if: :is_equipment
   validates_uniqueness_of :code, unless: :undefined?
+  validates_length_of :barcode_num, is: 13, allow_nil: true
+  validates_uniqueness_of :barcode_num, allow_nil: true
+
   after_initialize do
     self.warranty_term ||= default_warranty_term
     self.product_category_id ||= product_group.try(:product_category).try(:id)
     # self.build_task if self.is_service and self.task.nil?
   end
+
+  after_create :generate_barcode_num
 
   def self.search(params)
     products = Product.all
@@ -89,6 +94,14 @@ class Product < ActiveRecord::Base
     elsif product_group_id.present? && option_ids.blank? && ProductGroup.find(product_group_id).option_values.none?
       (products = where(product_group_id: product_group_id)).many? ? nil : products.first
     end
+  end
+
+  def generate_barcode_num
+    return unless barcode_num.blank?
+
+    num = id.to_s
+    code = Product::BARCODE_PREFIX + '0' * (9 - num.length) + num
+    update_attribute :barcode_num, Barby::EAN13.new(code).to_s
   end
 
   def actual_price(price_type)
@@ -126,9 +139,9 @@ class Product < ActiveRecord::Base
     Store.visible.collect { |store| { id: id, code: store.code, name: store.name, quantity: quantity_in_store(store) } }
   end
 
-  def item
-    feature_accounting ? nil : items.first_or_create
-  end
+  # def item
+  #   feature_accounting ? nil : items.first_or_create
+  # end
 
   def discount_for(client)
     client.present? ? Discount.available_for(client, self) : 0

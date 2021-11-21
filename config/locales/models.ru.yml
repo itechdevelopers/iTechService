@@ -371,6 +371,7 @@ ru:
         retail_price: 'Розничная цена'
         quantity_threshold: 'Пороговое количество'
         warning_quantities: 'Количество для уведомления'
+        barcode_num: Штрихкод
 
       product_category:
         feature_types: "Типы характеристик"

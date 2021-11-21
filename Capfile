@@ -39,5 +39,8 @@ require "whenever/capistrano"
 require "capistrano/ssh_doctor"
 # require "capistrano/sidekiq"
 
+# https://github.com/ilyakatz/data-migrate#capistrano-support
+require 'capistrano/data_migrate'
+
 # Load custom tasks from `lib/capistrano/tasks` if you have any defined
 Dir.glob("lib/capistrano/tasks/*.rake").each { |r| import r }

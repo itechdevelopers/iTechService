@@ -34,6 +34,23 @@ class ProductsController < ApplicationController
     respond_to do |format|
       format.html
       format.json { render json: @product }
+      format.pdf do
+        unless @product.barcode_num
+          head :no_content
+          return
+        end
+
+        filename = "product_tag_#{@product.barcode_num}.pdf"
+        if params[:print]
+          pdf = ProductTagPdf.new @product, view_context, params
+          filepath = "#{Rails.root}/tmp/pdf/#{filename}"
+          pdf.render_file filepath
+          PrinterTools.print_file filepath, type: :tags, printer: current_department.printer
+        else
+          pdf = ProductTagPdf.new @product, view_context, params
+        end
+        send_data pdf.render, filename: filename, type: 'application/pdf', disposition: 'inline'
+      end
     end
   end
 

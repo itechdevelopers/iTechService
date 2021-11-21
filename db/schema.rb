@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20210530120411) do
+ActiveRecord::Schema.define(version: 20211121100908) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -210,6 +210,12 @@ ActiveRecord::Schema.define(version: 20210530120411) do
     t.datetime "created_at",             null: false
     t.datetime "updated_at",             null: false
   end
+
+  create_table "data_migrations", id: false, force: :cascade do |t|
+    t.string "version", null: false
+  end
+
+  add_index "data_migrations", ["version"], name: "unique_data_migrations", unique: true, using: :btree
 
   create_table "deduction_acts", force: :cascade do |t|
     t.integer  "status",     default: 0, null: false
@@ -812,8 +818,10 @@ ActiveRecord::Schema.define(version: 20210530120411) do
     t.integer  "quantity_threshold"
     t.text     "comment"
     t.integer  "product_category_id"
+    t.string   "barcode_num"
   end
 
+  add_index "products", ["barcode_num"], name: "index_products_on_barcode_num", using: :btree
   add_index "products", ["code"], name: "index_products_on_code", using: :btree
   add_index "products", ["device_type_id"], name: "index_products_on_device_type_id", using: :btree
   add_index "products", ["name"], name: "index_products_on_name", using: :btree

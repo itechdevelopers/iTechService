@@ -18,7 +18,7 @@ class ProductTagPdf < Prawn::Document
     title = ''
     title << "#{item.code}: " if options[:price].blank?
     title << item.name
-    title << "(#{item.features.map(&:value).join(', ')})" if item.feature_accounting
+    # title << "(#{item.features.map(&:value).join(', ')})" if item.feature_accounting
     price = if options.key? :price
               options[:price].in?([true, 'true']) ? item.retail_price : options[:price]
             else

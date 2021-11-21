@@ -31,6 +31,7 @@
           #product_options= render 'options_fields', available_options: @product.available_options
           = f.input :name
           = f.input :code
+          = f.input :barcode_num
           = f.input :warranty_term
           = f.input :quantity_threshold
           = f.input :comment, input_html: {rows: 3}

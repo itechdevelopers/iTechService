@@ -38,14 +38,14 @@
   - unless @product.feature_accounting or @product.is_service
     %dt= Item.human_attribute_name :barcode
     %dd
-      = @product.item.barcode_num
+      = @product.barcode_num
       .btn-group
         = link_to '#', class: 'btn btn-small dropdown-toggle', 'data-toggle' => 'dropdown' do
           = glyph(:barcode)
           = caret_tag
         %ul.dropdown-menu
-          %li= link_to t('items.tag.without_price'), item_path(@product.item, format: 'pdf'), target: '_blank'
-          %li= link_to t('items.tag.with_price'), item_path(@product.item, format: 'pdf', price: true), target: '_blank'
+          %li= link_to t('items.tag.without_price'), product_path(@product, format: 'pdf'), target: '_blank'
+          %li= link_to t('items.tag.with_price'), product_path(@product, format: 'pdf', price: true), target: '_blank'
 
   - if @product.is_service
     %dt= Task.human_attribute_name :role
