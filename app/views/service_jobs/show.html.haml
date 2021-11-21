@@ -68,6 +68,13 @@
       %tr
         %td= ServiceJob.human_attribute_name :imei
         %td= service_job.imei
+      - if @same_item_service_jobs.any?
+        %tr
+          %td Иные поступления устройства:
+          %td
+            - @same_item_service_jobs.each do |sj|
+              %strong
+                =link_to human_datetime(sj.created_at), service_job_path(sj)
       %tr
         %td= ServiceJob.human_attribute_name :case_color
         %td= case_color_presentation @service_job.case_color

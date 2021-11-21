@@ -14,6 +14,9 @@ class Item < ActiveRecord::Base
   has_many :movement_items, inverse_of: :item, dependent: :destroy
   has_many :features, inverse_of: :item, dependent: :destroy
   has_many :sales, through: :sale_items
+
+  has_many :service_jobs
+
   has_one :stolen_phone
   has_one :substitute_phone
   has_one :trade_in_device

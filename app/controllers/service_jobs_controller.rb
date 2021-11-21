@@ -71,7 +71,14 @@ class ServiceJobsController < ApplicationController
       @service_job = find_record ServiceJob.includes(:device_notes)
       @device_note = @service_job.device_notes.build(user_id: current_user.id)
       respond_to do |format|
-        format.html { log_viewing }
+        format.html do
+          log_viewing
+          @same_item_service_jobs = @service_job.item
+                                                .service_jobs.where
+                                                .not(id: @service_job.id)
+                                                .order(created_at: :desc)
+                                                .limit(12)
+        end
         format.json do
           log_viewing
           render json: @service_job
