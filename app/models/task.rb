@@ -11,7 +11,7 @@ class Task < ApplicationRecord
   belongs_to :product, inverse_of: :task
   has_many :device_tasks, dependent: :restrict_with_error
   has_many :service_jobs, through: :device_tasks
-  delegate :item, :is_repair?, :is_service?, to: :product, allow_nil: true
+  delegate :is_repair?, :is_service?, to: :product, allow_nil: true
   delegate :name, :id, to: :location, prefix: true, allow_nil: true
 
   # attr_accessible :cost, :duration, :name, :code, :priority, :role, :location_code, :product_id, :hidden
