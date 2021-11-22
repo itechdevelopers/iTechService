@@ -27,7 +27,9 @@ class RepairTask < ActiveRecord::Base
     self.store_id = Department.current.spare_parts_store.id
     # self.store_id = User.current.try(:spare_parts_store).try(:id)
     if repair_service.present? and repair_parts.empty?
-      repair_service.spare_parts.each { |spare_part| repair_parts.build(item_id: spare_part.product.item.id, quantity: spare_part.quantity) }
+      repair_service.spare_parts.each do |spare_part|
+        repair_parts.build(item_id: spare_part.product.items&.first&.id, quantity: spare_part.quantity)
+      end
     end
   end
 

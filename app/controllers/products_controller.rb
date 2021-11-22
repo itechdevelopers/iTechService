@@ -134,7 +134,7 @@ class ProductsController < ApplicationController
         @items = @items.page(params[:page])
         @feature_types = @product.feature_types
       else
-        @item = @product.item
+        @item = @product.items.first
       end
     end
 
