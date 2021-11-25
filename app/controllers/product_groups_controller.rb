@@ -42,7 +42,7 @@ class ProductGroupsController < ApplicationController
   end
 
   def new
-    @product_group = authorize ProductGroup.new(product_group_params)
+    @product_group = authorize ProductGroup.new(new_product_group_params)
 
     respond_to do |format|
       format.js { render 'shared/show_modal_form' }
@@ -102,6 +102,12 @@ class ProductGroupsController < ApplicationController
 
   def set_option_types
     @option_types = OptionType.includes(:option_values)
+  end
+
+  def new_product_group_params
+    return {} if params[:product_group].blank?
+
+    product_group_params
   end
 
   def product_group_params
