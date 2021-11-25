@@ -73,6 +73,7 @@ class ProductsController < ApplicationController
     @product = authorize Product.new(product_params)
     respond_to do |format|
       if @product.save
+        @product.items.create
         format.html { redirect_to @product, notice: t('products.created') }
         format.json { render json: @product, status: :created, location: @product }
       else
