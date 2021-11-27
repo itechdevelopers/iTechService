@@ -22,7 +22,7 @@ class DeleteExpiredFaults
   private
 
   def delete_faults_of(user)
-    expiration_date = Date.end_of_month
+    expiration_date = Date.current.end_of_month
     user.faults.expireable.where('date < ?', expiration_date).delete_all
   end
 end
