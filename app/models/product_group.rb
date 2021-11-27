@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-class ProductGroup < ActiveRecord::Base
+class ProductGroup < ApplicationRecord
   include Tree
 
   default_scope -> { ordered }

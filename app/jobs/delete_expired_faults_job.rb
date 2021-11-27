@@ -1,4 +1,4 @@
-class DeleteExpiredFaultsJob < ActiveJob::Base
+class DeleteExpiredFaultsJob < ApplicationJob
   queue_as :default
 
   def perform

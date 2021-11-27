@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-class Product < ActiveRecord::Base
+class Product < ApplicationRecord
   BARCODE_PREFIX = '243'
 
   scope :name_asc, -> { order('name asc') }

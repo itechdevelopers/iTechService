@@ -1,4 +1,5 @@
-= div_for announcement, class: announcement.kind do
+-# = div_for announcement, class: announcement.kind do
+= content_tag :div, class: announcement.kind do
   - if can? :close, announcement
     = link_to '&times;'.html_safe, close_announcement_path(announcement, user_id: current_user.id, kind: announcement.kind), method: :post, remote: true, class: 'close_announcement_button'
   %span.announcement_content= announcement_content announcement

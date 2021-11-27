@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-class FeatureType < ActiveRecord::Base
+class FeatureType < ApplicationRecord
   KINDS = %w[imei serial_number].freeze
 
   default_scope { order('feature_types.kind asc') }

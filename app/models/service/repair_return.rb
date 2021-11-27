@@ -1,5 +1,5 @@
 module Service
-  class RepairReturn < ActiveRecord::Base
+  class RepairReturn < ApplicationRecord
     self.table_name = 'service_repair_returns'
 
     scope :in_department, ->(department) { where(service_job_id: ServiceJob.in_department(department)) }

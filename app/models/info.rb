@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-class Info < ActiveRecord::Base
+class Info < ApplicationRecord
   scope :newest, -> { order('created_at desc') }
   scope :oldest, -> { order('created_at asc') }
   # scope :grouped_by_date, -> { select("date(created_at) as info_date, count(title) as total_infos").group("infos.created_at::date)") }

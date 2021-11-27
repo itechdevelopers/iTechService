@@ -1,4 +1,4 @@
-class SupplyCategory < ActiveRecord::Base
+class SupplyCategory < ApplicationRecord
 
   has_many :supplies
   # attr_accessible :name, :ancestry, :parent_id

@@ -1,4 +1,4 @@
-class DeductionItem < ActiveRecord::Base
+class DeductionItem < ApplicationRecord
   belongs_to :item
   belongs_to :deduction_act, inverse_of: :deduction_items
   delegate :code, :name, :product, :product_category, :presentation, :features, :feature_accounting, :store_items, :store_item, :quantity_in_store, :remove_from_store, to: :item, allow_nil: true

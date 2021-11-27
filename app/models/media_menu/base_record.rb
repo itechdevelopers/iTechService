@@ -1,5 +1,5 @@
 module MediaMenu
-  class BaseRecord < ActiveRecord::Base
+  class BaseRecord < ApplicationRecord
     self.abstract_class = true
 
     if ActiveRecord::Base.connection.table_exists?(:settings) && Setting.meda_menu_database.present?

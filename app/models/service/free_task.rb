@@ -1,5 +1,5 @@
 module Service
-  class FreeTask < ActiveRecord::Base
+  class FreeTask < ApplicationRecord
     self.table_name = 'service_free_tasks'
     mount_uploader :icon, IconUploader
 

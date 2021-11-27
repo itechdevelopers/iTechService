@@ -1,5 +1,5 @@
 module Service
-  class Feedback < ActiveRecord::Base
+  class Feedback < ApplicationRecord
     self.table_name = 'service_feedbacks'
 
     MAX_DELAY_HOURS = [72, 120, 168]

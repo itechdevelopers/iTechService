@@ -1,4 +1,4 @@
-class RemnantsReportMailingJob < ActiveJob::Base
+class RemnantsReportMailingJob < ApplicationJob
   queue_as :reports
 
   def perform

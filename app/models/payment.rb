@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-class Payment < ActiveRecord::Base
+class Payment < ApplicationRecord
   KINDS = %w[cash card credit certificate trade_in].freeze
 
   scope :in_department, ->(department) { where sale_id: Sale.in_department(department) }

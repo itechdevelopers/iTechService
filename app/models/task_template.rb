@@ -1,4 +1,4 @@
-class TaskTemplate < ActiveRecord::Base
+class TaskTemplate < ApplicationRecord
   scope :ordered, -> { order :position }
 
   has_ancestry

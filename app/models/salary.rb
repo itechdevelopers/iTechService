@@ -1,4 +1,4 @@
-class Salary < ActiveRecord::Base
+class Salary < ApplicationRecord
   default_scope { order('issued_at desc') }
 
   scope :in_department, ->(department) { where(user_id: User.in_department(department)) }

@@ -1,5 +1,5 @@
 # frozen_string_literal: true
-class Sale < ActiveRecord::Base
+class Sale < ApplicationRecord
   include Document
 
   scope :in_department, ->(department) { where(cash_shift_id: CashShift.in_department(department)) }

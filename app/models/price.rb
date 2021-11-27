@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-class Price < ActiveRecord::Base
+class Price < ApplicationRecord
   belongs_to :department
 
   mount_uploader :file, PriceUploader

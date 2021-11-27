@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-class CashDrawer < ActiveRecord::Base
+class CashDrawer < ApplicationRecord
   scope :in_department, ->(department) { where(department_id: department) }
 
   belongs_to :department

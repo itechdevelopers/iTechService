@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-class Message < ActiveRecord::Base
+class Message < ApplicationRecord
   scope :newest, -> { order('messages.created_at desc') }
   scope :today, -> { where('created_at > ?', Time.current.beginning_of_day) }
 

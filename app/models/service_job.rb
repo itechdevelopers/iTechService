@@ -1,5 +1,5 @@
 
-class ServiceJob < ActiveRecord::Base
+class ServiceJob < ApplicationRecord
   scope :in_department, ->(department) { located_at(Location.in_department(department)) }
   scope :order_by_product_name, -> { includes(item: :product).order('products.name') }
   scope :received_at, ->(period) { where created_at: period }

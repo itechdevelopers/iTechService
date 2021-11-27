@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-class DeductionAct < ActiveRecord::Base
+class DeductionAct < ApplicationRecord
   include Document
   scope :posted, -> { where(status: 1) }
   scope :deleted, -> { where(status: 2) }

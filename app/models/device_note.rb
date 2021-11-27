@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-class DeviceNote < ActiveRecord::Base
+class DeviceNote < ApplicationRecord
   scope :newest_first, -> { order('device_notes.created_at desc') }
   scope :oldest_first, -> { order('device_notes.created_at asc') }
 

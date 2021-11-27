@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-class MovementAct < ActiveRecord::Base
+class MovementAct < ApplicationRecord
   include Document
 
   scope :posted, -> { where(status: 1) }

@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-class Order < ActiveRecord::Base
+class Order < ApplicationRecord
   OBJECT_KINDS = %w[device accessory soft misc spare_part].freeze
   STATUSES = %w[new pending done canceled notified issued archive].freeze
 

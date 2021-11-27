@@ -1,5 +1,5 @@
 # frozen_string_literal: true
 
-class Bank < ActiveRecord::Base
+class Bank < ApplicationRecord
   validates_presence_of :name
 end

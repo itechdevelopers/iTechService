@@ -1,4 +1,4 @@
-class RepairPart < ActiveRecord::Base
+class RepairPart < ApplicationRecord
   scope :in_department, ->(department) { where(repair_task_id: RepairTask.in_department(department)) }
 
   belongs_to :repair_task, inverse_of: :repair_parts

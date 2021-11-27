@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-class RepairService < ActiveRecord::Base
+class RepairService < ApplicationRecord
   default_scope { order('name asc') }
   scope :in_group, ->(group) { where repair_group_id: group }
 

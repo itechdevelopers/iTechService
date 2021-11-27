@@ -1,4 +1,4 @@
-class RepairPrice < ActiveRecord::Base
+class RepairPrice < ApplicationRecord
   scope :in_department, ->(department) { where department_id: department }
 
   belongs_to :repair_service, inverse_of: :prices

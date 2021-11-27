@@ -1,4 +1,4 @@
-class DailySalesReportMailingJob < ActiveJob::Base
+class DailySalesReportMailingJob < ApplicationJob
   queue_as :reports
 
   def perform

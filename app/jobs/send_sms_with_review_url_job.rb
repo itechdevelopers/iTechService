@@ -1,4 +1,4 @@
-class SendSmsWithReviewUrlJob  < ActiveJob::Base
+class SendSmsWithReviewUrlJob  < ApplicationJob
   include Rails.application.routes.url_helpers
   queue_as :default
 

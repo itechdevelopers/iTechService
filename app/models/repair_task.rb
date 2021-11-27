@@ -1,4 +1,4 @@
-class RepairTask < ActiveRecord::Base
+class RepairTask < ApplicationRecord
   scope :in_department, ->(department) { where(device_task_id: DeviceTask.in_department(department)) }
 
   belongs_to :repair_service

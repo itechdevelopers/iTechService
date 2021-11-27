@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-class Store < ActiveRecord::Base
+class Store < ApplicationRecord
   # TODO: change kind type to integer
   KINDS = %w[purchase retail spare_parts defect defect_sp repair].freeze
 

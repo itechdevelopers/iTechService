@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-class KarmaGroup < ActiveRecord::Base
+class KarmaGroup < ApplicationRecord
   scope :used, -> { where('bonus_id != ?', nil) }
   scope :unused, -> { where(bonus_id: nil) }
 

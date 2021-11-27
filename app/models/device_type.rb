@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-class DeviceType < ActiveRecord::Base
+class DeviceType < ApplicationRecord
   has_many :service_jobs
   has_one :product, inverse_of: :device_type, dependent: :nullify
   validates :name, presence: true

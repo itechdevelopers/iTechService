@@ -1,4 +1,4 @@
-class OptionType < ActiveRecord::Base
+class OptionType < ApplicationRecord
   # default_scope { ordered }
   scope :ordered, -> { order 'option_types.position asc' }
   has_many :option_values, inverse_of: :option_type

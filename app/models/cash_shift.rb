@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-class CashShift < ActiveRecord::Base
+class CashShift < ApplicationRecord
   scope :in_department, ->(department) { where(cash_drawer_id: CashDrawer.in_department(department)) }
 
   scope :closed, -> { where(is_closed: true) }

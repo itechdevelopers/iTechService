@@ -1,4 +1,4 @@
-class StoreItem < ActiveRecord::Base
+class StoreItem < ApplicationRecord
   scope :in_store, ->(store) { where(store_id: store) }
   scope :available, ->{where('quantity > ?', 0)}
   scope :for_product, ->(product) { includes(:item).where(items: {product_id: (product.is_a?(Product) ? product.id : product)}) }

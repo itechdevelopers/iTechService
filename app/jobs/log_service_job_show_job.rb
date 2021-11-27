@@ -1,4 +1,4 @@
-class LogServiceJobShowJob < ActiveJob::Base
+class LogServiceJobShowJob < ApplicationJob
   queue_as :default
 
   def perform(service_job_id, user_id, time, ip)

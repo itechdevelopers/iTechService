@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-class OrderNote < ActiveRecord::Base
+class OrderNote < ApplicationRecord
   scope :oldest_first, -> { order(created_at: :asc) }
 
   belongs_to :order, required: true

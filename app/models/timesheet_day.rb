@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-class TimesheetDay < ActiveRecord::Base
+class TimesheetDay < ApplicationRecord
   STATUSES = %w[presence presence_late presence_leave presence_sickness sickness free fired business_trip
                 training].freeze
 

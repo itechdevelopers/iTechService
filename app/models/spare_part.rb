@@ -1,4 +1,4 @@
-class SparePart < ActiveRecord::Base
+class SparePart < ApplicationRecord
   belongs_to :repair_service
   belongs_to :product
   has_many :store_items, through: :product

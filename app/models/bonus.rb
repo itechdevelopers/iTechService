@@ -1,4 +1,4 @@
-class Bonus < ActiveRecord::Base
+class Bonus < ApplicationRecord
   belongs_to :bonus_type, inverse_of: :bonuses
   has_one :karma_group, dependent: :nullify, inverse_of: :bonus
   has_many :karmas, through: :karma_group

@@ -1,4 +1,4 @@
-class Batch < ActiveRecord::Base
+class Batch < ApplicationRecord
   scope :newest, -> { includes(:purchase).order('purchases.date desc') }
   # scope :posted, -> { joins(:purchase).where(Purchase.posted) }
   scope :posted, -> { joins(:purchase).where(purchases: {status: 1}) }

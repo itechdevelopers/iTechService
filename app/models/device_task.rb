@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-class DeviceTask < ActiveRecord::Base
+class DeviceTask < ApplicationRecord
   scope :in_department, ->(department) { where(service_job_id: ServiceJob.in_department(department)) }
   scope :ordered, -> { joins(:task).order('done asc, tasks.priority desc') }
   scope :pending, -> { where(done: 0) }

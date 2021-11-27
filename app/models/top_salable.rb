@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-class TopSalable < ActiveRecord::Base
+class TopSalable < ApplicationRecord
   has_ancestry orphan_strategy: :destroy
   scope :ordered, -> { order('position asc') }
   belongs_to :product

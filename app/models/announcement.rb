@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-class Announcement < ActiveRecord::Base
+class Announcement < ApplicationRecord
   KINDS = %w[help coffee for_coffee protector info birthday order_status order_done salary device_return].freeze
 
   scope :in_department, ->(department) { where(department_id: department) }

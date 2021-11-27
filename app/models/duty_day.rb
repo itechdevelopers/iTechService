@@ -1,4 +1,4 @@
-class DutyDay < ActiveRecord::Base
+class DutyDay < ApplicationRecord
   KINDS = %w[kitchen salesroom]
 
   default_scope { order('day desc') }

@@ -1,5 +1,5 @@
 module Service
-  class FreeJob < ActiveRecord::Base
+  class FreeJob < ApplicationRecord
     self.table_name = 'service_free_jobs'
 
     scope :in_department, ->(department) { where department_id: department }

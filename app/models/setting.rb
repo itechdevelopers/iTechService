@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-class Setting < ActiveRecord::Base
+class Setting < ApplicationRecord
   TYPES = {
     address: 'string',
     address_for_check: 'string',

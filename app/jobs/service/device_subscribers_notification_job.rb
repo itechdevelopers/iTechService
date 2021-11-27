@@ -1,5 +1,5 @@
 module Service
-  class DeviceSubscribersNotificationJob < ActiveJob::Base
+  class DeviceSubscribersNotificationJob < ApplicationJob
     queue_as :default
     attr_accessor :params
 

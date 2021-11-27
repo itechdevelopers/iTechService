@@ -1,4 +1,4 @@
-class SparePartDefect < ActiveRecord::Base
+class SparePartDefect < ApplicationRecord
   scope :in_department, ->(department) { where(repair_part_id: RepairPart.in_department(department)) }
 
   scope :new_records, -> { where(id: nil) }

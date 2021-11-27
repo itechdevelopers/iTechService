@@ -1,5 +1,5 @@
 module Service
-  class SMSNotification < ActiveRecord::Base
+  class SMSNotification < ApplicationRecord
     self.table_name = 'service_sms_notifications'
 
     belongs_to :sender, class_name: 'User'

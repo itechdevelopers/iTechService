@@ -1,4 +1,4 @@
-class SalesImportJob < ActiveJob::Base
+class SalesImportJob < ApplicationJob
   queue_as :critical
   attr_accessor :import_logs, :logs_file
 

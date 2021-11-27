@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-class Comment < ActiveRecord::Base
+class Comment < ApplicationRecord
   scope :newest, -> { order('comments.created_at desc') }
   scope :oldest, -> { order('comments.created_at asc') }
 

@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-class QuickOrder < ActiveRecord::Base
+class QuickOrder < ApplicationRecord
   DEVICE_KINDS = %w[iPhone iPad iPod Storage].freeze
 
   scope :in_department, ->(department) { where department_id: department }

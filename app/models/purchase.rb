@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-class Purchase < ActiveRecord::Base
+class Purchase < ApplicationRecord
   include Document
 
   scope :posted, -> { where(status: 1) }

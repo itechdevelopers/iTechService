@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-class ImportedSale < ActiveRecord::Base
+class ImportedSale < ApplicationRecord
   scope :sold_at, ->(period) { where(sold_at: period) }
   belongs_to :device_type
   def self.search(params)

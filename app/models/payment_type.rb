@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-class PaymentType < ActiveRecord::Base
+class PaymentType < ApplicationRecord
   KINDS = %w[cash cashless mixed credit gift_card].freeze
 
   scope :cash, -> { where(kind: 'cash') }

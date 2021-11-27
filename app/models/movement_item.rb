@@ -1,4 +1,4 @@
-class MovementItem < ActiveRecord::Base
+class MovementItem < ApplicationRecord
 
   belongs_to :movement_act, inverse_of: :movement_items
   belongs_to :item, inverse_of: :movement_items

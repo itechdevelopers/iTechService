@@ -1,4 +1,4 @@
-class Supply < ActiveRecord::Base
+class Supply < ApplicationRecord
 
   belongs_to :supply_report
   belongs_to :supply_category

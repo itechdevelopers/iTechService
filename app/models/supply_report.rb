@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-class SupplyReport < ActiveRecord::Base
+class SupplyReport < ApplicationRecord
   scope :in_department, ->(department) { where department_id: department }
   scope :date_desc, -> { order('date desc') }
 

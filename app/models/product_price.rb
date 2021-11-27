@@ -1,4 +1,4 @@
-class ProductPrice < ActiveRecord::Base
+class ProductPrice < ApplicationRecord
   default_scope { order('date desc') }
   scope :newest_first, -> { order('date desc') }
   scope :with_type, ->(type) { where(price_type_id: type) }

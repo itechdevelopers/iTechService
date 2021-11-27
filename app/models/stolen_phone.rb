@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-class StolenPhone < ActiveRecord::Base
+class StolenPhone < ApplicationRecord
   scope :by_imei, lambda { |imei|
                     includes(item: { features: :feature_type }).where('stolen_phones.imei LIKE :q OR (feature_types.kind = :kind AND features.value LIKE :q)', q: "%#{imei}%", kind: 'imei').references(:feature_types)
                   }

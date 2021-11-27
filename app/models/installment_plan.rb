@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-class InstallmentPlan < ActiveRecord::Base
+class InstallmentPlan < ApplicationRecord
   scope :issued_at, ->(period) { where(issued_at: period) }
   scope :closed, -> { where(is_closed: true) }
   scope :not_closed, -> { where(is_closed: [false, nil]) }

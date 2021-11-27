@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-class Karma < ActiveRecord::Base
+class Karma < ApplicationRecord
   GROUP_SIZE = 50
 
   scope :created_asc, -> { order('karmas.created_at asc') }

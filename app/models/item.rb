@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 require 'barby/barcode/ean_13'
-class Item < ActiveRecord::Base
+class Item < ApplicationRecord
   scope :available, -> { includes(:store_items).where('store_items.quantity > ?', 0).references(:store_items) }
   scope :in_store, lambda { |store|
                      includes(:store_items).where(store_items: { store_id: store.is_a?(Store) ? store.id : store })

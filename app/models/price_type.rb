@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-class PriceType < ActiveRecord::Base
+class PriceType < ApplicationRecord
   KINDS = {
     0 => 'purchase',
     1 => 'retail',

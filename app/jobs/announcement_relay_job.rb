@@ -1,4 +1,4 @@
-class AnnouncementRelayJob < ActiveJob::Base
+class AnnouncementRelayJob < ApplicationJob
   queue_as :announcement
 
   def perform(announcement_id)

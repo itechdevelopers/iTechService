@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-class GiftCertificate < ActiveRecord::Base
+class GiftCertificate < ApplicationRecord
   STATUSES = %w[available issued used].freeze
   NOMINAL_MIN = 1000
   NOMINAL_MAX = 100_000

@@ -1,4 +1,4 @@
-class Revaluation < ActiveRecord::Base
+class Revaluation < ApplicationRecord
 
   belongs_to :revaluation_act, inverse_of: :revaluations
   belongs_to :product, inverse_of: :revaluations

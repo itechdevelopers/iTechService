@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-class Feature < ActiveRecord::Base
+class Feature < ApplicationRecord
   scope :imei, -> { includes(:feature_type).where(feature_types: { kind: 'imei' }) }
   scope :serial_number, -> { includes(:feature_type).where(feature_types: { kind: 'serial_number' }) }
   # scope :search, ->(query) { where('LOWER(features.value) LIKE :q OR LOWER(service_jobs.serial_number) LIKE :q OR LOWER(service_jobs.imei) LIKE :q', q: "%#{service_job_q.mb_chars.downcase.to_s}%").references(:features) }

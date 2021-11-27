@@ -1,4 +1,4 @@
-class ScheduleDay < ActiveRecord::Base
+class ScheduleDay < ApplicationRecord
   belongs_to :user
 
   delegate :department, :department_id, to: :user

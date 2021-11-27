@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-class CashOperation < ActiveRecord::Base
+class CashOperation < ApplicationRecord
   scope :in_department, ->(department) { where(cash_shift_id: CashShift.in_department(department)) }
   scope :created_desc, -> { order('created_at desc') }
 

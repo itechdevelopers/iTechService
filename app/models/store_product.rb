@@ -1,4 +1,4 @@
-class StoreProduct < ActiveRecord::Base
+class StoreProduct < ApplicationRecord
 
   belongs_to :store
   belongs_to :product

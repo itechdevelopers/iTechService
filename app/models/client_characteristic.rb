@@ -1,4 +1,4 @@
-class ClientCharacteristic < ActiveRecord::Base
+class ClientCharacteristic < ApplicationRecord
   belongs_to :client_category
   has_one :client, dependent: :nullify
   # attr_accessible :comment, :client_category_id

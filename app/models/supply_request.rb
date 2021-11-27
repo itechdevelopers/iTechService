@@ -1,5 +1,5 @@
 # frozen_string_literal: true
-class SupplyRequest < ActiveRecord::Base
+class SupplyRequest < ApplicationRecord
   STATUSES = %w[new done].freeze
 
   scope :created_desc, -> { order('created_at desc') }

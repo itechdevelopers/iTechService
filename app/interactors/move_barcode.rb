@@ -1,3 +1,5 @@
+# Для однократного применения
+# deprecated
 class MoveBarcode
   prepend BaseInteractor
 

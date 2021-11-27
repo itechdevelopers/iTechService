@@ -1,4 +1,4 @@
-class PhoneSubstitution < ActiveRecord::Base
+class PhoneSubstitution < ApplicationRecord
   scope :in_department, ->(department) { where substitute_phone_id: SubstitutePhone.in_department(department) }
   scope :ordered, -> { order issued_at: :desc }
   scope :pending, -> { where withdrawn_at: nil }

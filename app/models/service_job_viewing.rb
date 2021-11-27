@@ -1,4 +1,4 @@
-class ServiceJobViewing < ActiveRecord::Base
+class ServiceJobViewing < ApplicationRecord
   scope :new_first, -> { order time: :desc }
 
   belongs_to :service_job

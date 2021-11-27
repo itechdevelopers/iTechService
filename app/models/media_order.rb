@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-class MediaOrder < ActiveRecord::Base
+class MediaOrder < ApplicationRecord
   def header
     [
       "#{time.strftime('%d.%m.%Y %H:%M:%S')}, #{phone}, #{name}\n0\n\n",

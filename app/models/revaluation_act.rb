@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-class RevaluationAct < ActiveRecord::Base
+class RevaluationAct < ApplicationRecord
   include Document
 
   belongs_to :price_type, inverse_of: :revaluation_acts
