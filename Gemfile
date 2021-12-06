@@ -69,7 +69,10 @@ gem 'tzinfo-data'
 
 gem 'coffee-rails', '~> 4.1.0'
 # See https://github.com/rails/execjs#readme for more supported runtimes
-gem 'therubyracer', '~> 0.12.3', :platforms => :ruby
+gem 'execjs'
+gem 'therubyracer'
+
+# gem 'therubyracer', :platforms => :ruby
 gem 'sass-rails', '~> 5.0.6'
 gem 'less-rails'
 gem 'rails-ujs', '~> 0.1.0'
