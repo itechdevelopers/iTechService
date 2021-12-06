@@ -73,7 +73,7 @@ gem 'less-rails', '~> 2.7.1'
 gem 'rails-ujs', '~> 0.1.0'
 gem 'uglifier', '>= 1.3.0'
 gem 'bootstrap-colorpicker-rails', '~> 0.3.1', :require => 'bootstrap-colorpicker-rails'
-gem 'sprockets', '3.6.3'
+gem 'sprockets', '3.7.2'
 
 gem 'nokogiri', '~> 1.10.10'
 gem 'ru_propisju', '~> 2.5.0'
