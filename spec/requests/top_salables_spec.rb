@@ -1,4 +1,4 @@
-require 'spec_helper'
+require 'rails_helper'
 
 describe "TopSalables" do
   describe "GET /top_salables" do

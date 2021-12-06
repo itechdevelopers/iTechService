@@ -6,7 +6,7 @@ class AddDepartmentToTradeInDevices < ActiveRecord::Migration
 
     reversible do |dir|
       dir.up do
-        default_department_id = Department.select(:id).find_by(code: ENV.fetch('DEPARTMENT_CODE', 'vl')).id
+        default_department_id = Department.select(:id).find_by(code: ENV.fetch('DEPARTMENT_CODE', 'vl'))&.id
 
         TradeInDevice.where(department_id: nil).find_each do |device|
           device.update_column(:department_id, default_department_id)

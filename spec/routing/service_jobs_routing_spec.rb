@@ -1,4 +1,4 @@
-require "spec_helper"
+require "rails_helper"
 
 describe ServiceJobsController do
   describe "routing" do

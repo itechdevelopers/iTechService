@@ -1,4 +1,4 @@
-require 'spec_helper'
+require 'rails_helper'
 
 describe "QuickTasks" do
   describe "GET /quick_tasks" do

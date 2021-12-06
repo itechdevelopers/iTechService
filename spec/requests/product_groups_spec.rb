@@ -1,4 +1,4 @@
-require 'spec_helper'
+require 'rails_helper'
 
 describe "ProductGroups" do
   describe "GET /product_groups" do

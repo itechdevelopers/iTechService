@@ -1,4 +1,4 @@
-require 'spec_helper'
+require 'rails_helper'
 
 describe "SupplyRequests" do
   describe "GET /supply_requests" do

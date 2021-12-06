@@ -1,4 +1,4 @@
-require 'spec_helper'
+require 'rails_helper'
 
 describe "InstallmentPlans" do
   describe "GET /installment_plans" do

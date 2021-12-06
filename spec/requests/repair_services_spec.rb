@@ -1,4 +1,4 @@
-require 'spec_helper'
+require 'rails_helper'
 
 describe "RepairServices" do
   describe "GET /repair_services" do

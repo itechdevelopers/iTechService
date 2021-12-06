@@ -5,6 +5,8 @@ FactoryGirl.define do
     name 'Name'
     position 1
     ancestry nil
+
+    association :department
   end
 
   trait :repair do

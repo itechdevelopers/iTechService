@@ -1,4 +1,4 @@
-require "spec_helper"
+require "rails_helper"
 
 describe FeatureTypesController do
   describe "routing" do

@@ -1,4 +1,4 @@
-require "spec_helper"
+require "rails_helper"
 
 describe RevaluationActsController do
   describe "routing" do

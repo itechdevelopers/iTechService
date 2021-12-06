@@ -1,4 +1,4 @@
-require 'spec_helper'
+require 'rails_helper'
 
 describe "CaseColors" do
   describe "GET /case_colors" do

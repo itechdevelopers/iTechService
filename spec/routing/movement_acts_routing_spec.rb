@@ -1,4 +1,4 @@
-require "spec_helper"
+require "rails_helper"
 
 describe MovementActsController do
   describe "routing" do

@@ -1,4 +1,4 @@
-require 'spec_helper'
+require 'rails_helper'
 
 describe "FeatureTypes" do
   describe "GET /feature_types" do

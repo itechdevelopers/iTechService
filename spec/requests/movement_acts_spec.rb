@@ -1,4 +1,4 @@
-require 'spec_helper'
+require 'rails_helper'
 
 describe "MovementActs" do
   describe "GET /movement_acts" do

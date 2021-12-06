@@ -1,4 +1,4 @@
-require "spec_helper"
+require "rails_helper"
 
 describe AnnouncementsController do
   describe "routing" do

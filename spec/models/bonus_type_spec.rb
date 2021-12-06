@@ -1,4 +1,4 @@
-require 'spec_helper'
+require 'rails_helper'
 
 describe BonusType do
   let(:bonus_type) { create :bonus_type }

@@ -1,4 +1,4 @@
-require 'spec_helper'
+require 'rails_helper'
 
 describe RepairTask do
   let(:department) { Department.create! name: 'Main', role: 0, code: 'main', city: 'city', address: 'address', contact_phone: '-', schedule: '-' }
