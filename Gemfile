@@ -55,7 +55,7 @@ gem 'sidekiq', '~> 5.2.8'
 gem 'sinatra', '~> 1.0', require: false
 gem 'sidekiq-cron', '~> 1.1'
 gem 'whenever', '>= 0.8.4', require: false
-gem 'grape', '~> 0.19.2'
+gem 'grape', '~> 1.1.0'
 gem 'grape-entity', '~> 0.8.2'
 gem 'rmagick', '~> 2.15.4'
 gem 'zeroclipboard-rails'
