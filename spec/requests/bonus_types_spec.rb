@@ -1,4 +1,4 @@
-require 'spec_helper'
+require 'rails_helper'
 
 describe "BonusTypes" do
   describe "GET /bonus_types" do

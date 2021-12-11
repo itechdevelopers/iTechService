@@ -40,3 +40,4 @@ pickle-email-*.html
 .tool-versions
 /.idea/
 /.ruby-gemset
+/.env.test

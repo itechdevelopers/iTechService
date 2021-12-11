@@ -1,4 +1,4 @@
-require 'spec_helper'
+require 'rails_helper'
 
 describe "ClientCategories" do
   describe "GET /client_categories" do

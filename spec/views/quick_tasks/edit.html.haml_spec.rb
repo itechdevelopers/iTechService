@@ -1,4 +1,4 @@
-require 'spec_helper'
+require 'rails_helper'
 
 describe "quick_tasks/edit" do
   before(:each) do

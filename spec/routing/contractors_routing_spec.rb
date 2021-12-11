@@ -1,4 +1,4 @@
-require "spec_helper"
+require "rails_helper"
 
 describe ContractorsController do
   describe "routing" do

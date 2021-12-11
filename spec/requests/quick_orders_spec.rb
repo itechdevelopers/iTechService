@@ -1,4 +1,4 @@
-require 'spec_helper'
+require 'rails_helper'
 
 describe "QuickOrders" do
   describe "GET /quick_orders" do

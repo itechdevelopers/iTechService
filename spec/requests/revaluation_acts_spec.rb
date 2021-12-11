@@ -1,4 +1,4 @@
-require 'spec_helper'
+require 'rails_helper'
 
 describe "RevaluationActs" do
   describe "GET /revaluation_acts" do

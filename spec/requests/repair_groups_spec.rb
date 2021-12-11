@@ -1,4 +1,4 @@
-require 'spec_helper'
+require 'rails_helper'
 
 describe "RepairGroups" do
   describe "GET /repair_groups" do

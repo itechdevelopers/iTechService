@@ -1,4 +1,4 @@
-require 'spec_helper'
+require 'rails_helper'
 
 describe "cash_drawers/edit" do
   before(:each) do

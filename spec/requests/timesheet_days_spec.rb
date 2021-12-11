@@ -1,4 +1,4 @@
-require 'spec_helper'
+require 'rails_helper'
 
 describe "TimesheetDays" do
   describe "GET /timesheet_days" do

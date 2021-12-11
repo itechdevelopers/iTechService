@@ -1,4 +1,4 @@
-require 'spec_helper'
+require 'rails_helper'
 
 describe "GiftCertificates" do
   describe "GET /gift_certificates" do

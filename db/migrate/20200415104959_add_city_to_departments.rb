@@ -11,7 +11,7 @@ class AddCityToDepartments < ActiveRecord::Migration
           department.update_column(:city_id, city.id)
         end
 
-        change_column_null :departments, :city_id, false
+        # change_column_null :departments, :city_id, false
         remove_column :departments, :city
       end
     end

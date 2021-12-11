@@ -5,6 +5,8 @@ FactoryGirl.define do
     sequence(:username) { |n| "User #{n}" }
     role 'software'
     password 'password'
+    association :department
+    association :location
 
 
     factory :user_without_username do

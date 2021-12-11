@@ -8,7 +8,7 @@ class AddCodeToLocations < ActiveRecord::Migration
       'Гарантийники' => 'warranty'
   }
   class Location < ActiveRecord::Base
-    attr_accessible :code
+    attr_accessor :code
   end
 
   def change

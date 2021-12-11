@@ -1,4 +1,4 @@
-require "spec_helper"
+require "rails_helper"
 
 describe BanksController do
   describe "routing" do

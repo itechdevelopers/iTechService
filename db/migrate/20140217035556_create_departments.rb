@@ -1,6 +1,6 @@
 class CreateDepartments < ActiveRecord::Migration
   class Department < ActiveRecord::Base
-    attr_accessible :name, :role, :code, :url, :city, :address, :contact_phone, :schedule
+    attr_accessor :name, :role, :code, :url, :city, :address, :contact_phone, :schedule
   end
 
   def up

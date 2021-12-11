@@ -1,4 +1,4 @@
-require 'spec_helper'
+require 'rails_helper'
 
 describe "FeatureValues" do
   describe "GET /feature_values" do

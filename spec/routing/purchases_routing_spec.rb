@@ -1,4 +1,4 @@
-require "spec_helper"
+require "rails_helper"
 
 describe PurchasesController do
   describe "routing" do

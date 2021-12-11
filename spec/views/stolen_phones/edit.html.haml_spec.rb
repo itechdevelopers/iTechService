@@ -1,4 +1,4 @@
-require 'spec_helper'
+require 'rails_helper'
 
 describe "stolen_phones/edit" do
   before(:each) do

@@ -1,4 +1,4 @@
-require 'spec_helper'
+require 'rails_helper'
 
 describe "revaluation_acts/show" do
   before(:each) do

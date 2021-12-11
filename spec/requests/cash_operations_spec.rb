@@ -1,4 +1,4 @@
-require 'spec_helper'
+require 'rails_helper'
 
 describe "CashOperations" do
   describe "GET /cash_operations" do

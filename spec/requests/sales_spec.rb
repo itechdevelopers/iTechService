@@ -1,4 +1,4 @@
-require 'spec_helper'
+require 'rails_helper'
 
 describe "SoldDevices" do
   describe "GET /sold_devices" do
