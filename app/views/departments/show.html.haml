@@ -29,6 +29,9 @@
   %dt= model_class.human_attribute_name :printer
   %dd= @department.printer.blank? ? '-' : @department.printer
 
+  %dt= model_class.human_attribute_name :archive
+  %dd= @department.archive ? 'Да' : ''
+
 - if can? :manage, @department
   .form-actions
     = link_to_edit @department

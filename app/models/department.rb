@@ -9,11 +9,12 @@ class Department < ApplicationRecord
     4 => 'transfer'
   }.freeze
 
-  default_scope { order('departments.id asc') }
+  default_scope { active.order('departments.id asc') }
   scope :branches, -> { where(role: 1) }
   scope :selectable, -> { where(role: [0, 1, 3, 4]) }
   scope :real, -> { where(role: [0, 1, 3]) }
   scope :in_city, ->(city) { where(city: city) }
+  scope :active, -> { where(archive: [false, nil]) }
 
   belongs_to :city, required: true
   belongs_to :brand, required: true

@@ -153,6 +153,7 @@ ru:
         schedule: 'График работы'
         short_name: 'Сокращенное название'
         url: 'URL'
+        archive: Архивный
 
       device:
         app_store_pass: 'Пароль на учетную запись в App Store'

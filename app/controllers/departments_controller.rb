@@ -1,16 +1,17 @@
 # frozen_string_literal: true
 
 class DepartmentsController < ApplicationController
+  before_action :load_and_authorize_record, only: [:show, :edit, :update, :destroy]
+
   def index
     authorize Department
-    @departments = Department.all
+    @departments = Department.unscoped.all
     respond_to do |format|
       format.html
     end
   end
 
   def show
-    @department = find_record Department
     respond_to do |format|
       format.html
     end
@@ -24,7 +25,6 @@ class DepartmentsController < ApplicationController
   end
 
   def edit
-    @department = find_record Department
     respond_to do |format|
       format.html { render 'form' }
     end
@@ -42,7 +42,6 @@ class DepartmentsController < ApplicationController
   end
 
   def update
-    @department = find_record Department
     respond_to do |format|
       if @department.update_attributes(department_params)
         format.html { redirect_to @department, notice: t('departments.updated') }
@@ -53,15 +52,21 @@ class DepartmentsController < ApplicationController
   end
 
   def destroy
-    @department = find_record Department
     @department.destroy
     respond_to do |format|
       format.html { redirect_to departments_url }
     end
   end
 
+  private
+
+  def load_and_authorize_record
+    @department = Department.unscoped.find(params[:id])
+    authorize @department
+  end
+
   def department_params
     params.require(:department)
-          .permit(:address, :brand_id, :city_id, :code, :contact_phone, :ip_network, :name, :printer, :role, :schedule, :short_name, :url)
+          .permit(:address, :brand_id, :city_id, :code, :contact_phone, :ip_network, :name, :printer, :role, :schedule, :short_name, :url, :archive)
   end
 end

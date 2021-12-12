@@ -12,6 +12,11 @@ class Users::SessionsController < Devise::SessionsController
   # POST /resource/sign_in
   def create
     super do |user|
+      if (location = after_sign_in_path_for(user))
+        respond_with resource, location: location
+        return
+      end
+
       if user.department_autochangeable?
         unless autochange_department(user)
           return redirect_to edit_user_department_path
@@ -56,7 +61,15 @@ class Users::SessionsController < Devise::SessionsController
   # end
 
   def autochange_department(user)
-    return true if Department.count < 2
+    departments = if (user.superadmin? || user.able_to?(:access_all_departments))
+                     Department.all
+                   else
+                     Department.in_city(user.city)
+                   end
+    if departments.count == 1
+      change_user_department user, departments.first
+      return true
+    end
 
     return true if user.department.ip_network.blank? || user.department.ip_network == user.current_sign_in_ip
 
