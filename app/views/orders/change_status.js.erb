@@ -1,0 +1,4 @@
+$( "#edit_order_<%= @order.id %>" ).replaceWith("<%= j button_to_change_order_status(@order) unless @order.canceled? %>");
+$( "#edit_order_<%= @order.id %>_info" ).attr('class', '<%= @order.status %>');
+$( "#edit_order_<%= @order.id %>_comment" ).attr('class', '<%= @order.status %>');
+$( "#edit_order_<%= @order.id %>_user_comment" ).attr('class', '<%= @order.status %>');

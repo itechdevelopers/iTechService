@@ -107,6 +107,20 @@ class OrdersController < ApplicationController
     end
   end
 
+  def change_status
+    @order = find_record Order
+
+    respond_to do |format|
+      if @order.update_attributes(order_change_status_params)
+        format.js
+      else
+        format.js
+      end
+    end
+  end
+
+  private
+
   def history
     order = find_record Order
     @records = order.history_records
@@ -165,5 +179,9 @@ class OrdersController < ApplicationController
   def order_params
     params.require(:order)
           .permit(:approximate_price, :comment, :customer_id, :customer_type, :department_id, :desired_date, :model, :number, :object, :object_kind, :object_url, :payment_method, :picture, :prepayment, :priority, :quantity, :status, :user_comment, :user_id)
+  end
+
+  def order_change_status_params
+    params.require(:order).permit(:status)
   end
 end

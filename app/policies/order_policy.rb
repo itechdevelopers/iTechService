@@ -9,6 +9,10 @@ class OrderPolicy < CommonPolicy
     manage? || (record.user_id == user.id) || has_role?(:software)
   end
 
+  def change_status?
+    manage? || (record.user_id == user.id) || has_role?(:software)
+  end
+
   def history?
     manage?
   end

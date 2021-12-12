@@ -163,6 +163,7 @@ Rails.application.routes.draw do
   resources :device_tasks, only: [:edit, :update]
 
   resources :orders do
+    patch :change_status, on: :member, defaults: { format: 'js' }
     get :history, on: :member, defaults: { format: 'js' }
     get :device_type_select, on: :collection, defaults: {format: 'js'}
     resources :order_notes, only: %i[create]

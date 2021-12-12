@@ -78,7 +78,7 @@ module OrdersHelper
     return unless next_status.present?
 
     name = t "orders.statuses.short.#{next_status}"
-    form_for order, html: { class: 'button_to' }, remote: true do |f|
+    form_for order, url: change_status_order_path(order), html: { class: 'button_to' }, remote: true do |f|
       hidden_field_tag('order[status]', next_status) +
         f.submit(name, class: 'btn btn-primary btn-small')
     end
