@@ -15,8 +15,8 @@ class SalesImportJob < ApplicationJob
   RGXP_PRODUCT_CODE_AND_NAME = Regexp.new('(\d+) \| (.+)')
   RGXP_PRODUCT_CODE = Regexp.new('\d+')
   RGXP_PRODUCT_NAME = Regexp.new('.+')
-  RGXP_SERIAL_NUMBER = Regexp.new('\A([\w\+]+)\Z')
-  RGXP_SERIAL_NUMBER_IMEI = Regexp.new('(\w+), (\d+)')
+  RGXP_SERIAL_NUMBER = Regexp.new('\A(\w+),?\Z')
+  RGXP_SERIAL_NUMBER_IMEI = Regexp.new('(\w+), *(\d+)')
   RGXP_DATETIME = Regexp.new('(\d{2}.\d{2}.\d{4}\ \d{,2}:\d{2}:\d{2})')
   RGXP_DATE = Regexp.new('(\d{2}\.\d{2}\.\d{4})')
 
@@ -46,9 +46,10 @@ class SalesImportJob < ApplicationJob
       when :date
         date = RGXP_DATE.match(row[0])[1]
         qty = row[11]
+        sold_at = "#{date} 00:00:00 +1000".to_time(:utc)
         sale = ImportedSale.find_or_initialize_by serial_number: sn,
                                                   imei: imei,
-                                                  sold_at: date.to_date,
+                                                  sold_at: sold_at,
                                                   device_type_id: device_type.try(:id),
                                                   quantity: qty
 
