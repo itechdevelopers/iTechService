@@ -104,7 +104,7 @@ class Order < ApplicationRecord
   def self.search(params)
     orders = Order.all
 
-    orders = if (statuses = params[:statuses] & STATUSES).any?
+    orders = if (statuses = params[:statuses] || [] & STATUSES).any?
                orders.where status: statuses
              else
                orders.actual_orders
