@@ -1,3 +1,4 @@
+- service_job = @device_task.service_job
 - if @device_task.done? && @device_task.errors.empty? && !current_user.superadmin?
   .modal-header
     %a.close{'data-dismiss' => 'modal', href: '#'}
@@ -55,19 +56,25 @@
         %br
         = @device_task.comment
 
-      .control-group
-        .controls= link_to t('.task_templates'), task_templates_path, remote: true, class: 'btn btn-link'
-        #task_templates_container
+      .row-fluid
+        .span6
+          .control-group
+            .controls= link_to t('.task_templates'), task_templates_path, remote: true, class: 'btn btn-link'
+            #task_templates_container
 
-      .control-group
-        .controls{style: 'color:red'}
-          Информацию которую вы вводите сюда, будет отображаться в заказ-наряде. Поэтому будте внимательны.
-      = f.input :user_comment, input_html: {rows: 3}
-      = f.input :cost
-      = f.input :done, as: :done_status, disabled: @device_task.done
-      - if @device_task.mac_service?
-        = f.association :performer, label: 'Кто выполнил задачу?', collection: mac_service_helper_options,
-                        label_method: :presentation
+          .control-group
+            .controls{style: 'color:red'}
+              Информацию которую вы вводите сюда, будет отображаться в заказ-наряде. Поэтому будте внимательны.
+          = f.input :user_comment, input_html: {rows: 3}
+          = f.input :cost
+          = f.input :done, as: :done_status, disabled: @device_task.done
+          - if @device_task.mac_service?
+            = f.association :performer, label: 'Кто выполнил задачу?', collection: mac_service_helper_options,
+                            label_method: :presentation
+
+        .span6
+          %b Заметки
+          .device_notes{id: "device_notes_#{service_job.id}"}= render service_job.device_notes.oldest_first
 
       - if can? :write_tech_notice, @device_task.service_job || ServiceJob
         = f.simple_fields_for :service_job do |ff|
@@ -84,6 +91,5 @@
             %p.text-error= error
         #repair_services_choose_form_container.well.well-small
         #repair_tasks= f.simple_fields_for(:repair_tasks) { |ff| render 'repair_task_fields', f: ff }
-
     .modal-footer
       = submit_button f
