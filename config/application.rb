@@ -1,4 +1,5 @@
-require File.expand_path('../boot', __FILE__)
+# require File.expand_path('../boot', __FILE__)
+require_relative 'boot'
 
 require 'rails/all'
 
@@ -49,6 +50,6 @@ module ItechService
     
     I18n.enforce_available_locales = true
 
-    config.logger = Logger.new config.paths['log'].first, 5, 50*1024*1024
+    config.logger = ActiveSupport::Logger.new('/dev/null')
   end
 end
