@@ -1,5 +1,10 @@
 jQuery ->
 
+  window.setInterval ->
+    console.log($('#purchase_form_autosave'))
+    $('#purchase_form_autosave').submit()
+  , 50000
+
   $(document).on 'blur', '.batch_fields>.price>input, .batch_fields>.quantity>input', ->
     $row = $(this).closest('.batch_fields')
     price = Number($('.price>input', $row).val())

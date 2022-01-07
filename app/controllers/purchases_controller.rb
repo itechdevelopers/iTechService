@@ -50,7 +50,7 @@ class PurchasesController < ApplicationController
     @purchase = authorize Purchase.new(purchase_params)
     respond_to do |format|
       if @purchase.save
-        format.html { redirect_to @purchase, notice: t('purchases.created') }
+        format.html { redirect_to edit_purchase_path @purchase, notice: t('purchases.created') }
         format.json { render json: @purchase, status: :created, location: @purchase }
       else
         format.html { render 'form' }
@@ -64,6 +64,7 @@ class PurchasesController < ApplicationController
     respond_to do |format|
       if @purchase.is_posted? ? @purchase.update_prices(purchase_params) : @purchase.update(purchase_params)
         format.html { redirect_to @purchase, notice: t('purchases.updated') }
+        format.js { render 'form' }
         format.json { head :no_content }
       else
         format.html { render 'form' }

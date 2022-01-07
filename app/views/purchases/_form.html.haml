@@ -1,0 +1,40 @@
+- options = { html: { class: 'form-horizontal', id: @purchase.id.blank? ? 'purchase_form' : 'purchase_form_autosave' } }
+- options.merge!(remote: true) unless @purchase.id.blank?
+= simple_form_for @purchase, options do |f|
+  - if @purchase.errors.any?
+    .alert.alert-error= @purchase.errors.full_messages.join('. ')
+
+  = f.input :date, as: :my_datetime, disabled: @purchase.is_posted?
+  = f.association :contractor, as: :select, disabled: @purchase.is_posted?
+  = f.association :store, collection: Store.purchase.visible, disabled: @purchase.is_posted?
+  = f.input :comment, input_html: {rows: 5}, disabled: @purchase.is_posted?
+  = f.input :skip_revaluation, disabled: @purchase.is_posted?
+
+  - unless @purchase.id.blank?
+    %table#batches.enumerable.table.table-condensed.table-hover
+      %caption
+        %h4= t 'products.index.title'
+      %thead
+        %tr
+          %th.num
+          %th.code= Product.human_attribute_name :code
+          %th.product= Batch.human_attribute_name :product
+          %th.quantity= Batch.human_attribute_name :quantity
+          %th.price= Batch.human_attribute_name :price
+          %th.sum= Batch.human_attribute_name :sum
+          %th.action
+
+      %tbody
+        = f.simple_fields_for :batches do |ff|
+          = render 'batch_fields', f: ff
+
+      %tfoot
+        %tr
+          %td{colspan: 5}= t 'total'
+          %td.total_sum.number= @purchase.total_sum
+          %td
+
+    = link_to_add_product(:purchase, :batches, false) unless @purchase.is_posted?
+
+  .form-actions
+    = submit_button f
