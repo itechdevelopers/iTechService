@@ -142,7 +142,7 @@ class Order < ApplicationRecord
       )
     end
 
-    if (department_ids = params[:department_ids]).any?
+    unless (department_ids = params[:department_ids]).blank?
       orders = orders.where(department_id: department_ids)
     end
 

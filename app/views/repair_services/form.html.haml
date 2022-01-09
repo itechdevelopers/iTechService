@@ -7,7 +7,7 @@
   %b= RepairService.human_attribute_name :prices
   = f.simple_fields_for :prices do |pf|
     = pf.hidden_field :department_id
-    = pf.input :value, label: pf.object.department.name
+    = pf.input :value, label: pf.object.department&.name
   %br
   = f.input :difficult
   = f.input :is_positive_price
