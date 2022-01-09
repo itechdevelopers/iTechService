@@ -37,4 +37,5 @@
     = link_to_add_product(:purchase, :batches, false) unless @purchase.is_posted?
 
   .form-actions
-    = submit_button f
+    = submit_button f, name: 'Применить'
+    = link_to 'Закрыть', purchases_path
