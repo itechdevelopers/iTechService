@@ -1,0 +1,5 @@
+<%= link_to karma_group, remote: true, id: "karma_group_#{karma_group.id}", class: 'karma_group_link good',
+            data: {id: karma_group.id} do %>
+  <%= image_tag 'karma_group.png' %>
+  <span><%= karma_group.size %></span>
+<% end %>

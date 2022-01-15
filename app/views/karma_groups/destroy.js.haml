@@ -1,4 +1,0 @@
-:plain
-  $("#karma_group_#{@karma_group_id}").popover('destroy').remove();
-  $('#good_karmas').append("#{j(render(@karmas))}");
-  bindKarmaEvents("#{@karmas.map{|karma| "#karma_#{karma.id}"}.join(',')}");

@@ -1,0 +1,16 @@
+<%= simple_form_for @karma_group, html: {class: 'form-horizontal', remote: true} do |f| %>
+  <%= modal_header_tag t('bonuses.new.title') %>
+
+  <div class="modal-body">
+    <%= f.error_notification %>
+
+    <%= f.simple_fields_for :bonus do |ff| %>
+      <%= ff.association :bonus_type %>
+      <%= ff.input :comment, input_html: {rows: 3} %>
+    <% end %>
+  </div>
+
+  <div class="modal-footer">
+    <%= submit_button f %>
+  </div>
+<% end %>
