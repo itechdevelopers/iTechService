@@ -5,7 +5,7 @@ class DeductionActsController < ApplicationController
 
   def index
     authorize DeductionAct
-    @deduction_acts = policy_scope(DeductionAct).search(params)
+    @deduction_acts = policy_scope(DeductionAct).search(action_params)
 
     @deduction_acts = if params.key?(:sort) && params.key?(:direction)
                         @deduction_acts.order("deduction_acts.#{sort_column} #{sort_direction}")

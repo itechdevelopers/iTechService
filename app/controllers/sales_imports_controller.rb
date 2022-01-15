@@ -8,7 +8,7 @@ class SalesImportsController < ApplicationController
     authorize SalesImport
 
     if params[:sales_import].present?
-      file = FileLoader.rename_uploaded_file(params[:sales_import][:file])
+      file = FileLoader.rename_uploaded_file(action_params.dig(:sales_import, :file))
       SalesImportJob.perform_later file
       redirect_to new_sales_import_path, notice: t('imports.enqueued')
     else

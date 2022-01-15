@@ -1,8 +1,6 @@
 # frozen_string_literal: true
 
 class KarmaGroupsController < ApplicationController
-  before_action :convert_karma_ids, only: [:create]
-
   def index
     authorize KarmaGroup
     @karma_groups = policy_scope(Karma).where(karma_group_id: params[:karma_group_id])
@@ -60,13 +58,10 @@ class KarmaGroupsController < ApplicationController
 
   private
 
-  def convert_karma_ids
-    params[:karma_group][:karma_ids] = params[:karma_group][:karma_ids].split(',') if params[:karma_group].present?
-  end
-
   def karma_group_params
-    params.require(:karma_group)
-          .permit(:bonus_id, :karma_ids, bonus: [:comment, :bonus_type_id])
-    # TODO: check nested attributes for: bonus
+    params.require(:karma_group).permit(
+      :bonus_id, :karma_ids,
+      bonus_attributes: [:id, :comment, :bonus_type_id]
+    )
   end
 end

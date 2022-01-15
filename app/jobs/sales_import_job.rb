@@ -6,7 +6,7 @@ class SalesImportJob < ApplicationJob
     file ||= fetch_file
     return if file.nil?
 
-    ActiveRecord::Base.uncached { import_sales file }
+    ImportedSale.uncached { import_sales file }
     ImportMailer.sales_import_log(import_logs).deliver_now
   end
 

@@ -5,13 +5,13 @@ class ItemsController < ApplicationController
     authorize Item
 
     if params[:product_id].blank?
-      @items = policy_scope(Item).search(params)
+      @items = policy_scope(Item).search(action_params)
       @feature_types = []
       @items.each { |item| @feature_types + item.feature_types.to_a }
       @feature_types.uniq!
     else
       @product = Product.find(params[:product_id])
-      @items = policy_scope(@product.items).search(params)
+      @items = policy_scope(@product.items).search(action_params)
       @feature_types = @product.feature_types
     end
 

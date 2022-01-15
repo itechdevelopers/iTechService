@@ -5,7 +5,7 @@ class SupplyRequestsController < ApplicationController
 
   def index
     authorize SupplyRequest
-    @supply_requests = policy_scope(SupplyRequest).search(params).created_desc.page(params[:page])
+    @supply_requests = policy_scope(SupplyRequest).search(action_params).created_desc.page(params[:page])
 
     respond_to do |format|
       format.html

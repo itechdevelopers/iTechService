@@ -3,7 +3,7 @@
 class StoresController < ApplicationController
   def index
     authorize Store
-    @stores = policy_scope(Store).search(params)
+    @stores = policy_scope(Store).search(action_params)
     respond_to do |format|
       format.html
       format.js { render 'shared/index' }
@@ -12,10 +12,11 @@ class StoresController < ApplicationController
 
   def show
     @store = find_record Store
-    @product_groups = ProductGroup.search(params.symbolize_keys.merge(roots: true, store_kind: @store.kind)).ordered
+    search_params = params.permit(:form, :user_role).to_h.merge(roots: true, store_kind: @store.kind)
+    @product_groups = ProductGroup.search(search_params).ordered
     @products = @store.products
                       .includes(:product_group, :product_category, :prices, :batches, :items, :store_items)
-                      .search(params)
+                      .search(action_params)
     respond_to do |format|
       format.html
       format.js

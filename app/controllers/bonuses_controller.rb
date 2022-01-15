@@ -23,7 +23,7 @@ class BonusesController < ApplicationController
 
   def create
     @bonus = authorize Bonus.new(bonus_params)
-    @karma_group_id = params[:bonus][:karma_group_id]
+    @karma_group_id = action_params.dig(:bonus, :karma_group_id)
     respond_to do |format|
       if @bonus.save
         format.html { redirect_to @bonus, notice: t('bonuses.created') }

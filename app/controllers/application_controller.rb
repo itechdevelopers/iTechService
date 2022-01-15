@@ -2,7 +2,8 @@ class ApplicationController < ActionController::Base
   include Pundit
   include ApplicationHelper
   include FilterSortPagination
-  protect_from_forgery
+  include ActionParams
+  protect_from_forgery prepend: true
   before_action :authenticate_user!
   before_action :set_current_user
   before_action :store_location, except: [:create, :update, :destroy]

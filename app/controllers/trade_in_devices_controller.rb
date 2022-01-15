@@ -69,9 +69,9 @@ class TradeInDevicesController < ApplicationController
 
   def update
     permitted_params = if policy(TradeInDevice).manage?
-                         params
+                         action_params
                        else
-                         params.merge(trade_in_device: params[:trade_in_device].slice(:apple_guarantee))
+                         action_params.merge(trade_in_device: action_params[:trade_in_device].slice(:apple_guarantee))
                        end
 
     run TradeInDevice::Update, permitted_params do

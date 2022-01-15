@@ -5,7 +5,7 @@ class ClientsController < ApplicationController
 
   def index
     authorize Client
-    @clients = policy_scope(Client).search(params).id_asc.page(params[:page])
+    @clients = policy_scope(Client).search(action_params).id_asc.page(params[:page])
     if params[:search] == 'true'
       params[:table_name] = 'table_small'
       params[:form_name] = 'search_form'
@@ -112,12 +112,12 @@ class ClientsController < ApplicationController
   end
 
   def questionnaire
-    pdf = QuestionnairePdf.new view_context, params[:client]
+    pdf = QuestionnairePdf.new view_context, action_params[:client]
     send_data pdf.render, filename: 'anketa.pdf', type: 'application/pdf', disposition: 'inline'
   end
 
   def autocomplete
-    @clients = policy_scope(Client).search(params).limit(10)
+    @clients = policy_scope(Client).search(action_params).limit(10)
   end
 
   def select
@@ -149,15 +149,11 @@ class ClientsController < ApplicationController
   end
 
   def client_params
-    params.require(:client)
-          .permit(:admin_info, :birthday, :card_number, :category,
-                  :contact_phone, :email, :full_phone_number, :name, :patronymic, :phone_number, :surname,
-                  # TODO: check nested attributes for: comments, client_characteristic
-                  :client_characteristic_id, :department_id,
-                  :phone_number_checked, :comments_attributes, :comment, :client_characteristic_attributes
-          ).tap do |p|
-      p[:comments_attributes] = params[:client][:comments_attributes].permit! if params[:client][:comments_attributes]
-      p[:client_characteristic_attributes] = params[:client][:client_characteristic_attributes].permit! if params[:client][:client_characteristic_attributes]
-    end
+    params.require(:client).permit(
+      :name, :surname, :patronymic, :birthday, :email, :phone_number, :full_phone_number, :phone_number_checked,
+      :card_number, :admin_info, :comment, :contact_phone, :category,
+      client_characteristic_attributes: %i[id _destroy client_category_id comment],
+      comments_attributes: %i[content commentable_id commentable_type]
+    )
   end
 end

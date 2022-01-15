@@ -43,8 +43,9 @@ module FilterSortPagination
   end
 
   def paginate(items)
-    curr_page = params[:page] || params.dig(:pagination, :page) || params.dig(:pagination, :current_page) || 1
-    limit = params[:limit] || params.dig(:pagination, :limit) || DEFAULT_LIMIT
+    curr_page = action_params[:page] || action_params.dig(:pagination, :page) ||
+                action_params.dig(:pagination, :current_page) || 1
+    limit = action_params[:limit] || action_params.dig(:pagination, :limit) || DEFAULT_LIMIT
     items.page(curr_page).per(limit)
   end
 

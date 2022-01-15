@@ -111,7 +111,7 @@ class User < ApplicationRecord
                             includes(:client, :features, department: :city, item: { product: :product_group })
                           }, inverse_of: :user
   has_many :karmas, dependent: :destroy, inverse_of: :user
-  has_many :karma_groups, through: :karmas
+  has_many :karma_groups, -> { distinct }, through: :karmas
   has_many :bonuses, through: :karma_groups
   has_many :messages, dependent: :destroy
   has_many :infos, inverse_of: :recipient, dependent: :destroy

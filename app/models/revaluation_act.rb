@@ -5,9 +5,8 @@ class RevaluationAct < ApplicationRecord
 
   belongs_to :price_type, inverse_of: :revaluation_acts
   has_many :revaluations, inverse_of: :revaluation_act, dependent: :destroy
-  accepts_nested_attributes_for :revaluations, allow_destroy: true, reject_if: lambda { |a|
-                                                                                 a[:product_id].blank? or a[:price].blank?
-                                                                               }
+  accepts_nested_attributes_for :revaluations, allow_destroy: true,
+                                reject_if: lambda { |a| a[:product_id].blank? or a[:price].blank? }
   # attr_accessor :product_ids
   validates_presence_of :price_type, :date, :status
   validates_inclusion_of :status, in: Document::STATUSES.keys

@@ -13,11 +13,11 @@ module Service
     def get_details(params)
       res = {}
 
-      if (note = params.fetch(:device_note, {}).fetch(:content, nil)).present?
+      if (note = params.dig(:device_note, :content)).present?
         res[:note] = note
       end
 
-      if (location_id = params.fetch(:service_job, {}).fetch(:location_id, nil)).present?
+      if (location_id = params.dig(:service_job, :location_id)).present?
         location = Location.find location_id
         res[:moved_to] = location.name
       end

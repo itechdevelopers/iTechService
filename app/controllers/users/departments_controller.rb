@@ -10,7 +10,7 @@ class Users::DepartmentsController < ApplicationController
   end
 
   def update
-    department = Department.find(params[:user][:department_id])
+    department = Department.find(action_params.dig(:user, :department_id))
     change_user_department current_user, department
     redirect_to root_path
   end

@@ -3,7 +3,7 @@
 class RevaluationActsController < ApplicationController
   def index
     authorize RevaluationAct
-    @revaluation_acts = policy_scope(RevaluationAct).search(params).page(params[:page])
+    @revaluation_acts = policy_scope(RevaluationAct).search(action_params).page(params[:page])
 
     respond_to do |format|
       format.html
@@ -96,12 +96,9 @@ class RevaluationActsController < ApplicationController
   end
 
   def revaluation_act_params
-    params.require(:revaluation_act)
-          .permit(:date, :price_type_id, :status,
-                  revaluations: [:price, :product_id, :revaluation_act_id]
-          ).tap do |p|
-      p[:revaluations_attributes] = params[:revaluation_act][:revaluations_attributes].permit! if params[:revaluation_act][:revaluations_attributes]
-    end
-    # TODO: check nested attributes for: revaluations
+    params.require(:revaluation_act).permit(
+      :date, :price_type_id, :product_ids,
+      revaluations_attributes: [:id, :_destroy, :product_id, :price]
+    )
   end
 end

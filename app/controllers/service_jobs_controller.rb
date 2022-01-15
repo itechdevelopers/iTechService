@@ -11,9 +11,10 @@ class ServiceJobsController < ApplicationController
     @service_jobs = ServiceJobFilter.call(collection: @service_jobs, **filter_params).collection
 
     if params.key? :search
-      @service_jobs = @service_jobs.search(params[:search])
-      unless params[:search][:location_id].blank?
-        @location_name = Location.select(:name).find(params[:search][:location_id]).name
+      search_params = action_params[:search]
+      @service_jobs = @service_jobs.search(search_params)
+      unless search_params[:location_id].blank?
+        @location_name = Location.select(:name).find(search_params[:location_id]).name
       end
     end
 
@@ -25,7 +26,7 @@ class ServiceJobsController < ApplicationController
     @service_jobs = @service_jobs.reorder("service_jobs.#{sort_column} #{sort_direction}") if params.key?(:sort)
     @service_jobs = @service_jobs.newest
 
-    @service_jobs = @service_jobs.page params[:page]
+    @service_jobs = @service_jobs.page action_params[:page]
     @locations = current_department.locations.visible
 
     respond_to do |format|
@@ -159,7 +160,7 @@ class ServiceJobsController < ApplicationController
     respond_to do |format|
       if @service_job.save
         create_phone_substitution if @service_job.phone_substituted?
-        Service::DeviceSubscribersNotificationJob.perform_later @service_job.id, current_user.id, params
+        Service::DeviceSubscribersNotificationJob.perform_later @service_job.id, current_user.id, action_params
         format.html { redirect_to @service_job, notice: t('service_jobs.updated') }
         format.json { head :no_content }
         format.js { render 'update' }
@@ -399,10 +400,9 @@ class ServiceJobsController < ApplicationController
       :initial_department_id, :is_tray_present, :item_id, :keeper_id, :location_id, :notify_client,
       :replaced, :return_at, :sale_id, :security_code, :serial_number, :status, :tech_notice,
       :ticket_number, :trademark, :type_of_work, :user_id, :substitute_phone_id, :substitute_phone_icloud_connected,
-      data_storages: []
-    ).tap do |p|
-      p[:device_tasks_attributes] = params[:service_job][:device_tasks_attributes].permit! if params[:service_job][:device_tasks_attributes]
-    end
+      data_storages: [],
+      device_tasks_attributes: %i[id _destroy task_id cost comment user_comment performer_id]
+    )
   end
 
   def params_for_update

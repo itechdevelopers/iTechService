@@ -11,14 +11,12 @@ class MovementAct < ApplicationRecord
   belongs_to :dst_store, class_name: 'Store'
   has_many :movement_items, dependent: :destroy, inverse_of: :movement_act
 
-  accepts_nested_attributes_for :movement_items, allow_destroy: true, reject_if: lambda { |a|
-                                                                                   a[:item_id].blank? or a[:quantity].blank?
-                                                                                 }
+  accepts_nested_attributes_for :movement_items, allow_destroy: true,
+                                reject_if: lambda { |a| a[:item_id].blank? || a[:quantity].blank? }
 
   delegate :name, to: :store, prefix: true, allow_nil: true
   delegate :name, to: :dst_store, prefix: true, allow_nil: true
 
-  # attr_accessible :date, :dst_store_id, :store_id, :user_id, :movement_items_attributes, :comment
   validates_presence_of :date, :dst_store, :store, :status, :user
   validates_presence_of :comment, if: :is_to_defect?
   validates_inclusion_of :status, in: Document::STATUSES.keys

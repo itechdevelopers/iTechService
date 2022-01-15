@@ -8,7 +8,14 @@ class KarmaGroup < ApplicationRecord
   has_many :karmas, dependent: :nullify, inverse_of: :karma_group
 
   accepts_nested_attributes_for :bonus, reject_if: proc { |attr| attr['bonus_type_id'].blank? }
-  # attr_accessible :bonus_id, :bonus_attributes, :karma_ids
+
+  def karma_ids=(new_value)
+    if new_value.is_a?(String)
+      super new_value.split(',')
+    else
+      super
+    end
+  end
 
   def is_used?
     bonus_id.present?
