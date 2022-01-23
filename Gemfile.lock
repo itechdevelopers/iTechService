@@ -257,7 +257,7 @@ GEM
     exception_notification (4.4.3)
       actionmailer (>= 4.0, < 7)
       activesupport (>= 4.0, < 7)
-    execjs (2.8.1)
+    execjs (2.7.0)
     factory_girl (4.9.0)
       activesupport (>= 3.0.0)
     factory_girl_rails (4.9.0)
@@ -712,7 +712,7 @@ DEPENDENCIES
   dry-validation
   ed25519
   exception_notification
-  execjs (~> 2.8.1)
+  execjs (~> 2.7.0)
   factory_girl_rails
   faker
   grape

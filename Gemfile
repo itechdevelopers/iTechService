@@ -69,7 +69,7 @@ gem 'tzinfo-data'
 
 gem 'sprockets', '~>3.7'
 gem 'less-rails', '~>2.8'
-gem 'execjs', '~>2.8.1'
+gem 'execjs', '~>2.7.0'
 gem 'therubyracer', '~>0.12.3'
 gem 'sass-rails'
 gem 'twitter-bootstrap-rails', '~> 2.2.7'
