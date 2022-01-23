@@ -712,6 +712,7 @@ DEPENDENCIES
   dry-validation
   ed25519
   exception_notification
+  execjs (~> 2.8.1)
   factory_girl_rails
   faker
   grape
@@ -769,7 +770,7 @@ DEPENDENCIES
   sprockets (~> 3.7)
   sqlite3 (= 1.3.13)
   standard
-  therubyracer
+  therubyracer (~> 0.12.3)
   thin
   trailblazer (~> 2.0.7)
   trailblazer-cells (~> 0.0.3)

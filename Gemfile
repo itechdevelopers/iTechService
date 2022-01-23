@@ -69,7 +69,8 @@ gem 'tzinfo-data'
 
 gem 'sprockets', '~>3.7'
 gem 'less-rails', '~>2.8'
-gem 'therubyracer', :platforms => :ruby
+gem 'execjs', '~>2.8.1'
+gem 'therubyracer', '~>0.12.3'
 gem 'sass-rails'
 gem 'twitter-bootstrap-rails', '~> 2.2.7'
 gem 'bootstrap-colorpicker-rails', '~> 0.3.1', :require => 'bootstrap-colorpicker-rails'
