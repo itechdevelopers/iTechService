@@ -47,7 +47,7 @@ class ItemsController < ApplicationController
   end
 
   def autocomplete
-    @items = policy_scope(Item).filter(params).page(params[:page])
+    @items = Item.filter(action_params).page(params[:page])
     respond_to do |format|
       format.json
     end

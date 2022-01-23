@@ -105,8 +105,7 @@ class ServiceJobsController < ApplicationController
   end
 
   def new
-    params = service_job_params rescue {}
-    @service_job = authorize ServiceJob.new(params)
+    @service_job = authorize ServiceJob.new(service_job_params)
     @service_job.department_id = current_user.department_id
 
     respond_to do |format|
@@ -145,6 +144,7 @@ class ServiceJobsController < ApplicationController
     @service_job = ServiceJob.find(params[:id])
     the_policy = policy(@service_job)
 
+    # TODO move permitting attributes to policy
     if the_policy.update?
       @service_job.attributes = params_for_update
       skip_authorization
