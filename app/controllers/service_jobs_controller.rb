@@ -159,7 +159,7 @@ class ServiceJobsController < ApplicationController
     respond_to do |format|
       if @service_job.save
         create_phone_substitution if @service_job.phone_substituted?
-        Service::DeviceSubscribersNotificationJob.perform_later @service_job.id, current_user.id, params
+        Service::DeviceSubscribersNotificationJob.perform_later @service_job.id, current_user.id, notify_params
         format.html { redirect_to @service_job, notice: t('service_jobs.updated') }
         format.json { head :no_content }
         format.js { render 'update' }
@@ -416,5 +416,14 @@ class ServiceJobsController < ApplicationController
       end
     end
     allowed_params
+  end
+
+  def notify_params
+    # TODO: Сформировать корректный список разрешенных параметров
+    params.permit.to_h
+    # params.permit(:id,
+    #               device_task: [:id, :cost, :user_comment],
+    #               device_note: [:content],
+    #               service_job: [:location_id])
   end
 end

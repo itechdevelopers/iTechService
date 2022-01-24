@@ -16,7 +16,7 @@ class DeviceTasksController < ApplicationController
       notify: [current_user, params]
     )
 
-    operation.call(device_task_params) do |m|
+    operation.call(device_task_params.to_h) do |m|
       m.success { |_| render('update') }
       m.failure { |_| render('shared/show_modal_form') }
     end

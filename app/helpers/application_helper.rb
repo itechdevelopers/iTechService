@@ -36,7 +36,8 @@ module ApplicationHelper
       direction = 'asc'
     end
     title = "#{title} #{icon_tag(icon_name)}".html_safe
-    link_to title, params.merge(sort: column, direction: direction, page: nil), {class: css_class, remote: remote}
+    attr = params.permit.to_h
+    link_to title, attr.merge(sort: column, direction: direction, page: nil), {class: css_class, remote: remote}
   end
 
   def sort_fields
@@ -331,6 +332,6 @@ module ApplicationHelper
   end
 
   def additional_params
-    params.except(:controller, :action, :id, :format)
+    params.permit.to_h.except(:controller, :action, :id, :format)
   end
 end
