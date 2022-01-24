@@ -5,6 +5,8 @@ set :ssh_options, {
   auth_methods: %w[publickey]
 }
 
+set :rails_env,     "production"
+
 # server-based syntax
 # ======================
 # Defines a single server with a list of roles and multiple properties.

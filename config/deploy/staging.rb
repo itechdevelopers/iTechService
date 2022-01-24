@@ -6,6 +6,7 @@ set :ssh_options, {
 }
 
 set :branch, 'staging'
+set :rails_env,     "production"
 
 # server-based syntax
 # ======================
