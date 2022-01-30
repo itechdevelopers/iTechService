@@ -207,7 +207,7 @@ class UsersController < ApplicationController
   def experience
     authorize User
     @users = User.oncoming_salary
-    render nothing: true if @users.empty?
+    head(:no_content) if @users.empty?
   end
 
   private

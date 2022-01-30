@@ -12,13 +12,13 @@ class InfosController < ApplicationController
       if @info.present?
         render @info, layout: false
       else
-        render nothing: true
+        head :no_content
       end
     elsif params[:personal].present?
       if (@infos = Info.actual.addressed_to(current_user)).present?
         render @infos, layout: false
       else
-        render nothing: true
+        head :no_content
       end
     else
       @infos = params[:archive].present? ? policy_scope(Info).archived.newest : policy_scope(Info).actual.newest

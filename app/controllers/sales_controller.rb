@@ -25,7 +25,7 @@ class SalesController < ApplicationController
           filename = "sale_check_#{@sale.id}.pdf"
           send_data pdf.render, filename: filename, type: 'application/pdf', disposition: 'inline'
         else
-          render nothing: true
+          head :no_content
         end
       end
     end

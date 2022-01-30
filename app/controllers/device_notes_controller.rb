@@ -29,7 +29,7 @@ class DeviceNotesController < ApplicationController
         format.js
         Service::DeviceSubscribersNotificationJob.perform_later(@service_job.id, current_user.id, action_params)
       else
-        format.js { render nothing: true }
+        format.js { head :unprocessable_entity }
       end
     end
   end
