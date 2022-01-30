@@ -43,7 +43,7 @@ class Client < ApplicationRecord
 
   validates_presence_of :name, :surname, :phone_number, :full_phone_number, :category
   validates_uniqueness_of :full_phone_number
-  validates_uniqueness_of :card_number, unless: 'card_number.blank?'
+  validates_uniqueness_of :card_number, unless: proc { |client| client.card_number.blank? }
   validates_inclusion_of :category, in: CATEGORIES.keys
   validates_associated :comments
   validates_associated :client_characteristic
