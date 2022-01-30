@@ -105,7 +105,8 @@ class ServiceJobsController < ApplicationController
   end
 
   def new
-    @service_job = authorize ServiceJob.new(service_job_params)
+    new_params = action_params.fetch(:service_job, {}).slice(:client_id)
+    @service_job = authorize ServiceJob.new(new_params)
     @service_job.department_id = current_user.department_id
 
     respond_to do |format|

@@ -32,7 +32,7 @@ class SalesController < ApplicationController
   end
 
   def new
-    new_params = params.require(:sale).permit(:client_id)
+    new_params = action_params.fetch(:sale, {}).slice(:client_id)
     @sale = authorize Sale.new(new_params)
     load_top_salables
     respond_to do |format|

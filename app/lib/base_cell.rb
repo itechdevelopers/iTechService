@@ -1,4 +1,8 @@
 class BaseCell < Trailblazer::Cell
+  def params
+    controller.action_params
+  end
+
   private
 
   include GlyphHelper
@@ -12,10 +16,6 @@ class BaseCell < Trailblazer::Cell
   delegate :view_context, :controller_name, :action_name, :current_user, :policy, to: :controller
 
   alias_method :icon, :glyph
-
-  def params
-    controller.action_params
-  end
 
   def title
     t '.title'

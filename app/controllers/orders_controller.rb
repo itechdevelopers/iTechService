@@ -52,8 +52,8 @@ class OrdersController < ApplicationController
   end
 
   def new
-    @order = Order.new(order_params.merge(status: 'new'))
-    authorize @order
+    new_params = action_params.fetch(:order, {}).slice(:customer_type, :customer_id).merge(status: 'new')
+    @order = authorize Order.new(new_params)
 
     respond_to do |format|
       format.html
