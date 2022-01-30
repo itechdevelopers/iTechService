@@ -2,8 +2,7 @@ require 'sidekiq/web'
 require 'sidekiq/cron/web'
 
 Rails.application.routes.draw do
-  # The priority is based upon order of creation: first created -> highest priority.
-  # See how all your routes lay out with "rake routes".
+  # For details on the DSL available within this file, see http://guides.rubyonrails.org/routing.html
 
   root to: 'dashboard#index'
   get 'dashboard', to: 'dashboard#index'
