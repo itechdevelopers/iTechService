@@ -7,8 +7,9 @@ class SendSmsWithReviewUrlJob  < ApplicationJob
     service_job = review.service_job
     message = Setting.request_review_text(service_job.department)
     review_url = "#{root_url}review/#{review.token}"
-    if SendSMS.(number: review.phone, message: review_url).success? &&
-      SendSMS.(number: review.phone, message: message).success?
+    s1 = SendSMS.call(number: review.phone, message: message).success?
+    s2 = SendSMS.call(number: review.phone, message: review_url).success?
+    if s1 && s2
       review.update(sent_at: DateTime.now, status: :sent)
     else
       review.update(status: :error)
