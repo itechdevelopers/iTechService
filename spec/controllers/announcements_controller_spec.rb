@@ -21,7 +21,7 @@ require 'rails_helper'
 describe AnnouncementsController do
 
   before(:each) do
-    sign_in FactoryGirl.create(:user, :admin)
+    sign_in FactoryBot.create(:user, :admin)
   end
 
   # This should return the minimal set of attributes required to create a valid

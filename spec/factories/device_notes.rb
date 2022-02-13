@@ -1,8 +1,7 @@
-FactoryGirl.define do
+FactoryBot.define do
   factory :device_note do
-    device nil
-user nil
-content "MyText"
+    device
+    user
+    content { "MyText" }
   end
-
 end

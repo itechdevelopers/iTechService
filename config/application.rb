@@ -27,7 +27,7 @@ module ItechService
       g.decorator = false
       g.template_engine :haml
       # g.template_engine :slim
-      g.test_framework :rspec, fixture: false, fixture_replacement: :factory_girl
+      g.test_framework :rspec, fixture: false, fixture_replacement: :factory_bot
     end
 
     config.logger = ActiveSupport::Logger.new('/dev/null')

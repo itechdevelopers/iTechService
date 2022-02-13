@@ -1,11 +1,9 @@
-# Read about factories at https://github.com/thoughtbot/factory_girl
-
-FactoryGirl.define do
+FactoryBot.define do
   factory :supply do
-    supply_report nil
-    supply_category nil
-    name ""
-    quantity 1
-    cost "9.99"
+    supply_report
+    supply_category
+    name { "Name" }
+    quantity { 1 }
+    cost { 9.99 }
   end
 end

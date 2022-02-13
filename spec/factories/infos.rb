@@ -1,8 +1,6 @@
-# Read about factories at https://github.com/thoughtbot/factory_girl
-
-FactoryGirl.define do
+FactoryBot.define do
   factory :info do
-    title "MyString"
-    content "MyText"
+    title { "MyString" }
+    content { "MyText" }
   end
 end

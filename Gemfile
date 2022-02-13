@@ -96,8 +96,6 @@ group :test do
   gem 'chromedriver-helper'
   gem 'poltergeist'
   gem 'database_cleaner'
-  gem 'factory_girl_rails'
-  gem 'faker'
   gem 'simplecov', :require => false
 
   gem 'shoulda'
@@ -108,6 +106,8 @@ end
 
 group :development, :test do
   gem "rspec-rails"
+  gem 'factory_bot_rails', '~> 6.2.0'
+  gem 'faker'
   gem "rubocop"
   gem "rubocop-faker"
   gem "rubocop-rails"

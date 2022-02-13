@@ -1,14 +1,18 @@
-# Read about factories at https://github.com/thoughtbot/factory_girl
-
-FactoryGirl.define do
+FactoryBot.define do
   factory :task do
-    name 'Some task'
-    duration 0
-    cost 0
-    priority 0
+    name { 'Some task' }
+    duration { 10 }
+    cost { 10 }
+    priority { 0 }
     location
     product
-    trait(:repair) { role 'technician' }
-    trait(:important) { priority 6 }
+
+    trait(:repair) do
+      role { 'technician' }
+    end
+
+    trait(:important) do
+      priority { 6 }
+    end
   end
 end

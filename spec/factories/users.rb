@@ -1,57 +1,55 @@
-# Read about factories at https://github.com/thoughtbot/factory_girl
-
-FactoryGirl.define do
+FactoryBot.define do
   factory :user do
     sequence(:username) { |n| "User #{n}" }
-    role 'software'
-    password 'password'
-    association :department
-    association :location
+    role { 'software' }
+    password { 'password' }
+    department
+    location
 
 
     factory :user_without_username do
-      username nil
+      username { nil }
     end
     
     factory :user_without_password do
-      password nil
+      password { nil }
     end
   end
   
   trait :admin do
-    username 'Admin'
-    role 'admin'
+    username { 'Admin' }
+    role { 'admin' }
   end
 
   trait :software do
-    role 'software'
+    role { 'software' }
   end
 
   trait :media do
-    role 'media'
+    role { 'media' }
   end
 
   trait :technician do
-    role 'technician'
+    role { 'technician' }
   end
 
   trait :marketing do
-    role 'marketing'
+    role { 'marketing' }
   end
 
   trait :programmer do
-    role 'programmer'
+    role { 'programmer' }
   end
 
   trait :supervisor do
-    role 'supervisor'
+    role { 'supervisor' }
   end
 
   trait :manager do
-    role 'manager'
+    role { 'manager' }
   end
 
   trait :superadmin do
-    role 'superadmin'
+    role { 'superadmin' }
   end
 end

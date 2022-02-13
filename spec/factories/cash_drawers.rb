@@ -1,8 +1,6 @@
-# Read about factories at https://github.com/thoughtbot/factory_girl
-
-FactoryGirl.define do
+FactoryBot.define do
   factory :cash_drawer do
-    name 1
-    department nil
+    name { 'Cash drawer' }
+    department
   end
 end

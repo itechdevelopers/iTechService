@@ -1,6 +1,6 @@
 module CommonTestHelper
   ActiveRecord::Migration.check_pending!
-  include FactoryGirl::Syntax::Methods
+  include FactoryBot::Syntax::Methods
 
   def current_user
     @current_user ||= create :user

@@ -1,8 +1,6 @@
-# Read about factories at https://github.com/thoughtbot/factory_girl
-
-FactoryGirl.define do
+FactoryBot.define do
   factory :purchase do
-    status 0
+    status { 0 }
     contractor
     store
 
@@ -17,6 +15,5 @@ FactoryGirl.define do
         purchase.batches.create attributes_for(:featured_batch)
       end
     end
-
   end
 end

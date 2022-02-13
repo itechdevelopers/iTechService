@@ -1,9 +1,7 @@
-# Read about factories at https://github.com/thoughtbot/factory_girl
-
-FactoryGirl.define do
+FactoryBot.define do
   factory :sale_item do
-    price '1000'
-    quantity 1
+    price { 1000 }
+    quantity { 1 }
     sale
     item
 

@@ -1,9 +1,7 @@
-# Read about factories at https://github.com/thoughtbot/factory_girl
-
-FactoryGirl.define do
+FactoryBot.define do
   factory :payment do
-    payment_type nil
-    value "9.99"
-    bank nil
+    payment_type
+    value { "9.99" }
+    bank
   end
 end

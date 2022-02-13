@@ -1,9 +1,7 @@
-# Read about factories at https://github.com/thoughtbot/factory_girl
-
-FactoryGirl.define do
+FactoryBot.define do
   factory :top_salable do
-    salable nil
-    position 1
-    color "MyString"
+    salable
+    position { 1 }
+    color { "MyString" }
   end
 end

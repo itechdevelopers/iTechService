@@ -1,8 +1,7 @@
-FactoryGirl.define do
+FactoryBot.define do
   factory :media_order do
-    name "MyString"
-phone "MyString"
-content "MyText"
+    name { "MyString" }
+    phone { "MyString" }
+    content { "MyText" }
   end
-
 end

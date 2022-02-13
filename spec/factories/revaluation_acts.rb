@@ -1,9 +1,7 @@
-# Read about factories at https://github.com/thoughtbot/factory_girl
-
-FactoryGirl.define do
+FactoryBot.define do
   factory :revaluation_act do
-    status 0
-    date Time.current
+    status { 0 }
+    date { Time.current }
     price_type
 
     after(:create) do |revaluation_act|

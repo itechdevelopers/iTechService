@@ -1,10 +1,8 @@
-# Read about factories at https://github.com/thoughtbot/factory_girl
-
-FactoryGirl.define do
+FactoryBot.define do
   factory :feature do
     feature_type
     item
-    value '1'
+    value { '1' }
 
     trait :imei do
       association :feature_type, :imei, factory: :feature_type

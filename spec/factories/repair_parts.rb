@@ -1,9 +1,7 @@
-# Read about factories at https://github.com/thoughtbot/factory_girl
-
-FactoryGirl.define do
+FactoryBot.define do
   factory :repair_part do
     repair_task
     item
-    warranty_term 0
+    warranty_term { 0 }
   end
 end

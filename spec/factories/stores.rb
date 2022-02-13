@@ -1,6 +1,4 @@
-# Read about factories at https://github.com/thoughtbot/factory_girl
-
-FactoryGirl.define do
+FactoryBot.define do
   factory :store do
     sequence(:name) {|n| "Store #{n}"}
     sequence(:code) {|n| "store_#{n}"}

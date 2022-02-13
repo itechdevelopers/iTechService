@@ -1,11 +1,9 @@
-# Read about factories at https://github.com/thoughtbot/factory_girl
-
-FactoryGirl.define do
+FactoryBot.define do
   factory :quick_order do
-    number 1
-    user nil
-    client_name "MyString"
-    contact_phone "MyString"
-    comment "MyText"
+    user
+    number { 1 }
+    client_name { "MyString" }
+    contact_phone { "MyString" }
+    comment { "MyText" }
   end
 end

@@ -1,20 +1,18 @@
-# encoding: utf-8
-# Read about factories at https://github.com/thoughtbot/factory_girl
-FactoryGirl.define do
+FactoryBot.define do
   factory :location do
-    name 'Name'
-    position 1
-    ancestry nil
+    name { 'Name' }
+    position { 1 }
+    ancestry { nil }
 
     association :department
   end
 
   trait :repair do
-    name 'Ремонт'
+    name { 'Ремонт' }
   end
 
   trait :bar do
-    name 'Бар'
+    name { 'Бар' }
   end
 
 end

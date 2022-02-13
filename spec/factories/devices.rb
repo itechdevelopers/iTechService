@@ -1,14 +1,12 @@
-# Read about factories at https://github.com/thoughtbot/factory_girl
-
-FactoryGirl.define do
+FactoryBot.define do
 
   factory :device, aliases: [:valid_device] do
-    ticket_number '1234567890'
-    service_duration '2.30'
+    ticket_number { '1234567890' }
+    service_duration { '2.30' }
     device_type
     client
     location
-    app_store_pass '0000'
+    app_store_pass { '0000' }
 
     before(:create) { |device| device.device_tasks << create_list(:device_task, 1) }
 
@@ -26,7 +24,7 @@ FactoryGirl.define do
 
     trait :with_tasks do
       ignore do
-        device_tasks_count 3
+        device_tasks_count { 3 }
       end
       
       after(:create) do |device, evaluator|
@@ -36,7 +34,7 @@ FactoryGirl.define do
     
     trait :with_important_tasks do
       ignore do
-        device_tasks_count 3
+        device_tasks_count { 3 }
       end
       
       after(:create) do |device, evaluator|
@@ -46,7 +44,7 @@ FactoryGirl.define do
     
     trait :with_done_tasks do
       ignore do
-        device_tasks_count 3
+        device_tasks_count { 3 }
       end
       
       after(:create) do |device, evaluator|

@@ -1,8 +1,6 @@
-# Read about factories at https://github.com/thoughtbot/factory_girl
-
-FactoryGirl.define do
+FactoryBot.define do
   factory :payment_type do
-    name 'Cash'
-    kind 0
+    name { 'Cash' }
+    kind { 0 }
   end
 end

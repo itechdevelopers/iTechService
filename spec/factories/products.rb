@@ -1,6 +1,4 @@
-# Read about factories at https://github.com/thoughtbot/factory_girl
-
-FactoryGirl.define do
+FactoryBot.define do
   factory :product do
     sequence(:name) { |n| "Product #{n}" }
     sequence(:code)
@@ -18,6 +16,5 @@ FactoryGirl.define do
     factory :featured_product do
       association :product_group, factory: :featured_product_group
     end
-
   end
 end

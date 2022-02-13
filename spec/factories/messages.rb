@@ -1,9 +1,7 @@
-# Read about factories at https://github.com/thoughtbot/factory_girl
-
-FactoryGirl.define do
+FactoryBot.define do
   factory :message do
-    user nil
-    content "MyString"
-    recipient nil
+    user
+    recipient { nil }
+    content { "MyString" }
   end
 end

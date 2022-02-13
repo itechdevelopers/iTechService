@@ -1,15 +1,13 @@
-# Read about factories at https://github.com/thoughtbot/factory_girl
-
-FactoryGirl.define do
+FactoryBot.define do
   factory :salary do
     user
-    amount 10000
-    is_prepayment false
-    issued_at Time.current
+    amount { 10000 }
+    is_prepayment { false }
+    issued_at { Time.current }
 
     factory :prepayment do
-      is_prepayment true
-      amount 1000
+      is_prepayment { true }
+      amount { 1000 }
     end
   end
 end

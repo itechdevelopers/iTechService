@@ -1,8 +1,6 @@
-# Read about factories at https://github.com/thoughtbot/factory_girl
-
-FactoryGirl.define do
+FactoryBot.define do
   factory :case_color do
-    name "MyString"
-    color "MyString"
+    name { "MyString" }
+    color { "MyString" }
   end
 end

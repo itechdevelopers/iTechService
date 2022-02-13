@@ -1,9 +1,7 @@
-# Read about factories at https://github.com/thoughtbot/factory_girl
-
-FactoryGirl.define do
+FactoryBot.define do
   
   factory :client, aliases: [:valid_client] do
-    name 'James Bond'
+    name { 'James Bond' }
     phone_number
     full_phone_number
 
