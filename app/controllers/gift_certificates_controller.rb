@@ -6,7 +6,7 @@ class GiftCertificatesController < ApplicationController
   def index
     authorize GiftCertificate
     @gift_certificates = policy_scope(GiftCertificate)
-                         .search(params).order("#{sort_column} #{sort_direction}").page(params[:page])
+                         .search(search_params).order("#{sort_column} #{sort_direction}").page(params[:page])
 
     respond_to do |format|
       format.html

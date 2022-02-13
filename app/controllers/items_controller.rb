@@ -5,13 +5,13 @@ class ItemsController < ApplicationController
     authorize Item
 
     if params[:product_id].blank?
-      @items = policy_scope(Item).search(params)
+      @items = policy_scope(Item).search(search_params)
       @feature_types = []
       @items.each { |item| @feature_types + item.feature_types.to_a }
       @feature_types.uniq!
     else
       @product = Product.find(params[:product_id])
-      @items = policy_scope(@product.items).search(params)
+      @items = policy_scope(@product.items).search(search_params)
       @feature_types = @product.feature_types
     end
 
@@ -47,7 +47,7 @@ class ItemsController < ApplicationController
   end
 
   def autocomplete
-    @items = policy_scope(Item).filter(params).page(params[:page])
+    @items = policy_scope(Item).filter(search_params).page(params[:page])
     respond_to do |format|
       format.json
     end

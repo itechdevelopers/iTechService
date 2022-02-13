@@ -1,7 +1,7 @@
 class SalariesController < ApplicationController
   def index
     authorize Salary
-    @salaries = policy_scope(Salary).search(params).page(params[:page])
+    @salaries = policy_scope(Salary).search(search_params).page(params[:page])
 
     respond_to do |format|
       format.html

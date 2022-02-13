@@ -11,9 +11,9 @@ class ServiceJobsController < ApplicationController
     @service_jobs = ServiceJobFilter.call(collection: @service_jobs, **filter_params).collection
 
     if params.key? :search
-      @service_jobs = @service_jobs.search(params[:search])
-      unless params[:search][:location_id].blank?
-        @location_name = Location.select(:name).find(params[:search][:location_id]).name
+      @service_jobs = @service_jobs.search(search_params)
+      unless search_params[:location_id].blank?
+        @location_name = Location.select(:name).find(search_params[:location_id]).name
       end
     end
 
@@ -106,8 +106,8 @@ class ServiceJobsController < ApplicationController
   end
 
   def new
-    params = service_job_params rescue {}
-    @service_job = authorize ServiceJob.new(params)
+    new_params = service_job_params rescue {}
+    @service_job = authorize ServiceJob.new(new_params)
     @service_job.department_id = current_user.department_id
 
     respond_to do |format|
@@ -401,10 +401,9 @@ class ServiceJobsController < ApplicationController
       :initial_department_id, :is_tray_present, :item_id, :keeper_id, :location_id, :notify_client,
       :replaced, :return_at, :sale_id, :security_code, :serial_number, :status, :tech_notice,
       :ticket_number, :trademark, :type_of_work, :user_id, :substitute_phone_id, :substitute_phone_icloud_connected,
-      data_storages: []
-    ).tap do |p|
-      p[:device_tasks_attributes] = params[:service_job][:device_tasks_attributes].permit! if params[:service_job][:device_tasks_attributes]
-    end
+      data_storages: [],
+      device_tasks_attributes: %i[id _destroy task_id cost comment user_comment performer_id]
+    )
   end
 
   def params_for_update
@@ -418,6 +417,10 @@ class ServiceJobsController < ApplicationController
       end
     end
     allowed_params
+  end
+
+  def search_params
+    params.require(:search).permit!.to_h
   end
 
   def notify_params

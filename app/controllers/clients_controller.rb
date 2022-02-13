@@ -5,7 +5,7 @@ class ClientsController < ApplicationController
 
   def index
     authorize Client
-    @clients = policy_scope(Client).search(params).id_asc.page(params[:page])
+    @clients = policy_scope(Client).search(search_params).id_asc.page(params[:page])
     if params[:search] == 'true'
       params[:table_name] = 'table_small'
       params[:form_name] = 'search_form'
@@ -117,7 +117,7 @@ class ClientsController < ApplicationController
   end
 
   def autocomplete
-    @clients = policy_scope(Client).search(params).limit(10)
+    @clients = policy_scope(Client).search(search_params).limit(10)
   end
 
   def select

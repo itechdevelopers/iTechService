@@ -5,7 +5,7 @@ class SalesController < ApplicationController
 
   def index
     authorize Sale
-    @sales = policy_scope(Sale).search(params).reorder("#{sort_column} #{sort_direction}").page(params[:page])
+    @sales = policy_scope(Sale).search(search_params).reorder("#{sort_column} #{sort_direction}").page(params[:page])
 
     respond_to do |format|
       format.html
@@ -78,7 +78,11 @@ class SalesController < ApplicationController
         format.html { render 'form' }
         format.js do
           flash.now[:error] = @sale.errors.full_messages
-          params[:sale][:payments_attributes].present? or params[:sale][:sale_items_attributes].present? ? render('shared/show_modal_form') : render('save')
+          if sale_params[:payments_attributes].present? || sale_params[:sale_items_attributes].present?
+            render('shared/show_modal_form')
+          else
+            render('save')
+          end
         end
       end
     end

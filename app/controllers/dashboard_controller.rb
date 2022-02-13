@@ -41,7 +41,7 @@ class DashboardController < ApplicationController
 
   def ready_service_jobs
     @service_jobs = ServiceJob.ready(current_department).order(done_at: :desc)
-                      .search(params).page(params[:page])
+                      .search(search_params).page(params[:page])
     respond_to do |format|
       format.js
     end
@@ -82,17 +82,17 @@ class DashboardController < ApplicationController
       @service_jobs = @service_jobs.in_department(current_department)
     end
     if current_user.able_to?(:print_receipt)
-      @service_jobs = @service_jobs.search(params).newest.page(params[:page])
+      @service_jobs = @service_jobs.search(search_params).newest.page(params[:page])
     else
-      @service_jobs = @service_jobs.search(params).oldest.page(params[:page])
+      @service_jobs = @service_jobs.search(search_params).oldest.page(params[:page])
     end
   end
 
   def load_actual_orders
     if current_user.technician?
-      @orders = policy_scope(Order).actual_orders.technician_orders.search(params).oldest.page(params[:page])
+      @orders = policy_scope(Order).actual_orders.technician_orders.search(search_params).oldest.page(params[:page])
     else
-      @orders = policy_scope(Order).actual_orders.marketing_orders.search(params).oldest.page(params[:page])
+      @orders = policy_scope(Order).actual_orders.marketing_orders.search(search_params).oldest.page(params[:page])
     end
   end
 end

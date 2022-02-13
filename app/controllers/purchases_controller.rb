@@ -5,7 +5,7 @@ class PurchasesController < ApplicationController
 
   def index
     authorize Purchase
-    @purchases = policy_scope(Purchase).search(params).page(params[:page])
+    @purchases = policy_scope(Purchase).search(search_params).page(params[:page])
 
     @purchases = if params.key?(:sort) && params.key?(:direction)
                    @purchases.order("purchases.#{sort_column} #{sort_direction}")

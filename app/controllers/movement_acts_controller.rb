@@ -5,7 +5,7 @@ class MovementActsController < ApplicationController
 
   def index
     authorize MovementAct
-    @movement_acts = policy_scope(MovementAct).search(params).page(params[:page])
+    @movement_acts = policy_scope(MovementAct).search(search_params).page(params[:page])
 
     @movement_acts = if params.key?(:sort) && params.key?(:direction)
                        @movement_acts.order("movement_acts.#{sort_column} #{sort_direction}")
@@ -131,12 +131,9 @@ class MovementActsController < ApplicationController
   end
 
   def movement_act_params
-    params.require(:movement_act)
-          .permit(:comment, :date, :dst_store_id, :status, :store_id, :user_id,
-                  movement_items: [:movement_act_id, :item_id, :quantity])
-          .tap do |p|
-      p[:movement_items_attributes] = params[:movement_act][:movement_items_attributes].permit! if params[:movement_act][:movement_items_attributes]
-    end
-    # TODO: check nested attributes for: movement_items
+    params.require(:movement_act).permit(
+      :date, :dst_store_id, :store_id, :user_id, :comment,
+      movement_items_attributes: [:id, :_destroy, :item_id, :quantity]
+    )
   end
 end

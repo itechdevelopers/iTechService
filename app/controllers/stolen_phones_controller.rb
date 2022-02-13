@@ -3,7 +3,7 @@
 class StolenPhonesController < ApplicationController
   def index
     authorize StolenPhone
-    @stolen_phones = policy_scope(StolenPhone).search(params)
+    @stolen_phones = policy_scope(StolenPhone).search(search_params)
     @stolen_phones = @stolen_phones.page(params[:page])
 
     respond_to do |format|

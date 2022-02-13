@@ -7,11 +7,11 @@ class ProductsController < ApplicationController
     @product_groups = ProductGroup.roots.ordered
     if params[:group].blank?
       @opened_product_groups = []
-      @products = Product.search(params)
+      @products = Product.search(search_params)
     else
       @current_product_group = ProductGroup.find params[:group]
       @opened_product_groups = @current_product_group.path_ids[1..-1].map { |g| "product_group_#{g}" } # .join(', ')
-      @products = @current_product_group.products.search(params)
+      @products = @current_product_group.products.search(search_params)
     end
 
     @products = @products.available if params[:form] == 'sale'
@@ -114,7 +114,8 @@ class ProductsController < ApplicationController
   end
 
   def choose
-    @product_groups = ProductGroup.search(roots: true, **params.symbolize_keys).ordered
+    search_params = params.permit(:form, :store_kind, :user_role).to_h.merge(roots: true)
+    @product_groups = ProductGroup.search(search_params).ordered
     @product = Product.find params[:product_id] if params[:product_id].present?
     params[:form_name] = 'products/choose_form'
     respond_to do |format|

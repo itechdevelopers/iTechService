@@ -71,7 +71,7 @@ class RepairServicesController < ApplicationController
       price = RepairPrice.find_by(repair_service_id: id, department_id: params[:department_id])
       price.update value: value
     end
-    redirect_to repair_services_path(params.slice(:mode, :department_id, :group))
+    redirect_to repair_services_path(params.permit(:mode, :department_id, :group))
   end
 
   def destroy
@@ -106,13 +106,10 @@ class RepairServicesController < ApplicationController
   end
 
   def repair_service_params
-    params.require(:repair_service)
-          .permit(:client_info, :difficult, :is_body_repair, :is_positive_price, :name, :repair_group_id,
-                    spare_parts: [:quantity, :warranty_term, :repair_service_id, :product_id],
-                    prices: [:value, :repair_service_id, :department_id]
-                  ).tap do |p|
-      p[:prices_attributes] = params[:repair_service][:prices_attributes].permit! if params[:repair_service][:prices_attributes]
-      p[:spare_parts_attributes] = params[:repair_service][:spare_parts_attributes].permit! if params[:repair_service][:spare_parts_attributes]
-    end
+    params.require(:repair_service).permit(
+      :name, :client_info, :repair_group_id, :is_positive_price, :difficult, :is_body_repair,
+      spare_parts_attributes: [:id, :_destroy, :quantity, :warranty_term, :product_id],
+      prices_attributes: [:id, :value, :department_id]
+    )
   end
 end

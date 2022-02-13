@@ -68,13 +68,7 @@ class TradeInDevicesController < ApplicationController
   end
 
   def update
-    permitted_params = if policy(TradeInDevice).manage?
-                         params
-                       else
-                         params.merge(trade_in_device: params[:trade_in_device].slice(:apple_guarantee))
-                       end
-
-    run TradeInDevice::Update, permitted_params do
+    run TradeInDevice::Update, update_trade_in_device_params do
       return redirect_to_index notice: operation_message
     end
     render_form
@@ -103,5 +97,17 @@ class TradeInDevicesController < ApplicationController
   def trade_in_device_params
     params.require(:trade_in_device)
           .permit(:apple_guarantee, :appraised_value, :appraiser, :archived, :archiving_comment, :bought_device, :check_icloud, :client_id, :client_name, :client_phone, :condition, :confirmed, :department_id, :equipment, :extended_guarantee, :item_id, :number, :received_at, :receiver_id, :replacement_status, :sale_amount)
+  end
+
+  def update_trade_in_device_params
+    params.require(:trade_in_device).permit(permitted_update_attributes)
+  end
+
+  def permitted_update_attributes
+    if policy(TradeInDevice).manage?
+      [:apple_guarantee, :appraised_value, :appraiser, :archived, :archiving_comment, :bought_device, :check_icloud, :client_id, :client_name, :client_phone, :condition, :confirmed, :department_id, :equipment, :extended_guarantee, :item_id, :number, :received_at, :receiver_id, :replacement_status, :sale_amount]
+    else
+      [:apple_guarantee]
+    end
   end
 end

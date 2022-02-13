@@ -3,7 +3,7 @@
 class LocationsController < ApplicationController
   def index
     authorize Location
-    @locations = policy_scope(Location).search(params).ordered
+    @locations = policy_scope(Location).search(search_params).ordered
 
     respond_to do |format|
       format.html

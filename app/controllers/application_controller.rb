@@ -151,4 +151,9 @@ class ApplicationController < ActionController::Base
     render js: "alert('#{text}');"
     # render js: "App.Notification.show('#{text}', '#{type}');"
   end
+
+  # TODO: Переопределить в каждом контроллере и выпилить отсюда
+  def search_params
+    params.permit.to_h
+  end
 end
