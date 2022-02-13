@@ -36,7 +36,7 @@ module ApplicationHelper
       direction = 'asc'
     end
     title = "#{title} #{icon_tag(icon_name)}".html_safe
-    attr = params.permit.to_h
+    attr = params.permit!.to_h
     link_to title, attr.merge(sort: column, direction: direction, page: nil), {class: css_class, remote: remote}
   end
 
@@ -332,6 +332,6 @@ module ApplicationHelper
   end
 
   def additional_params
-    params.permit.to_h.except(:controller, :action, :id, :format)
+    params.permit!.to_h.except(:controller, :action, :id, :format)
   end
 end

@@ -13,7 +13,7 @@ class DeviceTasksController < ApplicationController
     operation = Service::DeviceTasks::Update.new.with_step_args(
       validate: [@device_task],
       save: [current_user],
-      notify: [current_user, params.permit.to_h]
+      notify: [current_user, params.permit!.to_h]
     )
 
     operation.call(device_task_params.to_h) do |m|

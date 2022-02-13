@@ -95,7 +95,7 @@ class DevicesController < ApplicationController
 
   def filter_params
     # TODO: Сформировать корректный список допустимых параметров фильтрации
-    params.permit.to_h
+    params.permit!.to_h
   end
 
   def set_imported_sales
