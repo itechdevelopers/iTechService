@@ -1,4 +1,0 @@
-web: bundle exec unicorn_rails -c config/unicorn.rb -E production
-job: bundle exec script/delayed_job start RAILS_ENV=production
-faye: bundle exec rackup private_pub.ru -s thin -E production
-# cd /var/www/apps/itechservice/current && ( RAILS_ENV=staging ~/.rvm/bin/rvm ruby-2.0.0-p451@itechservice do bundle exec

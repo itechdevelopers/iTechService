@@ -11,9 +11,10 @@ class ServiceJobsController < ApplicationController
     @service_jobs = ServiceJobFilter.call(collection: @service_jobs, **filter_params).collection
 
     if params.key? :search
-      @service_jobs = @service_jobs.search(params[:search])
-      unless params[:search][:location_id].blank?
-        @location_name = Location.select(:name).find(params[:search][:location_id]).name
+      search_params = action_params[:search]
+      @service_jobs = @service_jobs.search(search_params)
+      unless search_params[:location_id].blank?
+        @location_name = Location.select(:name).find(search_params[:location_id]).name
       end
     end
 
@@ -25,7 +26,7 @@ class ServiceJobsController < ApplicationController
     @service_jobs = @service_jobs.reorder("service_jobs.#{sort_column} #{sort_direction}") if params.key?(:sort)
     @service_jobs = @service_jobs.newest
 
-    @service_jobs = @service_jobs.page params[:page]
+    @service_jobs = @service_jobs.page action_params[:page]
     @locations = current_department.locations.visible
 
     respond_to do |format|
@@ -96,7 +97,7 @@ class ServiceJobsController < ApplicationController
             end
             send_data pdf.render, filename: filename, type: 'application/pdf', disposition: 'inline'
           else
-            render nothing: true
+            head :no_content
           end
         end
       end
@@ -104,8 +105,8 @@ class ServiceJobsController < ApplicationController
   end
 
   def new
-    params = service_job_params rescue {}
-    @service_job = authorize ServiceJob.new(params)
+    new_params = action_params.fetch(:service_job, {}).slice(:client_id)
+    @service_job = authorize ServiceJob.new(new_params)
     @service_job.department_id = current_user.department_id
 
     respond_to do |format|
@@ -144,6 +145,7 @@ class ServiceJobsController < ApplicationController
     @service_job = ServiceJob.find(params[:id])
     the_policy = policy(@service_job)
 
+    # TODO move permitting attributes to policy
     if the_policy.update?
       @service_job.attributes = params_for_update
       skip_authorization
@@ -159,7 +161,7 @@ class ServiceJobsController < ApplicationController
     respond_to do |format|
       if @service_job.save
         create_phone_substitution if @service_job.phone_substituted?
-        Service::DeviceSubscribersNotificationJob.perform_later @service_job.id, current_user.id, params
+        Service::DeviceSubscribersNotificationJob.perform_later @service_job.id, current_user.id, action_params
         format.html { redirect_to @service_job, notice: t('service_jobs.updated') }
         format.json { head :no_content }
         format.js { render 'update' }
@@ -252,7 +254,7 @@ class ServiceJobsController < ApplicationController
     respond_to do |format|
       if @service_job.present?
         format.js { render 'information' }
-        format.json { render text: "deviceStatus({'status':'#{@service_job.status}'})" }
+        format.json { render plain: "deviceStatus({'status':'#{@service_job.status}'})" }
       else
         format.js { render t('service_jobs.not_found') }
         format.json { render js: "deviceStatus({'status':'not_found'})" }
@@ -294,10 +296,10 @@ class ServiceJobsController < ApplicationController
         elsif (sale = service_job.create_filled_sale).present?
           format.html { redirect_to edit_sale_path(sale) }
         else
-          format.html { render nothing: true }
+          format.html { head :no_content }
         end
       else
-        format.html { render text: 'Вы находитесь на разных подразделениях с устройством. Смените подразделение' }
+        format.html { render plain: 'Вы находитесь на разных подразделениях с устройством. Смените подразделение' }
       end
     end
   end
@@ -305,7 +307,7 @@ class ServiceJobsController < ApplicationController
   def quick_search
     @service_jobs = policy_scope(ServiceJob).quick_search(params[:quick_search])
     respond_to do |format|
-      format.js { render nothing: true if @service_jobs.count > 10 }
+      format.js { head(:no_content) if @service_jobs.count > 10 }
     end
   end
 
@@ -399,10 +401,9 @@ class ServiceJobsController < ApplicationController
       :initial_department_id, :is_tray_present, :item_id, :keeper_id, :location_id, :notify_client,
       :replaced, :return_at, :sale_id, :security_code, :serial_number, :status, :tech_notice,
       :ticket_number, :trademark, :type_of_work, :user_id, :substitute_phone_id, :substitute_phone_icloud_connected,
-      data_storages: []
-    ).tap do |p|
-      p[:device_tasks_attributes] = params[:service_job][:device_tasks_attributes].permit! if params[:service_job][:device_tasks_attributes]
-    end
+      data_storages: [],
+      device_tasks_attributes: %i[id _destroy task_id cost comment user_comment performer_id]
+    )
   end
 
   def params_for_update

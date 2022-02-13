@@ -17,7 +17,7 @@ class QuickOrdersController < ApplicationController
 
     @quick_orders = QuickOrderFilter.call(collection: @quick_orders, **filter_params).collection
 
-    @quick_orders = @quick_orders.search(params).created_desc.page(params[:page])
+    @quick_orders = @quick_orders.search(action_params).created_desc.page(params[:page])
 
     respond_to do |format|
       format.html # index.html.erb
@@ -91,7 +91,7 @@ class QuickOrdersController < ApplicationController
         format.js
       else
         format.html { render 'form' }
-        format.js { render nothing: true }
+        format.js { head :unprocessable_entity }
       end
     end
   end

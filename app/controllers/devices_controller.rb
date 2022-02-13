@@ -3,12 +3,12 @@ class DevicesController < ApplicationController
 
   def index
     authorize Item
-    @devices = Item.filter(params)
+    @devices = Item.filter(action_params)
   end
 
   def autocomplete
     authorize Item
-    @devices = policy_scope(Item).filter(params).page(params[:page])
+    @devices = Item.filter(action_params).page(params[:page])
 
     respond_to do |format|
       format.json

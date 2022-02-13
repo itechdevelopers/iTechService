@@ -1,7 +1,7 @@
 module ClientsHelper
 
   def client_devices_list(client)
-    if client.present? and client.devices.any?
+    if client.present? && client.devices.any?
       devices = DeviceDecorator.decorate_collection client.devices
       content = content_tag(:ul, class: 'client_devices_list') do
         devices.collect do |device|

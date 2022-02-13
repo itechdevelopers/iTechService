@@ -12,7 +12,7 @@
                  id: 'search_form', class: 'navbar-search form-search' do %>
 
       <div class="input-append">
-        <%= text_field_tag 'search[ticket]', params.dig(:search, :ticket),
+        <%= text_field_tag 'search[ticket]', action_params.dig(:search, :ticket),
                            id: 'search_ticket_input', class: 'search-query input-small',
                            placeholder: ServiceJob.human_attribute_name(:ticket_number) %>
         <span class="add-on btn clear_search_input">
@@ -21,7 +21,7 @@
       </div>
 
       <div class="input-append">
-        <%= text_field_tag 'search[service_job]', params.dig(:search, :service_job),
+        <%= text_field_tag 'search[service_job]', action_params.dig(:search, :service_job),
                            id: 'search_service_job_input', class: 'search-query input-medium',
                            placeholder: t('service_jobs.index.device_search_placeholder') %>
         <span class="add-on btn clear_search_input">
@@ -30,7 +30,7 @@
       </div>
 
       <div class="input-append">
-        <%= text_field_tag 'search[client]', params.dig(:search, :client),
+        <%= text_field_tag 'search[client]', action_params.dig(:search, :client),
                            id: 'search_client_input', class: 'search-query input-medium',
                            placeholder: t('service_jobs.index.client_search_placeholder') %>
         <span class="add-on btn clear_search_input">
@@ -38,11 +38,11 @@
         </span>
       </div>
 
-      <%= select_tag 'search[status]', service_job_status_options(params.dig(:search, :status)),
+      <%= select_tag 'search[status]', service_job_status_options(action_params.dig(:search, :status)),
                      prompt: 'Статус', class: 'input-small' %>
 
       <div id="location_input" class="dropdown-input input-large d-inline-block" style="margin-right: 30px;">
-        <%= hidden_field_tag 'search[location_id]', params.dig(:search, :location_id), id: 'location_id' %>
+        <%= hidden_field_tag 'search[location_id]', action_params.dig(:search, :location_id), id: 'location_id' %>
         <span class="btn-group">
           <a id="locations_select_button" class="btn dropdown-toggle" style="overflow: hidden;">
             <span id="location_value" class="pull-left">

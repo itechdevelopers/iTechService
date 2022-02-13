@@ -60,7 +60,7 @@ class RepairGroupsController < ApplicationController
     @repair_group = find_record RepairGroup
     @repair_group.destroy
     respond_to do |format|
-      format.js { render nothing: true }
+      format.js { head :no_content }
     end
   end
 

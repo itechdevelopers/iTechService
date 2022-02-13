@@ -5,7 +5,7 @@ class SalesController < ApplicationController
 
   def index
     authorize Sale
-    @sales = policy_scope(Sale).search(params).reorder("#{sort_column} #{sort_direction}").page(params[:page])
+    @sales = policy_scope(Sale).search(action_params).reorder("#{sort_column} #{sort_direction}").page(params[:page])
 
     respond_to do |format|
       format.html
@@ -25,14 +25,14 @@ class SalesController < ApplicationController
           filename = "sale_check_#{@sale.id}.pdf"
           send_data pdf.render, filename: filename, type: 'application/pdf', disposition: 'inline'
         else
-          render nothing: true
+          head :no_content
         end
       end
     end
   end
 
   def new
-    new_params = params.permit(sale: :client_id)[:sale]
+    new_params = action_params.fetch(:sale, {}).slice(:client_id)
     @sale = authorize Sale.new(new_params)
     load_top_salables
     respond_to do |format|
@@ -78,7 +78,11 @@ class SalesController < ApplicationController
         format.html { render 'form' }
         format.js do
           flash.now[:error] = @sale.errors.full_messages
-          params[:sale][:payments_attributes].present? or params[:sale][:sale_items_attributes].present? ? render('shared/show_modal_form') : render('save')
+          if action_params[:sale][:payments_attributes].present? || action_params[:sale][:sale_items_attributes].present?
+            render('shared/show_modal_form')
+          else
+            render('save')
+          end
         end
       end
     end

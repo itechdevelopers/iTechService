@@ -5,7 +5,7 @@ class UsersController < ApplicationController
 
   def index
     authorize User
-    @users = policy_scope(User).search(params).id_asc.page(params[:page]).per(50)
+    @users = policy_scope(User).search(action_params).id_asc.page(params[:page]).per(50)
 
     respond_to do |format|
       format.html
@@ -56,15 +56,8 @@ class UsersController < ApplicationController
   def update
     @user = find_record User
 
-    if params[:user][:password].blank?
-      params[:user].delete(:password)
-      params[:user].delete(:password_confirmation)
-    end
-
-    params[:user].delete :hiring_date
-
     respond_to do |format|
-      if @user.update_attributes(user_params)
+      if @user.update_attributes(params_for_update)
         format.html { redirect_to @user, notice: t('users.updated') }
         format.json { head :no_content }
         format.js { render 'shared/close_modal_form' }
@@ -214,7 +207,7 @@ class UsersController < ApplicationController
   def experience
     authorize User
     @users = User.oncoming_salary
-    render nothing: true if @users.empty?
+    head(:no_content) if @users.empty?
   end
 
   private
@@ -234,6 +227,17 @@ class UsersController < ApplicationController
 
   def duty_day_params
     params.require(:duty_day).permit(:day, :user_id, :kind)
+  end
+
+  def params_for_update
+    user_params.tap do |p|
+      if p[:password].blank?
+        p.delete(:password)
+        p.delete(:password_confirmation)
+      end
+
+      p.delete :hiring_date
+    end
   end
 
   def user_params

@@ -25,8 +25,6 @@ class DeviceTask < ApplicationRecord
   delegate :client_presentation, :ticket_number, to: :service_job, allow_nil: true
   delegate :department, :department_id, :user, to: :service_job
 
-  # attr_accessible :done, :done_at, :comment, :user_comment, :cost, :task, :service_job, :service_job_id, :task_id, :performer_id, :performer, :task, :service_job_attributes, :repair_tasks_attributes
-
   accepts_nested_attributes_for :service_job, reject_if: proc { |attr| attr['tech_notice'].blank? }
   accepts_nested_attributes_for :repair_tasks, allow_destroy: true
 

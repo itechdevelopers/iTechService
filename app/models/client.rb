@@ -20,7 +20,7 @@ class Client < ApplicationRecord
   belongs_to :department
   belongs_to :client_characteristic
   has_many :service_jobs, inverse_of: :client, dependent: :restrict_with_error
-  has_many :devices, -> { uniq }, through: :service_jobs, source: :item # , class_name: Item
+  has_many :devices, -> { distinct }, through: :service_jobs, source: :item, class_name: 'Item'
   has_many :orders, as: :customer, dependent: :destroy
   has_many :purchases, class_name: 'Sale', inverse_of: :client, dependent: :nullify
   has_many :history_records, as: :object
@@ -43,7 +43,7 @@ class Client < ApplicationRecord
 
   validates_presence_of :name, :surname, :phone_number, :full_phone_number, :category
   validates_uniqueness_of :full_phone_number
-  validates_uniqueness_of :card_number, unless: 'card_number.blank?'
+  validates_uniqueness_of :card_number, unless: proc { |client| client.card_number.blank? }
   validates_inclusion_of :category, in: CATEGORIES.keys
   validates_associated :comments
   validates_associated :client_characteristic

@@ -52,9 +52,8 @@ class OrdersController < ApplicationController
   end
 
   def new
-    params = order_params rescue {}
-    params.merge!(status: 'new')
-    @order = authorize Order.new(params)
+    new_params = action_params.fetch(:order, {}).slice(:customer_type, :customer_id).merge(status: 'new')
+    @order = authorize Order.new(new_params)
 
     respond_to do |format|
       format.html
@@ -133,7 +132,7 @@ class OrdersController < ApplicationController
     respond_to do |format|
       if @order.present?
         format.js { render 'information' }
-        format.json { render text: "orderStatus({'status':'#{@order.status_for_client}'})" }
+        format.json { render plain: "orderStatus({'status':'#{@order.status_for_client}'})" }
       else
         format.js { render t('orders.not_found') }
         format.json { render js: "orderStatus({'status':'not_found'})" }
@@ -178,7 +177,9 @@ class OrdersController < ApplicationController
 
   def order_params
     params.require(:order)
-          .permit(:approximate_price, :comment, :customer_id, :customer_type, :department_id, :desired_date, :model, :number, :object, :object_kind, :object_url, :payment_method, :picture, :prepayment, :priority, :quantity, :status, :user_comment, :user_id)
+          .permit(:approximate_price, :comment, :customer_id, :customer_type, :department_id, :desired_date, :model,
+                  :number, :object, :object_kind, :object_url, :payment_method, :picture, :prepayment, :priority,
+                  :quantity, :status, :user_comment, :user_id, :picture_cache, :remove_picture)
   end
 
   def order_change_status_params

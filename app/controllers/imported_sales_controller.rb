@@ -3,7 +3,7 @@
 class ImportedSalesController < ApplicationController
   def index
     authorize ImportedSale
-    @imported_sales = policy_scope(ImportedSale).search(params).order('sold_at desc').page(params[:page])
+    @imported_sales = policy_scope(ImportedSale).search(action_params).order('sold_at desc').page(params[:page])
 
     respond_to do |format|
       format.html # index.html.erb

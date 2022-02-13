@@ -5,7 +5,7 @@
       <tr class="repair_service_row">
         <td>
           <%= link_to repair_service.name,
-                      select_repair_service_path(repair_service, params.slice(:device_task_id)),
+                      select_repair_service_path(repair_service, action_params.slice(:device_task_id)),
                       remote: true
           %>
         </td>

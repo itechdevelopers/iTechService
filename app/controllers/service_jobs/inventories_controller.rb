@@ -48,7 +48,7 @@ module ServiceJobs
 
     def set_location
       @location = if params.key?(:location_id)
-                    Location.find(params[:location_id])
+                    Location.find(action_params[:location_id])
                   else
                     Location.done.find_by(department: Department.current)
                   end

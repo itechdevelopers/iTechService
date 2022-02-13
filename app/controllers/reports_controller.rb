@@ -34,17 +34,17 @@ class ReportsController < ApplicationController
 
   def indent_jobs
     @indent_jobs = INDENT_JOBS
-    base_name = params[:report][:base_name]
-    kind = params[:report][:kind]
+    base_name = action_params.dig(:report, :base_name)
+    kind = action_params.dig(:report, :kind)
     @new_type_report = INDENT_JOBS.include?(base_name) || (base_name == 'few_remnants' && kind == 'spare_parts')
   end
 
   def build_report
-    report_name = params.dig(:report, :base_name)
+    report_name = action_params.dig(:report, :base_name)
     report_class_name = "#{report_name.camelize}Report"
     if defined? report_class_name
       klass = report_class_name.constantize
-      klass.new params[:report]
+      klass.new action_params[:report]
     end
   end
 end
