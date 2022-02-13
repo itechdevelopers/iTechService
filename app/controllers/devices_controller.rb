@@ -4,6 +4,7 @@ class DevicesController < ApplicationController
   def index
     authorize Item
     @devices = Item.filter(action_params)
+    #? @devices = Item.filter(filter_params)
   end
 
   def autocomplete
@@ -89,6 +90,12 @@ class DevicesController < ApplicationController
 
   def device_params
     params.require(:item).permit(:product_id, features_attributes: [:id, :feature_type_id, :value])
+  end
+
+
+  def filter_params
+    # TODO: Сформировать корректный список допустимых параметров фильтрации
+    params.permit.to_h
   end
 
   def set_imported_sales

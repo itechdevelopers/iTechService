@@ -418,4 +418,13 @@ class ServiceJobsController < ApplicationController
     end
     allowed_params
   end
+
+  def notify_params
+    # TODO: Сформировать корректный список разрешенных параметров
+    params.permit.to_h
+    # params.permit(:id,
+    #               device_task: [:id, :cost, :user_comment],
+    #               device_note: [:content],
+    #               service_job: [:location_id])
+  end
 end
