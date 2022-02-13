@@ -10,7 +10,7 @@ class AnnouncementsController < ApplicationController
       if @announcements.any?
         render @announcements, layout: false
       else
-        render nothing: true
+        head :no_content
       end
     else
       @announcements = policy_scope(Announcement).newest.page(params[:page])
@@ -59,11 +59,11 @@ class AnnouncementsController < ApplicationController
       if @announcement.update_attributes(announcement_params)
         format.html { redirect_to announcements_path, notice: t('announcements.updated') }
         format.json { render json: @announcement }
-        format.js { render nothing: true }
+        format.js { head :ok }
       else
         format.html { render action: 'edit' }
         format.json { render json: @announcement.errors, status: :unprocessable_entity }
-        format.js { render nothing: true }
+        format.js { head :unprocessable_entity }
       end
     end
   end

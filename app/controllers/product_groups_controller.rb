@@ -87,11 +87,7 @@ class ProductGroupsController < ApplicationController
 
   def destroy
     @product_group.destroy
-
-    respond_to do |format|
-      format.js { render nothing: true }
-      format.json { head :no_content }
-    end
+    head :no_content
   end
 
   private

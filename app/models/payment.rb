@@ -25,12 +25,11 @@ class Payment < ApplicationRecord
 
   validates_presence_of :value, :kind
   validates_presence_of :bank, if: :is_by_bank?
-  validates_presence_of :gift_certificate, if: 'is_gift_certificate? and !is_return'
+  validates_presence_of :gift_certificate, if: :purchase_with_certificate
   validates_presence_of :device_name, :device_number, :client_info, :appraiser, if: :is_trade_in?
   validates_acceptance_of :device_logout, if: :is_trade_in?
   validates_numericality_of :value, greater_than: 0
-  validates_numericality_of :value, less_than_or_equal_to: :gift_certificate_balance,
-                                    if: 'is_gift_certificate? and !is_return'
+  validates_numericality_of :value, less_than_or_equal_to: :gift_certificate_balance, if: :purchase_with_certificate
   before_validation :clear_unnecessary_attributes
 
   def is_cash?
@@ -51,6 +50,10 @@ class Payment < ApplicationRecord
 
   def is_by_bank?
     %w[card credit].include? kind
+  end
+
+  def purchase_with_certificate
+    is_gift_certificate? && !is_return
   end
 
   def attributes_hash

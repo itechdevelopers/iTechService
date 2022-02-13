@@ -91,7 +91,7 @@ class QuickOrdersController < ApplicationController
         format.js
       else
         format.html { render 'form' }
-        format.js { render nothing: true }
+        format.js { head :unprocessable_entity }
       end
     end
   end

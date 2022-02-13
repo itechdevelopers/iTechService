@@ -49,7 +49,7 @@ module ItechService
     end
 
     # config.assets.initialize_on_precompile = false
-    
+
     I18n.enforce_available_locales = true
 
     config.logger = ActiveSupport::Logger.new('/dev/null')

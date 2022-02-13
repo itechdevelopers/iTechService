@@ -98,7 +98,7 @@ class ServiceJobsController < ApplicationController
             end
             send_data pdf.render, filename: filename, type: 'application/pdf', disposition: 'inline'
           else
-            render nothing: true
+            head :no_content
           end
         end
       end
@@ -254,7 +254,7 @@ class ServiceJobsController < ApplicationController
     respond_to do |format|
       if @service_job.present?
         format.js { render 'information' }
-        format.json { render text: "deviceStatus({'status':'#{@service_job.status}'})" }
+        format.json { render plain: "deviceStatus({'status':'#{@service_job.status}'})" }
       else
         format.js { render t('service_jobs.not_found') }
         format.json { render js: "deviceStatus({'status':'not_found'})" }
@@ -296,10 +296,10 @@ class ServiceJobsController < ApplicationController
         elsif (sale = service_job.create_filled_sale).present?
           format.html { redirect_to edit_sale_path(sale) }
         else
-          format.html { render nothing: true }
+          format.html { head :no_content }
         end
       else
-        format.html { render text: 'Вы находитесь на разных подразделениях с устройством. Смените подразделение' }
+        format.html { render plain: 'Вы находитесь на разных подразделениях с устройством. Смените подразделение' }
       end
     end
   end
@@ -307,7 +307,7 @@ class ServiceJobsController < ApplicationController
   def quick_search
     @service_jobs = policy_scope(ServiceJob).quick_search(params[:quick_search])
     respond_to do |format|
-      format.js { render nothing: true if @service_jobs.count > 10 }
+      format.js { head(:no_content) if @service_jobs.count > 10 }
     end
   end
 

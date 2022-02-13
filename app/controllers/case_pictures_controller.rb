@@ -17,7 +17,7 @@ class CasePicturesController < ApplicationController
       pdf = CasePicturePdf.new filepath, params
       send_data pdf.render, filename: 'case_picture', type: 'application/pdf', disposition: 'inline'
     else
-      render nothing: true
+      head :not_found
     end
   end
 end
