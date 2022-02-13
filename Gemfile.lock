@@ -749,7 +749,7 @@ DEPENDENCIES
   prawn
   prawn-table
   private_pub
-  pundit
+  pundit (~> 2.2.0)
   rails (~> 5.2.x)
   rails-controller-testing
   rails-erd

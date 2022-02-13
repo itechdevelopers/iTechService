@@ -32,7 +32,7 @@ gem 'trailblazer-cells', '~> 0.0.3'
 gem 'cells-rails', '~> 0.0.7'
 gem 'cells-slim', '~> 0.0.5'
 
-gem 'pundit'
+gem 'pundit', '~> 2.2.0'
 gem 'kaminari', '~> 1.0.0'
 gem 'kaminari-cells', '~> 1.0'
 gem 'ancestry'
