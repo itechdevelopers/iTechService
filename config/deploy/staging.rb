@@ -1,3 +1,13 @@
+server 'ise.itech.pw', user: 'deploy', roles: %w[web app db]
+
+set :ssh_options, {
+  forward_agent: true,
+  auth_methods: %w[publickey]
+}
+
+set :branch, 'staging'
+set :rails_env,     "production"
+
 # server-based syntax
 # ======================
 # Defines a single server with a list of roles and multiple properties.

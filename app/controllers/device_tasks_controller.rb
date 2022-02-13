@@ -13,10 +13,10 @@ class DeviceTasksController < ApplicationController
     operation = Service::DeviceTasks::Update.new.with_step_args(
       validate: [@device_task],
       save: [current_user],
-      notify: [current_user, params]
+      notify: [current_user, params.permit!.to_h]
     )
 
-    operation.call(device_task_params) do |m|
+    operation.call(device_task_params.to_h) do |m|
       m.success { |_| render('update') }
       m.failure { |_| render('shared/show_modal_form') }
     end

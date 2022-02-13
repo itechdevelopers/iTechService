@@ -73,11 +73,13 @@ class ServiceJobsController < ApplicationController
       respond_to do |format|
         format.html do
           log_viewing
-          @same_item_service_jobs = @service_job.item
-                                                .service_jobs.where
-                                                .not(id: @service_job.id)
-                                                .order(created_at: :desc)
-                                                .limit(12)
+          @same_item_service_jobs = []
+          if (item = @service_job.item)
+            @same_item_service_jobs = item.service_jobs.where
+                                          .not(id: @service_job.id)
+                                          .order(created_at: :desc)
+                                          .limit(12)
+          end
         end
         format.json do
           log_viewing
@@ -159,7 +161,7 @@ class ServiceJobsController < ApplicationController
     respond_to do |format|
       if @service_job.save
         create_phone_substitution if @service_job.phone_substituted?
-        Service::DeviceSubscribersNotificationJob.perform_later @service_job.id, current_user.id, params
+        Service::DeviceSubscribersNotificationJob.perform_later @service_job.id, current_user.id, notify_params
         format.html { redirect_to @service_job, notice: t('service_jobs.updated') }
         format.json { head :no_content }
         format.js { render 'update' }
@@ -416,5 +418,14 @@ class ServiceJobsController < ApplicationController
       end
     end
     allowed_params
+  end
+
+  def notify_params
+    # TODO: Сформировать корректный список разрешенных параметров
+    params.permit!.to_h
+    # params.permit(:id,
+    #               device_task: [:id, :cost, :user_comment],
+    #               device_note: [:content],
+    #               service_job: [:location_id])
   end
 end

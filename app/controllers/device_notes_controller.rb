@@ -27,7 +27,8 @@ class DeviceNotesController < ApplicationController
     respond_to do |format|
       if @device_note.save
         format.js
-        Service::DeviceSubscribersNotificationJob.perform_later(@service_job.id, current_user.id, params)
+        permitted_params = params.permit!.to_h
+        Service::DeviceSubscribersNotificationJob.perform_later(@service_job.id, current_user.id, permitted_params)
       else
         format.js { render nothing: true }
       end

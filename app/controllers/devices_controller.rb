@@ -3,12 +3,13 @@ class DevicesController < ApplicationController
 
   def index
     authorize Item
-    @devices = Item.filter(params)
+    @devices = Item.filter(filter_params)
   end
 
   def autocomplete
     authorize Item
-    @devices = policy_scope(Item).filter(params).page(params[:page])
+    # @devices = policy_scope(Item) # TODO: Прежде чем включать надо сначала починить дефольный policy_scope. В частности - убрать из resolve метод all в строке scope.all
+    @devices = Item.filter(filter_params).page(params[:page])
 
     respond_to do |format|
       format.json
@@ -89,6 +90,12 @@ class DevicesController < ApplicationController
 
   def device_params
     params.require(:item).permit(:product_id, features_attributes: [:id, :feature_type_id, :value])
+  end
+
+
+  def filter_params
+    # TODO: Сформировать корректный список допустимых параметров фильтрации
+    params.permit!.to_h
   end
 
   def set_imported_sales

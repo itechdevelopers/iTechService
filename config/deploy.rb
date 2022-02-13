@@ -1,5 +1,5 @@
 # config valid for current version and patch releases of Capistrano
-lock "~> 3.12.1"
+lock "~> 3.16.0"
 
 set :application, 'itechservice'
 set :repo_url, 'git@github.com:itechdevelopers/iTechService.git'
@@ -44,7 +44,7 @@ set :default_env, secret_key_base: 'dummy-key', devise_secret_key: 'dummy-key'
 set :pg_user, fetch(:user)
 
 set :rbenv_type, :system
-set :rbenv_ruby, '2.4.10'
+set :rbenv_ruby, '2.6.9'
 
 set :conditionally_migrate, true
 set :whenever_identifier, fetch(:application)
