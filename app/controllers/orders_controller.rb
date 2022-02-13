@@ -119,8 +119,6 @@ class OrdersController < ApplicationController
     end
   end
 
-  private
-
   def history
     order = find_record Order
     @records = order.history_records

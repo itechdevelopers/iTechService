@@ -76,8 +76,8 @@ class ServiceJob < ApplicationRecord
   alias_attribute :received_at, :created_at
   validates_presence_of :ticket_number, :user, :client, :location, :device_tasks, :return_at, :department
   validates_presence_of :contact_phone, on: :create
-  validates_presence_of :device_type, if: 'item.nil?'
-  validates_presence_of :item, if: 'device_type.nil?'
+  validates_presence_of :device_type, if: proc { |sj| sj.item.nil? }
+  validates_presence_of :item, if: proc { |sj| sj.device_type.nil? }
   validates_presence_of :app_store_pass, if: :new_record?
   validates_uniqueness_of :ticket_number
   validates_inclusion_of :is_tray_present, in: [true, false], if: :has_imei?

@@ -8,7 +8,8 @@ class DevicesController < ApplicationController
 
   def autocomplete
     authorize Item
-    @devices = policy_scope(Item).filter(filter_params).page(params[:page])
+    # @devices = policy_scope(Item) # TODO: Прежде чем включать надо сначала починить дефольный policy_scope. В частности - убрать из resolve метод all в строке scope.all
+    @devices = Item.filter(filter_params).page(params[:page])
 
     respond_to do |format|
       format.json

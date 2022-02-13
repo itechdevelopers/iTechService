@@ -91,7 +91,7 @@ class ApplicationController < ActionController::Base
   end
 
   def find_record(klass)
-    authorize klass.find(params[:id])
+    authorize klass.find_by(id: params[:id])
   end
 
   def not_authorized(error)

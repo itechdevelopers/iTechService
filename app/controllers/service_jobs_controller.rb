@@ -73,11 +73,13 @@ class ServiceJobsController < ApplicationController
       respond_to do |format|
         format.html do
           log_viewing
-          @same_item_service_jobs = @service_job.item
-                                                .service_jobs.where
-                                                .not(id: @service_job.id)
-                                                .order(created_at: :desc)
-                                                .limit(12)
+          @same_item_service_jobs = []
+          if (item = @service_job.item)
+            @same_item_service_jobs = item.service_jobs.where
+                                          .not(id: @service_job.id)
+                                          .order(created_at: :desc)
+                                          .limit(12)
+          end
         end
         format.json do
           log_viewing

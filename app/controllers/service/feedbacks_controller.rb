@@ -6,6 +6,7 @@ module Service
       @model = find_record(Feedback)
       respond_to do |format|
         format.js
+        format.html { redirect_to @model.service_job }
       end
     end
 
