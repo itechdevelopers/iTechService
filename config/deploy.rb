@@ -44,7 +44,7 @@ set :default_env, secret_key_base: 'dummy-key', devise_secret_key: 'dummy-key'
 set :pg_user, fetch(:user)
 
 set :rbenv_type, :system
-set :rbenv_ruby, '2.6.9'
+set :rbenv_ruby, '2.7.5'
 
 set :conditionally_migrate, true
 set :whenever_identifier, fetch(:application)
