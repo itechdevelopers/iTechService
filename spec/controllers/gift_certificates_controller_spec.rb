@@ -37,7 +37,7 @@ describe GiftCertificatesController do
   describe "GET index" do
     it "assigns all gift_certificates as @gift_certificates" do
       gift_certificate = GiftCertificate.create! valid_attributes
-      get :index, {}, valid_session
+      get :index, params: {}, session: valid_session
       assigns(:gift_certificates).should eq([gift_certificate])
     end
   end
@@ -45,14 +45,14 @@ describe GiftCertificatesController do
   describe "GET show" do
     it "assigns the requested gift_certificate as @gift_certificate" do
       gift_certificate = GiftCertificate.create! valid_attributes
-      get :show, {:id => gift_certificate.to_param}, valid_session
+      get :show, params: {:id => gift_certificate.to_param}, session: valid_session
       assigns(:gift_certificate).should eq(gift_certificate)
     end
   end
 
   describe "GET new" do
     it "assigns a new gift_certificate as @gift_certificate" do
-      get :new, {}, valid_session
+      get :new, params: {}, session: valid_session
       assigns(:gift_certificate).should be_a_new(GiftCertificate)
     end
   end
@@ -60,7 +60,7 @@ describe GiftCertificatesController do
   describe "GET edit" do
     it "assigns the requested gift_certificate as @gift_certificate" do
       gift_certificate = GiftCertificate.create! valid_attributes
-      get :edit, {:id => gift_certificate.to_param}, valid_session
+      get :edit, params: {:id => gift_certificate.to_param}, session: valid_session
       assigns(:gift_certificate).should eq(gift_certificate)
     end
   end
@@ -69,18 +69,18 @@ describe GiftCertificatesController do
     describe "with valid params" do
       it "creates a new GiftCertificate" do
         expect {
-          post :create, {:gift_certificate => valid_attributes}, valid_session
+          post :create, params: {:gift_certificate => valid_attributes}, session: valid_session
         }.to change(GiftCertificate, :count).by(1)
       end
 
       it "assigns a newly created gift_certificate as @gift_certificate" do
-        post :create, {:gift_certificate => valid_attributes}, valid_session
+        post :create, params: {:gift_certificate => valid_attributes}, session: valid_session
         assigns(:gift_certificate).should be_a(GiftCertificate)
         assigns(:gift_certificate).should be_persisted
       end
 
       it "redirects to the created gift_certificate" do
-        post :create, {:gift_certificate => valid_attributes}, valid_session
+        post :create, params: {:gift_certificate => valid_attributes}, session: valid_session
         response.should redirect_to(GiftCertificate.last)
       end
     end
@@ -89,14 +89,14 @@ describe GiftCertificatesController do
       it "assigns a newly created but unsaved gift_certificate as @gift_certificate" do
         # Trigger the behavior that occurs when invalid params are submitted
         GiftCertificate.any_instance.stub(:save).and_return(false)
-        post :create, {:gift_certificate => { "number" => "invalid value" }}, valid_session
+        post :create, params: {:gift_certificate => { "number" => "invalid value" }}, session: valid_session
         assigns(:gift_certificate).should be_a_new(GiftCertificate)
       end
 
       it "re-renders the 'new' template" do
         # Trigger the behavior that occurs when invalid params are submitted
         GiftCertificate.any_instance.stub(:save).and_return(false)
-        post :create, {:gift_certificate => { "number" => "invalid value" }}, valid_session
+        post :create, params: {:gift_certificate => { "number" => "invalid value" }}, session: valid_session
         response.should render_template("new")
       end
     end
@@ -111,18 +111,18 @@ describe GiftCertificatesController do
         # receives the :update_attributes message with whatever params are
         # submitted in the request.
         GiftCertificate.any_instance.should_receive(:update_attributes).with({ "number" => "MyString" })
-        put :update, {:id => gift_certificate.to_param, :gift_certificate => { "number" => "MyString" }}, valid_session
+        put :update, params: {:id => gift_certificate.to_param, :gift_certificate => { "number" => "MyString" }}, session: valid_session
       end
 
       it "assigns the requested gift_certificate as @gift_certificate" do
         gift_certificate = GiftCertificate.create! valid_attributes
-        put :update, {:id => gift_certificate.to_param, :gift_certificate => valid_attributes}, valid_session
+        put :update, params: {:id => gift_certificate.to_param, :gift_certificate => valid_attributes}, session: valid_session
         assigns(:gift_certificate).should eq(gift_certificate)
       end
 
       it "redirects to the gift_certificate" do
         gift_certificate = GiftCertificate.create! valid_attributes
-        put :update, {:id => gift_certificate.to_param, :gift_certificate => valid_attributes}, valid_session
+        put :update, params: {:id => gift_certificate.to_param, :gift_certificate => valid_attributes}, session: valid_session
         response.should redirect_to(gift_certificate)
       end
     end
@@ -132,7 +132,7 @@ describe GiftCertificatesController do
         gift_certificate = GiftCertificate.create! valid_attributes
         # Trigger the behavior that occurs when invalid params are submitted
         GiftCertificate.any_instance.stub(:save).and_return(false)
-        put :update, {:id => gift_certificate.to_param, :gift_certificate => { "number" => "invalid value" }}, valid_session
+        put :update, params: {:id => gift_certificate.to_param, :gift_certificate => { "number" => "invalid value" }}, session: valid_session
         assigns(:gift_certificate).should eq(gift_certificate)
       end
 
@@ -140,7 +140,7 @@ describe GiftCertificatesController do
         gift_certificate = GiftCertificate.create! valid_attributes
         # Trigger the behavior that occurs when invalid params are submitted
         GiftCertificate.any_instance.stub(:save).and_return(false)
-        put :update, {:id => gift_certificate.to_param, :gift_certificate => { "number" => "invalid value" }}, valid_session
+        put :update, params: {:id => gift_certificate.to_param, :gift_certificate => { "number" => "invalid value" }}, session: valid_session
         response.should render_template("edit")
       end
     end
@@ -150,13 +150,13 @@ describe GiftCertificatesController do
     it "destroys the requested gift_certificate" do
       gift_certificate = GiftCertificate.create! valid_attributes
       expect {
-        delete :destroy, {:id => gift_certificate.to_param}, valid_session
+        delete :destroy, params: {:id => gift_certificate.to_param}, session: valid_session
       }.to change(GiftCertificate, :count).by(-1)
     end
 
     it "redirects to the gift_certificates list" do
       gift_certificate = GiftCertificate.create! valid_attributes
-      delete :destroy, {:id => gift_certificate.to_param}, valid_session
+      delete :destroy, params: {:id => gift_certificate.to_param}, session: valid_session
       response.should redirect_to(gift_certificates_url)
     end
   end

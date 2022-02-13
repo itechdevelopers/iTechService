@@ -38,7 +38,7 @@ describe ServiceJobsController do
   describe "GET index" do
     it "assigns all devices as @devices" do
       device = create :device
-      get :index, {}, valid_session
+      get :index, params: {}, session: valid_session
       assigns(:service_jobs).should eq([device])
     end
   end
@@ -46,14 +46,14 @@ describe ServiceJobsController do
   describe "GET show" do
     it "assigns the requested device as @device" do
       device = create :device
-      get :show, {:id => device.to_param}, valid_session
+      get :show, params: {:id => device.to_param}, session: valid_session
       assigns(:device).should eq(device)
     end
   end
 
   describe "GET new" do
     it "assigns a new device as @device" do
-      get :new, {}, valid_session
+      get :new, params: {}, session: valid_session
       assigns(:device).should be_a_new(ServiceJob)
     end
   end
@@ -61,7 +61,7 @@ describe ServiceJobsController do
   describe "GET edit" do
     it "assigns the requested device as @device" do
       device = create :device
-      get :edit, {:id => device.to_param}, valid_session
+      get :edit, params: {:id => device.to_param}, session: valid_session
       assigns(:device).should eq(device)
     end
   end
@@ -70,30 +70,30 @@ describe ServiceJobsController do
     describe "with valid params" do
       it "creates a new Device" do
         expect {
-          post :create, {:device => valid_attributes}, valid_session
+          post :create, params: {:device => valid_attributes}, session: valid_session
         }.to change(ServiceJob, :count).by(1)
       end
 
       it "assigns a newly created device as @device" do
-        post :create, {:device => valid_attributes}, valid_session
+        post :create, params: {:device => valid_attributes}, session: valid_session
         assigns(:device).should be_a(ServiceJob)
         assigns(:device).should be_persisted
       end
 
       it "redirects to the created device" do
-        post :create, {:device => valid_attributes}, valid_session
+        post :create, params: {:device => valid_attributes}, session: valid_session
         response.should redirect_to(ServiceJob.last)
       end
       
       it "creates a new client from nested params" do
         expect {
-          post :create, {device: valid_attributes}, valid_session
+          post :create, params: {device: valid_attributes}, session: valid_session
         }.to change(Client, :count).by(1)
       end
       
       it "creates a new Device Type from nested params" do
         expect {
-          post :create, {device: valid_attributes}, valid_session
+          post :create, params: {device: valid_attributes}, session: valid_session
         }.to change(ServiceJob, :count).by(1)
       end
     end
@@ -102,14 +102,14 @@ describe ServiceJobsController do
       it "assigns a newly created but unsaved device as @device" do
         # Trigger the behavior that occurs when invalid params are submitted
         ServiceJob.any_instance.stub(:save).and_return(false)
-        post :create, {:device => {}}, valid_session
+        post :create, params: {:device => {}}, session: valid_session
         assigns(:device).should be_a_new(ServiceJob)
       end
 
       it "re-renders the 'new' template" do
         # Trigger the behavior that occurs when invalid params are submitted
         ServiceJob.any_instance.stub(:save).and_return(false)
-        post :create, {:device => {}}, valid_session
+        post :create, params: {:device => {}}, session: valid_session
         response.should render_template("new")
       end
     end
@@ -124,18 +124,18 @@ describe ServiceJobsController do
         # receives the :update_attributes message with whatever params are
         # submitted in the request.
         ServiceJob.any_instance.should_receive(:update_attributes).with({'these' => 'params'})
-        put :update, {:id => device.to_param, :device => {'these' => 'params'}}, valid_session
+        put :update, params: {:id => device.to_param, :device => {'these' => 'params'}}, session: valid_session
       end
 
       it "assigns the requested device as @device" do
         device = create :device
-        put :update, {:id => device.to_param, :device => valid_attributes}, valid_session
+        put :update, params: {:id => device.to_param, :device => valid_attributes}, session: valid_session
         assigns(:device).should eq(device)
       end
 
       it "redirects to the device" do
         device = create :device
-        put :update, {:id => device.to_param, :device => valid_attributes}, valid_session
+        put :update, params: {:id => device.to_param, :device => valid_attributes}, session: valid_session
         response.should redirect_to(device)
       end
     end
@@ -145,7 +145,7 @@ describe ServiceJobsController do
         device = create :device
         # Trigger the behavior that occurs when invalid params are submitted
         ServiceJob.any_instance.stub(:save).and_return(false)
-        put :update, {:id => device.to_param, :device => {}}, valid_session
+        put :update, params: {:id => device.to_param, :device => {}}, session: valid_session
         assigns(:device).should eq(device)
       end
 
@@ -153,7 +153,7 @@ describe ServiceJobsController do
         device = create :device
         # Trigger the behavior that occurs when invalid params are submitted
         ServiceJob.any_instance.stub(:save).and_return(false)
-        put :update, {:id => device.to_param, :device => {}}, valid_session
+        put :update, params: {:id => device.to_param, :device => {}}, session: valid_session
         response.should render_template("edit")
       end
     end
@@ -163,13 +163,13 @@ describe ServiceJobsController do
     it "destroys the requested device" do
       device = create :device
       expect {
-        delete :destroy, {:id => device.to_param}, valid_session
+        delete :destroy, params: {:id => device.to_param}, session: valid_session
       }.to change(ServiceJob, :count).by(-1)
     end
 
     it "redirects to the devices list" do
       device = create :device
-      delete :destroy, {:id => device.to_param}, valid_session
+      delete :destroy, params: {:id => device.to_param}, session: valid_session
       response.should redirect_to(devices_url)
     end
   end

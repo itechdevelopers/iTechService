@@ -33,7 +33,7 @@ describe TopSalablesController do
   describe "GET index" do
     it "assigns all top_salables as @top_salables" do
       top_salable = TopSalable.create! valid_attributes
-      get :index, {}, valid_session
+      get :index, params: {}, session: valid_session
       assigns(:top_salables).should eq([top_salable])
     end
   end
@@ -41,14 +41,14 @@ describe TopSalablesController do
   describe "GET show" do
     it "assigns the requested top_salable as @top_salable" do
       top_salable = TopSalable.create! valid_attributes
-      get :show, {:id => top_salable.to_param}, valid_session
+      get :show, params: {:id => top_salable.to_param}, session: valid_session
       assigns(:top_salable).should eq(top_salable)
     end
   end
 
   describe "GET new" do
     it "assigns a new top_salable as @top_salable" do
-      get :new, {}, valid_session
+      get :new, params: {}, session: valid_session
       assigns(:top_salable).should be_a_new(TopSalable)
     end
   end
@@ -56,7 +56,7 @@ describe TopSalablesController do
   describe "GET edit" do
     it "assigns the requested top_salable as @top_salable" do
       top_salable = TopSalable.create! valid_attributes
-      get :edit, {:id => top_salable.to_param}, valid_session
+      get :edit, params: {:id => top_salable.to_param}, session: valid_session
       assigns(:top_salable).should eq(top_salable)
     end
   end
@@ -65,18 +65,18 @@ describe TopSalablesController do
     describe "with valid params" do
       it "creates a new TopSalable" do
         expect {
-          post :create, {:top_salable => valid_attributes}, valid_session
+          post :create, params: {:top_salable => valid_attributes}, session: valid_session
         }.to change(TopSalable, :count).by(1)
       end
 
       it "assigns a newly created top_salable as @top_salable" do
-        post :create, {:top_salable => valid_attributes}, valid_session
+        post :create, params: {:top_salable => valid_attributes}, session: valid_session
         assigns(:top_salable).should be_a(TopSalable)
         assigns(:top_salable).should be_persisted
       end
 
       it "redirects to the created top_salable" do
-        post :create, {:top_salable => valid_attributes}, valid_session
+        post :create, params: {:top_salable => valid_attributes}, session: valid_session
         response.should redirect_to(TopSalable.last)
       end
     end
@@ -85,14 +85,14 @@ describe TopSalablesController do
       it "assigns a newly created but unsaved top_salable as @top_salable" do
         # Trigger the behavior that occurs when invalid params are submitted
         TopSalable.any_instance.stub(:save).and_return(false)
-        post :create, {:top_salable => { "salable" => "invalid value" }}, valid_session
+        post :create, params: {:top_salable => { "salable" => "invalid value" }}, session: valid_session
         assigns(:top_salable).should be_a_new(TopSalable)
       end
 
       it "re-renders the 'new' template" do
         # Trigger the behavior that occurs when invalid params are submitted
         TopSalable.any_instance.stub(:save).and_return(false)
-        post :create, {:top_salable => { "salable" => "invalid value" }}, valid_session
+        post :create, params: {:top_salable => { "salable" => "invalid value" }}, session: valid_session
         response.should render_template("new")
       end
     end
@@ -107,18 +107,18 @@ describe TopSalablesController do
         # receives the :update_attributes message with whatever params are
         # submitted in the request.
         TopSalable.any_instance.should_receive(:update_attributes).with({ "salable" => "" })
-        put :update, {:id => top_salable.to_param, :top_salable => { "salable" => "" }}, valid_session
+        put :update, params: {:id => top_salable.to_param, :top_salable => { "salable" => "" }}, session: valid_session
       end
 
       it "assigns the requested top_salable as @top_salable" do
         top_salable = TopSalable.create! valid_attributes
-        put :update, {:id => top_salable.to_param, :top_salable => valid_attributes}, valid_session
+        put :update, params: {:id => top_salable.to_param, :top_salable => valid_attributes}, session: valid_session
         assigns(:top_salable).should eq(top_salable)
       end
 
       it "redirects to the top_salable" do
         top_salable = TopSalable.create! valid_attributes
-        put :update, {:id => top_salable.to_param, :top_salable => valid_attributes}, valid_session
+        put :update, params: {:id => top_salable.to_param, :top_salable => valid_attributes}, session: valid_session
         response.should redirect_to(top_salable)
       end
     end
@@ -128,7 +128,7 @@ describe TopSalablesController do
         top_salable = TopSalable.create! valid_attributes
         # Trigger the behavior that occurs when invalid params are submitted
         TopSalable.any_instance.stub(:save).and_return(false)
-        put :update, {:id => top_salable.to_param, :top_salable => { "salable" => "invalid value" }}, valid_session
+        put :update, params: {:id => top_salable.to_param, :top_salable => { "salable" => "invalid value" }}, session: valid_session
         assigns(:top_salable).should eq(top_salable)
       end
 
@@ -136,7 +136,7 @@ describe TopSalablesController do
         top_salable = TopSalable.create! valid_attributes
         # Trigger the behavior that occurs when invalid params are submitted
         TopSalable.any_instance.stub(:save).and_return(false)
-        put :update, {:id => top_salable.to_param, :top_salable => { "salable" => "invalid value" }}, valid_session
+        put :update, params: {:id => top_salable.to_param, :top_salable => { "salable" => "invalid value" }}, session: valid_session
         response.should render_template("edit")
       end
     end
@@ -146,13 +146,13 @@ describe TopSalablesController do
     it "destroys the requested top_salable" do
       top_salable = TopSalable.create! valid_attributes
       expect {
-        delete :destroy, {:id => top_salable.to_param}, valid_session
+        delete :destroy, params: {:id => top_salable.to_param}, session: valid_session
       }.to change(TopSalable, :count).by(-1)
     end
 
     it "redirects to the top_salables list" do
       top_salable = TopSalable.create! valid_attributes
-      delete :destroy, {:id => top_salable.to_param}, valid_session
+      delete :destroy, params: {:id => top_salable.to_param}, session: valid_session
       response.should redirect_to(top_salables_url)
     end
   end

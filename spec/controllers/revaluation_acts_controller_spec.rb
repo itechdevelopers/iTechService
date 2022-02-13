@@ -33,7 +33,7 @@ describe RevaluationActsController do
   describe "GET index" do
     it "assigns all revaluation_acts as @revaluation_acts" do
       revaluation_act = RevaluationAct.create! valid_attributes
-      get :index, {}, valid_session
+      get :index, params: {}, session: valid_session
       assigns(:revaluation_acts).should eq([revaluation_act])
     end
   end
@@ -41,14 +41,14 @@ describe RevaluationActsController do
   describe "GET show" do
     it "assigns the requested revaluation_act as @revaluation_act" do
       revaluation_act = RevaluationAct.create! valid_attributes
-      get :show, {:id => revaluation_act.to_param}, valid_session
+      get :show, params: {:id => revaluation_act.to_param}, session: valid_session
       assigns(:revaluation_act).should eq(revaluation_act)
     end
   end
 
   describe "GET new" do
     it "assigns a new revaluation_act as @revaluation_act" do
-      get :new, {}, valid_session
+      get :new, params: {}, session: valid_session
       assigns(:revaluation_act).should be_a_new(RevaluationAct)
     end
   end
@@ -56,7 +56,7 @@ describe RevaluationActsController do
   describe "GET edit" do
     it "assigns the requested revaluation_act as @revaluation_act" do
       revaluation_act = RevaluationAct.create! valid_attributes
-      get :edit, {:id => revaluation_act.to_param}, valid_session
+      get :edit, params: {:id => revaluation_act.to_param}, session: valid_session
       assigns(:revaluation_act).should eq(revaluation_act)
     end
   end
@@ -65,18 +65,18 @@ describe RevaluationActsController do
     describe "with valid params" do
       it "creates a new RevaluationAct" do
         expect {
-          post :create, {:revaluation_act => valid_attributes}, valid_session
+          post :create, params: {:revaluation_act => valid_attributes}, session: valid_session
         }.to change(RevaluationAct, :count).by(1)
       end
 
       it "assigns a newly created revaluation_act as @revaluation_act" do
-        post :create, {:revaluation_act => valid_attributes}, valid_session
+        post :create, params: {:revaluation_act => valid_attributes}, session: valid_session
         assigns(:revaluation_act).should be_a(RevaluationAct)
         assigns(:revaluation_act).should be_persisted
       end
 
       it "redirects to the created revaluation_act" do
-        post :create, {:revaluation_act => valid_attributes}, valid_session
+        post :create, params: {:revaluation_act => valid_attributes}, session: valid_session
         response.should redirect_to(RevaluationAct.last)
       end
     end
@@ -85,14 +85,14 @@ describe RevaluationActsController do
       it "assigns a newly created but unsaved revaluation_act as @revaluation_act" do
         # Trigger the behavior that occurs when invalid params are submitted
         RevaluationAct.any_instance.stub(:save).and_return(false)
-        post :create, {:revaluation_act => { "price_type" => "invalid value" }}, valid_session
+        post :create, params: {:revaluation_act => { "price_type" => "invalid value" }}, session: valid_session
         assigns(:revaluation_act).should be_a_new(RevaluationAct)
       end
 
       it "re-renders the 'new' template" do
         # Trigger the behavior that occurs when invalid params are submitted
         RevaluationAct.any_instance.stub(:save).and_return(false)
-        post :create, {:revaluation_act => { "price_type" => "invalid value" }}, valid_session
+        post :create, params: {:revaluation_act => { "price_type" => "invalid value" }}, session: valid_session
         response.should render_template("new")
       end
     end
@@ -107,18 +107,18 @@ describe RevaluationActsController do
         # receives the :update_attributes message with whatever params are
         # submitted in the request.
         RevaluationAct.any_instance.should_receive(:update_attributes).with({ "price_type" => "" })
-        put :update, {:id => revaluation_act.to_param, :revaluation_act => { "price_type" => "" }}, valid_session
+        put :update, params: {:id => revaluation_act.to_param, :revaluation_act => { "price_type" => "" }}, session: valid_session
       end
 
       it "assigns the requested revaluation_act as @revaluation_act" do
         revaluation_act = RevaluationAct.create! valid_attributes
-        put :update, {:id => revaluation_act.to_param, :revaluation_act => valid_attributes}, valid_session
+        put :update, params: {:id => revaluation_act.to_param, :revaluation_act => valid_attributes}, session: valid_session
         assigns(:revaluation_act).should eq(revaluation_act)
       end
 
       it "redirects to the revaluation_act" do
         revaluation_act = RevaluationAct.create! valid_attributes
-        put :update, {:id => revaluation_act.to_param, :revaluation_act => valid_attributes}, valid_session
+        put :update, params: {:id => revaluation_act.to_param, :revaluation_act => valid_attributes}, session: valid_session
         response.should redirect_to(revaluation_act)
       end
     end
@@ -128,7 +128,7 @@ describe RevaluationActsController do
         revaluation_act = RevaluationAct.create! valid_attributes
         # Trigger the behavior that occurs when invalid params are submitted
         RevaluationAct.any_instance.stub(:save).and_return(false)
-        put :update, {:id => revaluation_act.to_param, :revaluation_act => { "price_type" => "invalid value" }}, valid_session
+        put :update, params: {:id => revaluation_act.to_param, :revaluation_act => { "price_type" => "invalid value" }}, session: valid_session
         assigns(:revaluation_act).should eq(revaluation_act)
       end
 
@@ -136,7 +136,7 @@ describe RevaluationActsController do
         revaluation_act = RevaluationAct.create! valid_attributes
         # Trigger the behavior that occurs when invalid params are submitted
         RevaluationAct.any_instance.stub(:save).and_return(false)
-        put :update, {:id => revaluation_act.to_param, :revaluation_act => { "price_type" => "invalid value" }}, valid_session
+        put :update, params: {:id => revaluation_act.to_param, :revaluation_act => { "price_type" => "invalid value" }}, session: valid_session
         response.should render_template("edit")
       end
     end
@@ -146,13 +146,13 @@ describe RevaluationActsController do
     it "destroys the requested revaluation_act" do
       revaluation_act = RevaluationAct.create! valid_attributes
       expect {
-        delete :destroy, {:id => revaluation_act.to_param}, valid_session
+        delete :destroy, params: {:id => revaluation_act.to_param}, session: valid_session
       }.to change(RevaluationAct, :count).by(-1)
     end
 
     it "redirects to the revaluation_acts list" do
       revaluation_act = RevaluationAct.create! valid_attributes
-      delete :destroy, {:id => revaluation_act.to_param}, valid_session
+      delete :destroy, params: {:id => revaluation_act.to_param}, session: valid_session
       response.should redirect_to(revaluation_acts_url)
     end
   end

@@ -37,7 +37,7 @@ describe StolenPhonesController do
   describe "GET index" do
     it "assigns all stolen_phones as @stolen_phones" do
       stolen_phone = StolenPhone.create! valid_attributes
-      get :index, {}, valid_session
+      get :index, params: {}, session: valid_session
       assigns(:stolen_phones).should eq([stolen_phone])
     end
   end
@@ -45,14 +45,14 @@ describe StolenPhonesController do
   describe "GET show" do
     it "assigns the requested stolen_phone as @stolen_phone" do
       stolen_phone = StolenPhone.create! valid_attributes
-      get :show, {:id => stolen_phone.to_param}, valid_session
+      get :show, params: {:id => stolen_phone.to_param}, session: valid_session
       assigns(:stolen_phone).should eq(stolen_phone)
     end
   end
 
   describe "GET new" do
     it "assigns a new stolen_phone as @stolen_phone" do
-      get :new, {}, valid_session
+      get :new, params: {}, session: valid_session
       assigns(:stolen_phone).should be_a_new(StolenPhone)
     end
   end
@@ -60,7 +60,7 @@ describe StolenPhonesController do
   describe "GET edit" do
     it "assigns the requested stolen_phone as @stolen_phone" do
       stolen_phone = StolenPhone.create! valid_attributes
-      get :edit, {:id => stolen_phone.to_param}, valid_session
+      get :edit, params: {:id => stolen_phone.to_param}, session: valid_session
       assigns(:stolen_phone).should eq(stolen_phone)
     end
   end
@@ -69,18 +69,18 @@ describe StolenPhonesController do
     describe "with valid params" do
       it "creates a new StolenPhone" do
         expect {
-          post :create, {:stolen_phone => valid_attributes}, valid_session
+          post :create, params: {:stolen_phone => valid_attributes}, session: valid_session
         }.to change(StolenPhone, :count).by(1)
       end
 
       it "assigns a newly created stolen_phone as @stolen_phone" do
-        post :create, {:stolen_phone => valid_attributes}, valid_session
+        post :create, params: {:stolen_phone => valid_attributes}, session: valid_session
         assigns(:stolen_phone).should be_a(StolenPhone)
         assigns(:stolen_phone).should be_persisted
       end
 
       it "redirects to the created stolen_phone" do
-        post :create, {:stolen_phone => valid_attributes}, valid_session
+        post :create, params: {:stolen_phone => valid_attributes}, session: valid_session
         response.should redirect_to(StolenPhone.last)
       end
     end
@@ -89,14 +89,14 @@ describe StolenPhonesController do
       it "assigns a newly created but unsaved stolen_phone as @stolen_phone" do
         # Trigger the behavior that occurs when invalid params are submitted
         StolenPhone.any_instance.stub(:save).and_return(false)
-        post :create, {:stolen_phone => { "emei" => "invalid value" }}, valid_session
+        post :create, params: {:stolen_phone => { "emei" => "invalid value" }}, session: valid_session
         assigns(:stolen_phone).should be_a_new(StolenPhone)
       end
 
       it "re-renders the 'new' template" do
         # Trigger the behavior that occurs when invalid params are submitted
         StolenPhone.any_instance.stub(:save).and_return(false)
-        post :create, {:stolen_phone => { "emei" => "invalid value" }}, valid_session
+        post :create, params: {:stolen_phone => { "emei" => "invalid value" }}, session: valid_session
         response.should render_template("new")
       end
     end
@@ -111,18 +111,18 @@ describe StolenPhonesController do
         # receives the :update_attributes message with whatever params are
         # submitted in the request.
         StolenPhone.any_instance.should_receive(:update_attributes).with({ "emei" => "MyString" })
-        put :update, {:id => stolen_phone.to_param, :stolen_phone => { "emei" => "MyString" }}, valid_session
+        put :update, params: {:id => stolen_phone.to_param, :stolen_phone => { "emei" => "MyString" }}, session: valid_session
       end
 
       it "assigns the requested stolen_phone as @stolen_phone" do
         stolen_phone = StolenPhone.create! valid_attributes
-        put :update, {:id => stolen_phone.to_param, :stolen_phone => valid_attributes}, valid_session
+        put :update, params: {:id => stolen_phone.to_param, :stolen_phone => valid_attributes}, session: valid_session
         assigns(:stolen_phone).should eq(stolen_phone)
       end
 
       it "redirects to the stolen_phone" do
         stolen_phone = StolenPhone.create! valid_attributes
-        put :update, {:id => stolen_phone.to_param, :stolen_phone => valid_attributes}, valid_session
+        put :update, params: {:id => stolen_phone.to_param, :stolen_phone => valid_attributes}, session: valid_session
         response.should redirect_to(stolen_phone)
       end
     end
@@ -132,7 +132,7 @@ describe StolenPhonesController do
         stolen_phone = StolenPhone.create! valid_attributes
         # Trigger the behavior that occurs when invalid params are submitted
         StolenPhone.any_instance.stub(:save).and_return(false)
-        put :update, {:id => stolen_phone.to_param, :stolen_phone => { "emei" => "invalid value" }}, valid_session
+        put :update, params: {:id => stolen_phone.to_param, :stolen_phone => { "emei" => "invalid value" }}, session: valid_session
         assigns(:stolen_phone).should eq(stolen_phone)
       end
 
@@ -140,7 +140,7 @@ describe StolenPhonesController do
         stolen_phone = StolenPhone.create! valid_attributes
         # Trigger the behavior that occurs when invalid params are submitted
         StolenPhone.any_instance.stub(:save).and_return(false)
-        put :update, {:id => stolen_phone.to_param, :stolen_phone => { "emei" => "invalid value" }}, valid_session
+        put :update, params: {:id => stolen_phone.to_param, :stolen_phone => { "emei" => "invalid value" }}, session: valid_session
         response.should render_template("edit")
       end
     end
@@ -150,13 +150,13 @@ describe StolenPhonesController do
     it "destroys the requested stolen_phone" do
       stolen_phone = StolenPhone.create! valid_attributes
       expect {
-        delete :destroy, {:id => stolen_phone.to_param}, valid_session
+        delete :destroy, params: {:id => stolen_phone.to_param}, session: valid_session
       }.to change(StolenPhone, :count).by(-1)
     end
 
     it "redirects to the stolen_phones list" do
       stolen_phone = StolenPhone.create! valid_attributes
-      delete :destroy, {:id => stolen_phone.to_param}, valid_session
+      delete :destroy, params: {:id => stolen_phone.to_param}, session: valid_session
       response.should redirect_to(stolen_phones_url)
     end
   end

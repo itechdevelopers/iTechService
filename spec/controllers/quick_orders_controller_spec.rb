@@ -33,7 +33,7 @@ describe QuickOrdersController do
   describe "GET index" do
     it "assigns all quick_orders as @quick_orders" do
       quick_order = QuickOrder.create! valid_attributes
-      get :index, {}, valid_session
+      get :index, params: {}, session: valid_session
       assigns(:quick_orders).should eq([quick_order])
     end
   end
@@ -41,14 +41,14 @@ describe QuickOrdersController do
   describe "GET show" do
     it "assigns the requested quick_order as @quick_order" do
       quick_order = QuickOrder.create! valid_attributes
-      get :show, {:id => quick_order.to_param}, valid_session
+      get :show, params: {:id => quick_order.to_param}, session: valid_session
       assigns(:quick_order).should eq(quick_order)
     end
   end
 
   describe "GET new" do
     it "assigns a new quick_order as @quick_order" do
-      get :new, {}, valid_session
+      get :new, params: {}, session: valid_session
       assigns(:quick_order).should be_a_new(QuickOrder)
     end
   end
@@ -56,7 +56,7 @@ describe QuickOrdersController do
   describe "GET edit" do
     it "assigns the requested quick_order as @quick_order" do
       quick_order = QuickOrder.create! valid_attributes
-      get :edit, {:id => quick_order.to_param}, valid_session
+      get :edit, params: {:id => quick_order.to_param}, session: valid_session
       assigns(:quick_order).should eq(quick_order)
     end
   end
@@ -65,18 +65,18 @@ describe QuickOrdersController do
     describe "with valid params" do
       it "creates a new QuickOrder" do
         expect {
-          post :create, {:quick_order => valid_attributes}, valid_session
+          post :create, params: {:quick_order => valid_attributes}, session: valid_session
         }.to change(QuickOrder, :count).by(1)
       end
 
       it "assigns a newly created quick_order as @quick_order" do
-        post :create, {:quick_order => valid_attributes}, valid_session
+        post :create, params: {:quick_order => valid_attributes}, session: valid_session
         assigns(:quick_order).should be_a(QuickOrder)
         assigns(:quick_order).should be_persisted
       end
 
       it "redirects to the created quick_order" do
-        post :create, {:quick_order => valid_attributes}, valid_session
+        post :create, params: {:quick_order => valid_attributes}, session: valid_session
         response.should redirect_to(QuickOrder.last)
       end
     end
@@ -85,14 +85,14 @@ describe QuickOrdersController do
       it "assigns a newly created but unsaved quick_order as @quick_order" do
         # Trigger the behavior that occurs when invalid params are submitted
         QuickOrder.any_instance.stub(:save).and_return(false)
-        post :create, {:quick_order => { "number" => "invalid value" }}, valid_session
+        post :create, params: {:quick_order => { "number" => "invalid value" }}, session: valid_session
         assigns(:quick_order).should be_a_new(QuickOrder)
       end
 
       it "re-renders the 'new' template" do
         # Trigger the behavior that occurs when invalid params are submitted
         QuickOrder.any_instance.stub(:save).and_return(false)
-        post :create, {:quick_order => { "number" => "invalid value" }}, valid_session
+        post :create, params: {:quick_order => { "number" => "invalid value" }}, session: valid_session
         response.should render_template("new")
       end
     end
@@ -107,18 +107,18 @@ describe QuickOrdersController do
         # receives the :update_attributes message with whatever params are
         # submitted in the request.
         QuickOrder.any_instance.should_receive(:update_attributes).with({ "number" => "1" })
-        put :update, {:id => quick_order.to_param, :quick_order => { "number" => "1" }}, valid_session
+        put :update, params: {:id => quick_order.to_param, :quick_order => { "number" => "1" }}, session: valid_session
       end
 
       it "assigns the requested quick_order as @quick_order" do
         quick_order = QuickOrder.create! valid_attributes
-        put :update, {:id => quick_order.to_param, :quick_order => valid_attributes}, valid_session
+        put :update, params: {:id => quick_order.to_param, :quick_order => valid_attributes}, session: valid_session
         assigns(:quick_order).should eq(quick_order)
       end
 
       it "redirects to the quick_order" do
         quick_order = QuickOrder.create! valid_attributes
-        put :update, {:id => quick_order.to_param, :quick_order => valid_attributes}, valid_session
+        put :update, params: {:id => quick_order.to_param, :quick_order => valid_attributes}, session: valid_session
         response.should redirect_to(quick_order)
       end
     end
@@ -128,7 +128,7 @@ describe QuickOrdersController do
         quick_order = QuickOrder.create! valid_attributes
         # Trigger the behavior that occurs when invalid params are submitted
         QuickOrder.any_instance.stub(:save).and_return(false)
-        put :update, {:id => quick_order.to_param, :quick_order => { "number" => "invalid value" }}, valid_session
+        put :update, params: {:id => quick_order.to_param, :quick_order => { "number" => "invalid value" }}, session: valid_session
         assigns(:quick_order).should eq(quick_order)
       end
 
@@ -136,7 +136,7 @@ describe QuickOrdersController do
         quick_order = QuickOrder.create! valid_attributes
         # Trigger the behavior that occurs when invalid params are submitted
         QuickOrder.any_instance.stub(:save).and_return(false)
-        put :update, {:id => quick_order.to_param, :quick_order => { "number" => "invalid value" }}, valid_session
+        put :update, params: {:id => quick_order.to_param, :quick_order => { "number" => "invalid value" }}, session: valid_session
         response.should render_template("edit")
       end
     end
@@ -146,13 +146,13 @@ describe QuickOrdersController do
     it "destroys the requested quick_order" do
       quick_order = QuickOrder.create! valid_attributes
       expect {
-        delete :destroy, {:id => quick_order.to_param}, valid_session
+        delete :destroy, params: {:id => quick_order.to_param}, session: valid_session
       }.to change(QuickOrder, :count).by(-1)
     end
 
     it "redirects to the quick_orders list" do
       quick_order = QuickOrder.create! valid_attributes
-      delete :destroy, {:id => quick_order.to_param}, valid_session
+      delete :destroy, params: {:id => quick_order.to_param}, session: valid_session
       response.should redirect_to(quick_orders_url)
     end
   end

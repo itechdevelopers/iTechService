@@ -37,7 +37,7 @@ describe TasksController do
   describe "GET index" do
     it "assigns all tasks as @tasks" do
       task = create :task
-      get :index, {}, valid_session
+      get :index, params: {}, session: valid_session
       assigns(:tasks).should eq([task])
     end
   end
@@ -45,14 +45,14 @@ describe TasksController do
   describe "GET show" do
     it "assigns the requested task as @task" do
       task = create :task
-      get :show, {:id => task.to_param}, valid_session
+      get :show, params: {:id => task.to_param}, session: valid_session
       assigns(:task).should eq(task)
     end
   end
 
   describe "GET new" do
     it "assigns a new task as @task" do
-      get :new, {}, valid_session
+      get :new, params: {}, session: valid_session
       assigns(:task).should be_a_new(Task)
     end
   end
@@ -60,7 +60,7 @@ describe TasksController do
   describe "GET edit" do
     it "assigns the requested task as @task" do
       task = create :task
-      get :edit, {:id => task.to_param}, valid_session
+      get :edit, params: {:id => task.to_param}, session: valid_session
       assigns(:task).should eq(task)
     end
   end
@@ -69,18 +69,18 @@ describe TasksController do
     describe "with valid params" do
       it "creates a new Task" do
         expect {
-          post :create, {:task => valid_attributes}, valid_session
+          post :create, params: {:task => valid_attributes}, session: valid_session
         }.to change(Task, :count).by(1)
       end
 
       it "assigns a newly created task as @task" do
-        post :create, {:task => valid_attributes}, valid_session
+        post :create, params: {:task => valid_attributes}, session: valid_session
         assigns(:task).should be_a(Task)
         assigns(:task).should be_persisted
       end
 
       it "redirects to the created task" do
-        post :create, {:task => valid_attributes}, valid_session
+        post :create, params: {:task => valid_attributes}, session: valid_session
         response.should redirect_to(Task.last)
       end
     end
@@ -89,14 +89,14 @@ describe TasksController do
       it "assigns a newly created but unsaved task as @task" do
         # Trigger the behavior that occurs when invalid params are submitted
         Task.any_instance.stub(:save).and_return(false)
-        post :create, {:task => {}}, valid_session
+        post :create, params: {:task => {}}, session: valid_session
         assigns(:task).should be_a_new(Task)
       end
 
       it "re-renders the 'new' template" do
         # Trigger the behavior that occurs when invalid params are submitted
         Task.any_instance.stub(:save).and_return(false)
-        post :create, {:task => {}}, valid_session
+        post :create, params: {:task => {}}, session: valid_session
         response.should render_template("new")
       end
     end
@@ -111,18 +111,18 @@ describe TasksController do
         # receives the :update_attributes message with whatever params are
         # submitted in the request.
         Task.any_instance.should_receive(:update_attributes).with({'these' => 'params'})
-        put :update, {:id => task.to_param, :task => {'these' => 'params'}}, valid_session
+        put :update, params: {:id => task.to_param, :task => {'these' => 'params'}}, session: valid_session
       end
 
       it "assigns the requested task as @task" do
         task = create :task
-        put :update, {:id => task.to_param, :task => valid_attributes}, valid_session
+        put :update, params: {:id => task.to_param, :task => valid_attributes}, session: valid_session
         assigns(:task).should eq(task)
       end
 
       it "redirects to the task" do
         task = create :task
-        put :update, {:id => task.to_param, :task => valid_attributes}, valid_session
+        put :update, params: {:id => task.to_param, :task => valid_attributes}, session: valid_session
         response.should redirect_to(task)
       end
     end
@@ -132,7 +132,7 @@ describe TasksController do
         task = create :task
         # Trigger the behavior that occurs when invalid params are submitted
         Task.any_instance.stub(:save).and_return(false)
-        put :update, {:id => task.to_param, :task => {}}, valid_session
+        put :update, params: {:id => task.to_param, :task => {}}, session: valid_session
         assigns(:task).should eq(task)
       end
 
@@ -140,7 +140,7 @@ describe TasksController do
         task = create :task
         # Trigger the behavior that occurs when invalid params are submitted
         Task.any_instance.stub(:save).and_return(false)
-        put :update, {:id => task.to_param, :task => {}}, valid_session
+        put :update, params: {:id => task.to_param, :task => {}}, session: valid_session
         response.should render_template("edit")
       end
     end
@@ -150,13 +150,13 @@ describe TasksController do
     it "destroys the requested task" do
       task = create :task
       expect {
-        delete :destroy, {:id => task.to_param}, valid_session
+        delete :destroy, params: {:id => task.to_param}, session: valid_session
       }.to change(Task, :count).by(-1)
     end
 
     it "redirects to the tasks list" do
       task = create :task
-      delete :destroy, {:id => task.to_param}, valid_session
+      delete :destroy, params: {:id => task.to_param}, session: valid_session
       response.should redirect_to(tasks_url)
     end
   end

@@ -6,7 +6,7 @@ class ReportsController < ApplicationController
                    repairers sales quick_orders free_jobs users_jobs mac_service].freeze
 
   before_action -> { authorize :report, :manage? }
-  before_filter :indent_jobs, only: %i[new create]
+  before_action :indent_jobs, only: %i[new create]
 
   def index
     respond_to do |format|

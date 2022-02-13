@@ -33,7 +33,7 @@ describe FeaturesController do
   describe "GET index" do
     it "assigns all features as @features" do
       feature = Feature.create! valid_attributes
-      get :index, {}, valid_session
+      get :index, params: {}, session: valid_session
       assigns(:features).should eq([feature])
     end
   end
@@ -41,14 +41,14 @@ describe FeaturesController do
   describe "GET show" do
     it "assigns the requested feature as @feature" do
       feature = Feature.create! valid_attributes
-      get :show, {:id => feature.to_param}, valid_session
+      get :show, params: {:id => feature.to_param}, session: valid_session
       assigns(:feature).should eq(feature)
     end
   end
 
   describe "GET new" do
     it "assigns a new feature as @feature" do
-      get :new, {}, valid_session
+      get :new, params: {}, session: valid_session
       assigns(:feature).should be_a_new(Feature)
     end
   end
@@ -56,7 +56,7 @@ describe FeaturesController do
   describe "GET edit" do
     it "assigns the requested feature as @feature" do
       feature = Feature.create! valid_attributes
-      get :edit, {:id => feature.to_param}, valid_session
+      get :edit, params: {:id => feature.to_param}, session: valid_session
       assigns(:feature).should eq(feature)
     end
   end
@@ -65,18 +65,18 @@ describe FeaturesController do
     describe "with valid params" do
       it "creates a new Feature" do
         expect {
-          post :create, {:feature => valid_attributes}, valid_session
+          post :create, params: {:feature => valid_attributes}, session: valid_session
         }.to change(Feature, :count).by(1)
       end
 
       it "assigns a newly created feature as @feature" do
-        post :create, {:feature => valid_attributes}, valid_session
+        post :create, params: {:feature => valid_attributes}, session: valid_session
         assigns(:feature).should be_a(Feature)
         assigns(:feature).should be_persisted
       end
 
       it "redirects to the created feature" do
-        post :create, {:feature => valid_attributes}, valid_session
+        post :create, params: {:feature => valid_attributes}, session: valid_session
         response.should redirect_to(Feature.last)
       end
     end
@@ -85,14 +85,14 @@ describe FeaturesController do
       it "assigns a newly created but unsaved feature as @feature" do
         # Trigger the behavior that occurs when invalid params are submitted
         Feature.any_instance.stub(:save).and_return(false)
-        post :create, {:feature => { "feature_type" => "invalid value" }}, valid_session
+        post :create, params: {:feature => { "feature_type" => "invalid value" }}, session: valid_session
         assigns(:feature).should be_a_new(Feature)
       end
 
       it "re-renders the 'new' template" do
         # Trigger the behavior that occurs when invalid params are submitted
         Feature.any_instance.stub(:save).and_return(false)
-        post :create, {:feature => { "feature_type" => "invalid value" }}, valid_session
+        post :create, params: {:feature => { "feature_type" => "invalid value" }}, session: valid_session
         response.should render_template("new")
       end
     end
@@ -107,18 +107,18 @@ describe FeaturesController do
         # receives the :update_attributes message with whatever params are
         # submitted in the request.
         Feature.any_instance.should_receive(:update_attributes).with({ "feature_type" => "" })
-        put :update, {:id => feature.to_param, :feature => { "feature_type" => "" }}, valid_session
+        put :update, params: {:id => feature.to_param, :feature => { "feature_type" => "" }}, session: valid_session
       end
 
       it "assigns the requested feature as @feature" do
         feature = Feature.create! valid_attributes
-        put :update, {:id => feature.to_param, :feature => valid_attributes}, valid_session
+        put :update, params: {:id => feature.to_param, :feature => valid_attributes}, session: valid_session
         assigns(:feature).should eq(feature)
       end
 
       it "redirects to the feature" do
         feature = Feature.create! valid_attributes
-        put :update, {:id => feature.to_param, :feature => valid_attributes}, valid_session
+        put :update, params: {:id => feature.to_param, :feature => valid_attributes}, session: valid_session
         response.should redirect_to(feature)
       end
     end
@@ -128,7 +128,7 @@ describe FeaturesController do
         feature = Feature.create! valid_attributes
         # Trigger the behavior that occurs when invalid params are submitted
         Feature.any_instance.stub(:save).and_return(false)
-        put :update, {:id => feature.to_param, :feature => { "feature_type" => "invalid value" }}, valid_session
+        put :update, params: {:id => feature.to_param, :feature => { "feature_type" => "invalid value" }}, session: valid_session
         assigns(:feature).should eq(feature)
       end
 
@@ -136,7 +136,7 @@ describe FeaturesController do
         feature = Feature.create! valid_attributes
         # Trigger the behavior that occurs when invalid params are submitted
         Feature.any_instance.stub(:save).and_return(false)
-        put :update, {:id => feature.to_param, :feature => { "feature_type" => "invalid value" }}, valid_session
+        put :update, params: {:id => feature.to_param, :feature => { "feature_type" => "invalid value" }}, session: valid_session
         response.should render_template("edit")
       end
     end
@@ -146,13 +146,13 @@ describe FeaturesController do
     it "destroys the requested feature" do
       feature = Feature.create! valid_attributes
       expect {
-        delete :destroy, {:id => feature.to_param}, valid_session
+        delete :destroy, params: {:id => feature.to_param}, session: valid_session
       }.to change(Feature, :count).by(-1)
     end
 
     it "redirects to the features list" do
       feature = Feature.create! valid_attributes
-      delete :destroy, {:id => feature.to_param}, valid_session
+      delete :destroy, params: {:id => feature.to_param}, session: valid_session
       response.should redirect_to(features_url)
     end
   end

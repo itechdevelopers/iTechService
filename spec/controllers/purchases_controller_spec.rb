@@ -33,7 +33,7 @@ describe PurchasesController do
   describe "GET index" do
     it "assigns all purchases as @purchases" do
       purchase = Purchase.create! valid_attributes
-      get :index, {}, valid_session
+      get :index, params: {}, session: valid_session
       assigns(:purchases).should eq([purchase])
     end
   end
@@ -41,14 +41,14 @@ describe PurchasesController do
   describe "GET show" do
     it "assigns the requested purchase as @purchase" do
       purchase = Purchase.create! valid_attributes
-      get :show, {:id => purchase.to_param}, valid_session
+      get :show, params: {:id => purchase.to_param}, session: valid_session
       assigns(:purchase).should eq(purchase)
     end
   end
 
   describe "GET new" do
     it "assigns a new purchase as @purchase" do
-      get :new, {}, valid_session
+      get :new, params: {}, session: valid_session
       assigns(:purchase).should be_a_new(Purchase)
     end
   end
@@ -56,7 +56,7 @@ describe PurchasesController do
   describe "GET edit" do
     it "assigns the requested purchase as @purchase" do
       purchase = Purchase.create! valid_attributes
-      get :edit, {:id => purchase.to_param}, valid_session
+      get :edit, params: {:id => purchase.to_param}, session: valid_session
       assigns(:purchase).should eq(purchase)
     end
   end
@@ -65,18 +65,18 @@ describe PurchasesController do
     describe "with valid params" do
       it "creates a new Purchase" do
         expect {
-          post :create, {:purchase => valid_attributes}, valid_session
+          post :create, params: {:purchase => valid_attributes}, session: valid_session
         }.to change(Purchase, :count).by(1)
       end
 
       it "assigns a newly created purchase as @purchase" do
-        post :create, {:purchase => valid_attributes}, valid_session
+        post :create, params: {:purchase => valid_attributes}, session: valid_session
         assigns(:purchase).should be_a(Purchase)
         assigns(:purchase).should be_persisted
       end
 
       it "redirects to the created purchase" do
-        post :create, {:purchase => valid_attributes}, valid_session
+        post :create, params: {:purchase => valid_attributes}, session: valid_session
         response.should redirect_to(Purchase.last)
       end
     end
@@ -85,14 +85,14 @@ describe PurchasesController do
       it "assigns a newly created but unsaved purchase as @purchase" do
         # Trigger the behavior that occurs when invalid params are submitted
         Purchase.any_instance.stub(:save).and_return(false)
-        post :create, {:purchase => { "contractor" => "invalid value" }}, valid_session
+        post :create, params: {:purchase => { "contractor" => "invalid value" }}, session: valid_session
         assigns(:purchase).should be_a_new(Purchase)
       end
 
       it "re-renders the 'new' template" do
         # Trigger the behavior that occurs when invalid params are submitted
         Purchase.any_instance.stub(:save).and_return(false)
-        post :create, {:purchase => { "contractor" => "invalid value" }}, valid_session
+        post :create, params: {:purchase => { "contractor" => "invalid value" }}, session: valid_session
         response.should render_template("new")
       end
     end
@@ -107,18 +107,18 @@ describe PurchasesController do
         # receives the :update_attributes message with whatever params are
         # submitted in the request.
         Purchase.any_instance.should_receive(:update_attributes).with({ "contractor" => "" })
-        put :update, {:id => purchase.to_param, :purchase => { "contractor" => "" }}, valid_session
+        put :update, params: {:id => purchase.to_param, :purchase => { "contractor" => "" }}, session: valid_session
       end
 
       it "assigns the requested purchase as @purchase" do
         purchase = Purchase.create! valid_attributes
-        put :update, {:id => purchase.to_param, :purchase => valid_attributes}, valid_session
+        put :update, params: {:id => purchase.to_param, :purchase => valid_attributes}, session: valid_session
         assigns(:purchase).should eq(purchase)
       end
 
       it "redirects to the purchase" do
         purchase = Purchase.create! valid_attributes
-        put :update, {:id => purchase.to_param, :purchase => valid_attributes}, valid_session
+        put :update, params: {:id => purchase.to_param, :purchase => valid_attributes}, session: valid_session
         response.should redirect_to(purchase)
       end
     end
@@ -128,7 +128,7 @@ describe PurchasesController do
         purchase = Purchase.create! valid_attributes
         # Trigger the behavior that occurs when invalid params are submitted
         Purchase.any_instance.stub(:save).and_return(false)
-        put :update, {:id => purchase.to_param, :purchase => { "contractor" => "invalid value" }}, valid_session
+        put :update, params: {:id => purchase.to_param, :purchase => { "contractor" => "invalid value" }}, session: valid_session
         assigns(:purchase).should eq(purchase)
       end
 
@@ -136,7 +136,7 @@ describe PurchasesController do
         purchase = Purchase.create! valid_attributes
         # Trigger the behavior that occurs when invalid params are submitted
         Purchase.any_instance.stub(:save).and_return(false)
-        put :update, {:id => purchase.to_param, :purchase => { "contractor" => "invalid value" }}, valid_session
+        put :update, params: {:id => purchase.to_param, :purchase => { "contractor" => "invalid value" }}, session: valid_session
         response.should render_template("edit")
       end
     end
@@ -146,13 +146,13 @@ describe PurchasesController do
     it "destroys the requested purchase" do
       purchase = Purchase.create! valid_attributes
       expect {
-        delete :destroy, {:id => purchase.to_param}, valid_session
+        delete :destroy, params: {:id => purchase.to_param}, session: valid_session
       }.to change(Purchase, :count).by(-1)
     end
 
     it "redirects to the purchases list" do
       purchase = Purchase.create! valid_attributes
-      delete :destroy, {:id => purchase.to_param}, valid_session
+      delete :destroy, params: {:id => purchase.to_param}, session: valid_session
       response.should redirect_to(purchases_url)
     end
   end

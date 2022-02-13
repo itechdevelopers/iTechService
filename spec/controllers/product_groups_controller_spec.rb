@@ -33,7 +33,7 @@ describe ProductGroupsController do
   describe "GET index" do
     it "assigns all product_groups as @product_groups" do
       product_group = ProductGroup.create! valid_attributes
-      get :index, {}, valid_session
+      get :index, params: {}, session: valid_session
       assigns(:product_groups).should eq([product_group])
     end
   end
@@ -41,14 +41,14 @@ describe ProductGroupsController do
   describe "GET show" do
     it "assigns the requested product_group as @product_group" do
       product_group = ProductGroup.create! valid_attributes
-      get :show, {:id => product_group.to_param}, valid_session
+      get :show, params: {:id => product_group.to_param}, session: valid_session
       assigns(:product_group).should eq(product_group)
     end
   end
 
   describe "GET new" do
     it "assigns a new product_group as @product_group" do
-      get :new, {}, valid_session
+      get :new, params: {}, session: valid_session
       assigns(:product_group).should be_a_new(ProductGroup)
     end
   end
@@ -56,7 +56,7 @@ describe ProductGroupsController do
   describe "GET edit" do
     it "assigns the requested product_group as @product_group" do
       product_group = ProductGroup.create! valid_attributes
-      get :edit, {:id => product_group.to_param}, valid_session
+      get :edit, params: {:id => product_group.to_param}, session: valid_session
       assigns(:product_group).should eq(product_group)
     end
   end
@@ -65,18 +65,18 @@ describe ProductGroupsController do
     describe "with valid params" do
       it "creates a new ProductGroup" do
         expect {
-          post :create, {:product_group => valid_attributes}, valid_session
+          post :create, params: {:product_group => valid_attributes}, session: valid_session
         }.to change(ProductGroup, :count).by(1)
       end
 
       it "assigns a newly created product_group as @product_group" do
-        post :create, {:product_group => valid_attributes}, valid_session
+        post :create, params: {:product_group => valid_attributes}, session: valid_session
         assigns(:product_group).should be_a(ProductGroup)
         assigns(:product_group).should be_persisted
       end
 
       it "redirects to the created product_group" do
-        post :create, {:product_group => valid_attributes}, valid_session
+        post :create, params: {:product_group => valid_attributes}, session: valid_session
         response.should redirect_to(ProductGroup.last)
       end
     end
@@ -85,14 +85,14 @@ describe ProductGroupsController do
       it "assigns a newly created but unsaved product_group as @product_group" do
         # Trigger the behavior that occurs when invalid params are submitted
         ProductGroup.any_instance.stub(:save).and_return(false)
-        post :create, {:product_group => {  }}, valid_session
+        post :create, params: {:product_group => {  }}, session: valid_session
         assigns(:product_group).should be_a_new(ProductGroup)
       end
 
       it "re-renders the 'new' template" do
         # Trigger the behavior that occurs when invalid params are submitted
         ProductGroup.any_instance.stub(:save).and_return(false)
-        post :create, {:product_group => {  }}, valid_session
+        post :create, params: {:product_group => {  }}, session: valid_session
         response.should render_template("new")
       end
     end
@@ -107,18 +107,18 @@ describe ProductGroupsController do
         # receives the :update_attributes message with whatever params are
         # submitted in the request.
         ProductGroup.any_instance.should_receive(:update_attributes).with({ "these" => "params" })
-        put :update, {:id => product_group.to_param, :product_group => { "these" => "params" }}, valid_session
+        put :update, params: {:id => product_group.to_param, :product_group => { "these" => "params" }}, session: valid_session
       end
 
       it "assigns the requested product_group as @product_group" do
         product_group = ProductGroup.create! valid_attributes
-        put :update, {:id => product_group.to_param, :product_group => valid_attributes}, valid_session
+        put :update, params: {:id => product_group.to_param, :product_group => valid_attributes}, session: valid_session
         assigns(:product_group).should eq(product_group)
       end
 
       it "redirects to the product_group" do
         product_group = ProductGroup.create! valid_attributes
-        put :update, {:id => product_group.to_param, :product_group => valid_attributes}, valid_session
+        put :update, params: {:id => product_group.to_param, :product_group => valid_attributes}, session: valid_session
         response.should redirect_to(product_group)
       end
     end
@@ -128,7 +128,7 @@ describe ProductGroupsController do
         product_group = ProductGroup.create! valid_attributes
         # Trigger the behavior that occurs when invalid params are submitted
         ProductGroup.any_instance.stub(:save).and_return(false)
-        put :update, {:id => product_group.to_param, :product_group => {  }}, valid_session
+        put :update, params: {:id => product_group.to_param, :product_group => {  }}, session: valid_session
         assigns(:product_group).should eq(product_group)
       end
 
@@ -136,7 +136,7 @@ describe ProductGroupsController do
         product_group = ProductGroup.create! valid_attributes
         # Trigger the behavior that occurs when invalid params are submitted
         ProductGroup.any_instance.stub(:save).and_return(false)
-        put :update, {:id => product_group.to_param, :product_group => {  }}, valid_session
+        put :update, params: {:id => product_group.to_param, :product_group => {  }}, session: valid_session
         response.should render_template("edit")
       end
     end
@@ -146,13 +146,13 @@ describe ProductGroupsController do
     it "destroys the requested product_group" do
       product_group = ProductGroup.create! valid_attributes
       expect {
-        delete :destroy, {:id => product_group.to_param}, valid_session
+        delete :destroy, params: {:id => product_group.to_param}, session: valid_session
       }.to change(ProductGroup, :count).by(-1)
     end
 
     it "redirects to the product_groups list" do
       product_group = ProductGroup.create! valid_attributes
-      delete :destroy, {:id => product_group.to_param}, valid_session
+      delete :destroy, params: {:id => product_group.to_param}, session: valid_session
       response.should redirect_to(product_groups_url)
     end
   end

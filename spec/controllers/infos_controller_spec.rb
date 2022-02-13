@@ -37,7 +37,7 @@ describe InfosController do
   describe "GET index" do
     it "assigns all infos as @infos" do
       info = Info.create! valid_attributes
-      get :index, {}, valid_session
+      get :index, params: {}, session: valid_session
       assigns(:infos).should eq([info])
     end
   end
@@ -45,14 +45,14 @@ describe InfosController do
   describe "GET show" do
     it "assigns the requested info as @info" do
       info = Info.create! valid_attributes
-      get :show, {:id => info.to_param}, valid_session
+      get :show, params: {:id => info.to_param}, session: valid_session
       assigns(:info).should eq(info)
     end
   end
 
   describe "GET new" do
     it "assigns a new info as @info" do
-      get :new, {}, valid_session
+      get :new, params: {}, session: valid_session
       assigns(:info).should be_a_new(Info)
     end
   end
@@ -60,7 +60,7 @@ describe InfosController do
   describe "GET edit" do
     it "assigns the requested info as @info" do
       info = Info.create! valid_attributes
-      get :edit, {:id => info.to_param}, valid_session
+      get :edit, params: {:id => info.to_param}, session: valid_session
       assigns(:info).should eq(info)
     end
   end
@@ -69,18 +69,18 @@ describe InfosController do
     describe "with valid params" do
       it "creates a new Info" do
         expect {
-          post :create, {:info => valid_attributes}, valid_session
+          post :create, params: {:info => valid_attributes}, session: valid_session
         }.to change(Info, :count).by(1)
       end
 
       it "assigns a newly created info as @info" do
-        post :create, {:info => valid_attributes}, valid_session
+        post :create, params: {:info => valid_attributes}, session: valid_session
         assigns(:info).should be_a(Info)
         assigns(:info).should be_persisted
       end
 
       it "redirects to the created info" do
-        post :create, {:info => valid_attributes}, valid_session
+        post :create, params: {:info => valid_attributes}, session: valid_session
         response.should redirect_to(Info.last)
       end
     end
@@ -89,14 +89,14 @@ describe InfosController do
       it "assigns a newly created but unsaved info as @info" do
         # Trigger the behavior that occurs when invalid params are submitted
         Info.any_instance.stub(:save).and_return(false)
-        post :create, {:info => { "title" => "invalid value" }}, valid_session
+        post :create, params: {:info => { "title" => "invalid value" }}, session: valid_session
         assigns(:info).should be_a_new(Info)
       end
 
       it "re-renders the 'new' template" do
         # Trigger the behavior that occurs when invalid params are submitted
         Info.any_instance.stub(:save).and_return(false)
-        post :create, {:info => { "title" => "invalid value" }}, valid_session
+        post :create, params: {:info => { "title" => "invalid value" }}, session: valid_session
         response.should render_template("new")
       end
     end
@@ -111,18 +111,18 @@ describe InfosController do
         # receives the :update_attributes message with whatever params are
         # submitted in the request.
         Info.any_instance.should_receive(:update_attributes).with({ "title" => "MyString" })
-        put :update, {:id => info.to_param, :info => { "title" => "MyString" }}, valid_session
+        put :update, params: {:id => info.to_param, :info => { "title" => "MyString" }}, session: valid_session
       end
 
       it "assigns the requested info as @info" do
         info = Info.create! valid_attributes
-        put :update, {:id => info.to_param, :info => valid_attributes}, valid_session
+        put :update, params: {:id => info.to_param, :info => valid_attributes}, session: valid_session
         assigns(:info).should eq(info)
       end
 
       it "redirects to the info" do
         info = Info.create! valid_attributes
-        put :update, {:id => info.to_param, :info => valid_attributes}, valid_session
+        put :update, params: {:id => info.to_param, :info => valid_attributes}, session: valid_session
         response.should redirect_to(info)
       end
     end
@@ -132,7 +132,7 @@ describe InfosController do
         info = Info.create! valid_attributes
         # Trigger the behavior that occurs when invalid params are submitted
         Info.any_instance.stub(:save).and_return(false)
-        put :update, {:id => info.to_param, :info => { "title" => "invalid value" }}, valid_session
+        put :update, params: {:id => info.to_param, :info => { "title" => "invalid value" }}, session: valid_session
         assigns(:info).should eq(info)
       end
 
@@ -140,7 +140,7 @@ describe InfosController do
         info = Info.create! valid_attributes
         # Trigger the behavior that occurs when invalid params are submitted
         Info.any_instance.stub(:save).and_return(false)
-        put :update, {:id => info.to_param, :info => { "title" => "invalid value" }}, valid_session
+        put :update, params: {:id => info.to_param, :info => { "title" => "invalid value" }}, session: valid_session
         response.should render_template("edit")
       end
     end
@@ -150,13 +150,13 @@ describe InfosController do
     it "destroys the requested info" do
       info = Info.create! valid_attributes
       expect {
-        delete :destroy, {:id => info.to_param}, valid_session
+        delete :destroy, params: {:id => info.to_param}, session: valid_session
       }.to change(Info, :count).by(-1)
     end
 
     it "redirects to the infos list" do
       info = Info.create! valid_attributes
-      delete :destroy, {:id => info.to_param}, valid_session
+      delete :destroy, params: {:id => info.to_param}, session: valid_session
       response.should redirect_to(infos_url)
     end
   end

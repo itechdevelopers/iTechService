@@ -33,7 +33,7 @@ describe SupplyCategoriesController do
   describe "GET index" do
     it "assigns all supply_categories as @supply_categories" do
       supply_category = SupplyCategory.create! valid_attributes
-      get :index, {}, valid_session
+      get :index, params: {}, session: valid_session
       assigns(:supply_categories).should eq([supply_category])
     end
   end
@@ -41,14 +41,14 @@ describe SupplyCategoriesController do
   describe "GET show" do
     it "assigns the requested supply_category as @supply_category" do
       supply_category = SupplyCategory.create! valid_attributes
-      get :show, {:id => supply_category.to_param}, valid_session
+      get :show, params: {:id => supply_category.to_param}, session: valid_session
       assigns(:supply_category).should eq(supply_category)
     end
   end
 
   describe "GET new" do
     it "assigns a new supply_category as @supply_category" do
-      get :new, {}, valid_session
+      get :new, params: {}, session: valid_session
       assigns(:supply_category).should be_a_new(SupplyCategory)
     end
   end
@@ -56,7 +56,7 @@ describe SupplyCategoriesController do
   describe "GET edit" do
     it "assigns the requested supply_category as @supply_category" do
       supply_category = SupplyCategory.create! valid_attributes
-      get :edit, {:id => supply_category.to_param}, valid_session
+      get :edit, params: {:id => supply_category.to_param}, session: valid_session
       assigns(:supply_category).should eq(supply_category)
     end
   end
@@ -65,18 +65,18 @@ describe SupplyCategoriesController do
     describe "with valid params" do
       it "creates a new SupplyCategory" do
         expect {
-          post :create, {:supply_category => valid_attributes}, valid_session
+          post :create, params: {:supply_category => valid_attributes}, session: valid_session
         }.to change(SupplyCategory, :count).by(1)
       end
 
       it "assigns a newly created supply_category as @supply_category" do
-        post :create, {:supply_category => valid_attributes}, valid_session
+        post :create, params: {:supply_category => valid_attributes}, session: valid_session
         assigns(:supply_category).should be_a(SupplyCategory)
         assigns(:supply_category).should be_persisted
       end
 
       it "redirects to the created supply_category" do
-        post :create, {:supply_category => valid_attributes}, valid_session
+        post :create, params: {:supply_category => valid_attributes}, session: valid_session
         response.should redirect_to(SupplyCategory.last)
       end
     end
@@ -85,14 +85,14 @@ describe SupplyCategoriesController do
       it "assigns a newly created but unsaved supply_category as @supply_category" do
         # Trigger the behavior that occurs when invalid params are submitted
         SupplyCategory.any_instance.stub(:save).and_return(false)
-        post :create, {:supply_category => { "name" => "invalid value" }}, valid_session
+        post :create, params: {:supply_category => { "name" => "invalid value" }}, session: valid_session
         assigns(:supply_category).should be_a_new(SupplyCategory)
       end
 
       it "re-renders the 'new' template" do
         # Trigger the behavior that occurs when invalid params are submitted
         SupplyCategory.any_instance.stub(:save).and_return(false)
-        post :create, {:supply_category => { "name" => "invalid value" }}, valid_session
+        post :create, params: {:supply_category => { "name" => "invalid value" }}, session: valid_session
         response.should render_template("new")
       end
     end
@@ -107,18 +107,18 @@ describe SupplyCategoriesController do
         # receives the :update_attributes message with whatever params are
         # submitted in the request.
         SupplyCategory.any_instance.should_receive(:update_attributes).with({ "name" => "MyString" })
-        put :update, {:id => supply_category.to_param, :supply_category => { "name" => "MyString" }}, valid_session
+        put :update, params: {:id => supply_category.to_param, :supply_category => { "name" => "MyString" }}, session: valid_session
       end
 
       it "assigns the requested supply_category as @supply_category" do
         supply_category = SupplyCategory.create! valid_attributes
-        put :update, {:id => supply_category.to_param, :supply_category => valid_attributes}, valid_session
+        put :update, params: {:id => supply_category.to_param, :supply_category => valid_attributes}, session: valid_session
         assigns(:supply_category).should eq(supply_category)
       end
 
       it "redirects to the supply_category" do
         supply_category = SupplyCategory.create! valid_attributes
-        put :update, {:id => supply_category.to_param, :supply_category => valid_attributes}, valid_session
+        put :update, params: {:id => supply_category.to_param, :supply_category => valid_attributes}, session: valid_session
         response.should redirect_to(supply_category)
       end
     end
@@ -128,7 +128,7 @@ describe SupplyCategoriesController do
         supply_category = SupplyCategory.create! valid_attributes
         # Trigger the behavior that occurs when invalid params are submitted
         SupplyCategory.any_instance.stub(:save).and_return(false)
-        put :update, {:id => supply_category.to_param, :supply_category => { "name" => "invalid value" }}, valid_session
+        put :update, params: {:id => supply_category.to_param, :supply_category => { "name" => "invalid value" }}, session: valid_session
         assigns(:supply_category).should eq(supply_category)
       end
 
@@ -136,7 +136,7 @@ describe SupplyCategoriesController do
         supply_category = SupplyCategory.create! valid_attributes
         # Trigger the behavior that occurs when invalid params are submitted
         SupplyCategory.any_instance.stub(:save).and_return(false)
-        put :update, {:id => supply_category.to_param, :supply_category => { "name" => "invalid value" }}, valid_session
+        put :update, params: {:id => supply_category.to_param, :supply_category => { "name" => "invalid value" }}, session: valid_session
         response.should render_template("edit")
       end
     end
@@ -146,13 +146,13 @@ describe SupplyCategoriesController do
     it "destroys the requested supply_category" do
       supply_category = SupplyCategory.create! valid_attributes
       expect {
-        delete :destroy, {:id => supply_category.to_param}, valid_session
+        delete :destroy, params: {:id => supply_category.to_param}, session: valid_session
       }.to change(SupplyCategory, :count).by(-1)
     end
 
     it "redirects to the supply_categories list" do
       supply_category = SupplyCategory.create! valid_attributes
-      delete :destroy, {:id => supply_category.to_param}, valid_session
+      delete :destroy, params: {:id => supply_category.to_param}, session: valid_session
       response.should redirect_to(supply_categories_url)
     end
   end

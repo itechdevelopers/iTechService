@@ -33,7 +33,7 @@ describe PriceTypesController do
   describe "GET index" do
     it "assigns all price_types as @price_types" do
       price_type = PriceType.create! valid_attributes
-      get :index, {}, valid_session
+      get :index, params: {}, session: valid_session
       assigns(:price_types).should eq([price_type])
     end
   end
@@ -41,14 +41,14 @@ describe PriceTypesController do
   describe "GET show" do
     it "assigns the requested price_type as @price_type" do
       price_type = PriceType.create! valid_attributes
-      get :show, {:id => price_type.to_param}, valid_session
+      get :show, params: {:id => price_type.to_param}, session: valid_session
       assigns(:price_type).should eq(price_type)
     end
   end
 
   describe "GET new" do
     it "assigns a new price_type as @price_type" do
-      get :new, {}, valid_session
+      get :new, params: {}, session: valid_session
       assigns(:price_type).should be_a_new(PriceType)
     end
   end
@@ -56,7 +56,7 @@ describe PriceTypesController do
   describe "GET edit" do
     it "assigns the requested price_type as @price_type" do
       price_type = PriceType.create! valid_attributes
-      get :edit, {:id => price_type.to_param}, valid_session
+      get :edit, params: {:id => price_type.to_param}, session: valid_session
       assigns(:price_type).should eq(price_type)
     end
   end
@@ -65,18 +65,18 @@ describe PriceTypesController do
     describe "with valid params" do
       it "creates a new PriceType" do
         expect {
-          post :create, {:price_type => valid_attributes}, valid_session
+          post :create, params: {:price_type => valid_attributes}, session: valid_session
         }.to change(PriceType, :count).by(1)
       end
 
       it "assigns a newly created price_type as @price_type" do
-        post :create, {:price_type => valid_attributes}, valid_session
+        post :create, params: {:price_type => valid_attributes}, session: valid_session
         assigns(:price_type).should be_a(PriceType)
         assigns(:price_type).should be_persisted
       end
 
       it "redirects to the created price_type" do
-        post :create, {:price_type => valid_attributes}, valid_session
+        post :create, params: {:price_type => valid_attributes}, session: valid_session
         response.should redirect_to(PriceType.last)
       end
     end
@@ -85,14 +85,14 @@ describe PriceTypesController do
       it "assigns a newly created but unsaved price_type as @price_type" do
         # Trigger the behavior that occurs when invalid params are submitted
         PriceType.any_instance.stub(:save).and_return(false)
-        post :create, {:price_type => { "name" => "invalid value" }}, valid_session
+        post :create, params: {:price_type => { "name" => "invalid value" }}, session: valid_session
         assigns(:price_type).should be_a_new(PriceType)
       end
 
       it "re-renders the 'new' template" do
         # Trigger the behavior that occurs when invalid params are submitted
         PriceType.any_instance.stub(:save).and_return(false)
-        post :create, {:price_type => { "name" => "invalid value" }}, valid_session
+        post :create, params: {:price_type => { "name" => "invalid value" }}, session: valid_session
         response.should render_template("new")
       end
     end
@@ -107,18 +107,18 @@ describe PriceTypesController do
         # receives the :update_attributes message with whatever params are
         # submitted in the request.
         PriceType.any_instance.should_receive(:update_attributes).with({ "name" => "MyString" })
-        put :update, {:id => price_type.to_param, :price_type => { "name" => "MyString" }}, valid_session
+        put :update, params: {:id => price_type.to_param, :price_type => { "name" => "MyString" }}, session: valid_session
       end
 
       it "assigns the requested price_type as @price_type" do
         price_type = PriceType.create! valid_attributes
-        put :update, {:id => price_type.to_param, :price_type => valid_attributes}, valid_session
+        put :update, params: {:id => price_type.to_param, :price_type => valid_attributes}, session: valid_session
         assigns(:price_type).should eq(price_type)
       end
 
       it "redirects to the price_type" do
         price_type = PriceType.create! valid_attributes
-        put :update, {:id => price_type.to_param, :price_type => valid_attributes}, valid_session
+        put :update, params: {:id => price_type.to_param, :price_type => valid_attributes}, session: valid_session
         response.should redirect_to(price_type)
       end
     end
@@ -128,7 +128,7 @@ describe PriceTypesController do
         price_type = PriceType.create! valid_attributes
         # Trigger the behavior that occurs when invalid params are submitted
         PriceType.any_instance.stub(:save).and_return(false)
-        put :update, {:id => price_type.to_param, :price_type => { "name" => "invalid value" }}, valid_session
+        put :update, params: {:id => price_type.to_param, :price_type => { "name" => "invalid value" }}, session: valid_session
         assigns(:price_type).should eq(price_type)
       end
 
@@ -136,7 +136,7 @@ describe PriceTypesController do
         price_type = PriceType.create! valid_attributes
         # Trigger the behavior that occurs when invalid params are submitted
         PriceType.any_instance.stub(:save).and_return(false)
-        put :update, {:id => price_type.to_param, :price_type => { "name" => "invalid value" }}, valid_session
+        put :update, params: {:id => price_type.to_param, :price_type => { "name" => "invalid value" }}, session: valid_session
         response.should render_template("edit")
       end
     end
@@ -146,13 +146,13 @@ describe PriceTypesController do
     it "destroys the requested price_type" do
       price_type = PriceType.create! valid_attributes
       expect {
-        delete :destroy, {:id => price_type.to_param}, valid_session
+        delete :destroy, params: {:id => price_type.to_param}, session: valid_session
       }.to change(PriceType, :count).by(-1)
     end
 
     it "redirects to the price_types list" do
       price_type = PriceType.create! valid_attributes
-      delete :destroy, {:id => price_type.to_param}, valid_session
+      delete :destroy, params: {:id => price_type.to_param}, session: valid_session
       response.should redirect_to(price_types_url)
     end
   end

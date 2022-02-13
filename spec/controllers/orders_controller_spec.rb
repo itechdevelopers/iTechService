@@ -37,7 +37,7 @@ describe OrdersController do
   describe "GET index" do
     it "assigns all orders as @orders" do
       order = Order.create! valid_attributes
-      get :index, {}, valid_session
+      get :index, params: {}, session: valid_session
       assigns(:orders).should eq([order])
     end
   end
@@ -45,14 +45,14 @@ describe OrdersController do
   describe "GET show" do
     it "assigns the requested order as @order" do
       order = Order.create! valid_attributes
-      get :show, {:id => order.to_param}, valid_session
+      get :show, params: {:id => order.to_param}, session: valid_session
       assigns(:order).should eq(order)
     end
   end
 
   describe "GET new" do
     it "assigns a new order as @order" do
-      get :new, {}, valid_session
+      get :new, params: {}, session: valid_session
       assigns(:order).should be_a_new(Order)
     end
   end
@@ -60,7 +60,7 @@ describe OrdersController do
   describe "GET edit" do
     it "assigns the requested order as @order" do
       order = Order.create! valid_attributes
-      get :edit, {:id => order.to_param}, valid_session
+      get :edit, params: {:id => order.to_param}, session: valid_session
       assigns(:order).should eq(order)
     end
   end
@@ -69,18 +69,18 @@ describe OrdersController do
     describe "with valid params" do
       it "creates a new Order" do
         expect {
-          post :create, {:order => valid_attributes}, valid_session
+          post :create, params: {:order => valid_attributes}, session: valid_session
         }.to change(Order, :count).by(1)
       end
 
       it "assigns a newly created order as @order" do
-        post :create, {:order => valid_attributes}, valid_session
+        post :create, params: {:order => valid_attributes}, session: valid_session
         assigns(:order).should be_a(Order)
         assigns(:order).should be_persisted
       end
 
       it "redirects to the created order" do
-        post :create, {:order => valid_attributes}, valid_session
+        post :create, params: {:order => valid_attributes}, session: valid_session
         response.should redirect_to(Order.last)
       end
     end
@@ -89,7 +89,7 @@ describe OrdersController do
       it "assigns a newly created but unsaved order as @order" do
         # Trigger the behavior that occurs when invalid params are submitted
         Order.any_instance.stub(:save).and_return(false)
-        post :create, {:order => { "customer" => "invalid value" }}, valid_session
+        post :create, params: {:order => { "customer" => "invalid value" }}, session: valid_session
         assigns(:order).should be_a_new(Order)
       end
 

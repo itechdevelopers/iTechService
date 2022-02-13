@@ -37,7 +37,7 @@ describe SalesController do
   describe "GET index" do
     it "assigns all sold_devices as @sold_devices" do
       sold_device = Sale.create! valid_attributes
-      get :index, {}, valid_session
+      get :index, params: {}, session: valid_session
       assigns(:sales).should eq([sold_device])
     end
   end
@@ -45,14 +45,14 @@ describe SalesController do
   describe "GET show" do
     it "assigns the requested sold_device as @sold_device" do
       sold_device = Sale.create! valid_attributes
-      get :show, {:id => sold_device.to_param}, valid_session
+      get :show, params: {:id => sold_device.to_param}, session: valid_session
       assigns(:sale).should eq(sold_device)
     end
   end
 
   describe "GET new" do
     it "assigns a new sold_device as @sold_device" do
-      get :new, {}, valid_session
+      get :new, params: {}, session: valid_session
       assigns(:sale).should be_a_new(Sale)
     end
   end
@@ -60,7 +60,7 @@ describe SalesController do
   describe "GET edit" do
     it "assigns the requested sold_device as @sold_device" do
       sold_device = Sale.create! valid_attributes
-      get :edit, {:id => sold_device.to_param}, valid_session
+      get :edit, params: {:id => sold_device.to_param}, session: valid_session
       assigns(:sale).should eq(sold_device)
     end
   end
@@ -69,18 +69,18 @@ describe SalesController do
     describe "with valid params" do
       it "creates a new SoldDevice" do
         expect {
-          post :create, {:sale => valid_attributes}, valid_session
+          post :create, params: {:sale => valid_attributes}, session: valid_session
         }.to change(Sale, :count).by(1)
       end
 
       it "assigns a newly created sold_device as @sold_device" do
-        post :create, {:sale => valid_attributes}, valid_session
+        post :create, params: {:sale => valid_attributes}, session: valid_session
         assigns(:sale).should be_a(Sale)
         assigns(:sale).should be_persisted
       end
 
       it "redirects to the created sold_device" do
-        post :create, {:sale => valid_attributes}, valid_session
+        post :create, params: {:sale => valid_attributes}, session: valid_session
         response.should redirect_to(Sale.last)
       end
     end
@@ -89,14 +89,14 @@ describe SalesController do
       it "assigns a newly created but unsaved sold_device as @sold_device" do
         # Trigger the behavior that occurs when invalid params are submitted
         Sale.any_instance.stub(:save).and_return(false)
-        post :create, {:sale => { "device_type" => "invalid value" }}, valid_session
+        post :create, params: {:sale => { "device_type" => "invalid value" }}, session: valid_session
         assigns(:sale).should be_a_new(Sale)
       end
 
       it "re-renders the 'new' template" do
         # Trigger the behavior that occurs when invalid params are submitted
         Sale.any_instance.stub(:save).and_return(false)
-        post :create, {:sale => { "device_type" => "invalid value" }}, valid_session
+        post :create, params: {:sale => { "device_type" => "invalid value" }}, session: valid_session
         response.should render_template("new")
       end
     end
@@ -111,18 +111,18 @@ describe SalesController do
         # receives the :update_attributes message with whatever params are
         # submitted in the request.
         Sale.any_instance.should_receive(:update_attributes).with({ "device_type" => "" })
-        put :update, {:id => sold_device.to_param, :sale => { "device_type" => "" }}, valid_session
+        put :update, params: {:id => sold_device.to_param, :sale => { "device_type" => "" }}, session: valid_session
       end
 
       it "assigns the requested sold_device as @sold_device" do
         sold_device = Sale.create! valid_attributes
-        put :update, {:id => sold_device.to_param, :sale => valid_attributes}, valid_session
+        put :update, params: {:id => sold_device.to_param, :sale => valid_attributes}, session: valid_session
         assigns(:sale).should eq(sold_device)
       end
 
       it "redirects to the sold_device" do
         sold_device = Sale.create! valid_attributes
-        put :update, {:id => sold_device.to_param, :sale => valid_attributes}, valid_session
+        put :update, params: {:id => sold_device.to_param, :sale => valid_attributes}, session: valid_session
         response.should redirect_to(sold_device)
       end
     end
@@ -132,7 +132,7 @@ describe SalesController do
         sold_device = Sale.create! valid_attributes
         # Trigger the behavior that occurs when invalid params are submitted
         Sale.any_instance.stub(:save).and_return(false)
-        put :update, {:id => sold_device.to_param, :sale => { "device_type" => "invalid value" }}, valid_session
+        put :update, params: {:id => sold_device.to_param, :sale => { "device_type" => "invalid value" }}, session: valid_session
         assigns(:sale).should eq(sold_device)
       end
 
@@ -140,7 +140,7 @@ describe SalesController do
         sold_device = Sale.create! valid_attributes
         # Trigger the behavior that occurs when invalid params are submitted
         Sale.any_instance.stub(:save).and_return(false)
-        put :update, {:id => sold_device.to_param, :sale => { "device_type" => "invalid value" }}, valid_session
+        put :update, params: {:id => sold_device.to_param, :sale => { "device_type" => "invalid value" }}, session: valid_session
         response.should render_template("edit")
       end
     end
@@ -150,13 +150,13 @@ describe SalesController do
     it "destroys the requested sold_device" do
       sold_device = Sale.create! valid_attributes
       expect {
-        delete :destroy, {:id => sold_device.to_param}, valid_session
+        delete :destroy, params: {:id => sold_device.to_param}, session: valid_session
       }.to change(Sale, :count).by(-1)
     end
 
     it "redirects to the sold_devices list" do
       sold_device = Sale.create! valid_attributes
-      delete :destroy, {:id => sold_device.to_param}, valid_session
+      delete :destroy, params: {:id => sold_device.to_param}, session: valid_session
       response.should redirect_to(sold_devices_url)
     end
   end

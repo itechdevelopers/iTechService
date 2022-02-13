@@ -21,15 +21,15 @@ require 'rails_helper'
 describe AnnouncementsController do
 
   before(:each) do
-    sign_in FactoryGirl.create(:user, :admin)
+    sign_in user
   end
 
   # This should return the minimal set of attributes required to create a valid
   # Announcement. As you add validations to Announcement, be sure to
   # update the return value of this method accordingly.
-  def valid_attributes
-    { "content" => "MyString", kind: :help }
-  end
+  let(:department) {create(:department)}
+  let(:user) {create(:user, department: department, role: 'superadmin')}
+  let(:valid_attributes) { build(:announcement, department: department, user: user).as_json }
 
   # This should return the minimal set of values that should be in the session
   # in order to pass any filters (e.g. authentication) defined in
@@ -41,7 +41,7 @@ describe AnnouncementsController do
   describe "GET index" do
     it "assigns all announcements as @announcements" do
       announcement = Announcement.create! valid_attributes
-      get :index, {}, valid_session
+      get :index, params: {}, session: valid_session
       assigns(:announcements).should eq([announcement])
     end
   end
@@ -49,14 +49,14 @@ describe AnnouncementsController do
   describe "GET show" do
     it "assigns the requested announcement as @announcement" do
       announcement = Announcement.create! valid_attributes
-      get :show, {:id => announcement.to_param}, valid_session
+      get :show, params: {:id => announcement.to_param}, session: valid_session, xhr: true
       assigns(:announcement).should eq(announcement)
     end
   end
 
   describe "GET new" do
     it "assigns a new announcement as @announcement" do
-      get :new, {}, valid_session
+      get :new, params: {}, session: valid_session
       assigns(:announcement).should be_a_new(Announcement)
     end
   end
@@ -64,7 +64,7 @@ describe AnnouncementsController do
   describe "GET edit" do
     it "assigns the requested announcement as @announcement" do
       announcement = Announcement.create! valid_attributes
-      get :edit, {:id => announcement.to_param}, valid_session
+      get :edit, params: {:id => announcement.to_param}, session: valid_session
       assigns(:announcement).should eq(announcement)
     end
   end
@@ -73,19 +73,19 @@ describe AnnouncementsController do
     describe "with valid params" do
       it "creates a new Announcement" do
         expect {
-          post :create, {:announcement => valid_attributes}, valid_session
+          post :create, params: {:announcement => valid_attributes}, session: valid_session
         }.to change(Announcement, :count).by(1)
       end
 
       it "assigns a newly created announcement as @announcement" do
-        post :create, {:announcement => valid_attributes}, valid_session
+        post :create, params: {:announcement => valid_attributes}, session: valid_session
         assigns(:announcement).should be_a(Announcement)
         assigns(:announcement).should be_persisted
       end
 
       it "redirects to the created announcement" do
-        post :create, {:announcement => valid_attributes}, valid_session
-        response.should redirect_to(Announcement.last)
+        post :create, params: {:announcement => valid_attributes}, session: valid_session
+        response.should redirect_to(announcements_url)
       end
     end
 
@@ -93,14 +93,14 @@ describe AnnouncementsController do
       it "assigns a newly created but unsaved announcement as @announcement" do
         # Trigger the behavior that occurs when invalid params are submitted
         Announcement.any_instance.stub(:save).and_return(false)
-        post :create, {:announcement => { "content" => "invalid value" }}, valid_session
+        post :create, params: {:announcement => { "content" => "invalid value" }}, session: valid_session
         assigns(:announcement).should be_a_new(Announcement)
       end
 
       it "re-renders the 'new' template" do
         # Trigger the behavior that occurs when invalid params are submitted
         Announcement.any_instance.stub(:save).and_return(false)
-        post :create, {:announcement => { "content" => "invalid value" }}, valid_session
+        post :create, params: {:announcement => { "content" => "invalid value" }}, session: valid_session
         response.should render_template("new")
       end
     end
@@ -115,19 +115,19 @@ describe AnnouncementsController do
         # receives the :update_attributes message with whatever params are
         # submitted in the request.
         Announcement.any_instance.should_receive(:update_attributes).with({ "content" => "MyString" })
-        put :update, {:id => announcement.to_param, :announcement => { "content" => "MyString" }}, valid_session
+        put :update, params: {:id => announcement.to_param, :announcement => { "content" => "MyString" }}, session: valid_session
       end
 
       it "assigns the requested announcement as @announcement" do
         announcement = Announcement.create! valid_attributes
-        put :update, {:id => announcement.to_param, :announcement => valid_attributes}, valid_session
+        put :update, params: {:id => announcement.to_param, :announcement => valid_attributes}, session: valid_session
         assigns(:announcement).should eq(announcement)
       end
 
       it "redirects to the announcement" do
         announcement = Announcement.create! valid_attributes
-        put :update, {:id => announcement.to_param, :announcement => valid_attributes}, valid_session
-        response.should redirect_to(announcement)
+        put :update, params: {:id => announcement.to_param, :announcement => valid_attributes}, session: valid_session
+        response.should redirect_to(announcements_url)
       end
     end
 
@@ -136,7 +136,7 @@ describe AnnouncementsController do
         announcement = Announcement.create! valid_attributes
         # Trigger the behavior that occurs when invalid params are submitted
         Announcement.any_instance.stub(:save).and_return(false)
-        put :update, {:id => announcement.to_param, :announcement => { "content" => "invalid value" }}, valid_session
+        put :update, params: {:id => announcement.to_param, :announcement => { "content" => "invalid value" }}, session: valid_session
         assigns(:announcement).should eq(announcement)
       end
 
@@ -144,7 +144,7 @@ describe AnnouncementsController do
         announcement = Announcement.create! valid_attributes
         # Trigger the behavior that occurs when invalid params are submitted
         Announcement.any_instance.stub(:save).and_return(false)
-        put :update, {:id => announcement.to_param, :announcement => { "content" => "invalid value" }}, valid_session
+        put :update, params: {:id => announcement.to_param, :announcement => { "content" => "invalid value" }}, session: valid_session
         response.should render_template("edit")
       end
     end
@@ -154,13 +154,13 @@ describe AnnouncementsController do
     it "destroys the requested announcement" do
       announcement = Announcement.create! valid_attributes
       expect {
-        delete :destroy, {:id => announcement.to_param}, valid_session
+        delete :destroy, params: {:id => announcement.to_param}, session: valid_session
       }.to change(Announcement, :count).by(-1)
     end
 
     it "redirects to the announcements list" do
       announcement = Announcement.create! valid_attributes
-      delete :destroy, {:id => announcement.to_param}, valid_session
+      delete :destroy, params: {:id => announcement.to_param}, session: valid_session
       response.should redirect_to(announcements_url)
     end
   end

@@ -33,7 +33,7 @@ describe ContractorsController do
   describe "GET index" do
     it "assigns all contractors as @contractors" do
       contractor = Contractor.create! valid_attributes
-      get :index, {}, valid_session
+      get :index, params: {}, session: valid_session
       assigns(:contractors).should eq([contractor])
     end
   end
@@ -41,14 +41,14 @@ describe ContractorsController do
   describe "GET show" do
     it "assigns the requested contractor as @contractor" do
       contractor = Contractor.create! valid_attributes
-      get :show, {:id => contractor.to_param}, valid_session
+      get :show, params: {:id => contractor.to_param}, session: valid_session
       assigns(:contractor).should eq(contractor)
     end
   end
 
   describe "GET new" do
     it "assigns a new contractor as @contractor" do
-      get :new, {}, valid_session
+      get :new, params: {}, session: valid_session
       assigns(:contractor).should be_a_new(Contractor)
     end
   end
@@ -56,7 +56,7 @@ describe ContractorsController do
   describe "GET edit" do
     it "assigns the requested contractor as @contractor" do
       contractor = Contractor.create! valid_attributes
-      get :edit, {:id => contractor.to_param}, valid_session
+      get :edit, params: {:id => contractor.to_param}, session: valid_session
       assigns(:contractor).should eq(contractor)
     end
   end
@@ -65,18 +65,18 @@ describe ContractorsController do
     describe "with valid params" do
       it "creates a new Contractor" do
         expect {
-          post :create, {:contractor => valid_attributes}, valid_session
+          post :create, params: {:contractor => valid_attributes}, session: valid_session
         }.to change(Contractor, :count).by(1)
       end
 
       it "assigns a newly created contractor as @contractor" do
-        post :create, {:contractor => valid_attributes}, valid_session
+        post :create, params: {:contractor => valid_attributes}, session: valid_session
         assigns(:contractor).should be_a(Contractor)
         assigns(:contractor).should be_persisted
       end
 
       it "redirects to the created contractor" do
-        post :create, {:contractor => valid_attributes}, valid_session
+        post :create, params: {:contractor => valid_attributes}, session: valid_session
         response.should redirect_to(Contractor.last)
       end
     end
@@ -85,14 +85,14 @@ describe ContractorsController do
       it "assigns a newly created but unsaved contractor as @contractor" do
         # Trigger the behavior that occurs when invalid params are submitted
         Contractor.any_instance.stub(:save).and_return(false)
-        post :create, {:contractor => { "name" => "invalid value" }}, valid_session
+        post :create, params: {:contractor => { "name" => "invalid value" }}, session: valid_session
         assigns(:contractor).should be_a_new(Contractor)
       end
 
       it "re-renders the 'new' template" do
         # Trigger the behavior that occurs when invalid params are submitted
         Contractor.any_instance.stub(:save).and_return(false)
-        post :create, {:contractor => { "name" => "invalid value" }}, valid_session
+        post :create, params: {:contractor => { "name" => "invalid value" }}, session: valid_session
         response.should render_template("new")
       end
     end
@@ -107,18 +107,18 @@ describe ContractorsController do
         # receives the :update_attributes message with whatever params are
         # submitted in the request.
         Contractor.any_instance.should_receive(:update_attributes).with({ "name" => "MyString" })
-        put :update, {:id => contractor.to_param, :contractor => { "name" => "MyString" }}, valid_session
+        put :update, params: {:id => contractor.to_param, :contractor => { "name" => "MyString" }}, session: valid_session
       end
 
       it "assigns the requested contractor as @contractor" do
         contractor = Contractor.create! valid_attributes
-        put :update, {:id => contractor.to_param, :contractor => valid_attributes}, valid_session
+        put :update, params: {:id => contractor.to_param, :contractor => valid_attributes}, session: valid_session
         assigns(:contractor).should eq(contractor)
       end
 
       it "redirects to the contractor" do
         contractor = Contractor.create! valid_attributes
-        put :update, {:id => contractor.to_param, :contractor => valid_attributes}, valid_session
+        put :update, params: {:id => contractor.to_param, :contractor => valid_attributes}, session: valid_session
         response.should redirect_to(contractor)
       end
     end
@@ -128,7 +128,7 @@ describe ContractorsController do
         contractor = Contractor.create! valid_attributes
         # Trigger the behavior that occurs when invalid params are submitted
         Contractor.any_instance.stub(:save).and_return(false)
-        put :update, {:id => contractor.to_param, :contractor => { "name" => "invalid value" }}, valid_session
+        put :update, params: {:id => contractor.to_param, :contractor => { "name" => "invalid value" }}, session: valid_session
         assigns(:contractor).should eq(contractor)
       end
 
@@ -136,7 +136,7 @@ describe ContractorsController do
         contractor = Contractor.create! valid_attributes
         # Trigger the behavior that occurs when invalid params are submitted
         Contractor.any_instance.stub(:save).and_return(false)
-        put :update, {:id => contractor.to_param, :contractor => { "name" => "invalid value" }}, valid_session
+        put :update, params: {:id => contractor.to_param, :contractor => { "name" => "invalid value" }}, session: valid_session
         response.should render_template("edit")
       end
     end
@@ -146,13 +146,13 @@ describe ContractorsController do
     it "destroys the requested contractor" do
       contractor = Contractor.create! valid_attributes
       expect {
-        delete :destroy, {:id => contractor.to_param}, valid_session
+        delete :destroy, params: {:id => contractor.to_param}, session: valid_session
       }.to change(Contractor, :count).by(-1)
     end
 
     it "redirects to the contractors list" do
       contractor = Contractor.create! valid_attributes
-      delete :destroy, {:id => contractor.to_param}, valid_session
+      delete :destroy, params: {:id => contractor.to_param}, session: valid_session
       response.should redirect_to(contractors_url)
     end
   end

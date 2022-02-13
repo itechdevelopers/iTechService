@@ -33,7 +33,7 @@ describe PaymentsController do
   describe "GET index" do
     it "assigns all payments as @payments" do
       payment = Payment.create! valid_attributes
-      get :index, {}, valid_session
+      get :index, params: {}, session: valid_session
       assigns(:payments).should eq([payment])
     end
   end
@@ -41,14 +41,14 @@ describe PaymentsController do
   describe "GET show" do
     it "assigns the requested payment as @payment" do
       payment = Payment.create! valid_attributes
-      get :show, {:id => payment.to_param}, valid_session
+      get :show, params: {:id => payment.to_param}, session: valid_session
       assigns(:payment).should eq(payment)
     end
   end
 
   describe "GET new" do
     it "assigns a new payment as @payment" do
-      get :new, {}, valid_session
+      get :new, params: {}, session: valid_session
       assigns(:payment).should be_a_new(Payment)
     end
   end
@@ -56,7 +56,7 @@ describe PaymentsController do
   describe "GET edit" do
     it "assigns the requested payment as @payment" do
       payment = Payment.create! valid_attributes
-      get :edit, {:id => payment.to_param}, valid_session
+      get :edit, params: {:id => payment.to_param}, session: valid_session
       assigns(:payment).should eq(payment)
     end
   end
@@ -65,18 +65,18 @@ describe PaymentsController do
     describe "with valid params" do
       it "creates a new Payment" do
         expect {
-          post :create, {:payment => valid_attributes}, valid_session
+          post :create, params: {:payment => valid_attributes}, session: valid_session
         }.to change(Payment, :count).by(1)
       end
 
       it "assigns a newly created payment as @payment" do
-        post :create, {:payment => valid_attributes}, valid_session
+        post :create, params: {:payment => valid_attributes}, session: valid_session
         assigns(:payment).should be_a(Payment)
         assigns(:payment).should be_persisted
       end
 
       it "redirects to the created payment" do
-        post :create, {:payment => valid_attributes}, valid_session
+        post :create, params: {:payment => valid_attributes}, session: valid_session
         response.should redirect_to(Payment.last)
       end
     end
@@ -85,14 +85,14 @@ describe PaymentsController do
       it "assigns a newly created but unsaved payment as @payment" do
         # Trigger the behavior that occurs when invalid params are submitted
         Payment.any_instance.stub(:save).and_return(false)
-        post :create, {:payment => { "payment_type" => "invalid value" }}, valid_session
+        post :create, params: {:payment => { "payment_type" => "invalid value" }}, session: valid_session
         assigns(:payment).should be_a_new(Payment)
       end
 
       it "re-renders the 'new' template" do
         # Trigger the behavior that occurs when invalid params are submitted
         Payment.any_instance.stub(:save).and_return(false)
-        post :create, {:payment => { "payment_type" => "invalid value" }}, valid_session
+        post :create, params: {:payment => { "payment_type" => "invalid value" }}, session: valid_session
         response.should render_template("new")
       end
     end
@@ -107,18 +107,18 @@ describe PaymentsController do
         # receives the :update_attributes message with whatever params are
         # submitted in the request.
         Payment.any_instance.should_receive(:update_attributes).with({ "payment_type" => "" })
-        put :update, {:id => payment.to_param, :payment => { "payment_type" => "" }}, valid_session
+        put :update, params: {:id => payment.to_param, :payment => { "payment_type" => "" }}, session: valid_session
       end
 
       it "assigns the requested payment as @payment" do
         payment = Payment.create! valid_attributes
-        put :update, {:id => payment.to_param, :payment => valid_attributes}, valid_session
+        put :update, params: {:id => payment.to_param, :payment => valid_attributes}, session: valid_session
         assigns(:payment).should eq(payment)
       end
 
       it "redirects to the payment" do
         payment = Payment.create! valid_attributes
-        put :update, {:id => payment.to_param, :payment => valid_attributes}, valid_session
+        put :update, params: {:id => payment.to_param, :payment => valid_attributes}, session: valid_session
         response.should redirect_to(payment)
       end
     end
@@ -128,7 +128,7 @@ describe PaymentsController do
         payment = Payment.create! valid_attributes
         # Trigger the behavior that occurs when invalid params are submitted
         Payment.any_instance.stub(:save).and_return(false)
-        put :update, {:id => payment.to_param, :payment => { "payment_type" => "invalid value" }}, valid_session
+        put :update, params: {:id => payment.to_param, :payment => { "payment_type" => "invalid value" }}, session: valid_session
         assigns(:payment).should eq(payment)
       end
 
@@ -136,7 +136,7 @@ describe PaymentsController do
         payment = Payment.create! valid_attributes
         # Trigger the behavior that occurs when invalid params are submitted
         Payment.any_instance.stub(:save).and_return(false)
-        put :update, {:id => payment.to_param, :payment => { "payment_type" => "invalid value" }}, valid_session
+        put :update, params: {:id => payment.to_param, :payment => { "payment_type" => "invalid value" }}, session: valid_session
         response.should render_template("edit")
       end
     end
@@ -146,13 +146,13 @@ describe PaymentsController do
     it "destroys the requested payment" do
       payment = Payment.create! valid_attributes
       expect {
-        delete :destroy, {:id => payment.to_param}, valid_session
+        delete :destroy, params: {:id => payment.to_param}, session: valid_session
       }.to change(Payment, :count).by(-1)
     end
 
     it "redirects to the payments list" do
       payment = Payment.create! valid_attributes
-      delete :destroy, {:id => payment.to_param}, valid_session
+      delete :destroy, params: {:id => payment.to_param}, session: valid_session
       response.should redirect_to(payments_url)
     end
   end

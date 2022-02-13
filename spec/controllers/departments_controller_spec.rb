@@ -33,7 +33,7 @@ describe DepartmentsController do
   describe "GET index" do
     it "assigns all departments as @departments" do
       department = Department.create! valid_attributes
-      get :index, {}, valid_session
+      get :index, params: {}, session: valid_session
       assigns(:departments).should eq([department])
     end
   end
@@ -41,14 +41,14 @@ describe DepartmentsController do
   describe "GET show" do
     it "assigns the requested department as @department" do
       department = Department.create! valid_attributes
-      get :show, {:id => department.to_param}, valid_session
+      get :show, params: {:id => department.to_param}, session: valid_session
       assigns(:department).should eq(department)
     end
   end
 
   describe "GET new" do
     it "assigns a new department as @department" do
-      get :new, {}, valid_session
+      get :new, params: {}, session: valid_session
       assigns(:department).should be_a_new(Department)
     end
   end
@@ -56,7 +56,7 @@ describe DepartmentsController do
   describe "GET edit" do
     it "assigns the requested department as @department" do
       department = Department.create! valid_attributes
-      get :edit, {:id => department.to_param}, valid_session
+      get :edit, params: {:id => department.to_param}, session: valid_session
       assigns(:department).should eq(department)
     end
   end
@@ -65,18 +65,18 @@ describe DepartmentsController do
     describe "with valid params" do
       it "creates a new Department" do
         expect {
-          post :create, {:department => valid_attributes}, valid_session
+          post :create, params: {:department => valid_attributes}, session: valid_session
         }.to change(Department, :count).by(1)
       end
 
       it "assigns a newly created department as @department" do
-        post :create, {:department => valid_attributes}, valid_session
+        post :create, params: {:department => valid_attributes}, session: valid_session
         assigns(:department).should be_a(Department)
         assigns(:department).should be_persisted
       end
 
       it "redirects to the created department" do
-        post :create, {:department => valid_attributes}, valid_session
+        post :create, params: {:department => valid_attributes}, session: valid_session
         response.should redirect_to(Department.last)
       end
     end
@@ -85,14 +85,14 @@ describe DepartmentsController do
       it "assigns a newly created but unsaved department as @department" do
         # Trigger the behavior that occurs when invalid params are submitted
         Department.any_instance.stub(:save).and_return(false)
-        post :create, {:department => { "name" => "invalid value" }}, valid_session
+        post :create, params: {:department => { "name" => "invalid value" }}, session: valid_session
         assigns(:department).should be_a_new(Department)
       end
 
       it "re-renders the 'new' template" do
         # Trigger the behavior that occurs when invalid params are submitted
         Department.any_instance.stub(:save).and_return(false)
-        post :create, {:department => { "name" => "invalid value" }}, valid_session
+        post :create, params: {:department => { "name" => "invalid value" }}, session: valid_session
         response.should render_template("new")
       end
     end
@@ -107,18 +107,18 @@ describe DepartmentsController do
         # receives the :update_attributes message with whatever params are
         # submitted in the request.
         Department.any_instance.should_receive(:update_attributes).with({ "name" => "MyString" })
-        put :update, {:id => department.to_param, :department => { "name" => "MyString" }}, valid_session
+        put :update, params: {:id => department.to_param, :department => { "name" => "MyString" }}, session: valid_session
       end
 
       it "assigns the requested department as @department" do
         department = Department.create! valid_attributes
-        put :update, {:id => department.to_param, :department => valid_attributes}, valid_session
+        put :update, params: {:id => department.to_param, :department => valid_attributes}, session: valid_session
         assigns(:department).should eq(department)
       end
 
       it "redirects to the department" do
         department = Department.create! valid_attributes
-        put :update, {:id => department.to_param, :department => valid_attributes}, valid_session
+        put :update, params: {:id => department.to_param, :department => valid_attributes}, session: valid_session
         response.should redirect_to(department)
       end
     end
@@ -128,7 +128,7 @@ describe DepartmentsController do
         department = Department.create! valid_attributes
         # Trigger the behavior that occurs when invalid params are submitted
         Department.any_instance.stub(:save).and_return(false)
-        put :update, {:id => department.to_param, :department => { "name" => "invalid value" }}, valid_session
+        put :update, params: {:id => department.to_param, :department => { "name" => "invalid value" }}, session: valid_session
         assigns(:department).should eq(department)
       end
 
@@ -136,7 +136,7 @@ describe DepartmentsController do
         department = Department.create! valid_attributes
         # Trigger the behavior that occurs when invalid params are submitted
         Department.any_instance.stub(:save).and_return(false)
-        put :update, {:id => department.to_param, :department => { "name" => "invalid value" }}, valid_session
+        put :update, params: {:id => department.to_param, :department => { "name" => "invalid value" }}, session: valid_session
         response.should render_template("edit")
       end
     end
@@ -146,13 +146,13 @@ describe DepartmentsController do
     it "destroys the requested department" do
       department = Department.create! valid_attributes
       expect {
-        delete :destroy, {:id => department.to_param}, valid_session
+        delete :destroy, params: {:id => department.to_param}, session: valid_session
       }.to change(Department, :count).by(-1)
     end
 
     it "redirects to the departments list" do
       department = Department.create! valid_attributes
-      delete :destroy, {:id => department.to_param}, valid_session
+      delete :destroy, params: {:id => department.to_param}, session: valid_session
       response.should redirect_to(departments_url)
     end
   end

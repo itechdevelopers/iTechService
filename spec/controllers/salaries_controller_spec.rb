@@ -37,7 +37,7 @@ describe SalariesController do
   describe "GET index" do
     it "assigns all salaries as @salaries" do
       salary = Salary.create! valid_attributes
-      get :index, {}, valid_session
+      get :index, params: {}, session: valid_session
       assigns(:salaries).should eq([salary])
     end
   end
@@ -45,14 +45,14 @@ describe SalariesController do
   describe "GET show" do
     it "assigns the requested salary as @salary" do
       salary = Salary.create! valid_attributes
-      get :show, {:id => salary.to_param}, valid_session
+      get :show, params: {:id => salary.to_param}, session: valid_session
       assigns(:salary).should eq(salary)
     end
   end
 
   describe "GET new" do
     it "assigns a new salary as @salary" do
-      get :new, {}, valid_session
+      get :new, params: {}, session: valid_session
       assigns(:salary).should be_a_new(Salary)
     end
   end
@@ -60,7 +60,7 @@ describe SalariesController do
   describe "GET edit" do
     it "assigns the requested salary as @salary" do
       salary = Salary.create! valid_attributes
-      get :edit, {:id => salary.to_param}, valid_session
+      get :edit, params: {:id => salary.to_param}, session: valid_session
       assigns(:salary).should eq(salary)
     end
   end
@@ -69,18 +69,18 @@ describe SalariesController do
     describe "with valid params" do
       it "creates a new Salary" do
         expect {
-          post :create, {:salary => valid_attributes}, valid_session
+          post :create, params: {:salary => valid_attributes}, session: valid_session
         }.to change(Salary, :count).by(1)
       end
 
       it "assigns a newly created salary as @salary" do
-        post :create, {:salary => valid_attributes}, valid_session
+        post :create, params: {:salary => valid_attributes}, session: valid_session
         assigns(:salary).should be_a(Salary)
         assigns(:salary).should be_persisted
       end
 
       it "redirects to the created salary" do
-        post :create, {:salary => valid_attributes}, valid_session
+        post :create, params: {:salary => valid_attributes}, session: valid_session
         response.should redirect_to(Salary.last)
       end
     end
@@ -89,14 +89,14 @@ describe SalariesController do
       it "assigns a newly created but unsaved salary as @salary" do
         # Trigger the behavior that occurs when invalid params are submitted
         Salary.any_instance.stub(:save).and_return(false)
-        post :create, {:salary => { "user" => "invalid value" }}, valid_session
+        post :create, params: {:salary => { "user" => "invalid value" }}, session: valid_session
         assigns(:salary).should be_a_new(Salary)
       end
 
       it "re-renders the 'new' template" do
         # Trigger the behavior that occurs when invalid params are submitted
         Salary.any_instance.stub(:save).and_return(false)
-        post :create, {:salary => { "user" => "invalid value" }}, valid_session
+        post :create, params: {:salary => { "user" => "invalid value" }}, session: valid_session
         response.should render_template("new")
       end
     end
@@ -111,18 +111,18 @@ describe SalariesController do
         # receives the :update_attributes message with whatever params are
         # submitted in the request.
         Salary.any_instance.should_receive(:update_attributes).with({ "user" => "" })
-        put :update, {:id => salary.to_param, :salary => { "user" => "" }}, valid_session
+        put :update, params: {:id => salary.to_param, :salary => { "user" => "" }}, session: valid_session
       end
 
       it "assigns the requested salary as @salary" do
         salary = Salary.create! valid_attributes
-        put :update, {:id => salary.to_param, :salary => valid_attributes}, valid_session
+        put :update, params: {:id => salary.to_param, :salary => valid_attributes}, session: valid_session
         assigns(:salary).should eq(salary)
       end
 
       it "redirects to the salary" do
         salary = Salary.create! valid_attributes
-        put :update, {:id => salary.to_param, :salary => valid_attributes}, valid_session
+        put :update, params: {:id => salary.to_param, :salary => valid_attributes}, session: valid_session
         response.should redirect_to(salary)
       end
     end
@@ -132,7 +132,7 @@ describe SalariesController do
         salary = Salary.create! valid_attributes
         # Trigger the behavior that occurs when invalid params are submitted
         Salary.any_instance.stub(:save).and_return(false)
-        put :update, {:id => salary.to_param, :salary => { "user" => "invalid value" }}, valid_session
+        put :update, params: {:id => salary.to_param, :salary => { "user" => "invalid value" }}, session: valid_session
         assigns(:salary).should eq(salary)
       end
 
@@ -140,7 +140,7 @@ describe SalariesController do
         salary = Salary.create! valid_attributes
         # Trigger the behavior that occurs when invalid params are submitted
         Salary.any_instance.stub(:save).and_return(false)
-        put :update, {:id => salary.to_param, :salary => { "user" => "invalid value" }}, valid_session
+        put :update, params: {:id => salary.to_param, :salary => { "user" => "invalid value" }}, session: valid_session
         response.should render_template("edit")
       end
     end
@@ -150,13 +150,13 @@ describe SalariesController do
     it "destroys the requested salary" do
       salary = Salary.create! valid_attributes
       expect {
-        delete :destroy, {:id => salary.to_param}, valid_session
+        delete :destroy, params: {:id => salary.to_param}, session: valid_session
       }.to change(Salary, :count).by(-1)
     end
 
     it "redirects to the salaries list" do
       salary = Salary.create! valid_attributes
-      delete :destroy, {:id => salary.to_param}, valid_session
+      delete :destroy, params: {:id => salary.to_param}, session: valid_session
       response.should redirect_to(salaries_url)
     end
   end

@@ -33,7 +33,7 @@ describe FeatureTypesController do
   describe "GET index" do
     it "assigns all feature_types as @feature_types" do
       feature_type = FeatureType.create! valid_attributes
-      get :index, {}, valid_session
+      get :index, params: {}, session: valid_session
       assigns(:feature_types).should eq([feature_type])
     end
   end
@@ -41,14 +41,14 @@ describe FeatureTypesController do
   describe "GET show" do
     it "assigns the requested feature_type as @feature_type" do
       feature_type = FeatureType.create! valid_attributes
-      get :show, {:id => feature_type.to_param}, valid_session
+      get :show, params: {:id => feature_type.to_param}, session: valid_session
       assigns(:feature_type).should eq(feature_type)
     end
   end
 
   describe "GET new" do
     it "assigns a new feature_type as @feature_type" do
-      get :new, {}, valid_session
+      get :new, params: {}, session: valid_session
       assigns(:feature_type).should be_a_new(FeatureType)
     end
   end
@@ -56,7 +56,7 @@ describe FeatureTypesController do
   describe "GET edit" do
     it "assigns the requested feature_type as @feature_type" do
       feature_type = FeatureType.create! valid_attributes
-      get :edit, {:id => feature_type.to_param}, valid_session
+      get :edit, params: {:id => feature_type.to_param}, session: valid_session
       assigns(:feature_type).should eq(feature_type)
     end
   end
@@ -65,18 +65,18 @@ describe FeatureTypesController do
     describe "with valid params" do
       it "creates a new FeatureType" do
         expect {
-          post :create, {:feature_type => valid_attributes}, valid_session
+          post :create, params: {:feature_type => valid_attributes}, session: valid_session
         }.to change(FeatureType, :count).by(1)
       end
 
       it "assigns a newly created feature_type as @feature_type" do
-        post :create, {:feature_type => valid_attributes}, valid_session
+        post :create, params: {:feature_type => valid_attributes}, session: valid_session
         assigns(:feature_type).should be_a(FeatureType)
         assigns(:feature_type).should be_persisted
       end
 
       it "redirects to the created feature_type" do
-        post :create, {:feature_type => valid_attributes}, valid_session
+        post :create, params: {:feature_type => valid_attributes}, session: valid_session
         response.should redirect_to(FeatureType.last)
       end
     end
@@ -85,14 +85,14 @@ describe FeatureTypesController do
       it "assigns a newly created but unsaved feature_type as @feature_type" do
         # Trigger the behavior that occurs when invalid params are submitted
         FeatureType.any_instance.stub(:save).and_return(false)
-        post :create, {:feature_type => { "name" => "invalid value" }}, valid_session
+        post :create, params: {:feature_type => { "name" => "invalid value" }}, session: valid_session
         assigns(:feature_type).should be_a_new(FeatureType)
       end
 
       it "re-renders the 'new' template" do
         # Trigger the behavior that occurs when invalid params are submitted
         FeatureType.any_instance.stub(:save).and_return(false)
-        post :create, {:feature_type => { "name" => "invalid value" }}, valid_session
+        post :create, params: {:feature_type => { "name" => "invalid value" }}, session: valid_session
         response.should render_template("new")
       end
     end
@@ -107,18 +107,18 @@ describe FeatureTypesController do
         # receives the :update_attributes message with whatever params are
         # submitted in the request.
         FeatureType.any_instance.should_receive(:update_attributes).with({ "name" => "MyString" })
-        put :update, {:id => feature_type.to_param, :feature_type => { "name" => "MyString" }}, valid_session
+        put :update, params: {:id => feature_type.to_param, :feature_type => { "name" => "MyString" }}, session: valid_session
       end
 
       it "assigns the requested feature_type as @feature_type" do
         feature_type = FeatureType.create! valid_attributes
-        put :update, {:id => feature_type.to_param, :feature_type => valid_attributes}, valid_session
+        put :update, params: {:id => feature_type.to_param, :feature_type => valid_attributes}, session: valid_session
         assigns(:feature_type).should eq(feature_type)
       end
 
       it "redirects to the feature_type" do
         feature_type = FeatureType.create! valid_attributes
-        put :update, {:id => feature_type.to_param, :feature_type => valid_attributes}, valid_session
+        put :update, params: {:id => feature_type.to_param, :feature_type => valid_attributes}, session: valid_session
         response.should redirect_to(feature_type)
       end
     end
@@ -128,7 +128,7 @@ describe FeatureTypesController do
         feature_type = FeatureType.create! valid_attributes
         # Trigger the behavior that occurs when invalid params are submitted
         FeatureType.any_instance.stub(:save).and_return(false)
-        put :update, {:id => feature_type.to_param, :feature_type => { "name" => "invalid value" }}, valid_session
+        put :update, params: {:id => feature_type.to_param, :feature_type => { "name" => "invalid value" }}, session: valid_session
         assigns(:feature_type).should eq(feature_type)
       end
 
@@ -136,7 +136,7 @@ describe FeatureTypesController do
         feature_type = FeatureType.create! valid_attributes
         # Trigger the behavior that occurs when invalid params are submitted
         FeatureType.any_instance.stub(:save).and_return(false)
-        put :update, {:id => feature_type.to_param, :feature_type => { "name" => "invalid value" }}, valid_session
+        put :update, params: {:id => feature_type.to_param, :feature_type => { "name" => "invalid value" }}, session: valid_session
         response.should render_template("edit")
       end
     end
@@ -146,13 +146,13 @@ describe FeatureTypesController do
     it "destroys the requested feature_type" do
       feature_type = FeatureType.create! valid_attributes
       expect {
-        delete :destroy, {:id => feature_type.to_param}, valid_session
+        delete :destroy, params: {:id => feature_type.to_param}, session: valid_session
       }.to change(FeatureType, :count).by(-1)
     end
 
     it "redirects to the feature_types list" do
       feature_type = FeatureType.create! valid_attributes
-      delete :destroy, {:id => feature_type.to_param}, valid_session
+      delete :destroy, params: {:id => feature_type.to_param}, session: valid_session
       response.should redirect_to(feature_types_url)
     end
   end

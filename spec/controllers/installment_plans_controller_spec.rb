@@ -33,7 +33,7 @@ describe InstallmentPlansController do
   describe "GET index" do
     it "assigns all installment_plans as @installment_plans" do
       installment_plan = InstallmentPlan.create! valid_attributes
-      get :index, {}, valid_session
+      get :index, params: {}, session: valid_session
       assigns(:installment_plans).should eq([installment_plan])
     end
   end
@@ -41,14 +41,14 @@ describe InstallmentPlansController do
   describe "GET show" do
     it "assigns the requested installment_plan as @installment_plan" do
       installment_plan = InstallmentPlan.create! valid_attributes
-      get :show, {:id => installment_plan.to_param}, valid_session
+      get :show, params: {:id => installment_plan.to_param}, session: valid_session
       assigns(:installment_plan).should eq(installment_plan)
     end
   end
 
   describe "GET new" do
     it "assigns a new installment_plan as @installment_plan" do
-      get :new, {}, valid_session
+      get :new, params: {}, session: valid_session
       assigns(:installment_plan).should be_a_new(InstallmentPlan)
     end
   end
@@ -56,7 +56,7 @@ describe InstallmentPlansController do
   describe "GET edit" do
     it "assigns the requested installment_plan as @installment_plan" do
       installment_plan = InstallmentPlan.create! valid_attributes
-      get :edit, {:id => installment_plan.to_param}, valid_session
+      get :edit, params: {:id => installment_plan.to_param}, session: valid_session
       assigns(:installment_plan).should eq(installment_plan)
     end
   end
@@ -65,18 +65,18 @@ describe InstallmentPlansController do
     describe "with valid params" do
       it "creates a new InstallmentPlan" do
         expect {
-          post :create, {:installment_plan => valid_attributes}, valid_session
+          post :create, params: {:installment_plan => valid_attributes}, session: valid_session
         }.to change(InstallmentPlan, :count).by(1)
       end
 
       it "assigns a newly created installment_plan as @installment_plan" do
-        post :create, {:installment_plan => valid_attributes}, valid_session
+        post :create, params: {:installment_plan => valid_attributes}, session: valid_session
         assigns(:installment_plan).should be_a(InstallmentPlan)
         assigns(:installment_plan).should be_persisted
       end
 
       it "redirects to the created installment_plan" do
-        post :create, {:installment_plan => valid_attributes}, valid_session
+        post :create, params: {:installment_plan => valid_attributes}, session: valid_session
         response.should redirect_to(InstallmentPlan.last)
       end
     end
@@ -85,14 +85,14 @@ describe InstallmentPlansController do
       it "assigns a newly created but unsaved installment_plan as @installment_plan" do
         # Trigger the behavior that occurs when invalid params are submitted
         InstallmentPlan.any_instance.stub(:save).and_return(false)
-        post :create, {:installment_plan => { "user" => "invalid value" }}, valid_session
+        post :create, params: {:installment_plan => { "user" => "invalid value" }}, session: valid_session
         assigns(:installment_plan).should be_a_new(InstallmentPlan)
       end
 
       it "re-renders the 'new' template" do
         # Trigger the behavior that occurs when invalid params are submitted
         InstallmentPlan.any_instance.stub(:save).and_return(false)
-        post :create, {:installment_plan => { "user" => "invalid value" }}, valid_session
+        post :create, params: {:installment_plan => { "user" => "invalid value" }}, session: valid_session
         response.should render_template("new")
       end
     end
@@ -107,18 +107,18 @@ describe InstallmentPlansController do
         # receives the :update_attributes message with whatever params are
         # submitted in the request.
         InstallmentPlan.any_instance.should_receive(:update_attributes).with({ "user" => "" })
-        put :update, {:id => installment_plan.to_param, :installment_plan => { "user" => "" }}, valid_session
+        put :update, params: {:id => installment_plan.to_param, :installment_plan => { "user" => "" }}, session: valid_session
       end
 
       it "assigns the requested installment_plan as @installment_plan" do
         installment_plan = InstallmentPlan.create! valid_attributes
-        put :update, {:id => installment_plan.to_param, :installment_plan => valid_attributes}, valid_session
+        put :update, params: {:id => installment_plan.to_param, :installment_plan => valid_attributes}, session: valid_session
         assigns(:installment_plan).should eq(installment_plan)
       end
 
       it "redirects to the installment_plan" do
         installment_plan = InstallmentPlan.create! valid_attributes
-        put :update, {:id => installment_plan.to_param, :installment_plan => valid_attributes}, valid_session
+        put :update, params: {:id => installment_plan.to_param, :installment_plan => valid_attributes}, session: valid_session
         response.should redirect_to(installment_plan)
       end
     end
@@ -128,7 +128,7 @@ describe InstallmentPlansController do
         installment_plan = InstallmentPlan.create! valid_attributes
         # Trigger the behavior that occurs when invalid params are submitted
         InstallmentPlan.any_instance.stub(:save).and_return(false)
-        put :update, {:id => installment_plan.to_param, :installment_plan => { "user" => "invalid value" }}, valid_session
+        put :update, params: {:id => installment_plan.to_param, :installment_plan => { "user" => "invalid value" }}, session: valid_session
         assigns(:installment_plan).should eq(installment_plan)
       end
 
@@ -136,7 +136,7 @@ describe InstallmentPlansController do
         installment_plan = InstallmentPlan.create! valid_attributes
         # Trigger the behavior that occurs when invalid params are submitted
         InstallmentPlan.any_instance.stub(:save).and_return(false)
-        put :update, {:id => installment_plan.to_param, :installment_plan => { "user" => "invalid value" }}, valid_session
+        put :update, params: {:id => installment_plan.to_param, :installment_plan => { "user" => "invalid value" }}, session: valid_session
         response.should render_template("edit")
       end
     end
@@ -146,13 +146,13 @@ describe InstallmentPlansController do
     it "destroys the requested installment_plan" do
       installment_plan = InstallmentPlan.create! valid_attributes
       expect {
-        delete :destroy, {:id => installment_plan.to_param}, valid_session
+        delete :destroy, params: {:id => installment_plan.to_param}, session: valid_session
       }.to change(InstallmentPlan, :count).by(-1)
     end
 
     it "redirects to the installment_plans list" do
       installment_plan = InstallmentPlan.create! valid_attributes
-      delete :destroy, {:id => installment_plan.to_param}, valid_session
+      delete :destroy, params: {:id => installment_plan.to_param}, session: valid_session
       response.should redirect_to(installment_plans_url)
     end
   end

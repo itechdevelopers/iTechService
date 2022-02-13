@@ -39,7 +39,7 @@ RSpec.describe MediaOrdersController, :type => :controller do
   describe "GET index" do
     it "assigns all media_orders as @media_orders" do
       media_order = MediaOrder.create! valid_attributes
-      get :index, {}, valid_session
+      get :index, params: {}, session: valid_session
       expect(assigns(:media_orders)).to eq([media_order])
     end
   end
@@ -47,14 +47,14 @@ RSpec.describe MediaOrdersController, :type => :controller do
   describe "GET show" do
     it "assigns the requested media_order as @media_order" do
       media_order = MediaOrder.create! valid_attributes
-      get :show, {:id => media_order.to_param}, valid_session
+      get :show, params: {:id => media_order.to_param}, session: valid_session
       expect(assigns(:media_order)).to eq(media_order)
     end
   end
 
   describe "GET new" do
     it "assigns a new media_order as @media_order" do
-      get :new, {}, valid_session
+      get :new, params: {}, session: valid_session
       expect(assigns(:media_order)).to be_a_new(MediaOrder)
     end
   end
@@ -62,7 +62,7 @@ RSpec.describe MediaOrdersController, :type => :controller do
   describe "GET edit" do
     it "assigns the requested media_order as @media_order" do
       media_order = MediaOrder.create! valid_attributes
-      get :edit, {:id => media_order.to_param}, valid_session
+      get :edit, params: {:id => media_order.to_param}, session: valid_session
       expect(assigns(:media_order)).to eq(media_order)
     end
   end
@@ -71,30 +71,30 @@ RSpec.describe MediaOrdersController, :type => :controller do
     describe "with valid params" do
       it "creates a new MediaOrder" do
         expect {
-          post :create, {:media_order => valid_attributes}, valid_session
+          post :create, params: {:media_order => valid_attributes}, session: valid_session
         }.to change(MediaOrder, :count).by(1)
       end
 
       it "assigns a newly created media_order as @media_order" do
-        post :create, {:media_order => valid_attributes}, valid_session
+        post :create, params: {:media_order => valid_attributes}, session: valid_session
         expect(assigns(:media_order)).to be_a(MediaOrder)
         expect(assigns(:media_order)).to be_persisted
       end
 
       it "redirects to the created media_order" do
-        post :create, {:media_order => valid_attributes}, valid_session
+        post :create, params: {:media_order => valid_attributes}, session: valid_session
         expect(response).to redirect_to(MediaOrder.last)
       end
     end
 
     describe "with invalid params" do
       it "assigns a newly created but unsaved media_order as @media_order" do
-        post :create, {:media_order => invalid_attributes}, valid_session
+        post :create, params: {:media_order => invalid_attributes}, session: valid_session
         expect(assigns(:media_order)).to be_a_new(MediaOrder)
       end
 
       it "re-renders the 'new' template" do
-        post :create, {:media_order => invalid_attributes}, valid_session
+        post :create, params: {:media_order => invalid_attributes}, session: valid_session
         expect(response).to render_template("new")
       end
     end
@@ -108,20 +108,20 @@ RSpec.describe MediaOrdersController, :type => :controller do
 
       it "updates the requested media_order" do
         media_order = MediaOrder.create! valid_attributes
-        put :update, {:id => media_order.to_param, :media_order => new_attributes}, valid_session
+        put :update, params: {:id => media_order.to_param, :media_order => new_attributes}, session: valid_session
         media_order.reload
         skip("Add assertions for updated state")
       end
 
       it "assigns the requested media_order as @media_order" do
         media_order = MediaOrder.create! valid_attributes
-        put :update, {:id => media_order.to_param, :media_order => valid_attributes}, valid_session
+        put :update, params: {:id => media_order.to_param, :media_order => valid_attributes}, session: valid_session
         expect(assigns(:media_order)).to eq(media_order)
       end
 
       it "redirects to the media_order" do
         media_order = MediaOrder.create! valid_attributes
-        put :update, {:id => media_order.to_param, :media_order => valid_attributes}, valid_session
+        put :update, params: {:id => media_order.to_param, :media_order => valid_attributes}, session: valid_session
         expect(response).to redirect_to(media_order)
       end
     end
@@ -129,13 +129,13 @@ RSpec.describe MediaOrdersController, :type => :controller do
     describe "with invalid params" do
       it "assigns the media_order as @media_order" do
         media_order = MediaOrder.create! valid_attributes
-        put :update, {:id => media_order.to_param, :media_order => invalid_attributes}, valid_session
+        put :update, params: {:id => media_order.to_param, :media_order => invalid_attributes}, session: valid_session
         expect(assigns(:media_order)).to eq(media_order)
       end
 
       it "re-renders the 'edit' template" do
         media_order = MediaOrder.create! valid_attributes
-        put :update, {:id => media_order.to_param, :media_order => invalid_attributes}, valid_session
+        put :update, params: {:id => media_order.to_param, :media_order => invalid_attributes}, session: valid_session
         expect(response).to render_template("edit")
       end
     end
@@ -145,13 +145,13 @@ RSpec.describe MediaOrdersController, :type => :controller do
     it "destroys the requested media_order" do
       media_order = MediaOrder.create! valid_attributes
       expect {
-        delete :destroy, {:id => media_order.to_param}, valid_session
+        delete :destroy, params: {:id => media_order.to_param}, session: valid_session
       }.to change(MediaOrder, :count).by(-1)
     end
 
     it "redirects to the media_orders list" do
       media_order = MediaOrder.create! valid_attributes
-      delete :destroy, {:id => media_order.to_param}, valid_session
+      delete :destroy, params: {:id => media_order.to_param}, session: valid_session
       expect(response).to redirect_to(media_orders_url)
     end
   end

@@ -33,7 +33,7 @@ describe ClientCategoriesController do
   describe "GET index" do
     it "assigns all client_categories as @client_categories" do
       client_category = ClientCategory.create! valid_attributes
-      get :index, {}, valid_session
+      get :index, params: {}, session: valid_session
       assigns(:client_categories).should eq([client_category])
     end
   end
@@ -41,14 +41,14 @@ describe ClientCategoriesController do
   describe "GET show" do
     it "assigns the requested client_category as @client_category" do
       client_category = ClientCategory.create! valid_attributes
-      get :show, {:id => client_category.to_param}, valid_session
+      get :show, params: {:id => client_category.to_param}, session: valid_session
       assigns(:client_category).should eq(client_category)
     end
   end
 
   describe "GET new" do
     it "assigns a new client_category as @client_category" do
-      get :new, {}, valid_session
+      get :new, params: {}, session: valid_session
       assigns(:client_category).should be_a_new(ClientCategory)
     end
   end
@@ -56,7 +56,7 @@ describe ClientCategoriesController do
   describe "GET edit" do
     it "assigns the requested client_category as @client_category" do
       client_category = ClientCategory.create! valid_attributes
-      get :edit, {:id => client_category.to_param}, valid_session
+      get :edit, params: {:id => client_category.to_param}, session: valid_session
       assigns(:client_category).should eq(client_category)
     end
   end
@@ -65,18 +65,18 @@ describe ClientCategoriesController do
     describe "with valid params" do
       it "creates a new ClientCategory" do
         expect {
-          post :create, {:client_category => valid_attributes}, valid_session
+          post :create, params: {:client_category => valid_attributes}, session: valid_session
         }.to change(ClientCategory, :count).by(1)
       end
 
       it "assigns a newly created client_category as @client_category" do
-        post :create, {:client_category => valid_attributes}, valid_session
+        post :create, params: {:client_category => valid_attributes}, session: valid_session
         assigns(:client_category).should be_a(ClientCategory)
         assigns(:client_category).should be_persisted
       end
 
       it "redirects to the created client_category" do
-        post :create, {:client_category => valid_attributes}, valid_session
+        post :create, params: {:client_category => valid_attributes}, session: valid_session
         response.should redirect_to(ClientCategory.last)
       end
     end
@@ -85,14 +85,14 @@ describe ClientCategoriesController do
       it "assigns a newly created but unsaved client_category as @client_category" do
         # Trigger the behavior that occurs when invalid params are submitted
         ClientCategory.any_instance.stub(:save).and_return(false)
-        post :create, {:client_category => { "name" => "invalid value" }}, valid_session
+        post :create, params: {:client_category => { "name" => "invalid value" }}, session: valid_session
         assigns(:client_category).should be_a_new(ClientCategory)
       end
 
       it "re-renders the 'new' template" do
         # Trigger the behavior that occurs when invalid params are submitted
         ClientCategory.any_instance.stub(:save).and_return(false)
-        post :create, {:client_category => { "name" => "invalid value" }}, valid_session
+        post :create, params: {:client_category => { "name" => "invalid value" }}, session: valid_session
         response.should render_template("new")
       end
     end
@@ -107,18 +107,18 @@ describe ClientCategoriesController do
         # receives the :update_attributes message with whatever params are
         # submitted in the request.
         ClientCategory.any_instance.should_receive(:update_attributes).with({ "name" => "MyString" })
-        put :update, {:id => client_category.to_param, :client_category => { "name" => "MyString" }}, valid_session
+        put :update, params: {:id => client_category.to_param, :client_category => { "name" => "MyString" }}, session: valid_session
       end
 
       it "assigns the requested client_category as @client_category" do
         client_category = ClientCategory.create! valid_attributes
-        put :update, {:id => client_category.to_param, :client_category => valid_attributes}, valid_session
+        put :update, params: {:id => client_category.to_param, :client_category => valid_attributes}, session: valid_session
         assigns(:client_category).should eq(client_category)
       end
 
       it "redirects to the client_category" do
         client_category = ClientCategory.create! valid_attributes
-        put :update, {:id => client_category.to_param, :client_category => valid_attributes}, valid_session
+        put :update, params: {:id => client_category.to_param, :client_category => valid_attributes}, session: valid_session
         response.should redirect_to(client_category)
       end
     end
@@ -128,7 +128,7 @@ describe ClientCategoriesController do
         client_category = ClientCategory.create! valid_attributes
         # Trigger the behavior that occurs when invalid params are submitted
         ClientCategory.any_instance.stub(:save).and_return(false)
-        put :update, {:id => client_category.to_param, :client_category => { "name" => "invalid value" }}, valid_session
+        put :update, params: {:id => client_category.to_param, :client_category => { "name" => "invalid value" }}, session: valid_session
         assigns(:client_category).should eq(client_category)
       end
 
@@ -136,7 +136,7 @@ describe ClientCategoriesController do
         client_category = ClientCategory.create! valid_attributes
         # Trigger the behavior that occurs when invalid params are submitted
         ClientCategory.any_instance.stub(:save).and_return(false)
-        put :update, {:id => client_category.to_param, :client_category => { "name" => "invalid value" }}, valid_session
+        put :update, params: {:id => client_category.to_param, :client_category => { "name" => "invalid value" }}, session: valid_session
         response.should render_template("edit")
       end
     end
@@ -146,13 +146,13 @@ describe ClientCategoriesController do
     it "destroys the requested client_category" do
       client_category = ClientCategory.create! valid_attributes
       expect {
-        delete :destroy, {:id => client_category.to_param}, valid_session
+        delete :destroy, params: {:id => client_category.to_param}, session: valid_session
       }.to change(ClientCategory, :count).by(-1)
     end
 
     it "redirects to the client_categories list" do
       client_category = ClientCategory.create! valid_attributes
-      delete :destroy, {:id => client_category.to_param}, valid_session
+      delete :destroy, params: {:id => client_category.to_param}, session: valid_session
       response.should redirect_to(client_categories_url)
     end
   end

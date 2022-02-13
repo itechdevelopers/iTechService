@@ -33,7 +33,7 @@ describe CaseColorsController do
   describe "GET index" do
     it "assigns all case_colors as @case_colors" do
       case_color = CaseColor.create! valid_attributes
-      get :index, {}, valid_session
+      get :index, params: {}, session: valid_session
       assigns(:case_colors).should eq([case_color])
     end
   end
@@ -41,14 +41,14 @@ describe CaseColorsController do
   describe "GET show" do
     it "assigns the requested case_color as @case_color" do
       case_color = CaseColor.create! valid_attributes
-      get :show, {:id => case_color.to_param}, valid_session
+      get :show, params: {:id => case_color.to_param}, session: valid_session
       assigns(:case_color).should eq(case_color)
     end
   end
 
   describe "GET new" do
     it "assigns a new case_color as @case_color" do
-      get :new, {}, valid_session
+      get :new, params: {}, session: valid_session
       assigns(:case_color).should be_a_new(CaseColor)
     end
   end
@@ -56,7 +56,7 @@ describe CaseColorsController do
   describe "GET edit" do
     it "assigns the requested case_color as @case_color" do
       case_color = CaseColor.create! valid_attributes
-      get :edit, {:id => case_color.to_param}, valid_session
+      get :edit, params: {:id => case_color.to_param}, session: valid_session
       assigns(:case_color).should eq(case_color)
     end
   end
@@ -65,18 +65,18 @@ describe CaseColorsController do
     describe "with valid params" do
       it "creates a new CaseColor" do
         expect {
-          post :create, {:case_color => valid_attributes}, valid_session
+          post :create, params: {:case_color => valid_attributes}, session: valid_session
         }.to change(CaseColor, :count).by(1)
       end
 
       it "assigns a newly created case_color as @case_color" do
-        post :create, {:case_color => valid_attributes}, valid_session
+        post :create, params: {:case_color => valid_attributes}, session: valid_session
         assigns(:case_color).should be_a(CaseColor)
         assigns(:case_color).should be_persisted
       end
 
       it "redirects to the created case_color" do
-        post :create, {:case_color => valid_attributes}, valid_session
+        post :create, params: {:case_color => valid_attributes}, session: valid_session
         response.should redirect_to(CaseColor.last)
       end
     end
@@ -85,14 +85,14 @@ describe CaseColorsController do
       it "assigns a newly created but unsaved case_color as @case_color" do
         # Trigger the behavior that occurs when invalid params are submitted
         CaseColor.any_instance.stub(:save).and_return(false)
-        post :create, {:case_color => { "name" => "invalid value" }}, valid_session
+        post :create, params: {:case_color => { "name" => "invalid value" }}, session: valid_session
         assigns(:case_color).should be_a_new(CaseColor)
       end
 
       it "re-renders the 'new' template" do
         # Trigger the behavior that occurs when invalid params are submitted
         CaseColor.any_instance.stub(:save).and_return(false)
-        post :create, {:case_color => { "name" => "invalid value" }}, valid_session
+        post :create, params: {:case_color => { "name" => "invalid value" }}, session: valid_session
         response.should render_template("new")
       end
     end
@@ -107,18 +107,18 @@ describe CaseColorsController do
         # receives the :update_attributes message with whatever params are
         # submitted in the request.
         CaseColor.any_instance.should_receive(:update_attributes).with({ "name" => "MyString" })
-        put :update, {:id => case_color.to_param, :case_color => { "name" => "MyString" }}, valid_session
+        put :update, params: {:id => case_color.to_param, :case_color => { "name" => "MyString" }}, session: valid_session
       end
 
       it "assigns the requested case_color as @case_color" do
         case_color = CaseColor.create! valid_attributes
-        put :update, {:id => case_color.to_param, :case_color => valid_attributes}, valid_session
+        put :update, params: {:id => case_color.to_param, :case_color => valid_attributes}, session: valid_session
         assigns(:case_color).should eq(case_color)
       end
 
       it "redirects to the case_color" do
         case_color = CaseColor.create! valid_attributes
-        put :update, {:id => case_color.to_param, :case_color => valid_attributes}, valid_session
+        put :update, params: {:id => case_color.to_param, :case_color => valid_attributes}, session: valid_session
         response.should redirect_to(case_color)
       end
     end
@@ -128,7 +128,7 @@ describe CaseColorsController do
         case_color = CaseColor.create! valid_attributes
         # Trigger the behavior that occurs when invalid params are submitted
         CaseColor.any_instance.stub(:save).and_return(false)
-        put :update, {:id => case_color.to_param, :case_color => { "name" => "invalid value" }}, valid_session
+        put :update, params: {:id => case_color.to_param, :case_color => { "name" => "invalid value" }}, session: valid_session
         assigns(:case_color).should eq(case_color)
       end
 
@@ -136,7 +136,7 @@ describe CaseColorsController do
         case_color = CaseColor.create! valid_attributes
         # Trigger the behavior that occurs when invalid params are submitted
         CaseColor.any_instance.stub(:save).and_return(false)
-        put :update, {:id => case_color.to_param, :case_color => { "name" => "invalid value" }}, valid_session
+        put :update, params: {:id => case_color.to_param, :case_color => { "name" => "invalid value" }}, session: valid_session
         response.should render_template("edit")
       end
     end
@@ -146,13 +146,13 @@ describe CaseColorsController do
     it "destroys the requested case_color" do
       case_color = CaseColor.create! valid_attributes
       expect {
-        delete :destroy, {:id => case_color.to_param}, valid_session
+        delete :destroy, params: {:id => case_color.to_param}, session: valid_session
       }.to change(CaseColor, :count).by(-1)
     end
 
     it "redirects to the case_colors list" do
       case_color = CaseColor.create! valid_attributes
-      delete :destroy, {:id => case_color.to_param}, valid_session
+      delete :destroy, params: {:id => case_color.to_param}, session: valid_session
       response.should redirect_to(case_colors_url)
     end
   end

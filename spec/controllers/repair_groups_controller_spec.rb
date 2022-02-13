@@ -33,7 +33,7 @@ describe RepairGroupsController do
   describe "GET index" do
     it "assigns all repair_groups as @repair_groups" do
       repair_group = RepairGroup.create! valid_attributes
-      get :index, {}, valid_session
+      get :index, params: {}, session: valid_session
       assigns(:repair_groups).should eq([repair_group])
     end
   end
@@ -41,14 +41,14 @@ describe RepairGroupsController do
   describe "GET show" do
     it "assigns the requested repair_group as @repair_group" do
       repair_group = RepairGroup.create! valid_attributes
-      get :show, {:id => repair_group.to_param}, valid_session
+      get :show, params: {:id => repair_group.to_param}, session: valid_session
       assigns(:repair_group).should eq(repair_group)
     end
   end
 
   describe "GET new" do
     it "assigns a new repair_group as @repair_group" do
-      get :new, {}, valid_session
+      get :new, params: {}, session: valid_session
       assigns(:repair_group).should be_a_new(RepairGroup)
     end
   end
@@ -56,7 +56,7 @@ describe RepairGroupsController do
   describe "GET edit" do
     it "assigns the requested repair_group as @repair_group" do
       repair_group = RepairGroup.create! valid_attributes
-      get :edit, {:id => repair_group.to_param}, valid_session
+      get :edit, params: {:id => repair_group.to_param}, session: valid_session
       assigns(:repair_group).should eq(repair_group)
     end
   end
@@ -65,18 +65,18 @@ describe RepairGroupsController do
     describe "with valid params" do
       it "creates a new RepairGroup" do
         expect {
-          post :create, {:repair_group => valid_attributes}, valid_session
+          post :create, params: {:repair_group => valid_attributes}, session: valid_session
         }.to change(RepairGroup, :count).by(1)
       end
 
       it "assigns a newly created repair_group as @repair_group" do
-        post :create, {:repair_group => valid_attributes}, valid_session
+        post :create, params: {:repair_group => valid_attributes}, session: valid_session
         assigns(:repair_group).should be_a(RepairGroup)
         assigns(:repair_group).should be_persisted
       end
 
       it "redirects to the created repair_group" do
-        post :create, {:repair_group => valid_attributes}, valid_session
+        post :create, params: {:repair_group => valid_attributes}, session: valid_session
         response.should redirect_to(RepairGroup.last)
       end
     end
@@ -85,14 +85,14 @@ describe RepairGroupsController do
       it "assigns a newly created but unsaved repair_group as @repair_group" do
         # Trigger the behavior that occurs when invalid params are submitted
         RepairGroup.any_instance.stub(:save).and_return(false)
-        post :create, {:repair_group => { "name" => "invalid value" }}, valid_session
+        post :create, params: {:repair_group => { "name" => "invalid value" }}, session: valid_session
         assigns(:repair_group).should be_a_new(RepairGroup)
       end
 
       it "re-renders the 'new' template" do
         # Trigger the behavior that occurs when invalid params are submitted
         RepairGroup.any_instance.stub(:save).and_return(false)
-        post :create, {:repair_group => { "name" => "invalid value" }}, valid_session
+        post :create, params: {:repair_group => { "name" => "invalid value" }}, session: valid_session
         response.should render_template("new")
       end
     end
@@ -107,18 +107,18 @@ describe RepairGroupsController do
         # receives the :update_attributes message with whatever params are
         # submitted in the request.
         RepairGroup.any_instance.should_receive(:update_attributes).with({ "name" => "MyString" })
-        put :update, {:id => repair_group.to_param, :repair_group => { "name" => "MyString" }}, valid_session
+        put :update, params: {:id => repair_group.to_param, :repair_group => { "name" => "MyString" }}, session: valid_session
       end
 
       it "assigns the requested repair_group as @repair_group" do
         repair_group = RepairGroup.create! valid_attributes
-        put :update, {:id => repair_group.to_param, :repair_group => valid_attributes}, valid_session
+        put :update, params: {:id => repair_group.to_param, :repair_group => valid_attributes}, session: valid_session
         assigns(:repair_group).should eq(repair_group)
       end
 
       it "redirects to the repair_group" do
         repair_group = RepairGroup.create! valid_attributes
-        put :update, {:id => repair_group.to_param, :repair_group => valid_attributes}, valid_session
+        put :update, params: {:id => repair_group.to_param, :repair_group => valid_attributes}, session: valid_session
         response.should redirect_to(repair_group)
       end
     end
@@ -128,7 +128,7 @@ describe RepairGroupsController do
         repair_group = RepairGroup.create! valid_attributes
         # Trigger the behavior that occurs when invalid params are submitted
         RepairGroup.any_instance.stub(:save).and_return(false)
-        put :update, {:id => repair_group.to_param, :repair_group => { "name" => "invalid value" }}, valid_session
+        put :update, params: {:id => repair_group.to_param, :repair_group => { "name" => "invalid value" }}, session: valid_session
         assigns(:repair_group).should eq(repair_group)
       end
 
@@ -136,7 +136,7 @@ describe RepairGroupsController do
         repair_group = RepairGroup.create! valid_attributes
         # Trigger the behavior that occurs when invalid params are submitted
         RepairGroup.any_instance.stub(:save).and_return(false)
-        put :update, {:id => repair_group.to_param, :repair_group => { "name" => "invalid value" }}, valid_session
+        put :update, params: {:id => repair_group.to_param, :repair_group => { "name" => "invalid value" }}, session: valid_session
         response.should render_template("edit")
       end
     end
@@ -146,13 +146,13 @@ describe RepairGroupsController do
     it "destroys the requested repair_group" do
       repair_group = RepairGroup.create! valid_attributes
       expect {
-        delete :destroy, {:id => repair_group.to_param}, valid_session
+        delete :destroy, params: {:id => repair_group.to_param}, session: valid_session
       }.to change(RepairGroup, :count).by(-1)
     end
 
     it "redirects to the repair_groups list" do
       repair_group = RepairGroup.create! valid_attributes
-      delete :destroy, {:id => repair_group.to_param}, valid_session
+      delete :destroy, params: {:id => repair_group.to_param}, session: valid_session
       response.should redirect_to(repair_groups_url)
     end
   end

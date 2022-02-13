@@ -33,7 +33,7 @@ describe SupplyReportsController do
   describe "GET index" do
     it "assigns all supply_reports as @supply_reports" do
       supply_report = SupplyReport.create! valid_attributes
-      get :index, {}, valid_session
+      get :index, params: {}, session: valid_session
       assigns(:supply_reports).should eq([supply_report])
     end
   end
@@ -41,14 +41,14 @@ describe SupplyReportsController do
   describe "GET show" do
     it "assigns the requested supply_report as @supply_report" do
       supply_report = SupplyReport.create! valid_attributes
-      get :show, {:id => supply_report.to_param}, valid_session
+      get :show, params: {:id => supply_report.to_param}, session: valid_session
       assigns(:supply_report).should eq(supply_report)
     end
   end
 
   describe "GET new" do
     it "assigns a new supply_report as @supply_report" do
-      get :new, {}, valid_session
+      get :new, params: {}, session: valid_session
       assigns(:supply_report).should be_a_new(SupplyReport)
     end
   end
@@ -56,7 +56,7 @@ describe SupplyReportsController do
   describe "GET edit" do
     it "assigns the requested supply_report as @supply_report" do
       supply_report = SupplyReport.create! valid_attributes
-      get :edit, {:id => supply_report.to_param}, valid_session
+      get :edit, params: {:id => supply_report.to_param}, session: valid_session
       assigns(:supply_report).should eq(supply_report)
     end
   end
@@ -65,18 +65,18 @@ describe SupplyReportsController do
     describe "with valid params" do
       it "creates a new SupplyReport" do
         expect {
-          post :create, {:supply_report => valid_attributes}, valid_session
+          post :create, params: {:supply_report => valid_attributes}, session: valid_session
         }.to change(SupplyReport, :count).by(1)
       end
 
       it "assigns a newly created supply_report as @supply_report" do
-        post :create, {:supply_report => valid_attributes}, valid_session
+        post :create, params: {:supply_report => valid_attributes}, session: valid_session
         assigns(:supply_report).should be_a(SupplyReport)
         assigns(:supply_report).should be_persisted
       end
 
       it "redirects to the created supply_report" do
-        post :create, {:supply_report => valid_attributes}, valid_session
+        post :create, params: {:supply_report => valid_attributes}, session: valid_session
         response.should redirect_to(SupplyReport.last)
       end
     end
@@ -85,14 +85,14 @@ describe SupplyReportsController do
       it "assigns a newly created but unsaved supply_report as @supply_report" do
         # Trigger the behavior that occurs when invalid params are submitted
         SupplyReport.any_instance.stub(:save).and_return(false)
-        post :create, {:supply_report => { "date" => "invalid value" }}, valid_session
+        post :create, params: {:supply_report => { "date" => "invalid value" }}, session: valid_session
         assigns(:supply_report).should be_a_new(SupplyReport)
       end
 
       it "re-renders the 'new' template" do
         # Trigger the behavior that occurs when invalid params are submitted
         SupplyReport.any_instance.stub(:save).and_return(false)
-        post :create, {:supply_report => { "date" => "invalid value" }}, valid_session
+        post :create, params: {:supply_report => { "date" => "invalid value" }}, session: valid_session
         response.should render_template("new")
       end
     end
@@ -107,18 +107,18 @@ describe SupplyReportsController do
         # receives the :update_attributes message with whatever params are
         # submitted in the request.
         SupplyReport.any_instance.should_receive(:update_attributes).with({ "date" => "2014-01-10" })
-        put :update, {:id => supply_report.to_param, :supply_report => { "date" => "2014-01-10" }}, valid_session
+        put :update, params: {:id => supply_report.to_param, :supply_report => { "date" => "2014-01-10" }}, session: valid_session
       end
 
       it "assigns the requested supply_report as @supply_report" do
         supply_report = SupplyReport.create! valid_attributes
-        put :update, {:id => supply_report.to_param, :supply_report => valid_attributes}, valid_session
+        put :update, params: {:id => supply_report.to_param, :supply_report => valid_attributes}, session: valid_session
         assigns(:supply_report).should eq(supply_report)
       end
 
       it "redirects to the supply_report" do
         supply_report = SupplyReport.create! valid_attributes
-        put :update, {:id => supply_report.to_param, :supply_report => valid_attributes}, valid_session
+        put :update, params: {:id => supply_report.to_param, :supply_report => valid_attributes}, session: valid_session
         response.should redirect_to(supply_report)
       end
     end
@@ -128,7 +128,7 @@ describe SupplyReportsController do
         supply_report = SupplyReport.create! valid_attributes
         # Trigger the behavior that occurs when invalid params are submitted
         SupplyReport.any_instance.stub(:save).and_return(false)
-        put :update, {:id => supply_report.to_param, :supply_report => { "date" => "invalid value" }}, valid_session
+        put :update, params: {:id => supply_report.to_param, :supply_report => { "date" => "invalid value" }}, session: valid_session
         assigns(:supply_report).should eq(supply_report)
       end
 
@@ -136,7 +136,7 @@ describe SupplyReportsController do
         supply_report = SupplyReport.create! valid_attributes
         # Trigger the behavior that occurs when invalid params are submitted
         SupplyReport.any_instance.stub(:save).and_return(false)
-        put :update, {:id => supply_report.to_param, :supply_report => { "date" => "invalid value" }}, valid_session
+        put :update, params: {:id => supply_report.to_param, :supply_report => { "date" => "invalid value" }}, session: valid_session
         response.should render_template("edit")
       end
     end
@@ -146,13 +146,13 @@ describe SupplyReportsController do
     it "destroys the requested supply_report" do
       supply_report = SupplyReport.create! valid_attributes
       expect {
-        delete :destroy, {:id => supply_report.to_param}, valid_session
+        delete :destroy, params: {:id => supply_report.to_param}, session: valid_session
       }.to change(SupplyReport, :count).by(-1)
     end
 
     it "redirects to the supply_reports list" do
       supply_report = SupplyReport.create! valid_attributes
-      delete :destroy, {:id => supply_report.to_param}, valid_session
+      delete :destroy, params: {:id => supply_report.to_param}, session: valid_session
       response.should redirect_to(supply_reports_url)
     end
   end

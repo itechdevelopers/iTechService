@@ -33,7 +33,7 @@ describe RepairServicesController do
   describe "GET index" do
     it "assigns all repair_services as @repair_services" do
       repair_service = RepairService.create! valid_attributes
-      get :index, {}, valid_session
+      get :index, params: {}, session: valid_session
       assigns(:repair_services).should eq([repair_service])
     end
   end
@@ -41,14 +41,14 @@ describe RepairServicesController do
   describe "GET show" do
     it "assigns the requested repair_service as @repair_service" do
       repair_service = RepairService.create! valid_attributes
-      get :show, {:id => repair_service.to_param}, valid_session
+      get :show, params: {:id => repair_service.to_param}, session: valid_session
       assigns(:repair_service).should eq(repair_service)
     end
   end
 
   describe "GET new" do
     it "assigns a new repair_service as @repair_service" do
-      get :new, {}, valid_session
+      get :new, params: {}, session: valid_session
       assigns(:repair_service).should be_a_new(RepairService)
     end
   end
@@ -56,7 +56,7 @@ describe RepairServicesController do
   describe "GET edit" do
     it "assigns the requested repair_service as @repair_service" do
       repair_service = RepairService.create! valid_attributes
-      get :edit, {:id => repair_service.to_param}, valid_session
+      get :edit, params: {:id => repair_service.to_param}, session: valid_session
       assigns(:repair_service).should eq(repair_service)
     end
   end
@@ -65,18 +65,18 @@ describe RepairServicesController do
     describe "with valid params" do
       it "creates a new RepairService" do
         expect {
-          post :create, {:repair_service => valid_attributes}, valid_session
+          post :create, params: {:repair_service => valid_attributes}, session: valid_session
         }.to change(RepairService, :count).by(1)
       end
 
       it "assigns a newly created repair_service as @repair_service" do
-        post :create, {:repair_service => valid_attributes}, valid_session
+        post :create, params: {:repair_service => valid_attributes}, session: valid_session
         assigns(:repair_service).should be_a(RepairService)
         assigns(:repair_service).should be_persisted
       end
 
       it "redirects to the created repair_service" do
-        post :create, {:repair_service => valid_attributes}, valid_session
+        post :create, params: {:repair_service => valid_attributes}, session: valid_session
         response.should redirect_to(RepairService.last)
       end
     end
@@ -85,14 +85,14 @@ describe RepairServicesController do
       it "assigns a newly created but unsaved repair_service as @repair_service" do
         # Trigger the behavior that occurs when invalid params are submitted
         RepairService.any_instance.stub(:save).and_return(false)
-        post :create, {:repair_service => { "repair_group" => "invalid value" }}, valid_session
+        post :create, params: {:repair_service => { "repair_group" => "invalid value" }}, session: valid_session
         assigns(:repair_service).should be_a_new(RepairService)
       end
 
       it "re-renders the 'new' template" do
         # Trigger the behavior that occurs when invalid params are submitted
         RepairService.any_instance.stub(:save).and_return(false)
-        post :create, {:repair_service => { "repair_group" => "invalid value" }}, valid_session
+        post :create, params: {:repair_service => { "repair_group" => "invalid value" }}, session: valid_session
         response.should render_template("new")
       end
     end
@@ -107,18 +107,18 @@ describe RepairServicesController do
         # receives the :update_attributes message with whatever params are
         # submitted in the request.
         RepairService.any_instance.should_receive(:update_attributes).with({ "repair_group" => "" })
-        put :update, {:id => repair_service.to_param, :repair_service => { "repair_group" => "" }}, valid_session
+        put :update, params: {:id => repair_service.to_param, :repair_service => { "repair_group" => "" }}, session: valid_session
       end
 
       it "assigns the requested repair_service as @repair_service" do
         repair_service = RepairService.create! valid_attributes
-        put :update, {:id => repair_service.to_param, :repair_service => valid_attributes}, valid_session
+        put :update, params: {:id => repair_service.to_param, :repair_service => valid_attributes}, session: valid_session
         assigns(:repair_service).should eq(repair_service)
       end
 
       it "redirects to the repair_service" do
         repair_service = RepairService.create! valid_attributes
-        put :update, {:id => repair_service.to_param, :repair_service => valid_attributes}, valid_session
+        put :update, params: {:id => repair_service.to_param, :repair_service => valid_attributes}, session: valid_session
         response.should redirect_to(repair_service)
       end
     end
@@ -128,7 +128,7 @@ describe RepairServicesController do
         repair_service = RepairService.create! valid_attributes
         # Trigger the behavior that occurs when invalid params are submitted
         RepairService.any_instance.stub(:save).and_return(false)
-        put :update, {:id => repair_service.to_param, :repair_service => { "repair_group" => "invalid value" }}, valid_session
+        put :update, params: {:id => repair_service.to_param, :repair_service => { "repair_group" => "invalid value" }}, session: valid_session
         assigns(:repair_service).should eq(repair_service)
       end
 
@@ -136,7 +136,7 @@ describe RepairServicesController do
         repair_service = RepairService.create! valid_attributes
         # Trigger the behavior that occurs when invalid params are submitted
         RepairService.any_instance.stub(:save).and_return(false)
-        put :update, {:id => repair_service.to_param, :repair_service => { "repair_group" => "invalid value" }}, valid_session
+        put :update, params: {:id => repair_service.to_param, :repair_service => { "repair_group" => "invalid value" }}, session: valid_session
         response.should render_template("edit")
       end
     end
@@ -146,13 +146,13 @@ describe RepairServicesController do
     it "destroys the requested repair_service" do
       repair_service = RepairService.create! valid_attributes
       expect {
-        delete :destroy, {:id => repair_service.to_param}, valid_session
+        delete :destroy, params: {:id => repair_service.to_param}, session: valid_session
       }.to change(RepairService, :count).by(-1)
     end
 
     it "redirects to the repair_services list" do
       repair_service = RepairService.create! valid_attributes
-      delete :destroy, {:id => repair_service.to_param}, valid_session
+      delete :destroy, params: {:id => repair_service.to_param}, session: valid_session
       response.should redirect_to(repair_services_url)
     end
   end

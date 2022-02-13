@@ -33,7 +33,7 @@ describe SupplyRequestsController do
   describe "GET index" do
     it "assigns all supply_requests as @supply_requests" do
       supply_request = SupplyRequest.create! valid_attributes
-      get :index, {}, valid_session
+      get :index, params: {}, session: valid_session
       assigns(:supply_requests).should eq([supply_request])
     end
   end
@@ -41,14 +41,14 @@ describe SupplyRequestsController do
   describe "GET show" do
     it "assigns the requested supply_request as @supply_request" do
       supply_request = SupplyRequest.create! valid_attributes
-      get :show, {:id => supply_request.to_param}, valid_session
+      get :show, params: {:id => supply_request.to_param}, session: valid_session
       assigns(:supply_request).should eq(supply_request)
     end
   end
 
   describe "GET new" do
     it "assigns a new supply_request as @supply_request" do
-      get :new, {}, valid_session
+      get :new, params: {}, session: valid_session
       assigns(:supply_request).should be_a_new(SupplyRequest)
     end
   end
@@ -56,7 +56,7 @@ describe SupplyRequestsController do
   describe "GET edit" do
     it "assigns the requested supply_request as @supply_request" do
       supply_request = SupplyRequest.create! valid_attributes
-      get :edit, {:id => supply_request.to_param}, valid_session
+      get :edit, params: {:id => supply_request.to_param}, session: valid_session
       assigns(:supply_request).should eq(supply_request)
     end
   end
@@ -65,18 +65,18 @@ describe SupplyRequestsController do
     describe "with valid params" do
       it "creates a new SupplyRequest" do
         expect {
-          post :create, {:supply_request => valid_attributes}, valid_session
+          post :create, params: {:supply_request => valid_attributes}, session: valid_session
         }.to change(SupplyRequest, :count).by(1)
       end
 
       it "assigns a newly created supply_request as @supply_request" do
-        post :create, {:supply_request => valid_attributes}, valid_session
+        post :create, params: {:supply_request => valid_attributes}, session: valid_session
         assigns(:supply_request).should be_a(SupplyRequest)
         assigns(:supply_request).should be_persisted
       end
 
       it "redirects to the created supply_request" do
-        post :create, {:supply_request => valid_attributes}, valid_session
+        post :create, params: {:supply_request => valid_attributes}, session: valid_session
         response.should redirect_to(SupplyRequest.last)
       end
     end
@@ -85,14 +85,14 @@ describe SupplyRequestsController do
       it "assigns a newly created but unsaved supply_request as @supply_request" do
         # Trigger the behavior that occurs when invalid params are submitted
         SupplyRequest.any_instance.stub(:save).and_return(false)
-        post :create, {:supply_request => { "user" => "invalid value" }}, valid_session
+        post :create, params: {:supply_request => { "user" => "invalid value" }}, session: valid_session
         assigns(:supply_request).should be_a_new(SupplyRequest)
       end
 
       it "re-renders the 'new' template" do
         # Trigger the behavior that occurs when invalid params are submitted
         SupplyRequest.any_instance.stub(:save).and_return(false)
-        post :create, {:supply_request => { "user" => "invalid value" }}, valid_session
+        post :create, params: {:supply_request => { "user" => "invalid value" }}, session: valid_session
         response.should render_template("new")
       end
     end
@@ -107,18 +107,18 @@ describe SupplyRequestsController do
         # receives the :update_attributes message with whatever params are
         # submitted in the request.
         SupplyRequest.any_instance.should_receive(:update_attributes).with({ "user" => "" })
-        put :update, {:id => supply_request.to_param, :supply_request => { "user" => "" }}, valid_session
+        put :update, params: {:id => supply_request.to_param, :supply_request => { "user" => "" }}, session: valid_session
       end
 
       it "assigns the requested supply_request as @supply_request" do
         supply_request = SupplyRequest.create! valid_attributes
-        put :update, {:id => supply_request.to_param, :supply_request => valid_attributes}, valid_session
+        put :update, params: {:id => supply_request.to_param, :supply_request => valid_attributes}, session: valid_session
         assigns(:supply_request).should eq(supply_request)
       end
 
       it "redirects to the supply_request" do
         supply_request = SupplyRequest.create! valid_attributes
-        put :update, {:id => supply_request.to_param, :supply_request => valid_attributes}, valid_session
+        put :update, params: {:id => supply_request.to_param, :supply_request => valid_attributes}, session: valid_session
         response.should redirect_to(supply_request)
       end
     end
@@ -128,7 +128,7 @@ describe SupplyRequestsController do
         supply_request = SupplyRequest.create! valid_attributes
         # Trigger the behavior that occurs when invalid params are submitted
         SupplyRequest.any_instance.stub(:save).and_return(false)
-        put :update, {:id => supply_request.to_param, :supply_request => { "user" => "invalid value" }}, valid_session
+        put :update, params: {:id => supply_request.to_param, :supply_request => { "user" => "invalid value" }}, session: valid_session
         assigns(:supply_request).should eq(supply_request)
       end
 
@@ -136,7 +136,7 @@ describe SupplyRequestsController do
         supply_request = SupplyRequest.create! valid_attributes
         # Trigger the behavior that occurs when invalid params are submitted
         SupplyRequest.any_instance.stub(:save).and_return(false)
-        put :update, {:id => supply_request.to_param, :supply_request => { "user" => "invalid value" }}, valid_session
+        put :update, params: {:id => supply_request.to_param, :supply_request => { "user" => "invalid value" }}, session: valid_session
         response.should render_template("edit")
       end
     end
@@ -146,13 +146,13 @@ describe SupplyRequestsController do
     it "destroys the requested supply_request" do
       supply_request = SupplyRequest.create! valid_attributes
       expect {
-        delete :destroy, {:id => supply_request.to_param}, valid_session
+        delete :destroy, params: {:id => supply_request.to_param}, session: valid_session
       }.to change(SupplyRequest, :count).by(-1)
     end
 
     it "redirects to the supply_requests list" do
       supply_request = SupplyRequest.create! valid_attributes
-      delete :destroy, {:id => supply_request.to_param}, valid_session
+      delete :destroy, params: {:id => supply_request.to_param}, session: valid_session
       response.should redirect_to(supply_requests_url)
     end
   end

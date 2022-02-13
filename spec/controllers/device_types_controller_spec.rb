@@ -37,7 +37,7 @@ describe DeviceTypesController do
   describe "GET index" do
     it "assigns all device_types as @device_types" do
       device_type = create :device_type
-      get :index, {}, valid_session
+      get :index, params: {}, session: valid_session
       assigns(:device_types).should eq([device_type])
     end
   end
@@ -45,14 +45,14 @@ describe DeviceTypesController do
   describe "GET show" do
     it "assigns the requested device_type as @device_type" do
       device_type = create :device_type
-      get :show, {:id => device_type.to_param}, valid_session
+      get :show, params: {:id => device_type.to_param}, session: valid_session
       assigns(:device_type).should eq(device_type)
     end
   end
 
   describe "GET new" do
     it "assigns a new device_type as @device_type" do
-      get :new, {}, valid_session
+      get :new, params: {}, session: valid_session
       assigns(:device_type).should be_a_new(DeviceType)
     end
   end
@@ -60,7 +60,7 @@ describe DeviceTypesController do
   describe "GET edit" do
     it "assigns the requested device_type as @device_type" do
       device_type = create :device_type
-      get :edit, {:id => device_type.to_param}, valid_session
+      get :edit, params: {:id => device_type.to_param}, session: valid_session
       assigns(:device_type).should eq(device_type)
     end
   end
@@ -69,18 +69,18 @@ describe DeviceTypesController do
     describe "with valid params" do
       it "creates a new DeviceType" do
         expect {
-          post :create, {:device_type => valid_attributes}, valid_session
+          post :create, params: {:device_type => valid_attributes}, session: valid_session
         }.to change(DeviceType, :count).by(1)
       end
 
       it "assigns a newly created device_type as @device_type" do
-        post :create, {:device_type => valid_attributes}, valid_session
+        post :create, params: {:device_type => valid_attributes}, session: valid_session
         assigns(:device_type).should be_a(DeviceType)
         assigns(:device_type).should be_persisted
       end
 
       it "redirects to the created device_type" do
-        post :create, {:device_type => valid_attributes}, valid_session
+        post :create, params: {:device_type => valid_attributes}, session: valid_session
         response.should redirect_to(DeviceType.last)
       end
     end
@@ -89,14 +89,14 @@ describe DeviceTypesController do
       it "assigns a newly created but unsaved device_type as @device_type" do
         # Trigger the behavior that occurs when invalid params are submitted
         DeviceType.any_instance.stub(:save).and_return(false)
-        post :create, {:device_type => {}}, valid_session
+        post :create, params: {:device_type => {}}, session: valid_session
         assigns(:device_type).should be_a_new(DeviceType)
       end
 
       it "re-renders the 'new' template" do
         # Trigger the behavior that occurs when invalid params are submitted
         DeviceType.any_instance.stub(:save).and_return(false)
-        post :create, {:device_type => {}}, valid_session
+        post :create, params: {:device_type => {}}, session: valid_session
         response.should render_template("new")
       end
     end
@@ -111,18 +111,18 @@ describe DeviceTypesController do
         # receives the :update_attributes message with whatever params are
         # submitted in the request.
         DeviceType.any_instance.should_receive(:update_attributes).with({'these' => 'params'})
-        put :update, {:id => device_type.to_param, :device_type => {'these' => 'params'}}, valid_session
+        put :update, params: {:id => device_type.to_param, :device_type => {'these' => 'params'}}, session: valid_session
       end
 
       it "assigns the requested device_type as @device_type" do
         device_type = create :device_type
-        put :update, {:id => device_type.to_param, :device_type => valid_attributes}, valid_session
+        put :update, params: {:id => device_type.to_param, :device_type => valid_attributes}, session: valid_session
         assigns(:device_type).should eq(device_type)
       end
 
       it "redirects to the device_type" do
         device_type = create :device_type
-        put :update, {:id => device_type.to_param, :device_type => valid_attributes}, valid_session
+        put :update, params: {:id => device_type.to_param, :device_type => valid_attributes}, session: valid_session
         response.should redirect_to(device_type)
       end
     end
@@ -132,7 +132,7 @@ describe DeviceTypesController do
         device_type = create :device_type
         # Trigger the behavior that occurs when invalid params are submitted
         DeviceType.any_instance.stub(:save).and_return(false)
-        put :update, {:id => device_type.to_param, :device_type => {}}, valid_session
+        put :update, params: {:id => device_type.to_param, :device_type => {}}, session: valid_session
         assigns(:device_type).should eq(device_type)
       end
 
@@ -140,7 +140,7 @@ describe DeviceTypesController do
         device_type = create :device_type
         # Trigger the behavior that occurs when invalid params are submitted
         DeviceType.any_instance.stub(:save).and_return(false)
-        put :update, {:id => device_type.to_param, :device_type => {}}, valid_session
+        put :update, params: {:id => device_type.to_param, :device_type => {}}, session: valid_session
         response.should render_template("edit")
       end
     end
@@ -150,13 +150,13 @@ describe DeviceTypesController do
     it "destroys the requested device_type" do
       device_type = create :device_type
       expect {
-        delete :destroy, {:id => device_type.to_param}, valid_session
+        delete :destroy, params: {:id => device_type.to_param}, session: valid_session
       }.to change(DeviceType, :count).by(-1)
     end
 
     it "redirects to the device_types list" do
       device_type = create :device_type
-      delete :destroy, {:id => device_type.to_param}, valid_session
+      delete :destroy, params: {:id => device_type.to_param}, session: valid_session
       response.should redirect_to(device_types_url)
     end
   end

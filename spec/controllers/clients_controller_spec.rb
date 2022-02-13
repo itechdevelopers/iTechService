@@ -37,7 +37,7 @@ describe ClientsController do
   describe "GET index" do
     it "assigns all clients as @clients" do
       client = create :client
-      get :index, {}, valid_session
+      get :index, params: {}, session: valid_session
       assigns(:clients).should eq([client])
     end
   end
@@ -45,14 +45,14 @@ describe ClientsController do
   describe "GET show" do
     it "assigns the requested client as @client" do
       client = create :client
-      get :show, {:id => client.to_param}, valid_session
+      get :show, params: {:id => client.to_param}, session: valid_session
       assigns(:client).should eq(client)
     end
   end
 
   describe "GET new" do
     it "assigns a new client as @client" do
-      get :new, {}, valid_session
+      get :new, params: {}, session: valid_session
       assigns(:client).should be_a_new(Client)
     end
   end
@@ -60,7 +60,7 @@ describe ClientsController do
   describe "GET edit" do
     it "assigns the requested client as @client" do
       client = create :client
-      get :edit, {:id => client.to_param}, valid_session
+      get :edit, params: {:id => client.to_param}, session: valid_session
       assigns(:client).should eq(client)
     end
   end
@@ -69,18 +69,18 @@ describe ClientsController do
     describe "with valid params" do
       it "creates a new Client" do
         expect {
-          post :create, {:client => valid_attributes}, valid_session
+          post :create, params: {:client => valid_attributes}, session: valid_session
         }.to change(Client, :count).by(1)
       end
 
       it "assigns a newly created client as @client" do
-        post :create, {:client => valid_attributes}, valid_session
+        post :create, params: {:client => valid_attributes}, session: valid_session
         assigns(:client).should be_a(Client)
         assigns(:client).should be_persisted
       end
 
       it "redirects to the created client" do
-        post :create, {:client => valid_attributes}, valid_session
+        post :create, params: {:client => valid_attributes}, session: valid_session
         response.should redirect_to(Client.last)
       end
     end
@@ -89,14 +89,14 @@ describe ClientsController do
       it "assigns a newly created but unsaved client as @client" do
         # Trigger the behavior that occurs when invalid params are submitted
         Client.any_instance.stub(:save).and_return(false)
-        post :create, {:client => {}}, valid_session
+        post :create, params: {:client => {}}, session: valid_session
         assigns(:client).should be_a_new(Client)
       end
 
       it "re-renders the 'new' template" do
         # Trigger the behavior that occurs when invalid params are submitted
         Client.any_instance.stub(:save).and_return(false)
-        post :create, {:client => {}}, valid_session
+        post :create, params: {:client => {}}, session: valid_session
         response.should render_template("new")
       end
     end
@@ -111,18 +111,18 @@ describe ClientsController do
         # receives the :update_attributes message with whatever params are
         # submitted in the request.
         Client.any_instance.should_receive(:update_attributes).with({'these' => 'params'})
-        put :update, {:id => client.to_param, :client => {'these' => 'params'}}, valid_session
+        put :update, params: {:id => client.to_param, :client => {'these' => 'params'}}, session: valid_session
       end
 
       it "assigns the requested client as @client" do
         client = create :client
-        put :update, {:id => client.to_param, :client => valid_attributes}, valid_session
+        put :update, params: {:id => client.to_param, :client => valid_attributes}, session: valid_session
         assigns(:client).should eq(client)
       end
 
       it "redirects to the client" do
         client = create :client
-        put :update, {:id => client.to_param, :client => valid_attributes}, valid_session
+        put :update, params: {:id => client.to_param, :client => valid_attributes}, session: valid_session
         response.should redirect_to(client)
       end
     end
@@ -132,7 +132,7 @@ describe ClientsController do
         client = create :client
         # Trigger the behavior that occurs when invalid params are submitted
         Client.any_instance.stub(:save).and_return(false)
-        put :update, {:id => client.to_param, :client => {}}, valid_session
+        put :update, params: {:id => client.to_param, :client => {}}, session: valid_session
         assigns(:client).should eq(client)
       end
 
@@ -140,7 +140,7 @@ describe ClientsController do
         client = create :client
         # Trigger the behavior that occurs when invalid params are submitted
         Client.any_instance.stub(:save).and_return(false)
-        put :update, {:id => client.to_param, :client => {}}, valid_session
+        put :update, params: {:id => client.to_param, :client => {}}, session: valid_session
         response.should render_template("edit")
       end
     end
@@ -150,13 +150,13 @@ describe ClientsController do
     it "destroys the requested client" do
       client = create :client
       expect {
-        delete :destroy, {:id => client.to_param}, valid_session
+        delete :destroy, params: {:id => client.to_param}, session: valid_session
       }.to change(Client, :count).by(-1)
     end
 
     it "redirects to the clients list" do
       client = create :client
-      delete :destroy, {:id => client.to_param}, valid_session
+      delete :destroy, params: {:id => client.to_param}, session: valid_session
       response.should redirect_to(clients_url)
     end
   end

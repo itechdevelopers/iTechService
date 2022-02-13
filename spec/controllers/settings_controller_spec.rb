@@ -37,7 +37,7 @@ describe SettingsController do
   describe "GET index" do
     it "assigns all settings as @settings" do
       setting = Setting.create! valid_attributes
-      get :index, {}, valid_session
+      get :index, params: {}, session: valid_session
       assigns(:settings).should eq([setting])
     end
   end
@@ -45,14 +45,14 @@ describe SettingsController do
   describe "GET show" do
     it "assigns the requested setting as @setting" do
       setting = Setting.create! valid_attributes
-      get :show, {:id => setting.to_param}, valid_session
+      get :show, params: {:id => setting.to_param}, session: valid_session
       assigns(:setting).should eq(setting)
     end
   end
 
   describe "GET new" do
     it "assigns a new setting as @setting" do
-      get :new, {}, valid_session
+      get :new, params: {}, session: valid_session
       assigns(:setting).should be_a_new(Setting)
     end
   end
@@ -60,7 +60,7 @@ describe SettingsController do
   describe "GET edit" do
     it "assigns the requested setting as @setting" do
       setting = Setting.create! valid_attributes
-      get :edit, {:id => setting.to_param}, valid_session
+      get :edit, params: {:id => setting.to_param}, session: valid_session
       assigns(:setting).should eq(setting)
     end
   end
@@ -69,18 +69,18 @@ describe SettingsController do
     describe "with valid params" do
       it "creates a new Setting" do
         expect {
-          post :create, {:setting => valid_attributes}, valid_session
+          post :create, params: {:setting => valid_attributes}, session: valid_session
         }.to change(Setting, :count).by(1)
       end
 
       it "assigns a newly created setting as @setting" do
-        post :create, {:setting => valid_attributes}, valid_session
+        post :create, params: {:setting => valid_attributes}, session: valid_session
         assigns(:setting).should be_a(Setting)
         assigns(:setting).should be_persisted
       end
 
       it "redirects to the created setting" do
-        post :create, {:setting => valid_attributes}, valid_session
+        post :create, params: {:setting => valid_attributes}, session: valid_session
         response.should redirect_to(Setting.last)
       end
     end
@@ -89,14 +89,14 @@ describe SettingsController do
       it "assigns a newly created but unsaved setting as @setting" do
         # Trigger the behavior that occurs when invalid params are submitted
         Setting.any_instance.stub(:save).and_return(false)
-        post :create, {:setting => { "name" => "invalid value" }}, valid_session
+        post :create, params: {:setting => { "name" => "invalid value" }}, session: valid_session
         assigns(:setting).should be_a_new(Setting)
       end
 
       it "re-renders the 'new' template" do
         # Trigger the behavior that occurs when invalid params are submitted
         Setting.any_instance.stub(:save).and_return(false)
-        post :create, {:setting => { "name" => "invalid value" }}, valid_session
+        post :create, params: {:setting => { "name" => "invalid value" }}, session: valid_session
         response.should render_template("new")
       end
     end
@@ -111,18 +111,18 @@ describe SettingsController do
         # receives the :update_attributes message with whatever params are
         # submitted in the request.
         Setting.any_instance.should_receive(:update_attributes).with({ "name" => "MyString" })
-        put :update, {:id => setting.to_param, :setting => { "name" => "MyString" }}, valid_session
+        put :update, params: {:id => setting.to_param, :setting => { "name" => "MyString" }}, session: valid_session
       end
 
       it "assigns the requested setting as @setting" do
         setting = Setting.create! valid_attributes
-        put :update, {:id => setting.to_param, :setting => valid_attributes}, valid_session
+        put :update, params: {:id => setting.to_param, :setting => valid_attributes}, session: valid_session
         assigns(:setting).should eq(setting)
       end
 
       it "redirects to the setting" do
         setting = Setting.create! valid_attributes
-        put :update, {:id => setting.to_param, :setting => valid_attributes}, valid_session
+        put :update, params: {:id => setting.to_param, :setting => valid_attributes}, session: valid_session
         response.should redirect_to(setting)
       end
     end
@@ -132,7 +132,7 @@ describe SettingsController do
         setting = Setting.create! valid_attributes
         # Trigger the behavior that occurs when invalid params are submitted
         Setting.any_instance.stub(:save).and_return(false)
-        put :update, {:id => setting.to_param, :setting => { "name" => "invalid value" }}, valid_session
+        put :update, params: {:id => setting.to_param, :setting => { "name" => "invalid value" }}, session: valid_session
         assigns(:setting).should eq(setting)
       end
 
@@ -140,7 +140,7 @@ describe SettingsController do
         setting = Setting.create! valid_attributes
         # Trigger the behavior that occurs when invalid params are submitted
         Setting.any_instance.stub(:save).and_return(false)
-        put :update, {:id => setting.to_param, :setting => { "name" => "invalid value" }}, valid_session
+        put :update, params: {:id => setting.to_param, :setting => { "name" => "invalid value" }}, session: valid_session
         response.should render_template("edit")
       end
     end
@@ -150,13 +150,13 @@ describe SettingsController do
     it "destroys the requested setting" do
       setting = Setting.create! valid_attributes
       expect {
-        delete :destroy, {:id => setting.to_param}, valid_session
+        delete :destroy, params: {:id => setting.to_param}, session: valid_session
       }.to change(Setting, :count).by(-1)
     end
 
     it "redirects to the settings list" do
       setting = Setting.create! valid_attributes
-      delete :destroy, {:id => setting.to_param}, valid_session
+      delete :destroy, params: {:id => setting.to_param}, session: valid_session
       response.should redirect_to(settings_url)
     end
   end

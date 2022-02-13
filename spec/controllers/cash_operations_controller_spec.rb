@@ -33,7 +33,7 @@ describe CashOperationsController do
   describe "GET index" do
     it "assigns all cash_operations as @cash_operations" do
       cash_operation = CashOperation.create! valid_attributes
-      get :index, {}, valid_session
+      get :index, params: {}, session: valid_session
       assigns(:cash_operations).should eq([cash_operation])
     end
   end
@@ -41,14 +41,14 @@ describe CashOperationsController do
   describe "GET show" do
     it "assigns the requested cash_operation as @cash_operation" do
       cash_operation = CashOperation.create! valid_attributes
-      get :show, {:id => cash_operation.to_param}, valid_session
+      get :show, params: {:id => cash_operation.to_param}, session: valid_session
       assigns(:cash_operation).should eq(cash_operation)
     end
   end
 
   describe "GET new" do
     it "assigns a new cash_operation as @cash_operation" do
-      get :new, {}, valid_session
+      get :new, params: {}, session: valid_session
       assigns(:cash_operation).should be_a_new(CashOperation)
     end
   end
@@ -56,7 +56,7 @@ describe CashOperationsController do
   describe "GET edit" do
     it "assigns the requested cash_operation as @cash_operation" do
       cash_operation = CashOperation.create! valid_attributes
-      get :edit, {:id => cash_operation.to_param}, valid_session
+      get :edit, params: {:id => cash_operation.to_param}, session: valid_session
       assigns(:cash_operation).should eq(cash_operation)
     end
   end
@@ -65,18 +65,18 @@ describe CashOperationsController do
     describe "with valid params" do
       it "creates a new CashOperation" do
         expect {
-          post :create, {:cash_operation => valid_attributes}, valid_session
+          post :create, params: {:cash_operation => valid_attributes}, session: valid_session
         }.to change(CashOperation, :count).by(1)
       end
 
       it "assigns a newly created cash_operation as @cash_operation" do
-        post :create, {:cash_operation => valid_attributes}, valid_session
+        post :create, params: {:cash_operation => valid_attributes}, session: valid_session
         assigns(:cash_operation).should be_a(CashOperation)
         assigns(:cash_operation).should be_persisted
       end
 
       it "redirects to the created cash_operation" do
-        post :create, {:cash_operation => valid_attributes}, valid_session
+        post :create, params: {:cash_operation => valid_attributes}, session: valid_session
         response.should redirect_to(CashOperation.last)
       end
     end
@@ -85,14 +85,14 @@ describe CashOperationsController do
       it "assigns a newly created but unsaved cash_operation as @cash_operation" do
         # Trigger the behavior that occurs when invalid params are submitted
         CashOperation.any_instance.stub(:save).and_return(false)
-        post :create, {:cash_operation => { "cash_shift" => "invalid value" }}, valid_session
+        post :create, params: {:cash_operation => { "cash_shift" => "invalid value" }}, session: valid_session
         assigns(:cash_operation).should be_a_new(CashOperation)
       end
 
       it "re-renders the 'new' template" do
         # Trigger the behavior that occurs when invalid params are submitted
         CashOperation.any_instance.stub(:save).and_return(false)
-        post :create, {:cash_operation => { "cash_shift" => "invalid value" }}, valid_session
+        post :create, params: {:cash_operation => { "cash_shift" => "invalid value" }}, session: valid_session
         response.should render_template("new")
       end
     end
@@ -107,18 +107,18 @@ describe CashOperationsController do
         # receives the :update_attributes message with whatever params are
         # submitted in the request.
         CashOperation.any_instance.should_receive(:update_attributes).with({ "cash_shift" => "" })
-        put :update, {:id => cash_operation.to_param, :cash_operation => { "cash_shift" => "" }}, valid_session
+        put :update, params: {:id => cash_operation.to_param, :cash_operation => { "cash_shift" => "" }}, session: valid_session
       end
 
       it "assigns the requested cash_operation as @cash_operation" do
         cash_operation = CashOperation.create! valid_attributes
-        put :update, {:id => cash_operation.to_param, :cash_operation => valid_attributes}, valid_session
+        put :update, params: {:id => cash_operation.to_param, :cash_operation => valid_attributes}, session: valid_session
         assigns(:cash_operation).should eq(cash_operation)
       end
 
       it "redirects to the cash_operation" do
         cash_operation = CashOperation.create! valid_attributes
-        put :update, {:id => cash_operation.to_param, :cash_operation => valid_attributes}, valid_session
+        put :update, params: {:id => cash_operation.to_param, :cash_operation => valid_attributes}, session: valid_session
         response.should redirect_to(cash_operation)
       end
     end
@@ -128,7 +128,7 @@ describe CashOperationsController do
         cash_operation = CashOperation.create! valid_attributes
         # Trigger the behavior that occurs when invalid params are submitted
         CashOperation.any_instance.stub(:save).and_return(false)
-        put :update, {:id => cash_operation.to_param, :cash_operation => { "cash_shift" => "invalid value" }}, valid_session
+        put :update, params: {:id => cash_operation.to_param, :cash_operation => { "cash_shift" => "invalid value" }}, session: valid_session
         assigns(:cash_operation).should eq(cash_operation)
       end
 
@@ -136,7 +136,7 @@ describe CashOperationsController do
         cash_operation = CashOperation.create! valid_attributes
         # Trigger the behavior that occurs when invalid params are submitted
         CashOperation.any_instance.stub(:save).and_return(false)
-        put :update, {:id => cash_operation.to_param, :cash_operation => { "cash_shift" => "invalid value" }}, valid_session
+        put :update, params: {:id => cash_operation.to_param, :cash_operation => { "cash_shift" => "invalid value" }}, session: valid_session
         response.should render_template("edit")
       end
     end
@@ -146,13 +146,13 @@ describe CashOperationsController do
     it "destroys the requested cash_operation" do
       cash_operation = CashOperation.create! valid_attributes
       expect {
-        delete :destroy, {:id => cash_operation.to_param}, valid_session
+        delete :destroy, params: {:id => cash_operation.to_param}, session: valid_session
       }.to change(CashOperation, :count).by(-1)
     end
 
     it "redirects to the cash_operations list" do
       cash_operation = CashOperation.create! valid_attributes
-      delete :destroy, {:id => cash_operation.to_param}, valid_session
+      delete :destroy, params: {:id => cash_operation.to_param}, session: valid_session
       response.should redirect_to(cash_operations_url)
     end
   end

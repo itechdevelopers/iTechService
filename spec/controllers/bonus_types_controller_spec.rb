@@ -33,7 +33,7 @@ describe BonusTypesController do
   describe "GET index" do
     it "assigns all bonus_types as @bonus_types" do
       bonus_type = BonusType.create! valid_attributes
-      get :index, {}, valid_session
+      get :index, params: {}, session: valid_session
       assigns(:bonus_types).should eq([bonus_type])
     end
   end
@@ -41,14 +41,14 @@ describe BonusTypesController do
   describe "GET show" do
     it "assigns the requested bonus_type as @bonus_type" do
       bonus_type = BonusType.create! valid_attributes
-      get :show, {:id => bonus_type.to_param}, valid_session
+      get :show, params: {:id => bonus_type.to_param}, session: valid_session
       assigns(:bonus_type).should eq(bonus_type)
     end
   end
 
   describe "GET new" do
     it "assigns a new bonus_type as @bonus_type" do
-      get :new, {}, valid_session
+      get :new, params: {}, session: valid_session
       assigns(:bonus_type).should be_a_new(BonusType)
     end
   end
@@ -56,7 +56,7 @@ describe BonusTypesController do
   describe "GET edit" do
     it "assigns the requested bonus_type as @bonus_type" do
       bonus_type = BonusType.create! valid_attributes
-      get :edit, {:id => bonus_type.to_param}, valid_session
+      get :edit, params: {:id => bonus_type.to_param}, session: valid_session
       assigns(:bonus_type).should eq(bonus_type)
     end
   end
@@ -65,18 +65,18 @@ describe BonusTypesController do
     describe "with valid params" do
       it "creates a new BonusType" do
         expect {
-          post :create, {:bonus_type => valid_attributes}, valid_session
+          post :create, params: {:bonus_type => valid_attributes}, session: valid_session
         }.to change(BonusType, :count).by(1)
       end
 
       it "assigns a newly created bonus_type as @bonus_type" do
-        post :create, {:bonus_type => valid_attributes}, valid_session
+        post :create, params: {:bonus_type => valid_attributes}, session: valid_session
         assigns(:bonus_type).should be_a(BonusType)
         assigns(:bonus_type).should be_persisted
       end
 
       it "redirects to the created bonus_type" do
-        post :create, {:bonus_type => valid_attributes}, valid_session
+        post :create, params: {:bonus_type => valid_attributes}, session: valid_session
         response.should redirect_to(BonusType.last)
       end
     end
@@ -85,14 +85,14 @@ describe BonusTypesController do
       it "assigns a newly created but unsaved bonus_type as @bonus_type" do
         # Trigger the behavior that occurs when invalid params are submitted
         BonusType.any_instance.stub(:save).and_return(false)
-        post :create, {:bonus_type => { "name" => "invalid value" }}, valid_session
+        post :create, params: {:bonus_type => { "name" => "invalid value" }}, session: valid_session
         assigns(:bonus_type).should be_a_new(BonusType)
       end
 
       it "re-renders the 'new' template" do
         # Trigger the behavior that occurs when invalid params are submitted
         BonusType.any_instance.stub(:save).and_return(false)
-        post :create, {:bonus_type => { "name" => "invalid value" }}, valid_session
+        post :create, params: {:bonus_type => { "name" => "invalid value" }}, session: valid_session
         response.should render_template("new")
       end
     end
@@ -107,18 +107,18 @@ describe BonusTypesController do
         # receives the :update_attributes message with whatever params are
         # submitted in the request.
         BonusType.any_instance.should_receive(:update_attributes).with({ "name" => "MyString" })
-        put :update, {:id => bonus_type.to_param, :bonus_type => { "name" => "MyString" }}, valid_session
+        put :update, params: {:id => bonus_type.to_param, :bonus_type => { "name" => "MyString" }}, session: valid_session
       end
 
       it "assigns the requested bonus_type as @bonus_type" do
         bonus_type = BonusType.create! valid_attributes
-        put :update, {:id => bonus_type.to_param, :bonus_type => valid_attributes}, valid_session
+        put :update, params: {:id => bonus_type.to_param, :bonus_type => valid_attributes}, session: valid_session
         assigns(:bonus_type).should eq(bonus_type)
       end
 
       it "redirects to the bonus_type" do
         bonus_type = BonusType.create! valid_attributes
-        put :update, {:id => bonus_type.to_param, :bonus_type => valid_attributes}, valid_session
+        put :update, params: {:id => bonus_type.to_param, :bonus_type => valid_attributes}, session: valid_session
         response.should redirect_to(bonus_type)
       end
     end
@@ -128,7 +128,7 @@ describe BonusTypesController do
         bonus_type = BonusType.create! valid_attributes
         # Trigger the behavior that occurs when invalid params are submitted
         BonusType.any_instance.stub(:save).and_return(false)
-        put :update, {:id => bonus_type.to_param, :bonus_type => { "name" => "invalid value" }}, valid_session
+        put :update, params: {:id => bonus_type.to_param, :bonus_type => { "name" => "invalid value" }}, session: valid_session
         assigns(:bonus_type).should eq(bonus_type)
       end
 
@@ -136,7 +136,7 @@ describe BonusTypesController do
         bonus_type = BonusType.create! valid_attributes
         # Trigger the behavior that occurs when invalid params are submitted
         BonusType.any_instance.stub(:save).and_return(false)
-        put :update, {:id => bonus_type.to_param, :bonus_type => { "name" => "invalid value" }}, valid_session
+        put :update, params: {:id => bonus_type.to_param, :bonus_type => { "name" => "invalid value" }}, session: valid_session
         response.should render_template("edit")
       end
     end
@@ -146,13 +146,13 @@ describe BonusTypesController do
     it "destroys the requested bonus_type" do
       bonus_type = BonusType.create! valid_attributes
       expect {
-        delete :destroy, {:id => bonus_type.to_param}, valid_session
+        delete :destroy, params: {:id => bonus_type.to_param}, session: valid_session
       }.to change(BonusType, :count).by(-1)
     end
 
     it "redirects to the bonus_types list" do
       bonus_type = BonusType.create! valid_attributes
-      delete :destroy, {:id => bonus_type.to_param}, valid_session
+      delete :destroy, params: {:id => bonus_type.to_param}, session: valid_session
       response.should redirect_to(bonus_types_url)
     end
   end

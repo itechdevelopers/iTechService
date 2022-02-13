@@ -33,7 +33,7 @@ describe MovementActsController do
   describe "GET index" do
     it "assigns all movement_acts as @movement_acts" do
       movement_act = MovementAct.create! valid_attributes
-      get :index, {}, valid_session
+      get :index, params: {}, session: valid_session
       assigns(:movement_acts).should eq([movement_act])
     end
   end
@@ -41,14 +41,14 @@ describe MovementActsController do
   describe "GET show" do
     it "assigns the requested movement_act as @movement_act" do
       movement_act = MovementAct.create! valid_attributes
-      get :show, {:id => movement_act.to_param}, valid_session
+      get :show, params: {:id => movement_act.to_param}, session: valid_session
       assigns(:movement_act).should eq(movement_act)
     end
   end
 
   describe "GET new" do
     it "assigns a new movement_act as @movement_act" do
-      get :new, {}, valid_session
+      get :new, params: {}, session: valid_session
       assigns(:movement_act).should be_a_new(MovementAct)
     end
   end
@@ -56,7 +56,7 @@ describe MovementActsController do
   describe "GET edit" do
     it "assigns the requested movement_act as @movement_act" do
       movement_act = MovementAct.create! valid_attributes
-      get :edit, {:id => movement_act.to_param}, valid_session
+      get :edit, params: {:id => movement_act.to_param}, session: valid_session
       assigns(:movement_act).should eq(movement_act)
     end
   end
@@ -65,18 +65,18 @@ describe MovementActsController do
     describe "with valid params" do
       it "creates a new MovementAct" do
         expect {
-          post :create, {:movement_act => valid_attributes}, valid_session
+          post :create, params: {:movement_act => valid_attributes}, session: valid_session
         }.to change(MovementAct, :count).by(1)
       end
 
       it "assigns a newly created movement_act as @movement_act" do
-        post :create, {:movement_act => valid_attributes}, valid_session
+        post :create, params: {:movement_act => valid_attributes}, session: valid_session
         assigns(:movement_act).should be_a(MovementAct)
         assigns(:movement_act).should be_persisted
       end
 
       it "redirects to the created movement_act" do
-        post :create, {:movement_act => valid_attributes}, valid_session
+        post :create, params: {:movement_act => valid_attributes}, session: valid_session
         response.should redirect_to(MovementAct.last)
       end
     end
@@ -85,14 +85,14 @@ describe MovementActsController do
       it "assigns a newly created but unsaved movement_act as @movement_act" do
         # Trigger the behavior that occurs when invalid params are submitted
         MovementAct.any_instance.stub(:save).and_return(false)
-        post :create, {:movement_act => { "date" => "invalid value" }}, valid_session
+        post :create, params: {:movement_act => { "date" => "invalid value" }}, session: valid_session
         assigns(:movement_act).should be_a_new(MovementAct)
       end
 
       it "re-renders the 'new' template" do
         # Trigger the behavior that occurs when invalid params are submitted
         MovementAct.any_instance.stub(:save).and_return(false)
-        post :create, {:movement_act => { "date" => "invalid value" }}, valid_session
+        post :create, params: {:movement_act => { "date" => "invalid value" }}, session: valid_session
         response.should render_template("new")
       end
     end
@@ -107,18 +107,18 @@ describe MovementActsController do
         # receives the :update_attributes message with whatever params are
         # submitted in the request.
         MovementAct.any_instance.should_receive(:update_attributes).with({ "date" => "2013-11-18 18:28:10" })
-        put :update, {:id => movement_act.to_param, :movement_act => { "date" => "2013-11-18 18:28:10" }}, valid_session
+        put :update, params: {:id => movement_act.to_param, :movement_act => { "date" => "2013-11-18 18:28:10" }}, session: valid_session
       end
 
       it "assigns the requested movement_act as @movement_act" do
         movement_act = MovementAct.create! valid_attributes
-        put :update, {:id => movement_act.to_param, :movement_act => valid_attributes}, valid_session
+        put :update, params: {:id => movement_act.to_param, :movement_act => valid_attributes}, session: valid_session
         assigns(:movement_act).should eq(movement_act)
       end
 
       it "redirects to the movement_act" do
         movement_act = MovementAct.create! valid_attributes
-        put :update, {:id => movement_act.to_param, :movement_act => valid_attributes}, valid_session
+        put :update, params: {:id => movement_act.to_param, :movement_act => valid_attributes}, session: valid_session
         response.should redirect_to(movement_act)
       end
     end
@@ -128,7 +128,7 @@ describe MovementActsController do
         movement_act = MovementAct.create! valid_attributes
         # Trigger the behavior that occurs when invalid params are submitted
         MovementAct.any_instance.stub(:save).and_return(false)
-        put :update, {:id => movement_act.to_param, :movement_act => { "date" => "invalid value" }}, valid_session
+        put :update, params: {:id => movement_act.to_param, :movement_act => { "date" => "invalid value" }}, session: valid_session
         assigns(:movement_act).should eq(movement_act)
       end
 
@@ -136,7 +136,7 @@ describe MovementActsController do
         movement_act = MovementAct.create! valid_attributes
         # Trigger the behavior that occurs when invalid params are submitted
         MovementAct.any_instance.stub(:save).and_return(false)
-        put :update, {:id => movement_act.to_param, :movement_act => { "date" => "invalid value" }}, valid_session
+        put :update, params: {:id => movement_act.to_param, :movement_act => { "date" => "invalid value" }}, session: valid_session
         response.should render_template("edit")
       end
     end
@@ -146,13 +146,13 @@ describe MovementActsController do
     it "destroys the requested movement_act" do
       movement_act = MovementAct.create! valid_attributes
       expect {
-        delete :destroy, {:id => movement_act.to_param}, valid_session
+        delete :destroy, params: {:id => movement_act.to_param}, session: valid_session
       }.to change(MovementAct, :count).by(-1)
     end
 
     it "redirects to the movement_acts list" do
       movement_act = MovementAct.create! valid_attributes
-      delete :destroy, {:id => movement_act.to_param}, valid_session
+      delete :destroy, params: {:id => movement_act.to_param}, session: valid_session
       response.should redirect_to(movement_acts_url)
     end
   end

@@ -2,7 +2,7 @@ source 'https://rubygems.org'
 
 ruby '2.7.5'
 
-gem 'rails', '5.0.7.2'
+gem 'rails', '5.1.7'
 gem 'pg', '0.21.0'
 gem 'rails-pg-extras'
 gem 'sqlite3', '1.3.13'
@@ -88,6 +88,7 @@ group :development do
   gem 'meta_request'
   gem 'letter_opener'
   gem 'rails-erd'
+  gem 'listen'
 end
 
 group :test do

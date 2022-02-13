@@ -33,7 +33,7 @@ describe TimesheetDaysController do
   describe "GET index" do
     it "assigns all timesheet_days as @timesheet_days" do
       timesheet_day = TimesheetDay.create! valid_attributes
-      get :index, {}, valid_session
+      get :index, params: {}, session: valid_session
       assigns(:timesheet_days).should eq([timesheet_day])
     end
   end
@@ -41,14 +41,14 @@ describe TimesheetDaysController do
   describe "GET show" do
     it "assigns the requested timesheet_day as @timesheet_day" do
       timesheet_day = TimesheetDay.create! valid_attributes
-      get :show, {:id => timesheet_day.to_param}, valid_session
+      get :show, params: {:id => timesheet_day.to_param}, session: valid_session
       assigns(:timesheet_day).should eq(timesheet_day)
     end
   end
 
   describe "GET new" do
     it "assigns a new timesheet_day as @timesheet_day" do
-      get :new, {}, valid_session
+      get :new, params: {}, session: valid_session
       assigns(:timesheet_day).should be_a_new(TimesheetDay)
     end
   end
@@ -56,7 +56,7 @@ describe TimesheetDaysController do
   describe "GET edit" do
     it "assigns the requested timesheet_day as @timesheet_day" do
       timesheet_day = TimesheetDay.create! valid_attributes
-      get :edit, {:id => timesheet_day.to_param}, valid_session
+      get :edit, params: {:id => timesheet_day.to_param}, session: valid_session
       assigns(:timesheet_day).should eq(timesheet_day)
     end
   end
@@ -65,18 +65,18 @@ describe TimesheetDaysController do
     describe "with valid params" do
       it "creates a new TimesheetDay" do
         expect {
-          post :create, {:timesheet_day => valid_attributes}, valid_session
+          post :create, params: {:timesheet_day => valid_attributes}, session: valid_session
         }.to change(TimesheetDay, :count).by(1)
       end
 
       it "assigns a newly created timesheet_day as @timesheet_day" do
-        post :create, {:timesheet_day => valid_attributes}, valid_session
+        post :create, params: {:timesheet_day => valid_attributes}, session: valid_session
         assigns(:timesheet_day).should be_a(TimesheetDay)
         assigns(:timesheet_day).should be_persisted
       end
 
       it "redirects to the created timesheet_day" do
-        post :create, {:timesheet_day => valid_attributes}, valid_session
+        post :create, params: {:timesheet_day => valid_attributes}, session: valid_session
         response.should redirect_to(TimesheetDay.last)
       end
     end
@@ -85,14 +85,14 @@ describe TimesheetDaysController do
       it "assigns a newly created but unsaved timesheet_day as @timesheet_day" do
         # Trigger the behavior that occurs when invalid params are submitted
         TimesheetDay.any_instance.stub(:save).and_return(false)
-        post :create, {:timesheet_day => { "date" => "invalid value" }}, valid_session
+        post :create, params: {:timesheet_day => { "date" => "invalid value" }}, session: valid_session
         assigns(:timesheet_day).should be_a_new(TimesheetDay)
       end
 
       it "re-renders the 'new' template" do
         # Trigger the behavior that occurs when invalid params are submitted
         TimesheetDay.any_instance.stub(:save).and_return(false)
-        post :create, {:timesheet_day => { "date" => "invalid value" }}, valid_session
+        post :create, params: {:timesheet_day => { "date" => "invalid value" }}, session: valid_session
         response.should render_template("new")
       end
     end
@@ -107,18 +107,18 @@ describe TimesheetDaysController do
         # receives the :update_attributes message with whatever params are
         # submitted in the request.
         TimesheetDay.any_instance.should_receive(:update_attributes).with({ "date" => "2013-07-01" })
-        put :update, {:id => timesheet_day.to_param, :timesheet_day => { "date" => "2013-07-01" }}, valid_session
+        put :update, params: {:id => timesheet_day.to_param, :timesheet_day => { "date" => "2013-07-01" }}, session: valid_session
       end
 
       it "assigns the requested timesheet_day as @timesheet_day" do
         timesheet_day = TimesheetDay.create! valid_attributes
-        put :update, {:id => timesheet_day.to_param, :timesheet_day => valid_attributes}, valid_session
+        put :update, params: {:id => timesheet_day.to_param, :timesheet_day => valid_attributes}, session: valid_session
         assigns(:timesheet_day).should eq(timesheet_day)
       end
 
       it "redirects to the timesheet_day" do
         timesheet_day = TimesheetDay.create! valid_attributes
-        put :update, {:id => timesheet_day.to_param, :timesheet_day => valid_attributes}, valid_session
+        put :update, params: {:id => timesheet_day.to_param, :timesheet_day => valid_attributes}, session: valid_session
         response.should redirect_to(timesheet_day)
       end
     end
@@ -128,7 +128,7 @@ describe TimesheetDaysController do
         timesheet_day = TimesheetDay.create! valid_attributes
         # Trigger the behavior that occurs when invalid params are submitted
         TimesheetDay.any_instance.stub(:save).and_return(false)
-        put :update, {:id => timesheet_day.to_param, :timesheet_day => { "date" => "invalid value" }}, valid_session
+        put :update, params: {:id => timesheet_day.to_param, :timesheet_day => { "date" => "invalid value" }}, session: valid_session
         assigns(:timesheet_day).should eq(timesheet_day)
       end
 
@@ -136,7 +136,7 @@ describe TimesheetDaysController do
         timesheet_day = TimesheetDay.create! valid_attributes
         # Trigger the behavior that occurs when invalid params are submitted
         TimesheetDay.any_instance.stub(:save).and_return(false)
-        put :update, {:id => timesheet_day.to_param, :timesheet_day => { "date" => "invalid value" }}, valid_session
+        put :update, params: {:id => timesheet_day.to_param, :timesheet_day => { "date" => "invalid value" }}, session: valid_session
         response.should render_template("edit")
       end
     end
@@ -146,13 +146,13 @@ describe TimesheetDaysController do
     it "destroys the requested timesheet_day" do
       timesheet_day = TimesheetDay.create! valid_attributes
       expect {
-        delete :destroy, {:id => timesheet_day.to_param}, valid_session
+        delete :destroy, params: {:id => timesheet_day.to_param}, session: valid_session
       }.to change(TimesheetDay, :count).by(-1)
     end
 
     it "redirects to the timesheet_days list" do
       timesheet_day = TimesheetDay.create! valid_attributes
-      delete :destroy, {:id => timesheet_day.to_param}, valid_session
+      delete :destroy, params: {:id => timesheet_day.to_param}, session: valid_session
       response.should redirect_to(timesheet_days_url)
     end
   end

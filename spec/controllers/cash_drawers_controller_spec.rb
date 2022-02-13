@@ -33,7 +33,7 @@ describe CashDrawersController do
   describe "GET index" do
     it "assigns all cash_drawers as @cash_drawers" do
       cash_drawer = CashDrawer.create! valid_attributes
-      get :index, {}, valid_session
+      get :index, params: {}, session: valid_session
       assigns(:cash_drawers).should eq([cash_drawer])
     end
   end
@@ -41,14 +41,14 @@ describe CashDrawersController do
   describe "GET show" do
     it "assigns the requested cash_drawer as @cash_drawer" do
       cash_drawer = CashDrawer.create! valid_attributes
-      get :show, {:id => cash_drawer.to_param}, valid_session
+      get :show, params: {:id => cash_drawer.to_param}, session: valid_session
       assigns(:cash_drawer).should eq(cash_drawer)
     end
   end
 
   describe "GET new" do
     it "assigns a new cash_drawer as @cash_drawer" do
-      get :new, {}, valid_session
+      get :new, params: {}, session: valid_session
       assigns(:cash_drawer).should be_a_new(CashDrawer)
     end
   end
@@ -56,7 +56,7 @@ describe CashDrawersController do
   describe "GET edit" do
     it "assigns the requested cash_drawer as @cash_drawer" do
       cash_drawer = CashDrawer.create! valid_attributes
-      get :edit, {:id => cash_drawer.to_param}, valid_session
+      get :edit, params: {:id => cash_drawer.to_param}, session: valid_session
       assigns(:cash_drawer).should eq(cash_drawer)
     end
   end
@@ -65,18 +65,18 @@ describe CashDrawersController do
     describe "with valid params" do
       it "creates a new CashDrawer" do
         expect {
-          post :create, {:cash_drawer => valid_attributes}, valid_session
+          post :create, params: {:cash_drawer => valid_attributes}, session: valid_session
         }.to change(CashDrawer, :count).by(1)
       end
 
       it "assigns a newly created cash_drawer as @cash_drawer" do
-        post :create, {:cash_drawer => valid_attributes}, valid_session
+        post :create, params: {:cash_drawer => valid_attributes}, session: valid_session
         assigns(:cash_drawer).should be_a(CashDrawer)
         assigns(:cash_drawer).should be_persisted
       end
 
       it "redirects to the created cash_drawer" do
-        post :create, {:cash_drawer => valid_attributes}, valid_session
+        post :create, params: {:cash_drawer => valid_attributes}, session: valid_session
         response.should redirect_to(CashDrawer.last)
       end
     end
@@ -85,14 +85,14 @@ describe CashDrawersController do
       it "assigns a newly created but unsaved cash_drawer as @cash_drawer" do
         # Trigger the behavior that occurs when invalid params are submitted
         CashDrawer.any_instance.stub(:save).and_return(false)
-        post :create, {:cash_drawer => { "name" => "invalid value" }}, valid_session
+        post :create, params: {:cash_drawer => { "name" => "invalid value" }}, session: valid_session
         assigns(:cash_drawer).should be_a_new(CashDrawer)
       end
 
       it "re-renders the 'new' template" do
         # Trigger the behavior that occurs when invalid params are submitted
         CashDrawer.any_instance.stub(:save).and_return(false)
-        post :create, {:cash_drawer => { "name" => "invalid value" }}, valid_session
+        post :create, params: {:cash_drawer => { "name" => "invalid value" }}, session: valid_session
         response.should render_template("new")
       end
     end
@@ -107,18 +107,18 @@ describe CashDrawersController do
         # receives the :update_attributes message with whatever params are
         # submitted in the request.
         CashDrawer.any_instance.should_receive(:update_attributes).with({ "name" => "1" })
-        put :update, {:id => cash_drawer.to_param, :cash_drawer => { "name" => "1" }}, valid_session
+        put :update, params: {:id => cash_drawer.to_param, :cash_drawer => { "name" => "1" }}, session: valid_session
       end
 
       it "assigns the requested cash_drawer as @cash_drawer" do
         cash_drawer = CashDrawer.create! valid_attributes
-        put :update, {:id => cash_drawer.to_param, :cash_drawer => valid_attributes}, valid_session
+        put :update, params: {:id => cash_drawer.to_param, :cash_drawer => valid_attributes}, session: valid_session
         assigns(:cash_drawer).should eq(cash_drawer)
       end
 
       it "redirects to the cash_drawer" do
         cash_drawer = CashDrawer.create! valid_attributes
-        put :update, {:id => cash_drawer.to_param, :cash_drawer => valid_attributes}, valid_session
+        put :update, params: {:id => cash_drawer.to_param, :cash_drawer => valid_attributes}, session: valid_session
         response.should redirect_to(cash_drawer)
       end
     end
@@ -128,7 +128,7 @@ describe CashDrawersController do
         cash_drawer = CashDrawer.create! valid_attributes
         # Trigger the behavior that occurs when invalid params are submitted
         CashDrawer.any_instance.stub(:save).and_return(false)
-        put :update, {:id => cash_drawer.to_param, :cash_drawer => { "name" => "invalid value" }}, valid_session
+        put :update, params: {:id => cash_drawer.to_param, :cash_drawer => { "name" => "invalid value" }}, session: valid_session
         assigns(:cash_drawer).should eq(cash_drawer)
       end
 
@@ -136,7 +136,7 @@ describe CashDrawersController do
         cash_drawer = CashDrawer.create! valid_attributes
         # Trigger the behavior that occurs when invalid params are submitted
         CashDrawer.any_instance.stub(:save).and_return(false)
-        put :update, {:id => cash_drawer.to_param, :cash_drawer => { "name" => "invalid value" }}, valid_session
+        put :update, params: {:id => cash_drawer.to_param, :cash_drawer => { "name" => "invalid value" }}, session: valid_session
         response.should render_template("edit")
       end
     end
@@ -146,13 +146,13 @@ describe CashDrawersController do
     it "destroys the requested cash_drawer" do
       cash_drawer = CashDrawer.create! valid_attributes
       expect {
-        delete :destroy, {:id => cash_drawer.to_param}, valid_session
+        delete :destroy, params: {:id => cash_drawer.to_param}, session: valid_session
       }.to change(CashDrawer, :count).by(-1)
     end
 
     it "redirects to the cash_drawers list" do
       cash_drawer = CashDrawer.create! valid_attributes
-      delete :destroy, {:id => cash_drawer.to_param}, valid_session
+      delete :destroy, params: {:id => cash_drawer.to_param}, session: valid_session
       response.should redirect_to(cash_drawers_url)
     end
   end

@@ -33,7 +33,7 @@ describe QuickTasksController do
   describe "GET index" do
     it "assigns all quick_tasks as @quick_tasks" do
       quick_task = QuickTask.create! valid_attributes
-      get :index, {}, valid_session
+      get :index, params: {}, session: valid_session
       assigns(:quick_tasks).should eq([quick_task])
     end
   end
@@ -41,14 +41,14 @@ describe QuickTasksController do
   describe "GET show" do
     it "assigns the requested quick_task as @quick_task" do
       quick_task = QuickTask.create! valid_attributes
-      get :show, {:id => quick_task.to_param}, valid_session
+      get :show, params: {:id => quick_task.to_param}, session: valid_session
       assigns(:quick_task).should eq(quick_task)
     end
   end
 
   describe "GET new" do
     it "assigns a new quick_task as @quick_task" do
-      get :new, {}, valid_session
+      get :new, params: {}, session: valid_session
       assigns(:quick_task).should be_a_new(QuickTask)
     end
   end
@@ -56,7 +56,7 @@ describe QuickTasksController do
   describe "GET edit" do
     it "assigns the requested quick_task as @quick_task" do
       quick_task = QuickTask.create! valid_attributes
-      get :edit, {:id => quick_task.to_param}, valid_session
+      get :edit, params: {:id => quick_task.to_param}, session: valid_session
       assigns(:quick_task).should eq(quick_task)
     end
   end
@@ -65,18 +65,18 @@ describe QuickTasksController do
     describe "with valid params" do
       it "creates a new QuickTask" do
         expect {
-          post :create, {:quick_task => valid_attributes}, valid_session
+          post :create, params: {:quick_task => valid_attributes}, session: valid_session
         }.to change(QuickTask, :count).by(1)
       end
 
       it "assigns a newly created quick_task as @quick_task" do
-        post :create, {:quick_task => valid_attributes}, valid_session
+        post :create, params: {:quick_task => valid_attributes}, session: valid_session
         assigns(:quick_task).should be_a(QuickTask)
         assigns(:quick_task).should be_persisted
       end
 
       it "redirects to the created quick_task" do
-        post :create, {:quick_task => valid_attributes}, valid_session
+        post :create, params: {:quick_task => valid_attributes}, session: valid_session
         response.should redirect_to(QuickTask.last)
       end
     end
@@ -85,14 +85,14 @@ describe QuickTasksController do
       it "assigns a newly created but unsaved quick_task as @quick_task" do
         # Trigger the behavior that occurs when invalid params are submitted
         QuickTask.any_instance.stub(:save).and_return(false)
-        post :create, {:quick_task => { "name" => "invalid value" }}, valid_session
+        post :create, params: {:quick_task => { "name" => "invalid value" }}, session: valid_session
         assigns(:quick_task).should be_a_new(QuickTask)
       end
 
       it "re-renders the 'new' template" do
         # Trigger the behavior that occurs when invalid params are submitted
         QuickTask.any_instance.stub(:save).and_return(false)
-        post :create, {:quick_task => { "name" => "invalid value" }}, valid_session
+        post :create, params: {:quick_task => { "name" => "invalid value" }}, session: valid_session
         response.should render_template("new")
       end
     end
@@ -107,18 +107,18 @@ describe QuickTasksController do
         # receives the :update_attributes message with whatever params are
         # submitted in the request.
         QuickTask.any_instance.should_receive(:update_attributes).with({ "name" => "MyString" })
-        put :update, {:id => quick_task.to_param, :quick_task => { "name" => "MyString" }}, valid_session
+        put :update, params: {:id => quick_task.to_param, :quick_task => { "name" => "MyString" }}, session: valid_session
       end
 
       it "assigns the requested quick_task as @quick_task" do
         quick_task = QuickTask.create! valid_attributes
-        put :update, {:id => quick_task.to_param, :quick_task => valid_attributes}, valid_session
+        put :update, params: {:id => quick_task.to_param, :quick_task => valid_attributes}, session: valid_session
         assigns(:quick_task).should eq(quick_task)
       end
 
       it "redirects to the quick_task" do
         quick_task = QuickTask.create! valid_attributes
-        put :update, {:id => quick_task.to_param, :quick_task => valid_attributes}, valid_session
+        put :update, params: {:id => quick_task.to_param, :quick_task => valid_attributes}, session: valid_session
         response.should redirect_to(quick_task)
       end
     end
@@ -128,7 +128,7 @@ describe QuickTasksController do
         quick_task = QuickTask.create! valid_attributes
         # Trigger the behavior that occurs when invalid params are submitted
         QuickTask.any_instance.stub(:save).and_return(false)
-        put :update, {:id => quick_task.to_param, :quick_task => { "name" => "invalid value" }}, valid_session
+        put :update, params: {:id => quick_task.to_param, :quick_task => { "name" => "invalid value" }}, session: valid_session
         assigns(:quick_task).should eq(quick_task)
       end
 
@@ -136,7 +136,7 @@ describe QuickTasksController do
         quick_task = QuickTask.create! valid_attributes
         # Trigger the behavior that occurs when invalid params are submitted
         QuickTask.any_instance.stub(:save).and_return(false)
-        put :update, {:id => quick_task.to_param, :quick_task => { "name" => "invalid value" }}, valid_session
+        put :update, params: {:id => quick_task.to_param, :quick_task => { "name" => "invalid value" }}, session: valid_session
         response.should render_template("edit")
       end
     end
@@ -146,13 +146,13 @@ describe QuickTasksController do
     it "destroys the requested quick_task" do
       quick_task = QuickTask.create! valid_attributes
       expect {
-        delete :destroy, {:id => quick_task.to_param}, valid_session
+        delete :destroy, params: {:id => quick_task.to_param}, session: valid_session
       }.to change(QuickTask, :count).by(-1)
     end
 
     it "redirects to the quick_tasks list" do
       quick_task = QuickTask.create! valid_attributes
-      delete :destroy, {:id => quick_task.to_param}, valid_session
+      delete :destroy, params: {:id => quick_task.to_param}, session: valid_session
       response.should redirect_to(quick_tasks_url)
     end
   end

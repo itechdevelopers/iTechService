@@ -37,7 +37,7 @@ describe PricesController do
   describe "GET index" do
     it "assigns all prices as @prices" do
       price = Price.create! valid_attributes
-      get :index, {}, valid_session
+      get :index, params: {}, session: valid_session
       assigns(:prices).should eq([price])
     end
   end
@@ -45,7 +45,7 @@ describe PricesController do
   describe "GET show" do
     it "assigns the requested price as @price" do
       price = Price.create! valid_attributes
-      get :show, {:id => price.to_param}, valid_session
+      get :show, params: {:id => price.to_param}, session: valid_session
       assigns(:price).should eq(price)
     end
   end

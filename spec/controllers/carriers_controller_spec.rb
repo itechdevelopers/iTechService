@@ -39,7 +39,7 @@ RSpec.describe CarriersController, :type => :controller do
   describe "GET #index" do
     it "assigns all carriers as @carriers" do
       carrier = Carrier.create! valid_attributes
-      get :index, {}, valid_session
+      get :index, params: {}, session: valid_session
       expect(assigns(:carriers)).to eq([carrier])
     end
   end
@@ -47,14 +47,14 @@ RSpec.describe CarriersController, :type => :controller do
   describe "GET #show" do
     it "assigns the requested carrier as @carrier" do
       carrier = Carrier.create! valid_attributes
-      get :show, {:id => carrier.to_param}, valid_session
+      get :show, params: {:id => carrier.to_param}, session: valid_session
       expect(assigns(:carrier)).to eq(carrier)
     end
   end
 
   describe "GET #new" do
     it "assigns a new carrier as @carrier" do
-      get :new, {}, valid_session
+      get :new, params: {}, session: valid_session
       expect(assigns(:carrier)).to be_a_new(Carrier)
     end
   end
@@ -62,7 +62,7 @@ RSpec.describe CarriersController, :type => :controller do
   describe "GET #edit" do
     it "assigns the requested carrier as @carrier" do
       carrier = Carrier.create! valid_attributes
-      get :edit, {:id => carrier.to_param}, valid_session
+      get :edit, params: {:id => carrier.to_param}, session: valid_session
       expect(assigns(:carrier)).to eq(carrier)
     end
   end
@@ -71,30 +71,30 @@ RSpec.describe CarriersController, :type => :controller do
     context "with valid params" do
       it "creates a new Carrier" do
         expect {
-          post :create, {:carrier => valid_attributes}, valid_session
+          post :create, params: {:carrier => valid_attributes}, session: valid_session
         }.to change(Carrier, :count).by(1)
       end
 
       it "assigns a newly created carrier as @carrier" do
-        post :create, {:carrier => valid_attributes}, valid_session
+        post :create, params: {:carrier => valid_attributes}, session: valid_session
         expect(assigns(:carrier)).to be_a(Carrier)
         expect(assigns(:carrier)).to be_persisted
       end
 
       it "redirects to the created carrier" do
-        post :create, {:carrier => valid_attributes}, valid_session
+        post :create, params: {:carrier => valid_attributes}, session: valid_session
         expect(response).to redirect_to(Carrier.last)
       end
     end
 
     context "with invalid params" do
       it "assigns a newly created but unsaved carrier as @carrier" do
-        post :create, {:carrier => invalid_attributes}, valid_session
+        post :create, params: {:carrier => invalid_attributes}, session: valid_session
         expect(assigns(:carrier)).to be_a_new(Carrier)
       end
 
       it "re-renders the 'new' template" do
-        post :create, {:carrier => invalid_attributes}, valid_session
+        post :create, params: {:carrier => invalid_attributes}, session: valid_session
         expect(response).to render_template("new")
       end
     end
@@ -108,20 +108,20 @@ RSpec.describe CarriersController, :type => :controller do
 
       it "updates the requested carrier" do
         carrier = Carrier.create! valid_attributes
-        put :update, {:id => carrier.to_param, :carrier => new_attributes}, valid_session
+        put :update, params: {:id => carrier.to_param, :carrier => new_attributes}, session: valid_session
         carrier.reload
         skip("Add assertions for updated state")
       end
 
       it "assigns the requested carrier as @carrier" do
         carrier = Carrier.create! valid_attributes
-        put :update, {:id => carrier.to_param, :carrier => valid_attributes}, valid_session
+        put :update, params: {:id => carrier.to_param, :carrier => valid_attributes}, session: valid_session
         expect(assigns(:carrier)).to eq(carrier)
       end
 
       it "redirects to the carrier" do
         carrier = Carrier.create! valid_attributes
-        put :update, {:id => carrier.to_param, :carrier => valid_attributes}, valid_session
+        put :update, params: {:id => carrier.to_param, :carrier => valid_attributes}, session: valid_session
         expect(response).to redirect_to(carrier)
       end
     end
@@ -129,13 +129,13 @@ RSpec.describe CarriersController, :type => :controller do
     context "with invalid params" do
       it "assigns the carrier as @carrier" do
         carrier = Carrier.create! valid_attributes
-        put :update, {:id => carrier.to_param, :carrier => invalid_attributes}, valid_session
+        put :update, params: {:id => carrier.to_param, :carrier => invalid_attributes}, session: valid_session
         expect(assigns(:carrier)).to eq(carrier)
       end
 
       it "re-renders the 'edit' template" do
         carrier = Carrier.create! valid_attributes
-        put :update, {:id => carrier.to_param, :carrier => invalid_attributes}, valid_session
+        put :update, params: {:id => carrier.to_param, :carrier => invalid_attributes}, session: valid_session
         expect(response).to render_template("edit")
       end
     end
@@ -145,13 +145,13 @@ RSpec.describe CarriersController, :type => :controller do
     it "destroys the requested carrier" do
       carrier = Carrier.create! valid_attributes
       expect {
-        delete :destroy, {:id => carrier.to_param}, valid_session
+        delete :destroy, params: {:id => carrier.to_param}, session: valid_session
       }.to change(Carrier, :count).by(-1)
     end
 
     it "redirects to the carriers list" do
       carrier = Carrier.create! valid_attributes
-      delete :destroy, {:id => carrier.to_param}, valid_session
+      delete :destroy, params: {:id => carrier.to_param}, session: valid_session
       expect(response).to redirect_to(carriers_url)
     end
   end

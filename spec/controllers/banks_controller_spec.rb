@@ -33,7 +33,7 @@ describe BanksController do
   describe "GET index" do
     it "assigns all banks as @banks" do
       bank = Bank.create! valid_attributes
-      get :index, {}, valid_session
+      get :index, params: {}, session: valid_session
       assigns(:banks).should eq([bank])
     end
   end
@@ -41,14 +41,14 @@ describe BanksController do
   describe "GET show" do
     it "assigns the requested bank as @bank" do
       bank = Bank.create! valid_attributes
-      get :show, {:id => bank.to_param}, valid_session
+      get :show, params: {:id => bank.to_param}, session: valid_session
       assigns(:bank).should eq(bank)
     end
   end
 
   describe "GET new" do
     it "assigns a new bank as @bank" do
-      get :new, {}, valid_session
+      get :new, params: {}, session: valid_session
       assigns(:bank).should be_a_new(Bank)
     end
   end
@@ -56,7 +56,7 @@ describe BanksController do
   describe "GET edit" do
     it "assigns the requested bank as @bank" do
       bank = Bank.create! valid_attributes
-      get :edit, {:id => bank.to_param}, valid_session
+      get :edit, params: {:id => bank.to_param}, session: valid_session
       assigns(:bank).should eq(bank)
     end
   end
@@ -65,18 +65,18 @@ describe BanksController do
     describe "with valid params" do
       it "creates a new Bank" do
         expect {
-          post :create, {:bank => valid_attributes}, valid_session
+          post :create, params: {:bank => valid_attributes}, session: valid_session
         }.to change(Bank, :count).by(1)
       end
 
       it "assigns a newly created bank as @bank" do
-        post :create, {:bank => valid_attributes}, valid_session
+        post :create, params: {:bank => valid_attributes}, session: valid_session
         assigns(:bank).should be_a(Bank)
         assigns(:bank).should be_persisted
       end
 
       it "redirects to the created bank" do
-        post :create, {:bank => valid_attributes}, valid_session
+        post :create, params: {:bank => valid_attributes}, session: valid_session
         response.should redirect_to(Bank.last)
       end
     end
@@ -85,14 +85,14 @@ describe BanksController do
       it "assigns a newly created but unsaved bank as @bank" do
         # Trigger the behavior that occurs when invalid params are submitted
         Bank.any_instance.stub(:save).and_return(false)
-        post :create, {:bank => { "name" => "invalid value" }}, valid_session
+        post :create, params: {:bank => { "name" => "invalid value" }}, session: valid_session
         assigns(:bank).should be_a_new(Bank)
       end
 
       it "re-renders the 'new' template" do
         # Trigger the behavior that occurs when invalid params are submitted
         Bank.any_instance.stub(:save).and_return(false)
-        post :create, {:bank => { "name" => "invalid value" }}, valid_session
+        post :create, params: {:bank => { "name" => "invalid value" }}, session: valid_session
         response.should render_template("new")
       end
     end
@@ -107,18 +107,18 @@ describe BanksController do
         # receives the :update_attributes message with whatever params are
         # submitted in the request.
         Bank.any_instance.should_receive(:update_attributes).with({ "name" => "MyString" })
-        put :update, {:id => bank.to_param, :bank => { "name" => "MyString" }}, valid_session
+        put :update, params: {:id => bank.to_param, :bank => { "name" => "MyString" }}, session: valid_session
       end
 
       it "assigns the requested bank as @bank" do
         bank = Bank.create! valid_attributes
-        put :update, {:id => bank.to_param, :bank => valid_attributes}, valid_session
+        put :update, params: {:id => bank.to_param, :bank => valid_attributes}, session: valid_session
         assigns(:bank).should eq(bank)
       end
 
       it "redirects to the bank" do
         bank = Bank.create! valid_attributes
-        put :update, {:id => bank.to_param, :bank => valid_attributes}, valid_session
+        put :update, params: {:id => bank.to_param, :bank => valid_attributes}, session: valid_session
         response.should redirect_to(bank)
       end
     end
@@ -128,7 +128,7 @@ describe BanksController do
         bank = Bank.create! valid_attributes
         # Trigger the behavior that occurs when invalid params are submitted
         Bank.any_instance.stub(:save).and_return(false)
-        put :update, {:id => bank.to_param, :bank => { "name" => "invalid value" }}, valid_session
+        put :update, params: {:id => bank.to_param, :bank => { "name" => "invalid value" }}, session: valid_session
         assigns(:bank).should eq(bank)
       end
 
@@ -136,7 +136,7 @@ describe BanksController do
         bank = Bank.create! valid_attributes
         # Trigger the behavior that occurs when invalid params are submitted
         Bank.any_instance.stub(:save).and_return(false)
-        put :update, {:id => bank.to_param, :bank => { "name" => "invalid value" }}, valid_session
+        put :update, params: {:id => bank.to_param, :bank => { "name" => "invalid value" }}, session: valid_session
         response.should render_template("edit")
       end
     end
@@ -146,13 +146,13 @@ describe BanksController do
     it "destroys the requested bank" do
       bank = Bank.create! valid_attributes
       expect {
-        delete :destroy, {:id => bank.to_param}, valid_session
+        delete :destroy, params: {:id => bank.to_param}, session: valid_session
       }.to change(Bank, :count).by(-1)
     end
 
     it "redirects to the banks list" do
       bank = Bank.create! valid_attributes
-      delete :destroy, {:id => bank.to_param}, valid_session
+      delete :destroy, params: {:id => bank.to_param}, session: valid_session
       response.should redirect_to(banks_url)
     end
   end

@@ -37,7 +37,7 @@ describe MessagesController do
   describe "GET index" do
     it "assigns all messages as @messages" do
       message = Message.create! valid_attributes
-      get :index, {}, valid_session
+      get :index, params: {}, session: valid_session
       assigns(:messages).should eq([message])
     end
   end
@@ -45,14 +45,14 @@ describe MessagesController do
   describe "GET show" do
     it "assigns the requested message as @message" do
       message = Message.create! valid_attributes
-      get :show, {:id => message.to_param}, valid_session
+      get :show, params: {:id => message.to_param}, session: valid_session
       assigns(:message).should eq(message)
     end
   end
 
   describe "GET new" do
     it "assigns a new message as @message" do
-      get :new, {}, valid_session
+      get :new, params: {}, session: valid_session
       assigns(:message).should be_a_new(Message)
     end
   end
@@ -60,7 +60,7 @@ describe MessagesController do
   describe "GET edit" do
     it "assigns the requested message as @message" do
       message = Message.create! valid_attributes
-      get :edit, {:id => message.to_param}, valid_session
+      get :edit, params: {:id => message.to_param}, session: valid_session
       assigns(:message).should eq(message)
     end
   end
@@ -69,18 +69,18 @@ describe MessagesController do
     describe "with valid params" do
       it "creates a new Message" do
         expect {
-          post :create, {:message => valid_attributes}, valid_session
+          post :create, params: {:message => valid_attributes}, session: valid_session
         }.to change(Message, :count).by(1)
       end
 
       it "assigns a newly created message as @message" do
-        post :create, {:message => valid_attributes}, valid_session
+        post :create, params: {:message => valid_attributes}, session: valid_session
         assigns(:message).should be_a(Message)
         assigns(:message).should be_persisted
       end
 
       it "redirects to the created message" do
-        post :create, {:message => valid_attributes}, valid_session
+        post :create, params: {:message => valid_attributes}, session: valid_session
         response.should redirect_to(Message.last)
       end
     end
@@ -89,14 +89,14 @@ describe MessagesController do
       it "assigns a newly created but unsaved message as @message" do
         # Trigger the behavior that occurs when invalid params are submitted
         Message.any_instance.stub(:save).and_return(false)
-        post :create, {:message => { "user" => "invalid value" }}, valid_session
+        post :create, params: {:message => { "user" => "invalid value" }}, session: valid_session
         assigns(:message).should be_a_new(Message)
       end
 
       it "re-renders the 'new' template" do
         # Trigger the behavior that occurs when invalid params are submitted
         Message.any_instance.stub(:save).and_return(false)
-        post :create, {:message => { "user" => "invalid value" }}, valid_session
+        post :create, params: {:message => { "user" => "invalid value" }}, session: valid_session
         response.should render_template("new")
       end
     end
@@ -111,18 +111,18 @@ describe MessagesController do
         # receives the :update_attributes message with whatever params are
         # submitted in the request.
         Message.any_instance.should_receive(:update_attributes).with({ "user" => "" })
-        put :update, {:id => message.to_param, :message => { "user" => "" }}, valid_session
+        put :update, params: {:id => message.to_param, :message => { "user" => "" }}, session: valid_session
       end
 
       it "assigns the requested message as @message" do
         message = Message.create! valid_attributes
-        put :update, {:id => message.to_param, :message => valid_attributes}, valid_session
+        put :update, params: {:id => message.to_param, :message => valid_attributes}, session: valid_session
         assigns(:message).should eq(message)
       end
 
       it "redirects to the message" do
         message = Message.create! valid_attributes
-        put :update, {:id => message.to_param, :message => valid_attributes}, valid_session
+        put :update, params: {:id => message.to_param, :message => valid_attributes}, session: valid_session
         response.should redirect_to(message)
       end
     end
@@ -132,7 +132,7 @@ describe MessagesController do
         message = Message.create! valid_attributes
         # Trigger the behavior that occurs when invalid params are submitted
         Message.any_instance.stub(:save).and_return(false)
-        put :update, {:id => message.to_param, :message => { "user" => "invalid value" }}, valid_session
+        put :update, params: {:id => message.to_param, :message => { "user" => "invalid value" }}, session: valid_session
         assigns(:message).should eq(message)
       end
 
@@ -140,7 +140,7 @@ describe MessagesController do
         message = Message.create! valid_attributes
         # Trigger the behavior that occurs when invalid params are submitted
         Message.any_instance.stub(:save).and_return(false)
-        put :update, {:id => message.to_param, :message => { "user" => "invalid value" }}, valid_session
+        put :update, params: {:id => message.to_param, :message => { "user" => "invalid value" }}, session: valid_session
         response.should render_template("edit")
       end
     end
@@ -150,13 +150,13 @@ describe MessagesController do
     it "destroys the requested message" do
       message = Message.create! valid_attributes
       expect {
-        delete :destroy, {:id => message.to_param}, valid_session
+        delete :destroy, params: {:id => message.to_param}, session: valid_session
       }.to change(Message, :count).by(-1)
     end
 
     it "redirects to the messages list" do
       message = Message.create! valid_attributes
-      delete :destroy, {:id => message.to_param}, valid_session
+      delete :destroy, params: {:id => message.to_param}, session: valid_session
       response.should redirect_to(messages_url)
     end
   end
