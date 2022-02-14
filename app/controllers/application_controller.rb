@@ -26,13 +26,11 @@ class ApplicationController < ActionController::Base
     policy(object).public_send("#{action}?")
   end
 
-  def legacy_to_remove_params
-    ActiveSupport::Deprecation.warn('legacy_to_remove_params!')
-    self.params.permit!.to_h.symbolize_keys.except(:action, :controller)
-  end
-
-  def run(operation, params=legacy_to_remove_params, *dependencies)
-    result = operation.call(params, *_run_runtime_options(*dependencies))
+  def run(operation, params=self.params, *dependencies)
+    result = operation.(
+      _run_params(params),
+        *_run_runtime_options(*dependencies)
+    )
 
     @contract = result["contract.default"]
     @form = result["contract.default"]
@@ -156,7 +154,6 @@ class ApplicationController < ActionController::Base
 
   # TODO: Переопределить в каждом контроллере и выпилить отсюда
   def search_params
-    ActiveSupport::Deprecation.warn('legacy_to_remove_params!')
-    params.permit!.to_h.symbolize_keys
+    params.to_unsafe_h.deep_symbolize_keys
   end
 end
