@@ -52,9 +52,7 @@ class OrdersController < ApplicationController
   end
 
   def new
-    params = order_params rescue {}
-    params.merge!(status: 'new')
-    @order = authorize Order.new(params)
+    @order = authorize Order.new(new_order_params)
 
     respond_to do |format|
       format.html
@@ -179,6 +177,11 @@ class OrdersController < ApplicationController
           .permit(:approximate_price, :comment, :customer_id, :customer_type, :department_id, :desired_date, :model,
                   :number, :object, :object_kind, :object_url, :payment_method, :picture, :prepayment, :priority,
                   :quantity, :status, :user_comment, :user_id, :picture_cache, :remove_picture)
+  end
+
+  def new_order_params
+    new_order_params = order_params rescue {}
+    new_order_params.merge(status: 'new')
   end
 
   def order_change_status_params

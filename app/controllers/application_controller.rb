@@ -26,7 +26,7 @@ class ApplicationController < ActionController::Base
     policy(object).public_send("#{action}?")
   end
 
-  def run(operation, params=self.params, *dependencies)
+  def run(operation, params=self.params.permit!.to_h, *dependencies)
     result = operation.(
       _run_params(params),
         *_run_runtime_options(*dependencies)
