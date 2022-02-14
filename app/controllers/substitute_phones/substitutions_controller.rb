@@ -4,7 +4,7 @@ module SubstitutePhones
     respond_to :html
 
     def edit
-      run PhoneSubstitution::Update::Present do
+      run PhoneSubstitution::Update::Present, params.permit(:id)  do
         return render_form
       end
       failed
