@@ -41,4 +41,3 @@ pickle-email-*.html
 /.idea/
 /.ruby-gemset
 /.env.test
-/.ruby-version

@@ -154,6 +154,6 @@ class ApplicationController < ActionController::Base
 
   # TODO: Переопределить в каждом контроллере и выпилить отсюда
   def search_params
-    params.permit.to_h
+    params.permit!.to_h.symbolize_keys
   end
 end

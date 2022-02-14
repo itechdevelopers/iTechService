@@ -114,8 +114,8 @@ class ProductsController < ApplicationController
   end
 
   def choose
-    search_params = params.permit(:form, :store_kind, :user_role).to_h.merge(roots: true)
-    @product_groups = ProductGroup.search(search_params).ordered
+    search_params = params.permit(:form, :store_kind, :user_role).to_h.symbolize_keys.merge(roots: true)
+    @product_groups = ProductGroup.search(**search_params).ordered
     @product = Product.find params[:product_id] if params[:product_id].present?
     params[:form_name] = 'products/choose_form'
     respond_to do |format|
