@@ -22,7 +22,7 @@ module MediaMenu
       items
     end
 
-    def self.sort_by(attribute, direction = :asc)
+    def self.order_by(attribute, direction = :asc)
       db_attr = {
         name: 'ZNAME',
         year: 'ZYEAR',

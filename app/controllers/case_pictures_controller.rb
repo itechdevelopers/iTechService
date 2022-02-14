@@ -1,5 +1,6 @@
 class CasePicturesController < ApplicationController
   def index
+    skip_authorization
     respond_to do |format|
       format.html
     end
@@ -10,6 +11,7 @@ class CasePicturesController < ApplicationController
   end
 
   def create
+    skip_authorization
     if (file = params[:file]).present?
       filepath = file.path
       pdf = CasePicturePdf.new filepath, params

@@ -2,6 +2,7 @@
 
 class ProductsController < ApplicationController
   skip_after_action :verify_authorized, except: %i[create update destroy remains_in_store show_prices show_remains]
+  protect_from_forgery except: :choose
 
   def index
     @product_groups = ProductGroup.roots.ordered
