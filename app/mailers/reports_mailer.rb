@@ -1,4 +1,5 @@
 class ReportsMailer < ApplicationMailer
+  include ApplicationHelper
   layout 'mailer'
 
   def few_remnants(report)

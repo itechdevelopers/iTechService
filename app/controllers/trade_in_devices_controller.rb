@@ -100,7 +100,10 @@ class TradeInDevicesController < ApplicationController
   end
 
   def update_trade_in_device_params
-    params.require(:trade_in_device).permit(permitted_update_attributes)
+    {
+      id: params[:id],
+      trade_in_device: params.require(:trade_in_device).permit(permitted_update_attributes)
+    }
   end
 
   def permitted_update_attributes
