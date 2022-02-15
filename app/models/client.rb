@@ -17,8 +17,8 @@ class Client < ApplicationRecord
   scope :in_department, ->(department) { where department_id: department }
   scope :in_city, ->(city) { where department_id: Department.in_city(city) }
 
-  belongs_to :department
-  belongs_to :client_characteristic
+  belongs_to :department, optional: true
+  belongs_to :client_characteristic, optional: true
   has_many :service_jobs, inverse_of: :client, dependent: :restrict_with_error
   has_many :devices, -> { distinct }, through: :service_jobs, source: :item, class_name: 'Item'
   has_many :orders, as: :customer, dependent: :destroy

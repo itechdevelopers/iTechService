@@ -17,7 +17,7 @@ class Store < ApplicationRecord
   scope :spare_parts, -> { where(kind: 'spare_parts') }
   scope :visible, -> { where(hidden: [false, nil]) }
 
-  belongs_to :department
+  belongs_to :department, optional: true
   has_many :purchases, inverse_of: :store
   has_many :sales, inverse_of: :store
   has_many :movement_acts

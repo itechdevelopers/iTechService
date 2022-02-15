@@ -6,10 +6,10 @@ class TradeInDevice < ApplicationRecord
   scope :confirmed, -> { where(confirmed: true) }
   scope :unconfirmed, -> { where(confirmed: false) }
 
-  belongs_to :item
-  belongs_to :client, inverse_of: :trade_in_devices
-  belongs_to :receiver, class_name: 'User'
-  belongs_to :department
+  belongs_to :item, optional: true
+  belongs_to :client, inverse_of: :trade_in_devices, optional: true
+  belongs_to :receiver, class_name: 'User', optional: true
+  belongs_to :department, optional: true
   has_many :features, through: :item
   has_many :comments, as: :commentable, dependent: :destroy
 

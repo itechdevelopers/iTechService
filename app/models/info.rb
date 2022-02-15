@@ -10,8 +10,8 @@ class Info < ApplicationRecord
   scope :archived, -> { where(is_archived: true) }
   scope :actual, -> { where(is_archived: false) }
 
-  belongs_to :department, required: true
-  belongs_to :recipient, class_name: 'User', foreign_key: 'recipient_id'
+  belongs_to :department
+  belongs_to :recipient, class_name: 'User', foreign_key: 'recipient_id', optional: true
   has_many :comments, as: :commentable, dependent: :destroy
 
   # TODO check

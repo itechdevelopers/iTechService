@@ -1,5 +1,5 @@
 class Bonus < ApplicationRecord
-  belongs_to :bonus_type, inverse_of: :bonuses
+  belongs_to :bonus_type, inverse_of: :bonuses, optional: true
   has_one :karma_group, dependent: :nullify, inverse_of: :bonus
   has_many :karmas, through: :karma_group
   # attr_accessible :comment, :bonus_type_id

@@ -4,8 +4,8 @@ class CashOperation < ApplicationRecord
   scope :in_department, ->(department) { where(cash_shift_id: CashShift.in_department(department)) }
   scope :created_desc, -> { order('created_at desc') }
 
-  belongs_to :cash_shift, inverse_of: :cash_operations
-  belongs_to :user
+  belongs_to :cash_shift, inverse_of: :cash_operations, optional: true
+  belongs_to :user, optional: true
   delegate :short_name, to: :user, prefix: true, allow_nil: true
   delegate :department, :department_id, to: :cash_shift
 

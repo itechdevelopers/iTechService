@@ -25,9 +25,9 @@ class Order < ApplicationRecord
                     joins(:history_records).where(history_records: { column_name: 'status', new_value: 'done', created_at: period })
                   }
 
-  belongs_to :department, required: true
-  belongs_to :customer, polymorphic: true
-  belongs_to :user
+  belongs_to :department
+  belongs_to :customer, polymorphic: true, optional: true
+  belongs_to :user, optional: true
   has_many :history_records, as: :object
   has_many :notes, class_name: 'OrderNote', dependent: :destroy
 

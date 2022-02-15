@@ -4,8 +4,8 @@ module Service
 
     scope :in_department, ->(department) { where(service_job_id: ServiceJob.in_department(department)) }
 
-    belongs_to :service_job
-    belongs_to :performer, class_name: 'User'
+    belongs_to :service_job, optional: true
+    belongs_to :performer, class_name: 'User', optional: true
     delegate :repair_parts, :sale, :department, to: :service_job, allow_nil: true
 
     def self.query(page: nil, date: nil, performer: nil, **)

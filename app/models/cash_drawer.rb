@@ -3,7 +3,7 @@
 class CashDrawer < ApplicationRecord
   scope :in_department, ->(department) { where(department_id: department) }
 
-  belongs_to :department
+  belongs_to :department, optional: true
   has_many :cash_shifts, inverse_of: :cash_drawer
 
   delegate :name, to: :department, prefix: true, allow_nil: true

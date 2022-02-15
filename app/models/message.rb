@@ -4,9 +4,9 @@ class Message < ApplicationRecord
   scope :newest, -> { order('messages.created_at desc') }
   scope :today, -> { where('created_at > ?', Time.current.beginning_of_day) }
 
-  belongs_to :department, required: true
-  belongs_to :user, required: true
-  belongs_to :recipient, polymorphic: true
+  belongs_to :department
+  belongs_to :user
+  belongs_to :recipient, polymorphic: true, optional: true
   validates :content, presence: true
   validates :content, length: { maximum: 255 }
 

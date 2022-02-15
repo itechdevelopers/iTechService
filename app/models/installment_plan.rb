@@ -5,7 +5,7 @@ class InstallmentPlan < ApplicationRecord
   scope :closed, -> { where(is_closed: true) }
   scope :not_closed, -> { where(is_closed: [false, nil]) }
 
-  belongs_to :user, inverse_of: :installment_plans
+  belongs_to :user, inverse_of: :installment_plans, optional: true
   has_many :installments, inverse_of: :installment_plan, dependent: :destroy
 
   delegate :department, :department_id, to: :user

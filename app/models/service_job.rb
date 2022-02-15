@@ -34,18 +34,18 @@ class ServiceJob < ApplicationRecord
     not_at_done.not_at_archive.where('((return_at - created_at) > ? and (return_at - created_at) < ? and return_at <= ?) or ((return_at - created_at) >= ? and return_at <= ?)', '30 min', '5 hour', DateTime.current.advance(minutes: 30), '5 hour', DateTime.current.advance(hours: 1))
   }
 
-  belongs_to :department, -> { includes(:city) }, required: true, inverse_of: :service_jobs
-  belongs_to :initial_department, class_name: 'Department'
-  belongs_to :user, inverse_of: :service_jobs
-  belongs_to :client, inverse_of: :service_jobs
-  belongs_to :device_type
-  belongs_to :item, -> { includes(:features, product: %i[product_group product_category]) }
-  belongs_to :location
-  belongs_to :receiver, class_name: 'User', foreign_key: 'user_id'
-  belongs_to :sale, inverse_of: :service_job
-  belongs_to :case_color
-  belongs_to :carrier
-  belongs_to :keeper, class_name: 'User'
+  belongs_to :department, -> { includes(:city) }, inverse_of: :service_jobs
+  belongs_to :initial_department, class_name: 'Department', optional: true
+  belongs_to :user, inverse_of: :service_jobs, optional: true
+  belongs_to :client, inverse_of: :service_jobs, optional: true
+  belongs_to :device_type, optional: true
+  belongs_to :item, -> { includes(:features, product: %i[product_group product_category]) }, optional: true
+  belongs_to :location, optional: true
+  belongs_to :receiver, class_name: 'User', foreign_key: 'user_id', optional: true
+  belongs_to :sale, inverse_of: :service_job, optional: true
+  belongs_to :case_color, optional: true
+  belongs_to :carrier, optional: true
+  belongs_to :keeper, class_name: 'User', optional: true
   has_many :features, through: :item
   has_many :device_tasks, dependent: :destroy
   has_many :tasks, through: :device_tasks

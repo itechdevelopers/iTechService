@@ -4,9 +4,9 @@ class SubstitutePhone < ApplicationRecord
   scope :archived, -> { where(archived: true) }
   scope :not_archived, -> { where(archived: [false, nil]) }
 
-  belongs_to :item
-  belongs_to :department
-  belongs_to :service_job
+  belongs_to :item, optional: true
+  belongs_to :department, optional: true
+  belongs_to :service_job, optional: true
   has_many :features, through: :item
   has_many :substitutions, class_name: 'PhoneSubstitution'
 

@@ -7,9 +7,9 @@ class ProductPrice < ApplicationRecord
   scope :purchase, -> { where(price_type_id: PriceType.purchase.id) }
   scope :retail, -> { where(price_type_id: PriceType.retail.id) }
 
-  belongs_to :department
-  belongs_to :product
-  belongs_to :price_type
+  belongs_to :department, optional: true
+  belongs_to :product, optional: true
+  belongs_to :price_type, optional: true
 
   # attr_accessible :value, :date, :product_id, :price_type_id, :department_id
 

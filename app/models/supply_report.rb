@@ -4,7 +4,7 @@ class SupplyReport < ApplicationRecord
   scope :in_department, ->(department) { where department_id: department }
   scope :date_desc, -> { order('date desc') }
 
-  belongs_to :department
+  belongs_to :department, optional: true
   has_many :supplies, dependent: :destroy
   accepts_nested_attributes_for :supplies, allow_destroy: true
   # attr_accessible :date, :supplies_attributes, :department_id

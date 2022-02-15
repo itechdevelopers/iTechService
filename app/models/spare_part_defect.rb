@@ -5,9 +5,9 @@ class SparePartDefect < ApplicationRecord
   scope :warranty, -> { where(is_warranty: true) }
   scope :no_warranty, -> { where(is_warranty: false) }
 
-  belongs_to :item
-  belongs_to :repair_part, inverse_of: :spare_part_defects
-  belongs_to :contractor
+  belongs_to :item, optional: true
+  belongs_to :repair_part, inverse_of: :spare_part_defects, optional: true
+  belongs_to :contractor, optional: true
 
   delegate :department, to: :repair_part
   delegate :store_item, to: :item

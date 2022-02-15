@@ -8,7 +8,7 @@ class DutyDay < ApplicationRecord
   scope :kitchen, -> { where(kind: 'kitchen') }
   scope :salesroom, -> { where(kind: 'salesroom') }
 
-  belongs_to :user
+  belongs_to :user, optional: true
 
   delegate :department, :department_id, to: :user
 

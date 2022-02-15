@@ -16,8 +16,8 @@ class Department < ApplicationRecord
   scope :in_city, ->(city) { where(city: city) }
   scope :active, -> { where(archive: [false, nil]) }
 
-  belongs_to :city, required: true
-  belongs_to :brand, required: true
+  belongs_to :city
+  belongs_to :brand
   has_many :users, dependent: :nullify
   has_many :stores, dependent: :nullify
   has_many :cash_drawers, dependent: :nullify

@@ -5,8 +5,8 @@ class SupplyRequest < ApplicationRecord
   scope :created_desc, -> { order('created_at desc') }
   scope :actual, -> { where(status: 'new') }
 
-  belongs_to :department
-  belongs_to :user
+  belongs_to :department, optional: true
+  belongs_to :user, optional: true
   delegate :name, :short_name, :presentation, to: :user, prefix: true
     validates_presence_of :user, :status, :object
 

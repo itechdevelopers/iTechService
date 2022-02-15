@@ -1,5 +1,5 @@
 class ScheduleDay < ApplicationRecord
-  belongs_to :user
+  belongs_to :user, optional: true
 
   delegate :department, :department_id, to: :user
 

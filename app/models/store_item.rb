@@ -3,8 +3,8 @@ class StoreItem < ApplicationRecord
   scope :available, ->{where('quantity > ?', 0)}
   scope :for_product, ->(product) { includes(:item).where(items: {product_id: (product.is_a?(Product) ? product.id : product)}) }
 
-  belongs_to :item, inverse_of: :store_items
-  belongs_to :store, inverse_of: :store_items
+  belongs_to :item, inverse_of: :store_items, optional: true
+  belongs_to :store, inverse_of: :store_items, optional: true
 
   delegate :feature_accounting, :features, :name, :code, :quantity_threshold, :comment, :product, :product_group, :purchase_price, :retail_price, :features_s, to: :item, allow_nil: true
   delegate :name, :code, to: :store, prefix: true, allow_nil: true

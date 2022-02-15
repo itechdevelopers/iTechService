@@ -5,8 +5,8 @@ class Announcement < ApplicationRecord
 
   scope :in_department, ->(department) { where(department_id: department) }
 
-  belongs_to :department
-  belongs_to :user, inverse_of: :announcements
+  belongs_to :department, optional: true
+  belongs_to :user, inverse_of: :announcements, optional: true
   has_and_belongs_to_many :recipients, class_name: 'User', join_table: 'announcements_users', uniq: true
   validates :kind, presence: true
   validates :kind, inclusion: { in: KINDS }
@@ -23,8 +23,8 @@ class Announcement < ApplicationRecord
   before_create :define_recipients
 
   after_initialize do
-    kind ||= 'info'
-    department_id ||= Department.current.id
+    self.kind ||= 'info'
+    self.department_id ||= Department.current.id
   end
 
   def user_name

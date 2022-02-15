@@ -8,7 +8,7 @@ class Task < ApplicationRecord
   scope :visible, -> { where hidden: [false, nil] }
   scope :mac_service, -> { where code: 'mac' }
 
-  belongs_to :product, inverse_of: :task
+  belongs_to :product, inverse_of: :task, optional: true
   has_many :device_tasks, dependent: :restrict_with_error
   has_many :service_jobs, through: :device_tasks
   delegate :is_repair?, :is_service?, to: :product, allow_nil: true

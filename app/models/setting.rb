@@ -39,7 +39,7 @@ class Setting < ApplicationRecord
   default_scope { order(:department_id, :presentation) }
   scope :for_department, ->(department) { where(department_id: department) }
 
-  belongs_to :department
+  belongs_to :department, optional: true
   delegate :name, to: :department, prefix: true, allow_nil: true
   validates :name, presence: true
   validates_uniqueness_of :name, scope: :department_id

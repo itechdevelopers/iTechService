@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 class Installment < ApplicationRecord
-  belongs_to :installment_plan, inverse_of: :installments
+  belongs_to :installment_plan, inverse_of: :installments, optional: true
 
   delegate :department, :department_id, to: :installment_plan
 

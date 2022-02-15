@@ -3,7 +3,7 @@
 class TopSalable < ApplicationRecord
   has_ancestry orphan_strategy: :destroy
   scope :ordered, -> { order('position asc') }
-  belongs_to :product
+  belongs_to :product, optional: true
   delegate :name, to: :product, prefix: true, allow_nil: true
   validates_numericality_of :position, only_integer: true, greater_than_or_equal_to: 1, less_than_or_equal_to: 20
   validates_uniqueness_of :position, scope: :ancestry

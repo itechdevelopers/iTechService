@@ -4,7 +4,7 @@ class RepairService < ApplicationRecord
   default_scope { order('name asc') }
   scope :in_group, ->(group) { where repair_group_id: group }
 
-  belongs_to :repair_group
+  belongs_to :repair_group, optional: true
   has_many :spare_parts, dependent: :destroy
   has_many :store_items, through: :spare_parts
   has_many :prices, class_name: 'RepairPrice', inverse_of: :repair_service, dependent: :destroy

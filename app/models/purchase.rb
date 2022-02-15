@@ -6,8 +6,8 @@ class Purchase < ApplicationRecord
   scope :posted, -> { where(status: 1) }
   scope :deleted, -> { where(status: 2) }
 
-  belongs_to :contractor, inverse_of: :purchases
-  belongs_to :store, inverse_of: :purchases
+  belongs_to :contractor, inverse_of: :purchases, optional: true
+  belongs_to :store, inverse_of: :purchases, optional: true
   has_many :batches, inverse_of: :purchase, dependent: :destroy
   has_many :items, through: :batches
   accepts_nested_attributes_for :batches, allow_destroy: true, reject_if: lambda { |a|

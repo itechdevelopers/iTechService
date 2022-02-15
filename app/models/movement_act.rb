@@ -6,9 +6,9 @@ class MovementAct < ApplicationRecord
   scope :posted, -> { where(status: 1) }
   scope :deleted, -> { where(status: 2) }
 
-  belongs_to :user
-  belongs_to :store
-  belongs_to :dst_store, class_name: 'Store'
+  belongs_to :user, optional: true
+  belongs_to :store, optional: true
+  belongs_to :dst_store, class_name: 'Store', optional: true
   has_many :movement_items, dependent: :destroy, inverse_of: :movement_act
 
   accepts_nested_attributes_for :movement_items, allow_destroy: true, reject_if: lambda { |a|

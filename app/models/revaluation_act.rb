@@ -3,7 +3,7 @@
 class RevaluationAct < ApplicationRecord
   include Document
 
-  belongs_to :price_type, inverse_of: :revaluation_acts
+  belongs_to :price_type, inverse_of: :revaluation_acts, optional: true
   has_many :revaluations, inverse_of: :revaluation_act, dependent: :destroy
   accepts_nested_attributes_for :revaluations, allow_destroy: true, reject_if: lambda { |a|
                                                                                  a[:product_id].blank? or a[:price].blank?

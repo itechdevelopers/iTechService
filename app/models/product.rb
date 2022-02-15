@@ -20,12 +20,12 @@ class Product < ApplicationRecord
                                   product_type_id.present? && option_ids.present? ? where(id: includes(:options).where(product_type_id: product_type_id, product_options: { option_value_id: option_ids }).group('product_options.product_id').having('count(product_options.product_id) = ?', option_ids.length).count('products.id').keys.first) : none
                                 }
 
-  belongs_to :product_category, inverse_of: :products
-  belongs_to :product_group, inverse_of: :products
+  belongs_to :product_category, inverse_of: :products, optional: true
+  belongs_to :product_group, inverse_of: :products, optional: true
   has_and_belongs_to_many :options, class_name: 'OptionValue', join_table: 'product_options'
   has_many :option_types, -> { ordered.distinct }, through: :product_group
   has_many :option_values, through: :product_group
-  belongs_to :device_type, inverse_of: :product
+  belongs_to :device_type, inverse_of: :product, optional: true
   has_many :items, inverse_of: :product, dependent: :restrict_with_error
   has_many :prices, class_name: 'ProductPrice', inverse_of: :product, dependent: :destroy
   has_many :store_items, through: :items

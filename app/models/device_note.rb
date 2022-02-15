@@ -4,8 +4,8 @@ class DeviceNote < ApplicationRecord
   scope :newest_first, -> { order('device_notes.created_at desc') }
   scope :oldest_first, -> { order('device_notes.created_at asc') }
 
-  belongs_to :service_job, required: true
-  belongs_to :user, required: true
+  belongs_to :service_job
+  belongs_to :user
 
   delegate :department, :department_id, to: :service_job
   validates_presence_of :content

@@ -12,9 +12,9 @@ class DeviceTask < ApplicationRecord
                     }
   scope :paid, -> { where('device_tasks.cost > 0') }
 
-  belongs_to :service_job
-  belongs_to :task
-  belongs_to :performer, class_name: 'User'
+  belongs_to :service_job, optional: true
+  belongs_to :task, optional: true
+  belongs_to :performer, class_name: 'User', optional: true
   has_many :history_records, as: :object
   has_many :repair_tasks, inverse_of: :device_task
   has_many :repair_parts, through: :repair_tasks

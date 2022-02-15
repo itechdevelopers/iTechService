@@ -7,7 +7,7 @@ class Salary < ApplicationRecord
   scope :salary, -> { where(is_prepayment: [false, nil]) }
   scope :prepayment, -> { where(is_prepayment: true) }
 
-  belongs_to :user, inverse_of: :salaries
+  belongs_to :user, inverse_of: :salaries, optional: true
   has_many :comments, as: :commentable, dependent: :destroy
 
   # attr_accessible :amount, :user, :user_id, :issued_at, :comment, :is_prepayment
@@ -29,11 +29,11 @@ class Salary < ApplicationRecord
   end
 
   def prepayments
-    prev_salary_date = self.user.salaries.salary.where('issued_at < ?', self.issued_at).maximum('issued_at')
+    prev_salary_date = user.salaries.salary.where('issued_at < ?', issued_at).maximum('issued_at')
     if prev_salary_date.present?
-      self.user.salaries.prepayment.issued_at prev_salary_date..issued_at
+      user.salaries.prepayment.issued_at prev_salary_date..issued_at
     else
-      self.user.salaries.prepayment.where('issued_at < ?', self.issued_at)
+      user.salaries.prepayment.where('issued_at < ?', issued_at)
     end
   end
 

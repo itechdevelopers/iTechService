@@ -1,8 +1,8 @@
 class RepairPrice < ApplicationRecord
   scope :in_department, ->(department) { where department_id: department }
 
-  belongs_to :repair_service, inverse_of: :prices
-  belongs_to :department
+  belongs_to :repair_service, inverse_of: :prices, optional: true
+  belongs_to :department, optional: true
 
   # attr_accessible :value, :repair_service_id, :department_id
   validates_presence_of :department, :repair_service, :value

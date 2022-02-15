@@ -4,8 +4,8 @@ class Comment < ApplicationRecord
   scope :newest, -> { order('comments.created_at desc') }
   scope :oldest, -> { order('comments.created_at asc') }
 
-  belongs_to :user
-  belongs_to :commentable, polymorphic: true
+  belongs_to :user, optional: true
+  belongs_to :commentable, polymorphic: true, optional: true
 
   delegate :department, :department_id, to: :commentable
 

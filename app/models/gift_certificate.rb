@@ -6,7 +6,7 @@ class GiftCertificate < ApplicationRecord
   NOMINAL_MAX = 100_000
   NOMINAL_STEP = 500
 
-  belongs_to :department, required: true
+  belongs_to :department
   has_many :payments, dependent: :nullify
   has_many :history_records, as: :object, dependent: :destroy
   validates :number, presence: true, uniqueness: { case_sensitive: false }

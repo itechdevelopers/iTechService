@@ -11,8 +11,8 @@ class Karma < ApplicationRecord
   scope :ungrouped, -> { where(karma_group_id: nil) }
   scope :created_at, ->(date) { where(created_at: date.beginning_of_day..date.end_of_day) }
 
-  belongs_to :user, inverse_of: :karmas
-  belongs_to :karma_group, inverse_of: :karmas
+  belongs_to :user, inverse_of: :karmas, optional: true
+  belongs_to :karma_group, inverse_of: :karmas, optional: true
 
   delegate :department, :department_id, to: :user
 

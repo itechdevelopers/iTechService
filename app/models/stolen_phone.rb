@@ -13,8 +13,8 @@ class StolenPhone < ApplicationRecord
                       includes(:client).where('LOWER(clients.name) LIKE :q OR LOWER(clients.surname) LIKE :q OR clients.phone_number LIKE :q OR clients.full_phone_number LIKE :q OR LOWER(clients.card_number) LIKE :q', q: "%#{client.mb_chars.downcase}%").references(:clients)
                     }
 
-  belongs_to :client
-  belongs_to :item
+  belongs_to :client, optional: true
+  belongs_to :item, optional: true
   has_many :comments, as: :commentable, dependent: :destroy
   has_many :features, through: :item
   attr_accessor :comment

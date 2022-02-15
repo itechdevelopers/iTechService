@@ -23,7 +23,7 @@ class ProductGroup < ApplicationRecord
                          joins(:product_category).where(product_categories: { kind: %w[equipment accessory protector spare_part] })
                        }
 
-  belongs_to :product_category, required: true
+  belongs_to :product_category
   has_many :products, dependent: :nullify, inverse_of: :product_group
   has_many :product_relations, as: :parent, dependent: :destroy
   has_many :related_products, through: :product_relations, source: :relatable, source_type: 'Product'

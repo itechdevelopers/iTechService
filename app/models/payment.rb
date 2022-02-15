@@ -13,9 +13,9 @@ class Payment < ApplicationRecord
   scope :sales, -> { joins(:sale).where(sales: { is_return: false }) }
   scope :returns, -> { joins(:sale).where(sales: { is_return: true }) }
 
-  belongs_to :sale, inverse_of: :payments
-  belongs_to :bank
-  belongs_to :gift_certificate
+  belongs_to :sale, inverse_of: :payments, optional: true
+  belongs_to :bank, optional: true
+  belongs_to :gift_certificate, optional: true
 
   delegate :balance, :nominal, :number, to: :gift_certificate, prefix: true, allow_nil: true
   delegate :name, to: :bank, prefix: true, allow_nil: true

@@ -33,7 +33,7 @@ class Location < ApplicationRecord
   scope :long_term, -> { where storage_term: 12 }
   scope :termless, -> { where storage_term: nil }
 
-  belongs_to :department, required: true, inverse_of: :locations
+  belongs_to :department, inverse_of: :locations
   has_many :users
   delegate :name, to: :department, prefix: true, allow_nil: true
   delegate :city, to: :department, allow_nil: true

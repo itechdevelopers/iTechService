@@ -1,11 +1,11 @@
 class Batch < ApplicationRecord
   scope :newest, -> { includes(:purchase).order('purchases.date desc') }
   # scope :posted, -> { joins(:purchase).where(Purchase.posted) }
-  scope :posted, -> { joins(:purchase).where(purchases: {status: 1}) }
-  scope :for_date, ->(date) { joins(:purchase).where(purchases: {date: date.beginning_of_day..date.end_of_day}) }
+  scope :posted, -> { joins(:purchase).where(purchases: { status: 1 }) }
+  scope :for_date, ->(date) { joins(:purchase).where(purchases: { date: date.beginning_of_day..date.end_of_day }) }
 
-  belongs_to :purchase, inverse_of: :batches
-  belongs_to :item, inverse_of: :batches
+  belongs_to :purchase, inverse_of: :batches, optional: true
+  belongs_to :item, inverse_of: :batches, optional: true
 
   # attr_accessible :price, :quantity, :item_id
 

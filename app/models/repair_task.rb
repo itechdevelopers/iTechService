@@ -1,10 +1,10 @@
 class RepairTask < ApplicationRecord
   scope :in_department, ->(department) { where(device_task_id: DeviceTask.in_department(department)) }
 
-  belongs_to :repair_service
-  belongs_to :device_task
-  belongs_to :store
-  belongs_to :repairer, class_name: 'User'
+  belongs_to :repair_service, optional: true
+  belongs_to :device_task, optional: true
+  belongs_to :store, optional: true
+  belongs_to :repairer, class_name: 'User', optional: true
   has_many :repair_parts, inverse_of: :repair_task
 
   delegate :name, :repair_group, :is_positive_price, to: :repair_service, allow_nil: true

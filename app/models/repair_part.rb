@@ -1,8 +1,8 @@
 class RepairPart < ApplicationRecord
   scope :in_department, ->(department) { where(repair_task_id: RepairTask.in_department(department)) }
 
-  belongs_to :repair_task, inverse_of: :repair_parts
-  belongs_to :item
+  belongs_to :repair_task, inverse_of: :repair_parts, optional: true
+  belongs_to :item, optional: true
   has_many :spare_part_defects, inverse_of: :repair_part
 
   delegate :name, :store_item, :code, :purchase_price, :product, to: :item, allow_nil: true

@@ -10,9 +10,9 @@ class QuickOrder < ApplicationRecord
   scope :done, -> { where(is_done: true) }
   scope :undone, -> { where(is_done: false) }
 
-  belongs_to :department, required: true
-  belongs_to :user, required: true
-  belongs_to :client
+  belongs_to :department
+  belongs_to :user
+  belongs_to :client, optional: true
   has_and_belongs_to_many :quick_tasks, join_table: 'quick_orders_quick_tasks'
   has_many :history_records, as: :object, dependent: :destroy
   has_many :comments, as: :commentable, dependent: :destroy

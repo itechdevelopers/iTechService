@@ -4,8 +4,8 @@ class DeductionAct < ApplicationRecord
   include Document
   scope :posted, -> { where(status: 1) }
   scope :deleted, -> { where(status: 2) }
-  belongs_to :store
-  belongs_to :user
+  belongs_to :store, optional: true
+  belongs_to :user, optional: true
   has_many :deduction_items, inverse_of: :deduction_act, dependent: :destroy
   accepts_nested_attributes_for :deduction_items, allow_destroy: true
   delegate :name, to: :store, prefix: true, allow_nil: true

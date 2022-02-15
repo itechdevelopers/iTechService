@@ -1,7 +1,7 @@
 class HistoryRecord < ApplicationRecord
 
-  belongs_to :user
-  belongs_to :object, polymorphic: true
+  belongs_to :user, optional: true
+  belongs_to :object, polymorphic: true, optional: true
   # attr_accessible :column_name, :column_type, :deleted_at, :new_value, :old_value, :user, :object
 
   scope :order_by_newest, -> { order('created_at desc') }

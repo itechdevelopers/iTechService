@@ -6,8 +6,8 @@ class Feature < ApplicationRecord
   # scope :search, ->(query) { where('LOWER(features.value) LIKE :q OR LOWER(service_jobs.serial_number) LIKE :q OR LOWER(service_jobs.imei) LIKE :q', q: "%#{service_job_q.mb_chars.downcase.to_s}%").references(:features) }
   scope :search, ->(query) { where('LOWER(value) LIKE :q', q: "%#{query.mb_chars.downcase}%") }
 
-  belongs_to :feature_type
-  belongs_to :item, inverse_of: :features
+  belongs_to :feature_type, optional: true
+  belongs_to :item, inverse_of: :features, optional: true
   # attr_accessible :value, :item, :item_id, :feature_type, :feature_type_id
   validates_presence_of :value, :feature_type
   validates_uniqueness_of :value, scope: [:feature_type_id], unless: proc { |feature| feature.value == '?' }

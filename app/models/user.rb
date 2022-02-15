@@ -99,8 +99,8 @@ class User < ApplicationRecord
 
   scope :helps_in_mac_service, -> { active.where(can_help_in_mac_service: true) }
 
-  belongs_to :location
-  belongs_to :department
+  belongs_to :location, optional: true
+  belongs_to :department, optional: true
   has_many :history_records, as: :object, dependent: :nullify
   has_many :schedule_days, dependent: :destroy
   has_many :duty_days, dependent: :destroy

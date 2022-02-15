@@ -7,7 +7,7 @@ class Item < ApplicationRecord
                      includes(:store_items).where(store_items: { store_id: store.is_a?(Store) ? store.id : store })
                    }
 
-  belongs_to :product, inverse_of: :items
+  belongs_to :product, inverse_of: :items, optional: true
   has_many :store_items, inverse_of: :item, dependent: :destroy
   has_many :batches, inverse_of: :item, dependent: :destroy
   has_many :sale_items, inverse_of: :item, dependent: :destroy

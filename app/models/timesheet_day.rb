@@ -12,7 +12,7 @@ class TimesheetDay < ApplicationRecord
   scope :sickness, -> { where(status: 'sickness') }
   scope :lateness, -> { where(status: 'presence_late') }
 
-  belongs_to :user, inverse_of: :timesheet_days
+  belongs_to :user, inverse_of: :timesheet_days, optional: true
 
   delegate :department, :department_id, to: :user
   # attr_accessor :work_hours

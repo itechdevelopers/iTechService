@@ -11,10 +11,10 @@ class Sale < ApplicationRecord
   scope :returning, -> { where(is_return: true) }
   scope :selling, -> { where(is_return: false) }
 
-  belongs_to :user, inverse_of: :sales
-  belongs_to :client, inverse_of: :sales
-  belongs_to :store, required: true
-  belongs_to :cash_shift, required: true, inverse_of: :sales
+  belongs_to :user, inverse_of: :sales, optional: true
+  belongs_to :client, inverse_of: :sales, optional: true
+  belongs_to :store
+  belongs_to :cash_shift, inverse_of: :sales
   has_many :sale_items, inverse_of: :sale, dependent: :destroy
   has_many :items, through: :sale_items
   has_many :payments, inverse_of: :sale, dependent: :destroy
