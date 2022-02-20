@@ -10,7 +10,7 @@
   %tbody
     - @report.result[:products].each_pair do |id, product|
       %tr
-        %td= link_to "#{product[:code]} | #{product[:name]}" , product_path(id)
+        %td= link_to "#{product[:code]} | #{product[:name]}" , product_url(id)
         - @report.result[:stores].each_key do |store_id|
           - cell_class = product[:remnants][store_id].present? ? (product[:remnants][store_id] <= 0 ? 'error' : 'warning') : ''
           %td{class: cell_class}= "#{product[:remnants][store_id]} / #{product[:threshold]}" if product[:remnants][store_id].present?

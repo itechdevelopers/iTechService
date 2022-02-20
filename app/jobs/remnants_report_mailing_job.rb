@@ -1,4 +1,5 @@
 class RemnantsReportMailingJob < ApplicationJob
+  include Rails.application.routes.url_helpers
   queue_as :reports
 
   def perform

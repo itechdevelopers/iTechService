@@ -1,11 +1,9 @@
 class ReceiptsController < ApplicationController
   before_action -> { authorize :receipt }
 
-  def new
-  end
+  def new; end
 
-  def add_product
-  end
+  def add_product; end
 
   def print
     respond_to do |format|
@@ -41,6 +39,6 @@ class ReceiptsController < ApplicationController
   end
 
   def document
-    @document ||= PrintReceipt.(current_user.department, params[:receipt])
+    @document ||= PrintReceipt.(current_user.department, params[:receipt].to_unsafe_h.deep_symbolize_keys)
   end
 end

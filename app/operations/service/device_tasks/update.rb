@@ -58,7 +58,7 @@ module Service
             end
 
             device_task.save!
-          rescue ActiveRecord::Rollback
+          rescue ActiveRecord::Rollback, ActiveRecord::RecordInvalid
             return Failure(device_task)
           end
         end

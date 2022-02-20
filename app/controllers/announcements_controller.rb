@@ -22,6 +22,7 @@ class AnnouncementsController < ApplicationController
 
     respond_to do |format|
       format.js
+      format.html { redirect_to announcements_path }
     end
   end
 

@@ -1,8 +1,9 @@
-= simple_form_for(@payment) do |f|
+= simple_form_for([@sale, @payment]) do |f|
   = f.error_notification
 
   .form-inputs
-    = f.association :payment_type
+    = f.input :kind
+    -# = f.association :payment_type
     = f.input :value
     = f.association :bank
 
