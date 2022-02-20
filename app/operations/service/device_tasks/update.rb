@@ -33,7 +33,7 @@ module Service
       end
 
       def save(device_task, user)
-        ActiveRecord::Base.transaction do
+        DeviceTask.transaction do
           begin
             if device_task.is_repair?
               device_task.repair_tasks.each do |repare_task|

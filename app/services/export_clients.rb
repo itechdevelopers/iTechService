@@ -1,7 +1,7 @@
 require 'vpim/vcard'
 
 module ExportClients
-  class Client < ActiveRecord::Base
+  class Client < ApplicationRecord
     scope :in_city, ->(city) { where department_id: Department.in_city(city) }
   end
 

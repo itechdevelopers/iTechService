@@ -2,10 +2,13 @@ source 'https://rubygems.org'
 
 ruby '2.7.5'
 
-gem 'rails', '5.1.7'
+gem 'rails', '5.2.6.2'
 gem 'pg', '0.21.0'
 gem 'rails-pg-extras'
 gem 'sqlite3', '1.3.13'
+
+# Reduces boot times through caching; required in config/boot.rb
+gem 'bootsnap', require: false
 
 gem 'rails-observers'
 gem 'httparty'

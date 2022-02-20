@@ -6,7 +6,6 @@ class MovementItem < ApplicationRecord
   delegate :code, :name, :product, :product_category, :presentation, :features, :feature_accounting, :store_items, :store_item, :quantity_in_store, :purchase_price, to: :item, allow_nil: true
   delegate :store, to: :movement_act, allow_nil: true
 
-  # attr_accessible :movement_act_id, :item_id, :quantity
   validates_presence_of :item, :quantity
   validates_numericality_of :quantity, only_integer: true, greater_than: 0, unless: :feature_accounting
   validates_numericality_of :quantity, only_integer: true, equal_to: 1, if: :feature_accounting

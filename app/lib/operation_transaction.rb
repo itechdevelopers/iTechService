@@ -2,6 +2,6 @@ class OperationTransaction
   extend Uber::Callable
 
   def self.call(*)
-    ActiveRecord::Base.transaction { yield }
+    ApplicationRecord.transaction { yield }
   end
 end
