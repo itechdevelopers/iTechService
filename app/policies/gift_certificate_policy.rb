@@ -18,4 +18,6 @@ class GiftCertificatePolicy < BasePolicy
   def find?
     same_department? && manage?
   end
+
+  def history?; read?; end
 end
