@@ -49,4 +49,12 @@ class Task < ApplicationRecord
   def mac_service?
     code == 'mac'
   end
+
+  def service_center?
+    code == 'service_center'
+  end
+
+  def engraving?
+    code == 'laser'
+  end
 end

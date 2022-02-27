@@ -20,7 +20,8 @@ class DeviceTask < ApplicationRecord
   has_many :repair_parts, through: :repair_tasks
   has_one :sale_item, inverse_of: :device_task
 
-  delegate :name, :role, :code, :is_important?, :is_repair?, :mac_service?, to: :task, allow_nil: true
+  delegate :name, :role, :code, :is_important?, :is_repair?, :mac_service?, :service_center?, :engraving?,
+           to: :task, allow_nil: true
   delegate :cost, to: :task, prefix: true, allow_nil: true
   delegate :client_presentation, :ticket_number, to: :service_job, allow_nil: true
   delegate :department, :department_id, :user, to: :service_job

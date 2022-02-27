@@ -41,7 +41,7 @@ class DashboardController < ApplicationController
 
   def ready_service_jobs
     @service_jobs = ServiceJob.ready(current_department).order(done_at: :desc)
-                      .search(search_params).page(params[:page])
+                      .search(service_job_search_params).page(params[:page])
     respond_to do |format|
       format.js
     end
@@ -65,27 +65,34 @@ class DashboardController < ApplicationController
   def load_actual_jobs
     @service_jobs = policy_scope(ServiceJob).includes(:client, :history_records, :location, :receiver, :user, :keeper, {device_tasks: :task, features: :feature_type})
 
-    if current_user.any_admin?
-      if params[:location].present?
-        location = Location.find(params[:location])
-        @service_jobs = @service_jobs.located_at(location)
-        @location_name = location.name
+    if service_job_search_params.empty?
+      if current_user.any_admin?
+        if params[:location].present?
+          location = Location.find(params[:location])
+          @service_jobs = @service_jobs.located_at(location)
+          @location_name = location.name
+        else
+          @service_jobs = @service_jobs.in_department(current_department).pending
+        end
+      elsif current_user.technician?
+        locations = Location.repair_mac_or_ios.in_department(current_department)
+        @service_jobs = @service_jobs.located_at(locations)
+      elsif current_user.location.present?
+        @service_jobs = @service_jobs.located_at(current_user.location)
       else
-        @service_jobs = @service_jobs.in_department(current_department).pending
+        @service_jobs = @service_jobs.in_department(current_department)
       end
-    elsif current_user.technician?
-      locations = Location.repair_mac_or_ios.in_department(current_department)
-      @service_jobs = @service_jobs.located_at(locations)
-    elsif current_user.location.present?
-      @service_jobs = @service_jobs.located_at(current_user.location)
     else
-      @service_jobs = @service_jobs.in_department(current_department)
+      @service_jobs = @service_jobs.search(service_job_search_params)
     end
+
     if current_user.able_to?(:print_receipt)
-      @service_jobs = @service_jobs.search(search_params).newest.page(params[:page])
+      @service_jobs = @service_jobs.newest
     else
-      @service_jobs = @service_jobs.search(search_params).oldest.page(params[:page])
+      @service_jobs = @service_jobs.oldest
     end
+
+    @service_jobs = @service_jobs.page(params[:page])
   end
 
   def load_actual_orders
@@ -94,5 +101,9 @@ class DashboardController < ApplicationController
     else
       @orders = policy_scope(Order).actual_orders.marketing_orders.search(search_params).oldest.page(params[:page])
     end
+  end
+
+  def service_job_search_params
+    params.permit(:status, :location_id, :ticket, :service_job, :client)
   end
 end

@@ -58,6 +58,8 @@ class User < ApplicationRecord
     show_spare_parts_qty
     request_review
     show_reviews
+    perform_service_center_tasks
+    perform_engraving_tasks
   ].freeze
 
   ACTIVITIES = %w[free fast long].freeze

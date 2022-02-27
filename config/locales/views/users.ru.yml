@@ -25,6 +25,8 @@ ru:
       show_spare_parts_qty: 'Показывать количество запчастей в видах ремонта'
       request_review: Запрашивать оценку у клиента
       show_reviews: Просматривать оценки
+      perform_service_center_tasks: 'Закрывать задачу «сервисный центр»'
+      perform_engraving_tasks: 'Закрывать задачу «гравировка»'
     activities:
       free: Бесплатные
       fast: Быстрые
