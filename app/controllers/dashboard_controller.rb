@@ -83,7 +83,7 @@ class DashboardController < ApplicationController
         @service_jobs = @service_jobs.in_department(current_department)
       end
     else
-      @service_jobs = @service_jobs.search(service_job_search_params)
+      @service_jobs = @service_jobs.pending.search(service_job_search_params)
     end
 
     if current_user.able_to?(:print_receipt)
