@@ -1,0 +1,5 @@
+$('#dashboard_content').html("<%= j(render(partial: 'tasks_table')) %>");
+$('.devices_location').text("<%= j(@location_name.present? ? ". #{@location_name}" : "") %>");
+
+if($('#dashboard_table_filter').length > 0)
+  $('#dashboard_table_filter').html("<%= j(render(partial: 'tasks_table_filter')) %>");

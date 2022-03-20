@@ -1,8 +1,0 @@
-:plain
-  $('#dashboard_content').html("#{j(render(partial: 'tasks_table'))}");
-  if(#{@location_name.present?})
-    $('.devices_location').text(". #{@location_name}")
-  else
-    $('.devices_location').text("");
-  if($('#tasks_table_filter').length == 0)
-    $('#dashboard_table_filter').html("#{j(render(partial: 'tasks_table_filter'))}");

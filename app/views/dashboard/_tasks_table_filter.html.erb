@@ -1,0 +1,50 @@
+<div id="tasks_table_filter" class="table_filter navbar">
+  <div class="navbar-inner">
+    <div class="container">
+      <ul class="nav">
+        <li class="dropdown">
+          <a href="#" class="dropdown-toggle" data-toggle="dropdown">
+            <%= @product_group&.name || 'Группа девайсов' %>
+            <span class="caret pull-right"></span>
+          </a>
+          <ul class="dropdown-menu">
+            <% ProductGroup.root_devices.each do |product_group| %>
+              <li>
+                <%= link_to product_group.name, actual_tasks_path(product_group_id: product_group.id), remote: true %>
+              </li>
+            <% end %>
+          </ul>
+        </li>
+      </ul>
+
+      <%= form_tag actual_tasks_path, method: 'get', remote: true, class: 'navbar-search form-search',
+                   id: 'search_form' do %>
+        <%= hidden_field_tag :product_group_id, params[:product_group_id] %>
+
+        <div class="input-append">
+          <%= text_field_tag :ticket, params[:ticket], id: 'search_service_job_input', class: 'search-query input-large',
+                             placeholder: ServiceJob.human_attribute_name(:ticket_number) %>
+          <span class="add-on btn clear_search_input">
+            <i class="icon-remove"></i>
+          </span>
+        </div>
+
+        <div class="input-append">
+          <%= text_field_tag :service_job, params[:service_job], placeholder: t('service_jobs.index.device_search_placeholder'),
+                             id: 'search_service_job_input', class: 'search-query input-large' %>
+          <span class="add-on btn clear_search_input">
+            <i class="icon-remove"></i>
+          </span>
+        </div>
+
+        <div class="input-append">
+          <%= text_field_tag :client, params[:client], placeholder: t('service_jobs.index.client_search_placeholder'),
+                             id: 'search_client_input', class: 'search-query input-large' %>
+          <span class="add-on btn clear_search_input">
+            <i class="icon-remove"></i>
+          </span>
+        </div>
+      <% end %>
+    </div>
+  </div>
+</div>

@@ -122,6 +122,12 @@ class ServiceJob < ApplicationRecord
       service_jobs = service_jobs.joins(:client).where 'LOWER(clients.name) LIKE :q OR LOWER(clients.surname) LIKE :q OR clients.phone_number LIKE :q OR clients.full_phone_number LIKE :q OR LOWER(clients.card_number) LIKE :q', q: "%#{client_q.mb_chars.downcase.to_s}%"
     end
 
+    if params[:product_group_id].present?
+      service_jobs = service_jobs
+                       .joins(item: :product)
+                       .where(products: {product_group_id: ProductGroup.children_of(params[:product_group_id])})
+    end
+
     service_jobs
   end
 
