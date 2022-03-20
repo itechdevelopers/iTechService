@@ -30,6 +30,7 @@
 //= require clients
 //= require comments
 //= require dashboard
+//= require device_notes
 //= require device_tasks
 //= require device_types
 //= require faults
