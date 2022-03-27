@@ -40,6 +40,7 @@
 //= require media_orders
 //= require movement_acts
 //= require orders
+//= require order_notes
 //= require payments
 //= require product_groups
 //= require products

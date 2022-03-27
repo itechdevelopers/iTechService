@@ -1,4 +1,4 @@
 $notes = $('#order_notes');
-$notes.append('<%= cell(OrderNote::Cell::Item, order_note).() %>');
+$notes.append('<%= j cell(OrderNote::Cell::Item, order_note).() %>');
 $notes.scrollTop($notes[0].scrollHeight);
 $('#order_note_content').val('');
