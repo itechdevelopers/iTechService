@@ -82,8 +82,12 @@ class DashboardController < ApplicationController
       else
         @service_jobs = @service_jobs.in_department(current_department)
       end
+
+      if params[:product_group_id].present?
+        @product_group = ProductGroup.select(:name).find(params[:product_group_id])
+        @service_jobs = @service_jobs.of_product_group(params[:product_group_id])
+      end
     else
-      @product_group = ProductGroup.select(:name).find(params[:product_group_id]) if params[:product_group_id].present?
       @service_jobs = @service_jobs.pending.search(service_job_search_params)
     end
 
@@ -105,6 +109,6 @@ class DashboardController < ApplicationController
   end
 
   def service_job_search_params
-    params.permit(:status, :location_id, :product_group_id, :ticket, :service_job, :client)
+    params.permit(:status, :location_id, :ticket, :service_job, :client)
   end
 end

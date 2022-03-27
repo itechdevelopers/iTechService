@@ -34,6 +34,10 @@ class ServiceJob < ApplicationRecord
     not_at_done.not_at_archive.where('((return_at - created_at) > ? and (return_at - created_at) < ? and return_at <= ?) or ((return_at - created_at) >= ? and return_at <= ?)', '30 min', '5 hour', DateTime.current.advance(minutes: 30), '5 hour', DateTime.current.advance(hours: 1))
   }
 
+  scope :of_product_group, ->(product_group_id) {
+    joins(item: :product).where(products: {product_group_id: ProductGroup.children_of(product_group_id)})
+  }
+
   belongs_to :department, -> { includes(:city) }, inverse_of: :service_jobs
   belongs_to :initial_department, class_name: 'Department', optional: true
   belongs_to :user, inverse_of: :service_jobs, optional: true
@@ -120,12 +124,6 @@ class ServiceJob < ApplicationRecord
 
     unless (client_q = params[:client]).blank?
       service_jobs = service_jobs.joins(:client).where 'LOWER(clients.name) LIKE :q OR LOWER(clients.surname) LIKE :q OR clients.phone_number LIKE :q OR clients.full_phone_number LIKE :q OR LOWER(clients.card_number) LIKE :q', q: "%#{client_q.mb_chars.downcase.to_s}%"
-    end
-
-    if params[:product_group_id].present?
-      service_jobs = service_jobs
-                       .joins(item: :product)
-                       .where(products: {product_group_id: ProductGroup.children_of(params[:product_group_id])})
     end
 
     service_jobs
