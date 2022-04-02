@@ -103,8 +103,8 @@
       -#= navbar_item t('.data_migration'), data_migration_path
       = menu_item t('settings.link'), settings_path if can? :manage, Setting
       = menu_item 'Логотип', app_logo_path if current_user.superadmin?
-      = menu_item 'Носи Гордо!', "/uploads/#{Setting.forma_filename}", target: '_blank'
-      = menu_item 'Носи Гордо! - загрузить файл', forma_path if current_user.superadmin?
+      = menu_item 'Носи Гордо!', forma_path, target: '_blank'
+      = menu_item 'Носи Гордо! - загрузить файл', new_forma_path if current_user.superadmin?
       = menu_item 'Sidekiq', '/sidekiq' if current_user.superadmin?
 
     = drop_down icon_tag(:star) do

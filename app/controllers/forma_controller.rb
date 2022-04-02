@@ -1,15 +1,21 @@
 class FormaController < ApplicationController
-  def edit
+  def show
+    skip_authorization
+    uploader = FormaUploader.new
+    send_file uploader.full_path, disposition: 'inline'
+  rescue ActionController::MissingFile
+    render file: 'public/404.html', layout: false, status: :not_found
+  end
+
+  def new
     authorize :forma
   end
 
-  def update
+  def create
     authorize :forma
 
     uploader = FormaUploader.new
     uploader.store!(params[:file])
-    setting = Setting.find_by_name('forma_filename')
-    setting.update(value: uploader.filename)
 
     redirect_to forma_path
   end
