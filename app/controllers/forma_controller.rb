@@ -1,6 +1,8 @@
 class FormaController < ApplicationController
+  skip_before_action :authenticate_user!, :set_current_user, only: :show
+  skip_after_action :verify_authorized, only: :show
+
   def show
-    skip_authorization
     uploader = FormaUploader.new
     send_file uploader.full_path, disposition: 'inline'
   rescue ActionController::MissingFile
