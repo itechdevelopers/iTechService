@@ -47,7 +47,7 @@ class ServiceJob < ApplicationRecord
   belongs_to :location, optional: true
   belongs_to :receiver, class_name: 'User', foreign_key: 'user_id', optional: true
   belongs_to :sale, inverse_of: :service_job, optional: true
-  belongs_to :case_color, optional: true
+  belongs_to :case_color
   belongs_to :carrier, optional: true
   belongs_to :keeper, class_name: 'User', optional: true
   has_many :features, through: :item
@@ -78,13 +78,15 @@ class ServiceJob < ApplicationRecord
   delegate :color, to: :city, prefix: true, allow_nil: true
   delegate :pending_substitution, to: :substitute_phone, allow_nil: true
   alias_attribute :received_at, :created_at
-  validates_presence_of :ticket_number, :user, :client, :location, :device_tasks, :return_at, :department
+  validates_presence_of :ticket_number, :user, :client, :location, :device_tasks, :return_at, :department,
+                        :device_condition
   validates_presence_of :contact_phone, on: :create
   validates_presence_of :device_type, if: proc { |sj| sj.item.nil? }
   validates_presence_of :item, if: proc { |sj| sj.device_type.nil? }
   validates_presence_of :app_store_pass, if: :new_record?
   validates_uniqueness_of :ticket_number
   validates_inclusion_of :is_tray_present, in: [true, false], if: :has_imei?
+  validates_presence_of :carrier, if: :has_imei?
   validates :substitute_phone_icloud_connected, presence: true, acceptance: true, on: :create, if: :phone_substituted?
   validate :presence_of_payment
   validate :substitute_phone_absence
@@ -285,7 +287,7 @@ class ServiceJob < ApplicationRecord
   end
 
   def has_imei?
-    device_type.has_imei? if device_type.present?
+    device_type.present? ? device_type.has_imei? : !!item&.has_imei?
   end
 
   def moved_at

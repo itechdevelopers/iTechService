@@ -657,6 +657,9 @@ ru:
         service_job:
           not_paid: 'Не оплачена!'
           substitute_phone_not_received: 'Небходимо вернуть телефон, выданный на замену'
+          attributes:
+            case_color:
+              required: 'не может быть пустым'
         device_task:
           no_defect_store: 'Склад брака не найден'
           no_spare_parts_store: "Склад запчастей не найден"

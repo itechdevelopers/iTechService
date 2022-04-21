@@ -26,7 +26,7 @@
 
       - if can? :update, @service_job
         - if @service_job.new_record? || @service_job.item.present?
-          = f.input :item, as: :device
+          = f.input :item, as: :device, required: true
         - else
           = f.input :device_type, as: :device_type
           = f.input :serial_number, as: :serial_number, input_html: {autocomplete: 'off'}, required: true
@@ -51,9 +51,11 @@
       - if @service_job.new_record? or @service_job.user_id == current_user.id
         = f.input :app_store_pass, required: @service_job.new_record?
 
-      = f.input :is_tray_present, as: :radio_buttons, wrapper_html: {class: @service_job.has_imei? ? 'tray_input' : 'tray_input hidden'}
+      = f.input :is_tray_present, as: :radio_buttons, required: true,
+        wrapper_html: {class: "tray_input#{' hidden' unless @service_job.has_imei?}"}
 
-      = f.association :carrier, as: :radio_buttons, collection: Carrier.all, wrapper_html: {class: @service_job.has_imei? ? 'carrier_input' : 'carrier_input hidden'}
+      = f.association :carrier, as: :radio_buttons, collection: Carrier.all, required: true,
+        wrapper_html: {class: "carrier_input#{' hidden' unless @service_job.has_imei?}"}
 
       = f.association :case_color, as: :dropdown, collection: CaseColor.ordered_by_name, label_method: lambda{|c|case_color_presentation(c)}
 
