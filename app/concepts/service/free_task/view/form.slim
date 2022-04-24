@@ -4,7 +4,7 @@
   = f.input :name, required: true
   - if model.icon.present?
     = image_tag(model.icon_url)
-  = f.input :icon
+  = f.input :icon, as: :file
   = f.input :code, hint: t('.code_hint')
 
   .form-actions = submit_button f
