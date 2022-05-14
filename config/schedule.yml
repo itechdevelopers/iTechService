@@ -15,3 +15,9 @@ sales_import:
   class: 'SalesImportJob'
   queue: 'critical'
   active_job: true
+
+delete_expired_faults:
+  cron: '0 0 1 * *'
+  class: 'DeleteExpiredFaultsJob'
+  queue: 'default'
+  active_job: true
