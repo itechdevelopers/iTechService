@@ -3,7 +3,7 @@
 class ReportsController < ApplicationController
 
   INDENT_JOBS = %w[users repair_jobs device_orders orders_statuses technicians_jobs technicians_difficult_jobs
-                   repairers sales quick_orders free_jobs users_jobs mac_service].freeze
+                   repairers sales quick_orders free_jobs users_jobs mac_service warranty_repair_parts].freeze
 
   before_action -> { authorize :report, :manage? }
   before_action :indent_jobs, only: %i[new create]

@@ -1,0 +1,21 @@
+<table class="table table-bordered table-hover">
+  <thead>
+  <tr>
+    <th class="center">Запчасть</th>
+    <th class="center">Количество</th>
+    <th class="center">Работы</th>
+  </tr>
+  </thead>
+
+  <tbody>
+  <% report.result[:data].each do |product_id, data| %>
+  <tr>
+    <td><%= link_to data[:name], product_path(product_id), target: '_blank' %></td>
+    <td class="number"><%= data[:qty] %></td>
+    <td>
+      <%= data[:jobs].map { |id, ticket| link_to(ticket, service_job_path(id), target: '_blank') }.join(', ').html_safe %>
+    </td>
+  </tr>
+  <% end %>
+  </tbody>
+</table>

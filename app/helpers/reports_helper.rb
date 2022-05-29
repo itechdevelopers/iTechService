@@ -44,6 +44,7 @@ module ReportsHelper
       repeated_repair2
       users_jobs
       mac_service
+      warranty_repair_parts
     ].freeze
   end
 
