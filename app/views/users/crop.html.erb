@@ -1,0 +1,5 @@
+<%= form_for @user, url: update_photo_user_path(@user) do |f| %>
+  <%= f.cropbox :photo %>
+  <%= f.previewbox :photo, width: 300, height: 300 %>
+  <%= f.submit 'Обрезать' %>
+<% end %>

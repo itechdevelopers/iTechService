@@ -44,7 +44,13 @@ class UsersController < ApplicationController
 
     respond_to do |format|
       if @user.save
-        format.html { redirect_to @user, notice: t('users.created') }
+        format.html do
+          if params[:user][:photo].present?
+            render :crop
+          else
+            redirect_to @user, notice: t('users.created')
+          end
+        end
         format.json { render json: @user, status: :created, location: @user }
       else
         format.html { render 'form' }
@@ -58,7 +64,13 @@ class UsersController < ApplicationController
 
     respond_to do |format|
       if @user.update_attributes(params_for_update)
-        format.html { redirect_to @user, notice: t('users.updated') }
+        format.html do
+          if params[:user][:photo].present?
+            render :crop
+          else
+            redirect_to @user, notice: t('users.updated')
+          end
+        end
         format.json { head :no_content }
         format.js { render 'shared/close_modal_form' }
       else
@@ -81,10 +93,15 @@ class UsersController < ApplicationController
 
   def update_photo
     @user = find_record User
-    @user.update_attributes(user_params)
+    @user.update_attributes(photo_params)
     respond_to do |format|
-      format.html { redirect_to :profile }
-      format.js
+      format.html do
+        if params[:user][:photo].present?
+          render :crop
+        else
+          redirect_to @user
+        end
+      end
     end
   end
 
@@ -241,23 +258,26 @@ class UsersController < ApplicationController
   end
 
   def user_params
-    params.require(:user)
-          .permit(:abilities_mask, :activities_mask, :birthday, :can_help_in_mac_service, :can_help_in_repair,
-                  :card_number, :color, :current_sign_in_at, :current_sign_in_ip, :department_autochangeable,
-                  :department_id, :email, :encrypted_password, :hiring_date, :hobby, :is_fired, :job_title,
-                  :last_sign_in_at, :last_sign_in_ip, :location_id, :name, :patronymic, :phone_number, :photo,
-                  :position, :prepayment, :remember_created_at, :reset_password_sent_at, :role, :salary_date, :schedule,
-                  :session_duration, :store_id, :surname, :uniform_sex, :uniform_size, :username, :wish, :wishlist,
+    params.require(:user).permit(
+      :username, :email, :card_number, :password, :password_confirmation, :name, :patronymic, :surname, :phone_number,
+      :session_duration, :abilities_mask, :activities_mask, :birthday, :can_help_in_mac_service, :can_help_in_repair,
+      :department_autochangeable, :department_id, :location_id, :hiring_date, :hobby, :is_fired, :job_title, :color,
+      :position, :prepayment, :role, :salary_date, :schedule,:store_id, :uniform_sex, :uniform_size, :wish, :wishlist,
+      :photo, :photo_cache, :remove_photo,
 
-                  :photo_cache, :remove_photo, :password, :password_confirmation,
-
-                  abilities: [], activities: [],
-                  schedule_days: [:day, :hours, :user, :user_id],
-                  duty_days: [:day, :user_id, :kind],
-                  karmas: [:comment, :user_id, :karma_group_id, :good],
-                  salaries: [:amount, :user, :user_id, :issued_at, :comment, :is_prepayment],
-                  installment_plans: [:cost, :issued_at, :object, :user, :user_id, :installments_attributes, :is_closed]
-          )
+      abilities: [], activities: [],
+      schedule_days: [:day, :hours, :user, :user_id],
+      duty_days: [:day, :user_id, :kind],
+      karmas: [:comment, :user_id, :karma_group_id, :good],
+      salaries: [:amount, :user, :user_id, :issued_at, :comment, :is_prepayment],
+      installment_plans: [:cost, :issued_at, :object, :user, :user_id, :installments_attributes, :is_closed],
+      installment: {}
+    )
     # TODO: check nested attributes for: schedule_days, duty_days, karmas, salaries, installment_plans
+  end
+
+  def photo_params
+    params.require(:user)
+          .permit(:photo, :photo_cache, :remove_photo, :photo_crop_x, :photo_crop_y, :photo_crop_w, :photo_crop_h)
   end
 end

@@ -23,7 +23,7 @@ class UserPolicy < BasePolicy
   end
 
   def update_photo?
-    owner?
+    owner? || update?
   end
 
   def update_self?

@@ -237,17 +237,7 @@
 
 
     - if can? :update_photo, @user
-      #update_user_photo
-        = simple_form_for @user, url: update_photo_user_path(@user), html: { class: 'form-horizontal user_form', autocomplete: 'off' } do |f|
-          .control-group
-            #user_photo_fields.controls
-              = image_tag f.object.photo.medium.url, class: 'avatar-medium' if f.object.photo?
-              = f.file_field :photo
-              = f.hidden_field :photo_cache
-              %label
-                = f.check_box :remove_photo
-                = t 'remove_photo'
-          = submit_button f
+      #update_user_photo= render 'users/update_photo_form', user: @user
     - elsif @user.photo?
       %dt
       %dd= image_tag @user.photo.medium.url, class: 'avatar-medium'

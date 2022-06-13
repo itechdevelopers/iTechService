@@ -158,6 +158,7 @@ class User < ApplicationRecord
   before_validation :validate_rights_changing
 
   mount_uploader :photo, PhotoUploader
+  crop_uploaded :photo
 
   acts_as_list
 

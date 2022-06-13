@@ -5,6 +5,7 @@
 //= require jquery-ui/draggable
 //= require jquery-ui/droppable
 //= require jquery-ui/selectable
+//= require jquery.jcrop
 
 //= require twitter/bootstrap
 //= require jquery.jstree

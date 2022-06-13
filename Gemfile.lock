@@ -1,4 +1,13 @@
 GIT
+  remote: https://github.com/kvn47/carrierwave-crop
+  revision: 430198a06183fb019b5b48307d54c094ee9cc3c1
+  specs:
+    carrierwave-crop (0.1.2)
+      carrierwave (>= 0.8.0)
+      jquery-rails
+      rails (>= 3.2)
+
+GIT
   remote: https://github.com/vaallery/mimemagic
   revision: a4b038c6c1b9d76dac33d5711d28aaa9b4c42c66
   tag: v0.3.0
@@ -706,6 +715,7 @@ DEPENDENCIES
   capybara
   capybara-selenium
   carrierwave (~> 2.2.2)
+  carrierwave-crop!
   cells-rails (~> 0.0.7)
   cells-slim (~> 0.0.5)
   chromedriver-helper

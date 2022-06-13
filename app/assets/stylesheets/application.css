@@ -4,7 +4,10 @@
  *= require bootstrap-colorpicker
  *= require datepicker
  *= require bootstrap-datetimepicker.min
+ *= require jquery.jcrop
+
  *= require customicons
+
  *= require _bootstrap_and_overrides
  *= require _forms
  *= require _inputs
