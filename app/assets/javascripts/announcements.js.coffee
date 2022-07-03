@@ -1,3 +1,9 @@
+jQuery ->
+
+  if $('#birthday_announcements').length
+    $.getScript('/announcements/birthdays')
+
+
 $(document).on 'click', '.change_announce_state_button', ->
   $this = $(this)
   state = !$this.data('state')

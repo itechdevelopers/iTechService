@@ -17,6 +17,12 @@ class AnnouncementsController < ApplicationController
     end
   end
 
+  def birthdays
+    authorize Announcement, :index?
+    @announcements = Announcement.active_birthdays
+    head(:no_content) if @announcements.empty?
+  end
+
   def show
     @announcement = find_record(Announcement)
 

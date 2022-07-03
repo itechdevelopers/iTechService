@@ -4,12 +4,6 @@ class Announcement < ApplicationRecord
   KINDS = %w[help coffee for_coffee protector info birthday order_status order_done salary device_return].freeze
 
   scope :in_department, ->(department) { where(department_id: department) }
-
-  belongs_to :department, optional: true
-  belongs_to :user, inverse_of: :announcements, optional: true
-  has_and_belongs_to_many :recipients, class_name: 'User', join_table: 'announcements_users', uniq: true
-  validates :kind, presence: true
-  validates :kind, inclusion: { in: KINDS }
   scope :newest, -> { order('created_at desc') }
   scope :oldest, -> { order('created_at asc') }
   scope :active, -> { where(active: true) }
@@ -19,6 +13,13 @@ class Announcement < ApplicationRecord
   scope :active_birthdays, -> { where(active: true, kind: 'birthday') }
   scope :device_return, -> { where(kind: 'device_return') }
   scope :actual_for, ->(user) { active.keep_if { |announcement| announcement.visible_for? user } }
+
+  belongs_to :department, optional: true
+  belongs_to :user, inverse_of: :announcements, optional: true
+  has_and_belongs_to_many :recipients, class_name: 'User', join_table: 'announcements_users', uniq: true
+
+  validates :kind, presence: true
+  validates :kind, inclusion: { in: KINDS }
 
   before_create :define_recipients
 

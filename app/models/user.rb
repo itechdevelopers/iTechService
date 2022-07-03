@@ -184,17 +184,6 @@ class User < ApplicationRecord
     User.active.to_a.keep_if { |user| user.upcoming_salary_date&.today? }
   end
 
-  def self.check_birthdays
-    User.active.find_each do |user|
-      announcement = user.birthday_announcement
-      announcement.update_attributes active: user.upcoming_birthday?
-      if announcement.active?
-        announcement.recipient_ids = User.any_admin.map(&:id)
-        announcement.save
-      end
-    end
-  end
-
   def email_required?
     false
   end
@@ -359,10 +348,6 @@ class User < ApplicationRecord
     else
       false
     end
-  end
-
-  def birthday_announcement
-    announcements.create_with(active: false, user: self).find_or_create_by(kind: 'birthday')
   end
 
   def timeout_in

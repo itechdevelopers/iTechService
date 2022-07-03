@@ -59,4 +59,9 @@ module TopBarHelper
     link_to image_tag('exp-icon.png'), '#', rel: 'popover', class: '', id: 'staff_experience',
             data: {html: true, placement: 'bottom', title: "Кто? И сколько работает в компании?"}
   end
+
+  def header_link_to_birthdays
+    link_to image_tag('cake.svg'), '#', rel: 'popover', class: 'hidden', id: 'birthday_announcements',
+            data: {html: true, placement: 'bottom', title: 'Дни рождения'}
+  end
 end

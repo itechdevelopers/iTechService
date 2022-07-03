@@ -174,7 +174,10 @@ Rails.application.routes.draw do
 
   resources :announcements do
     post :close, on: :member
-    post :close_all, on: :collection
+    collection do
+      post :close_all
+      get :birthdays
+    end
   end
   post 'make_announce' => 'announcements#make_announce'
   post 'cancel_announce' => 'announcements#cancel_announce'

@@ -1,0 +1,3 @@
+$('#birthday_announcements')
+  .attr('data-content', "<%= j render(collection: @announcements, partial: 'announcements/bithday', as: :announcement) %>")
+  .removeClass('hidden');

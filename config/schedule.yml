@@ -21,3 +21,9 @@ delete_expired_faults:
   class: 'DeleteExpiredFaultsJob'
   queue: 'default'
   active_job: true
+
+birthday_announcements:
+  cron: '0 8 * * * Asia/Vladivostok'
+  class: 'BirthdayAnnouncementsJob'
+  queue: 'default'
+  active_job: true

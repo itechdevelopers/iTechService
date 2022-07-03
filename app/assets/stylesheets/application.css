@@ -14,6 +14,7 @@
  *= require _menu
  *= require _table_filter
  *= require _topbar
+ *= require announcements
  *= require bonuses
  *= require case_colors
  *= require cash_drawers

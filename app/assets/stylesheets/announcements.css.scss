@@ -1,0 +1,34 @@
+#birthday_announcements {
+  background-color: #ffc7c5;
+}
+
+.announcement {
+  font-size: 16px;
+  border: solid thin #bce8f1;
+  padding: 2px 4px;
+  color: #3a87ad;
+  background-color: #d9edf7;
+  margin-bottom: 6px;
+  .close_announcement_button {
+    margin-right: 10px;
+    //line-height: 15px;
+    line-height: 20px;
+    float: right;
+    font-size: 20px;
+    font-weight: bold;
+    color: #000000;
+    text-shadow: 0 1px 0 #ffffff;
+    opacity: 0.2;
+    filter: alpha(opacity=20);
+    &:hover, &:focus {
+      color: #000000;
+      text-decoration: none;
+      cursor: pointer;
+      opacity: 0.4;
+      filter: alpha(opacity=40);
+    }
+  }
+  .timestamp {
+    font-size: 12px;
+  }
+}
