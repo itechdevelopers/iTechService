@@ -35,7 +35,6 @@ require "capistrano/rails/migrations"
 require "capistrano/rails/collection"
 require "capistrano/console"
 require "capistrano/passenger"
-require "whenever/capistrano"
 require "capistrano/ssh_doctor"
 # require "capistrano/sidekiq"
 

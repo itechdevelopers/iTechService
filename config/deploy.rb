@@ -47,7 +47,6 @@ set :rbenv_type, :system
 set :rbenv_ruby, '2.7.5'
 
 set :conditionally_migrate, true
-set :whenever_identifier, fetch(:application)
 
 after 'deploy:published', :restart_sidekiq do
   on roles(:app) do

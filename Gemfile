@@ -56,7 +56,6 @@ gem 'acts_as_list', '~> 1.0.4'
 gem 'sidekiq', '~> 6.4.1'
 gem 'sinatra', '~> 2.1.0', require: false
 gem 'sidekiq-cron', '~> 1.2.0'
-gem 'whenever', '~> 1.0.0', require: false
 gem 'grape', '~> 1.6.2'
 gem 'grape-entity', '~> 0.10.1'
 gem 'rmagick', '~> 4.2.4'
