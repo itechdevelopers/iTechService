@@ -1,6 +1,7 @@
 window.App ||= {}
 
 App.init = ->
+  App.current_user_id = $('#profile_link').data('id')
 
   #== Open external links in new window
 #  $("a[href^='http']").attr('target', '_blank')

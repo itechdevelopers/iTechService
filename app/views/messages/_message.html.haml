@@ -1,4 +1,4 @@
-- is_my = message.user_id == current_user.id
+- is_my = message.user_id == current_user&.id
 %div[message]{class: (is_my ? 'my' : '')}
   %small{style: "color: #{message.user.color}"}
     = "#{is_my ? t(:me) : message.user.short_name} [#{l(message.created_at, format: :date_time)}]"

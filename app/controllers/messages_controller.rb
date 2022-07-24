@@ -25,6 +25,7 @@ class MessagesController < ApplicationController
 
     respond_to do |format|
       if @message.save
+        ChatChannel.broadcast_message(@message)
         format.html { redirect_to @message, notice: t('chat.created') }
         format.json { render json: @message, status: :created, location: @message }
         format.js

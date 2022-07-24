@@ -89,6 +89,7 @@ group :development do
   gem 'letter_opener'
   gem 'rails-erd'
   gem 'listen'
+  gem 'puma'
 end
 
 group :test do
