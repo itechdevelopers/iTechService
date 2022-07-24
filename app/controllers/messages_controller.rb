@@ -47,7 +47,7 @@ class MessagesController < ApplicationController
 
   def message_params
     params.require(:message)
-          .permit(:content, :department_id, :recipient_id, :recipient_type, :user_id)
+          .permit(:content, :recipient_id, :recipient_type)
           .merge(user_id: current_user.id, department_id: current_user.department_id)
   end
 end

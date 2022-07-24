@@ -1,3 +1,9 @@
-class MessagePolicy < BasePolicy
-  def create?; true; end
+class MessagePolicy < ApplicationPolicy
+  def create?
+    true
+  end
+
+  def read?
+    true
+  end
 end
