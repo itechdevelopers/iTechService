@@ -420,7 +420,7 @@ price: device_task.cost.to_f, quantity: 1 }
         number = UUIDTools::UUID.random_create.hash.to_s
       break unless ServiceJob.exists? ticket_number: number
       end
-      self.ticket_number = Setting.ticket_prefix(department) + number
+      self.ticket_number = Setting.ticket_prefix(department).to_s + number
     end
   end
 
