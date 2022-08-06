@@ -231,7 +231,7 @@ module ApplicationHelper
   end
 
   def telegram_link_to(url)
-    link_to(image_tag('/tg.png', width: '20'), url, class: 'telegram_link', target: '_blank')
+    link_to(image_tag('tg.png', width: '20'), url, class: 'telegram_link', target: '_blank')
   end
 
   def store_location
