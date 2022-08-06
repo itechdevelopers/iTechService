@@ -21,7 +21,7 @@ ru:
       add_product: 'Добавить товар'
       sum: 'Сумма'
       sum_in_words: 'Сумма прописью'
-      receipt: 'Чек'
+      receipt: 'Товарный чек'
       warranty: 'Гарантия'
       sale_check: 'Кассовый чек'
       print: 'Напечатать'
