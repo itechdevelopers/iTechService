@@ -263,7 +263,7 @@ class UsersController < ApplicationController
       :session_duration, :abilities_mask, :activities_mask, :birthday, :can_help_in_mac_service, :can_help_in_repair,
       :department_autochangeable, :department_id, :location_id, :hiring_date, :hobby, :is_fired, :job_title, :color,
       :position, :prepayment, :role, :salary_date, :schedule,:store_id, :uniform_sex, :uniform_size, :wish, :wishlist,
-      :photo, :photo_cache, :remove_photo,
+      :photo, :photo_cache, :remove_photo, :work_phone,
 
       abilities: [], activities: [],
       schedule_days: [:day, :hours, :user, :user_id],
