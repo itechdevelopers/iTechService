@@ -18,7 +18,7 @@
 
   .control-group
     %label.control-label= t '.seller'
-    .controls= text_field_tag 'receipt[seller]', current_user.full_name, class: 'input-xlarge'
+    .controls= text_field_tag 'receipt[seller]', current_user.short_name, class: 'input-xlarge'
 
   .control-group
     %label.control-label= t '.seller_post'

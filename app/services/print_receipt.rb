@@ -7,6 +7,7 @@ class PrintReceipt
       sale.number = params[:number]
       sale.seller = params[:seller]
       sale.department = department
+      sale.cash_shift_id = department.current_cash_shift.id
       sale.date = params[:date].to_datetime.in_time_zone
       sale.customer = params[:customer]
       sale.seller_post = params[:seller_post]
