@@ -26,7 +26,11 @@ class ReceiptsController < ApplicationController
   end
 
   def render_sale_check
-    send_data document.sale_check.render, filename: 'sale_check.pdf', type: 'application/pdf', disposition: 'inline'
+    sale_check = document.sale_check
+    filepath = "#{Rails.root.to_s}/tmp/pdf/#{sale_check.filename}"
+    sale_check.render_file filepath
+    PrinterTools.print_file filepath, type: :sale_check, height: sale_check.page_height_mm, printer: current_department.printer
+    send_data sale_check.render, filename: 'sale_check.pdf', type: 'application/pdf', disposition: 'inline'
   end
 
   def document
