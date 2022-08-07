@@ -13,7 +13,6 @@
   <%= stylesheet_link_tag 'application', :media => 'all', 'data-turbolinks-track' => true %>
   <%= javascript_include_tag 'application', 'data-turbolinks-track' => true %>
   <%= csrf_meta_tags %>
-  <%= action_cable_meta_tag %>
 </head>
 
 <body>
@@ -38,10 +37,9 @@
       </div>
     </div>
 
-    <%= subscribe_to '/announcements' %>
-    <%= subscribe_to '/service_jobs/new' %>
-    <%= subscribe_to '/service_jobs/update' %>
-    <%= subscribe_to '/chat/new' %>
+    <%#TODO implement via cable subscribe_to '/announcements' %>
+    <%#TODO implement via cable subscribe_to '/service_jobs/new' %>
+    <%#TODO implement via cable subscribe_to '/service_jobs/update' %>
   <% else %>
     <%= yield %>
   <% end %>

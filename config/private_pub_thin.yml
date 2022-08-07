@@ -1,5 +1,0 @@
-chdir: /var/www/itechservice/current
-environment: production
-rackup: private_pub.ru
-port: 9292
-daemonize: true

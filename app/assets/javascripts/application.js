@@ -10,7 +10,6 @@
 //= require twitter/bootstrap
 //= require jquery.jstree
 //= require ckeditor/init
-//= require private_pub
 //= require bootstrap-colorpicker
 //= require bootstrap-datepicker
 //= require bootstrap-datetimepicker.min
@@ -19,7 +18,7 @@
 //= require zeroclipboard
 //= require currency-in-words
 //= require app.js.coffee
-// require cable
+//= require cable
 //= require app.notification
 //= require inputs
 //= require common

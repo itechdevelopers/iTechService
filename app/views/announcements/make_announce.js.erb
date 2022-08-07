@@ -1,15 +1,16 @@
 $('#announce_link').replaceWith("<%= j header_link_to_announce %>");
 
-<% if @announcement.present? %>
-  <% publish_to "/announcements" do %>
-    $.getScript("<%= announcement_path(@announcement) %>");
+//TODO implement via cable
+<%# if @announcement.present? %>
+  <%# publish_to "/announcements" do %>
+//    $.getScript("<%#= announcement_path(@announcement) %>");
 
-    <% if @announcement.for_coffee? %>
-      $('#coffer_order_link').popover('hide');
-    <% else %>
-      setTimeout(function() {
-        $.post("<%= cancel_announce_path(kind: @announcement.kind) %>")
-      }, 30000);
-    <% end %>
-  <% end %>
-<% end %>
+    <%# if @announcement.for_coffee? %>
+//      $('#coffer_order_link').popover('hide');
+    <%# else %>
+//      setTimeout(function() {
+//        $.post("<%#= cancel_announce_path(kind: @announcement.kind) %>")
+//      }, 30000);
+    <%# end %>
+  <%# end %>
+<%# end %>

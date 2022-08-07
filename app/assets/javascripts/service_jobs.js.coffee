@@ -126,9 +126,10 @@ $(document).on 'click', '.returning_device_tooltip', ->
 $(document).on 'click', '#completion_act_link', ->
   $('#service_job_archive_button').removeClass('hidden')
 
-PrivatePub.subscribe '/service_jobs/new', (data, channel)->
-  if data.service_jobs.location_id == $('#profile_link').data('location')
-    $('#new_service_job_popup').fadeIn()
-
-PrivatePub.subscribe '/service_jobs/returning_alert', (data, channel)->
-  $.getScript '/announcements/'+data.announcement_id
+#TODO implement via cable
+#PrivatePub.subscribe '/service_jobs/new', (data, channel)->
+#  if data.service_jobs.location_id == $('#profile_link').data('location')
+#    $('#new_service_job_popup').fadeIn()
+#TODO implement via cable
+#PrivatePub.subscribe '/service_jobs/returning_alert', (data, channel)->
+#  $.getScript '/announcements/'+data.announcement_id

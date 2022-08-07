@@ -343,7 +343,8 @@ class ServiceJob < ApplicationRecord
     end
     announcement = Announcement.create_with(active: true, recipient_ids: recipient_ids).find_or_create_by(
 kind: 'device_return', content: id.to_s)
-    PrivatePub.publish_to '/service_jobs/returning_alert', announcement_id: announcement.id
+    #TODO implement via cable
+    # PrivatePub.publish_to '/service_jobs/returning_alert', announcement_id: announcement.id
   end
 
   def create_filled_sale
@@ -492,6 +493,7 @@ price: device_task.cost.to_f, quantity: 1 }
   end
 
   def new_service_job_announce
+    #TODO implement via cable
     # PrivatePub.publish_to '/service_jobs/new', service_job: self if Rails.env.production?
   end
 
@@ -502,6 +504,7 @@ price: device_task.cost.to_f, quantity: 1 }
         ServiceJobsMailer.done_notice(id).deliver_later if email.present?
       end
     end
+    #TODO implement via cable
     # PrivatePub.publish_to '/service_jobs/update', service_job: self if changed_attributes['location_id'].present? and Rails.env.production?
   end
 
