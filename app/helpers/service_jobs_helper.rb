@@ -1,5 +1,7 @@
 # encoding: utf-8
 module ServiceJobsHelper
+  TG_URL = 'https://t.me/'
+
   def service_job_status_options(selected = nil)
     options_for_select [
                          [t('service_jobs.status.all'), nil],
@@ -17,7 +19,7 @@ module ServiceJobsHelper
       ''
     end
   end
-  
+
   def row_class_for_service_job(service_job)
     if service_job.at_done?
       'success'
@@ -59,6 +61,10 @@ module ServiceJobsHelper
         end
       end.join.html_safe
     end.html_safe
+  end
+
+  def device_movement_telegram_tag(work_phone)
+    telegram_link_to(TG_URL + work_phone.to_s)
   end
 
   def device_movement_information_tag(service_job)

@@ -702,6 +702,7 @@ ru:
     object: 'Объект'
     performed_at: 'Время выполнения'
     performer: 'Исполнитель'
+    work_phone: 'Рабочий номер телефона'
     phone_number: 'Телефонный номер'
     position: 'Позиция'
     price: 'Цена'
