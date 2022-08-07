@@ -1,4 +1,5 @@
 %div[device_note]
+  = device_movement_telegram_tag(device_note.user.work_phone)
   %small{style: "color: #{device_note.user.color}"}
     = "#{device_note.user.short_name} [#{l(device_note.created_at, format: :date_time)}]"
   %p= device_note.content

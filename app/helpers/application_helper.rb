@@ -230,6 +230,10 @@ module ApplicationHelper
     link_to glyph(:time), url, class: 'history_link', remote: true
   end
 
+  def telegram_link_to(url)
+    link_to(image_tag('tg.png', width: '20'), url, class: 'telegram_link', target: '_blank')
+  end
+
   def store_location
     session[:return_to] = request.fullpath.gsub(/.js/, '')
   end

@@ -80,6 +80,9 @@
           %dt= User.human_attribute_name :fio
           %dd= @user.full_name
 
+          %dt= User.human_attribute_name :work_phone
+          %dd= @user.work_phone.present? ? number_to_phone(@user.work_phone, area_code: true) : '-'
+
           %dt= User.human_attribute_name :phone_number
           %dd= @user.phone_number.present? ? number_to_phone(@user.phone_number, area_code: true) : '-'
 
