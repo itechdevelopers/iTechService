@@ -23,7 +23,7 @@
     <% if current_user.acts_to?(:free) %>
       <a onclick="$('#a_free_service_tab').click();">
         <div class="statistics__item">
-          <%= image_tag('/free_icon.png', width: '60') %>
+          <%= image_tag('free_icon.png', width: '60') %>
           <span class="statistics__value">
             <%= current_user.free_jobs_count %>
           </span>
@@ -33,7 +33,7 @@
     <% if current_user.acts_to?(:fast) %>
       <a onclick="$('#a_quick_orders_tab').click();">
         <div class="statistics__item">
-        <%= image_tag('/fast_icon.png', width: '60') %>
+        <%= image_tag('fast_icon.png', width: '60') %>
           <span class="statistics__value">
             <%= current_user.fast_jobs_count %>
           </span>
@@ -44,7 +44,7 @@
     <% if current_user.acts_to?(:long) %>
       <a onclick="$('#a_service_jobs_tab').click();">
         <div class="statistics__item">
-          <%= image_tag('/long_icon.png', width: '60') %>
+          <%= image_tag('long_icon.png', width: '60') %>
           <span class="statistics__value">
             <%= current_user.long_jobs_count %>
           </span>
