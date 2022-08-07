@@ -62,7 +62,7 @@ class User < ApplicationRecord
     perform_engraving_tasks
   ].freeze
 
-  ACTIVITIES = %w[free fast long].freeze
+  ACTIVITIES = %w[free fast long mac].freeze
   UNIFORM_SEX = %w[мужская женская].freeze
   UNIFORM_SIZE = %w[XS S M L XL XXL XXXL].freeze
 
@@ -525,6 +525,12 @@ class User < ApplicationRecord
 
   def long_jobs_count
     service_jobs.where('created_at > ?', Date.today.at_beginning_of_month.to_time(:local)).count
+  end
+
+  def mac_jobs_count
+    service_jobs.joins(:device_tasks).where(device_tasks: { done: 1 })
+                .joins(:tasks).where(tasks: { code: 'mac' } )
+                .size
   end
 
   def update_authentication_token
