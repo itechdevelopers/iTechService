@@ -528,7 +528,8 @@ class User < ApplicationRecord
   end
 
   def mac_jobs_count
-    service_jobs.joins(:device_tasks).where(device_tasks: { done: 1 })
+    service_jobs.where(created_at: period)
+                .joins(:device_tasks).where(device_tasks: { done: 1 })
                 .joins(:tasks).where(tasks: { code: 'mac' } )
                 .size
   end
