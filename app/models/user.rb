@@ -528,9 +528,9 @@ class User < ApplicationRecord
   end
 
   def mac_jobs_count
-    service_jobs.joins(:device_tasks).where(device_tasks: { done_at: period })
-                .joins(:tasks).where(tasks: { code: 'mac' } )
-                .size
+    DeviceTask.where(performer_id: id, done_at: period)
+              .includes(:task).where(done_at: period, task: Task.mac_service)
+              .size
   end
 
   def update_authentication_token
