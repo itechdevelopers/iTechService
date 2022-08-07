@@ -54,7 +54,7 @@
     <% if current_user.acts_to?(:mac) %>
       <a onclick="$('#a_mac_tab').click();">
         <div class="statistics__item">
-          <%= image_tag('/mac_icon.png', width: '60') %>
+          <%= image_tag('mac_icon.png', width: '60') %>
           <span class="statistics__value">
             <%= current_user.mac_jobs_count %>
           </span>
