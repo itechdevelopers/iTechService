@@ -4,23 +4,17 @@ class SendSMS
   include HTTParty
 
   attr_accessor :result
-  attr_reader :line, :sms_key, :number, :message
+  attr_reader :number, :message
 
   base_uri Setting.sms_gateway_uri
 
+  LINES = [1,2,3,4]
+
   def self.call(**args)
-    res = nil
-    1.upto(max_line).each do |line|
-      args[:line] = line
-      res = new(args).call
-      return res if res.success?
-    end
-    res
+    new(args).call
   end
 
-  def initialize(line: 1, number:, message:)
-    @line = line
-    @sms_key = generate_sms_key
+  def initialize(number:, message:)
     @number = number
     @message = message
     self.class.basic_auth username, password
@@ -28,16 +22,9 @@ class SendSMS
   end
 
   def call
-    response = self.class.post("/default/en_US/sms_info.html", body: post_params, query: {type: 'sms'})
-
-    if response.code == 200
-      self.result = :success
-      status = check_status
-      if status == :done
-        self.result = :success
-      else
-        self.result = status
-      end
+    LINES.each do |line|
+      send_from line
+      return self if success?
     end
 
     self
@@ -47,34 +34,48 @@ class SendSMS
     result == :success
   end
 
-  def self.max_line
-    Setting.sms_gateway_lines_qty
-  end
-
   private
 
-  def generate_sms_key
-    rand(16**8).to_s(16)
-  end
+  def send_from(line)
+    sms_key = generate_sms_key
 
-  def post_params
-    {
-      line: '1',
+    body = {
+      line: line,
       smskey: sms_key,
       action: 'SMS',
       telnum: number,
       smscontent: message,
       send: 'Send'
     }
+
+    response = self.class.post("/default/en_US/sms_info.html", body: body, query: {type: 'sms'})
+
+    if response.code == 200
+      @result = :success
+      status = check_status(line, sms_key)
+      if status == :done
+        @result = :success
+      else
+        @result = status
+      end
+    else
+      Rails.logger.debug("[SendSMS] line##{line}: #{response}")
+      @result = response.to_s
+    end
   end
 
-  def check_status
+  def generate_sms_key
+    rand(16**8).to_s(16)
+  end
+
+  def check_status(line, sms_key)
     start_time = Time.current
     response = nil
 
     while true do
-      1.upto(SendSMS.max_line).each do |line|
-        response = self.class.post('/default/en_US/send_sms_status.xml', body: {line: line}, query: {u: username, p: password})
+    #   LINES.each do |line|
+        response = self.class.post('/default/en_US/send_sms_status.xml', body: {line: line},
+                                   query: {u: username, p: password})
         response = response.parsed_response['send_sms_status']
         response_key = response['smskey']
         response_status = response['status']
@@ -85,8 +86,8 @@ class SendSMS
           return response_status if response_status != 'STARTED'
         end
 
-        return :timeout if (Time.current - start_time) > 10.seconds
-      end
+        return :timeout if (Time.current - start_time) > 5.seconds
+    #   end
     end
 
     response
