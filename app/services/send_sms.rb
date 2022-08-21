@@ -73,21 +73,20 @@ class SendSMS
     response = nil
 
     while true do
-    #   LINES.each do |line|
-        response = self.class.post('/default/en_US/send_sms_status.xml', body: {line: line},
-                                   query: {u: username, p: password})
-        response = response.parsed_response['send_sms_status']
-        response_key = response['smskey']
-        response_status = response['status']
+      sleep 1
+      response = self.class.post('/default/en_US/send_sms_status.xml', body: {line: line},
+                                 query: {u: username, p: password})
+      response = response.parsed_response['send_sms_status']
+      response_key = response['smskey']
+      response_status = response['status']
 
-        if response_key == sms_key
-          return :done if response_status == 'DONE'
-          return response['error'] unless response['error'].nil?
-          return response_status if response_status != 'STARTED'
-        end
+      if response_key == sms_key
+        return :done if response_status == 'DONE'
+        return response['error'] unless response['error'].nil?
+        return response_status if response_status != 'STARTED'
+      end
 
-        return :timeout if (Time.current - start_time) > 5.seconds
-    #   end
+      return :timeout if (Time.current - start_time) > 10.seconds
     end
 
     response
