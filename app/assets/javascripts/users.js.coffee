@@ -245,7 +245,7 @@ jQuery ->
       return
 
     $('.js--copy-number').on 'click keypress', ->
-      number = $('.tel-info__add__value').text().match(/\d/g).join('')
+      number = $('.tel-info__add__value').text().match(/\d/g).join('').replace(/^7/,'8')
       $temp = $('<input>')
       $('body').append $temp
       $temp.val(number).select()
