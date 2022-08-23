@@ -8,8 +8,6 @@ class SendSMS
 
   base_uri Setting.sms_gateway_uri
 
-  LINES = [1,2,3,4]
-
   def self.call(**args)
     new(args).call
   end
@@ -22,7 +20,9 @@ class SendSMS
   end
 
   def call
-    LINES.each do |line|
+    lines = Setting.sms_gateway_lines&.split(',') || []
+
+    lines.each do |line|
       send_from line
       return self if success?
     end

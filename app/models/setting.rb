@@ -27,7 +27,7 @@ class Setting < ApplicationRecord
     site: 'string',
     sms_notification_template: 'text',
     sms_gateway_uri: 'string',
-    sms_gateway_lines_qty: 'integer',
+    sms_gateway_lines: 'string',
     ticket_notice: 'text',
     ticket_prefix: 'string',
     request_review_text: 'string',
