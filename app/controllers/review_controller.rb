@@ -11,7 +11,7 @@ class ReviewController < ActionController::Base
     end
   end
 
-  # POST /review/<token>
+  # PATCH /review/<token>
   def update
     @review.update review_params.merge(reviewed_at: DateTime.current, status: :reviewed)
     redirect_to '/review'
