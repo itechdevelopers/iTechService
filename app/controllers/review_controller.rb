@@ -4,8 +4,11 @@ class ReviewController < ActionController::Base
   # GET /review/<token>
   def edit
     #TODO: Если @review не найден, либо отзыв уже оставили ранее - редирект на страницу с благодярностью
-    redirect_to '/review' unless @review
-    @review.status = :viewed if @review.status == 'sent'
+    if @review
+      MarkReviewViewedJob.perform_later(@review.id)
+    else
+      redirect_to '/review'
+    end
   end
 
   # POST /review/<token>
