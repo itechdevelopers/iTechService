@@ -3,3 +3,6 @@ ru:
     kinds:
       kitchen: "на кухне"
       salesroom: "в зале"
+    title:
+      kitchen: 'График дежурств на кухне'
+      salesroom: 'Кто закрывает кассу'

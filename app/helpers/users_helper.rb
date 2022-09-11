@@ -87,7 +87,7 @@ module UsersHelper
 
   def duty_calendar(kind, month, user = nil)
     days = calendar_month_days(month).in_groups_of(7)
-    table_caption = "#{t('users.duty_schedule')} #{t("duty_days.kinds.#{kind}")}"
+    table_caption = t("duty_days.title.#{kind}")
     container_class = 'calendar'
     if user.nil?
       container_id = 'staff_duty_schedule'
