@@ -23,11 +23,15 @@ ru:
       few: ! '%{count} часа'
       many: ! '%{count} часов'
       other: ! '%{count} часов'
+    x_days:
+      one: ! '%{count} день'
+      few: ! '%{count} дня'
+      many: ! '%{count} дней'
+      other: ! '%{count} дней'
 
   add: "Добавить"
   object: "Объект"
   user: "Пользователь"
-#  tasks: "Задачи"
   in_time: 'через'
   ago: 'назад'
   app_name: 'Айс'
@@ -45,7 +49,6 @@ ru:
   file: 'Файл'
   from_date: "от %{date}"
   hour_min: "%{hour} ч %{min} мин."
-  in_time: 'через'
   me: 'Я'
   min: "%{min} мин."
   moved: "%{user} %{time} назад"

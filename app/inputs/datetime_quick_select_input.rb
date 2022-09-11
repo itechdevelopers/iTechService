@@ -10,6 +10,9 @@ class DatetimeQuickSelectInput < SimpleForm::Inputs::Base
           template.content_tag(:li, template.link_to(I18n.t('datetime_select.x_minutes', count: 30), '#', class: 'time_link', 'data-value' => 30.minutes.since.strftime('%d.%m.%Y %H:%M'))) +
           1.upto(5).map do |h|
             template.content_tag(:li, template.link_to(I18n.t('datetime_select.x_hours', count: h), '#', class: 'time_link', 'data-value' => h.hours.since.strftime('%d.%m.%Y %H:%M')))
+          end.join.html_safe +
+          [3, 5, 7, 14, 45].map do |d|
+            template.content_tag(:li, template.link_to(I18n.t('datetime_select.x_days', count: d), '#', class: 'time_link', 'data-value' => d.days.since.strftime('%d.%m.%Y %H:%M')))
           end.join.html_safe
         end
       end
