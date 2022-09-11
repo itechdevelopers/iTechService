@@ -31,7 +31,6 @@
 //= require clients
 //= require comments
 //= require dashboard
-//= require device_notes
 //= require device_tasks
 //= require device_types
 //= require faults
@@ -41,7 +40,6 @@
 //= require media_orders
 //= require movement_acts
 //= require orders
-//= require order_notes
 //= require payments
 //= require product_groups
 //= require products

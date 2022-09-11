@@ -1,6 +1,6 @@
 (function() {
   $(function() {
-    $(document).on('keypress', '#message_content', function(e) {
+    $(document).on('keypress', '#message_content,#device_note_content,#order_note_content,#comment_content', function(e) {
       if(e.which === 13 && !e.shiftKey) {
         e.preventDefault();
         $(this).closest("form").submit();
