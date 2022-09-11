@@ -1,5 +1,0 @@
-%tr.device_task.fields
-  %td.task_type= f.select :task_id, Task.visible.collect{|t|[t.name,t.id]}, {include_blank: true}, class: 'device_task_task'
-  %td.task_cost= f.number_field :cost, class: 'device_task_cost input-small'
-  %td.task_comment= f.text_area :comment, rows: 3
-  %td.task_actions= link_to_remove_fields f

@@ -31,6 +31,9 @@ jQuery ->
       $.getJSON "/tasks/#{task_id}/device_validation", {item_id: item_id}, (data)->
         alert(data['message']) if data['message']
 
+    $(document).on 'focus', '.device_task_comment', ->
+      $(this).popover(trigger: 'focus', placement: 'top', html: true)
+
 #    $(document).on 'change', '.device_task:first-child .device_task_task', ->
 #      task_id = $(this).val()
 #      unless task_id is ''
