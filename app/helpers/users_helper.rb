@@ -253,8 +253,11 @@ module UsersHelper
   end
 
   def duty_info_tag
+    kind = current_user.current_duty_day&.kind
+    return if kind.nil?
+
     content_tag :div, id: 'duty_info', class: 'alert alert-block' do
-      content_tag :h4, t('users.duty_info')
+      content_tag :h4, t("users.duty_info.#{kind}")
     end
   end
 

@@ -4,7 +4,7 @@
       = glyph('chevron-down')
       .indicator
     = link_to '&times;'.html_safe, close_all_announcements_path, method: :post, remote: true, id: 'close_all_announcements_link', rel: 'tooltip', data: { title: t('announcements.close_all'), placement: 'left' }
-  #duty_announcement= duty_info_tag if current_user.is_duty_today?
+  #duty_announcement= duty_info_tag
   -##important_info
   -##personal_infos
   -##announcements

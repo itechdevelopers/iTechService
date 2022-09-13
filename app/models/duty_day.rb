@@ -7,6 +7,7 @@ class DutyDay < ApplicationRecord
   scope :duties_except_user, ->(user) { where.not(user_id: user) }
   scope :kitchen, -> { where(kind: 'kitchen') }
   scope :salesroom, -> { where(kind: 'salesroom') }
+  scope :today, -> { where day: Date.current }
 
   belongs_to :user, optional: true
 
