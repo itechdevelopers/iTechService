@@ -1,0 +1,40 @@
+<table id="few_remnants_report" class="table table-bordered table-hover">
+  <caption><%= report_title report %></caption>
+  <thead>
+  <tr>
+    <th class="center" rowspan="2">
+      <%= t 'activerecord.models.product' %>
+    </th>
+    <th colspan="<%= report.result[:stores].length %>">
+      <%= t('reports.remnants.quantity') %>
+    </th>
+  </tr>
+  <tr>
+    <% report.result[:stores].each_value do |store| %>
+      <th class="center"><%= store[:name] %></th>
+    <% end %>
+  </tr>
+  </thead>
+
+  <tbody>
+  <% report.result[:products].each_pair do |id, product| %>
+  <tr>
+    <td>
+      <%= link_to product[:name], product_path(id) %>
+      <% if report.show_code? %>
+        <small><%= product[:code] %></small>
+      <% end %>
+    </td>
+
+    <% report.result[:stores].each_key do |store_id| %>
+    <% cell_class = product[:remnants][store_id].present? ? (product[:remnants][store_id] <= 0 ? 'error' : 'warning') : '' %>
+      <td class="<%= cell_class %>">
+        <% if product[:remnants][store_id].present? %>
+        <%= "#{product[:remnants][store_id]} / #{product[:threshold]}" %>
+        <% end %>
+      </td>
+    <% end %>
+  </tr>
+  <% end %>
+  </tbody>
+</table>

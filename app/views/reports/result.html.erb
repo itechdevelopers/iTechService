@@ -1,0 +1,11 @@
+<div class="no-print">
+  <h1>
+    <%= link_back_to_index %>
+    <%= report_title @report %>
+  </h1>
+  <%= render 'form', report: @report %>
+</div>
+
+<div id="report_result">
+  <%= render "reports/#{@report.name}", report: @report %>
+</div>

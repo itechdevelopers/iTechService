@@ -19,6 +19,7 @@ ru:
     received: Принято
     received_done: готовы
     received_archived: выданы
+    show_code: 'Отображать код'
     sum: Сумма
     active_tasks:
       title: 'Активные задачи'

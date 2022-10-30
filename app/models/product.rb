@@ -20,6 +20,8 @@ class Product < ApplicationRecord
                                   product_type_id.present? && option_ids.present? ? where(id: includes(:options).where(product_type_id: product_type_id, product_options: { option_value_id: option_ids }).group('product_options.product_id').having('count(product_options.product_id) = ?', option_ids.length).count('products.id').keys.first) : none
                                 }
 
+  scope :in_group, ->(group) { where(product_group_id: ProductGroup.descendants_of(group)) }
+
   belongs_to :product_category, inverse_of: :products, optional: true
   belongs_to :product_group, inverse_of: :products, optional: true
   has_and_belongs_to_many :options, class_name: 'OptionValue', join_table: 'product_options'

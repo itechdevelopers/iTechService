@@ -1,0 +1,51 @@
+<div class="page-header">
+  <div id="reports_filter" class="navbar container">
+    <div class="navbar-inner<%= ' new_type_report' if @new_type_report %>">
+      <%= form_for report, as: :report, html: { id: 'report_form', class: "navbar-search form-search" } do |f| %>
+        <%= button_tag glyph(:filter), class: 'btn btn-info', type: 'submit' %>
+        <%= f.hidden_field :base_name %>
+        <%= f.hidden_field :kind %>
+        <%= f.text_field :start_date, class: 'bootstrap-datepicker input-small' if report.show_param?(:start_date) %>
+
+        <% unless report.only_day? %>
+          <span>_</span>
+          <%= f.text_field :end_date, class: 'bootstrap-datepicker input-small' %>
+        <% end %>
+
+        <% if report.show_param?(:department_id) %>
+          <%= f.select :department_id,
+                       departments_collection(report.department_id),
+                       @new_type_report ? {} : { include_blank: 'Все подразделения' },
+                       { multiple: @new_type_report, class: @new_type_report ? 'multiselect' : '' } %>
+        <% end %>
+
+        <% if report.show_param?(:store_id) %>
+          <%= f.select :store_id, stores_collection(report.store_id), prompt: t('activerecord.models.store') %>
+        <% end %>
+
+        <% if report.show_param?(:location_id) %>
+          <%= f.select :location_id, locations_collection(report.location_id), prompt: t('activerecord.models.location') %>
+        <% end %>
+
+        <% if report.show_param?(:subject) %>
+          <%= f.select :subject, report.subjects_collection %>
+        <% end %>
+
+        <% if report.show_param?(:user) %>
+          <%= f.select :user_id, users_collection(report.user_id), include_blank: true %>
+        <% end %>
+
+        <% if report.show_param?(:show_code) %>
+          <%= f.label :show_code do %>
+            <%= f.check_box :show_code %>
+            <%= t 'reports.show_code' %>
+          <% end %>
+        <% end %>
+
+        <% if report.show_param?(:product_group_id) %>
+          <%= f.select :product_group_id, report.product_groups_collection, include_blank: true %>
+        <% end %>
+      <% end %>
+    </div>
+  </div>
+</div>

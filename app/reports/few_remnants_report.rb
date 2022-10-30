@@ -1,5 +1,7 @@
 class FewRemnantsReport < BaseReport
-  attr_accessor :kind
+  attr_accessor :kind, :product_group_id, :show_code
+
+  params %i[department_id product_group_id show_code]
 
   def name
     "#{super}_#{kind}"
@@ -13,8 +15,9 @@ class FewRemnantsReport < BaseReport
     result[:stores] = {}
     result[:products] = {}
     products = Product.send(kind)
+    products = products.in_group(product_group_id) if product_group_id.present?
     stores = Store.visible
-                  .send(kind == :goods ? :retail : :spare_parts)
+                  .send(kind == 'goods' ? :retail : :spare_parts)
                   .order('id asc')
     stores = stores.in_department(department) if department
     stores.each do |store|
@@ -33,5 +36,19 @@ class FewRemnantsReport < BaseReport
       end
     end
     result
+  end
+
+  def show_code?
+    show_code == '1'
+  end
+
+  def only_day?
+    true
+  end
+
+  def product_groups_collection
+    return [] unless kind == 'spare_parts'
+
+    ProductGroup.spare_parts.at_depth(1).map { |product_group| [product_group.name, product_group.id] }
   end
 end
