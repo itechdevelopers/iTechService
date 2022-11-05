@@ -210,11 +210,11 @@ class ProductsController < ApplicationController
   def product_params
     params.require(:product)
           .permit(:code, :comment, :device_type_id, :name, :product_category_id, :product_group_id,
-                  :quantity_threshold, :warranty_term,
+                  :quantity_threshold, :warranty_term, :barcode_num,
+                  store_products_attributes: %i[id warning_quantity store_id product_id _destroy],
                   option_ids: [],
                   items: [:product, :product_id, :features_attributes, :barcode_num],
-                  task: [:cost, :duration, :name, :code, :priority, :role, :location_code, :product_id, :hidden],
-                  store_products: [:warning_quantity, :store_id, :product_id]
+                  task: [:cost, :duration, :name, :code, :priority, :role, :location_code, :product_id, :hidden]
           )
     # TODO: check nested attributes for: items, task, store_products
   end
