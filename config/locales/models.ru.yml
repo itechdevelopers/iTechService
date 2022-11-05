@@ -650,27 +650,31 @@ ru:
           attributes:
             role:
               main_exists: 'Не может быть больше одного главного'
-        gift_certificate:
-          attributes:
-            nominal:
-              multiple_of: 'должен быть кратным %{step}'
-        service_job:
-          not_paid: 'Не оплачена!'
-          substitute_phone_not_received: 'Небходимо вернуть телефон, выданный на замену'
-          attributes:
-            case_color:
-              required: 'не может быть пустым'
         device_task:
           no_defect_store: 'Склад брака не найден'
           no_spare_parts_store: "Склад запчастей не найден"
           attributes:
             done:
               already_done: 'Задача уже выполнена'
+        gift_certificate:
+          attributes:
+            nominal:
+              multiple_of: 'должен быть кратным %{step}'
+        product:
+          no_retail_price: 'Нет розничной цены'
+        quick_order:
+          attributes:
+            client:
+              required: 'не может быть пустым'
         repair_part:
           quantity:
             insufficient: ''
-        product:
-          no_retail_price: 'Нет розничной цены'
+        service_job:
+          not_paid: 'Не оплачена!'
+          substitute_phone_not_received: 'Небходимо вернуть телефон, выданный на замену'
+          attributes:
+            case_color:
+              required: 'не может быть пустым'
 
   attributes:
     city: :activerecord.models.city
