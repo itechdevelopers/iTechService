@@ -122,6 +122,6 @@ class QuickOrdersController < ApplicationController
   def quick_order_params
     params.require(:quick_order)
           .permit(:client_id, :client_name, :comment, :contact_phone, :department_id, :device_kind,
-                  :is_done, :number, :security_code, :user_id, quick_task_ids: [])
+                  :is_done, :number, :security_code, :apple_id_password, :user_id, quick_task_ids: [])
   end
 end

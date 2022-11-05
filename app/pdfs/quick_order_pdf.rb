@@ -56,6 +56,7 @@ class QuickOrderPdf < Prawn::Document
     text [quick_order.client_phone, number_to_phone(quick_order.contact_phone, area_code: true).presence].compact.join(', ')
     move_down 5
     text "#{QuickOrder.human_attribute_name(:security_code)}: #{quick_order.security_code}"
+    text "#{QuickOrder.human_attribute_name(:apple_id_password)}: #{quick_order.apple_id_password}"
     move_down 3
     stroke { horizontal_line 0, 205 }
     move_down 5

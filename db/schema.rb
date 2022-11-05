@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20220728210730) do
+ActiveRecord::Schema.define(version: 20221105103047) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -804,6 +804,7 @@ ActiveRecord::Schema.define(version: 20220728210730) do
     t.integer "department_id"
     t.string "device_kind", limit: 255
     t.integer "client_id"
+    t.string "apple_id_password"
     t.index ["client_id"], name: "index_quick_orders_on_client_id"
     t.index ["client_name"], name: "index_quick_orders_on_client_name"
     t.index ["contact_phone"], name: "index_quick_orders_on_contact_phone"

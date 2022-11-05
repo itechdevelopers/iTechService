@@ -388,6 +388,7 @@ ru:
         total_sum: 'Сумма'
 
       quick_order:
+        apple_id_password: 'Пароль от Apple ID'
         client_name: 'Имя клиента'
         contact_phone: 'Контактный номер'
         device_kind: 'Тип устройства'
