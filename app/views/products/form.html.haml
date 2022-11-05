@@ -40,8 +40,7 @@
             - @product.task || @product.build_task
             = f.simple_fields_for :task do |ff|
               = ff.input :role, collection: User::ROLES, value_method: :to_s, label_method: lambda{|role|t("users.roles.#{role}")}
-              -# TODO get rid
-              = ff.association :location, label_method: :name
+              = ff.input :location_code
 
           .control-group
             %label.control-label= Product.human_attribute_name :warning_quantities
