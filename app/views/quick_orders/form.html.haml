@@ -6,13 +6,15 @@
 
 .row-flow
   .span6
-    = simple_form_for @quick_order, html: { class: 'form-horizontal' } do |f|
+    = simple_form_for @quick_order, html: {id: 'quick_order_form', class: 'form-horizontal' } do |f|
       = f.association :department, as: :radio_buttons, collection: local_departments_collection, item_wrapper_class: 'inline'
       = f.input :device_kind, as: :radio_buttons, collection: QuickOrder::DEVICE_KINDS
       = f.input :client, as: :client, required: true, no_devices: true
       = f.input :client_name unless @quick_order.client_name.nil?
-      = f.input :contact_phone
-      = f.input :apple_id_password
+      = f.input :contact_phone, as: :string, wrapper_html: {class: 'input-append'} do
+        = f.input_field :contact_phone, type: :text, id: 'quick_order_contact_phone'
+        = button_tag glyph(:copy), type: :button, class: 'btn btn-info', data: {behavior: 'quick_orders-copy_phone', target: '#quick_order_contact_phone'}
+      = f.input :apple_id_password, as: :string
       = f.association :quick_tasks, as: :check_boxes
       = f.input :comment, input_html: {rows: 5}
       = f.input :security_code

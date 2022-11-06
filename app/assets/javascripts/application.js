@@ -43,6 +43,7 @@
 //= require payments
 //= require product_groups
 //= require products
+//= require quick_orders
 //= require devices
 //= require purchases
 //= require repair_groups
