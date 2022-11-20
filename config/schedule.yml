@@ -16,7 +16,7 @@ sales_import:
   queue: 'critical'
   active_job: true
 
-delete_expired_faults:
+mark_expired_faults:
   cron: '0 0 1 * * Asia/Vladivostok'
   class: 'MarkExpiredFaultsJob'
   queue: 'default'
