@@ -1,8 +1,8 @@
 namespace :app do
 
-  desc 'Delete expired faults'
-  task delete_expired_faults: :environment do
-    DeleteExpiredFaults.()
+  desc 'Mark expired faults'
+  task mark_expired_faults: :environment do
+    MarkExpiredFaults.()
   end
 
   desc 'Move repair parts of not_at_archive service_jobs to repair store'

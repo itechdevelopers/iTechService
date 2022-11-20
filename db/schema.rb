@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20221105103047) do
+ActiveRecord::Schema.define(version: 20221120063757) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -347,6 +347,7 @@ ActiveRecord::Schema.define(version: 20221105103047) do
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.integer "penalty"
+    t.boolean "expired", default: false, null: false
     t.index ["causer_id"], name: "index_faults_on_causer_id"
     t.index ["kind_id"], name: "index_faults_on_kind_id"
   end

@@ -18,7 +18,7 @@ sales_import:
 
 delete_expired_faults:
   cron: '0 0 1 * * Asia/Vladivostok'
-  class: 'DeleteExpiredFaultsJob'
+  class: 'MarkExpiredFaultsJob'
   queue: 'default'
   active_job: true
 
