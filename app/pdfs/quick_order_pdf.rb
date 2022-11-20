@@ -6,7 +6,7 @@ class QuickOrderPdf < Prawn::Document
   attr_reader :quick_order, :department
   
   def initialize(quick_order)
-    super page_size: [80.mm, 90.mm], page_layout: :portrait, margin: [10, 24, 10, 10]
+    super page_size: [80.mm, 120.mm], page_layout: :portrait, margin: [10, 22, 10, 10]
     @quick_order = quick_order
     @department = quick_order.department
     font_families.update 'DroidSans' => {
