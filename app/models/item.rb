@@ -26,8 +26,7 @@ class Item < ApplicationRecord
            :quantity_in_store, :product_category, :product_group, :product_group_id, :discount_for, :is_service, :is_equipment, :is_spare_part, :is_equipment?, :is_spare_part?, :is_service?, :is_repair?, :request_price, :warranty_term, :quantity_threshold, :comment, :options, :option_ids, :available_options, to: :product, allow_nil: true
 
   validates_presence_of :product
-  validates_length_of :barcode_num, is: 13, allow_nil: true
-  validates_uniqueness_of :barcode_num, allow_nil: true
+  validates :barcode_num, length: {is: 13}, uniqueness: true, allow_nil: true, allow_blank: true
   validates_uniqueness_of :product_id, unless: :feature_accounting
 
   # attr_accessible :product, :product_id, :features_attributes, :barcode_num

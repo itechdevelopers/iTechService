@@ -59,8 +59,7 @@ class Product < ApplicationRecord
   validates_presence_of :name, :code, :product_group, :product_category
   # validates_presence_of :device_type, if: :is_equipment
   validates_uniqueness_of :code, unless: :undefined?
-  validates_length_of :barcode_num, is: 13, allow_nil: true
-  validates_uniqueness_of :barcode_num, allow_nil: true
+  validates :barcode_num, length: {is: 13}, uniqueness: true, allow_nil: true, allow_blank: true
 
   after_initialize do
     self.warranty_term ||= default_warranty_term
