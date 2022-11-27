@@ -1,12 +1,4 @@
 module UsersHelper
-  def able_to?(ability)
-    current_user.able_to?(ability)
-  end
-
-  def superadmin?
-    current_user.superadmin?
-  end
-
   def user_row_tag(user)
     content_tag(:tr, id: "user_row_#{user.id}", class: user.is_fired? ? 'user_row error' : 'user_row') do
       c = ''.html_safe
