@@ -24,4 +24,9 @@ class ClientPolicy < CommonPolicy
   def change_category?
     any_admin?
   end
+
+  def edit_department?
+    (record.new_record? & able_to?(:set_new_client_department)) |
+      (record.persisted? & able_to?(:change_client_department))
+  end
 end

@@ -60,6 +60,8 @@ class User < ApplicationRecord
     show_reviews
     perform_service_center_tasks
     perform_engraving_tasks
+    set_new_client_department
+    change_client_department
   ].freeze
 
   ACTIVITIES = %w[free fast long mac].freeze

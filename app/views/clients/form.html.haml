@@ -1,6 +1,9 @@
 = auto_header_tag @client
 = simple_form_for @client, html: { class: 'form-horizontal' } do |f|
 
+  - if can? :edit_department, @client
+    = f.association :department, collection: client_departments_collection, label_method: :full_name,
+        required: true, input_html: {class: 'input-xlarge'}
   = f.input :name, autofocus: true
   = f.input :surname
   = f.input :patronymic

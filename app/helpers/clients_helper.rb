@@ -70,4 +70,7 @@ module ClientsHelper
     client.present? ? link_to(client.short_name, client_path(client)) : ''
   end
 
+  def client_departments_collection
+    Department.active.real
+  end
 end

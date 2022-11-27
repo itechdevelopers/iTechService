@@ -27,6 +27,8 @@ ru:
       show_reviews: Просматривать оценки
       perform_service_center_tasks: 'Закрывать задачу «сервисный центр»'
       perform_engraving_tasks: 'Закрывать задачу «гравировка»'
+      set_new_client_department: 'Установка подразделения при создании клиента'
+      change_client_department: 'Смена подразделения клиента'
     activities:
       free: Бесплатные
       fast: Быстрые

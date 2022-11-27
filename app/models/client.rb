@@ -41,7 +41,7 @@ class Client < ApplicationRecord
   #                 :phone_number_checked, :card_number, :admin_info, :comments_attributes, :comment,
   #                 :contact_phone, :category, :client_characteristic_attributes
 
-  validates_presence_of :name, :surname, :phone_number, :full_phone_number, :category
+  validates_presence_of :name, :surname, :phone_number, :full_phone_number, :category, :department
   validates_uniqueness_of :full_phone_number
   validates_uniqueness_of :card_number, unless: proc { |client| client.card_number.blank? }
   validates_inclusion_of :category, in: CATEGORIES.keys
@@ -53,7 +53,6 @@ class Client < ApplicationRecord
 
   after_initialize do
     self.category ||= 0
-    self.department_id ||= Department.current.id
   end
 
   def self.search(params)
