@@ -52,7 +52,7 @@ gem 'paperclip', '~> 6.1.0'
 gem 'barby', '~> 0.6.4'
 gem 'acts_as_list', '~> 1.0.4'
 gem 'sidekiq', '~> 6.4.1'
-gem 'sinatra', '~> 2.1.0', require: false
+gem 'sinatra', '~> 2.2.3', require: false
 gem 'sidekiq-cron', '~> 1.2.0'
 gem 'grape', '~> 1.6.2'
 gem 'grape-entity', '~> 0.10.1'
