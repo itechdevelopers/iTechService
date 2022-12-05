@@ -70,7 +70,13 @@ module ClientsHelper
     client.present? ? link_to(client.short_name, client_path(client)) : ''
   end
 
-  def client_departments_collection
-    Department.active.real
+  def client_city_input(form)
+    return unless can?(:edit_department, form.object)
+
+    form.input :city, required: true, input_html: {class: 'input-xlarge'} do
+      form.collection_radio_buttons :city, City.main, :id, :name do |b|
+        b.radio_button + city_tag(b.object)
+      end
+    end
   end
 end

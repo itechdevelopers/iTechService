@@ -1,9 +1,10 @@
 = simple_form_for @client, remote: true, html: { id: 'client_form', class: 'form-horizontal' } do |f|
   .form-header
     = secondary_form_close_button :small
-    %h3= t("clients.#{@client.new_record? ? 'new' : 'edit'}.title")
+    %h3= t("clients.#{f.object.new_record? ? 'new' : 'edit'}.title")
 
   .form-body
+    = client_city_input f
     = f.input :name, autofocus: true, input_html: { class: 'capitalize' }
     = f.input :surname, input_html: { class: 'capitalize' }
     = f.input :patronymic, input_html: { class: 'capitalize' }

@@ -13,6 +13,7 @@ class Department < ApplicationRecord
   scope :branches, -> { where(role: 1) }
   scope :selectable, -> { where(role: [0, 1, 3, 4]) }
   scope :real, -> { where(role: [0, 1, 3]) }
+  scope :main_branches, -> { where(role: [0, 1]) }
   scope :in_city, ->(city) { where(city: city) }
   scope :active, -> { where(archive: [false, nil]) }
 
