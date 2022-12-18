@@ -27,12 +27,13 @@
     </td>
 
     <% report.result[:stores].each_key do |store_id| %>
-    <% cell_class = product[:remnants][store_id].present? ? (product[:remnants][store_id] <= 0 ? 'error' : 'warning') : '' %>
-      <td class="<%= cell_class %>">
-        <% if product[:remnants][store_id].present? %>
-        <%= "#{product[:remnants][store_id]} / #{product[:threshold]}" %>
-        <% end %>
-      </td>
+      <% if product[:remnants][store_id].present? %>
+        <td class="<%= product[:remnants][store_id][:css_class] %>">
+          <%= "#{product[:remnants][store_id][:actual]} / #{product[:remnants][store_id][:warning]}" %>
+        </td>
+      <% else %>
+        <td></td>
+      <% end %>
     <% end %>
   </tr>
   <% end %>
