@@ -153,7 +153,7 @@ class ClientsController < ApplicationController
   def client_params
     params.require(:client).permit(
       :name, :surname, :patronymic, :birthday, :email, :phone_number, :full_phone_number, :phone_number_checked,
-      :card_number, :admin_info, :comment, :contact_phone, :category, :department_id,
+      :card_number, :admin_info, :comment, :contact_phone, :category, :city,
       client_characteristic_attributes: %i[id _destroy client_category_id comment],
       comments_attributes: %i[content commentable_id commentable_type]
     )

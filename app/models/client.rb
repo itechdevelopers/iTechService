@@ -73,6 +73,10 @@ class Client < ApplicationRecord
     clients
   end
 
+  def city=(value)
+    self.department = Department.main_branches.find_by(city: value)
+  end
+
   def full_name
     [surname, name, patronymic].join ' '
   end
