@@ -28,6 +28,7 @@
           = ff.check_box :_destroy
           = t('destroy')
 
+  = f.input :disable_deadline_notifications
   = f.input :admin_info, input_html: {rows: 5} if current_user.any_admin?
   .control-group
     %label.control-label= Client.human_attribute_name :comment

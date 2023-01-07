@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20221120063757) do
+ActiveRecord::Schema.define(version: 20221218115956) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -171,6 +171,7 @@ ActiveRecord::Schema.define(version: 20221120063757) do
     t.integer "client_characteristic_id"
     t.integer "category"
     t.integer "department_id"
+    t.boolean "disable_deadline_notifications", default: false
     t.index ["card_number"], name: "index_clients_on_card_number"
     t.index ["category"], name: "index_clients_on_category"
     t.index ["department_id"], name: "index_clients_on_department_id"
@@ -1389,7 +1390,7 @@ ActiveRecord::Schema.define(version: 20221120063757) do
     t.index ["schedule"], name: "index_users_on_schedule"
     t.index ["store_id"], name: "index_users_on_store_id"
     t.index ["surname"], name: "index_users_on_surname"
-    t.index ["username"], name: "index_users_on_username", unique: true
+    t.index ["username"], name: "index_users_on_username"
   end
 
   create_table "wiki_page_attachments", id: :serial, force: :cascade do |t|

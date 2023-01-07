@@ -49,11 +49,11 @@ module Service
       end
 
       def device
-        link_to service_job.presentation, service_job
+        link_to service_job.presentation, service_job, target: :_blank
       end
 
       def client
-        service_job.client_presentation
+        link_to service_job.client_presentation, service_job.client, target: :_blank
       end
 
       def feedback_logs

@@ -4,7 +4,7 @@ module Service
     respond_to :js
 
     def index
-      feedbacks = policy_scope(Feedback).actual.includes(:service_job)
+      feedbacks = FeedbacksQuery.new(policy_scope(Feedback)).actual
       @feedbacks_list = cell(Feedback::Cell::List, feedbacks).call
     end
   end
