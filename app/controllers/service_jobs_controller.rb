@@ -37,15 +37,16 @@ class ServiceJobsController < ApplicationController
 
   def stale
     authorize ServiceJob
+    query = ServiceJobsQuery.new
 
     @lists = [
       {
         title: 'В готово больше трёх месяцев',
-        jobs: ServiceJob.stale_at_done_over(3)
+        jobs: query.stale_at_done_over(3)
       },
       {
         title: 'В готово больше года',
-        jobs: ServiceJob.stale_at_done_over(12)
+        jobs: query.stale_at_done_over(12)
       }
     ]
 
