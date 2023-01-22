@@ -1,6 +1,6 @@
 - device_task = device_task
 %tr{class: "device_task_row #{device_task.done_s} #{'actual' if is_actual_task?(device_task)}",
-    data: { device_task_id: device_task.id, service_job_id: device_task.service_job.id, task_id: device_task.task.id }}
+    data: { device_task_id: device_task.id, service_job_id: device_task.service_job_id, task_id: device_task.task_id }}
   %td
   %td=device_task.task_name
   %td
