@@ -10,15 +10,12 @@ class BaseCell < Trailblazer::Cell
   include CommentsHelper
 
   delegate :view_context, :controller_name, :action_name, :params, :current_user, :policy, to: :controller
+  delegate :superadmin?, :able_to?, to: :current_user
 
   alias_method :icon, :glyph
 
   def title
     t '.title'
-  end
-
-  def superadmin?
-    current_user.superadmin?
   end
 
   def comments_list
