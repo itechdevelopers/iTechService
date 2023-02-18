@@ -34,8 +34,8 @@ class ServiceJob < ApplicationRecord
     not_at_done.not_at_archive.where('((return_at - created_at) > ? and (return_at - created_at) < ? and return_at <= ?) or ((return_at - created_at) >= ? and return_at <= ?)', '30 min', '5 hour', DateTime.current.advance(minutes: 30), '5 hour', DateTime.current.advance(hours: 1))
   }
 
-  scope :of_product_group, ->(product_group_id) {
-    joins(item: :product).where(products: {product_group_id: ProductGroup.children_of(product_group_id)})
+  scope :of_product_group, ->(product_group) {
+    joins(item: :product).where(products: {product_group_id: ProductGroup.subtree_of(product_group)})
   }
 
   belongs_to :department, -> { includes(:city) }, inverse_of: :service_jobs
