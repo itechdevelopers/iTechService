@@ -500,6 +500,7 @@ ru:
         type_of_work: 'Вид работы'
         user: :activerecord.models.user
         user_id: :activerecord.models.user
+        last_comment: 'Последний комментарий'
 
       setting:
         presentation: 'Представление'

@@ -11,6 +11,7 @@
         %th= ServiceJob.human_attribute_name(:service_job)
         %th= ServiceJob.human_attribute_name(:client)
         %th= ServiceJob.human_attribute_name(:location)
+        %th= ServiceJob.human_attribute_name(:last_comment)
         %th= sortable 'created_at', ServiceJob.human_attribute_name(:created_at), remote: true
         %th= sortable 'done_at', ServiceJob.human_attribute_name(:done_at), remote: true
         %th
@@ -22,6 +23,7 @@
           %td= link_to service_job.presentation, service_job_path(service_job)
           %td= client_presentation service_job.client
           %td= service_job.location_name || '-'
+          %td= "#{service_job.device_notes.last.content} <p style='color:green'> #{service_job.device_notes.last.user.full_name}".html_safe
           %td= human_datetime service_job.created_at
           %td
             - if service_job.done? and service_job.done_at.present?

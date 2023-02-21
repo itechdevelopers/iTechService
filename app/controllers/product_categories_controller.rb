@@ -66,7 +66,7 @@ class ProductCategoriesController < ApplicationController
 
   def product_category_params
     params.require(:product_category)
-          .permit(:name, :kind, :feature_accounting, :request_price, :warranty_term, :feature_type_ids)
+          .permit(:name, :kind, :feature_accounting, :request_price, :warranty_term, feature_type_ids:[])
 
   end
 end

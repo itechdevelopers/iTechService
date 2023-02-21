@@ -74,6 +74,7 @@ GEM
       io-like (~> 0.3.0)
     arel (8.0.0)
     ast (2.4.2)
+    awesome_print (1.9.2)
     barby (0.6.8)
     bcrypt (3.1.18)
     bcrypt_pbkdf (1.1.0)
@@ -660,6 +661,7 @@ DEPENDENCIES
   active_interaction (~> 4.1.0)
   acts_as_list (~> 1.0.4)
   ancestry (~> 3.2.1)
+  awesome_print
   barby (~> 0.6.4)
   bcrypt_pbkdf
   binding_of_caller
