@@ -77,7 +77,7 @@ gem 'coffee-rails', '~> 4.2.2'
 gem 'rails-ujs', '~> 0.1.0'
 gem 'uglifier', '~> 4.2.0'
 
-gem 'nokogiri', '~> 1.13.1'
+gem 'nokogiri', '~> 1.13.9'
 gem 'ru_propisju', '~> 2.6.0'
 
 group :development do
