@@ -88,6 +88,7 @@ group :development do
   gem 'rails-erd'
   gem 'listen'
   gem 'puma'
+  gem 'awesome_print'
 end
 
 group :test do
