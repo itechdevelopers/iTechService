@@ -1,0 +1,8 @@
+<div class="page-header">
+  <h2>
+    <%= link_to icon('chevron-left'), kanban_boards_path, class: 'link_back' %>
+    <%= t '.title' %>
+  </h2>
+</div>
+
+<%= render 'form', board: @board %>

@@ -332,6 +332,14 @@ Rails.application.routes.draw do
   get 'receipts/add_product'
   post 'receipts/print'
 
+  namespace :kanban do
+    resources :boards, shallow: true do
+      resources :columns, shallow: true, except: %i[index show] do
+        resources :cards
+      end
+    end
+  end
+
   namespace 'media_menu' do
     get '/', to: 'catalog#index'
     get 'items', to: 'items#index'
