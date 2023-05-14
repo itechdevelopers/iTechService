@@ -1,0 +1,33 @@
+<p id="notice"><%= notice %></p>
+
+<h1>Kanban Cards</h1>
+
+<table>
+  <thead>
+    <tr>
+      <th>Title</th>
+      <th>Description</th>
+      <th>Author</th>
+      <th>Column</th>
+      <th colspan="3"></th>
+    </tr>
+  </thead>
+
+  <tbody>
+    <% @kanban_cards.each do |kanban_card| %>
+      <tr>
+        <td><%= kanban_card.title %></td>
+        <td><%= kanban_card.description %></td>
+        <td><%= kanban_card.author %></td>
+        <td><%= kanban_card.column %></td>
+        <td><%= link_to 'Show', kanban_card %></td>
+        <td><%= link_to 'Edit', edit_kanban_card_path(kanban_card) %></td>
+        <td><%= link_to 'Destroy', kanban_card, method: :delete, data: { confirm: 'Are you sure?' } %></td>
+      </tr>
+    <% end %>
+  </tbody>
+</table>
+
+<br>
+
+<%= link_to 'New Kanban Card', new_kanban_card_path %>

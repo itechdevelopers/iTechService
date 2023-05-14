@@ -78,8 +78,9 @@ module ApplicationHelper
 
   def link_to_edit(object, options = {})
     options.merge! class: 'btn'
+    _controller = options.delete(:controller) { |_| object.model_name.route_key }
     name = t 'edit'
-    link_to url_for(controller: object.model_name.route_key, action: 'edit', id: object.id), options do
+    link_to url_for(controller: _controller, action: 'edit', id: object.id), options do
       "#{glyph(:edit)} #{name}".html_safe
     end
   end
@@ -87,8 +88,9 @@ module ApplicationHelper
   def link_to_destroy(object, options = {})
     options.merge! class: 'btn btn-danger', method: 'delete',
                    data: {confirm: t('confirmation', default: 'Are you sure?')}
+    _controller = options.delete(:controller) { |_| object.model_name.route_key }
     name = t 'destroy'
-    link_to url_for(controller: object.model_name.route_key, action: 'destroy', id: object.id), options do
+    link_to url_for(controller: _controller, action: 'destroy', id: object.id), options do
       "#{glyph(:trash)} #{name}".html_safe
     end
   end

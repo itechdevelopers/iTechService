@@ -1,0 +1,8 @@
+<div class="page-header">
+  <h2>
+    <%= link_back_to kanban_board_path(@card.board) %>
+    <%= t '.title' %>
+  </h2>
+</div>
+
+<%= render 'form', card: @card, url: kanban_column_cards_path(@card.column) %>

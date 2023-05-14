@@ -37,6 +37,9 @@ ru:
       info: 'Новость'
       installment_plan: 'Рассрочка'
       installment: 'Взнос'
+      kanban/board: 'Канбан Доска'
+      kanban/card: 'Канбан Карточка'
+      kanban/column: 'Канбан Колонка'
       karma: 'Карма'
       location: 'Локация'
       media_order: 'Заказ медиа'
@@ -280,6 +283,15 @@ ru:
         barcode: 'Штрихкод'
         barcode_num: 'Номер штрихкода'
         product_group: 'Группа продуктов'
+
+      kanban/card:
+        author: 'Автор'
+        column: :activemodel.models.kanban/column
+        title: 'Тема'
+        description: 'Описание'
+
+      kanban/board:
+        background: 'Фон'
 
       karma:
         good: 'good'  #g

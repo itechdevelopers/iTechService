@@ -50,7 +50,10 @@ gem 'roo', '~> 2.8.0'
 gem 'roo-xls', '~> 1.2'
 gem 'paperclip', '~> 6.1.0'
 gem 'barby', '~> 0.6.4'
+
+# https://github.com/brendon/acts_as_list
 gem 'acts_as_list', '~> 1.0.4'
+
 gem 'sidekiq', '~> 6.4.1'
 gem 'sinatra', '~> 2.1.0', require: false
 gem 'sidekiq-cron', '~> 1.2.0'

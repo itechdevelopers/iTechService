@@ -1,0 +1,27 @@
+<div class="page-header">
+  <h3>
+    <%= link_back_to kanban_board_path(@card.board) %>
+    <%= @card.board_name %> / <%= @card.column_name %>
+  </h3>
+</div>
+
+<div class="row-fluid">
+  <div class="span6">
+    <blockquote>
+      <p><%= @card.content %></p>
+      <small><%= @card.author_presentation %> [<%= l @card.created_at, format: :date_time %>]</small>
+    </blockquote>
+
+    <div class="form-actions">
+      <%= link_to_edit @card, controller: 'kanban/cards' %>
+      <%= link_to_destroy @card, controller: 'kanban/cards' %>
+    </div>
+  </div>
+
+  <div class="span6">
+    <div id="comments" class="comments_list">
+      <%= comments_list_for @card %>
+      <%= comment_form_for @card %>
+    </div>
+  </div>
+</div>

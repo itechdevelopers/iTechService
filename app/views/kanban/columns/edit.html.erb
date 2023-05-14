@@ -1,0 +1,9 @@
+<div class="page-header">
+  <h2>
+    <%= link_to icon('chevron-left'), kanban_board_path(@column.board), class: 'link_back' %>
+    <%= t '.title' %>
+    <%= link_to_destroy_small(@column) if can?(:destroy, @column) %>
+  </h2>
+</div>
+
+<%= render 'form', column: @column, url: nil %>

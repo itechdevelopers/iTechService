@@ -29,6 +29,7 @@
  *= require device_types
  *= require gift_certificates
  *= require infos
+ *= require kanban
  *= require karmas
  *= require messages
  *= require order_notes
