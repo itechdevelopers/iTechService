@@ -23,7 +23,10 @@
           %td= link_to service_job.presentation, service_job_path(service_job)
           %td= client_presentation service_job.client
           %td= service_job.location_name || '-'
-          %td= "#{service_job.device_notes.last.content} <p style='color:green'> #{service_job.device_notes.last.user.full_name}".html_safe
+          %td
+            - if (note = service_job.device_notes.last).present?
+              = note.content
+              %p.text-success= note.user_name
           %td= human_datetime service_job.created_at
           %td
             - if service_job.done? and service_job.done_at.present?
