@@ -4,7 +4,7 @@ class WorkOrderPdf < Prawn::Document
   require "prawn/measurement_extensions"
 
   def initialize(service_job, view_context)
-    super page_size: 'A4', page_layout: :portrait#, margin: 25
+    super page_size: 'A4', page_layout: :portrait, top_margin: 25
     department = service_job.department
     base_font_size = 7
     page_width = 530
@@ -23,29 +23,26 @@ class WorkOrderPdf < Prawn::Document
               size: base_font_size*2
 
     # Logo
-    image department.logo_path, fit: [100, 30], at: [20, cursor]
+    image department.logo_path, fit: [100, 4*base_font_size], at: [20, cursor]
 
     # Organization info
     organization = Setting.organization(department)
 
-    text "Сервисный центр «#{department.brand_name}» #{organization}", align: :right
+    text "Сервисный центр «#{department.brand_name}» #{organization}, ИНН #{Setting.ogrn_inn(department)}", align: :right
     text "Юр. Адрес: #{organization}, #{Setting.legal_address(department)}", align: :right
-    text "#{Setting.ogrn_inn(department)}", align: :right
+    text "Фактический адрес: #{Setting.address(department)}", align: :right
 
-    move_down font_size
+    move_down 4
     stroke do
       line_width 2
       horizontal_line 0, page_width
     end
-    move_down font_size
-
-    text "Фактический адрес: #{Setting.address(department)}", align: :right
 
     # Contact info
-    move_down font_size
+    move_down 2
     text 'График работы:', align: :right, style: :bold
     text Setting.schedule(department), align: :right
-    move_down font_size
+    move_down 2
     [
       "e-mail: #{Setting.email(department)}",
       "Конт. тел.: #{Setting.contact_phone(department)}",
@@ -58,12 +55,12 @@ class WorkOrderPdf < Prawn::Document
     # Title
     text "Заказ-наряд № #{service_job.ticket_number}", style: :bold, align: :center
     text "Дата приёма: #{service_job.received_at.strftime('%d.%m.%Y')}", style: :bold, align: :center
-    move_down font_size * 2
+    move_down font_size
 
     # Client info
     text "Клиент: #{service_job.client_full_name} Телефон: #{view_context.number_to_phone service_job.client_phone}"
     text "Адрес: #{service_job.client_address}"
-    move_down font_size
+    move_down font_size + 2
 
     # Table
     device_group = service_job.device_group.presence || /iPhone|iPad|MacBook|iMac|Mac mini/.match(service_job.type_name)
@@ -109,13 +106,14 @@ class WorkOrderPdf < Prawn::Document
             ['-', '', "повреждения вызваны воздействием компьютерных вирусов или аналогичных им программ, установки, смены или утраты пароля пользователя (в том числе данных учетных записей iCloud), неквалифицированной модификации и (или) переустановки пользовательского ПО (прошивок), установки и пользования пользовательского ПО и прошивок третьих производителей."],
             ['-', '', "окончание гарантийного срока"],
             ['9.', '', "Сервисный центр оставляет за собой право использовать качественные заводские запасные части устройства которые произведены не только на заводах производителя."],
+            ['10.', '', 'Клиент подтверждает, что телефон (адрес электронной почты, иное), указанный в настоящем Заказе-наряде является корректным и действующим и может быть использован сторонами для оперативной связи и решения вопросов, связанных с необходимостью увеличения/уменьшения объема и стоимости работ. Стороны признают переписку, осуществляемую по средствам WhatsApp, Telegram, e-mail, иное ______________________________ (нужное подчеркнуть), достаточной для возникновения взаимных юридических обстоятельств каждой из сторон.']
           ], cell_style: {borders: [], padding: 1} do
-      column(0).style width: 10
+      column(0).style width: 12
       column(1).style width: 0
     end
 
     move_down font_size
-    text "С условиями обслуживания и сроками его проведения согласен, правильность заполнения заказа подтверждаю. Сервисный центр оставляет за собой право отказать в проведении гарантийного обслуживания в случае нарушения условий гарантии."
+    text "С условиями обслуживания и сроками его проведения согласен, правильность заполнения заказа подтверждаю. Сервисный центр оставляет за собой право отказать в проведении гарантийного обслуживания в случае нарушения условий гарантии."
     move_down font_size
 
     table [
