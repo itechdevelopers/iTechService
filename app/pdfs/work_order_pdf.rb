@@ -4,7 +4,7 @@ class WorkOrderPdf < Prawn::Document
   require "prawn/measurement_extensions"
 
   def initialize(service_job, view_context)
-    super page_size: 'A4', page_layout: :portrait, top_margin: 25
+    super page_size: 'A4', page_layout: :portrait, top_margin: 10
     department = service_job.department
     base_font_size = 7
     page_width = 530
