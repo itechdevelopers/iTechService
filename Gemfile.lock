@@ -147,6 +147,8 @@ GEM
     chromedriver-helper (2.1.1)
       archive-zip (~> 0.10)
       nokogiri (~> 1.8)
+    chronic_duration (0.10.6)
+      numerizer (~> 0.1.1)
     ckeditor (4.3.0)
       orm_adapter (~> 0.5.0)
       terrapin
@@ -376,6 +378,7 @@ GEM
     nokogiri (1.13.6)
       mini_portile2 (~> 2.8.0)
       racc (~> 1.4)
+    numerizer (0.1.1)
     orm_adapter (0.5.0)
     paperclip (6.1.0)
       activemodel (>= 4.2.0)
@@ -531,6 +534,8 @@ GEM
       ffi (~> 1.12)
     ruby2_keywords (0.0.5)
     rubyzip (2.3.2)
+    russian (0.6.0)
+      i18n (>= 0.5.0)
     sass-rails (6.0.0)
       sassc-rails (~> 2.1, >= 2.1.1)
     sassc (2.4.0)
@@ -683,6 +688,7 @@ DEPENDENCIES
   cells-rails (~> 0.0.7)
   cells-slim (~> 0.0.5)
   chromedriver-helper
+  chronic_duration (~> 0.10.6)
   ckeditor (~> 4.3.0)
   coffee-rails (~> 4.2.2)
   daemons (~> 1.4.1)
@@ -740,6 +746,7 @@ DEPENDENCIES
   roo-xls (~> 1.2)
   rspec-rails
   ru_propisju (~> 2.6.0)
+  russian (~> 0.6.0)
   sass-rails (~> 6.0.0)
   seedbank (~> 0.5.0)
   shoulda
