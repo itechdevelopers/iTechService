@@ -69,6 +69,14 @@
     td:last-child{
       .border-right-thick();
     }
+    &.actual {
+      & > td {
+        background-color: #e0cffc;
+      }
+      &:hover > td {
+        background-color: #c29ffa;
+      }
+    }
   }
   &>tbody>.empty_row>td{
     .border-top-thick();
