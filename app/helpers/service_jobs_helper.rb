@@ -187,4 +187,31 @@ module ServiceJobsHelper
     link_to t('service_jobs.send_sms'), new_service_sms_notification_path(service_job_id: service_job.id), remote: true,
             id: 'new_sms_notification_link', class: 'btn'
   end
+
+  def time_to_return_ru(service_job, result = [])
+    current_datetime = DateTime.current
+    return_at_datetime = DateTime.parse(service_job.return_at.to_s)
+
+    return t 'dashboard.time_up' if current_datetime > return_at_datetime # время вышло
+
+    secs = ((return_at_datetime - current_datetime) * 24 * 60 * 60).to_i # получаем разницу в секундах
+    str = ChronicDuration.output(secs) #
+
+    data_array = str.split(' ').map { |x| x[/\d+/] }.compact
+
+    return unless data_array.present?
+
+    data_array.reverse.each.with_index(1) do |data, index|
+      case index
+      when 1 then result << [data.to_i, Russian.p(data.to_i, "секунда", "секунды", "секунд")].join(' ')
+      when 2 then result << [data.to_i, Russian.p(data.to_i, "минута", "минуты", "минут")].join(' ')
+      when 3 then result << [data.to_i, Russian.p(data.to_i, "час", "часа", "часов")].join(' ')
+      when 4 then result << [data.to_i, Russian.p(data.to_i, "день", "дня", "дней")].join(' ')
+      when 5 then result << [data.to_i, Russian.p(data.to_i, "месяц", "месяца", "месяцев")].join(' ')
+      when 5 then result << [data.to_i, Russian.p(data.to_i, "месяц", "месяца", "месяцев")].join(' ')
+      end
+    end
+
+    result.reverse.join(' ')
+  end
 end
