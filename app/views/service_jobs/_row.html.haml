@@ -1,5 +1,5 @@
 - service_job = service_job
-%tr{class: 'info service_job_row', data: { service_job_id: service_job.id }}
+%tr{class: "#{table_highlighting(service_job)} service_job_row", data: { service_job_id: service_job.id }}
   %td.device_movement_column
     = device_movement_telegram_tag(service_job.moved_by.work_phone)
     = device_movement_information_tag(service_job)

@@ -189,13 +189,12 @@ module ServiceJobsHelper
   end
 
   def time_to_return_ru(service_job, time_string_ru = [])
-    current_datetime = DateTime.current
-    return_at_datetime = DateTime.parse(service_job.return_at.to_s)
+    date_times = date_times(service_job)
 
-    return t 'dashboard.time_up' if current_datetime > return_at_datetime # время вышло
+    return t 'dashboard.time_up' if date_times[:current] > date_times[:return_at] # время вышло
 
-    secs = ((return_at_datetime - current_datetime) * 24 * 60 * 60).to_i # получаем разницу в секундах
-    time_string_en = ChronicDuration.output(secs) # Пример: 1 mo 14 days 23 hrs 58 mins 23 secs
+    seconds = ((date_times[:return_at] - date_times[:current]) * 24 * 60 * 60).to_i # получаем разницу в секундах
+    time_string_en = ChronicDuration.output(seconds) # Пример: 1 mo 14 days 23 hrs 58 mins 23 secs
 
     data_array = time_string_en.split(' ').map { |x| x[/\d+/] }.compact
 
@@ -213,5 +212,24 @@ module ServiceJobsHelper
     end
 
     time_string_ru.reverse.join(' ')
+  end
+
+  def table_highlighting(service_job)
+    seconds = diff_seconds service_job
+
+    case seconds
+    when 3601..10800 then 'warning'
+    when 0..3600 then 'danger'
+    else 'info'
+    end
+  end
+
+  def diff_seconds(service_job)
+    date_times = date_times(service_job)
+    ((date_times[:return_at] - date_times[:current]) * 24 * 60 * 60).to_i # получаем разницу в секундах
+  end
+
+  def date_times(service_job)
+    {current: DateTime.current, return_at: DateTime.parse(service_job.return_at.to_s)}
   end
 end
