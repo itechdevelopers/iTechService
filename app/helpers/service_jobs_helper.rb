@@ -188,30 +188,30 @@ module ServiceJobsHelper
             id: 'new_sms_notification_link', class: 'btn'
   end
 
-  def time_to_return_ru(service_job, result = [])
+  def time_to_return_ru(service_job, time_string_ru = [])
     current_datetime = DateTime.current
     return_at_datetime = DateTime.parse(service_job.return_at.to_s)
 
     return t 'dashboard.time_up' if current_datetime > return_at_datetime # время вышло
 
     secs = ((return_at_datetime - current_datetime) * 24 * 60 * 60).to_i # получаем разницу в секундах
-    str = ChronicDuration.output(secs) #
+    time_string_en = ChronicDuration.output(secs) # Пример: 1 mo 14 days 23 hrs 58 mins 23 secs
 
-    data_array = str.split(' ').map { |x| x[/\d+/] }.compact
+    data_array = time_string_en.split(' ').map { |x| x[/\d+/] }.compact
 
     return unless data_array.present?
 
     data_array.reverse.each.with_index(1) do |data, index|
       case index
-      when 1 then result << [data.to_i, Russian.p(data.to_i, "секунда", "секунды", "секунд")].join(' ')
-      when 2 then result << [data.to_i, Russian.p(data.to_i, "минута", "минуты", "минут")].join(' ')
-      when 3 then result << [data.to_i, Russian.p(data.to_i, "час", "часа", "часов")].join(' ')
-      when 4 then result << [data.to_i, Russian.p(data.to_i, "день", "дня", "дней")].join(' ')
-      when 5 then result << [data.to_i, Russian.p(data.to_i, "месяц", "месяца", "месяцев")].join(' ')
-      when 5 then result << [data.to_i, Russian.p(data.to_i, "месяц", "месяца", "месяцев")].join(' ')
+      when 1 then time_string_ru << [data.to_i, Russian.p(data.to_i, "секунда", "секунды", "секунд")].join(' ')
+      when 2 then time_string_ru << [data.to_i, Russian.p(data.to_i, "минута", "минуты", "минут")].join(' ')
+      when 3 then time_string_ru << [data.to_i, Russian.p(data.to_i, "час", "часа", "часов")].join(' ')
+      when 4 then time_string_ru << [data.to_i, Russian.p(data.to_i, "день", "дня", "дней")].join(' ')
+      when 5 then time_string_ru << [data.to_i, Russian.p(data.to_i, "месяц", "месяца", "месяцев")].join(' ')
+      when 5 then time_string_ru << [data.to_i, Russian.p(data.to_i, "месяц", "месяца", "месяцев")].join(' ')
       end
     end
 
-    result.reverse.join(' ')
+    time_string_ru.reverse.join(' ')
   end
 end
