@@ -5,7 +5,7 @@
       %th= t 'dashboard.moved_title'
       %th= t '.device_tasks'
       %th= "#{ServiceJob.human_attribute_name(:client)} / #{DeviceTask.human_attribute_name :comment}"
-      %th= t 'dashboard.time_to_return'
+      %th= sortable 'return_at', t('dashboard.time_to_return'), remote: true
       %th
   %tbody
     - @service_jobs.each do |service_job|
