@@ -1,5 +1,5 @@
 - service_job = service_job
-%tr{class: 'info service_job_row', data: { service_job_id: service_job.id }}
+%tr{class: "#{table_highlighting(service_job)} service_job_row", data: { service_job_id: service_job.id }}
   %td.device_movement_column
     = device_movement_telegram_tag(service_job.moved_by.work_phone)
     = device_movement_information_tag(service_job)
@@ -25,6 +25,8 @@
         %input#rating-bar-static-value.hidden{:value => review.value}
         %input#rating-bar-static-content.hidden{:value => review.content}
         %select#rating-bar-static-select
+  %td.time_return_column
+    = time_to_return_ru service_job
   %td.device_task_action_column
     - notes_icon_name = service_job.device_notes.exists? ? 'file-text-alt' : 'file-alt'
     = link_to_edit_service_job(service_job)

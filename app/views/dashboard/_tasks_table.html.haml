@@ -5,6 +5,7 @@
       %th= t 'dashboard.moved_title'
       %th= t '.device_tasks'
       %th= "#{ServiceJob.human_attribute_name(:client)} / #{DeviceTask.human_attribute_name :comment}"
+      %th= sortable 'return_at', t('dashboard.time_to_return'), remote: true
       %th
   %tbody
     - @service_jobs.each do |service_job|
@@ -13,6 +14,6 @@
       - device_tasks.each do |device_task|
         = render 'device_tasks/row', device_task: device_task
       %tr.empty_row
-        %td{colspan: 4}
+        %td{colspan: 5}
 
 = paginate @service_jobs, remote: true

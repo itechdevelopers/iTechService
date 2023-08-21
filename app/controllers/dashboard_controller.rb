@@ -1,6 +1,7 @@
 class DashboardController < ApplicationController
   skip_before_action :authenticate_user!, :set_current_user, only: :check_session_status
   skip_after_action :verify_authorized
+  helper_method :sort_column, :sort_direction
 
   def index
     if current_user.marketing?
@@ -64,6 +65,7 @@ class DashboardController < ApplicationController
 
   def load_actual_jobs
     @service_jobs = policy_scope(ServiceJob).includes(:client, :history_records, :location, :receiver, :user, :keeper, {device_tasks: :task, features: :feature_type})
+    @service_jobs = @service_jobs.reorder("service_jobs.#{sort_column} #{sort_direction}") if params.key?(:sort)
 
     if service_job_search_params.empty?
       if current_user.any_admin?
@@ -110,5 +112,13 @@ class DashboardController < ApplicationController
 
   def service_job_search_params
     params.permit(:status, :location_id, :ticket, :service_job, :client)
+  end
+
+  def sort_column
+    ServiceJob.column_names.include?(params[:sort]) ? params[:sort] : ''
+  end
+
+  def sort_direction
+    %w[asc desc].include?(params[:direction]) ? params[:direction] : 'asc'
   end
 end

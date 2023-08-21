@@ -134,3 +134,6 @@ end
 
 gem 'rollbar'
 gem 'data_migrate', '~> 7.0.2'
+
+gem 'chronic_duration', '~> 0.10.6'
+gem 'russian', '~> 0.6.0'

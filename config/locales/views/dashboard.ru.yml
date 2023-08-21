@@ -20,6 +20,8 @@ ru:
     params: 'Параметры'
     new_sale: "Новая Продажа"
     references: "Справочники"
+    time_to_return: "Время до возврата"
+    time_up: "Время вышло"
 
     print_tags:
       title: "Печать штрихкодов"

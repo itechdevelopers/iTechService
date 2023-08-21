@@ -37,6 +37,28 @@
       }
     }
   }
+  & > tbody {
+    & > .warning.service_job_row {
+      & > td {
+        background-color: #f2dede;
+      }
+      &:hover {
+        & > td {
+          background-color: #ebcccc;
+        }
+      }
+    }
+    & > .danger.service_job_row {
+      & > td {
+        background-color: #da4f49;
+      }
+      &:hover {
+        & > td {
+          background-color: #bd362f;
+        }
+      }
+    }
+  }
   &>tbody>.device_task_row{
     &.done {
       display: none;
@@ -46,6 +68,14 @@
     }
     td:last-child{
       .border-right-thick();
+    }
+    &.actual {
+      & > td {
+        background-color: #e0cffc;
+      }
+      &:hover > td {
+        background-color: #c29ffa;
+      }
     }
   }
   &>tbody>.empty_row>td{

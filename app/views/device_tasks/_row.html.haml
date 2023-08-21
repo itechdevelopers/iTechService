@@ -7,4 +7,5 @@
     %span= h(device_task.comment)
     %br
     %strong.user_comment= h(device_task.user_comment)
+  %td
   %td= policy(device_task).edit? ? link_to_edit_device_task(device_task) : nil

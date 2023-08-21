@@ -187,4 +187,49 @@ module ServiceJobsHelper
     link_to t('service_jobs.send_sms'), new_service_sms_notification_path(service_job_id: service_job.id), remote: true,
             id: 'new_sms_notification_link', class: 'btn'
   end
+
+  def time_to_return_ru(service_job, time_string_ru = [])
+    date_times = date_times(service_job)
+
+    return t 'dashboard.time_up' if date_times[:current] > date_times[:return_at] # время вышло
+
+    seconds = ((date_times[:return_at] - date_times[:current]) * 24 * 60 * 60).to_i # получаем разницу в секундах
+    time_string_en = ChronicDuration.output(seconds) # Пример: 1 mo 14 days 23 hrs 58 mins 23 secs
+
+    data_array = time_string_en.split(' ').map { |x| x[/\d+/] }.compact
+
+    return unless data_array.present?
+
+    data_array.reverse.each.with_index(1) do |data, index|
+      case index
+      when 1 then time_string_ru << [data.to_i, Russian.p(data.to_i, "секунда", "секунды", "секунд")].join(' ')
+      when 2 then time_string_ru << [data.to_i, Russian.p(data.to_i, "минута", "минуты", "минут")].join(' ')
+      when 3 then time_string_ru << [data.to_i, Russian.p(data.to_i, "час", "часа", "часов")].join(' ')
+      when 4 then time_string_ru << [data.to_i, Russian.p(data.to_i, "день", "дня", "дней")].join(' ')
+      when 5 then time_string_ru << [data.to_i, Russian.p(data.to_i, "месяц", "месяца", "месяцев")].join(' ')
+      when 5 then time_string_ru << [data.to_i, Russian.p(data.to_i, "месяц", "месяца", "месяцев")].join(' ')
+      end
+    end
+
+    time_string_ru.reverse.join(' ')
+  end
+
+  def table_highlighting(service_job)
+    seconds = diff_seconds service_job
+
+    case seconds
+    when 3601..10800 then 'warning'
+    when 0..3600 then 'danger'
+    else 'info'
+    end
+  end
+
+  def diff_seconds(service_job)
+    date_times = date_times(service_job)
+    ((date_times[:return_at] - date_times[:current]) * 24 * 60 * 60).to_i # получаем разницу в секундах
+  end
+
+  def date_times(service_job)
+    {current: DateTime.current, return_at: DateTime.parse(service_job.return_at.to_s)}
+  end
 end
