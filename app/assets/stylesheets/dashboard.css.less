@@ -58,6 +58,25 @@
         }
       }
     }
+    & > .time-out.service_job_row {
+      & > td {
+        background-color: #da4f49;
+        color: #dddddd;
+        &:not(:last-child) {
+          a {
+            color: #00cfff;
+            &:hover {
+              color: #00bfff;
+            }
+          }
+        }
+      }
+      &:hover {
+        & > td {
+          background-color: #bd362f;
+        }
+      }
+    }
   }
   &>tbody>.device_task_row{
     &.done {
