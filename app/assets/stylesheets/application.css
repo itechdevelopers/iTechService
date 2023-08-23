@@ -13,6 +13,7 @@
  *= require _inputs
  *= require _menu
  *= require _table_filter
+ *= require _table_colors
  *= require _topbar
  *= require announcements
  *= require bonuses
