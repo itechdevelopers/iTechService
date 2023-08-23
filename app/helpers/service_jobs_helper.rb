@@ -217,6 +217,8 @@ module ServiceJobsHelper
   def table_highlighting(service_job)
     seconds = diff_seconds service_job
 
+    return 'time-out' if seconds.negative?
+
     case seconds
     when 3601..10800 then 'warning'
     when 0..3600 then 'danger'

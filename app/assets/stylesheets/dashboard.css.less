@@ -40,6 +40,16 @@
   & > tbody {
     & > .warning.service_job_row {
       & > td {
+        background-color: #ffae00;
+      }
+      &:hover {
+        & > td {
+          background-color: #ffa500;
+        }
+      }
+    }
+    & > .danger.service_job_row {
+      & > td {
         background-color: #f2dede;
       }
       &:hover {
@@ -48,9 +58,18 @@
         }
       }
     }
-    & > .danger.service_job_row {
+    & > .time-out.service_job_row {
       & > td {
         background-color: #da4f49;
+        color: #dddddd;
+        &:not(:last-child) {
+          a {
+            color: #00cfff;
+            &:hover {
+              color: #00bfff;
+            }
+          }
+        }
       }
       &:hover {
         & > td {
