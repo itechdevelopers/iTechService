@@ -194,24 +194,26 @@ module ServiceJobsHelper
     return t 'dashboard.time_up' if date_times[:current] > date_times[:return_at] # время вышло
 
     seconds = ((date_times[:return_at] - date_times[:current]) * 24 * 60 * 60).to_i # получаем разницу в секундах
-    time_string_en = ChronicDuration.output(seconds) # Пример: 1 mo 14 days 23 hrs 58 mins 23 secs
 
-    data_array = time_string_en.split(' ').map { |x| x[/\d+/] }.compact
+    # Пример: 1 mo 14 days 23 hrs 58 mins 23 secs
+    # Если format: :short - 1mo 14d 23h 58m 23s
+    time_string_en = ChronicDuration.output(seconds, format: :short)
+
+    data_array = time_string_en.split(' ')
 
     return unless data_array.present?
 
-    data_array.reverse.each.with_index(1) do |data, index|
-      case index
-      when 1 then time_string_ru << [data.to_i, Russian.p(data.to_i, "секунда", "секунды", "секунд")].join(' ')
-      when 2 then time_string_ru << [data.to_i, Russian.p(data.to_i, "минута", "минуты", "минут")].join(' ')
-      when 3 then time_string_ru << [data.to_i, Russian.p(data.to_i, "час", "часа", "часов")].join(' ')
-      when 4 then time_string_ru << [data.to_i, Russian.p(data.to_i, "день", "дня", "дней")].join(' ')
-      when 5 then time_string_ru << [data.to_i, Russian.p(data.to_i, "месяц", "месяца", "месяцев")].join(' ')
-      when 5 then time_string_ru << [data.to_i, Russian.p(data.to_i, "месяц", "месяца", "месяцев")].join(' ')
+    data_array.each do |item|
+      case
+      when item.include?('mo') then time_string_ru << [item.to_i, Russian.p(item.to_i, "месяц", "месяца", "месяцев")].join(' ')
+      when item.include?('d')  then time_string_ru << [item.to_i, Russian.p(item.to_i, "день", "дня", "дней")].join(' ')
+      when item.include?('h')  then time_string_ru << [item.to_i, Russian.p(item.to_i, "час", "часа", "часов")].join(' ')
+      when item.include?('m')  then time_string_ru << [item.to_i, Russian.p(item.to_i, "минута", "минуты", "минут")].join(' ')
+      when item.include?('s')  then time_string_ru << [item.to_i, Russian.p(item.to_i, "секунда", "секунды", "секунд")].join(' ')
       end
     end
 
-    time_string_ru.reverse.join(' ')
+    time_string_ru.join(' ')
   end
 
   def table_highlighting(service_job)
