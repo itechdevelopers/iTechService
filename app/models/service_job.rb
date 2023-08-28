@@ -38,6 +38,9 @@ class ServiceJob < ApplicationRecord
     joins(item: :product).where(products: {product_group_id: ProductGroup.subtree_of(product_group)})
   }
 
+  scope :return_at, -> { order('service_jobs.return_at asc') }
+  scope :created_at, -> { order('service_jobs.created_at asc') }
+
   belongs_to :department, -> { includes(:city) }, inverse_of: :service_jobs
   belongs_to :initial_department, class_name: 'Department', optional: true
   belongs_to :user, inverse_of: :service_jobs, optional: true
