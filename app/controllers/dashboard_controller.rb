@@ -65,7 +65,7 @@ class DashboardController < ApplicationController
 
   def load_actual_jobs
     @service_jobs = policy_scope(ServiceJob).includes(:client, :history_records, :location, :receiver, :user, :keeper, {device_tasks: :task, features: :feature_type})
-    @service_jobs = @service_jobs.reorder("service_jobs.#{sort_column} #{sort_direction}") if params.key?(:sort)
+    @current_sort = current_sort
 
     if service_job_search_params.empty?
       if current_user.any_admin?
@@ -89,17 +89,16 @@ class DashboardController < ApplicationController
         @product_group = ProductGroup.select(:name).find(params[:product_group_id])
         @service_jobs = @service_jobs.of_product_group(params[:product_group_id])
       end
+
+      save_sorting if params[:sort].present?
     else
       @service_jobs = @service_jobs.pending.search(service_job_search_params)
     end
 
-    if current_user.able_to?(:print_receipt)
-      @service_jobs = @service_jobs.newest
-    else
-      @service_jobs = @service_jobs.oldest
-    end
+    # @service_jobs = current_user.able_to?(:print_receipt) ? @service_jobs.newest : @service_jobs.oldest
 
-    @service_jobs = @service_jobs.page(params[:page])
+    service_jobs_sorting
+    @service_jobs = Kaminari.paginate_array(@service_jobs).page(params[:page])
   end
 
   def load_actual_orders
@@ -115,10 +114,48 @@ class DashboardController < ApplicationController
   end
 
   def sort_column
-    ServiceJob.column_names.include?(params[:sort]) ? params[:sort] : ''
+    ServiceJob.column_names.include?(params[:sort]) ? params[:sort] : 'other'
   end
 
   def sort_direction
     %w[asc desc].include?(params[:direction]) ? params[:direction] : 'asc'
+  end
+
+  def save_sorting
+    create_or_update_sort
+  end
+
+  def current_sort
+    @current_sort = current_user.service_job_sorting || create_or_update_sort
+  end
+
+  def create_or_update_sort
+    sort_title = params[:sort_title] || 'По умолчанию'
+    sorting = ServiceJobSorting.find_by(user_id: current_user.id)
+
+    if sorting.present?
+      sorting.title = sort_title
+      sorting.column = sort_column
+      sorting.save
+    else
+      sorting = ServiceJobSorting.create(title: sort_title, direction: sort_direction, column: 'created_at', user_id: current_user.id)
+    end
+
+    current_user.service_job_sorting_id = sorting.id
+    current_user.save
+
+    sorting
+  end
+
+  def service_jobs_sorting
+    @current_sort = ServiceJobSorting.find_by(user_id: current_user.id)
+
+    case @current_sort.column
+    when 'return_at' then @service_jobs = @service_jobs.return_at
+    when 'created_at' then @service_jobs = @service_jobs.created_at
+    else
+      @service_jobs_time_up = @service_jobs.where("return_at < ?", DateTime.current)
+      @service_jobs = @service_jobs.where("return_at > ?", DateTime.current).return_at + @service_jobs_time_up
+    end
   end
 end
