@@ -105,6 +105,7 @@ class User < ApplicationRecord
 
   belongs_to :location, optional: true
   belongs_to :department, optional: true
+  belongs_to :service_job_sorting, optional: true
   has_many :history_records, as: :object, dependent: :nullify
   has_many :schedule_days, dependent: :destroy
   has_many :duty_days, dependent: :destroy
