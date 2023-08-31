@@ -6,35 +6,25 @@
 
   .info-colors__list {
     margin: auto;
+    margin-bottom: 10px;
     text-align: center;
     list-style: none;
-    min-height: 40px;
-    line-height: 40px;
 
     li {
       display: inline-block;
-      padding: 5px 8px;
-      border: 1px solid #000;
 
-      &:last-child {
-        color: white;
-      }
-
-      &.info {
-        background-color: #d9edf7;
-      }
-
-      &.warning {
-        background-color: #ffae00;
-      }
-
-      &.danger {
-        background-color: #f2dede;
-      }
-
-      &.time-out {
-        background-color: #da4f49;
+      a {
+        margin: unset;
       }
     }
+  }
+}
+
+.btn-pre-danger {
+  background-color: rgba(220, 53, 69, 0.3);
+  background-image: unset !important;
+
+  &:hover, &:active, &:focus {
+    background-color: rgba(220, 53, 69, 0.5);
   }
 }
