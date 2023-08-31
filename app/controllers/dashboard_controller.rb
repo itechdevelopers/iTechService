@@ -90,6 +90,16 @@ class DashboardController < ApplicationController
         @service_jobs = @service_jobs.of_product_group(params[:product_group_id])
       end
 
+      if params[:only].present?
+        filter_type = params[:only]
+        @service_jobs = case filter_type
+                        when 'warning' then @service_jobs.where("return_at < ? AND return_at > ?", DateTime.current + 3.hours, DateTime.current + 1.hours)
+                        when 'danger' then @service_jobs.where("return_at < ? AND return_at > ?", DateTime.current + 1.hours, DateTime.current)
+                        when 'time-out' then @service_jobs.where("return_at < ?", DateTime.current)
+                        else @service_jobs.where("return_at > ?", DateTime.current + 3.hours)
+                        end
+      end
+
       save_sorting if params[:sort].present?
     else
       @service_jobs = @service_jobs.pending.search(service_job_search_params)

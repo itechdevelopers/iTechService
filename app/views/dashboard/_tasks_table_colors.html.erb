@@ -2,10 +2,11 @@
   <div class="navbar-inner">
     <div class="info-colors__title text-center">Время до возврата, осталось:</div>
     <ul class="info-colors__list">
-      <li class="nav-item info">более 3 часов</li>
-      <li class="nav-item warning">от 3 до 1 часа</li>
-      <li class="nav-item danger">менее 1 часа</li>
-      <li class="nav-item time-out">Время вышло</li>
+      <% ServiceJobSorting::FILTER_LIST.each do |filter| %>
+        <li class="nav-item <%= filter[:type] %> <%= 'current' if params[:type] == filter[:type] %>">
+          <%= link_to filter[:title], filter[:url], remote: true, class: "btn btn-primary btn-#{filter[:type]} #{'btn-danger' if filter[:type] == 'time-out'}" %>
+        </li>
+      <% end %>
     </ul>
   </div>
 </div>
