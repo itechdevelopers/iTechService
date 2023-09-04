@@ -52,6 +52,6 @@ module ItechService
 
     I18n.enforce_available_locales = true
 
-    config.logger = ActiveSupport::Logger.new('/dev/null')
+    config.logger = ActiveSupport::Logger.new(config.paths['log'].first, 'daily', 50*1024*1024)
   end
 end
