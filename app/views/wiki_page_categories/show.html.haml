@@ -1,0 +1,12 @@
+.page-header.page-header__wiki
+  %h1= t 'wiki.categories.show'
+
+= render 'actions'
+
+.highlight
+  %pre
+    = "#{WikiPageCategory.human_attribute_name(:title)}: #{@category.title}"
+    %br
+    = "#{WikiPageCategory.human_attribute_name(:created_at)}: #{l @category.created_at, format: :date_time}"
+    %br
+    = "#{WikiPageCategory.human_attribute_name(:updated_at)}: #{l @category.updated_at, format: :date_time}"
