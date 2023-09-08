@@ -53,5 +53,6 @@
  *= require timesheet_days
  *= require top_salables
  *= require users
+ *= require wiki
  *= require_directory ./service
  */
