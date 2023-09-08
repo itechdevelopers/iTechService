@@ -2,6 +2,7 @@ ru:
   wiki:
     add_attachment: 'Добавить файл'
     all_pages: 'Wiki'
+    all_pages_main: 'Wiki для руководителей'
     attachment_url: 'Ссылка на файл'
     cancel: 'Отмена'
     author: 'Автор'
@@ -28,3 +29,17 @@ ru:
     save_page: 'Сохранить страницу'
     title: 'Заголовок'
     version: 'Версия'
+    path: 'URL'
+    categories:
+      title: 'Категории'
+      show: 'Просмотр категории'
+      new: 'Создание категории'
+      edit: 'Редактирование категории'
+      destroy: 'Удалить'
+      destroy_confirmation: 'Удалённая категория не может быть восстановлена. Вы уверены?'
+
+      created: 'Категория создана'
+      updated: 'Категория изменена'
+
+      create: 'Создать'
+      update: 'Изменить'
