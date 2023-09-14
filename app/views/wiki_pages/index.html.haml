@@ -1,0 +1,31 @@
+.page-header.page-header__wiki
+  .page-header__column
+    %h1.wiki-title
+      - if current_user.any_admin? || able_to?(:manage_wiki)
+        - if params[:private].blank?
+          = t 'wiki.all_pages'
+          %small= link_to t('wiki.private_link'), wiki_pages_path(private: true)
+        - else
+          = t 'wiki.private_link'
+          %small= link_to t('wiki.all_pages'), wiki_pages_path
+      - else
+        = t 'wiki.all_pages'
+
+= render 'actions'
+
+- if @wiki_pages.any?
+  .page-content
+    .wiki-wrapper
+      .wiki-wrapper__users
+        %ul.unstyled.wiki-list
+          - @wiki_pages.each do |page|
+            %li.wiki-list__item
+              %article.wiki
+                .wiki__content
+                  .wiki__date= page.created_at.strftime('%d.%m.%Y, %H:%M')
+                  .wiki__title= link_to page.title, wiki_page_path(page.path)
+
+        = paginate @wiki_pages, remote: true
+
+- else
+  = render 'shared/empty'

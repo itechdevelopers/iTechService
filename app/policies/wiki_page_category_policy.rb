@@ -1,0 +1,3 @@
+class WikiPageCategoryPolicy < BasePolicy
+
+end
