@@ -90,7 +90,7 @@
 
     = drop_down t('.misc') do
       = menu_item t('kanban.boards.index.title'), kanban_boards_path
-      = menu_item t('wiki.link'), wiki_all_path if can? :read, WikiPage
+      = menu_item t('wiki.link'), wiki_pages_path if can? :read, WikiPage
       = menu_item t('reports.title'), reports_path if can? :manage, :report
       = drop_down_divider
       = menu_item t('stolen_phones.link'), stolen_phones_path

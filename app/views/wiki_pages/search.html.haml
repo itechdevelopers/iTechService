@@ -1,0 +1,27 @@
+- section = params[:private].present? ? 'search_private' : 'search'
+
+.page-header.page-header__wiki
+  .page-header__column
+    %h1.wiki-title
+      = t "wiki.#{section}"
+
+= render 'actions'
+
+%h3= 'Результаты поиска:'
+
+- if @wiki_pages.any?
+  .page-content
+    .wiki-wrapper
+      .wiki-wrapper__users
+        %ul.unstyled.wiki-list
+          - @wiki_pages.each do |page|
+            %li.wiki-list__item
+              %article.wiki
+                .wiki__content
+                  .wiki__date= page.created_at.strftime('%d.%m.%Y, %H:%M')
+                  .wiki__title= link_to page.title, wiki_page_path(page.path)
+
+        = paginate @wiki_pages, remote: true
+
+- else
+  = render 'shared/empty'

@@ -9,16 +9,46 @@
 }
 
 .wiki-wrapper__buttons {
-  text-align: right;
-  border-bottom: 1px solid #d4d3d8;
-  padding-bottom: 20px;
+  display: flex;
+
+  .left-column {
+    display: flex;
+    width: 100%;
+    justify-content: left;
+    align-items: center;
+
+    form {
+      margin: unset;
+
+      .form-control {
+        margin: unset;
+      }
+
+      .input-group-btn {
+        input {
+          margin: unset;
+        }
+      }
+    }
+  }
+
+  .right-column {
+    display: flex;
+    width: 100%;
+    justify-content: right;
+    align-items: center;
+
+    a {
+      margin: 0 0 0 5px;
+    }
+  }
 }
 
 .wiki-list {
   .wiki-list__item {
     margin-bottom: 10px;
     border-bottom: 1px solid #d4d3d8;
-    padding-bottom: 10px;
+    padding: 10px 0;
 
     .wiki__date {
       font-size: 14px;
@@ -29,7 +59,7 @@
       font-size: 18px;
       line-height: 1.2;
       font-weight: 700;
-      margin: 0 0 10px;
+      margin: unset;
 
       a {
         text-decoration: none;
@@ -45,4 +75,23 @@
 
 .highlight {
   margin-top: 20px;
+}
+
+.wiki-history {
+  width: 100%;
+  margin-top: 10px;
+  margin-bottom: 10px;
+  padding: 10px;
+
+  .wiki-history__header td {
+    border-bottom: 2px dashed black;
+  }
+}
+
+.form-check {
+  margin: 15px 0;
+
+  input[type='checkbox'] {
+    margin: unset;
+  }
 }

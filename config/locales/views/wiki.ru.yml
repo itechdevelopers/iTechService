@@ -30,13 +30,24 @@ ru:
     title: 'Заголовок'
     version: 'Версия'
     path: 'URL'
+    private: 'Для руководителей'
+    private_link: 'Wiki для руководителей'
+    search: 'Поиск по Wiki'
+    search_private: 'Поиск по Wiki для руководителей'
+
+    created: 'Страница создана'
+    updated: 'Страница изменена'
+
     categories:
+      link: 'Wiki Категории'
       title: 'Категории'
       show: 'Просмотр категории'
       new: 'Создание категории'
       edit: 'Редактирование категории'
       destroy: 'Удалить'
       destroy_confirmation: 'Удалённая категория не может быть восстановлена. Вы уверены?'
+
+      category_id: 'Категория'
 
       created: 'Категория создана'
       updated: 'Категория изменена'
