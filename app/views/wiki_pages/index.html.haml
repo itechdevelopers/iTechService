@@ -22,8 +22,8 @@
             %li.wiki-list__item
               %article.wiki
                 .wiki__content
-                  .wiki__date= page.created_at.strftime('%d.%m.%Y, %H:%M')
-                  .wiki__title= link_to page.title, wiki_page_path(page.path)
+                  .wiki__date= page&.created_at&.strftime('%d.%m.%Y, %H:%M')
+                  .wiki__title= link_to page&.title, wiki_page_path(page&.path)
 
         -# = paginate @wiki_pages, remote: true
 
