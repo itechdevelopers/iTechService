@@ -1,0 +1,10 @@
+.page-header.page-header__wiki
+  %h1.wiki-title
+    = t 'wiki.edit_title'
+
+    %p
+      %small.muted= @wiki_page.title
+
+= form_with model: @wiki_page, url: wiki_page_path(@wiki_page.path), method: :patch, local: true do |f|
+  = render partial: 'form', locals: { f: f }
+  %p= f.submit t('save'), class: 'btn btn-primary'
