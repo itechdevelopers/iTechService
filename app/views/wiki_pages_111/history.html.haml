@@ -1,0 +1,26 @@
+.page-header.page-header__wiki
+  %h1.wiki-title
+    = t('wiki.history')
+
+    %p
+      %small.muted= @wiki_page.title
+
+= render 'actions'
+
+- if @wiki_page.versions.present?
+  = @wiki_page.versions.to_a
+  %table.wiki-history
+    %tr.wiki-history__header
+      %td= 'Версия'
+      %td= 'Дата'
+      %td= 'Автор'
+      %td= 'Комментарий'
+
+      - @wiki_page.versions.each do |version|
+        %tr
+          %td= version.number
+          %td= l( version.updated_at, format: :long )
+          %td= version.updator.short_name
+          %td= version.comment
+- else
+  = render 'shared/empty'
