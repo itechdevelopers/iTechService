@@ -10,7 +10,8 @@ class WikiPagesController < ApplicationController
     wiki_pages = params[:private] ? WikiPage.is_private : WikiPage.is_common
     wiki_pages = wiki_pages.by_category(params[:category_id]) if params[:category_id]
 
-    @wiki_pages = wiki_pages.page(params[:page])
+    # @wiki_pages = wiki_pages.page(params[:page])
+    @wiki_pages = wiki_pages
   end
 
   def show
@@ -76,7 +77,8 @@ class WikiPagesController < ApplicationController
     value = "%#{params[:search]}%" if params[:search].present?
     wiki_pages = params[:private].present? ? WikiPage.is_private : WikiPage.is_common
     wiki_pages = wiki_pages.by_category(params[:category_id]) if params[:category_id].present?
-    @wiki_pages = wiki_pages.where("title ILIKE ? or content ILIKE ?", value, value).page(params[:page])
+    # @wiki_pages = wiki_pages.where("title ILIKE ? or content ILIKE ?", value, value).page(params[:page])
+    @wiki_pages = wiki_pages.where("title ILIKE ? or content ILIKE ?", value, value)
 
     respond_to do |format|
       format.html
