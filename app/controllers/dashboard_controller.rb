@@ -108,7 +108,7 @@ class DashboardController < ApplicationController
     # @service_jobs = current_user.able_to?(:print_receipt) ? @service_jobs.newest : @service_jobs.oldest
 
     service_jobs_sorting
-    @service_jobs = Kaminari.paginate_array(@service_jobs).page(params[:page])
+    @service_jobs = @service_jobs.page(params[:page])
   end
 
   def load_actual_orders
