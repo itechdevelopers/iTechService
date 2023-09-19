@@ -1036,6 +1036,13 @@ ActiveRecord::Schema.define(version: 20230918113847) do
     t.string "code"
   end
 
+  create_table "service_job_sortings", force: :cascade do |t|
+    t.string "title"
+    t.string "direction"
+    t.string "column"
+    t.integer "user_id"
+  end
+
   create_table "service_job_subscriptions", id: false, force: :cascade do |t|
     t.integer "service_job_id", null: false
     t.integer "subscriber_id", null: false
@@ -1404,6 +1411,7 @@ ActiveRecord::Schema.define(version: 20230918113847) do
     t.text "hobby"
     t.boolean "can_help_in_mac_service", default: false
     t.string "work_phone"
+    t.integer "service_job_sorting_id"
     t.index ["authentication_token"], name: "index_users_on_authentication_token", unique: true
     t.index ["card_number"], name: "index_users_on_card_number"
     t.index ["department_id"], name: "index_users_on_department_id"
@@ -1429,6 +1437,12 @@ ActiveRecord::Schema.define(version: 20230918113847) do
     t.datetime "updated_at", null: false
   end
 
+  create_table "wiki_page_categories", force: :cascade do |t|
+    t.string "title"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+  end
+
   create_table "wiki_page_versions", id: :serial, force: :cascade do |t|
     t.integer "page_id", null: false
     t.integer "updator_id"
@@ -1450,6 +1464,8 @@ ActiveRecord::Schema.define(version: 20230918113847) do
     t.text "content"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.boolean "private"
+    t.integer "wiki_page_category_id"
     t.index ["creator_id"], name: "index_wiki_pages_on_creator_id"
     t.index ["path"], name: "index_wiki_pages_on_path", unique: true
   end
