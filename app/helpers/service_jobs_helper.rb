@@ -190,6 +190,7 @@ module ServiceJobsHelper
 
   def time_to_return_ru(service_job, time_string_ru = [])
     date_times = date_times(service_job)
+    return unless date_times
 
     return t 'dashboard.time_up' if date_times[:current] > date_times[:return_at] # время вышло
 
@@ -218,6 +219,7 @@ module ServiceJobsHelper
 
   def table_highlighting(service_job)
     seconds = diff_seconds service_job
+    return unless seconds
 
     return 'time-out' if seconds.negative?
 
@@ -230,10 +232,14 @@ module ServiceJobsHelper
 
   def diff_seconds(service_job)
     date_times = date_times(service_job)
+    return unless date_times
+
     ((date_times[:return_at] - date_times[:current]) * 24 * 60 * 60).to_i # получаем разницу в секундах
   end
 
   def date_times(service_job)
+    return unless service_job.return_at
+
     {current: DateTime.current, return_at: DateTime.parse(service_job.return_at.to_s)}
   end
 end
