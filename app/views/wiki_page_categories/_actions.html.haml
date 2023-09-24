@@ -1,9 +1,0 @@
-.wiki-wrapper__buttons
-  - if action_name == 'index'
-    = link_to icon_tag('file-alt') + t('create'), wiki_page_new_path, class: 'btn btn-success wiki-new'
-  - elsif action_name == 'show'
-    = link_to t('edit'), edit_wiki_page_category_path(@category), class: 'btn'
-    = link_to t('destroy'), wiki_page_category_path(@category), method: :delete, class: 'btn btn-danger', data: {confirm: t('wiki.categories.destroy_confirmation')}
-  - elsif action_name == 'edit'
-    = link_to t('show'), wiki_page_category_path(@category), class: 'btn'
-    = link_to t('destroy'), wiki_page_category_path(@category), method: :delete, class: 'btn btn-danger', data: {confirm: t('wiki.categories.destroy_confirmation')}

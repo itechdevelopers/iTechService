@@ -1,7 +1,0 @@
-.input-group
-  - private_value = true if params[:private].present?
-  = form_tag(search_wiki_pages_path(private: true), method: :get, id: 'search-form') do
-    = hidden_field_tag :private, private_value
-    = text_field_tag :search, params[:search], placeholder: 'Что нужно найти?', class: 'form-control'
-    %span.input-group-btn
-      = submit_tag 'Поиск', class: 'btn btn-default'

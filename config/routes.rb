@@ -348,13 +348,6 @@ Rails.application.routes.draw do
   end
 
   wiki_root '/wiki'
-  # resources :wiki_pages, param: :path, path: :wiki do
-  #   collection do
-  #     get :history
-  #     get :search
-  #     resources :wiki_page_categories, path: :category
-  #   end
-  # end
 
   authenticate :user do
     mount Sidekiq::Web => '/sidekiq'

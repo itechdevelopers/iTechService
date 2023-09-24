@@ -1,7 +1,0 @@
-.page-header.page-header__wiki
-  .page-header__column
-    %h1.wiki-title= t 'wiki.new_title'
-
-= form_with model: @wiki_page, url: wiki_pages_path, method: :post, local: true do |f|
-  = render partial: 'form', locals: { f: f }
-  = f.submit t('wiki.create'), class: 'btn btn-primary'

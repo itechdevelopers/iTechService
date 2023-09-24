@@ -1,8 +1,0 @@
-.page-header.page-header__wiki
-  %h1= t 'wiki.categories.new'
-
-.highlight
-  %pre
-    = form_with model: @category, url: wiki_page_categories_path, method: :post, local: true do |f|
-      = render partial: 'form', locals: { f: f }
-      %p= f.submit t('create'), class: 'btn btn-success'
