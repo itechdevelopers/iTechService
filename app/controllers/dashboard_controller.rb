@@ -63,6 +63,7 @@ class DashboardController < ApplicationController
 
   private
 
+  # TODO, refactor
   def load_actual_jobs
     @service_jobs = policy_scope(ServiceJob).includes(:client, :history_records, :location, :receiver, :user, :keeper, {device_tasks: :task, features: :feature_type})
     @current_sort = current_sort
@@ -93,10 +94,10 @@ class DashboardController < ApplicationController
       if params[:only].present?
         filter_type = params[:only]
         @service_jobs = case filter_type
-                        when 'warning' then @service_jobs.where("return_at < ? AND return_at > ?", DateTime.current + 3.hours, DateTime.current + 1.hours)
-                        when 'danger' then @service_jobs.where("return_at < ? AND return_at > ?", DateTime.current + 1.hours, DateTime.current)
-                        when 'time-out' then @service_jobs.where("return_at < ?", DateTime.current)
-                        else @service_jobs.where("return_at > ?", DateTime.current + 3.hours)
+                        when 'warning' then @service_jobs.return_in(1.hours.since..3.hours.since)
+                        when 'danger' then @service_jobs.return_in(DateTime.current..1.hours.since)
+                        when 'time-out' then @service_jobs.return_expired
+                        else @service_jobs.return_after(3.hours.since)
                         end
       end
 
@@ -161,11 +162,10 @@ class DashboardController < ApplicationController
     @current_sort = ServiceJobSorting.find_by(user_id: current_user.id)
 
     case @current_sort.column
-    when 'return_at' then @service_jobs = @service_jobs.return_at
-    when 'created_at' then @service_jobs = @service_jobs.created_at
+    when 'return_at' then @service_jobs = @service_jobs.order_return_at_asc
+    when 'created_at' then @service_jobs = @service_jobs.order_created_at_asc
     else
-      @service_jobs_time_up = @service_jobs.where("return_at < ?", DateTime.current)
-      @service_jobs = @service_jobs.where("return_at > ?", DateTime.current).return_at + @service_jobs_time_up
+      @service_jobs = @service_jobs.return_in_future.order_return_at_asc
     end
   end
 end

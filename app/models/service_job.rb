@@ -34,12 +34,17 @@ class ServiceJob < ApplicationRecord
     not_at_done.not_at_archive.where('((return_at - created_at) > ? and (return_at - created_at) < ? and return_at <= ?) or ((return_at - created_at) >= ? and return_at <= ?)', '30 min', '5 hour', DateTime.current.advance(minutes: 30), '5 hour', DateTime.current.advance(hours: 1))
   }
 
+  scope :return_expired, -> { where('service_jobs.return_at <= ?', DateTime.current) }
+  scope :return_in_future, -> { where('service_jobs.return_at > ?', DateTime.current) }
+  scope :return_in, ->(range) { where(return_at: range) }
+  scope :return_after, ->(time) { where('service_jobs.return_at > ?', time) }
+
   scope :of_product_group, ->(product_group) {
     joins(item: :product).where(products: {product_group_id: ProductGroup.subtree_of(product_group)})
   }
 
-  scope :return_at, -> { order('service_jobs.return_at asc') }
-  scope :created_at, -> { order('service_jobs.created_at asc') }
+  scope :order_return_at_asc, -> { order('service_jobs.return_at asc') }
+  scope :order_created_at_asc, -> { order('service_jobs.created_at asc') }
 
   belongs_to :department, -> { includes(:city) }, inverse_of: :service_jobs
   belongs_to :initial_department, class_name: 'Department', optional: true
