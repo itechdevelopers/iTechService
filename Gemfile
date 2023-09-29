@@ -3,7 +3,7 @@ source 'https://rubygems.org'
 ruby '2.7.5'
 
 gem 'rails', '5.1.7'
-gem 'pg', '~> 0.21.0'
+gem 'pg', '~> 1.5.4'
 gem 'rails-pg-extras', '~> 3.2.6'
 gem 'sqlite3', '1.3.13'
 
@@ -92,6 +92,7 @@ group :development do
   gem 'listen'
   gem 'puma'
   gem 'awesome_print'
+  gem 'byebug'
 end
 
 group :test do

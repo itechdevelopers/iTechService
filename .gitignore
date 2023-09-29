@@ -41,3 +41,5 @@ pickle-email-*.html
 /.idea/
 /.ruby-gemset
 /.env.test
+.byebug_history
+docker-compose.yml
