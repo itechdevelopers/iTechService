@@ -150,6 +150,8 @@ class ClientsController < ApplicationController
     end
   end
 
+  private
+
   def client_params
     params.require(:client).permit(
       :name, :surname, :patronymic, :birthday, :email, :phone_number, :full_phone_number, :phone_number_checked,
@@ -157,5 +159,9 @@ class ClientsController < ApplicationController
       client_characteristic_attributes: %i[id _destroy client_category_id comment],
       comments_attributes: %i[content commentable_id commentable_type]
     )
+  end
+
+  def search_params
+    params.permit(:client_q, :client, :phone_number)
   end
 end
