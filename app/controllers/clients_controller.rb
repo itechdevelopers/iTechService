@@ -150,6 +150,8 @@ class ClientsController < ApplicationController
     end
   end
 
+  private
+
   def client_params
     params.require(:client).permit(
       :name, :surname, :patronymic, :birthday, :email, :phone_number, :full_phone_number, :phone_number_checked,
