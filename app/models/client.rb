@@ -57,17 +57,14 @@ class Client < ApplicationRecord
 
   def self.search(params)
     clients = Client.all
-    unless (client_q = params[:client_q] || params[:client]).blank?
-      client_q.chomp.split(/\s+/).each do |q|
+
+    if (query = params[:client_q] || params[:client] || params[:phone_number]).present?
+      query = query.sub(/\+?7[\s(]\d{3}\)?\s\d{3}-\d{2}-?\d{2}/) { |m| m.gsub(/\D+/, '') }
+      query.chomp.split(/\s+/).each do |q|
         clients = clients.where [
-          'LOWER(clients.surname) LIKE :q OR LOWER(clients.name) LIKE :q OR LOWER(clients.patronymic) LIKE :q OR clients.phone_number LIKE :q OR clients.full_phone_number LIKE :q OR LOWER(clients.card_number) LIKE :q', { q: "%#{q.mb_chars.downcase}%" }
+          'LOWER(clients.surname) LIKE :q OR LOWER(clients.name) LIKE :q OR LOWER(clients.patronymic) LIKE :q OR clients.full_phone_number LIKE :q OR clients.phone_number LIKE :q OR LOWER(clients.card_number) LIKE :q', { q: "%#{q.mb_chars.downcase}%" }
         ]
       end
-      # clients = Client.where 'LOWER(clients.surname) LIKE :q OR LOWER(clients.name) LIKE :q OR LOWER(clients.patronymic) LIKE :q OR clients.phone_number LIKE :q OR clients.full_phone_number LIKE :q OR LOWER(clients.card_number) LIKE :q', q: "%#{client_q.mb_chars.downcase.to_s}%"
-    end
-
-    if params.key?(:phone_number)
-      clients = Client.where('full_phone_number LIKE :n OR phone_number LIKE :n', n: "%#{params[:phone_number]}")
     end
 
     clients

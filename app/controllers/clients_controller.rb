@@ -160,4 +160,8 @@ class ClientsController < ApplicationController
       comments_attributes: %i[content commentable_id commentable_type]
     )
   end
+
+  def search_params
+    params.permit(:client_q, :client, :phone_number)
+  end
 end
