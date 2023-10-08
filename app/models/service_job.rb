@@ -116,24 +116,24 @@ class ServiceJob < ApplicationRecord
   def self.search(params)
     service_jobs = ServiceJob.includes :device_tasks, :tasks
 
-    unless (status_q = params[:status]).blank?
+    if (status_q = params[:status]).present?
       service_jobs = service_jobs.send status_q if %w[done pending important].include? status_q
     end
 
-    unless params[:location_id].blank?
+    if params[:location_id].present?
       service_jobs = service_jobs.where service_jobs: params.slice(:location_id)
     end
 
-    unless (ticket_q = params[:ticket]).blank?
+    if (ticket_q = params[:ticket]).present?
       service_jobs = service_jobs.where 'service_jobs.ticket_number LIKE ?', "%#{ticket_q}%"
     end
 
-    unless (service_job_q = (params[:service_job] || params[:service_job_q])).blank?
+    if (service_job_q = (params[:service_job] || params[:service_job_q])).present?
       service_jobs = service_jobs.includes(:features).where('LOWER(features.value) LIKE :q OR LOWER(service_jobs.serial_number) LIKE :q OR LOWER(service_jobs.imei) LIKE :q', q: "%#{service_job_q.mb_chars.downcase.to_s}%").references(:features)
     end
 
-    unless (client_q = params[:client]).blank?
-      service_jobs = service_jobs.joins(:client).where 'LOWER(clients.name) LIKE :q OR LOWER(clients.surname) LIKE :q OR clients.phone_number LIKE :q OR clients.full_phone_number LIKE :q OR LOWER(clients.card_number) LIKE :q', q: "%#{client_q.mb_chars.downcase.to_s}%"
+    if params[:client].present?
+      service_jobs = service_jobs.joins(:client).merge(Client.search(params))
     end
 
     service_jobs
