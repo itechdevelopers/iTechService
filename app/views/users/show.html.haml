@@ -196,6 +196,9 @@
           %dt= User.human_attribute_name :role
           %dd= t "users.roles.#{@user.role}"
 
+          %dt= User.human_attribute_name :is_senior
+          %dd= @user.is_senior? ? 'Да' : 'Нет'
+
           %dt= User.human_attribute_name :department
           %dd= @user.department_name || '-'
 

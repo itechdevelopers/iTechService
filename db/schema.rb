@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20230918113847) do
+ActiveRecord::Schema.define(version: 20231009092845) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -1412,6 +1412,7 @@ ActiveRecord::Schema.define(version: 20230918113847) do
     t.boolean "can_help_in_mac_service", default: false
     t.string "work_phone"
     t.integer "service_job_sorting_id"
+    t.boolean "is_senior", default: false
     t.index ["authentication_token"], name: "index_users_on_authentication_token", unique: true
     t.index ["card_number"], name: "index_users_on_card_number"
     t.index ["department_id"], name: "index_users_on_department_id"

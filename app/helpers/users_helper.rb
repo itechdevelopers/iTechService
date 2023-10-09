@@ -10,7 +10,7 @@ module UsersHelper
           c += image_tag user.photo.medium.url, class: :avatar if user.photo?
           c + user.short_name
         end
-        "#{c} #{karma_tag(user)}".html_safe
+        "#{c} #{karma_tag(user)} #{senior_label_tag(user)}".html_safe
       end
       c += content_tag(:td, t("users.roles.#{user.role}"))
       c += content_tag(:td, user.location_name || '-')
@@ -26,6 +26,12 @@ module UsersHelper
       end
       c
     end.html_safe
+  end
+
+  def senior_label_tag(user)
+    label = ""
+    label << " #{image_tag("certificate.png", title: t("users.senior"), class: 'user-senior has-tooltip')}" if user.is_senior?
+    label
   end
 
   def schedule_hour_class_for(user, day, hour)
