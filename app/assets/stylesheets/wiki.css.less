@@ -1,97 +1,49 @@
-.page-header__wiki {
-  display: flex;
-  margin: 20px 0;
-  border-bottom: 1px solid #d4d3d8;
-
-  .page-header__column {
-    flex: 50%;
-  }
-}
-
-.wiki-wrapper__buttons {
-  display: flex;
-
-  .left-column {
-    display: flex;
-    width: 100%;
-    justify-content: left;
-    align-items: center;
-
-    form {
-      margin: unset;
-
-      .form-control {
-        margin: unset;
-      }
-
-      .input-group-btn {
-        input {
-          margin: unset;
-        }
-      }
-    }
-  }
-
-  .right-column {
-    display: flex;
-    width: 100%;
-    justify-content: right;
-    align-items: center;
-
-    a {
-      margin: 0 0 0 5px;
-    }
-  }
-}
-
-.wiki-list {
-  .wiki-list__item {
-    margin-bottom: 10px;
-    border-bottom: 1px solid #d4d3d8;
-    padding: 10px 0;
-
-    .wiki__date {
-      font-size: 14px;
-      color: #939393;
-    }
-
-    .wiki__title {
-      font-size: 18px;
-      line-height: 1.2;
-      font-weight: 700;
-      margin: unset;
-
-      a {
-        text-decoration: none;
-        color: #000;
-
-        &:hover {
-          color: #0056b3;
-        }
-      }
-    }
-  }
-}
-
-.highlight {
-  margin-top: 20px;
-}
-
-.wiki-history {
+.wiki_actions {
   width: 100%;
-  margin-top: 10px;
-  margin-bottom: 10px;
-  padding: 10px;
+  padding: 0px;
+  text-align: right;
+}
 
-  .wiki-history__header td {
-    border-bottom: 2px dashed black;
+.wiki_wrapper {
+  margin: 10px 50px;
+  textarea {
+    resize: vertical;
+    display: block;
+    width: 80vw;
+    height: 300px;
+  }
+  input[type='text'] {
+    width: 440px;
+    height: 40px;
   }
 }
 
-.form-check {
-  margin: 15px 0;
+.wiki_row {
+  display: flex;
+}
 
-  input[type='checkbox'] {
-    margin: unset;
+.wiki_search {
+  input[type='search'] {
+    margin: 0;
   }
+}
+
+.wiki_column {
+  flex: 50%;
+}
+
+.wiki_list {
+  font-size: 18px;
+  margin: 0;
+  
+  li {
+    display: block;
+    margin-top: 10px;
+  }
+}
+
+.wiki_category {
+  margin: 10px 5px;
+  font-style: italic;
+  color: #666;  
 }

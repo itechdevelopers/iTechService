@@ -1,0 +1,10 @@
+= form_with model: @page do |f|
+  = f.label :title, t('.title')
+  = f.text_field :title
+  = f.label :content, t('.content')
+  = f.text_area :content
+  = f.collection_select(:wiki_page_category_id, WikiPageCategory.all, :id, :title, {prompt: t('.select_category')})
+  = f.fields_for :wiki_page_category do |ff|
+    = ff.label :title, t('.category_title')
+    = ff.text_field :title
+  = f.submit t('.submit'), class: 'submit btn btn-primary'

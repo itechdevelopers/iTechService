@@ -39,6 +39,7 @@ pickle-email-*.html
 .capistrano
 .tool-versions
 /.idea/
+/.vscode/
 /.ruby-gemset
 /.env.test
 .byebug_history

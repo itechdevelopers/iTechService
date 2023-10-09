@@ -1,0 +1,27 @@
+ru:
+  wiki_pages:
+    index:
+      wiki: 'Wiki'
+      new_page: 'Новая wiki-статья'
+      search: 'Поиск'
+    new:
+      wiki: 'Wiki'
+      create_new_page: 'Создание новой страницы'
+      title: 'Заголовок'
+      content: 'Содержание'
+      submit: 'Создать страницу'
+      category_title: 'Создайте новую категорию'
+      select_category: 'Выберите категорию'
+    show:
+      edit: 'Редактировать'
+      destroy: 'Удалить'
+      category: 'Категория: '
+      destroy_confirmation: 'Удалённая страница не может быть восстановлена. Вы уверены?'
+    edit:
+      title: 'Заголовок'
+      content: 'Содержание'
+      cancel: 'Отмена'
+      preview: 'Предпросмотр'
+      submit: 'Сохранить страницу'
+    form:
+      submit: 'Сохранить'

@@ -1,0 +1,15 @@
+.wiki_wrapper
+  .wiki_header
+    %h1= h(@page.title)
+
+  .wiki_category= "#{t('.category')} #{@page.wiki_page_category&.title}"
+  .wiki_actions.btn-group
+    = link_to t('.edit'), edit_wiki_page_path(@page), class: 'btn' if policy(WikiPage).manage?
+    = link_to t('.destroy'),
+      wiki_page_path(@page),
+      method: :delete,
+      class: 'btn btn-danger',
+      data: {confirm: t('.destroy_confirmation')} if policy(WikiPage).manage?
+
+  .wiki_content
+    = sanitize(auto_link(RedCloth.new(@page.content).to_html.html_safe))

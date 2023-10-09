@@ -347,7 +347,9 @@ Rails.application.routes.draw do
     resource 'order', only: %i[new create]
   end
 
-  wiki_root '/wiki'
+  resources :wiki_pages, path: 'wiki' do
+    get :search, on: :collection, defaults: {format: :js}
+  end
 
   authenticate :user do
     mount Sidekiq::Web => '/sidekiq'
