@@ -5,4 +5,7 @@ class WikiPagePolicy < CommonPolicy
   def search?
     read?
   end
+  def wiki_senior?
+    senior_manage?
+  end
 end

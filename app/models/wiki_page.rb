@@ -16,4 +16,7 @@ class WikiPage < ApplicationRecord
         )
       end
     }
+
+    scope :regular, -> { where(senior: false) }
+    scope :senior, -> { where(senior: true) }
 end

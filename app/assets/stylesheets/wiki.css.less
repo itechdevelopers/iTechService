@@ -12,24 +12,41 @@
     width: 80vw;
     height: 300px;
   }
+  input {
+    margin: 0;
+  }
   input[type='text'] {
     width: 440px;
-    height: 40px;
+    height: 20px;
   }
-}
+  .nav {
+    li {
+      font-size: 1.5rem;
+      font-weight: bold;
+    }
 
-.wiki_row {
-  display: flex;
+    a {
+      outline: none;
+    }
+  }
+  .wiki-row {
+    display: flex;
+  }
+  .wiki-column {
+    flex: 50%;
+  }
+  .tab-content {
+    overflow: visible;
+  }
+  .label-inline {
+    display: inline;
+  }
 }
 
 .wiki_search {
   input[type='search'] {
     margin: 0;
   }
-}
-
-.wiki_column {
-  flex: 50%;
 }
 
 .wiki_list {

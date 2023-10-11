@@ -60,6 +60,6 @@ class WikiPagesController < ApplicationController
     end
 
     def wiki_page_params
-      params.require(:wiki_page).permit(:content, :title, :wiki_page_category_id, :query, wiki_page_category_attributes: [:title])
+      params.require(:wiki_page).permit(:content, :title, :wiki_page_category_id, :senior, :query, wiki_page_category_attributes: [:title])
     end
 end

@@ -2,16 +2,11 @@ ru:
   wiki_pages:
     index:
       wiki: 'Wiki'
-      new_page: 'Новая wiki-статья'
-      search: 'Поиск'
+      wiki_for_seniors: 'Wiki для руководителей'
     new:
       wiki: 'Wiki'
       create_new_page: 'Создание новой страницы'
-      title: 'Заголовок'
-      content: 'Содержание'
       submit: 'Создать страницу'
-      category_title: 'Создайте новую категорию'
-      select_category: 'Выберите категорию'
     show:
       edit: 'Редактировать'
       destroy: 'Удалить'
@@ -24,4 +19,12 @@ ru:
       preview: 'Предпросмотр'
       submit: 'Сохранить страницу'
     form:
+      category_title: 'Создайте новую категорию'
+      select_category: 'Выберите категорию'
+      title: 'Заголовок'
+      content: 'Содержание'
       submit: 'Сохранить'
+      senior: 'Статья для руководителей?'
+    actions:
+      search: 'Поиск'
+      new_page: 'Новая wiki-статья'
