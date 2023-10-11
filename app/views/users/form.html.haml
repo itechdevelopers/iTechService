@@ -74,6 +74,7 @@
       = f.input :username
 
       = f.input :role, collection: accessible_roles, value_method: :to_s, label_method: lambda{|role|t("users.roles.#{role}")}
+      = f.input :is_senior, as: :boolean, checked_value: :true, unchecked_value: :false
       - if can? :manage_rights, User
         .row-fluid
           .control-group.span6

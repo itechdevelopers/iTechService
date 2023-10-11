@@ -51,6 +51,10 @@ class ApplicationPolicy
     manage?
   end
 
+  def senior_manage?
+    senior?
+  end
+
   private
 
   def same_department?
@@ -81,6 +85,10 @@ class ApplicationPolicy
 
   def admin?
     user.admin?
+  end
+
+  def senior?
+    user.is_senior? || superadmin?
   end
 
   def has_role?(*roles)

@@ -1,0 +1,4 @@
+$("#wiki-regular .wiki_list").html("<%= j(render @pages.regular) %>");
+<% if policy(WikiPage).wiki_senior? %>
+  $("#wiki-senior .wiki_list").html("<%= j(render @pages.senior) %>");
+<% end %>

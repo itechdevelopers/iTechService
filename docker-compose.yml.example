@@ -1,0 +1,19 @@
+services:
+
+  db:
+    image: postgres
+    restart: always
+    volumes:
+     - ~/postgres_itech_data:/var/lib/postgresql/data
+    environment:
+      POSTGRES_DB: 
+      POSTGRES_USER: 
+      POSTGRES_PASSWORD: 
+    ports:
+     - "5430:5432"
+  app:
+    image: itechapp
+    volumes:
+     - .:/app
+    ports:
+     - "3000:3000"

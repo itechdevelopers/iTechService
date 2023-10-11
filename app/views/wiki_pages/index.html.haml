@@ -1,0 +1,17 @@
+.wiki_wrapper  
+  %ul.nav.nav-tabs
+    %li.active= link_to t('.wiki'), '#wiki-regular', data: {toggle: 'tab'}
+    - if policy(WikiPage).wiki_senior?
+      %li= link_to t('.wiki_for_seniors'), '#wiki-senior', data: {toggle: 'tab'}
+
+  .tab-content
+    #wiki-regular.tab-pane.active
+      = render 'actions'
+      %ul.wiki_list
+        = render @pages.regular
+
+    - if policy(WikiPage).wiki_senior?
+      #wiki-senior.tab-pane
+        = render 'actions'
+        %ul.wiki_list
+          = render @pages.senior

@@ -1,25 +1,65 @@
-# frozen_string_literal: true
-
 class WikiPagesController < ApplicationController
-  skip_after_action :verify_authorized
-  acts_as_wiki_pages_controller
+    before_action :set_page, only: %i[show edit update destroy]
+    skip_after_action :verify_same_origin_request, only: :search
 
-  private
+    def index
+      @pages = authorize WikiPage.all
+    end
 
-  def show_allowed?
-    policy(WikiPage).read?
-  end
+    def show
+     authorize @page
+    end
 
-  def history_allowed?
-    policy(WikiPage).manage?
-  end
+    def new
+      authorize WikiPage.new
+      category = WikiPageCategory.new
+      @page = WikiPage.new(wiki_page_category: category)
+    end
 
-  def edit_allowed?
-    policy(WikiPage).manage?
-  end
+    def edit
+      authorize @page
+    end
 
-  def wiki_page_params
-    params.require(:wiki_page)
-          .permit(:content, :creator_id, :path, :title, :updator_id)
-  end
+    def create
+      @page = authorize WikiPage.new(wiki_page_params.merge(creator: current_user))
+
+      if @page.save
+        redirect_to @page
+      else
+        render :new
+      end
+    end
+
+    def update
+      authorize @page
+      if @page.update(wiki_page_params.merge(updator: current_user))
+        redirect_to @page
+      else
+        render :edit
+      end
+    end
+
+    def destroy
+      authorize @page
+      @page.destroy
+      redirect_to wiki_pages_path
+    end
+
+    def search
+      authorize WikiPage
+      @pages = WikiPage.search(params[:query])
+      respond_to do |format|
+        format.js
+      end
+    end
+
+    private
+
+    def set_page
+      @page = WikiPage.find(params[:id])
+    end
+
+    def wiki_page_params
+      params.require(:wiki_page).permit(:content, :title, :wiki_page_category_id, :senior, :query, wiki_page_category_attributes: [:title])
+    end
 end
