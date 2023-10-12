@@ -27,4 +27,5 @@ ru:
       senior: 'Статья для руководителей?'
     actions:
       search: 'Поиск'
+      category_select: 'Категория не выбрана'
       new_page: 'Новая wiki-статья'
