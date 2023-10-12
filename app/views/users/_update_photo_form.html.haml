@@ -2,7 +2,7 @@
                   url: update_photo_user_path(user),
                   html: { class: 'form-horizontal user_form', autocomplete: 'off' } do |f|
   .control-group
-    #user_photo_fields.controls
+    #user_photo_fields.controls.user_profile-photo
       = image_tag f.object.photo.medium.url, class: 'avatar-medium' if f.object.photo?
       = f.file_field :photo
       = f.hidden_field :photo_cache
