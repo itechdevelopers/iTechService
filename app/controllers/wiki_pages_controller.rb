@@ -47,7 +47,7 @@ class WikiPagesController < ApplicationController
 
     def search
       authorize WikiPage
-      @pages = WikiPage.search(params[:query])
+      @pages = WikiPage.search(searching_params)
       respond_to do |format|
         format.js
       end
@@ -60,6 +60,11 @@ class WikiPagesController < ApplicationController
     end
 
     def wiki_page_params
-      params.require(:wiki_page).permit(:content, :title, :wiki_page_category_id, :senior, :query, wiki_page_category_attributes: [:title])
+      params.require(:wiki_page).permit(:content, :title, :wiki_page_category_id, :senior, :title_filter,
+       :wiki_page_category_filter, wiki_page_category_attributes: [:title])
+    end
+
+    def searching_params
+      params.slice(:title_filter, :wiki_page_category_filter)
     end
 end
