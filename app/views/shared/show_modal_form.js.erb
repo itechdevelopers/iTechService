@@ -1,8 +1,16 @@
-if($('#modal_form').length == 0) {
+var modalName = "<%= @modal if defined? @modal %>";
+
+if ($('#modal_form').length == 0) {
   $("body").append("<%= j(render('shared/modal_form')) %>");
 } else {
-  $("#modal_form").html("<%= j(render(params[:form_name] || 'modal_form_content')) %>");
+  var existingModalName = $("#modal_form").data("modalName");
+  if (!modalName || modalName !== existingModalName) {
+    $("#modal_form").html("<%= j(render(params[:form_name] || 'modal_form_content')) %>");
+  }
 }
+
+if (modalName) $("#modal_form").data("modalName", modalName);
 $("#modal_form:hidden").modal('show');
+
 $("a[rel~=popover], .has-popover").popover();
 $("a[rel~=tooltip], .has-tooltip").tooltip();

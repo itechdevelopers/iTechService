@@ -69,10 +69,11 @@ $(document).on 'click', '.remove_fields', (event) ->
 
 $(document).on 'shown', '#modal_form', ->
   $('html,body').css('overflow', 'hidden');
+  $('#modal_form textarea').focus();
 
 $(document).on 'hidden', '#modal_form', ->
   $('html,body').css 'overflow', 'auto'
-  $('#modal_form').remove()
+  $('#modal_form').hide()
   $('.product_selector.active').removeClass('active')
   $('.product_select_button.active').removeClass('active')
 
