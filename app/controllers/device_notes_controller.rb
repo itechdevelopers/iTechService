@@ -6,7 +6,7 @@ class DeviceNotesController < ApplicationController
     @service_job = find_service_job
     @device_notes = @service_job.device_notes.newest_first
     @device_note = @service_job.device_notes.build(user_id: current_user.id)
-    @modal = 'device-notes'
+    @modal = "device-notes-#{@service_job.id}"
     respond_to do |format|
       format.js { render 'shared/show_modal_form' }
     end
