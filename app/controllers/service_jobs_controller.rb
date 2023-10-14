@@ -119,6 +119,7 @@ class ServiceJobsController < ApplicationController
 
   def edit
     @service_job = find_record ServiceJob.includes(:device_notes)
+    @modal = 'service-job'
     build_device_note
     log_viewing
     respond_to do |format|
