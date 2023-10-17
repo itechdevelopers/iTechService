@@ -1,5 +1,5 @@
 class WikiPageCategory < ApplicationRecord
-  has_many :wiki_pages
+  has_many :wiki_pages, dependent: :nullify
 
   validates :title, presence: true
   

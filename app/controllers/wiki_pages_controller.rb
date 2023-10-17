@@ -1,5 +1,6 @@
 class WikiPagesController < ApplicationController
     before_action :set_page, only: %i[show edit update destroy]
+    before_action :set_category, only: %i[create update]
     skip_after_action :verify_same_origin_request, only: :search
 
     def index
@@ -21,7 +22,7 @@ class WikiPagesController < ApplicationController
     end
 
     def create
-      @page = authorize WikiPage.new(wiki_page_params.merge(creator: current_user))
+      @page = authorize WikiPage.new(wiki_page_params.merge(creator: current_user, wiki_page_category: @category))
 
       if @page.save
         redirect_to @page
@@ -32,7 +33,7 @@ class WikiPagesController < ApplicationController
 
     def update
       authorize @page
-      if @page.update(wiki_page_params.merge(updator: current_user))
+      if @page.update(wiki_page_params.merge(updator: current_user, wiki_page_category: @category))
         redirect_to @page
       else
         render :edit
@@ -59,9 +60,13 @@ class WikiPagesController < ApplicationController
       @page = WikiPage.find(params[:id])
     end
 
+    def set_category
+      @category = WikiPageCategory.find_or_create_by(title: params[:category_title])
+    end
+
     def wiki_page_params
-      params.require(:wiki_page).permit(:content, :title, :wiki_page_category_id, :senior, :title_filter,
-       :wiki_page_category_filter, wiki_page_category_attributes: [:title])
+      params.require(:wiki_page).permit(:content, :title, :category_title, :senior, :title_filter,
+       :wiki_page_category_filter)
     end
 
     def searching_params

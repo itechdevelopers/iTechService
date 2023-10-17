@@ -60,3 +60,4 @@
 //= require users
 //= require receipts
 //= require service
+//= require wiki_pages

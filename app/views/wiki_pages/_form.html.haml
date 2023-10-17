@@ -7,8 +7,12 @@
       = f.check_box :senior, {}, 'true', 'false'
   = f.label :content, t('.content')
   = f.text_area :content
-  = f.collection_select(:wiki_page_category_id, WikiPageCategory.all, :id, :title, {prompt: t('.select_category')})
-  = f.fields_for :wiki_page_category do |ff|
-    = ff.label :title, t('.category_title')
-    = ff.text_field :title
+  = text_field_tag :category_title, '', placeholder: t('.select_category'), class: "category-chosen-value", autocomplete: "off"
+  %ul.categories-value-list
+    - if policy(WikiPage).wiki_senior?
+      - WikiPageCategory.all.each do |category|
+        %li= category.title
+    - else
+      - WikiPageCategory.only_non_senior.each do |category|
+        %li= category.title
   = f.submit t('.submit'), class: 'submit btn btn-primary'

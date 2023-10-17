@@ -13,6 +13,7 @@ ru:
       category: 'Категория: '
       destroy_confirmation: 'Удалённая страница не может быть восстановлена. Вы уверены?'
     edit:
+      edit: 'Редактировать статью'
       title: 'Заголовок'
       content: 'Содержание'
       cancel: 'Отмена'
@@ -29,3 +30,4 @@ ru:
       search: 'Поиск'
       category_select: 'Категория не выбрана'
       new_page: 'Новая wiki-статья'
+      manage_categories: 'Управление категориями'

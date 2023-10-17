@@ -10,3 +10,17 @@
         = f.submit t('.search'), class: 'btn btn-primary'
   .wiki-column.text-right
     = link_to t('.new_page'), new_wiki_page_path, class: 'btn btn-success'
+    = link_to t('.manage_categories'), '#', class: 'btn', id: 'manage-categories'
+    %ul.wiki_manage_categories
+      - if policy(WikiPage).wiki_senior?
+        - WikiPageCategory.all.each do |category|
+          %li{id: "wiki_page_category_#{category.id}"}
+            = category.title
+            .btn-group
+              = link_to_destroy_small category, remote: true
+      - else
+        - WikiPageCategory.only_non_senior.each do |category|
+          %li{id: "wiki_page_category_#{category.id}"}
+            = category.title
+            .btn-group
+              = link_to_destroy_small category, remote: true

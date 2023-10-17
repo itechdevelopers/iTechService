@@ -1,5 +1,5 @@
 .wiki_wrapper
-  %h1= t('.edit')
+  %h1= @page.title
 
   .wiki_content
     = sanitize(auto_link(RedCloth.new(@page.content).to_html.html_safe))
