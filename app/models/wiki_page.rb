@@ -5,7 +5,7 @@ class WikiPage < ApplicationRecord
 
     accepts_nested_attributes_for :wiki_page_category, reject_if: :all_blank
 
-    validates :content, :creator_id, presence: true
+    validates :content, :title, presence: true, allow_blank: false
 
     def self.search(params)
       results = all
