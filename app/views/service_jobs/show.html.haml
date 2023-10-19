@@ -195,7 +195,7 @@
 
 .form-actions
   = link_to_edit @service_job
-  = button_to_archive_service_job @service_job if @service_job.at_done?
+  = render 'pay_links', service_job: @service_job
   - if can? :destroy, service_job
     %a.destroy_service_job_btn.btn.btn-danger{'data-target': "#modalConfirmDeleteJob", 'data-row-id': @service_job.id, 'data-toggle': "modal", type: "button"}
       = "#{glyph(:trash)} #{t 'destroy'}".html_safe
