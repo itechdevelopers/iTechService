@@ -6,3 +6,5 @@
       = link_to(glyph(:money) + t('sales.payment').html_safe, edit_sale_path(service_job.sale_id), target: '_blank', class: 'btn btn-success')
     - else
       = link_to glyph(:money) + t('sales.payment').html_safe, sale_path(service_job.sale_id), target: '_blank', class: 'btn btn-success'
+  - else
+    = button_to_archive_service_job(@service_job, hidden: @service_job.work_order_filled?) if can?(:archive, @service_job)
