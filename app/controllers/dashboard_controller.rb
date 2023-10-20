@@ -73,6 +73,7 @@ class DashboardController < ApplicationController
         if params[:location].present?
           location = Location.find(params[:location])
           @service_jobs = @service_jobs.located_at(location)
+          @location = location
           @location_name = location.name
         else
           @service_jobs = @service_jobs.in_department(current_department).pending

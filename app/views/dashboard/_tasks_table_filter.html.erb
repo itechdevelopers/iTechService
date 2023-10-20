@@ -10,7 +10,7 @@
           <ul class="dropdown-menu">
             <% ProductGroup.equipment_children.each do |product_group| %>
               <li>
-                <%= link_to product_group.name + ' - ' + current_jobs_count_by_group(product_group), actual_tasks_path(product_group_id: product_group.id), remote: true %>
+                <%= link_to product_group.name + ' - ' + jobs_count_by_group_and_location(product_group, @location), actual_tasks_path(product_group_id: product_group.id), remote: true %>
               </li>
             <% end %>
           </ul>

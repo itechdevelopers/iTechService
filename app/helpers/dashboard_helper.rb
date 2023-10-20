@@ -143,7 +143,10 @@ module DashboardHelper
     end.gsub('\n', '')
   end
 
-  def current_jobs_count_by_group(product_group)
-    ServiceJob.pending.located_at(current_user.location).of_product_group(product_group).count.to_s
+  def jobs_count_by_group_and_location(product_group, location = nil)
+    jobs = location.present? ?
+           ServiceJob.pending.located_at(location) :
+           ServiceJob.pending
+    jobs.of_product_group(product_group).count.to_s
   end
 end
