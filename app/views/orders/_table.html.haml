@@ -50,10 +50,11 @@
               = link_to_destroy_small order if can? :destroy, order
             = button_to_change_order_status(order) unless order.canceled?
         %tr{class: row_class, id: "edit_order_#{ order.id }_comment"}
-          %td{colspan: 12}= order.comment
+          %td{colspan: 6}
+            %strong Комментарий: 
+            = order.comment
 
-        %tr{class: row_class, id: "edit_order_#{ order.id }_user_comment"}
-          %td{colspan: 12}= order.user_comment
+          = last_note(order)
 
         %tr
           %td{colspan: 12}
