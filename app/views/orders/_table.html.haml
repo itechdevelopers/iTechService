@@ -47,6 +47,7 @@
             .btn-group
               -#= link_to_show_small order
               = link_to_edit_small order if can? :edit, order
+              = link_to glyph("file-alt"), order_order_notes_path(order), class: "btn btn-small", remote: true
               = link_to_destroy_small order if can? :destroy, order
             = button_to_change_order_status(order) unless order.canceled?
         %tr{class: row_class, id: "edit_order_#{ order.id }_comment"}

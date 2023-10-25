@@ -2,3 +2,5 @@ ru:
   order_notes:
     form:
       submit: 'Создать Заметку'
+    modal_form_content:
+      title: 'Заметки к заказу № %{order}'
