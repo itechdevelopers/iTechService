@@ -11,6 +11,8 @@ ru:
       search_user_placeholder: "Сотрудник"
       title: 'Заказы'
     link: 'Заказы'
+    notes:
+      last: "Последняя заметка"
     object_kinds:
       accessory: 'Аксессуар'
       all_kinds: 'Все типы'

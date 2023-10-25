@@ -1,10 +1,20 @@
 # frozen_string_literal: true
 
 class OrderNotesController < ApplicationController
+  before_action :find_order
+
+  def index
+    authorize OrderNote
+    @note = @order.notes.build(author: current_user)
+    @modal = "order-notes-#{@order.id}"
+    respond_to do |format|
+      format.js { render 'shared/show_modal_form' }
+    end
+  end
+
   def create
     authorize OrderNote
-    order = policy_scope(Order).find(params[:order_id])
-    order_note = order.notes.build(order_note_params)
+    order_note = @order.notes.build(order_note_params)
     order_note.author = current_user
 
     respond_to do |format|
@@ -14,6 +24,12 @@ class OrderNotesController < ApplicationController
         format.js { render_error order_note.errors.full_messages.join('. ') }
       end
     end
+  end
+
+  private
+
+  def find_order
+    @order = Order.find(params[:order_id])
   end
 
   def order_note_params

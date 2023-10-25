@@ -1,9 +1,10 @@
 # frozen_string_literal: true
 
 class DeviceNotesController < ApplicationController
+  before_action :find_service_job
+
   def index
     authorize DeviceNote
-    @service_job = find_service_job
     @device_notes = @service_job.device_notes.newest_first
     @device_note = @service_job.device_notes.build(user_id: current_user.id)
     @modal = "device-notes-#{@service_job.id}"
@@ -13,7 +14,6 @@ class DeviceNotesController < ApplicationController
   end
 
   def new
-    @service_job = find_service_job
     @device_note = authorize @service_job.device_notes.build(user_id: current_user.id)
     respond_to do |format|
       format.js
@@ -21,7 +21,6 @@ class DeviceNotesController < ApplicationController
   end
 
   def create
-    @service_job = find_service_job
     @device_note = authorize @service_job.device_notes.build(device_note_params)
     @device_note.user = current_user
 
@@ -39,7 +38,7 @@ class DeviceNotesController < ApplicationController
   private
 
   def find_service_job
-    policy_scope(ServiceJob).find(params[:service_job_id])
+    @service_job = policy_scope(ServiceJob).find(params[:service_job_id])
   end
 
   def device_note_params

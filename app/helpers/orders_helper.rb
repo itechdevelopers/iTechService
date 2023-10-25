@@ -89,4 +89,23 @@ module OrdersHelper
       [Order.human_attribute_name("payment_method.#{name}"), name]
     end
   end
+
+  def last_note(order)
+    content_tag(:td, class: "order_note_column", colspan: 6) do
+      content_tag(:strong, "#{t('orders.notes.last')}: ") +
+        content_tag(:span, class: "order_note", data: { order_id: order.id }) do
+          trim_text(order.notes&.newest&.content)
+        end +
+        content_tag(:span, class: "order_note_full hidden", data: { order_id: order.id }) do
+          order.notes&.newest&.content
+        end
+    end
+  end
+
+  def trim_text(text, max_length = 50)
+    return "" if text.nil?
+    return text.size > max_length ?
+           text[0, max_length] + "..." :
+           text
+  end
 end

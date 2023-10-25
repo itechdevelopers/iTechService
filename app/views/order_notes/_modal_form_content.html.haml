@@ -1,0 +1,9 @@
+.modal-header
+  = button_to_close_modal
+  %h3= t('.title', order: @order.number)
+
+.modal-body
+  #order_notes.order_notes= cell(OrderNote::Cell::Item, collection: @order.notes.oldest_first).()
+
+.modal-footer
+  = cell(OrderNote::Cell::Form, @order.notes.build).()
