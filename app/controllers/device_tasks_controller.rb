@@ -5,6 +5,7 @@ class DeviceTasksController < ApplicationController
 
   def edit
     @device_task = find_record DeviceTask
+    @modal = "device-task-#{@device_task.id}"
     render 'shared/show_modal_form'
   end
 
