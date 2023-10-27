@@ -69,7 +69,7 @@ $(document).on 'click', '.remove_fields', (event) ->
 
 $(document).on 'shown', '#modal_form', ->
   $('html,body').css('overflow', 'hidden');
-  $('#modal_form textarea').focus();
+  $('#modal_form textarea:first').focus();
 
 $(document).on 'hidden', '#modal_form', ->
   $('html,body').css 'overflow', 'auto'

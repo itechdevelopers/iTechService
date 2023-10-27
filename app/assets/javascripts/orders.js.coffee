@@ -13,12 +13,12 @@ jQuery ->
   $('#order_form #client_search').keydown ->
     $('#order_customer_id').val('') if $(this).val() is ''
 
-  $(document).on 'click', '.order_note', (event)->
+  $(document).on 'click', '.last_order_note', (event)->
     order_id = $(this).data('order-id')
     $(event.currentTarget).addClass('hidden')
-    $('.order_note_full[data-order-id="' + order_id + '"').removeClass('hidden')
+    $('.last_order_note_full[data-order-id="' + order_id + '"').removeClass('hidden')
 
-$(document).on 'click', '.order_note_full', (event)->
+  $(document).on 'click', '.last_order_note_full', (event)->
     order_id = $(this).data('order-id')
     $(event.currentTarget).addClass('hidden')
-    $('.order_note[data-order-id="' + order_id + '"').removeClass('hidden')
+    $('.last_order_note[data-order-id="' + order_id + '"').removeClass('hidden')
