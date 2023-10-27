@@ -5,7 +5,7 @@ class DeviceNotesController < ApplicationController
 
   def index
     authorize DeviceNote
-    @device_notes = @service_job.device_notes.newest_first
+    @device_notes = @service_job.device_notes.oldest_first
     @device_note = @service_job.device_notes.build(user_id: current_user.id)
     @modal = "device-notes-#{@service_job.id}"
     respond_to do |format|
