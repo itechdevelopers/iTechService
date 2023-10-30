@@ -8,7 +8,8 @@ class WikiPageCategory < ApplicationRecord
     "5b6dd5": ["#0ef383", "#0ef383"],
     "299c6f": ["#124100", "#124100"],
     "d2ce2a": ["#43867a", "#43867a"],
-    "db4216": ["#abf7e1", "#abf7e1"]
+    "db4216": ["#abf7e1", "#abf7e1"],
+    "ffffff": ["#000000", "#000000"]
   }.freeze
 
   has_many :wiki_pages, dependent: :nullify
