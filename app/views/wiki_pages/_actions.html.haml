@@ -10,7 +10,8 @@
         = f.submit t('.search'), class: 'btn btn-primary'
   .wiki-column.text-right
     = link_to t('.new_page'), new_wiki_page_path, class: 'btn btn-success'
-    = link_to t('.manage_categories'), '#', class: 'btn', id: 'manage-categories'
+    - if policy(WikiPage).wiki_senior?
+      = link_to t('.manage_categories'), '#', class: 'btn', id: 'manage-categories'
     %ul.wiki_manage_categories
       - if policy(WikiPage).wiki_senior?
         = render WikiPageCategory.all
