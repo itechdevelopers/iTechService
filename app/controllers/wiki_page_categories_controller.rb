@@ -8,6 +8,13 @@ class WikiPageCategoriesController < ApplicationController
     @category.destroy
   end
 
+  def update
+    @category.update(category_params)
+    respond_to do |format|
+      format.js
+    end
+  end
+
   private
   
   def set_category
@@ -15,6 +22,6 @@ class WikiPageCategoriesController < ApplicationController
   end
 
   def category_params
-    params.require(:wiki_page_category).permit(:title)
+    params.require(:wiki_page_category).permit(:title, :color_tag)
   end
 end

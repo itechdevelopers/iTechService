@@ -1,3 +1,23 @@
+@wikiColors: #e0ecea,#060503,#b8aaaf,#281f0a,#5b6dd5,#299c6f,#d2ce2a,#db4216;
+
+.generate-color-styles(@color) {
+  .color-@{color} {
+    background-color: @color;
+  }
+}
+
+.loop-colors(@index: 1) when (@index <= length(@wikiColors)) {
+  @color: extract(@wikiColors, @index);
+  li:nth-child(@{index}) {
+    background-color: @color;
+    color: #fff;
+  }
+}
+
+.wiki_tag-choose-color {
+  .loop-colors();
+}
+
 .wiki_wrapper {
   margin: 10px 50px;
   
@@ -143,19 +163,52 @@
 
   &.open {
     max-height: 100%;
+    overflow: visible;
     background-color: white;
     border: 1px solid #d2d2d2;
     border-radius: 10px;
   }
-
+  
   li {
+    position: relative;
     padding: 10px 5px;
     display: grid;
-    grid-template-columns: auto auto;
+    grid-template-columns: 30px auto auto;
     border-bottom: 1px solid #d2d2d2;
-
+    
     .btn-group {
       justify-self: flex-end;
+    }
+    
+    .btn-danger {
+      width: 10px;
+    }
+
+    .change-colors-btn {
+      display: inline-block;
+    }
+    
+    .wiki_color-tag {
+      width: 17px;
+      height: 20px;
+      border: 1px solid #d2d2d2;
+      cursor: pointer;
+    }
+    
+    .wiki_manage-colors-tags {
+      position: absolute;
+      left: -30px;
+      width: 40px;
+      overflow: hidden;
+      max-height: 0;
+
+      &.open {
+        overflow: visible;
+      }
+
+      div {
+        margin-bottom: 7px;
+      }
     }
   }
 }

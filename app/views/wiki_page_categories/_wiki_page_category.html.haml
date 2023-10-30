@@ -1,0 +1,6 @@
+- category = wiki_page_category
+%li{id: "wiki_page_category_#{category.id}"}
+  = color_tag(category)
+  = category.title
+  .btn-group
+    = link_to_destroy_small category, remote: true

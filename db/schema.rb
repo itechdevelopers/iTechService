@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20231016113353) do
+ActiveRecord::Schema.define(version: 20231029115951) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -1442,6 +1442,7 @@ ActiveRecord::Schema.define(version: 20231016113353) do
     t.string "title"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.string "color_tag", default: "ffffff"
     t.index ["title"], name: "index_wiki_page_categories_on_title", unique: true
   end
 
