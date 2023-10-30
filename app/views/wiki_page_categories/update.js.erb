@@ -1,0 +1,12 @@
+fontColor = "<%= @category.matching_font_color %>";
+borderColor = "<%= @category.matching_border_color %>";
+bgColor = "#<%= @category.color_tag %>";
+
+colorTag = $('.wiki_color-tag[data-category="<%= @category.id %>"]');
+colorTag.css('background-color', bgColor);
+colorTag.css('border-color', borderColor);
+
+tag = $('.wiki_tag[data-category="<%= @category.id %>"]');
+tag.css('background-color', bgColor);
+tag.css('color', fontColor);
+tag.css('border-color', borderColor);

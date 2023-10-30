@@ -13,14 +13,4 @@
     = link_to t('.manage_categories'), '#', class: 'btn', id: 'manage-categories'
     %ul.wiki_manage_categories
       - if policy(WikiPage).wiki_senior?
-        - WikiPageCategory.all.each do |category|
-          %li{id: "wiki_page_category_#{category.id}"}
-            = category.title
-            .btn-group
-              = link_to_destroy_small category, remote: true
-      - else
-        - WikiPageCategory.only_non_senior.each do |category|
-          %li{id: "wiki_page_category_#{category.id}"}
-            = category.title
-            .btn-group
-              = link_to_destroy_small category, remote: true
+        = render WikiPageCategory.all

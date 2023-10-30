@@ -1,9 +1,4 @@
 %li
   = link_to wiki_page.title, wiki_page_path(wiki_page)
   - if wiki_page.wiki_page_category.present?
-    = button_to wiki_page.wiki_page_category.title, 
-    search_wiki_pages_path,
-    method: :get,
-    params: {wiki_page_category_filter: wiki_page.wiki_page_category.id},
-    remote: true,
-    class: 'wiki_tag btn-mini'
+    = wiki_category_tag_btn(wiki_page.wiki_page_category)

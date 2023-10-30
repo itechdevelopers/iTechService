@@ -39,3 +39,8 @@ jQuery ->
 
   manageCategoriesBtn.on 'click', ->
     $('.wiki_manage_categories').toggleClass('open')
+
+  $(document).on 'click', '.change-colors-btn', (event)->
+    category_id = $(this).data('category')
+    console.log(category_id)
+    $(".wiki_manage-colors-tags[data-category='" + category_id + "']").toggleClass('open')
