@@ -2,4 +2,11 @@
   = device_movement_telegram_tag(device_note.user.work_phone)
   %small{style: "color: #{device_note.user.color}"}
     = "#{device_note.user.short_name} [#{l(device_note.created_at, format: :date_time)}]"
-  %p= device_note.content
+    = edited_by_tag(device_note)
+    - if policy(device_note).update?
+      = link_to icon_tag(:edit),
+        "#",
+        class: "form-inline-link",
+        data: {form_inline_id: "device_note_#{device_note.id}"}
+  = content_tag(:p, device_note.content, class: "content-inline", data: {form_inline_id: "device_note_#{device_note.id}"})
+  = device_note_form_inline(device_note)

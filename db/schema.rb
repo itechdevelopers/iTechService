@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20231029115951) do
+ActiveRecord::Schema.define(version: 20231031065318) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -851,6 +851,16 @@ ActiveRecord::Schema.define(version: 20231029115951) do
     t.string "name", limit: 255
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+  end
+
+  create_table "record_edits", force: :cascade do |t|
+    t.bigint "user_id"
+    t.string "editable_type"
+    t.bigint "editable_id"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["editable_type", "editable_id"], name: "index_record_edits_on_editable_type_and_editable_id"
+    t.index ["user_id"], name: "index_record_edits_on_user_id"
   end
 
   create_table "repair_groups", id: :serial, force: :cascade do |t|

@@ -1,7 +1,8 @@
 # frozen_string_literal: true
 
 class DeviceNotesController < ApplicationController
-  before_action :find_service_job
+  before_action :find_service_job, only: %i[index new create]
+  before_action :find_device_note, only: %i[update]
 
   def index
     authorize DeviceNote
@@ -35,10 +36,27 @@ class DeviceNotesController < ApplicationController
     end
   end
 
+  def update
+    authorize @device_note
+    record_edit = RecordEdit.find_or_create_by!(editable: @device_note, user: current_user)
+    record_edit.touch
+    respond_to do |format|
+      if @device_note.update(device_note_params)
+        format.js
+      else
+        format.js { head :unprocessable_entity }
+      end
+    end
+  end
+
   private
 
   def find_service_job
     @service_job = policy_scope(ServiceJob).find(params[:service_job_id])
+  end
+
+  def find_device_note
+    @device_note = DeviceNote.find(params[:id])
   end
 
   def device_note_params

@@ -7,6 +7,8 @@ class DeviceNote < ApplicationRecord
   belongs_to :service_job
   belongs_to :user
 
+  has_many :record_edits, dependent: :destroy, as: :editable
+
   delegate :department, :department_id, to: :service_job
   validates_presence_of :content
 

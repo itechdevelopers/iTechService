@@ -242,4 +242,26 @@ module ServiceJobsHelper
 
     {current: DateTime.current, return_at: DateTime.parse(service_job.return_at.to_s)}
   end
+
+  def device_note_form_inline(note)
+    form_with model: note,
+             url: device_note_path(note),
+             method: :put,
+             local: false,
+             data: {form_inline_id: "device_note_#{note.id}"},
+             class: "hidden form-inline" do |form|
+      c = "".html_safe
+      c += form.text_area :content
+      c += form.submit "Обновить", class: "btn btn-submit", style: "display: block;"
+    end
+  end
+
+  def edited_by_tag(note)
+    last_edit = RecordEdit.find_by(editable: note)
+    label = ""
+    if last_edit.present?
+      label = "Отредактировано #{last_edit.user.short_name} [#{l(last_edit.updated_at, format: :date_time)}]"
+    end
+    content_tag :i, label
+  end
 end
