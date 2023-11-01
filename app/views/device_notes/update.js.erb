@@ -1,2 +1,2 @@
-note_id = "device_note_<%= @device_note.id %>";
-$(".device_notes #" + note_id).replaceWith("<%= j render @device_note %>")
+note_id = "#device_note_<%= @device_note.id %>";
+$(note_id).replaceWith("<%= j render @device_note %>")
