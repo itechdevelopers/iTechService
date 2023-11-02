@@ -110,4 +110,4 @@
 
   .span6
     = secondary_form_container
-    #device_notes_container= render 'device_notes' if @service_job.persisted?
+    #device_notes_container= render 'device_notes', editable: true if @service_job.persisted?
