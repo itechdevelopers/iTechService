@@ -1,6 +1,6 @@
 $notes = $('#device_notes_<%= @service_job.id %>');
 if ($notes.length > 0) {
-  $notes.append('<%= j render(@device_note) %>');
+  $notes.append('<%= j (render @device_note, editable: true) %>');
   $notes.scrollTop($notes[0].scrollHeight);
   $('#device_note_content').val('');
 } else {

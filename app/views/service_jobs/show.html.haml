@@ -190,7 +190,7 @@
 
   .span4
     #sms_notification_form_container
-    #device_notes_container= render 'device_notes'
+    #device_notes_container= render 'device_notes', editable: true
     = cell(Service::Job::Cell::Feedbacks, @service_job)
 
 .form-actions

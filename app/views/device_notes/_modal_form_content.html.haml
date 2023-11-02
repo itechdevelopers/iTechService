@@ -2,6 +2,6 @@
   = button_to_close_modal
   %h3= t('.title', service_job: @service_job.type_name)
 
-.modal-body{id: "device_notes_#{@service_job.id}"}= render @device_notes
+.modal-body{id: "device_notes_#{@service_job.id}"}= render @device_notes, editable: true
 
 .modal-footer= render 'form'
