@@ -74,7 +74,7 @@
 
         .span6
           %b Заметки
-          .device_notes{id: "device_notes_#{service_job.id}"}= render service_job.device_notes.oldest_first
+          .device_notes{id: "device_notes_#{service_job.id}"}= render service_job.device_notes.oldest_first, editable: false
 
       - if can? :write_tech_notice, @device_task.service_job || ServiceJob
         = f.simple_fields_for :service_job do |ff|

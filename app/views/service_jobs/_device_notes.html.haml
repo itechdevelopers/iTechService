@@ -1,4 +1,4 @@
-.device_notes{id: "device_notes_#{@service_job.id}"}= render @service_job.device_notes.oldest_first
+.device_notes{id: "device_notes_#{@service_job.id}"}= render @service_job.device_notes.oldest_first, editable: editable
 = render 'device_notes/form'
 
 :javascript
