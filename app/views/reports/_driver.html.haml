@@ -1,3 +1,7 @@
+.row-fluid
+  .span6
+    = text_field_tag "search", "", id: "search-input", placeholder: "Поиск"
+
 %table#supply_report.table.table-bordered.table-hover
   %caption= report_title report
   %thead
@@ -8,13 +12,30 @@
     %tr
       - report.result[:supply_categories].each do |supply_category|
         %tr.detailable
-          %td= supply_category[:name]
-          %td= human_currency supply_category[:sum]
+          %td.searchable= supply_category[:name]
+          %td= human_currency_report supply_category[:sum]
         - supply_category[:supplies].each do |supply|
           %tr.details
-            %td= supply.name
-            %td= "#{supply.quantity} x #{human_currency(supply.cost)}"
+            %td.searchable= supply.name
+            %td= "#{supply.quantity} x #{human_currency_report(supply.cost)}"
   %tfoot
     %tr
       %td= t 'total'
-      %td= human_currency report.result[:supplies_sum]
+      %td= human_currency_report report.result[:supplies_sum]
+
+:scss
+  .highlighted {
+    background-color: yellow;
+  }
+
+:coffeescript
+  $(document).ready ->
+    $('#search-input').on 'input', ->
+      searchText = $('#search-input').val().toLowerCase()
+      $('.searchable').each ->
+        textContent = $(this).text().toLowerCase()
+        $element = $(this)
+        if textContent.includes(searchText)
+          $element.html($element.text().replace(new RegExp(searchText, 'gi'), '<span class="highlighted">$&</span>'))
+        else
+          $element.html($element.text())
