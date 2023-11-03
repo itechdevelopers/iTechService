@@ -279,6 +279,10 @@ module ApplicationHelper
     value.nil? ? '-' : (with_unit ? number_to_currency(value, precision: 0, delimiter: ' ', separator: ',') : number_to_currency(value, precision: 2, delimiter: ' ', separator: ',', unit: ''))
   end
 
+  def human_currency_report(value, with_unit = false)
+    value.nil? ? '-' : (with_unit ? number_to_currency(value, precision: 0, delimiter: '', separator: ',') : number_to_currency(value, precision: 2, delimiter: '', separator: ',', unit: ''))
+  end
+
   def human_phone(value)
     value.nil? ? '-' : number_to_phone(value, area_code: true)
   end
