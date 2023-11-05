@@ -2,7 +2,11 @@
   = menu_group do
     = menu_item t('.service_job'), new_service_job_path if can? :create, ServiceJob
     = menu_item t('.free_service'), new_service_free_job_path if can? :create, Service::FreeJob
-    = menu_item t('.quick_order'), new_quick_order_path if can? :create, QuickOrder
+
+    = drop_down t('.quick_order') do
+      = menu_item t('.new_quick_order'), new_quick_order_path if can? :create, QuickOrder
+      = menu_item t('.current_quick_orders'), quick_orders_path if can? :read, QuickOrder
+      = menu_item t('.completed_quick_orders'), quick_orders_path(done: true) if can? :read, QuickOrder
 
     = drop_down t('.service') do
       = menu_item t('service_jobs.link', default: 'Service jobs'), service_jobs_path if can? :read, ServiceJob

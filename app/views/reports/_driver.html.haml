@@ -13,11 +13,11 @@
       - report.result[:supply_categories].each do |supply_category|
         %tr.detailable
           %td.searchable= supply_category[:name]
-          %td= human_currency_report supply_category[:sum]
+          %td.searchable= human_currency_report supply_category[:sum]
         - supply_category[:supplies].each do |supply|
           %tr.details
             %td.searchable= supply.name
-            %td= "#{supply.quantity} x #{human_currency_report(supply.cost)}"
+            %td.searchable= "#{supply.quantity} x #{human_currency_report(supply.cost)}"
   %tfoot
     %tr
       %td= t 'total'

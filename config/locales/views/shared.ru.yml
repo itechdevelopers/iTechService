@@ -56,6 +56,8 @@ ru:
     navbar:
       cash_drawer: 'Касса'
       chat: 'Чат'
+      completed_quick_orders: 'Выполненные'
+      current_quick_orders: 'Текущие'
       data_migration: 'Миграция данных'
       directory: 'Каталог'
       employees: 'Сотрудники'
@@ -64,6 +66,7 @@ ru:
       free_service: 'Бесплатный сервис'
       free_tasks: :service.free_task.view.index
       misc: 'Прочее'
+      new_quick_order: 'Новый'
       quick_orders: 'Быстрый заказ'
       quick_order: 'Быстрый заказ'
       rating: 'Рейтинг'
