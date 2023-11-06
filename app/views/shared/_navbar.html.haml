@@ -4,9 +4,9 @@
     = menu_item t('.free_service'), new_service_free_job_path if can? :create, Service::FreeJob
 
     = drop_down t('.quick_order') do
-      = menu_item t('.new_quick_order'), new_quick_order_path if can? :create, QuickOrder
-      = menu_item t('.current_quick_orders'), quick_orders_path if can? :read, QuickOrder
-      = menu_item t('.completed_quick_orders'), quick_orders_path(done: true) if can? :read, QuickOrder
+      = menu_item t('.new_quick_order'), new_quick_order_path, class: 'navbar_new' if can? :create, QuickOrder
+      = menu_item t('.current_quick_orders'), quick_orders_path, class: 'navbar_current' if can? :read, QuickOrder
+      = menu_item t('.completed_quick_orders'), quick_orders_path(done: true), class: 'navbar_completed' if can? :read, QuickOrder
 
     = drop_down t('.service') do
       = menu_item t('service_jobs.link', default: 'Service jobs'), service_jobs_path if can? :read, ServiceJob

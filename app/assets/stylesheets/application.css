@@ -15,6 +15,7 @@
  *= require _table_filter
  *= require _table_colors
  *= require _topbar
+ *= require navbar
  *= require announcements
  *= require bonuses
  *= require case_colors
