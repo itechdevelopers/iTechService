@@ -12,6 +12,7 @@ module ReportsHelper
       devices_not_archived
       active_tasks
       done_tasks
+      done_tasks_copy
       clients
       tasks_duration
       device_orders

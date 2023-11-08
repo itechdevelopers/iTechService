@@ -52,6 +52,8 @@ ru:
       title: 'Длительность выполнения задач'
     done_tasks:
       title: 'Выполненные задачи'
+    done_tasks_copy:
+      title: 'Выполненные задачи НОВЫЙ'
     orders_statuses:
       title: 'Отчет заказов. По сотрудникам'
     users:

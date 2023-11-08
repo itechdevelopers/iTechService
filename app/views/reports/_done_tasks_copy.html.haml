@@ -1,0 +1,29 @@
+%table#tasks_report.table.table-bordered.table-hover
+  %caption= report_title report
+  %thead
+    %tr
+      %th= DeviceTask.human_attribute_name :task
+      %th= t('reports.sum')
+      %th= t 'reports.qty'
+      %th= t 'reports.qty_paid'
+      %th= t 'reports.qty_free'
+  %tbody
+    - report.result[:tasks].each do |task|
+      %tr.task_row.detailable
+        %td= task[:name]
+        %td= number_to_currency(task[:sum], unit: '', precision: 0)
+        %td= task[:qty]
+        %td= task[:qty_paid]
+        %td= task[:qty_free]
+      - task[:service_jobs].each do |service_job|
+        %tr.service_job_row.details
+          %td.device_name= link_to service_job[:name], service_job_path(service_job[:id])
+          %td.task_cost= number_to_currency service_job[:cost], unit: '', precision: 0
+          %td{colspan: 3}
+  %tfoot
+    %tr
+      %td= t('reports.total')
+      %td= number_to_currency report.result[:tasks_sum], unit: '', precision: 0
+      %td= report.result[:tasks_qty]
+      %td= report.result[:tasks_qty_paid]
+      %td= report.result[:tasks_qty_free]

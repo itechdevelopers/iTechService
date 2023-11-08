@@ -45,6 +45,24 @@
         <% if report.show_param?(:product_group_id) %>
           <%= f.select :product_group_id, report.product_groups_collection, include_blank: true %>
         <% end %>
+
+        <% if report.show_param?(:product_group_ids) %>
+          <%= f.collection_select :product_group_ids, 
+                        report.product_groups_collection,
+                        :id,
+                        :name,
+                        {},
+                        { multiple: true, class: 'multiselect-pr-groups' } %>
+        <% end %>
+
+        <% if report.show_param?(:task_ids) %>
+          <%= f.collection_select :task_ids,
+                                  report.tasks_collection,
+                                  :id,
+                                  :name,
+                                  {},
+                                  { multiple: true, class: 'multiselect-tasks' } %>
+        <% end %>
       <% end %>
     </div>
   </div>
