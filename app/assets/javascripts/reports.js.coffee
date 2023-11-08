@@ -19,6 +19,44 @@ jQuery ->
           return
         return
 
+  if $('#report_form .multiselect-pr-groups').length
+    $('#report_form .multiselect-pr-groups').multiselect
+      enableClickableOptGroups: true,
+      nonSelectedText: 'Все группы девайсов',
+      includeSelectAllOption: true,
+      selectAllText: 'Все группы девайсов',
+      onInitialized: ->
+        $('#report_form .multiselect-group, #report_form .multiselect-option, #report_form .multiselect-all').each ->
+          $(this).attr('type', 'button')
+          return
+        return
+      onChange: (element, checked) ->
+        brands = $('#report_form .multiselect-pr-groups option:selected')
+        selected = []
+        $(brands).each (index, brand) ->
+          selected.push [ $(this).val() ]
+          return
+        return
+
+  if $('#report_form .multiselect-tasks').length
+    $('#report_form .multiselect-tasks').multiselect
+      enableClickableOptGroups: true,
+      nonSelectedText: 'Все задачи',
+      includeSelectAllOption: true,
+      selectAllText: 'Все задачи',
+      onInitialized: ->
+        $('#report_form .multiselect-group, #report_form .multiselect-option, #report_form .multiselect-all').each ->
+          $(this).attr('type', 'button')
+          return
+        return
+      onChange: (element, checked) ->
+        brands = $('#report_form .multiselect-tasks option:selected')
+        selected = []
+        $(brands).each (index, brand) ->
+          selected.push [ $(this).val() ]
+          return
+        return
+
   $('#report_name').change ->
     if $(this).val() == 'remnants'
       $('#report_store_id').show()

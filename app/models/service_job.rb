@@ -43,6 +43,11 @@ class ServiceJob < ApplicationRecord
     joins(item: :product).where(products: {product_group_id: ProductGroup.subtree_of(product_group)})
   }
 
+  scope :of_product_groups, ->(product_group_ids) {
+    pgs = product_group_ids.flat_map { |pg_id| ProductGroup.subtree_of(ProductGroup.find(pg_id)) }
+    joins(item: :product).where(products: {product_group_id: pgs})
+  }
+
   scope :order_return_at_asc, -> { order('service_jobs.return_at asc') }
   scope :order_created_at_asc, -> { order('service_jobs.created_at asc') }
 
