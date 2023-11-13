@@ -72,8 +72,12 @@ class CommentsController < ApplicationController
 
     respond_to do |format|
       if @comment.update_attributes(comment_params)
+        updated_text = comment_params.fetch(:content, @comment.content)
+        RecordEdit.create!(editable: @comment, user: current_user, updated_text: updated_text)
+        
         format.html { redirect_to @comment, notice: t('comments.updated') }
         format.json { head :no_content }
+        format.js
       else
         format.html { render action: 'edit' }
         format.json { render json: @comment.errors, status: :unprocessable_entity }

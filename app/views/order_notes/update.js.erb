@@ -1,0 +1,2 @@
+order_note_id = "#order_note_<%= @order_note.id %>";
+$(order_note_id).replaceWith("<%= j (cell(OrderNote::Cell::Item, @order_note).()) %>")

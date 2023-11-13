@@ -38,10 +38,10 @@ class DeviceNotesController < ApplicationController
 
   def update
     authorize @device_note
-    record_edit = RecordEdit.find_or_create_by!(editable: @device_note, user: current_user)
-    record_edit.touch
     respond_to do |format|
       if @device_note.update(device_note_params)
+        updated_text = device_note_params.fetch(:content, @device_note.content)
+        RecordEdit.create!(editable: @device_note, user: current_user, updated_text: updated_text)
         format.js
       else
         format.js { head :unprocessable_entity }

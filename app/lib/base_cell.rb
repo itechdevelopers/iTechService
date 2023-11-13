@@ -25,4 +25,17 @@ class BaseCell < Trailblazer::Cell
   def comment_form
     comment_form_for model
   end
+
+  def icon_tag(name)
+    "<i class='icon-#{name.to_s}'></i>".html_safe
+  end
+
+  def edited_by_tag(editable)
+    last_edit = RecordEdit.where(editable: editable).order(updated_at: :desc).limit(1).first
+    label = ""
+    if last_edit.present?
+      label = "Отредактировано #{last_edit.user.short_name} [#{l(last_edit.updated_at, format: :date_time)}]"
+    end
+    "<i>#{label}</i>"
+  end
 end

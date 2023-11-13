@@ -13,5 +13,5 @@ if ($('.comments').length > 0) {
 
 if ($('#comments').length > 0) {
   $('#comments').append("<%= j(cell(Comment::Cell::Preview, @comment).()) %>");
-  $('#comment_content').val('');
+  $('.main_form #comment_content').val('');
 }

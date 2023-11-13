@@ -1,0 +1,5 @@
+= simple_form_for model, html: {id: 'comment_form', remote: true, class: 'hidden form-inline', data: { form_inline_id: "comment_#{model.id}" }} do |f|
+  = f.hidden_field :commentable_type
+  = f.hidden_field :commentable_id
+  = f.input :content, input_html: {rows: 2}, label: false
+  = f.submit class: 'btn btn-submit'
