@@ -1,5 +1,9 @@
-.order_note
+.order_note id=element_id
   small style="color: #{author_color}"
     = author_name
     => timestamp
-  p = content
+    => update_link
+    => edited_by_tag
+  p.content-inline data-form-inline-id="order_note_#{id}" 
+    = content
+    => inline_form

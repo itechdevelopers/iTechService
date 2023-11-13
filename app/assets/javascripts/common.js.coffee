@@ -184,6 +184,11 @@ $(document).ajaxSend ->
 $(document).ajaxComplete ->
   hideSpinner()
 
+$(document).on 'click', '.form-inline-link', (event)->
+  data_id = $(this).data('form-inline-id')
+  $('.content-inline[data-form-inline-id="' + data_id + '"]').toggleClass('hidden')
+  $('.form-inline[data-form-inline-id="' + data_id + '"]').toggleClass('hidden')
+
 add_fields = (target, association, content) ->
   new_id = String((new Date).getTime()) + String(Math.floor((Math.random() * 100) + 1))
   regexp = new RegExp "new_" + association, "g"

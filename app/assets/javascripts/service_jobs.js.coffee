@@ -129,11 +129,6 @@ $(document).on 'click', '.returning_device_tooltip', ->
 $(document).on 'click', '#completion_act_link', ->
   $('#service_job_archive_button').removeClass('hidden')
 
-$(document).on 'click', '.form-inline-link', (event)->
-  data_id = $(this).data('form-inline-id')
-  $('.content-inline[data-form-inline-id="' + data_id + '"]').toggleClass('hidden')
-  $('.form-inline[data-form-inline-id="' + data_id + '"]').toggleClass('hidden')
-
 #TODO implement via cable
 #PrivatePub.subscribe '/service_jobs/new', (data, channel)->
 #  if data.service_jobs.location_id == $('#profile_link').data('location')

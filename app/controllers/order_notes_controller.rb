@@ -1,7 +1,8 @@
 # frozen_string_literal: true
 
 class OrderNotesController < ApplicationController
-  before_action :find_order
+  before_action :find_order, only: %i[index create]
+  before_action :find_order_note, only: %i[update]
 
   def index
     authorize OrderNote
@@ -26,10 +27,27 @@ class OrderNotesController < ApplicationController
     end
   end
 
+  def update
+    authorize @order_note
+    respond_to do |format|
+      if @order_note.update(order_note_params)
+        updated_text = order_note_params.fetch(:content, @order_note.content)
+        RecordEdit.create!(editable: @order_note, user: current_user, updated_text: updated_text)
+        format.js
+      else
+        format.js { head :unprocessable_entity }
+      end
+    end
+  end
+
   private
 
   def find_order
     @order = Order.find(params[:order_id])
+  end
+
+  def find_order_note
+    @order_note = OrderNote.find(params[:id])
   end
 
   def order_note_params

@@ -7,6 +7,8 @@ class OrderNote < ApplicationRecord
   belongs_to :order
   belongs_to :author, class_name: 'User', optional: true
 
+  has_many :record_edits, dependent: :destroy, as: :editable
+
   delegate :department, :department_id, to: :order
   validates_presence_of :content
 

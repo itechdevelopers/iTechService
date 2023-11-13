@@ -1,5 +1,9 @@
-.comment
+.comment id=element_id
   small style="color: #{user_color}"
     = user_name
     => timestamp
-  p = content
+    => update_link
+    => edited_by_tag
+  p.content-inline data-form-inline-id="comment_#{id}"
+    = content
+    => inline_form

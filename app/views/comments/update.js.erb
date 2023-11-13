@@ -1,0 +1,2 @@
+comment_id = "#comment_<%= @comment.id %>";
+$(comment_id).replaceWith("<%= j (cell(Comment::Cell::Preview, @comment).()) %>")
