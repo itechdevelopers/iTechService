@@ -31,5 +31,9 @@ module OrderNote::Cell
     def edited_by_tag
       super(model)
     end
+
+    def note_history_tag
+      super(model)
+    end
   end
 end
