@@ -38,4 +38,10 @@ class BaseCell < Trailblazer::Cell
     end
     "<i>#{label}</i>"
   end
+
+  def note_history_tag(note)
+    link_to(glyph(:time),
+            record_edits_path(editable_type: note.class.to_s, editable_id: note.id.to_s),
+            remote: true) if RecordEdit.any_edits?(note)
+  end
 end

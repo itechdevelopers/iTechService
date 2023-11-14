@@ -1,0 +1,12 @@
+.modal-header
+  %a.close{'data-dismiss' => 'modal', href: '#'}
+    %i.icon-remove-sign
+  %h3= I18n.t("record_edit.modal.history_title")
+.modal_body
+  %table.table.table-striped
+    %tbody
+      - @record_edits.each do |re|
+        %tr
+          %td= re.updated_text
+          %td= re.user.short_name
+          %td= human_datetime(re.updated_at)

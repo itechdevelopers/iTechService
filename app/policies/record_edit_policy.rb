@@ -1,0 +1,2 @@
+class RecordEditPolicy < BasePolicy
+end

@@ -353,6 +353,8 @@ Rails.application.routes.draw do
 
   resources :wiki_page_categories, only: %i[update destroy], defaults: {format: :js}
 
+  resources :record_edits, only: %i[index]
+
   authenticate :user do
     mount Sidekiq::Web => '/sidekiq'
   end
