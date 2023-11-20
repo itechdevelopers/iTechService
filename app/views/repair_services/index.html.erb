@@ -1,13 +1,22 @@
 <div class="page-header">
   <h1>
     <%= auto_title %>
-    <small><%=
-      if params[:mode] == 'prices'
-        link_to 'Обычный вид', repair_services_path
-      else
-        link_to 'Цены', repair_services_path(mode: 'prices')
-      end
-    %></small>
+    <small>
+      <% case params[:mode] %>
+      <% when "prices" %>
+        <%= link_to 'Обычный вид', repair_services_path %>
+        |
+        <%= link_to 'Цены на разных филиалах', repair_services_path(mode: 'prices-all-branches') %>
+      <% when "prices-all-branches" %>
+        <%= link_to 'Обычный вид', repair_services_path %>
+        |
+        <%= link_to 'Цены', repair_services_path(mode: 'prices') %>
+      <% else %>
+        <%= link_to 'Цены', repair_services_path(mode: 'prices') %>
+        |
+        <%= link_to 'Цены на разных филиалах', repair_services_path(mode: 'prices-all-branches') %>
+      <% end %>
+    </small>
   </h1>
 </div>
 
