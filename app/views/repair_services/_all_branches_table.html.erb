@@ -1,0 +1,63 @@
+<% if params[:group].present? %>
+  <% if can? :mass_update, RepairService %>
+    <%= form_tag mass_update_repair_services_path, method: :put, remote: true, id: "all_branches_t" do %>
+      <%= hidden_field_tag :mode, params[:mode] %>
+      <%= hidden_field_tag :group, params[:group] %>
+      <table id="repair_services_table" class="table table-hover">
+        <thead class="fixed-position">
+          <tr>
+            <th><%= RepairService.human_attribute_name(:name) %></th>
+            <% real_departments.each do |department| %>
+              <th>
+                <%= department.short_name %>
+              </th>
+            <% end %>
+            <th><%= submit_tag t('update'), class: 'btn btn-primary align-left' %></th>
+          </tr>
+        </thead>
+
+        <tbody>
+          <% @repair_services.each do |repair_service| %>
+            <tr>
+              <td class="name"><%= repair_service.name %></td>
+              <% real_departments.each do |department| %>
+                <td class="price">
+                  <%= number_field_tag "repair_services[#{repair_service.id}][#{department.id}]", repair_service.price(department.id) %>
+                </td>
+              <% end %>
+              <td class="btn-group">
+                <%= link_to_edit_small repair_service %>
+                <%= link_to_destroy_small repair_service %>
+              </td>
+            </tr>
+          <% end %>
+        </tbody>
+      </table>
+    <% end %>
+  <% else %>
+    <table id="repair_services_table" class="table table-hover">
+      <thead class="fixed-position">
+        <tr>
+          <th><%= RepairService.human_attribute_name(:name) %></th>
+          <% real_departments.each do |department| %>
+            <th>
+              <%= department.short_name %>
+            </th>
+          <% end %>
+        </tr>
+      </thead>
+      <tbody>
+        <% @repair_services.each do |repair_service| %>
+          <tr>
+            <td class="name"><%= repair_service.name %></td>
+            <% real_departments.each do |department| %>
+              <td class="price number"><%= human_currency repair_service.price(department.id) %></td>
+            <% end %>
+          </tr>
+        <% end %>
+      </tbody>
+    </table>
+  <% end %>
+<% else %>
+  <strong>Выбери группу</strong>
+<% end %>
