@@ -74,7 +74,11 @@ class RepairServicesController < ApplicationController
         value.each do |dep_id, val|
           price = RepairPrice.find_by(repair_service_id: id, department_id: dep_id)
           val = 0 unless val.present?
-          price.update value: val
+          if price.nil?
+            RepairPrice.create(repair_service_id: id, department_id: dep_id, value: val)
+          else
+            price.update value: val
+          end
         end
       else
         price = RepairPrice.find_by(repair_service_id: id, department_id: params[:department_id])
