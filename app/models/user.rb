@@ -62,6 +62,7 @@ class User < ApplicationRecord
     perform_engraving_tasks
     set_new_client_department
     change_client_department
+    view_god_eye
   ].freeze
 
   ACTIVITIES = %w[free fast long mac].freeze
