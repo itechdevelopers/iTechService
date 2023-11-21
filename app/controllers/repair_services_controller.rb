@@ -68,17 +68,15 @@ class RepairServicesController < ApplicationController
 
   def mass_update
     authorize RepairService
-    Rails.logger.info("Starting")
     params[:repair_services].each do |id, value|
       # When updating several departments
       if value.is_a?(ActionController::Parameters)
         value.each do |dep_id, val|
           price = RepairPrice.find_by(repair_service_id: id, department_id: dep_id)
-          Rails.logger.info("rep_serv_id: #{id}, dep_id: #{id}")
+          val = 0 unless val.present?
           price.update value: val
         end
       else
-        Rails.logger.info("Here: #{value.class} #{value.inspect}")
         price = RepairPrice.find_by(repair_service_id: id, department_id: params[:department_id])
         price.update value: value
       end
