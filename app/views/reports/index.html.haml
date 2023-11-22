@@ -1,4 +1,5 @@
-%h1= t 'reports.title'
+%a.brand{href: "#{root_url}"}= logo_tag
+%h1#report_title= t 'reports.title'
 
 - report_names.each do |report_name|
   - unless report_name == 'salary' && !can?(:manage, Salary)

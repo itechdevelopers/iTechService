@@ -44,4 +44,5 @@ Rails.application.config.assets.precompile += %w[
   tippy-bundle.umd.min.js
   rating_bar_static.css
   rating_bar_static.js
+  sortablejs.min.js
 ]
