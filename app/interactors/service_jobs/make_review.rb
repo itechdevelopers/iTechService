@@ -7,7 +7,6 @@ module ServiceJobs
 
     def call
       unless user_able_to_request_review
-        Rollbar.debug('User unable to request review', log_info)
         return
       end
 
@@ -23,7 +22,6 @@ module ServiceJobs
       SendSmsWithReviewUrlJob.set(wait: time_out).perform_later(review.id)
     rescue StandardError => e
       Rails.logger.debug(e.message)
-      Rollbar.error(e)
     end
 
     private
