@@ -133,7 +133,6 @@ group :deploy, :development do
   gem 'mimemagic', git: 'https://github.com/vaallery/mimemagic', tag: 'v0.3.0'
 end
 
-gem 'rollbar'
 gem 'data_migrate', '~> 7.0.2'
 
 gem 'chronic_duration', '~> 0.10.6'
