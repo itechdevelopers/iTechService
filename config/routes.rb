@@ -355,6 +355,11 @@ Rails.application.routes.draw do
 
   resources :record_edits, only: %i[index]
 
+  resources :reports_boards, only: %i[show] do
+    patch :sort, on: :member, defaults: {format: :js}
+    resources :report_columns, only: %i[create destroy], defaults: {format: :js}
+  end
+
   authenticate :user do
     mount Sidekiq::Web => '/sidekiq'
   end

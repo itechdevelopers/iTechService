@@ -1,0 +1,5 @@
+var ulEl = $('ul[data-col-id="<%= @column.id %>"]');
+$(ulEl).remove();
+
+var defaultUl = $('ul[data-col-id="' +'<%= @board.report_columns.find_by(name: "Общая").id %>' + '"]');
+defaultUl.replaceWith(`<%= render @board.report_columns.find_by(name: "Общая") %>`);

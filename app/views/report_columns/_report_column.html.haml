@@ -1,0 +1,15 @@
+%ul.report_col{data: { col_id: report_column.id } }
+  %li.report_col-name
+    = report_column.name
+    - unless report_column.name == "Общая"
+      = link_to icon_tag(:trash),                         |
+        reports_board_report_column_path(                 |
+        reports_board_id: report_column.reports_board.id, |
+        id: report_column.id                              |
+        ),                                                |
+        method: :delete,                                  |
+        data: { confirm: "Вы уверены?" },                 |
+        remote: true
+  - report_column.report_cards.sort_by{ |rc| rc.position }.each do |rc|
+    %li.report_col-card{data: { card_id: rc.id } }
+      = link_to t("reports.#{rc.content}.title"), new_report_path(report: report_default_params(rc.content))

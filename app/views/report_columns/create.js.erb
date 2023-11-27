@@ -1,0 +1,6 @@
+var columnElement = $.parseHTML(`<%= render @column %>`);
+$('.reports_board').append(columnElement);
+$('#report_column_name').val('');
+
+var uls = $('.reports_board .report_col');
+new Sortable(columnElement[0], { group: 'reports', animation: 300, onEnd: () => saveReportsBoard(uls) })

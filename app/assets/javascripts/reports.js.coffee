@@ -97,3 +97,28 @@ $(document).on 'click', '#report_result .toggle_depth', ->
   $table = $('#report_result table')
   $('.detailable[data-depth=' + depth - 1 + ']')
   return
+
+$(document).ready () ->
+  reportsBoardUls = $('.reports_board .report_col')
+  if reportsBoardUls.length
+    initReportsSortable reportsBoardUls
+
+initReportsSortable = (uls) ->
+  saveReportsBinded = saveReportsBoard.bind(null, uls)
+  uls.each (index, element) ->
+    new Sortable(element, { group: 'reports', animation: 300, onEnd: () => saveReportsBoard($('.reports_board .report_col')) })
+
+saveReportsBoard = (uls) ->
+  reportsIds = { 'columns': [] }
+  uls.each (index, ul) ->
+    colIds = []
+    $(ul).find('.report_col-card').each (i, card) ->
+      colIds.push(Number.parseInt($(card).data('card-id')))
+    reportsIds.columns.push({
+      'id': Number.parseInt($(ul).data('col-id')),
+      'colIds': colIds
+    })
+  boardId = $('.reports_board').data('id')
+  $('#board-ids').val(JSON.stringify(reportsIds))
+  $('#form-reports-board').submit()
+  

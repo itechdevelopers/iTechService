@@ -31,6 +31,7 @@ Rails.application.config.assets.precompile += %w[
 ]
 
 Rails.application.config.assets.precompile += %w[
+  rails-ujs
   media_menu/application.css
   media_menu/application.js
   font-awesome/*
@@ -44,4 +45,5 @@ Rails.application.config.assets.precompile += %w[
   tippy-bundle.umd.min.js
   rating_bar_static.css
   rating_bar_static.js
+  sortablejs.min.js
 ]
