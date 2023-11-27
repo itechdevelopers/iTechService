@@ -1,0 +1,17 @@
+%header.reports_index-container
+  .left
+    %a.brand{href: "#{root_url}"}= logo_tag
+  .center
+    %h1#report_title= t 'reports_boards.title'
+  .right
+    = link_to t('reports_boards.back'), reports_path, class: 'btn btn-submit reports-board-btn'
+    .reports-board-actions
+      = form_with scope: :report_column, url: reports_board_report_columns_path(reports_board_id: @reports_board.id), local: false do |f|
+        = f.text_field :name, placeholder: 'Имя новой колонки', id: 'report_column_name'
+        = f.submit t('reports_boards.create_col'), class: 'btn btn-success'
+
+.reports_board{data: { id: @reports_board.id} }
+  = render @reports_board.report_columns
+
+= form_with url: sort_reports_board_path, local: false, method: :patch, id: "form-reports-board" do |f|
+  = f.hidden_field("reports_board[report_ids]", value: [], id: "board-ids")

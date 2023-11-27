@@ -31,6 +31,7 @@ Rails.application.config.assets.precompile += %w[
 ]
 
 Rails.application.config.assets.precompile += %w[
+  rails-ujs
   media_menu/application.css
   media_menu/application.js
   font-awesome/*

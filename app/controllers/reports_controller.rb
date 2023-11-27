@@ -13,6 +13,7 @@ class ReportsController < ApplicationController
   before_action :set_bootstrap_version, except: :index
 
   def index
+    @reports_board = ReportsBoard.find_by(name: "Default")
     respond_to do |format|
       format.html
     end

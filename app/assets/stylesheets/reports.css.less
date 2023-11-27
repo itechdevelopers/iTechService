@@ -6,17 +6,18 @@
 }
 
 #report_title {
-  padding: 0 43vw;
-  display: inline-block
+  padding: 0;
+  margin: 0 auto;
+  display: inline-block;
 }
 
 a.brand {
   text-decoration: none;
   margin: 0;
-  padding: 1px 0;
+  padding: 10px 0;
   img {
     height: 38px;
-    padding: 0 4px 15px 0;
+    padding: 0;
   }
 }
 
@@ -251,4 +252,109 @@ h1.new_report {
     position: relative;
     left: -15px;
   }
+}
+
+.reports_board {
+  display: flex;
+  justify-content: space-between;
+  margin: 24px;
+
+  .report_col {
+    list-style: none;
+    width: 300px;
+    padding: 0;
+    margin-left: 8px;
+  }
+
+  .report_col-name {
+    background-color: lightblue;
+    text-align: center;
+    margin-bottom: 16px;
+    padding: 16px;
+  }
+
+  .report_col-card {
+    background-color: white;
+    margin-bottom: 4px;
+    padding: 16px;
+    cursor: grab;
+
+    &:active {
+      cursor: grabbing;
+    }
+  }
+}
+
+.reports_index-container {
+  display: flex;
+  justify-content: space-between;
+  padding: 6px;
+
+  .left {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+  }
+  .center {
+    flex-grow: 1;
+    text-align: center;
+  }
+  .right {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    #search-input {
+      margin: 5px 0 3px 0;
+    }
+  }
+  .reports-board-actions {
+    width: 200px;
+    margin-left: auto;
+    form {
+      display: flex;
+      align-items: flex-end;
+      flex-direction: column;
+    }
+  }
+  #report_column_name {
+    margin-bottom: 3px;
+  }
+}
+
+.reports_all {
+  display: flex;
+  justify-content: space-between;
+  margin: 24px;
+
+  .report_column {
+    list-style: none;
+    width: 300px;
+    padding: 0;
+    margin-left: 8px;
+  }
+
+  .report_column-name {
+    background-color: #f1f1f1;
+    text-align: center;
+    margin-bottom: 16px;
+    padding: 16px;
+  }
+
+  .report_column-card{
+    background-color: white;
+    margin-bottom: 4px;
+    padding: 16px;
+  }
+}
+
+.report-stub {
+  display: inline-block;
+  width: 10px;
+  height: 1em;
+}
+
+.reports-board-btn {
+  height: 24px;
+  margin: 10px 3px;
 }

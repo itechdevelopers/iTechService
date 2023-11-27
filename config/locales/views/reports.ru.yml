@@ -1,6 +1,7 @@
 ru:
   reports:
     title: 'Отчёты'
+    manage: 'Управлять отчетами'
     average_duration: Средняя длительность, мин.
     choose: Выберите отчет
     clients_count: Количество клиентов

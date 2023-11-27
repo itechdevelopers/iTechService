@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20231112142604) do
+ActiveRecord::Schema.define(version: 20231122183422) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -921,6 +921,31 @@ ActiveRecord::Schema.define(version: 20231112142604) do
     t.index ["store_id"], name: "index_repair_tasks_on_store_id"
   end
 
+  create_table "report_cards", force: :cascade do |t|
+    t.string "content"
+    t.integer "position"
+    t.bigint "report_column_id"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["report_column_id"], name: "index_report_cards_on_report_column_id"
+  end
+
+  create_table "report_columns", force: :cascade do |t|
+    t.string "name"
+    t.bigint "reports_board_id"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["reports_board_id"], name: "index_report_columns_on_reports_board_id"
+  end
+
+  create_table "reports_boards", force: :cascade do |t|
+    t.string "name"
+    t.string "description"
+    t.jsonb "cards"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+  end
+
   create_table "revaluation_acts", id: :serial, force: :cascade do |t|
     t.integer "price_type_id"
     t.datetime "date"
@@ -1509,6 +1534,8 @@ ActiveRecord::Schema.define(version: 20231112142604) do
   add_foreign_key "repair_prices", "departments"
   add_foreign_key "repair_prices", "repair_services"
   add_foreign_key "repair_tasks", "users", column: "repairer_id"
+  add_foreign_key "report_cards", "report_columns"
+  add_foreign_key "report_columns", "reports_boards"
   add_foreign_key "reviews", "clients"
   add_foreign_key "reviews", "service_jobs"
   add_foreign_key "reviews", "users"

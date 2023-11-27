@@ -1,6 +1,37 @@
-%a.brand{href: "#{root_url}"}= logo_tag
-%h1#report_title= t 'reports.title'
+%header.reports_index-container
+  .left
+    %a.brand{href: "#{root_url}"}= logo_tag
+  .center
+    %h1#report_title= t 'reports.title'
+  .right
+    = text_field_tag "search", "", id: "search-input", placeholder: "Поиск"
+    - if can?(:manage, ReportsBoard)
+      = link_to t('reports.manage'), reports_board_path(@reports_board), class: 'btn btn-success reports-board-btn'
+    - else
+      .report-stub= ""
 
-- report_names.each do |report_name|
-  - unless report_name == 'salary' && !can?(:manage, Salary)
-    %p= link_to t("reports.#{report_name}.title"), new_report_path(report: report_default_params(report_name))
+.reports_all
+  - @reports_board.report_columns.each do |column|
+    %ul.report_column
+      %li.report_column-name= column.name
+      - column.report_cards.sort_by{ |rc| rc.position }.each do |rc|
+        %li.report_column-card.searchable
+          - unless rc.content == 'salary' && !can?(:manage, Salary)
+            = link_to t("reports.#{rc.content}.title"), new_report_path(report: report_default_params(rc.content))
+
+:scss
+  .highlighted {
+    background-color: yellow;
+  }
+
+:coffeescript
+  $(document).ready ->
+    $('#search-input').on 'input', ->
+      searchText = $('#search-input').val().toLowerCase()
+      $('.searchable').each ->
+        textContent = $(this).text().toLowerCase()
+        $element = $(this)
+        if textContent.includes(searchText)
+          $element.html($element.text().replace(new RegExp(searchText, 'gi'), '<span class="highlighted">$&</span>'))
+        else
+          $element.html($element.text())

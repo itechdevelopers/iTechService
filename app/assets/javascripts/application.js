@@ -6,6 +6,7 @@
 //= require jquery-ui/droppable
 //= require jquery-ui/selectable
 //= require jquery.jcrop
+//= require sortablejs.min
 
 //= require twitter/bootstrap
 //= require jquery.jstree
