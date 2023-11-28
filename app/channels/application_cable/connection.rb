@@ -9,7 +9,7 @@ module ApplicationCable
     private
 
     def find_user
-      if user = env['warden'].user
+      if (user = env['warden']&.user)
         user
       else
         reject_unauthorized_connection
