@@ -4,7 +4,9 @@ class SaleItem < ApplicationRecord
   belongs_to :item, inverse_of: :sale_items, optional: true
   belongs_to :device_task, inverse_of: :sale_item, optional: true
   # has_many :batches, through: :item, conditions: proc {  }
-  delegate :product, :product_category, :features, :name, :code, :quantity_in_store, :retail_price, :feature_accounting, :store_item, :store_items, :is_service, :is_service?, :is_repair?, :request_price, :warranty_term, :features_s, to: :item, allow_nil: true
+  delegate :product, :product_category, :features, :name, :code, :quantity_in_store, :retail_price,
+           :feature_accounting, :store_item, :store_items, :is_service, :is_service?, :is_repair?,
+           :request_price, :warranty_term, :features_s, to: :item, allow_nil: true
   delegate :store, :client, :date, :is_return, to: :sale, allow_nil: true
   delegate :id, to: :product, prefix: true, allow_nil: true
 

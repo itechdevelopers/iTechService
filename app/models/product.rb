@@ -24,22 +24,22 @@ class Product < ApplicationRecord
 
   belongs_to :product_category, inverse_of: :products, optional: true
   belongs_to :product_group, inverse_of: :products, optional: true
+  belongs_to :device_type, inverse_of: :product, optional: true
+  has_one :task, inverse_of: :product, dependent: :nullify
+  has_one :top_salable, dependent: :nullify
   has_and_belongs_to_many :options, class_name: 'OptionValue', join_table: 'product_options'
   has_many :option_types, -> { ordered.distinct }, through: :product_group
   has_many :option_values, through: :product_group
-  belongs_to :device_type, inverse_of: :product, optional: true
   has_many :items, inverse_of: :product, dependent: :restrict_with_error
   has_many :prices, class_name: 'ProductPrice', inverse_of: :product, dependent: :destroy
   has_many :store_items, through: :items
   has_many :batches, through: :items
   has_many :revaluations, inverse_of: :product, dependent: :destroy
-  has_one :task, inverse_of: :product, dependent: :nullify
   has_many :product_relations, as: :parent, dependent: :destroy
   has_many :related_products, through: :product_relations, source: :relatable, source_type: 'Product'
   has_many :related_product_groups, through: :product_relations, source: :relatable, source_type: 'ProductGroup'
   has_many :store_products, dependent: :destroy
   has_many :spare_parts, dependent: :destroy
-  has_one :top_salable, dependent: :nullify
 
   accepts_nested_attributes_for :items, allow_destroy: true
   accepts_nested_attributes_for :task, allow_destroy: false
@@ -56,6 +56,7 @@ class Product < ApplicationRecord
   delegate :full_name, to: :device_type, prefix: true, allow_nil: true
   delegate :color, to: :top_salable, allow_nil: true
   delegate :cost, to: :task, prefix: true, allow_nil: true
+  
   validates_presence_of :name, :code, :product_group, :product_category
   # validates_presence_of :device_type, if: :is_equipment
   validates_uniqueness_of :code, unless: :undefined?
