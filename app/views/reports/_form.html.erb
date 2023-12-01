@@ -63,6 +63,13 @@
                                   {},
                                   { multiple: true, class: 'multiselect-tasks' } %>
         <% end %>
+
+        <% if report.show_param?(:spare_part_id) %>
+          <%= f.select :spare_part_id,
+                        spare_parts_collection,
+                        {},
+                        { multiple: true, class: 'multiselect-sp' } %>
+        <% end %>
       <% end %>
     </div>
   </div>

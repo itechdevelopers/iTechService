@@ -46,6 +46,7 @@ module ReportsHelper
       users_jobs
       mac_service
       warranty_repair_parts
+      spare_part_movements
     ].freeze
   end
 
@@ -92,5 +93,13 @@ module ReportsHelper
 
   def users_collection(selected)
     options_from_collection_for_select User.active.staff.order(:name), :id, :full_name, selected
+  end
+
+  def spare_parts_collection
+    option_groups_from_collection_for_select ProductGroup.spare_parts.where(ancestry_depth: 2),
+      :products,
+      :flatten_name,
+      :id,
+      :name
   end
 end

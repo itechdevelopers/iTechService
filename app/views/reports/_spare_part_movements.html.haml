@@ -1,0 +1,26 @@
+%table.table.table-bordered.table-hover
+  %caption= t '.title'
+  %thead
+    %tr
+      %th.center= t '.spare_part'
+      %th.center= t '.date'
+      %th.center= t '.department'
+      %th.center= t 'reports.qty'
+      %th.center= t '.doc_type'
+      %th.center= t '.doc_number'
+  %tbody
+    %tr
+      - report.result.each do |result|
+        %th= result[:spare_part]
+        %th= result[:dates]
+        %th= result[:departments]
+        %th{colspan: 3}
+
+        - result[:movements].each do |mv|
+          %tr
+            %td
+            %td= mv[:date]
+            %td= mv[:department]
+            %td= mv[:quantity]
+            %td= mv[:doc_type]
+            %td= mv[:doc_number]
