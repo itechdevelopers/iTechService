@@ -3,7 +3,8 @@ class MovementItem < ApplicationRecord
   belongs_to :movement_act, inverse_of: :movement_items, optional: true
   belongs_to :item, inverse_of: :movement_items, optional: true
 
-  delegate :code, :name, :product, :product_category, :presentation, :features, :feature_accounting, :store_items, :store_item, :quantity_in_store, :purchase_price, to: :item, allow_nil: true
+  delegate :code, :name, :product, :product_category, :presentation, :features, :feature_accounting,
+           :store_items, :store_item, :quantity_in_store, :purchase_price, to: :item, allow_nil: true
   delegate :store, to: :movement_act, allow_nil: true
 
   # attr_accessible :movement_act_id, :item_id, :quantity

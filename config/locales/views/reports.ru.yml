@@ -70,6 +70,13 @@ ru:
       payment_type: :activemodel.attributes.sale.payment_type
       client: "Покупатель"
       user: "Продавец"
+    spare_part_movements:
+      title: "Отчёт о движении запчастей"
+      spare_part: "Запчасть"
+      date: "Дата"
+      department: "Подразделение"
+      doc_type: "Тип документа"
+      doc_number: "Номер документа / работы"
     phone_substitutions:
       title: 'Отчёт по подменкам'
       substitute_phone: 'Телефон'

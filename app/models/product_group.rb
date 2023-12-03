@@ -84,6 +84,11 @@ class ProductGroup < ApplicationRecord
     option_values.ordered.group_by { |ov| ov.option_type.name }
   end
 
+  def flatten_name
+    parent_group_name = ProductGroup.find(ancestry.split("/").last.to_i).name
+    "#{parent_group_name} -- #{self.name}"
+  end
+
   private
 
   def set_product_category

@@ -30,7 +30,8 @@ class Sale < ApplicationRecord
   delegate :name, to: :payment_type, prefix: true, allow_nil: true
   delegate :name, to: :store, prefix: true
   delegate :device_tasks, :repair_parts, to: :service_job, allow_nil: true
-    validates_presence_of :user, :store, :date, :status, :cash_shift
+  
+  validates_presence_of :user, :store, :date, :status, :cash_shift
   validates_inclusion_of :status, in: Document::STATUSES.keys
   validates_associated :payments, :sale_items
   before_validation :set_user_and_cash_shift

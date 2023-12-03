@@ -3,9 +3,10 @@ jQuery ->
   if $('#report_form .multiselect').length
     $('#report_form .multiselect').multiselect
       enableClickableOptGroups: true,
-      nonSelectedText: 'Все подразделения',
+      nonSelectedText: 'Подразделения',
       includeSelectAllOption: true,
       selectAllText: 'Все подразделения',
+      allSelectedText: 'Все подразделения',
       onInitialized: ->
         $('#report_form .multiselect-group, #report_form .multiselect-option, #report_form .multiselect-all').each ->
           $(this).attr('type', 'button')
@@ -18,6 +19,20 @@ jQuery ->
           selected.push [ $(this).val() ]
           return
         return
+
+  if $('#report_form .multiselect-sp').length
+    $('#report_form .multiselect-sp').multiselect
+      enableCollapsibleOptGroups: true,
+      collapseOptGroupsByDefault: true,
+      nonSelectedText: 'Запчасти',
+      onInitialized: ->
+        $('#report_form .multiselect-group, #report_form .multiselect-option, #report_form .multiselect-all').each ->
+          $(this).attr('type', 'button')
+      onChange: (element, checked) ->
+        brands = $('#report_form .multiselect-sp option:selected')
+        selected = []
+        $(brands).each (index, brand) ->
+          selected.push [ $(this).val() ]
 
   if $('#report_form .multiselect-pr-groups').length
     $('#report_form .multiselect-pr-groups').multiselect
