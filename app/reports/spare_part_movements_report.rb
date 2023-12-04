@@ -35,11 +35,12 @@ class SparePartMovementsReport < BaseReport
                         .distinct
     purchases.each do |p|
       res = {}
-      res[:date] = p.date.strftime('%d.%m.%Y')
+      res[:date] = p.date
       res[:department] = p.store.present? ? p.store.name : "-"
       res[:quantity] = p.batches.where(item: product_items).first.quantity
       res[:doc_type] = "Приход"
       res[:doc_number] = "№#{p.id}"
+      res[:comment] = p.comment.present? ? p.comment : "-"
 
       movements << res
     end
@@ -52,11 +53,12 @@ class SparePartMovementsReport < BaseReport
                        .distinct
     moves.each do |m|
       res = {}
-      res[:date] = m.date.strftime('%d.%m.%Y')
-      res[:department] = "#{m.store.name} - #{m.dst_store.name}"
+      res[:date] = m.date
+      res[:department] = "#{m.store.name} &#8680; #{m.dst_store.name}"
       res[:quantity] = m.movement_items.where(item: product_items).first.quantity
-      res[:doc_type] = "Перемещение"
+      res[:doc_type] = m.dst_store.kind == "defect_sp" ? "Брак" : "Перемещение"
       res[:doc_number] = "№#{m.id}"
+      res[:comment] = m.comment.present? ? m.comment : "-"
 
       movements << res
     end
@@ -67,16 +69,34 @@ class SparePartMovementsReport < BaseReport
                              .distinct
     deductions.each do |d|
       res = {}
-      res[:date] = d.date.strftime('%d.%m.%Y')
+      res[:date] = d.date
       res[:department] = "#{d.store.name}"
       res[:quantity] = d.deduction_items.where(item: product_items).first.quantity
       res[:doc_type] = "Списание"
       res[:doc_number] = "№#{d.id}"
+      res[:comment] = d.comment.present? ? d.comment : "-"
 
       movements << res
     end
 
-    movements
+    service_jobs = ServiceJob.done
+                             .where(done_at: period, department: department)
+                             .joins(:repair_parts)
+                             .where(repair_parts: { item: product_items })
+                             .distinct
+    service_jobs.each do |s|
+      res = {}
+      res[:date] = s.done_at
+      res[:department] = "#{s.department.name}"
+      res[:quantity] = s.repair_parts.where(item: product_items).first.quantity
+      res[:doc_type] = "Реализация"
+      res[:doc_number] = "№#{s.id}"
+      res[:comment] = "-"
+
+      movements << res
+    end
+
+    movements.sort_by { |mv| mv[:date] }.each { |mv| mv[:date] = mv[:date].strftime("%d.%m.%Y") }
   end
 
   def all_department_store_ids
