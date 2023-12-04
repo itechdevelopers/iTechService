@@ -77,6 +77,7 @@ ru:
       department: "Подразделение"
       doc_type: "Тип документа"
       doc_number: "Номер документа / работы"
+      comment: "Комментарий"
     phone_substitutions:
       title: 'Отчёт по подменкам'
       substitute_phone: 'Телефон'

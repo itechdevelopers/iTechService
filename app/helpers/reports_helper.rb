@@ -96,7 +96,7 @@ module ReportsHelper
   end
 
   def spare_parts_collection
-    option_groups_from_collection_for_select ProductGroup.spare_parts.where(ancestry_depth: 2),
+    option_groups_from_collection_for_select ProductGroup.spare_parts.where(ancestry_depth: 2).reorder(:ancestry, position: :asc),
       :products,
       :flatten_name,
       :id,
