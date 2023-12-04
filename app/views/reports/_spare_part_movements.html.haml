@@ -10,8 +10,8 @@
       %th.center= t '.doc_number'
       %th.center= t '.comment'
   %tbody
-    %tr
-      - report.result.each do |result|
+    - report.result.each do |result|
+      %tr
         %th= result[:spare_part]
         %th= result[:dates]
         %th= result[:departments]
