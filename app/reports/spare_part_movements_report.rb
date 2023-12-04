@@ -104,6 +104,6 @@ class SparePartMovementsReport < BaseReport
   end
 
   def product_items(sp)
-    @items ||= Item.where(product_id: sp.id)
+    Item.where(product_id: sp.id)
   end
 end

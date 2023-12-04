@@ -1,0 +1,9 @@
+- result[:movements].each do |mv|
+  %tr
+    %td
+    %td= mv[:date]
+    %td= mv[:department].html_safe
+    %td= mv[:quantity]
+    %td= mv[:doc_type]
+    %td= mv[:doc_number]
+    %td= mv[:comment]
