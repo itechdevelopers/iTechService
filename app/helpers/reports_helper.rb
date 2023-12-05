@@ -102,4 +102,20 @@ module ReportsHelper
       :id,
       :name
   end
+
+  def url_for_movement(type, id)
+    res_url = ""
+    case type
+    when "purchase"
+      res_url = purchase_path(id: id)
+    when "movement_act"
+      res_url = movement_act_path(id: id)
+    when "deduction_act"
+      res_url = deduction_act_path(id: id)
+    when "service_job"
+      res_url = service_job_path(id: id)
+    end
+
+    res_url
+  end
 end

@@ -41,6 +41,7 @@ class SparePartMovementsReport < BaseReport
       res[:doc_type] = "Приход"
       res[:doc_number] = "№#{p.id}"
       res[:comment] = p.comment.present? ? p.comment : "-"
+      res[:linkable] = ["purchase", p.id]
 
       movements << res
     end
@@ -59,6 +60,7 @@ class SparePartMovementsReport < BaseReport
       res[:doc_type] = m.dst_store.kind == "defect_sp" ? "Брак" : "Перемещение"
       res[:doc_number] = "№#{m.id}"
       res[:comment] = m.comment.present? ? m.comment : "-"
+      res[:linkable] = ["movement_act", m.id]
 
       movements << res
     end
@@ -75,6 +77,7 @@ class SparePartMovementsReport < BaseReport
       res[:doc_type] = "Списание"
       res[:doc_number] = "№#{d.id}"
       res[:comment] = d.comment.present? ? d.comment : "-"
+      res[:linkable] = ["deduction_act", d.id]
 
       movements << res
     end
@@ -90,8 +93,9 @@ class SparePartMovementsReport < BaseReport
       res[:department] = "#{s.department.name}"
       res[:quantity] = s.repair_parts.where(item: product_items(sp)).first.quantity
       res[:doc_type] = "Реализация"
-      res[:doc_number] = "№#{s.id}"
+      res[:doc_number] = "№#{s.ticket_number}"
       res[:comment] = "-"
+      res[:linkable] = ["service_job", s.id]
 
       movements << res
     end
