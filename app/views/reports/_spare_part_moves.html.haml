@@ -5,5 +5,5 @@
     %td= mv[:department].html_safe
     %td= mv[:quantity]
     %td= mv[:doc_type]
-    %td= mv[:doc_number]
+    %td= link_to mv[:doc_number], url_for_movement(mv[:linkable][0], mv[:linkable][1]), target: "_blank"
     %td= mv[:comment]
