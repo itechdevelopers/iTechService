@@ -88,16 +88,31 @@ class SparePartMovementsReport < BaseReport
                              .where(repair_parts: { item: product_items(sp) })
                              .distinct
     service_jobs.each do |s|
+      repair_part = s.repair_parts.where(item: product_items(sp)).first
+
       res = {}
       res[:date] = s.done_at
       res[:department] = "#{s.department.name}"
-      res[:quantity] = s.repair_parts.where(item: product_items(sp)).first.quantity
+      res[:quantity] = repair_part.quantity
       res[:doc_type] = "Реализация"
       res[:doc_number] = "№#{s.ticket_number}"
       res[:comment] = "-"
       res[:linkable] = ["service_job", s.id]
 
       movements << res
+
+      if repair_part.defect_qty > 0
+        res = {}
+        res[:date] = s.done_at
+        res[:department] = "#{s.department.name}"
+        res[:quantity] = repair_part.defect_qty
+        res[:doc_type] = "Брак при реализации"
+        res[:doc_number] = "№#{s.ticket_number}"
+        res[:comment] = "-"
+        res[:linkable] = ["service_job", s.id]
+
+        movements << res
+      end
     end
 
     movements.sort_by { |mv| mv[:date] }.each { |mv| mv[:date] = mv[:date].strftime("%d.%m.%Y") }
