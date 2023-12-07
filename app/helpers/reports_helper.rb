@@ -47,6 +47,7 @@ module ReportsHelper
       mac_service
       warranty_repair_parts
       spare_part_movements
+      client_reviews
     ].freeze
   end
 
