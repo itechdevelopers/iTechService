@@ -15,8 +15,8 @@
     %ul.report_column
       %li.report_column-name= column.name
       - column.report_cards.sort_by{ |rc| rc.position }.each do |rc|
-        %li.report_column-card.searchable
-          - unless rc.content == 'salary' && !can?(:manage, Salary)
+        - unless (rc.content == 'salary' && !can?(:manage, Salary)) || (rc.content == 'client_reviews' && !can?(:read, Review))
+          %li.report_column-card.searchable
             = link_to t("reports.#{rc.content}.title"), new_report_path(report: report_default_params(rc.content))
 
 :scss

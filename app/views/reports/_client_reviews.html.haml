@@ -1,0 +1,21 @@
+%table.table.table-bordered.table-hover
+  %caption= t '.title'
+  %thead
+    %tr
+      %th.center= t '.review'
+      %th.center= t '.date_time'
+      %th.center= t '.comment'
+      %th.center= t '.job_number'
+      %th.center= t '.user'
+  %tbody
+    - report.result[:data].each do |review|
+      %tr{class: ("error" if review[:review] < 4)}
+        %td= review[:review]
+        %td= review[:date_time]
+        %td
+          - if review[:comment].present?
+            %span.highlight= review[:comment]
+          - else
+            = t ".no_comment"
+        %td= link_to review[:job], url_for_movement(review[:linkable][0], review[:linkable][1]), target: "_blank"
+        %td= review[:user]

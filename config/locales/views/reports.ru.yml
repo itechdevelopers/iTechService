@@ -78,6 +78,14 @@ ru:
       doc_type: "Тип документа"
       doc_number: "Номер документа / работы"
       comment: "Комментарий"
+    client_reviews:
+      title: "Отчёт по отзывам клиентов"
+      review: "Оценка"
+      comment: "Комментарий"
+      date_time: "Дата и время"
+      job_number: "Номер работы"
+      user: "Сотрудник"
+      no_comment: "-"
     phone_substitutions:
       title: 'Отчёт по подменкам'
       substitute_phone: 'Телефон'
