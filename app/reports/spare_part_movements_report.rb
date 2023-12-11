@@ -120,6 +120,7 @@ class SparePartMovementsReport < BaseReport
                               .where(repair_parts: { item: product_items(sp) })
                               .distinct
     repair_tasks.each do |r|
+      next if r.service_job.done?
       repair_part = r.repair_parts.where(item: product_items(sp)).first
 
       res = {}
