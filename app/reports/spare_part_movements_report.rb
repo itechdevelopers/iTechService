@@ -115,6 +115,38 @@ class SparePartMovementsReport < BaseReport
       end
     end
 
+    repair_tasks = RepairTask.where(updated_at: period, store_id: all_department_store_ids)
+                              .joins(:repair_parts)
+                              .where(repair_parts: { item: product_items(sp) })
+                              .distinct
+    repair_tasks.each do |r|
+      repair_part = r.repair_parts.where(item: product_items(sp)).first
+
+      res = {}
+      res[:date] = r.updated_at
+      res[:department] = "#{r.department.name}"
+      res[:quantity] = repair_part.quantity
+      res[:doc_type] = "На устройстве"
+      res[:doc_number] = "№#{r.service_job.ticket_number}"
+      res[:comment] = "-"
+      res[:linkable] = ["service_job", r.service_job.id]
+
+      movements << res
+
+      if repair_part.defect_qty > 0
+        res = {}
+        res[:date] = r.updated_at
+        res[:department] = "#{r.department.name}"
+        res[:quantity] = repair_part.defect_qty
+        res[:doc_type] = "Брак при реализации"
+        res[:doc_number] = "№#{r.service_job.ticket_number}"
+        res[:comment] = "-"
+        res[:linkable] = ["service_job", r.service_job.id]
+
+        movements << res
+      end
+    end
+
     movements.sort_by { |mv| mv[:date] }.each { |mv| mv[:date] = mv[:date].strftime("%d.%m.%Y") }
   end
 
