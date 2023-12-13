@@ -23,6 +23,12 @@ class AnnouncementsController < ApplicationController
     head(:no_content) if @announcements.empty?
   end
 
+  def bad_reviews
+    authorize Announcement, :index?
+    @announcements = Announcement.active_bad_reviews
+    head(:no_content) if @announcements.empty?
+  end
+
   def show
     @announcement = find_record(Announcement)
 

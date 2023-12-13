@@ -64,4 +64,9 @@ module TopBarHelper
     link_to image_tag('cake.svg'), '#', rel: 'popover', class: 'hidden', id: 'birthday_announcements',
             data: {html: true, placement: 'bottom', title: 'Дни рождения'}
   end
+
+  def header_link_to_bad_reviews
+    link_to image_tag('bad-review.svg'), '#', rel: 'popover', class: 'hidden', id: 'bad_review_announcements',
+            data: {html: true, placement: 'bottom', title: 'Негативные отзывы'}
+  end
 end

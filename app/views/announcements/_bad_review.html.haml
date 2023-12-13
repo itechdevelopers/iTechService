@@ -1,0 +1,5 @@
+= content_tag :div, id: "bad_review-link" do
+  %span.announcement_content
+    = link_to announcement_content(announcement),
+        service_job_path(id: announcement.review.service_job_id),
+        target: "_blank"

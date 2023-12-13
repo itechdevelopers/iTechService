@@ -7,6 +7,12 @@ module AnnouncementsHelper
       when 'coffee' then text = "#{user_name}: #{t('announcements.coffee_made')}"
       when 'for_coffee' then text = "#{user_name}: #{t('announcements.coffee_order', content: announcement.content)}"
       when 'protector' then text = "#{user_name}: #{t('announcements.protector_made')}"
+      when 'bad_review'
+        text = ''
+        if (review = announcement.review).present?
+          ticket_number = ServiceJob.find(review.service_job_id).ticket_number
+          text = t('announcements.bad_review', rating: review.value, number: ticket_number)
+        end
       when 'birthday'
         text = ''
         if (birthday = announcement.user.try(:birthday)).present?

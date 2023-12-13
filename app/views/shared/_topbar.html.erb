@@ -71,6 +71,7 @@
   <span class="pull-right bar-buttons">
     <%= header_link_to_scan_barcode %>
     <%= header_links_to_stale_jobs if policy(ServiceJob).stale? %>
+    <%= header_link_to_bad_reviews if can? :see_bad_reviews, Announcement %>
     <%= header_link_to_feedbacks %>
     <%= header_link_to_staff_experience if can? :experience, User %>
     <%= header_link_to_birthdays %>

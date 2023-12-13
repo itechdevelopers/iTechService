@@ -18,4 +18,8 @@ class AnnouncementPolicy < BasePolicy
   def cancel_announce?
     true
   end
+
+  def see_bad_reviews?
+    superadmin? || able_to?(:view_bad_review_announcements)
+  end
 end

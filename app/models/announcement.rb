@@ -1,7 +1,8 @@
 # frozen_string_literal: true
 
 class Announcement < ApplicationRecord
-  KINDS = %w[help coffee for_coffee protector info birthday order_status order_done salary device_return].freeze
+  KINDS = %w[help coffee for_coffee protector info birthday order_status order_done salary
+    device_return bad_review].freeze
 
   scope :in_department, ->(department) { where(department_id: department) }
   scope :newest, -> { order('created_at desc') }
@@ -11,6 +12,7 @@ class Announcement < ApplicationRecord
   scope :active_coffee, -> { where(active: true, kind: 'coffee') }
   scope :active_protector, -> { where(active: true, kind: 'protector') }
   scope :active_birthdays, -> { where(active: true, kind: 'birthday') }
+  scope :active_bad_reviews, -> { where(active: true, kind: 'bad_review') }
   scope :device_return, -> { where(kind: 'device_return') }
   scope :actual_for, ->(user) { active.keep_if { |announcement| announcement.visible_for? user } }
 
@@ -68,8 +70,18 @@ class Announcement < ApplicationRecord
     kind == 'device_return'
   end
 
+  def bad_review?
+    kind == 'bad_review'
+  end
+
   def service_job
     ServiceJob.find(content.to_i)
+  rescue ActiveRecord::RecordNotFound
+    nil
+  end
+
+  def review
+    Review.find(content.to_i)
   rescue ActiveRecord::RecordNotFound
     nil
   end

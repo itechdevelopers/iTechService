@@ -1,0 +1,4 @@
+$('#bad_review_announcements')
+  .attr('data-content', "<%= j render(collection: @announcements, partial: 'announcements/bad_review', as: :announcement) %>")
+  .removeClass('hidden')
+  .addClass('active');
