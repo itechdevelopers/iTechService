@@ -20,3 +20,4 @@ ru:
     needs_help: нуждается в помощи!!!
     protector_made: Плёночка наклеена!
     updated: Оповещение изменено
+    bad_review: "Оценка %{rating} к работе %{number}"

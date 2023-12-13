@@ -27,3 +27,9 @@ birthday_announcements:
   class: 'BirthdayAnnouncementsJob'
   queue: 'default'
   active_job: true
+
+bad_review_announcements:
+  cron: '0 8 * * * Asia/Vladivostok'
+  class: 'BadReviewAnnouncementsJob'
+  queue: 'default'
+  active_job: true

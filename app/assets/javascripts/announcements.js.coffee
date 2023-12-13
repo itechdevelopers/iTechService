@@ -3,6 +3,8 @@ jQuery ->
   if $('#birthday_announcements').length
     $.getScript('/announcements/birthdays')
 
+  if $('#bad_review_announcements').length
+    $.getScript('/announcements/bad_reviews')
 
 $(document).on 'click', '.change_announce_state_button', ->
   $this = $(this)

@@ -63,6 +63,7 @@ class User < ApplicationRecord
     set_new_client_department
     change_client_department
     view_god_eye
+    view_bad_review_announcements
   ].freeze
 
   ACTIVITIES = %w[free fast long mac].freeze

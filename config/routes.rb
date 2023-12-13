@@ -177,6 +177,7 @@ Rails.application.routes.draw do
     collection do
       post :close_all
       get :birthdays
+      get :bad_reviews
     end
   end
   post 'make_announce' => 'announcements#make_announce'

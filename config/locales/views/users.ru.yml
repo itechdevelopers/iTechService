@@ -30,6 +30,7 @@ ru:
       set_new_client_department: 'Установка подразделения при создании клиента'
       change_client_department: 'Смена подразделения клиента'
       view_god_eye: 'Включить глаз Бога'
+      view_bad_review_announcements: 'Видеть уведомления о плохих отзывах'
     activities:
       free: Бесплатные
       fast: Быстрые
