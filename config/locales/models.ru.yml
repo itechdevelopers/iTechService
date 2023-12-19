@@ -693,6 +693,7 @@ ru:
               required: 'не может быть пустым'
 
   attributes:
+    available_for_trade_in: 'Доступно для Trade-in'
     city: :activerecord.models.city
     client: 'Клиент'
     client_category: 'Категория клиента'

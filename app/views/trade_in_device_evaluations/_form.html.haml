@@ -1,0 +1,27 @@
+= simple_form_for @trade_in_device_evaluation,
+    remote: true,
+    html: { class: 'form-horizontal item_form' } do |f|
+  .form-header
+    = secondary_form_close_button :small
+    %h3= t('.title')
+
+  .form-body
+    = f.error_notification message: error_messages_for(@trade_in_device_evaluation)
+
+    .control-group
+      = f.label :product_group_id, t('.product'), class: 'control-label'
+      .controls
+        = select_tag 'trade_in_device_evaluation[product_group_id]',
+          options_from_collection_for_select(@product_groups, 'id', 'name_for_selects'),
+          class: 'trade_in_group_select form-control'
+
+    #product_options= render 'items/options_fields',
+                        available_options: @trade_in_device_evaluation.available_trade_in_options
+
+    = f.input :min_value, label: t('.min_value')
+    = f.input :max_value, label: t('.max_value')
+    = f.input :lack_of_kit, label: t('.lack_of_kit')
+
+  .modal-footer
+    = secondary_form_close_button
+    = submit_button f
