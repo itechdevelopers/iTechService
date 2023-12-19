@@ -301,6 +301,10 @@ Rails.application.routes.draw do
     get :print, on: :member
   end
 
+  resources :trade_in_device_evaluations, only: [:index]
+  # Routes for ajax requests
+  resources :trade_in_device_evaluations, only: [:new, :create, :edit, :update, :destroy], defaults: { format: :js }
+
   resources :cash_shifts, only: :show do
     post :close, on: :member
   end

@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20231207053306) do
+ActiveRecord::Schema.define(version: 20231219041352) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -742,6 +742,7 @@ ActiveRecord::Schema.define(version: 20231207053306) do
     t.string "code", limit: 255
     t.integer "position", default: 0, null: false
     t.integer "warranty_term", default: 0, null: false
+    t.boolean "available_for_trade_in"
     t.index ["ancestry"], name: "index_product_groups_on_ancestry"
     t.index ["code"], name: "index_product_groups_on_code"
     t.index ["product_category_id"], name: "index_product_groups_on_product_category_id"
@@ -1371,6 +1372,17 @@ ActiveRecord::Schema.define(version: 20231207053306) do
     t.index ["product_id"], name: "index_top_salables_on_product_id"
   end
 
+  create_table "trade_in_device_evaluations", force: :cascade do |t|
+    t.string "name"
+    t.bigint "product_group_id"
+    t.decimal "min_value"
+    t.decimal "max_value"
+    t.decimal "lack_of_kit"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["product_group_id"], name: "index_trade_in_device_evaluations_on_product_group_id"
+  end
+
   create_table "trade_in_devices", id: :serial, force: :cascade do |t|
     t.integer "number"
     t.datetime "received_at", null: false
@@ -1558,6 +1570,7 @@ ActiveRecord::Schema.define(version: 20231207053306) do
   add_foreign_key "substitute_phones", "departments"
   add_foreign_key "substitute_phones", "items"
   add_foreign_key "substitute_phones", "service_jobs"
+  add_foreign_key "trade_in_device_evaluations", "product_groups"
   add_foreign_key "trade_in_devices", "clients"
   add_foreign_key "trade_in_devices", "departments"
   add_foreign_key "trade_in_devices", "items"

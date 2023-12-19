@@ -33,7 +33,11 @@ class ProductGroupsController < ApplicationController
 
   def select
     if @product_group.is_childless?
-      @available_options = @product_group.option_values.ordered.group_by { |ov| ov.option_type.name }
+      if params[:trade_in].present?
+        @available_options = @product_group.option_values.trade_in.ordered.group_by { |ov| ov.option_type.name }
+      else
+        @available_options = @product_group.option_values.ordered.group_by { |ov| ov.option_type.name }
+      end
     end
 
     respond_to do |format|
@@ -108,6 +112,8 @@ class ProductGroupsController < ApplicationController
 
   def product_group_params
     params.require(:product_group)
-          .permit(:ancestry, :ancestry_depth, :code, :name, :parent_id, :position, :product_category_id, :warranty_term, option_value_ids: [], related_product_ids: [], related_product_group_ids: [])
+          .permit(:ancestry, :ancestry_depth, :code, :name, :available_for_trade_in,
+          :parent_id, :position, :product_category_id, :warranty_term,
+          option_value_ids: [], related_product_ids: [], related_product_group_ids: [])
   end
 end

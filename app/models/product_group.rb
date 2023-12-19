@@ -22,8 +22,10 @@ class ProductGroup < ApplicationRecord
   scope :for_purchase, lambda {
                          joins(:product_category).where(product_categories: { kind: %w[equipment accessory protector spare_part] })
                        }
+  scope :available_for_trade_in, -> { where(available_for_trade_in: true) }
 
   belongs_to :product_category
+  has_many :trade_in_device_evaluations
   has_many :products, dependent: :nullify, inverse_of: :product_group
   has_many :product_relations, as: :parent, dependent: :destroy
   has_many :related_products, through: :product_relations, source: :relatable, source_type: 'Product'
@@ -39,6 +41,8 @@ class ProductGroup < ApplicationRecord
   validates :code, uniqueness: { allow_blank: true, case_sensitive: false }
 
   after_initialize :set_product_category
+  before_save :set_available_for_trade_in_to_children, if: :available_for_trade_in?
+  before_save :unset_available_for_trade_in_to_children, unless: :available_for_trade_in?
   has_ancestry orphan_strategy: :restrict, cache_depth: true
   acts_as_list scope: [:ancestry]
 
@@ -84,6 +88,10 @@ class ProductGroup < ApplicationRecord
     option_values.ordered.group_by { |ov| ov.option_type.name }
   end
 
+  def available_trade_in_options
+    option_values.trade_in.ordered.group_by { |ov| ov.option_type.name }
+  end
+
   def flatten_name
     parent_group_name = ProductGroup.find(ancestry.split("/").last.to_i).name
     "#{parent_group_name} -- #{self.name}"
@@ -94,5 +102,13 @@ class ProductGroup < ApplicationRecord
   def set_product_category
     self.parent_id = nil if parent_id.blank?
     self.product_category_id ||= parent.product_category_id unless is_root?
+  end
+
+  def set_available_for_trade_in_to_children
+    children.update_all(available_for_trade_in: true)
+  end
+
+  def unset_available_for_trade_in_to_children
+    children.update_all(available_for_trade_in: false)
   end
 end

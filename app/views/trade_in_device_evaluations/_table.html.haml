@@ -1,0 +1,19 @@
+%table.table.table-striped
+  %thead
+    %tr
+      %th= t('.name')
+      %th= t('.min_price')
+      %th= t('.max_price')
+      %th= t('.lack_of_kit_price')
+      - if can? :manage, TradeInDeviceEvaluation
+        %th
+  %tbody
+    - @trade_in_device_evaluations.ordered.each do |evaluation|
+      %tr
+        %td= evaluation.name
+        %td= evaluation.min_value
+        %td= evaluation.max_value
+        %td= evaluation.lack_of_kit
+        - if can? :manage, TradeInDeviceEvaluation
+          %td.btn-group
+            = link_to_destroy_small evaluation, remote: true

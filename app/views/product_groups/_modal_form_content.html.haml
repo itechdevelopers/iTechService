@@ -11,6 +11,7 @@
     = f.input :name, autofocus: true
     = f.input :code
     = f.input :position
+    = f.input :available_for_trade_in, as: :boolean
 
     %h5.text-center= ProductGroup.human_attribute_name(:option_values)
     .product_options

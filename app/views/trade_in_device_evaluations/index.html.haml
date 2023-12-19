@@ -1,0 +1,14 @@
+.page-header
+  %h1= auto_title
+
+.row-fluid
+  .span4
+    - if can? :manage, TradeInDeviceEvaluation
+      = link_to "#{glyph(:plus)} #{t('.new_trade_in_evaluation')}".html_safe, |
+          new_trade_in_device_evaluation_path, |
+          remote: true, class: 'btn btn-success', id: 'new_trade_in_device_evaluation_link'
+      = secondary_form_container
+  
+  .span8
+    %br
+    #trade-in-evaluations_table.table-responsive= render 'table'

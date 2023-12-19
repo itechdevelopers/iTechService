@@ -33,6 +33,7 @@
 
     = drop_down t('.trade') do
       = menu_item t('.trade_in'), trade_in_devices_path
+      = menu_item t('.trade_in_evaluation'), trade_in_device_evaluations_path
       = drop_down_divider
       = menu_item t('sales.link'), sales_path if can? :manage, Sale
       = menu_item t('purchases.link'), purchases_path if can? :manage, Purchase

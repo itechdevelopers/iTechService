@@ -1,0 +1,16 @@
+ru:
+  trade_in_device_evaluations:
+    index:
+      title: 'Оценка устройств в Trade-in'
+      new_trade_in_evaluation: 'Добавить устройство'
+    table:
+      name: 'Модель устройства'
+      min_price: 'Минимальная цена'
+      max_price: 'Максимальная цена'
+      lack_of_kit_price: 'Отсутствие комплекта'
+    form:
+      title: 'Оценка устройства'
+      product: 'Модель устройства'
+      min_value: 'Минимальная цена'
+      max_value: 'Максимальная цена'
+      lack_of_kit: 'Отсутствие комплекта'
