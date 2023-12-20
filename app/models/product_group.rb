@@ -89,7 +89,7 @@ class ProductGroup < ApplicationRecord
   end
 
   def available_trade_in_options
-    option_values.trade_in.ordered.group_by { |ov| ov.option_type.name }
+    option_values.trade_in.ordered.reject { |ov| ov.name == "?" }.group_by { |ov| ov.option_type.name }
   end
 
   def flatten_name
