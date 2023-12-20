@@ -21,8 +21,7 @@ class TradeInDeviceEvaluationsController < ApplicationController
     name = TradeInDeviceEvaluation.construct_name(trade_in_device_evaluation_params[:product_group_id],
       option_ids_params)
     @trade_in_device_evaluation = TradeInDeviceEvaluation.new(trade_in_device_evaluation_params
-      .except(:option_ids)
-      .merge(name: name))
+      .merge(name: name, option_values: option_ids_params))
 
     respond_to do |format|
       if @trade_in_device_evaluation.save
@@ -73,7 +72,7 @@ class TradeInDeviceEvaluationsController < ApplicationController
     end
 
     def option_ids_params
-      params.permit(option_ids: [])[:option_ids].reject(&:blank?)
+      params.permit(option_ids: [])[:option_ids].reject(&:blank?).map(&:to_i)
     end
 
     def evaluation_list_params
@@ -82,6 +81,6 @@ class TradeInDeviceEvaluationsController < ApplicationController
 
     def trade_in_device_evaluation_params
       params.require(:trade_in_device_evaluation)
-            .permit(:product_group_id, :min_value, :max_value, :lack_of_kit, option_ids: [])
+            .permit(:product_group_id, :min_value, :max_value, :lack_of_kit)
     end
 end

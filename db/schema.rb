@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20231219041352) do
+ActiveRecord::Schema.define(version: 20231220054250) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -1380,6 +1380,7 @@ ActiveRecord::Schema.define(version: 20231219041352) do
     t.decimal "lack_of_kit"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.integer "option_values", default: [], array: true
     t.index ["product_group_id"], name: "index_trade_in_device_evaluations_on_product_group_id"
   end
 
