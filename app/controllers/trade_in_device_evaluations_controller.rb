@@ -15,17 +15,13 @@ class TradeInDeviceEvaluationsController < ApplicationController
     end
   end
 
-  def edit
-  end
-
   def create
     authorize TradeInDeviceEvaluation
 
     name = TradeInDeviceEvaluation.construct_name(trade_in_device_evaluation_params[:product_group_id],
       option_ids_params)
     @trade_in_device_evaluation = TradeInDeviceEvaluation.new(trade_in_device_evaluation_params
-      .except(:option_ids)
-      .merge(name: name))
+      .merge(name: name, option_values: option_ids_params))
 
     respond_to do |format|
       if @trade_in_device_evaluation.save
@@ -37,7 +33,27 @@ class TradeInDeviceEvaluationsController < ApplicationController
     end
   end
 
-  def update
+  def bulk_update
+    begin
+      authorize TradeInDeviceEvaluation
+
+      trade_in_device_evaluation_params_list = evaluation_list_params
+
+      trade_in_device_evaluation_params_list.values.each do |trade_in_device_evaluation_params|
+        trade_in_device_evaluation = TradeInDeviceEvaluation.find(trade_in_device_evaluation_params[:id])
+        trade_in_device_evaluation.update(trade_in_device_evaluation_params.except(:id))
+      end
+
+      @trade_in_device_evaluations = TradeInDeviceEvaluation.all
+      respond_to do |format|
+        format.js { render 'save' }
+      end
+    rescue ActiveRecord::RecordInvalid => e
+      respond_to do |format|
+        format.js { render json: { error: e.message }, status: :unprocessable_entity }
+      end
+      flash[:error] = "Ошибка. #{e.message}"
+    end
   end
 
   def destroy
@@ -56,11 +72,15 @@ class TradeInDeviceEvaluationsController < ApplicationController
     end
 
     def option_ids_params
-      params.permit(option_ids: [])[:option_ids]
+      params.permit(option_ids: [])[:option_ids].reject(&:blank?).map(&:to_i)
+    end
+
+    def evaluation_list_params
+      params.permit(evaluation_list: [:id, :product_group_id, :min_value, :max_value, :lack_of_kit, :name])[:evaluation_list]
     end
 
     def trade_in_device_evaluation_params
       params.require(:trade_in_device_evaluation)
-            .permit(:product_group_id, :min_value, :max_value, :lack_of_kit, option_ids: [])
+            .permit(:product_group_id, :min_value, :max_value, :lack_of_kit)
     end
 end

@@ -1,19 +1,29 @@
-%table.table.table-striped
-  %thead
-    %tr
-      %th= t('.name')
-      %th= t('.min_price')
-      %th= t('.max_price')
-      %th= t('.lack_of_kit_price')
-      - if can? :manage, TradeInDeviceEvaluation
-        %th
-  %tbody
-    - @trade_in_device_evaluations.ordered.each do |evaluation|
+= form_with url: bulk_update_trade_in_device_evaluations_path, id: 'evaluation_form',
+    method: :put, local: false do |f|
+  %table.table.table-striped
+    %thead
       %tr
-        %td= evaluation.name
-        %td= evaluation.min_value
-        %td= evaluation.max_value
-        %td= evaluation.lack_of_kit
+        %th= t('.name')
+        %th= t('.min_price')
+        %th= t('.max_price')
+        %th= t('.lack_of_kit_price')
         - if can? :manage, TradeInDeviceEvaluation
-          %td.btn-group
-            = link_to_destroy_small evaluation, remote: true
+          %th
+            = link_to "#{glyph('edit')}".html_safe, '#', remote: true, |
+                class: 'btn btn-small btn-primary', |
+                id: 'edit_trade_in_device_evaluation_link'
+            = f.submit "#{t('.save')}".html_safe,
+              class: 'hidden btn-submit', id: 'bulk_update_trade_in_device_evaluations_link'
+    %tbody
+      = render partial: 'table_row', collection: @trade_in_device_evaluations
+        
+
+:coffeescript
+  $('#edit_trade_in_device_evaluation_link').on 'click', ->
+    $('tbody tr').each ->
+      $(this).find('td .table-data').each ->
+        $(this).addClass('hidden')
+        $(this).siblings('input').removeClass('hidden')
+    $('#bulk_update_trade_in_device_evaluations_link').removeClass('hidden')
+  $('#bulk_update_trade_in_device_evaluations_link').on 'click', ->
+    $(this).addClass('hidden')

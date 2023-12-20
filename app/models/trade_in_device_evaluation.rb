@@ -10,5 +10,6 @@ class TradeInDeviceEvaluation < ApplicationRecord
   def self.construct_name(product_group_id, option_ids)
     res = ProductGroup.find(product_group_id).name
     res << " (#{OptionValue.find(option_ids).map(&:name).join(' ')})" if option_ids.present?
+    res
   end
 end
