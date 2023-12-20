@@ -1,5 +1,5 @@
 class TradeInDeviceEvaluation < ApplicationRecord
-  scope :ordered, -> { joins(:product_group).order('product_groups.position ASC') }
+  scope :ordered, -> { joins(:product_group).order('product_groups.position ASC').order('name ASC') }
 
   belongs_to :product_group
   delegate :available_trade_in_options, to: :product_group, allow_nil: true

@@ -1,2 +1,2 @@
 $('#secondary_form_container').fadeOut().html('');
-$("#trade-in-evaluations_table tbody").html("<%= j render partial: 'trade_in_device_evaluations/table_row', collection: @trade_in_device_evaluations %>");
+$("#trade-in-evaluations_table tbody").html("<%= j render partial: 'trade_in_device_evaluations/table_row', collection: @trade_in_device_evaluations.ordered %>");

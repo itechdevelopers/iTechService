@@ -34,7 +34,7 @@ class ProductGroupsController < ApplicationController
   def select
     if @product_group.is_childless?
       if params[:trade_in].present?
-        @available_options = @product_group.option_values.trade_in.ordered.group_by { |ov| ov.option_type.name }
+        @available_options = @product_group.available_trade_in_options
       else
         @available_options = @product_group.option_values.ordered.group_by { |ov| ov.option_type.name }
       end
