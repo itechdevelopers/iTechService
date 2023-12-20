@@ -4,13 +4,13 @@
     .table-data= table_row.name
     %input.hidden{name: "evaluation_list[#{table_row_counter}][name]", value: table_row.name}
   %td
-    .table-data= table_row.min_value
+    .table-data= number_with_delimiter(table_row.min_value, delimiter: " ")
     %input.hidden{name: "evaluation_list[#{table_row_counter}][min_value]", value: table_row.min_value}
   %td
-    .table-data= table_row.max_value
+    .table-data= number_with_delimiter(table_row.max_value, delimiter: " ")
     %input.hidden{name: "evaluation_list[#{table_row_counter}][max_value]", value: table_row.max_value}
   %td
-    .table-data= table_row.lack_of_kit
+    .table-data= number_with_delimiter(table_row.lack_of_kit, delimiter: " ")
     %input.hidden{name: "evaluation_list[#{table_row_counter}][lack_of_kit]", value: table_row.lack_of_kit}
   - if can? :manage, TradeInDeviceEvaluation
     %td.btn-group
