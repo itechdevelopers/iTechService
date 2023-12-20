@@ -15,9 +15,6 @@ class TradeInDeviceEvaluationsController < ApplicationController
     end
   end
 
-  def edit
-  end
-
   def create
     authorize TradeInDeviceEvaluation
 
@@ -37,7 +34,27 @@ class TradeInDeviceEvaluationsController < ApplicationController
     end
   end
 
-  def update
+  def bulk_update
+    begin
+      authorize TradeInDeviceEvaluation
+
+      trade_in_device_evaluation_params_list = evaluation_list_params
+
+      trade_in_device_evaluation_params_list.values.each do |trade_in_device_evaluation_params|
+        trade_in_device_evaluation = TradeInDeviceEvaluation.find(trade_in_device_evaluation_params[:id])
+        trade_in_device_evaluation.update(trade_in_device_evaluation_params.except(:id))
+      end
+
+      @trade_in_device_evaluations = TradeInDeviceEvaluation.all
+      respond_to do |format|
+        format.js { render 'save' }
+      end
+    rescue ActiveRecord::RecordInvalid => e
+      respond_to do |format|
+        format.js { render json: { error: e.message }, status: :unprocessable_entity }
+      end
+      flash[:error] = "Ошибка. #{e.message}"
+    end
   end
 
   def destroy
@@ -56,7 +73,11 @@ class TradeInDeviceEvaluationsController < ApplicationController
     end
 
     def option_ids_params
-      params.permit(option_ids: [])[:option_ids]
+      params.permit(option_ids: [])[:option_ids].reject(&:blank?)
+    end
+
+    def evaluation_list_params
+      params.permit(evaluation_list: [:id, :product_group_id, :min_value, :max_value, :lack_of_kit, :name])[:evaluation_list]
     end
 
     def trade_in_device_evaluation_params

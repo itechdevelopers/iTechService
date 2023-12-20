@@ -12,5 +12,9 @@ class TradeInDeviceEvaluationPolicy < BasePolicy
   end
 
   def index?; true; end
+
+  def bulk_update?
+    manage?
+  end
   
 end

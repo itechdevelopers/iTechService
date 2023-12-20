@@ -10,5 +10,8 @@
       = secondary_form_container
   
   .span8
+    - if flash[:error].present?
+      .alert.alert-danger
+        %p= flash[:error]
     %br
     #trade-in-evaluations_table.table-responsive= render 'table'
