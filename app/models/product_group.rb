@@ -105,10 +105,10 @@ class ProductGroup < ApplicationRecord
   end
 
   def set_available_for_trade_in_to_children
-    children.update_all(available_for_trade_in: true)
+    children.update_all(available_for_trade_in: true) if persisted?
   end
 
   def unset_available_for_trade_in_to_children
-    children.update_all(available_for_trade_in: false)
+    children.update_all(available_for_trade_in: false) if persisted?
   end
 end
