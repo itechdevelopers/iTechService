@@ -87,4 +87,5 @@ class API < Grape::API
   mount QuickOrderApi
   mount RepairApi
   mount OrderApi
+  mount TradeInApi
 end
