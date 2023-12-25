@@ -162,6 +162,10 @@ class ServiceJobsController < ApplicationController
 
     respond_to do |format|
       if @service_job.save
+        if @service_job.in_archive? && Review.where(service_job: @service_job).empty?
+          ServiceJobs::MakeReview.call(service_job: @service_job, user: current_user)
+        end
+
         create_phone_substitution if @service_job.phone_substituted?
         Service::DeviceSubscribersNotificationJob.perform_later @service_job.id, current_user.id, notify_params
         format.html { redirect_to @service_job, notice: t('service_jobs.updated') }
