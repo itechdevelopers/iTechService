@@ -12,4 +12,8 @@ class TradeInDeviceEvaluation < ApplicationRecord
     res << " (#{OptionValue.find(option_ids).map(&:name).join(' ')})" if option_ids.present?
     res
   end
+
+  def generic_group
+    product_group.parent.name
+  end
 end
