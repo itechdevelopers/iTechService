@@ -14,10 +14,6 @@ class TradeInDeviceEvaluation < ApplicationRecord
   end
 
   def generic_group
-    if product_group.name == "Apple Watch"
-      return "Watch"
-    else
-      return product_group.parent.name
-    end
+    product_group.parent.name
   end
 end
