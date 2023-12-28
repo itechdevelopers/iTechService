@@ -3,6 +3,10 @@
 class RepairService < ApplicationRecord
   default_scope { order('name asc') }
   scope :in_group, ->(group) { where repair_group_id: group }
+  scope :search, ->(params) { params[:query].present? ? 
+    where('repair_services.name ilike :q', q: "%#{params[:query]}%") : 
+    all 
+  }
 
   belongs_to :repair_group, optional: true
   has_many :spare_parts, dependent: :destroy

@@ -31,7 +31,18 @@
       <%= repair_groups_trees_tag @repair_groups, params[:group], additional_params %>
     </div>
   </div>
-  <div id="resource_table" class="span8">
-    <%= render params[:table_name] %>
+  <div class="span8">
+    <div class="navbar-inner repair-services-navbar">
+      <%= form_tag repair_services_path, method: :get, remote: true, class: 'navbar-search form-search', id: "search_form" do %>
+        <div class="input-append">
+          <%= hidden_field_tag :group, params[:group], id: "group-param" %>
+          <%= text_field_tag :query, params[:query], class: 'search-query', placeholder: '' %>
+          <span class="add-on btn clear_search_input"><i class="icon-remove"></i></span>
+        </div>
+      <% end %>
+    </div>
+    <div id="resource_table">
+      <%= render params[:table_name] %>
+    </div>
   </div>
 </div>

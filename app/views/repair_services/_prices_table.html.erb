@@ -1,4 +1,4 @@
-<% if params[:group].present? %>
+<% if params[:group].present? || params[:query].present? %>
   <div class="btn-group" data-toggle="buttons-radio">
     <% real_departments.each do |department| %>
       <%= link_to department.short_name,
@@ -70,5 +70,5 @@
     </table>
   <% end %>
 <% else %>
-  <strong>Выбери группу</strong>
+  <strong>Выберите группу или введите поисковой запрос</strong>
 <% end %>

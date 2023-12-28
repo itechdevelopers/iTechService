@@ -2,3 +2,4 @@ $("#resource_table").html("<%= j(render(params[:table_name])) %>");
 $('#new_repair_service_link')
   .attr('href', "<%= new_repair_service_path(repair_service: {repair_group_id: params[:group]}) %>")
   .removeAttr('disabled');
+$('#group-param').val('<%= params[:group] %>');
