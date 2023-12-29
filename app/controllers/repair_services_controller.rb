@@ -4,8 +4,14 @@ class RepairServicesController < ApplicationController
   def index
     authorize RepairService
     @repair_groups = RepairGroup.roots.order('name asc')
+    Rails.logger.info("params[:group]: #{params[:group]}")
 
-    @repair_services = RepairService.includes(spare_parts: :product).in_group(params[:group]) if params[:group].present?
+    if params[:group].blank?
+      @repair_services = RepairService.search(search_params)
+    else
+      @repair_services = RepairService.includes(spare_parts: :product).in_group(params[:group])
+      @repair_services = @repair_services.search(search_params)
+    end
 
     params[:table_name] = {
       'prices' => 'prices_table',

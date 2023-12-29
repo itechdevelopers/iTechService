@@ -1,4 +1,4 @@
-<% if params[:group].present? %>
+<% if params[:group].present? || params[:query].present? %>
   <table id="repair_services_table" class="table table-hover">
     <thead>
     <tr>
@@ -46,5 +46,5 @@
     </tbody>
   </table>
 <% else %>
-  <strong>Выбери группу</strong>
+  <strong>Выберите группу или введите поисковой запрос</strong>
 <% end %>
