@@ -2,3 +2,4 @@ $form_container = $('#repair_services_choose_form_container');
 $form_container.html("<%= j(render('repair_services/choose_form')) %>");
 repair_groups_tree_readonly("#repair_groups");
 $form_container.slideDown();
+$('#groups-param').val('<%= params[:group] %>');

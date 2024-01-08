@@ -4,7 +4,6 @@ class RepairServicesController < ApplicationController
   def index
     authorize RepairService
     @repair_groups = RepairGroup.roots.order('name asc')
-    Rails.logger.info("params[:group]: #{params[:group]}")
 
     if params[:group].blank?
       @repair_services = RepairService.search(search_params)

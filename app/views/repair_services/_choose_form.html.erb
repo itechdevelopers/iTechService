@@ -6,8 +6,36 @@
     </div>
   </div>
   <div class="span8">
-    <div id="resource_table">
-      <%= render 'choose_table' %>
-    </div>
-  </div>
-</div>
+    <div class="navbar-inner choose-repair-services-navbar">
+      <div class='navbar-search form-search' id="search_form">
+        <div class="input-append">
+          <%= hidden_field_tag :group, params[:group], id: "group-param" %>
+          <%= text_field_tag :query, params[:query], class: 'search-query', placeholder: '' %>
+                    <span class="add-on btn clear_search_input"><i class="icon-remove"></i></span>
+                  </div>
+                </div>
+              </div>
+              <div id="resource_table">
+                <%= render 'choose_table' %>
+              </div>
+            </div>
+          </div>
+<script>
+  $(document).ready(function() {
+    console.log('ready');
+    $('.search-query').on('keypress', function(e) {
+      if (e.keyCode == 13) {
+        e.preventDefault();
+        $.ajax({
+          url: '/repair_services',
+          type: 'GET',
+          data: { query: $(this).val(), group: $('#group-param').val(), mode: 'choose' },
+          dataType: 'script',
+          success: function(data) {
+            console.log(data);
+          }
+        });
+      }
+    });
+  });
+</script>
