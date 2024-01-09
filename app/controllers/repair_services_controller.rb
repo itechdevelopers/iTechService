@@ -6,10 +6,10 @@ class RepairServicesController < ApplicationController
     @repair_groups = RepairGroup.roots.order('name asc')
 
     if params[:group].blank?
-      @repair_services = RepairService.search(search_params)
+      @repair_services = RepairService.search(search_params[:query])
     else
       @repair_services = RepairService.includes(spare_parts: :product).in_group(params[:group])
-      @repair_services = @repair_services.search(search_params)
+      @repair_services = @repair_services.search(search_params[:query])
     end
 
     params[:table_name] = {

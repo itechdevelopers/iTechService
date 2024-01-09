@@ -3,9 +3,17 @@
 class RepairService < ApplicationRecord
   default_scope { order('name asc') }
   scope :in_group, ->(group) { where repair_group_id: group }
-  scope :search, ->(params) { params[:query].present? ? 
-    where('repair_services.name ilike :q', q: "%#{params[:query]}%") : 
-    all 
+  scope :with_spare_part_name, ->(query) {
+    joins(spare_parts: :product).
+    where('products.name ilike :q', q: "%#{query}%")
+  }
+  scope :search, ->(query) { query.present? ?
+    with_spare_part_name(query).
+    or(RepairService.
+        joins(spare_parts: :product).
+        where('repair_services.name ilike :q', q: "%#{query}%")).
+    distinct :
+    all
   }
 
   belongs_to :repair_group, optional: true
