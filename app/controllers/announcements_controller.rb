@@ -29,6 +29,12 @@ class AnnouncementsController < ApplicationController
     head(:no_content) if @announcements.empty?
   end
 
+  def close_bad_review
+    authorize Announcement, :close_bad_review?
+    @announcement = find_record(Announcement)
+    @announcement.update_column :active, false
+  end
+
   def show
     @announcement = find_record(Announcement)
 
