@@ -1,5 +1,7 @@
-= content_tag :div, id: "bad_review-link" do
+= content_tag :div, class: "bad_review-link", data: { announcement_id: announcement.id } do
   %span.announcement_content
-    = link_to announcement_content(announcement),
-        service_job_path(id: announcement.review.service_job_id),
-        target: "_blank"
+    .bad_review_links
+      = link_to announcement_content(announcement),
+          service_job_path(id: announcement.review.service_job_id),
+          target: "_blank"
+      = link_to glyph(:remove), close_bad_review_announcement_path(id: announcement.id), remote: true, method: :post

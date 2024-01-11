@@ -4,12 +4,12 @@ Rails.application.configure do
   # In the development environment your application's code is reloaded on
   # every request. This slows down response time but is perfect for development
   # since you don't have to restart the web server when you make code changes.
-  
+
   # Check if we use Docker to allow docker ip through web-console
-  if File.file?('/.dockerenv') == true   
+  if File.file?('/.dockerenv') == true
     config.web_console.whitelisted_ips.concat ['10.0.0.0/8', '172.16.0.0/12', '192.168.0.0/16']
   end
-  
+
   config.cache_classes = false
 
   # Do not eager load code on boot.
@@ -72,6 +72,8 @@ Rails.application.configure do
   # config.file_watcher = ActiveSupport::EventedFileUpdateChecker
 
   # config.action_mailer.smtp_settings = { address: 'localhost', port: 1025 }
-  config.active_job.queue_adapter = :async
+  config.active_job.queue_adapter = :sidekiq
+  config.active_job.queue_name_prefix = "ise_#{Rails.env}"
+  config.active_job.queue_name_delimiter = '_'
   Paperclip.options[:command_path] = '/usr/local/bin'
 end
