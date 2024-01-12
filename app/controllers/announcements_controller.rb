@@ -25,7 +25,7 @@ class AnnouncementsController < ApplicationController
 
   def bad_reviews
     authorize Announcement, :index?
-    @announcements = Announcement.active_bad_reviews
+    @announcements = current_user.addressed_announcements.active_bad_reviews
     head(:no_content) if @announcements.empty?
   end
 
@@ -123,6 +123,15 @@ class AnnouncementsController < ApplicationController
   def close
     @announcement = find_record(Announcement)
     @announcement.exclude_recipient current_user
+    respond_to do |format|
+      format.js do
+        if @announcement.kind == 'bad_review'
+          render 'close_bad_review'
+        else
+          render 'close'
+        end
+      end
+    end
   end
 
   def close_all
