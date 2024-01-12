@@ -75,4 +75,7 @@ module AnnouncementsHelper
     end
   end
 
+  def any_bad_reviews?
+    can?(:see_bad_reviews, Announcement) && Announcement.active_bad_reviews.map(&:recipients).flatten.include?(current_user)
+  end
 end

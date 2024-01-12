@@ -4,4 +4,4 @@
       = link_to announcement_content(announcement),
           service_job_path(id: announcement.review.service_job_id),
           target: "_blank"
-      = link_to glyph(:remove), close_bad_review_announcement_path(id: announcement.id), remote: true, method: :post
+      = link_to glyph(:remove), close_announcement_path(id: announcement.id), remote: true, method: :post

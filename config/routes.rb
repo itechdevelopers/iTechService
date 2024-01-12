@@ -174,7 +174,6 @@ Rails.application.routes.draw do
 
   resources :announcements do
     post :close, on: :member
-    post :close_bad_review, on: :member
     collection do
       post :close_all
       get :birthdays

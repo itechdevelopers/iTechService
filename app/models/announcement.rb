@@ -138,6 +138,8 @@ class Announcement < ApplicationRecord
     when 'device_return'
       recipients = User.software.media.to_a
       recipients += User.technician.to_a if service_job.present? && service_job.location.is_repair?
+    when 'bad_review'
+      recipients = User.superadmins.to_a
     else
       recipients = []
     end
