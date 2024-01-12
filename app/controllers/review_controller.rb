@@ -3,8 +3,7 @@ class ReviewController < ActionController::Base
 
   # GET /review/<token>
   def edit
-    #TODO: Если @review не найден, либо отзыв уже оставили ранее - редирект на страницу с благодярностью
-    if @review
+    if @review && (@review.reviewed_at.nil? || @review.reviewed_at > 10.minutes.ago)
       MarkReviewViewedJob.perform_later(@review.id)
     else
       redirect_to '/review'
