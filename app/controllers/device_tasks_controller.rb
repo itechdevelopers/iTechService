@@ -11,6 +11,7 @@ class DeviceTasksController < ApplicationController
 
   def update
     @device_task = find_record DeviceTask
+
     operation = Service::DeviceTasks::Update.new.with_step_args(
       validate: [@device_task],
       save: [current_user],

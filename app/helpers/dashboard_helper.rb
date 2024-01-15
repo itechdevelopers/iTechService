@@ -24,6 +24,11 @@ module DashboardHelper
                                                                   disabled: !policy(device_task).edit?
   end
 
+  def link_to_edit_device_task_colored(device_task)
+    link_to icon_tag('edit'), edit_device_task_path(device_task), remote: true,
+                                                                  disabled: !policy(device_task).edit?
+  end
+
   def is_actual_service_job?(service_job)
     service_job.is_actual_for?(current_user)
   end
