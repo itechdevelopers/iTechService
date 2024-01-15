@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 class RepairService < ApplicationRecord
-  default_scope { order('name asc') }
+  default_scope { order('repair_services.name asc') }
   scope :in_group, ->(group) { where repair_group_id: group }
   scope :with_spare_part_name, ->(query) {
     joins(spare_parts: :product).
