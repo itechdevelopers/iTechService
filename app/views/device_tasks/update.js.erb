@@ -1,5 +1,10 @@
 $("#modal_form").modal('hide');
-$task_row = $(".device_task_row[data-device-task-id=<%= @device_task.id %>]", '#actual_tasks_table');
-$task_row.replaceWith("<%= j render('device_tasks/row', device_task: @device_task) %>");
-$service_job_row = $(".service_job_row[data-service-job-id=<%= @device_task.service_job.id %>]", '#actual_tasks_table');
-$service_job_row.replaceWith("<%= j render('service_jobs/row', service_job: @device_task.service_job) %>");
+$service_job_device_tasks = $("#service_job_device_tasks");
+if ($service_job_device_tasks.length > 0) {
+  $("#service_job_device_tasks").html("<%= j render('service_jobs/device_tasks_show', service_job: @device_task.service_job) %>");
+} else {
+  $task_row = $(".device_task_row[data-device-task-id=<%= @device_task.id %>]", '#actual_tasks_table');
+  $task_row.replaceWith("<%= j render('device_tasks/row', device_task: @device_task) %>");
+  $service_job_row = $(".service_job_row[data-service-job-id=<%= @device_task.service_job.id %>]", '#actual_tasks_table');
+  $service_job_row.replaceWith("<%= j render('service_jobs/row', service_job: @device_task.service_job) %>");
+}

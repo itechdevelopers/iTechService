@@ -1,0 +1,30 @@
+%table.table.table-bordered.table-condensed.table-hover
+  %caption
+    %h4= ServiceJob.human_attribute_name :tasks
+  %thead
+    %tr
+      %th= Task.human_attribute_name :name
+      %th= DeviceTask.human_attribute_name :comment
+      %th= DeviceTask.human_attribute_name :user_comment
+      %th= DeviceTask.human_attribute_name :cost
+      %th= DeviceTask.human_attribute_name :done_at
+      %th= DeviceTask.human_attribute_name :created_at
+      %th
+  %tbody
+    - service_job.device_tasks.ordered.each do |device_task|
+      %tr{class: row_class_for_task(device_task)}
+        %td= device_task.task_name
+        %td= h device_task.comment
+        %td
+          %strong.user_comment= h device_task.user_comment
+        %td.align_right= device_task.cost
+        %td= l device_task.done_at, format: :date_time unless device_task.done_at.blank?
+        %td= l device_task.created_at, format: :date_time
+        %td{style: "background:none; display: flex; flex-direction: column;"}
+          = history_link_to history_device_task_path(service_job, device_task)
+          = policy(device_task).edit? ? link_to_edit_device_task_colored(device_task) : nil
+  %tfoot
+    %tr
+      %td{colspan: 3}= t 'total'
+      %td.align_right= service_job.tasks_cost
+      %td{colspan: 4}
