@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20231225151220) do
+ActiveRecord::Schema.define(version: 20240117063836) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -1148,6 +1148,7 @@ ActiveRecord::Schema.define(version: 20231225151220) do
     t.string "trademark"
     t.string "completeness"
     t.string "device_group"
+    t.datetime "completion_act_printed_at"
     t.index ["carrier_id"], name: "index_service_jobs_on_carrier_id"
     t.index ["case_color_id"], name: "index_service_jobs_on_case_color_id"
     t.index ["client_id"], name: "index_service_jobs_on_client_id"

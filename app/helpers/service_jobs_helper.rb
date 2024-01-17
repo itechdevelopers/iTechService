@@ -257,4 +257,8 @@ module ServiceJobsHelper
             record_edits_path(editable_type: note.class.to_s, editable_id: note.id.to_s),
             remote: true) if RecordEdit.any_edits?(note)
   end
+
+  def ready_for_payment?(service_job)
+    (service_job.work_order_filled? && service_job.completion_act_printed_at.present?) || !service_job.work_order_filled?
+  end
 end
