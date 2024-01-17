@@ -9,6 +9,7 @@ jQuery ->
     html: true
 
   if $service_job_form.length > 0
+    $service_job_form.find('label.important').tooltip(title: 'Информация, которая заполняется здесь, отображается в заказ-наряде. Будьте внимательны.')
 
     $(document).on 'change', '.device_task_task', () ->
       task_id = $(this).val()
