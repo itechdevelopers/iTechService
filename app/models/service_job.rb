@@ -402,7 +402,7 @@ price: device_task.cost.to_f, quantity: 1 }
   end
 
   def work_order_filled?
-    device_condition.present?
+    [client_address, trademark, device_group, completeness, claimed_defect, client_comment, type_of_work, estimated_cost_of_repair].any?(&:present?)
   end
 
   # TODO: correct

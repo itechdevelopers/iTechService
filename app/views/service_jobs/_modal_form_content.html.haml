@@ -91,12 +91,14 @@
         = f.error :base, class: 'text-error'
 
         %hr
-        = render 'pay_links', service_job: @service_job
         - if @service_job.at_done?
+          - if ready_for_payment?(@service_job)
+            = render 'pay_links', service_job: @service_job
+          - else
+            = link_to "#{icon_tag(:file)} #{t('service_jobs.completion_act')}".html_safe, completion_act_service_job_path(@service_job, format: 'pdf'), id: 'completion_act_link', class: 'btn btn-info', target: '_blank' if @service_job.at_done? || @service_job.in_archive?
+
           - if @service_job.phone_substituted?
             = link_to t('service_jobs.returning_substitute_phone'), edit_substitution_path(@service_job.pending_substitution), target: '_blank', class: 'btn btn-danger'
-          - if @service_job.work_order_filled?
-            = link_to "#{icon_tag(:file)} #{t('service_jobs.completion_act')}".html_safe, completion_act_service_job_path(@service_job, format: 'pdf'), id: 'completion_act_link', class: 'btn btn-info', target: '_blank' if @service_job.at_done? || @service_job.in_archive?
         = submit_button f
 
     .span6

@@ -163,6 +163,8 @@ class CompletionActPdf < Prawn::Document
     move_down font_size
     draw_text "Подпись", at: [200, cursor]
     draw_text "Штамп исполнителя", at: [400, cursor]
+
+    service_job.update_column :completion_act_printed_at, Time.zone.now
   end
 
   private

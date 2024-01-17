@@ -168,7 +168,11 @@
 
 .form-actions
   = link_to_edit @service_job
-  = render 'pay_links', service_job: @service_job
+  - if @service_job.at_done?
+    - if ready_for_payment?(@service_job)
+      = render 'pay_links', service_job: @service_job
+    - else
+      = link_to "#{icon_tag(:file)} #{t('service_jobs.completion_act')}".html_safe, completion_act_service_job_path(@service_job, format: 'pdf'), id: 'completion_act_link', class: 'btn btn-info', target: '_blank' if @service_job.at_done? || @service_job.in_archive?
   - if can? :destroy, service_job
     %a.destroy_service_job_btn.btn.btn-danger{'data-target': "#modalConfirmDeleteJob", 'data-row-id': @service_job.id, 'data-toggle': "modal", type: "button"}
       = "#{glyph(:trash)} #{t 'destroy'}".html_safe

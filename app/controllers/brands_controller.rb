@@ -31,7 +31,7 @@ class BrandsController < ApplicationController
   def update
     @brand = find_record(Brand)
 
-    if @brand.update(params[:brand])
+    if @brand.update(brand_params)
       redirect_to brands_path, notice: 'Бренд изменён'
     else
       render 'form'
