@@ -13,3 +13,6 @@
 
   .wiki_content
     = sanitize(auto_link(RedCloth.new(@page.content).to_html.html_safe))
+
+  - @page.images.each do |image|
+    %p= image_tag(image.url)
