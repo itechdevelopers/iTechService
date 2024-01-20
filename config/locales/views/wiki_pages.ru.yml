@@ -26,6 +26,8 @@ ru:
       content: 'Содержание'
       submit: 'Сохранить'
       senior: 'Статья для руководителей?'
+      images-title: 'Прикрепить изображения'
+      submit-images: 'Добавить'
     actions:
       search: 'Поиск'
       category_select: 'Категория не выбрана'

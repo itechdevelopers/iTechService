@@ -355,6 +355,7 @@ Rails.application.routes.draw do
   end
 
   resources :wiki_pages, path: 'wiki' do
+    resources :images, only: %i[create destroy]
     get :search, on: :collection, defaults: {format: :js}
   end
 

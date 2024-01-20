@@ -16,3 +16,12 @@
       - WikiPageCategory.only_non_senior.each do |category|
         %li= category.title
   = f.submit t('.submit'), class: 'submit btn btn-primary'
+%h4= t('.images-title')
+
+- @page.images.each do |image|
+  %p= image_tag(image.url)
+
+
+= form_for @page, url: wiki_page_images_path(@page), method: :post do |f|
+  = f.file_field :images, multiple: true
+  = f.submit t('.submit-images')
