@@ -1,5 +1,6 @@
 FROM ruby:2.7.5
 RUN apt-get update && apt-get install -y nodejs libpq-dev imagemagick libmagickwand-dev tzdata
+RUN gem install bundler -v 2.3.17
 WORKDIR /app
 COPY Gemfile* .
 RUN bundle install
