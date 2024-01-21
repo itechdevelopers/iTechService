@@ -3,9 +3,15 @@ class ImagesController < ApplicationController
 
   def create
     authorize @wiki_page
-    images = @wiki_page.images
-    images += images_params[:images]
-    @wiki_page.images = images
+    @wiki_page.images += images_params[:images]
+    @wiki_page.save!
+    redirect_to edit_wiki_page_url(@wiki_page)
+  end
+
+  def destroy
+    authorize @wiki_page
+    deleted_img = @wiki_page.images.delete_at(params[:id].to_i)
+    File.delete(deleted_img.path)
     @wiki_page.save!
     redirect_to edit_wiki_page_url(@wiki_page)
   end
@@ -13,7 +19,7 @@ class ImagesController < ApplicationController
   private
 
   def set_wiki_page
-    @wiki_page = WikiPage.find(params[:wiki_page_id])
+    @wiki_page ||= WikiPage.find(params[:wiki_page_id])
   end
 
   def images_params
