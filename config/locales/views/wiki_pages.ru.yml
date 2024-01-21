@@ -28,6 +28,7 @@ ru:
       senior: 'Статья для руководителей?'
       images-title: 'Прикрепить изображения'
       submit-images: 'Добавить'
+      image-delete: 'Удалить изображение'
     actions:
       search: 'Поиск'
       category_select: 'Категория не выбрана'
