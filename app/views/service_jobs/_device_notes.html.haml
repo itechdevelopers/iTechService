@@ -1,8 +1,15 @@
-.device_notes{id: "device_notes_#{@service_job.id}"}= render @service_job.device_notes.oldest_first, editable: editable
+.device_notes{id: "device_notes_#{@service_job.id}"}
+  = render @service_job.device_notes.oldest_first, editable: editable
+.scroll-to-top
 = render 'device_notes/form'
 
 :javascript
   $(document).ready(function() {
-    $device_notes = $('#device_notes');
-    // $device_notes.scrollTop($device_notes[0].scrollHeight);
+    $device_notes = $('.device_notes');
+    $device_notes.scrollTop($device_notes[0].scrollHeight);
+
+    $scroll_btn = $('.scroll-to-top');
+    $scroll_btn.on('click', function() {
+      $device_notes.scrollTop(0);
+    });
   });
