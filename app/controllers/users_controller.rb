@@ -264,6 +264,7 @@ class UsersController < ApplicationController
       :department_autochangeable, :department_id, :location_id, :hiring_date, :hobby, :is_fired, :job_title, :color,
       :position, :prepayment, :role, :salary_date, :schedule,:store_id, :uniform_sex, :uniform_size, :wish, :wishlist,
       :photo, :photo_cache, :remove_photo, :work_phone, :service_job_sorting_id, :is_senior,
+      :dismissed_date, :dismissal_reason_id, :dismissal_comment,
 
       abilities: [], activities: [],
       schedule_days: [:day, :hours, :user, :user_id],
