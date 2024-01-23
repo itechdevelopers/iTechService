@@ -1,0 +1,16 @@
+= auto_header_tag
+
+%table.table.table-hover
+  %thead
+    %tr
+      %th= DismissalReason.human_attribute_name :id
+      %th= DismissalReason.human_attribute_name :name
+      %th
+  %tbody
+    - @dismissal_reasons.each do |dismissal_reason|
+      %tr
+        %td= dismissal_reason.id
+        %td= dismissal_reason.name
+        %td.btn-group
+          = link_to_edit_small dismissal_reason
+          = link_to_destroy_small dismissal_reason

@@ -78,6 +78,8 @@ Rails.application.routes.draw do
     patch :update_self, on: :member
   end
 
+  resources :dismissal_reasons, except: :show
+
   resources :faults, only: %i[new create]
 
   resources :karmas do
