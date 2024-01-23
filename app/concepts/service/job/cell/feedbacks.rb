@@ -4,7 +4,7 @@ module Service
       private
 
       def feedbacks
-        model.feedbacks.old_first
+        model.feedbacks.new_first
       end
     end
   end
