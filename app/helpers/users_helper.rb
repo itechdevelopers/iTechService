@@ -263,6 +263,10 @@ module UsersHelper
     current_user.superadmin? || current_user.developer? ? User::ROLES : User::ROLES_FOR_ADMIN
   end
 
+  def dismissal_reasons
+    DismissalReason.all
+  end
+
   private
 
   def is_other_duty?(user, date)

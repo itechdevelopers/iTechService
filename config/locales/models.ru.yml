@@ -630,6 +630,9 @@ ru:
         hobby: Увлечения, интересы, хобби
         history_records: 'history_records'  #g
         is_fired: 'Уволен'
+        dismissed_date: 'Дата увольнения'
+        dismissal_reason_id: 'Причина увольнения'
+        dismissal_comment: 'Комментарий к увольнению'
         job_title: "Должность"
         karmas: 'Карма'
         last_sign_in_at: 'Время предыдущей авторизации'

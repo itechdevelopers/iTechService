@@ -53,6 +53,13 @@ jQuery ->
       $this.addClass 'duty'
       alert('Укороченный день!') if $this.hasClass('shortened')
 
+  $(document).on 'click', '.user_is_fired', (event) ->
+    $checkbox = $('#user_is_fired')
+    if $checkbox.is(':checked')
+      $('#dismissal_features').css('display', 'inline-block');
+    else
+      $('#dismissal_features').css('display', 'none');
+
   $('#edit_wish_link').click (event) ->
     $('#wish_view, #wish_edit').toggleClass 'hide'
 

@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20240118081812) do
+ActiveRecord::Schema.define(version: 20240123051920) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -316,6 +316,10 @@ ActiveRecord::Schema.define(version: 20240118081812) do
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.index ["limit"], name: "index_discounts_on_limit"
+  end
+
+  create_table "dismissal_reasons", force: :cascade do |t|
+    t.string "name"
   end
 
   create_table "duty_days", id: :serial, force: :cascade do |t|
@@ -1463,9 +1467,13 @@ ActiveRecord::Schema.define(version: 20240118081812) do
     t.string "work_phone"
     t.integer "service_job_sorting_id"
     t.boolean "is_senior", default: false
+    t.datetime "dismissed_date"
+    t.bigint "dismissal_reason_id"
+    t.text "dismissal_comment"
     t.index ["authentication_token"], name: "index_users_on_authentication_token", unique: true
     t.index ["card_number"], name: "index_users_on_card_number"
     t.index ["department_id"], name: "index_users_on_department_id"
+    t.index ["dismissal_reason_id"], name: "index_users_on_dismissal_reason_id"
     t.index ["email"], name: "index_users_on_email"
     t.index ["is_fired"], name: "index_users_on_is_fired"
     t.index ["job_title"], name: "index_users_on_job_title"
@@ -1578,4 +1586,5 @@ ActiveRecord::Schema.define(version: 20240118081812) do
   add_foreign_key "trade_in_devices", "departments"
   add_foreign_key "trade_in_devices", "items"
   add_foreign_key "trade_in_devices", "users", column: "receiver_id"
+  add_foreign_key "users", "dismissal_reasons"
 end

@@ -30,6 +30,11 @@
       = f.input :job_title
       = f.input(:hiring_date, as: :my_date) unless @user.persisted?
       = f.input :is_fired
+      #dismissal_features.control-group-row{style: ("display: none" unless @user.is_fired)}
+        = f.input :dismissed_date, as: :my_date
+        = f.input :dismissal_reason_id, collection: dismissal_reasons, value_method: :id
+        = f.input :dismissal_comment
+
       = f.input :prepayment
       = f.input :color, as: :color
       .control-group
