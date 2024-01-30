@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20240123051920) do
+ActiveRecord::Schema.define(version: 20240130071653) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -702,6 +702,17 @@ ActiveRecord::Schema.define(version: 20240123051920) do
     t.index ["substitute_phone_id"], name: "index_phone_substitutions_on_substitute_phone_id"
   end
 
+  create_table "photo_containers", force: :cascade do |t|
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.string "reception_photos", default: [], array: true
+    t.string "in_operation_photos", default: [], array: true
+    t.string "completed_photos", default: [], array: true
+    t.string "reception_photos_meta_data", default: [], array: true
+    t.string "in_operation_photos_meta_data", default: [], array: true
+    t.string "completed_photos_meta_data", default: [], array: true
+  end
+
   create_table "price_types", id: :serial, force: :cascade do |t|
     t.string "name", limit: 255
     t.integer "kind"
@@ -1153,6 +1164,7 @@ ActiveRecord::Schema.define(version: 20240123051920) do
     t.string "completeness"
     t.string "device_group"
     t.datetime "completion_act_printed_at"
+    t.bigint "photo_container_id"
     t.index ["carrier_id"], name: "index_service_jobs_on_carrier_id"
     t.index ["case_color_id"], name: "index_service_jobs_on_case_color_id"
     t.index ["client_id"], name: "index_service_jobs_on_client_id"
@@ -1163,6 +1175,7 @@ ActiveRecord::Schema.define(version: 20240123051920) do
     t.index ["initial_department_id"], name: "index_service_jobs_on_initial_department_id"
     t.index ["item_id"], name: "index_service_jobs_on_item_id"
     t.index ["location_id"], name: "index_service_jobs_on_location_id"
+    t.index ["photo_container_id"], name: "index_service_jobs_on_photo_container_id"
     t.index ["return_at"], name: "index_service_jobs_on_return_at"
     t.index ["sale_id"], name: "index_service_jobs_on_sale_id"
     t.index ["status"], name: "index_service_jobs_on_status"
@@ -1571,6 +1584,7 @@ ActiveRecord::Schema.define(version: 20240123051920) do
   add_foreign_key "service_job_viewings", "service_jobs"
   add_foreign_key "service_job_viewings", "users"
   add_foreign_key "service_jobs", "departments", column: "initial_department_id"
+  add_foreign_key "service_jobs", "photo_containers"
   add_foreign_key "service_repair_returns", "service_jobs"
   add_foreign_key "service_repair_returns", "users", column: "performer_id"
   add_foreign_key "service_sms_notifications", "users", column: "sender_id"
