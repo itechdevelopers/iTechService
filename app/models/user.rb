@@ -64,6 +64,7 @@ class User < ApplicationRecord
     change_client_department
     view_god_eye
     view_bad_review_announcements
+    test_new_features
   ].freeze
 
   ACTIVITIES = %w[free fast long mac].freeze

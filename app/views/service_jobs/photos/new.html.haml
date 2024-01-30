@@ -1,0 +1,37 @@
+.sj-add-photos
+  %header
+    %a.brand{href: "#{root_url}"}= logo_tag
+  .sj-add-photos__content
+    %ol
+      %li
+        = "Номер талона: #{@service_job.ticket_number}"
+      %li
+        = "Клиент: #{@service_job.client.presentation}"
+      %li
+        = "Сотрудник: #{current_user.short_name}"
+      %li
+        = t(".#{params[:division]}")
+    = form_for @photo_container, url: service_job_photos_path(@service_job), method: :post do |f|
+      = f.hidden_field :division, value: params[:division]
+      = f.file_field :photos, multiple: true
+      = f.submit t('.submit-photos')
+:scss
+  a.brand img {
+    height: 38px;
+  }
+  @media (max-width: 600px) {
+    .sj-add-photos {
+      padding: 10px;
+      font-size: 12px;
+      .sj-add-photos__content {
+        margin-top: 30px;
+        max-width: 100%;
+        text-align: center;
+        ol {
+          li {
+            margin-bottom: 5px;
+          }
+        }
+      }
+    }
+  }

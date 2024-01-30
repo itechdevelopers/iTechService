@@ -63,6 +63,7 @@ class ServiceJob < ApplicationRecord
   belongs_to :case_color
   belongs_to :carrier, optional: true
   belongs_to :keeper, class_name: 'User', optional: true
+  belongs_to :photo_container, optional: true
   has_many :features, through: :item
   has_many :device_tasks, dependent: :destroy
   has_many :tasks, through: :device_tasks

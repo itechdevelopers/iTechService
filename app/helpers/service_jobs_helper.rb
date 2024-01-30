@@ -261,4 +261,22 @@ module ServiceJobsHelper
   def ready_for_payment?(service_job)
     (service_job.work_order_filled? && service_job.completion_act_printed_at.present?) || !service_job.work_order_filled?
   end
+
+  def photo_gallery_mini(service_job, division)
+    container = service_job.photo_container
+    return unless container.present?
+
+    content_tag(:div, class: "photo-gallery-mini") do
+      res = ""
+      if container.send("#{division}_photos").present?
+        container.send("#{division}_photos").each_with_index do |photo, index|
+          res += link_to image_tag(photo.thumb.url), photo.url, class: 'fancybox', title: "#{index + 1}/#{container.send("#{division}_photos").count}"
+          res += link_to service_job_photo_path(service_job, index, division: division), method: :delete, data: { confirm: 'Вы уверены?' }, style: "color: red;" do "#{glyph(:trash)}".html_safe; end
+        end
+        res.html_safe
+      else
+        content_tag(:span, "Нет фотографий", class: "no-photos")
+      end
+    end
+  end
 end

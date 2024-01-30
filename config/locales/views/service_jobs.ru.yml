@@ -1,5 +1,16 @@
 ru:
   service_jobs:
+    photos:
+      title_reception: "Фото при приёмке"
+      title_in_operation: "Фото хода работы"
+      title_completed: "Фото готового устройства"
+      add_photo: "Добавить фото"
+
+      new:
+        reception: "Фото при приёмке"
+        in_operation: "Фото хода работы"
+        completed: "Фото готового устройства"
+        submit-photos: "Загрузить фото"
 
     edit:
       title: 'Редактирование Работы'
