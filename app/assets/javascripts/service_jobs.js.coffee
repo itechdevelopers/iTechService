@@ -130,6 +130,9 @@ $(document).on 'click', '.returning_device_tooltip', ->
 $(document).on 'click', '#completion_act_link', ->
   $('#service_job_archive_button').removeClass('hidden')
 
+$(document).on 'click', '.add-photo-btn a', (event) ->
+  console.log("HERE")
+
 #TODO implement via cable
 #PrivatePub.subscribe '/service_jobs/new', (data, channel)->
 #  if data.service_jobs.location_id == $('#profile_link').data('location')
