@@ -4,4 +4,8 @@
   .mini-gallery
     = photo_gallery_mini(@service_job, division)
   .add-photo-btn
-    = link_to t(".add_photo"), new_service_job_photo_path(@service_job, division: division)
+    = link_to t(".add_photo"),
+      "#",
+      id: "add-photo-btn-#{division}"
+    .qr_code.hidden{data: {division: division.to_s}}
+      = instance_variable_get("@qr_#{division}_photos").html_safe

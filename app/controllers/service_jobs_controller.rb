@@ -71,6 +71,7 @@ class ServiceJobsController < ApplicationController
     else
       @service_job = find_record ServiceJob.includes(:device_notes)
       @device_note = @service_job.device_notes.build(user_id: current_user.id)
+      generate_qr_links
       respond_to do |format|
         format.html do
           log_viewing
@@ -397,6 +398,21 @@ class ServiceJobsController < ApplicationController
 
   def set_job_templates
     @job_templates = Service::JobTemplate.select(:field_name, :content).all.to_a.group_by(&:field_name)
+  end
+
+  def generate_qr_links
+    create_token_for_service_job(@service_job, current_user)
+    @qr_reception_photos = generate_svg_qr(new_service_job_photo_url(@service_job, division: "reception", token: @token.token))
+    @qr_in_operation_photos = generate_svg_qr(new_service_job_photo_url(@service_job, division: "in_operation", token: @token.token))
+    @qr_completed_photos = generate_svg_qr(new_service_job_photo_url(@service_job, division: "completed", token: @token.token))
+  end
+
+  def generate_svg_qr(link)
+    RQRCode::QRCode.new(link).as_svg(viewbox: true)
+  end
+
+  def create_token_for_service_job(service_job, user)
+    @token = Token.create(user: user, signable: service_job)
   end
 
   def service_job_params

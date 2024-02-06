@@ -119,6 +119,16 @@ jQuery ->
     imei = $(this).parent().find('input').val()
     this.setAttribute('href', "http://iunlocker.net/check_imei.php?imei=#{imei}")
 
+  $('.add-photo-btn').on 'click', (event) ->
+    event.preventDefault()
+    linkElement = $(this).find('a')
+    idValue = linkElement.attr('id')
+    divisionValue = idValue.match(/add-photo-btn-(\w+)/)[1]
+    targetQR = $("[data-division='" + divisionValue + "']")
+    targetQR.toggleClass('hidden')
+    linkElement.toggleClass('hidden')
+    console.log("HERE, attr data-division: ", divisionValue)
+
 $(document).on 'click', '#service_job_client_notified_false',  (event)->
   service_job_id = document.getElementById('service_job_form').action.match(/\d+$/)[0]
   $.getScript("/service/sms_notifications/new?service_job_id=#{service_job_id}")
