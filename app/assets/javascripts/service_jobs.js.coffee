@@ -127,7 +127,6 @@ jQuery ->
     targetQR = $("[data-division='" + divisionValue + "']")
     targetQR.toggleClass('hidden')
     linkElement.toggleClass('hidden')
-    console.log("HERE, attr data-division: ", divisionValue)
 
 $(document).on 'click', '#service_job_client_notified_false',  (event)->
   service_job_id = document.getElementById('service_job_form').action.match(/\d+$/)[0]

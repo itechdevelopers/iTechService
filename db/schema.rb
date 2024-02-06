@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20240205200617) do
+ActiveRecord::Schema.define(version: 20240206184519) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -1378,19 +1378,6 @@ ActiveRecord::Schema.define(version: 20240205200617) do
     t.index ["user_id"], name: "index_timesheet_days_on_user_id"
   end
 
-  create_table "tokens", force: :cascade do |t|
-    t.bigint "user_id"
-    t.string "signable_type"
-    t.bigint "signable_id"
-    t.string "token"
-    t.datetime "expires_at"
-    t.datetime "created_at", null: false
-    t.datetime "updated_at", null: false
-    t.index ["signable_type", "signable_id"], name: "index_tokens_on_signable_type_and_signable_id"
-    t.index ["token"], name: "index_tokens_on_token", unique: true
-    t.index ["user_id"], name: "index_tokens_on_user_id"
-  end
-
   create_table "top_salables", id: :serial, force: :cascade do |t|
     t.integer "product_id"
     t.string "name", limit: 255
@@ -1608,7 +1595,6 @@ ActiveRecord::Schema.define(version: 20240205200617) do
   add_foreign_key "substitute_phones", "departments"
   add_foreign_key "substitute_phones", "items"
   add_foreign_key "substitute_phones", "service_jobs"
-  add_foreign_key "tokens", "users"
   add_foreign_key "trade_in_device_evaluations", "product_groups"
   add_foreign_key "trade_in_devices", "clients"
   add_foreign_key "trade_in_devices", "departments"

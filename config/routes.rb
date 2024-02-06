@@ -141,7 +141,7 @@ Rails.application.routes.draw do
     scope module: :service_jobs do
       resource :subscription, only: %i[create destroy], format: :js
       resources :viewings, only: :index, format: :js
-      resources :photos, format: :js
+      resources :photos, format: :js, only: %i[new create destroy]
     end
   end
 

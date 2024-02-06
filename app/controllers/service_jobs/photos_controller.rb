@@ -1,16 +1,11 @@
 module ServiceJobs
   class PhotosController < ApplicationController
-    skip_before_action :authenticate_user!, only: %i[new]
-    before_action :authenticate_by_token, only: %i[new]
     before_action :set_service_job
     before_action :set_photo_container
+
     def new
       authorize @service_job
       render layout: false
-    end
-
-    def edit
-
     end
 
     def create
@@ -25,9 +20,6 @@ module ServiceJobs
       end
       @photo_container.save!
       redirect_to service_job_url(@service_job)
-    end
-
-    def update
     end
 
     def destroy
@@ -63,15 +55,6 @@ module ServiceJobs
 
     def photos_params
       params.require(:photo_container).permit(:division, photos: [])
-    end
-
-    def authenticate_by_token
-      token = Token.where("expires_at > ?", Time.now).find_by(token: params[:token])
-      if token && token.user
-        sign_in(:user, token.user)
-      else
-        redirect_to root_path, status: :unauthorized, alert: "Вы не аторизованы для просмотра этой страницы. Пожалуйста, авторизуйтесь."
-      end
     end
   end
 end

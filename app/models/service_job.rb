@@ -75,7 +75,6 @@ class ServiceJob < ApplicationRecord
   has_many :inactive_feedbacks, -> { inactive }, class_name: Service::Feedback.name, dependent: :destroy
   has_one :substitute_phone, dependent: :nullify
   has_many :viewings, class_name: ServiceJobViewing.name, dependent: :destroy
-  has_many :tokens, as: :signable, dependent: :destroy
   has_one :review
 
   has_and_belongs_to_many :subscribers,
