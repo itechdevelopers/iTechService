@@ -401,9 +401,18 @@ class ServiceJobsController < ApplicationController
   end
 
   def generate_qr_links
-    @qr_reception_photos = RQRCodeCore::QRCode.new(new_service_job_photo_path(@service_job, division: "reception"))
-    @qr_in_operation_photos = RQRCodeCore::QRCode.new(new_service_job_photo_path(@service_job, division: "in_operation"))
-    @qr_completed_photos = RQRCodeCore::QRCode.new(new_service_job_photo_path(@service_job, division: "completed"))
+    create_token_for_service_job(@service_job, current_user)
+    @qr_reception_photos = generate_svg_qr(new_service_job_photo_url(@service_job, division: "reception", token: @token.token))
+    @qr_in_operation_photos = generate_svg_qr(new_service_job_photo_url(@service_job, division: "in_operation", token: @token.token))
+    @qr_completed_photos = generate_svg_qr(new_service_job_photo_url(@service_job, division: "completed", token: @token.token))
+  end
+
+  def generate_svg_qr(link)
+    RQRCode::QRCode.new(link).as_svg(viewbox: true)
+  end
+
+  def create_token_for_service_job(service_job, user)
+    @token = Token.create(user: user, signable: service_job)
   end
 
   def service_job_params
