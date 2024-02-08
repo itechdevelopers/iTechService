@@ -264,19 +264,36 @@ module ServiceJobsHelper
 
   def photo_gallery_mini(service_job, division)
     container = service_job.photo_container
-    return unless container.present?
+    default_res = content_tag(:span, "Нет фотографий", class: "no-photos")
+    return default_res unless container.present?
 
     content_tag(:div, class: "photo-gallery-mini") do
       res = ""
       if container.send("#{division}_photos").present?
         container.send("#{division}_photos").each_with_index do |photo, index|
-          res += link_to image_tag(photo.thumb.url), photo.url, class: 'fancybox', title: "#{index + 1}/#{container.send("#{division}_photos").count}"
+          res += link_to image_tag(photo.thumb.url), service_job_photo_path(service_job, index, division: division), data: { remote: true }, class: 'fancybox', title: "#{index + 1}/#{container.send("#{division}_photos").count}"
           res += link_to service_job_photo_path(service_job, index, division: division), method: :delete, data: { confirm: 'Вы уверены?' }, style: "color: red;" do "#{glyph(:trash)}".html_safe; end
         end
         res.html_safe
       else
-        content_tag(:span, "Нет фотографий", class: "no-photos")
+        default_res
       end
     end
+  end
+
+  def photo_gallery(photos, chosen_photo_id)
+    gallery_html = []
+    gallery_html << content_tag(:div, "", class: "btn-gallery-left")
+    gallery_html << content_tag(:div, class: "gallery") do
+      div_html = ""
+      photos.each_with_index do |photo, index|
+        div_html += content_tag(:div, class: "photo #{'chosen' if index == chosen_photo_id}") do
+          content_tag(:img, "", src: photo.url).html_safe
+        end
+      end
+      div_html.html_safe
+    end
+    gallery_html << content_tag(:div, "", class: "btn-gallery-right")
+    gallery_html.join.html_safe
   end
 end

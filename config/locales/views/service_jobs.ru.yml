@@ -12,6 +12,11 @@ ru:
         completed: "Фото готового устройства"
         submit-photos: "Загрузить фото"
 
+      modal_form_content:
+        title_reception: "Загруженные фото (приёмка)"
+        title_in_operation: "Загруженные фото (ход работы)"
+        title_completed: "Загруженные фото (готовое устройство)"
+
     edit:
       title: 'Редактирование Работы'
       copy_client_phone: "Копировать номер клиента"

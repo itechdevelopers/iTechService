@@ -1,0 +1,6 @@
+.modal-header
+  = button_to_close_modal
+  %h3= t(".title_#{params[:division]}")
+.modal-body
+  #gallery-container
+    = photo_gallery(@photos, @chosen_photo_id)

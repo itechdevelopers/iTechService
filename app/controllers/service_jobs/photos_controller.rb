@@ -3,6 +3,23 @@ module ServiceJobs
     before_action :set_service_job
     before_action :set_photo_container
 
+    def show
+      authorize @service_job
+      case params[:division]
+      when "reception"
+        @photos = @photo_container.reception_photos
+      when "in_operation"
+        @photos = @photo_container.in_operation_photos
+      when "completed"
+        @photos = @photo_container.completed_photos
+      end
+      @chosen_photo_id = params[:id].to_i
+      @modal = "photos-#{params[:division]}-#{@chosen_photo_id}"
+      respond_to do |format|
+        format.js { render "shared/show_modal_form" }
+      end
+    end
+
     def new
       authorize @service_job
       render layout: false

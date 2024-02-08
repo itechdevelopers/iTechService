@@ -128,6 +128,25 @@ jQuery ->
     targetQR.toggleClass('hidden')
     linkElement.toggleClass('hidden')
 
+  $(document).on 'click', '#gallery-container', (event) ->
+    console.log("Gallery container clicked")
+    clicked_left = $(event.target).is('.btn-gallery-left')
+    clicked_right = $(event.target).is('.btn-gallery-right')
+    return if !clicked_left && !clicked_right
+    photos = $('.gallery .photo').toArray()
+    chosen_photo_index = photos.findIndex (photo) ->
+      $(photo).hasClass('chosen')
+    if chosen_photo_index == 0 && clicked_left
+      next_photo_index = photos.length - 1
+    else if chosen_photo_index == photos.length - 1 && clicked_right
+      next_photo_index = 0
+    else if clicked_left
+      next_photo_index = chosen_photo_index - 1
+    else if clicked_right
+      next_photo_index = chosen_photo_index + 1
+    $(photos[chosen_photo_index]).removeClass('chosen')
+    $(photos[next_photo_index]).addClass('chosen')
+
 $(document).on 'click', '#service_job_client_notified_false',  (event)->
   service_job_id = document.getElementById('service_job_form').action.match(/\d+$/)[0]
   $.getScript("/service/sms_notifications/new?service_job_id=#{service_job_id}")
