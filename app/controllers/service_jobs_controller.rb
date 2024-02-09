@@ -71,7 +71,7 @@ class ServiceJobsController < ApplicationController
     else
       @service_job = find_record ServiceJob.includes(:device_notes)
       @device_note = @service_job.device_notes.build(user_id: current_user.id)
-      generate_qr_links
+      # generate_qr_links
       respond_to do |format|
         format.html do
           log_viewing

@@ -160,13 +160,13 @@
           %tr
             %td= ServiceJob.human_attribute_name attr
             %td= @service_job.send(attr)
-    - if current_user.able_to?(:test_new_features)
-      %hr
-      = render 'photos', division: :reception
-      %hr
-      = render 'photos', division: :in_operation
-      %hr
-      = render 'photos', division: :completed
+    -# - if current_user.able_to?(:test_new_features)
+    -#   %hr
+    -#   = render 'photos', division: :reception
+    -#   %hr
+    -#   = render 'photos', division: :in_operation
+    -#   %hr
+    -#   = render 'photos', division: :completed
 
   .span4
     #sms_notification_form_container
