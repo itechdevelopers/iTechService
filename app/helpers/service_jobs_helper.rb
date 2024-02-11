@@ -281,14 +281,19 @@ module ServiceJobsHelper
     end
   end
 
-  def photo_gallery(photos, chosen_photo_id)
+  def photo_gallery(photos, chosen_photo_id, data)
     gallery_html = []
     gallery_html << content_tag(:div, "", class: "btn-gallery-left")
     gallery_html << content_tag(:div, class: "gallery") do
       div_html = ""
       photos.each_with_index do |photo, index|
         div_html += content_tag(:div, class: "photo #{'chosen' if index == chosen_photo_id}") do
-          content_tag(:img, "", src: photo.url).html_safe
+        content_tag(:span, class: "photo-index") do
+          user_name = JSON.parse(data[index].gsub(/:([a-zA-z]+)/,'"\\1"').gsub('=>', ': '))["user"]
+          date = JSON.parse(data[index].gsub(/:([a-zA-z]+)/,'"\\1"').gsub('=>', ': '))["date"]
+          "Добавлено #{user_name}<br>#{date}".html_safe
+        end +
+        content_tag(:img, "", src: photo.url).html_safe
         end
       end
       div_html.html_safe

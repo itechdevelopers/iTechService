@@ -55,6 +55,15 @@ class ServiceJobsController < ApplicationController
     end
   end
 
+  def show_qr
+    @division = params[:division]
+    @service_job = find_record ServiceJob
+    generate_qr_link
+    respond_to do |format|
+      format.js
+    end
+  end
+
   def show
     if params[:find] == 'ticket'
       @service_job = authorize ServiceJob.find_by_ticket_number(params[:id])
@@ -71,7 +80,6 @@ class ServiceJobsController < ApplicationController
     else
       @service_job = find_record ServiceJob.includes(:device_notes)
       @device_note = @service_job.device_notes.build(user_id: current_user.id)
-      generate_qr_links
       respond_to do |format|
         format.html do
           log_viewing
@@ -400,10 +408,15 @@ class ServiceJobsController < ApplicationController
     @job_templates = Service::JobTemplate.select(:field_name, :content).all.to_a.group_by(&:field_name)
   end
 
-  def generate_qr_links
-    @qr_reception_photos = generate_svg_qr(new_service_job_photo_url(@service_job, division: "reception"))
-    @qr_in_operation_photos = generate_svg_qr(new_service_job_photo_url(@service_job, division: "in_operation"))
-    @qr_completed_photos = generate_svg_qr(new_service_job_photo_url(@service_job, division: "completed"))
+  def generate_qr_link
+    case @division
+    when "reception"
+      @qr_link = generate_svg_qr(new_service_job_photo_url(@service_job, division: "reception"))
+    when "in_operation"
+      @qr_link = generate_svg_qr(new_service_job_photo_url(@service_job, division: "in_operation"))
+    when "completed"
+      @qr_link = generate_svg_qr(new_service_job_photo_url(@service_job, division: "completed"))
+    end
   end
 
   def generate_svg_qr(link)

@@ -119,17 +119,22 @@ jQuery ->
     imei = $(this).parent().find('input').val()
     this.setAttribute('href', "http://iunlocker.net/check_imei.php?imei=#{imei}")
 
-  $('.add-photo-btn').on 'click', (event) ->
+  $('.change-to-qr').on 'click', (event) ->
     event.preventDefault()
-    linkElement = $(this).find('a')
+    linkElement = $(this)
     idValue = linkElement.attr('id')
-    divisionValue = idValue.match(/add-photo-btn-(\w+)/)[1]
-    targetQR = $("[data-division='" + divisionValue + "']")
-    targetQR.toggleClass('hidden')
-    linkElement.toggleClass('hidden')
+    divisionValue = idValue.match(/add-photo-btn-(\w+)-(\d+)/)[1]
+    serviceJobValue = idValue.match(/add-photo-btn-(\w+)-(\d+)/)[2]
+    $.getScript("/service_jobs/" + serviceJobValue + "/show_qr?division=" + divisionValue)
+
+  $(document).on 'click', '.qr_code', (event) ->
+    event.preventDefault()
+    $(this).addClass('hidden')
+    parentElement = $(this).parent()
+    linkElement = parentElement.find('a')
+    linkElement.removeClass('hidden')
 
   $(document).on 'click', '#gallery-container', (event) ->
-    console.log("Gallery container clicked")
     clicked_left = $(event.target).is('.btn-gallery-left')
     clicked_right = $(event.target).is('.btn-gallery-right')
     return if !clicked_left && !clicked_right

@@ -3,4 +3,9 @@
   %h3= t(".title_#{params[:division]}")
 .modal-body
   #gallery-container
-    = photo_gallery(@photos, @chosen_photo_id)
+    = photo_gallery(@photos, @chosen_photo_id, @photos_data)
+
+:scss
+  .modal-body {
+    max-height: 75vh;
+  }

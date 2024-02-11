@@ -131,6 +131,7 @@ Rails.application.routes.draw do
     get :device_select, on: :collection
     get :check_imei, on: :collection
     get :movement_history, on: :member
+    get :show_qr, on: :member, defaults: { format: 'js' }
     get :quick_search, on: :collection
     get :work_order, on: :member
     get :completion_act, on: :member

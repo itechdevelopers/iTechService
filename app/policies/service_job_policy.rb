@@ -7,6 +7,10 @@ class ServiceJobPolicy < CommonPolicy
     read?
   end
 
+  def show_qr?
+    read?
+  end
+
   def update?
     (same_department? || able_to?(:access_all_departments)) &&
       any_manager?(:software, :media, :universal, :technician, :engraver, :api, :supervisor)
