@@ -119,14 +119,38 @@ jQuery ->
     imei = $(this).parent().find('input').val()
     this.setAttribute('href', "http://iunlocker.net/check_imei.php?imei=#{imei}")
 
-  $('.add-photo-btn').on 'click', (event) ->
+  $('.change-to-qr').on 'click', (event) ->
     event.preventDefault()
-    linkElement = $(this).find('a')
+    linkElement = $(this)
     idValue = linkElement.attr('id')
-    divisionValue = idValue.match(/add-photo-btn-(\w+)/)[1]
-    targetQR = $("[data-division='" + divisionValue + "']")
-    targetQR.toggleClass('hidden')
-    linkElement.toggleClass('hidden')
+    divisionValue = idValue.match(/add-photo-btn-(\w+)-(\d+)/)[1]
+    serviceJobValue = idValue.match(/add-photo-btn-(\w+)-(\d+)/)[2]
+    $.getScript("/service_jobs/" + serviceJobValue + "/show_qr?division=" + divisionValue)
+
+  $(document).on 'click', '.qr_code', (event) ->
+    event.preventDefault()
+    $(this).addClass('hidden')
+    parentElement = $(this).parent()
+    linkElement = parentElement.find('a')
+    linkElement.removeClass('hidden')
+
+  $(document).on 'click', '#gallery-container', (event) ->
+    clicked_left = $(event.target).is('.btn-gallery-left')
+    clicked_right = $(event.target).is('.btn-gallery-right')
+    return if !clicked_left && !clicked_right
+    photos = $('.gallery .photo').toArray()
+    chosen_photo_index = photos.findIndex (photo) ->
+      $(photo).hasClass('chosen')
+    if chosen_photo_index == 0 && clicked_left
+      next_photo_index = photos.length - 1
+    else if chosen_photo_index == photos.length - 1 && clicked_right
+      next_photo_index = 0
+    else if clicked_left
+      next_photo_index = chosen_photo_index - 1
+    else if clicked_right
+      next_photo_index = chosen_photo_index + 1
+    $(photos[chosen_photo_index]).removeClass('chosen')
+    $(photos[next_photo_index]).addClass('chosen')
 
 $(document).on 'click', '#service_job_client_notified_false',  (event)->
   service_job_id = document.getElementById('service_job_form').action.match(/\d+$/)[0]

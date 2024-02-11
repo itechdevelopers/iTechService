@@ -279,3 +279,34 @@ form.service_job_form{
     cursor: pointer;
   }
 }
+
+#gallery-container {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  color: #a1a1a1;
+
+  .btn-gallery-left {
+    cursor: pointer;
+    background: url("arrow.svg") no-repeat;
+    transform: scaleX(-1);
+    width: 40px;
+    height: 40px;
+  }
+  .btn-gallery-right {
+    cursor: pointer;
+    background: url("arrow.svg") no-repeat;
+    width: 40px;
+    height: 40px;
+  }
+  .gallery {
+    width: 100%;
+    .photo {
+      display: none;
+      padding: 10% 20%;
+    }
+    .chosen {
+      display: block;
+    }
+  }
+}
