@@ -1,39 +1,69 @@
 .sj-add-photos
   %header
     %a.brand{href: "#{root_url}"}= logo_tag
+    .name
+      %h1= t(".#{params[:division]}")
   .sj-add-photos__content
-    %ol
+    %ul
       %li
         = "Номер талона: #{@service_job.ticket_number}"
       %li
         = "Клиент: #{@service_job.client.presentation}"
       %li
         = "Сотрудник: #{current_user.short_name}"
-      %li
-        = t(".#{params[:division]}")
     = form_for @photo_container, url: service_job_photos_path(@service_job), method: :post do |f|
       = f.hidden_field :division, value: params[:division]
       = f.file_field :photos, multiple: true
       = f.submit t('.submit-photos')
 :scss
   a.brand img {
-    height: 38px;
+    height: 80px;
+  }
+  header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 8px 22px 0 22px;
+    background: #eee;
+    border: 10px solid #eee;
+    border-radius: 2%;
   }
   .sj-add-photos {
     padding: 10px;
     font-size: 48px;
+    h1 {
+      font-size: 48px;
+      color: #333;
+    }
     .sj-add-photos__content {
       margin-top: 30px;
       max-width: 100%;
       text-align: center;
-      ol {
+
+      ul {
+        list-style: none;
         li {
           margin-bottom: 20px;
         }
       }
-      form input{
+
+      input[type="file"], input[type="submit"] {
         margin-top: 30px;
         font-size: 40px;
       }
+
+      input[type="file"]::file-selector-button {
+        font-size: 40px;
+        height: 54px;
+      }
+    }
+  }
+  @media screen and (-webkit-min-device-pixel-ratio:0) {
+    input[type="file"] {
+      font-size: 40px;
+    }
+    input[type="file"]::file-selector-button {
+      font-size: 40px;
+      height: 54px;
     }
   }
