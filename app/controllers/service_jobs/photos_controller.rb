@@ -87,7 +87,7 @@ module ServiceJobs
     def create_meta_data(size)
       meta_data = []
       size.times do |i|
-        meta_data << {user: current_user.short_name, date: DateTime.now.strftime("%d.%m.%Y %H:%M")}
+        meta_data << {user: current_user.short_name, date: DateTime.current.strftime("%d.%m.%Y %H:%M")}
       end
       meta_data
     end
