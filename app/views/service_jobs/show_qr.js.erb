@@ -1,4 +1,4 @@
-targetQR = $("[data-division='<%= @division %>']");
+targetQR = $(".qr_code[data-division='<%= @division %>']");
 targetQR.html("<%= j @qr_link.html_safe %>");
 targetQR.removeClass('hidden');
 linkElement = targetQR.parent().find('a');
