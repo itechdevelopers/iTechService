@@ -267,14 +267,22 @@ module ServiceJobsHelper
     default_res = content_tag(:span, "Нет фотографий", class: "no-photos")
     return default_res unless container.present?
 
-    content_tag(:div, class: "photo-gallery-mini") do
-      res = ""
+    content_tag(:div, class: "photo-gallery-mini", data: { division: division }) do
+      div_html = ""
       if container.send("#{division}_photos").present?
+        div_html += content_tag(:div, "", class: "btn-gallery-left", data: { division: division })
         container.send("#{division}_photos").each_with_index do |photo, index|
-          res += link_to image_tag(photo.thumb.url), service_job_photo_path(service_job, index, division: division), data: { remote: true }, class: 'fancybox', title: "#{index + 1}/#{container.send("#{division}_photos").count}"
-          res += link_to service_job_photo_path(service_job, index, division: division), method: :delete, data: { confirm: 'Вы уверены?' }, style: "color: red;" do "#{glyph(:trash)}".html_safe; end
+          one = index == 0 ? true : false
+          two = index == 1 ? true : false
+          div_html += content_tag(:div, class: "mini-photo #{'mini-chosen-one' if one} #{'mini-chosen-two' if two}", data: { division: division }) do
+            res = ""
+            res += link_to image_tag(photo.thumb.url), service_job_photo_path(service_job, index, division: division), data: { remote: true }, title: "#{index + 1}/#{container.send("#{division}_photos").count}"
+            res += link_to service_job_photo_path(service_job, index, division: division), method: :delete, data: { confirm: 'Вы уверены?' }, style: "color: red;" do "#{glyph(:trash)}".html_safe; end
+            res.html_safe
+          end
         end
-        res.html_safe
+        div_html += content_tag(:div, "", class: "btn-gallery-right", data: { division: division })
+        div_html.html_safe
       else
         default_res
       end

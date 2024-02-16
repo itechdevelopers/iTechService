@@ -29,6 +29,45 @@
   }
 }
 
+.photo-gallery-mini {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  color: #a1a1a1;
+
+  .btn-gallery-left {
+    cursor: pointer;
+    background: url(asset-path("arrow.svg")) no-repeat;
+    transform: scaleX(-0.5) scaleY(0.5);
+    width: 40px;
+    height: 40px;
+    order: 1;
+  }
+  .btn-gallery-right {
+    cursor: pointer;
+    background: url(asset-path("arrow.svg")) no-repeat;
+    transform: scaleX(0.5) scaleY(0.5);
+    width: 40px;
+    height: 40px;
+    order: 4;
+  }
+  img {
+    margin: 5px;
+  }
+  .mini-photo {
+    display: none;
+    cursor: pointer;
+  }
+  .mini-chosen-one {
+    display: inline-block;
+    order: 2;
+  }
+  .mini-chosen-two {
+    display: inline-block;
+    order: 3;
+  }
+}
+
 
 .sj-photo-attachments {
   display: flex;

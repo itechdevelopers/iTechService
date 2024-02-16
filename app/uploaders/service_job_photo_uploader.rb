@@ -24,8 +24,8 @@ class ServiceJobPhotoUploader < ApplicationUploader
   def resize_and_pad_white_small
     manipulate! do |img|
       img.combine_options do |c|
-        x = 60
-        y = 80
+        x = 120
+        y = 160
         c.resize "#{x}x#{y}"
         c.background "#ffffff"
         c.gravity "Center"

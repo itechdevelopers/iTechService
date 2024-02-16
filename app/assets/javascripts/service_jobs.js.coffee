@@ -152,6 +152,35 @@ jQuery ->
     $(photos[chosen_photo_index]).removeClass('chosen')
     $(photos[next_photo_index]).addClass('chosen')
 
+  $(document).on 'click', '.photo-gallery-mini', (event) ->
+    clickedElement = $(event.currentTarget)
+    divisionValue = clickedElement.attr('data-division')
+    console.log(divisionValue)
+    clicked_left = $(event.target).is('.btn-gallery-left[data-division="' + divisionValue + '"]')
+    clicked_right = $(event.target).is('.btn-gallery-right[data-division="' + divisionValue + '"]')
+    return if !clicked_left && !clicked_right
+    photos = $('.photo-gallery-mini .mini-photo[data-division="' + divisionValue + '"]').toArray()
+    first_chosen_index = photos.findIndex (photo) ->
+      $(photo).hasClass('mini-chosen-one')
+    last_chosen_index = photos.findIndex (photo) ->
+      $(photo).hasClass('mini-chosen-two')
+    if first_chosen_index == 0 && clicked_left
+      next_first_chosen_index = photos.length - 1
+      next_last_chosen_index = first_chosen_index
+    else if last_chosen_index == photos.length - 1 && clicked_right
+      next_last_chosen_index = 0
+      next_first_chosen_index = last_chosen_index
+    else if clicked_left
+      next_first_chosen_index = first_chosen_index - 1
+      next_last_chosen_index = first_chosen_index
+    else if clicked_right
+      next_first_chosen_index = last_chosen_index
+      next_last_chosen_index = last_chosen_index + 1
+    $(photos[first_chosen_index]).removeClass('mini-chosen-one')
+    $(photos[last_chosen_index]).removeClass('mini-chosen-two')
+    $(photos[next_first_chosen_index]).addClass('mini-chosen-one')
+    $(photos[next_last_chosen_index]).addClass('mini-chosen-two')
+
 $(document).on 'click', '#service_job_client_notified_false',  (event)->
   service_job_id = document.getElementById('service_job_form').action.match(/\d+$/)[0]
   $.getScript("/service/sms_notifications/new?service_job_id=#{service_job_id}")
