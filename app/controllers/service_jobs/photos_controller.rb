@@ -55,7 +55,6 @@ module ServiceJobs
         deleted_photo = @photo_container.completed_photos.delete_at(params[:id].to_i)
         @photo_container.completed_photos_meta_data.delete_at(params[:id].to_i)
       end
-      File.delete(deleted_photo.path)
       @photo_container.save!
       redirect_to service_job_url(@service_job)
     end
@@ -73,7 +72,7 @@ module ServiceJobs
         @photo_container.send("#{division}_photos=", division_photos)
         @photo_container.send("#{division}_photos_meta_data=", division_meta_data)
         return true
-      elsif existing_photos_count = 15
+      elsif existing_photos_count == 15
         flash[:alert] = "В данном отделе уже 15 фото."
         redirect_back(fallback_location: service_job_url(@service_job))
         return false

@@ -51,6 +51,7 @@ gem 'roo-xls', '~> 1.2'
 gem 'paperclip', '~> 6.1.0'
 gem 'barby', '~> 0.6.4'
 gem 'rqrcode', '~> 2.0'
+gem 'fog-aws'
 
 # https://github.com/brendon/acts_as_list
 gem 'acts_as_list', '~> 1.0.4'
