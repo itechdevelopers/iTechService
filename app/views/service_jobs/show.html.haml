@@ -134,9 +134,6 @@
         %td= t 'service_jobs.sales_info'
         %td= sales_info @service_job
 
-    #service_job_device_tasks
-      = render 'device_tasks_show', service_job: @service_job
-
     - if policy(@service_job).view_repair_parts?
       %table.table.table-bordered.table-condensed.table-hover
         %caption
@@ -173,6 +170,10 @@
     #device_notes_container= render 'device_notes', editable: true
     = cell(Service::Job::Cell::Feedbacks, @service_job)
 
+.row-fluid
+  .span8
+    #service_job_device_tasks
+      = render 'device_tasks_show', service_job: @service_job
 .form-actions
   = link_to_edit @service_job
   - if @service_job.at_done?

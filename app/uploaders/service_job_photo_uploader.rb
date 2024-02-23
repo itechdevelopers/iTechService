@@ -1,7 +1,5 @@
-class ServiceJobPhotoUploader < CarrierWave::Uploader::Base
-  include CarrierWave::MiniMagick
-
-  storage :fog
+class ServiceJobPhotoUploader < ApplicationUploader
+  permissions 0777
 
   process :resize_and_pad_white
 
