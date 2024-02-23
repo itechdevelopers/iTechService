@@ -277,7 +277,7 @@ module ServiceJobsHelper
           div_html += content_tag(:div, class: "mini-photo #{'mini-chosen-one' if one} #{'mini-chosen-two' if two}", data: { division: division }) do
             res = ""
             res += link_to image_tag(photo.thumb.url), service_job_photo_path(service_job, index, division: division), data: { remote: true }, title: "#{index + 1}/#{container.send("#{division}_photos").count}"
-            res += link_to service_job_photo_path(service_job, index, division: division), method: :delete, data: { confirm: 'Вы уверены?' }, style: "color: red;" do "#{glyph(:trash)}".html_safe; end
+            res += link_to service_job_photo_path(service_job, index, division: division), method: :delete, data: { confirm: 'Вы уверены?' }, class: "delete-photo" do "#{glyph(:trash)}".html_safe; end
             res.html_safe
           end
         end
