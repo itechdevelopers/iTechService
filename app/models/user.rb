@@ -163,6 +163,7 @@ class User < ApplicationRecord
   validates :role, inclusion: { in: ROLES }
   validates_numericality_of :session_duration, only_integer: true, greater_than: 0, allow_nil: true
   before_validation :validate_rights_changing
+  before_update :update_schedule_column, if: :is_fired_changed?
 
   mount_uploader :photo, PhotoUploader
   crop_uploaded :photo
@@ -549,6 +550,10 @@ class User < ApplicationRecord
   end
 
   private
+
+  def update_schedule_column
+    self.schedule = false if is_fired
+  end
 
   def validate_rights_changing
     if (changed_attributes[:role].present? || changed_attributes[:abilities].present?) && !User.current.superadmin?

@@ -29,7 +29,7 @@ module ServiceJobs
     end
 
     def create
-      authorize @service_job
+      authorize @service_job, :edit?
       case photos_params[:division]
       when "reception"
         return unless add_photos_to_container("reception")
