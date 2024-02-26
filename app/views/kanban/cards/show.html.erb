@@ -8,7 +8,7 @@
 <div class="row-fluid">
   <div class="span6">
     <blockquote>
-      <p><%= @card.content %></p>
+      <p class="kanban-card-content"><%= @card.content %></p>
       <small><%= @card.author_presentation %> [<%= l @card.created_at, format: :date_time %>]</small>
     </blockquote>
 
