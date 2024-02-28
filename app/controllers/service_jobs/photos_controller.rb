@@ -43,7 +43,7 @@ module ServiceJobs
     end
 
     def destroy
-      authorize @service_job
+      authorize @service_job, :edit?
       case params[:division]
       when "reception"
         deleted_photo = @photo_container.reception_photos.delete_at(params[:id].to_i)

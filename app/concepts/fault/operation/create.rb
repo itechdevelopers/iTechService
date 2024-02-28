@@ -3,7 +3,10 @@ class Fault::Create < BaseOperation
     step Policy::Pundit(FaultPolicy, :create?)
     failure :not_authorized!
     step Model(Fault, :new)
-    success ->(params:, model:, **) { model.causer_id = params[:user_id] }
+    success ->(params:, model:, **) {
+      model.causer_id = params[:user_id]
+      model.issued_by_id = params[:fault][:issued_by_id].to_i if params[:fault].present?
+    }
     step Contract::Build(constant: Fault::Contract::Base)
   end
 

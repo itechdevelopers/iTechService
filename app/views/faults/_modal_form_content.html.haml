@@ -11,5 +11,6 @@
     = f.input :kind_id, collection: fault_kinds_collection, as: :select, label: Fault.human_attribute_name(:kind), input_html: {data: fault_kinds_data}, hint: (@form.description || '')
     = f.input :penalty, wrapper_html: {class: 'hidden'}
     = f.input :comment, as: :text
+    = f.input :issued_by_id, as: :hidden, input_html: { value: current_user.id }
 
   .modal-footer= submit_button f
