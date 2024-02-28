@@ -16,7 +16,6 @@
       - WikiPageCategory.only_non_senior.each do |category|
         %li= category.title
   = f.submit t('.submit'), class: 'submit btn btn-primary'
-%h4= t('.images-title')
 
 - @page.images.each_with_index do |image, index|
   %p
@@ -24,6 +23,8 @@
     = link_to wiki_page_image_path(@page, index), method: :delete, data: { confirm: 'Вы уверены?' } do
       = "#{glyph(:trash)} #{t('.image-delete')}"
 
-= form_for @page, url: wiki_page_images_path(@page), method: :post do |f|
-  = f.file_field :images, multiple: true
-  = f.submit t('.submit-images')
+- if @page.id.present?
+  %h4= t('.images-title')
+  = form_for @page, url: wiki_page_images_path(@page), method: :post do |f|
+    = f.file_field :images, multiple: true
+    = f.submit t('.submit-images')
