@@ -24,7 +24,7 @@ module ServiceJobs
     end
 
     def new
-      authorize @service_job
+      authorize @service_job, :edit?
       render layout: false
     end
 
