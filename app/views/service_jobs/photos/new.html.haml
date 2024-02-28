@@ -13,7 +13,7 @@
         = "Сотрудник: #{current_user.short_name}"
     = form_for @photo_container, url: service_job_photos_path(@service_job), method: :post do |f|
       = f.hidden_field :division, value: params[:division]
-      = f.file_field :photos, multiple: true
+      = f.file_field :photos, multiple: true, capture: "camera", accept: "image/*"
       = f.submit t('.submit-photos')
 :scss
   a.brand img {
