@@ -1,5 +1,6 @@
 class Fault < ApplicationRecord
   belongs_to :causer, class_name: 'User', optional: true
+  belongs_to :issued_by, class_name: 'User', optional: true
   belongs_to :kind, class_name: 'FaultKind', optional: true
 
   scope :by_causer, ->(causer) { where(causer_id: causer) }

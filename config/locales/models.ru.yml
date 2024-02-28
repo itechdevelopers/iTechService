@@ -226,6 +226,7 @@ ru:
       fault:
         causer: 'Провинившийся'
         penalty: 'Штраф'
+        issued_by: 'Выдал'
 
       fault_kind:
         is_permanent: 'Постоянный?'

@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20240206184519) do
+ActiveRecord::Schema.define(version: 20240228102656) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -353,7 +353,9 @@ ActiveRecord::Schema.define(version: 20240206184519) do
     t.datetime "updated_at", null: false
     t.integer "penalty"
     t.boolean "expired", default: false, null: false
+    t.bigint "issued_by_id"
     t.index ["causer_id"], name: "index_faults_on_causer_id"
+    t.index ["issued_by_id"], name: "index_faults_on_issued_by_id"
     t.index ["kind_id"], name: "index_faults_on_kind_id"
   end
 
@@ -1550,6 +1552,7 @@ ActiveRecord::Schema.define(version: 20240206184519) do
   add_foreign_key "departments", "cities"
   add_foreign_key "faults", "fault_kinds", column: "kind_id"
   add_foreign_key "faults", "users", column: "causer_id"
+  add_foreign_key "faults", "users", column: "issued_by_id"
   add_foreign_key "kanban_cards", "kanban_columns", column: "column_id"
   add_foreign_key "kanban_cards", "users", column: "author_id"
   add_foreign_key "kanban_columns", "kanban_boards", column: "board_id"

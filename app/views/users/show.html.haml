@@ -10,7 +10,7 @@
       = link_to_edit(@user) if can?(:manage, @user)
 
 .row-fluid
-  .span6
+  .span8
     %ul.nav.nav-tabs
       %li= link_to User.human_attribute_name(:service_jobs), "#service_jobs_tab1", 'data-toggle' => 'tab'
       %li= link_to 'Длинная приёмка', "#service_jobs_tab", 'data-toggle' => 'tab', id: 'a_service_jobs_tab',
@@ -239,7 +239,7 @@
         - if can? :manage, Salary
           = link_to (icon_tag(:money) + ' ' + t('salaries.issue')), new_salary_path(user_id: @user.id), class: 'btn'
 
-  .span6
+  .span4
 
 
     - if can? :update_photo, @user

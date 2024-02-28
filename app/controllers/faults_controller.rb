@@ -34,6 +34,6 @@ class FaultsController < ApplicationController
 
   def fault_params
     params.require(:fault)
-          .permit(:causer_id, :comment, :date, :kind_id, :penalty)
+          .permit(:causer_id, :comment, :date, :kind_id, :penalty, :issued_by_id)
   end
 end

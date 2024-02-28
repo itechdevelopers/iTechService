@@ -5,6 +5,7 @@
       %th= Fault.human_attribute_name(:kind)
       %th= Fault.human_attribute_name(:comment)
       %th= Fault.human_attribute_name(:penalty)
+      %th= Fault.human_attribute_name(:issued_by)
       %th
 
   %tbody#faults
@@ -16,6 +17,7 @@
           = fault.name
         %td= fault.comment
         %td= fault.penalty
+        %td= fault.issued_by&.short_name
         %td
           .btn-group
             = link_to_destroy_small fault, remote: true if can? :destroy, fault

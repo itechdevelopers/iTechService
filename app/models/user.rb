@@ -136,6 +136,7 @@ class User < ApplicationRecord
   has_many :device_notes, dependent: :destroy
   has_many :favorite_links, foreign_key: 'owner_id', dependent: :destroy
   has_many :faults, foreign_key: :causer_id, dependent: :destroy
+  has_many :faults_issued, class_name: 'Fault', foreign_key: :issued_by_id, dependent: :nullify
   has_many :quick_orders
   has_many :service_free_jobs, -> { includes(:client) }, class_name: 'Service::FreeJob', foreign_key: :receiver_id
 
