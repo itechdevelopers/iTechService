@@ -91,6 +91,12 @@ class UsersController < ApplicationController
     end
   end
 
+  def update_user_settings
+    @user = find_record User
+    @user.update_attributes(user_settings_params)
+    redirect_to @user
+  end
+
   def update_photo
     @user = find_record User
     @user.update_attributes(photo_params)
@@ -236,6 +242,10 @@ class UsersController < ApplicationController
 
   def uniform_params
     params.require(:user).permit(:uniform_sex, :uniform_size)
+  end
+
+  def user_settings_params
+    params.require(:user).permit(:fixed_main_menu)
   end
 
   def update_self_params
