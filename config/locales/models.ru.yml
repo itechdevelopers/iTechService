@@ -663,6 +663,7 @@ ru:
         uniform_sex: Тип футболки
         uniform_size: Размер футболки
         is_senior: Старший сотрудник
+        fixed_main_menu: Зафиксировать основное меню
 
     errors:
       models:

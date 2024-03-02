@@ -22,6 +22,10 @@ class UserPolicy < BasePolicy
     owner?
   end
 
+  def update_user_settings?
+    owner?
+  end
+
   def update_photo?
     owner? || update?
   end

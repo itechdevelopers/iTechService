@@ -61,6 +61,7 @@ ru:
     account: 'Учётка'
     senior: 'Старший сотрудник'
     uniform: Униформа
+    user_settings: Настройки пользователя
     add_karma: 'Карма'
     add_fault: 'Добавить минус'
     all: 'Все'

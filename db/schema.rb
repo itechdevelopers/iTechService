@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20240228102656) do
+ActiveRecord::Schema.define(version: 20240302072559) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -1485,6 +1485,7 @@ ActiveRecord::Schema.define(version: 20240228102656) do
     t.datetime "dismissed_date"
     t.bigint "dismissal_reason_id"
     t.text "dismissal_comment"
+    t.boolean "fixed_main_menu", default: false
     t.index ["authentication_token"], name: "index_users_on_authentication_token", unique: true
     t.index ["card_number"], name: "index_users_on_card_number"
     t.index ["department_id"], name: "index_users_on_department_id"
