@@ -4,6 +4,11 @@ class Kanban::Card < ApplicationRecord
   belongs_to :author, class_name: 'User'
   belongs_to :column, inverse_of: :cards
   has_many :comments, as: :commentable, dependent: :destroy
+  has_and_belongs_to_many :managers,
+                          class_name: "User",
+                          join_table: :kanban_cards_users,
+                          association_foreign_key: :user_id,
+                          foreign_key: :kanban_cards_id
 
   validates_presence_of :author, :column, :content
 

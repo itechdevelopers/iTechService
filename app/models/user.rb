@@ -139,6 +139,16 @@ class User < ApplicationRecord
   has_many :faults_issued, class_name: 'Fault', foreign_key: :issued_by_id, dependent: :nullify
   has_many :quick_orders
   has_many :service_free_jobs, -> { includes(:client) }, class_name: 'Service::FreeJob', foreign_key: :receiver_id
+  has_and_belongs_to_many :managed_cards,
+                          class_name: 'Kanban::Card',
+                          join_table: :kanban_cards_users,
+                          association_foreign_key: :kanban_card_id,
+                          foreign_key: :user_id
+  has_and_belongs_to_many :managed_boards,
+                          class_name: 'Kanban::Board',
+                          join_table: :kanban_boards_users,
+                          association_foreign_key: :kanban_board_id,
+                          foreign_key: :user_id
 
   attr_accessor :login, :auth_token
 

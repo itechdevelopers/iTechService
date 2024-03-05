@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20240302072559) do
+ActiveRecord::Schema.define(version: 20240305192704) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -491,6 +491,12 @@ ActiveRecord::Schema.define(version: 20240302072559) do
     t.datetime "updated_at", null: false
   end
 
+  create_table "kanban_boards_users", id: false, force: :cascade do |t|
+    t.bigint "kanban_board_id", null: false
+    t.bigint "user_id", null: false
+    t.index ["kanban_board_id", "user_id"], name: "index_kanban_boards_users_on_kanban_board_id_and_user_id"
+  end
+
   create_table "kanban_cards", force: :cascade do |t|
     t.text "content"
     t.bigint "author_id", null: false
@@ -499,6 +505,12 @@ ActiveRecord::Schema.define(version: 20240302072559) do
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.index ["column_id"], name: "index_kanban_cards_on_column_id"
+  end
+
+  create_table "kanban_cards_users", id: false, force: :cascade do |t|
+    t.bigint "kanban_card_id", null: false
+    t.bigint "user_id", null: false
+    t.index ["kanban_card_id", "user_id"], name: "index_kanban_cards_users_on_kanban_card_id_and_user_id"
   end
 
   create_table "kanban_columns", force: :cascade do |t|
@@ -1554,8 +1566,12 @@ ActiveRecord::Schema.define(version: 20240302072559) do
   add_foreign_key "faults", "fault_kinds", column: "kind_id"
   add_foreign_key "faults", "users", column: "causer_id"
   add_foreign_key "faults", "users", column: "issued_by_id"
+  add_foreign_key "kanban_boards_users", "kanban_boards"
+  add_foreign_key "kanban_boards_users", "users"
   add_foreign_key "kanban_cards", "kanban_columns", column: "column_id"
   add_foreign_key "kanban_cards", "users", column: "author_id"
+  add_foreign_key "kanban_cards_users", "kanban_cards"
+  add_foreign_key "kanban_cards_users", "users"
   add_foreign_key "kanban_columns", "kanban_boards", column: "board_id"
   add_foreign_key "lost_devices", "service_jobs"
   add_foreign_key "messages", "departments"
