@@ -1,6 +1,12 @@
 <%= simple_form_for card, url: url, html: {class: 'form-horizontal'} do |form| %>
   <%= form.input :content %>
   <%= form.association :column, collection: Kanban::Column.in_board(card.board), include_blank: false %>
+  <div class="control-group kanban-managers">
+    <%= form.label :managers, class: 'control-label' %>
+    <div class="controls">
+      <%= form.collection_check_boxes :manager_ids, User.active, :id, :presentation %>
+    </div>
+  </div>
 
   <div class="submit-actions">
     <%= submit_button form %>

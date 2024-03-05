@@ -8,7 +8,7 @@ class Kanban::Card < ApplicationRecord
                           class_name: "User",
                           join_table: :kanban_cards_users,
                           association_foreign_key: :user_id,
-                          foreign_key: :kanban_cards_id
+                          foreign_key: :kanban_card_id
 
   validates_presence_of :author, :column, :content
 

@@ -60,7 +60,7 @@ module Kanban
     end
 
     def board_params
-      params.require(:kanban_board).permit(:name, :background)
+      params.require(:kanban_board).permit(:name, :background, manager_ids: [])
     end
   end
 end
