@@ -1,10 +1,17 @@
 <%= simple_form_for(board, html: {class: 'form-horizontal'}) do |form| %>
   <%= form.input :name %>
   <%= form.input :background, as: :color %>
-  <div class="control-group kanban-managers">
+  <div class="control-group kanban-users">
     <%= form.label :managers, class: 'control-label' %>
-    <div class="controls">
+    <div class="controls kanban-user-choice">
       <%= form.collection_check_boxes :manager_ids, User.active, :id, :presentation %>
+    </div>
+  </div>
+
+  <div class="control-group kanban-users">
+    <%= form.label :allowed_user_ids, class: "control-label" %>
+    <div class="controls kanban-user-choice">
+      <%= form.collection_check_boxes :allowed_user_ids, User.active, :id, :presentation %>
     </div>
   </div>
 

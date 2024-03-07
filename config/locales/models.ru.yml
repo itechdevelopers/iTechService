@@ -754,6 +754,7 @@ ru:
     warranty_term: 'Гарантийный срок (мес.)'
     title: 'Название'
     managers: 'Ответственные'
+    allowed_user_ids: 'Доска доступна для пользователей'
 
   activerecord:
     <<: *activemodel

@@ -3,5 +3,9 @@ module Kanban
     def manage?
       superadmin?
     end
+
+    def show?
+      superadmin? || record.allowed_user_ids.include?(user.id)
+    end
   end
 end
