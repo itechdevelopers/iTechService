@@ -10,12 +10,14 @@
 
 <div class="row-fluid">
   <% @boards.each do |board| %>
-    <div class="span2 text-center">
-      <%= link_to kanban_board_path(board) do %>
-        <div class="thumbnail" style="background-color: <%= board.background || '#ffffff' %>;">
-          <h3><%= board.name %></h3>
-        </div>
-      <% end %>
-    </div>
+    <% if can? :show, board %>
+      <div class="span2 text-center">
+        <%= link_to kanban_board_path(board) do %>
+          <div class="thumbnail" style="background-color: <%= board.background || '#ffffff' %>;">
+            <h3><%= board.name %></h3>
+          </div>
+        <% end %>
+      </div>
+    <% end %>
   <% end %>
 </div>

@@ -15,6 +15,9 @@
       <%= link_to(icon(:edit), edit_kanban_board_path(@board), class: 'btn btn-small') if can?(:edit, @board) %>
       <%= link_to_destroy_small(@board) if can?(:destroy, @board) %>
     </h2>
+    <span class="board-mananger-name">
+      <%= t('.manager_person', name: @board.managers.map(&:presentation).join(", ")) %>
+    </span>
   </div>
 
   <div class="row-fluid kanban-column-headers">

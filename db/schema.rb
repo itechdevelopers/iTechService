@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20240305192704) do
+ActiveRecord::Schema.define(version: 20240307060544) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -489,6 +489,8 @@ ActiveRecord::Schema.define(version: 20240305192704) do
     t.string "background"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.integer "allowed_user_ids", default: [], array: true
+    t.index ["allowed_user_ids"], name: "index_kanban_boards_on_allowed_user_ids"
   end
 
   create_table "kanban_boards_users", id: false, force: :cascade do |t|

@@ -9,6 +9,7 @@ ru:
         title: 'Канбан Доски'
         add_board: 'Добавить Доску'
       show:
+        manager_person: "Ответственный %{name}"
         add_card: 'Добавить Карточку'
         add_column: 'Добавить Колонку'
       created: 'Доска создана'
