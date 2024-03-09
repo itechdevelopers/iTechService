@@ -34,7 +34,14 @@
     <% @board.columns.each do |column| %>
       <div class="span2">
         <% column.cards.each do |card| %>
-          <%= link_to card.content, kanban_card_path(card), class: 'kanban-card thumbnail' %>
+          <div class="kanban-card thumbnail">
+            <%= link_to card.content, kanban_card_path(card) %>
+            <div class="kanban-card-manager">
+              <% if card.managers.present? %>
+                <%= t(".manager_person", name: card.managers.map(&:presentation).join(", ")) %>
+              <% end %>
+            </div>
+          </div>
         <% end %>
       </div>
     <% end %>
