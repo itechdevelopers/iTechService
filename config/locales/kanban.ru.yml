@@ -1,6 +1,10 @@
 ru:
   kanban:
     boards:
+      form:
+        check_all: Отметить всех
+        uncheck_all: Снять отметки со всех
+        filter_user: Поиск...
       edit:
         title: 'Редактирование Доски'
       new:
