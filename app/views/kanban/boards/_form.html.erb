@@ -1,17 +1,29 @@
 <%= simple_form_for(board, html: {class: 'form-horizontal'}) do |form| %>
   <%= form.input :name %>
   <%= form.input :background, as: :color %>
-  <div class="control-group kanban-users">
-    <%= form.label :managers, class: 'control-label' %>
-    <div class="controls kanban-user-choice">
-      <%= form.collection_check_boxes :manager_ids, User.active, :id, :presentation %>
+  <div class="row-fluid">
+    <div class="span6">
+      <div class="control-group kanban-users">
+        <%= form.label :managers, class: 'control-label' %>
+        <div class="controls kanban-user-choice">
+          <%= text_field_tag "manager_user", nil, placeholder: t(".filter_user"), class: "filter-kanban-users" %>
+          <%= link_to t(".check_all"), "", class: "btn btn-secondary check-all-users" %>
+          <%= link_to t(".uncheck_all"), "", class: "btn btn-secondary uncheck-all-users" %>
+          <%= form.collection_check_boxes :manager_ids, User.active, :id, :presentation %>
+        </div>
+      </div>
     </div>
-  </div>
 
-  <div class="control-group kanban-users">
-    <%= form.label :allowed_user_ids, class: "control-label" %>
-    <div class="controls kanban-user-choice">
-      <%= form.collection_check_boxes :allowed_user_ids, User.active, :id, :presentation %>
+    <div class="span6">
+      <div class="control-group kanban-users">
+        <%= form.label :allowed_user_ids, class: "control-label" %>
+        <div class="controls kanban-user-choice">
+          <%= text_field_tag "allowed_users", nil, placeholder: t(".filter_user"), class: "filter-kanban-users" %>
+          <%= link_to t(".check_all"), "", class: "btn btn-secondary check-all-users" %>
+          <%= link_to t(".uncheck_all"), "", class: "btn btn-secondary uncheck-all-users" %>
+          <%= form.collection_check_boxes :allowed_user_ids, User.active, :id, :presentation %>
+        </div>
+      </div>
     </div>
   </div>
 
