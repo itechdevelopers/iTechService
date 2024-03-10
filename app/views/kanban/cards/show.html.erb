@@ -11,6 +11,13 @@
       <p class="kanban-card-content"><%= @card.content %></p>
       <small><%= @card.author_presentation %> [<%= l @card.created_at, format: :date_time %>]</small>
     </blockquote>
+    <div>
+      <% @card.photos.each do |photo| %>
+        <div class="kanban-photo">
+          <%= image_tag photo.file.authenticated_url(expires_in: 600) %>
+        </div>
+      <% end %>
+    </div>
 
     <div class="form-actions">
       <%= link_to_edit @card, controller: 'kanban/cards' %>

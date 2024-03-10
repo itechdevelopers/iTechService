@@ -10,6 +10,8 @@ class Kanban::Card < ApplicationRecord
                           association_foreign_key: :user_id,
                           foreign_key: :kanban_card_id
 
+  mount_uploaders :photos, KanbanPhotoUploader
+
   validates_presence_of :author, :column, :content
 
   delegate :presentation, to: :author, prefix: true

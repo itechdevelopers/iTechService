@@ -730,6 +730,7 @@ ru:
     performer: 'Исполнитель'
     work_phone: 'Рабочий номер телефона'
     phone_number: 'Телефонный номер'
+    photos: Фото
     position: 'Позиция'
     price: 'Цена'
     prices: 'Цены'

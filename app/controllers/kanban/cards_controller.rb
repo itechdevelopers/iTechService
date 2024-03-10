@@ -59,7 +59,7 @@ module Kanban
     end
 
     def card_params
-      params.require(:kanban_card).permit(:content, :column_id, manager_ids: [])
+      params.require(:kanban_card).permit(:content, :column_id, manager_ids: [], photos: [])
     end
   end
 end
