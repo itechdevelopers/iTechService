@@ -5,15 +5,22 @@
     .wiki_senior
       = f.label :senior, t('.senior'), class: 'label-inline'
       = f.check_box :senior, {}, 'true', 'false'
+  - if policy(WikiPage).wiki_superadmin?
+    .wiki_superadmin
+      = f.label :superadmin, t('.superadmin'), class: 'label-inline'
+      = f.check_box :superadmin, {}, 'true', 'false'
   = f.label :content, t('.content')
   = f.text_area :content
   = text_field_tag :category_title, '', placeholder: t('.select_category'), class: "category-chosen-value", autocomplete: "off"
   %ul.categories-value-list
-    - if policy(WikiPage).wiki_senior?
+    - if policy(WikiPage).wiki_superadmin?
       - WikiPageCategory.all.each do |category|
         %li= category.title
+    - elsif policy(WikiPage).wiki_senior?
+      - WikiPageCategory.without_superadmin.each do |category|
+        %li= category.title
     - else
-      - WikiPageCategory.only_non_senior.each do |category|
+      - WikiPageCategory.without_superadmin_and_senior.each do |category|
         %li= category.title
   = f.submit t('.submit'), class: 'submit btn btn-primary'
 

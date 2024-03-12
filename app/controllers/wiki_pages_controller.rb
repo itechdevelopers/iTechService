@@ -66,7 +66,7 @@ class WikiPagesController < ApplicationController
 
     def wiki_page_params
       params.require(:wiki_page).permit(:content, :title, :category_title, :senior, :title_filter,
-       :wiki_page_category_filter)
+       :wiki_page_category_filter, :superadmin)
     end
 
     def searching_params

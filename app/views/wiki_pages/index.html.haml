@@ -1,8 +1,10 @@
-.wiki_wrapper  
+.wiki_wrapper
   %ul.nav.nav-tabs
     %li.active= link_to t('.wiki'), '#wiki-regular', data: {toggle: 'tab'}
     - if policy(WikiPage).wiki_senior?
       %li= link_to t('.wiki_for_seniors'), '#wiki-senior', data: {toggle: 'tab'}
+    - if policy(WikiPage).wiki_superadmin?
+      %li= link_to t('.wiki_for_superadmins'), '#wiki-superadmin', data: {toggle: 'tab'}
 
   .tab-content
     #wiki-regular.tab-pane.active
@@ -15,3 +17,9 @@
         = render 'actions'
         %ul.wiki_list
           = render @pages.senior
+
+    - if policy(WikiPage).wiki_superadmin?
+      #wiki-superadmin.tab-pane
+        = render 'actions'
+        %ul.wiki_list
+          = render @pages.superadmin

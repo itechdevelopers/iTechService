@@ -16,12 +16,27 @@ class WikiPageCategory < ApplicationRecord
 
   validates :title, presence: true
   validates :color_tag, format: {with: /\A\h{3,6}\Z/}, allow_nil: true
-  
-  scope :only_non_senior, -> {
-    joins(:wiki_pages)
-      .where(wiki_pages: { senior: false })
-      .group('wiki_page_categories.id')
-      .having('COUNT(wiki_pages.id) = ?', WikiPage.senior.count)
+
+  scope :exclusive_senior_categories, -> {
+    where.not(id:
+      WikiPage.where(senior: false)
+      .pluck(:wiki_page_category_id).uniq
+    )
+  }
+
+  scope :exclusive_superadmin_categories, -> {
+    where.not(id:
+      WikiPage.where(superadmin: false)
+      .pluck(:wiki_page_category_id).uniq
+    )
+  }
+
+  scope :without_superadmin, -> {
+    where.not(id: exclusive_superadmin_categories)
+  }
+
+  scope :without_superadmin_and_senior, -> {
+    where.not(id: exclusive_senior_categories + exclusive_superadmin_categories)
   }
 
   def matching_font_color

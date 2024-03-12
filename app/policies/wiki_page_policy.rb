@@ -8,4 +8,7 @@ class WikiPagePolicy < CommonPolicy
   def wiki_senior?
     senior_manage?
   end
+  def wiki_superadmin?
+    superadmin?
+  end
 end

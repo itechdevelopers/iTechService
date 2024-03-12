@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20240310175216) do
+ActiveRecord::Schema.define(version: 20240311202237) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -1560,6 +1560,7 @@ ActiveRecord::Schema.define(version: 20240310175216) do
     t.integer "wiki_page_category_id"
     t.boolean "senior", default: false
     t.string "images", default: [], array: true
+    t.boolean "superadmin", default: false
     t.index ["creator_id"], name: "index_wiki_pages_on_creator_id"
     t.index ["path"], name: "index_wiki_pages_on_path", unique: true
   end
