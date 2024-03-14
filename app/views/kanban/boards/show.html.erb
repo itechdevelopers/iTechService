@@ -36,9 +36,14 @@
         <% column.cards.each do |card| %>
           <div class="kanban-card thumbnail">
             <%= link_to card.content, kanban_card_path(card) %>
-            <div class="kanban-card-manager">
+            <div class="kanban-card-info">
               <% if card.managers.present? %>
                 <%= t(".manager_person", name: card.managers.map(&:presentation).join(", ")) %>
+              <% end %>
+              <% if card.deadline.present? %>
+                <div class="kanban-deadline">
+                  <%= t(".deadline", date: card.deadline.strftime("%d.%m.%Y")) %>
+                </div>
               <% end %>
             </div>
           </div>

@@ -17,6 +17,8 @@ ru:
         action: 'Операция'
         mode: 'Режим'
         model_names: 'Модели'
+      kanban_card:
+        deadline: Сделать до
 
     prompts:
       data_sync:

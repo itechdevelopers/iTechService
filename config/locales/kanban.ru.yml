@@ -14,6 +14,7 @@ ru:
         add_board: 'Добавить Доску'
       show:
         manager_person: "Ответственный %{name}"
+        deadline: "Сделать до %{date}"
         add_card: 'Добавить Карточку'
         add_column: 'Добавить Колонку'
       created: 'Доска создана'
