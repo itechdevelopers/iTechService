@@ -1,6 +1,6 @@
 module Kanban
   class BoardsController < ApplicationController
-    before_action :set_board, only: %i[edit update destroy]
+    before_action :set_board, only: %i[edit update destroy sorted]
 
     def index
       authorize Board
@@ -53,14 +53,29 @@ module Kanban
       end
     end
 
+    def sorted
+      authorize Board
+      sort_type = params[:sort_order] || "classic"
+      @rendered_columns = @board.columns.map do |column|
+        render_to_string(partial: "kanban/cards/card_in_column", collection: sorted_columns(column.cards, sort_type), as: :card)
+      end
+      respond_to do |format|
+        format.js
+      end
+    end
+
     private
 
     def set_board
       @board = find_record Board
     end
 
+    def sorted_columns(columns, sort_type)
+      columns.send(sort_type)
+    end
+
     def board_params
-      params.require(:kanban_board).permit(:name, :background, manager_ids: [], allowed_user_ids: [])
+      params.require(:kanban_board).permit(:name, :background, :sort_order, manager_ids: [], allowed_user_ids: [])
     end
   end
 end

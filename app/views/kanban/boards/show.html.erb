@@ -15,10 +15,26 @@
       <%= link_to(icon(:edit), edit_kanban_board_path(@board), class: 'btn btn-small') if can?(:edit, @board) %>
       <%= link_to_destroy_small(@board) if can?(:destroy, @board) %>
     </h2>
-    <span class="board-mananger-name">
-      <%= t('.manager_person', name: @board.managers.map(&:presentation).join(", ")) %>
-    </span>
-  </div>
+    <div class="kanban-board-description">
+      <% if @board.managers.present? %>
+        <span class="board-mananger-name">
+          <%= t('.manager_person', name: @board.managers.map(&:presentation).join(", ")) %>
+        </span>
+      <% end %>
+
+      <span class="sort-kanban-board">
+        <%= form_with url: sorted_kanban_board_path(board: @board), method: :get, local: false do |form| %>
+          <div class="form-group">
+            <%= form.select :sort_order, [
+              [t(".classic_sort"), "classic"],
+              [t(".deadline_desc_sort"), "deadline_desc"],
+              [t(".deadline_asc_sort"), "deadline_asc"]
+            ], {}, { class: "form-control" } %>
+            <%= form.submit t(".sort"), class: "btn btn-primary" %>
+          </div>
+        <% end %>
+      </span>
+    </div>
 
   <div class="row-fluid kanban-column-headers">
     <% @board.columns.each do |column| %>
@@ -32,22 +48,8 @@
 
   <div class="row-fluid">
     <% @board.columns.each do |column| %>
-      <div class="span2">
-        <% column.cards.each do |card| %>
-          <div class="kanban-card thumbnail">
-            <%= link_to card.content, kanban_card_path(card) %>
-            <div class="kanban-card-info">
-              <% if card.managers.present? %>
-                <%= t(".manager_person", name: card.managers.map(&:presentation).join(", ")) %>
-              <% end %>
-              <% if card.deadline.present? %>
-                <div class="kanban-deadline">
-                  <%= t(".deadline", date: card.deadline.strftime("%d.%m.%Y")) %>
-                </div>
-              <% end %>
-            </div>
-          </div>
-        <% end %>
+      <div class="span2 kanban-column-cards" data-column-id=<%= column.id %> >
+        <%= render partial: 'kanban/cards/card_in_column', collection: column.cards, as: :card %>
       </div>
     <% end %>
   </div>

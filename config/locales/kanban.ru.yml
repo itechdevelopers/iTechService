@@ -13,8 +13,12 @@ ru:
         title: 'Канбан Доски'
         add_board: 'Добавить Доску'
       show:
+        choose_sorting_type: 'Выберите вариант сортировки:'
+        classic_sort: 'Классическая'
+        deadline_desc_sort: 'Сроки по убыванию'
+        deadline_asc_sort: 'Сроки по возрастанию'
+        sort: 'Сортировать'
         manager_person: "Ответственный %{name}"
-        deadline: "Сделать до %{date}"
         add_card: 'Добавить Карточку'
         add_column: 'Добавить Колонку'
       created: 'Доска создана'
@@ -40,3 +44,6 @@ ru:
       created: 'Карточка создана'
       updated: 'Карточка изменена'
       destroyed: 'Карточка удалена'
+      card_in_column:
+        manager_person: "Ответственный %{name}"
+        deadline: "Сделать до %{date}"

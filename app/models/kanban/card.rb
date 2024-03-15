@@ -1,5 +1,8 @@
 class Kanban::Card < ApplicationRecord
   scope :ordered, -> { order :position }
+  scope :deadline_asc, -> { reorder(deadline: :asc) }
+  scope :deadline_desc, -> { reorder(deadline: :desc) }
+  scope :classic, -> { ordered }
 
   belongs_to :author, class_name: 'User'
   belongs_to :column, inverse_of: :cards
