@@ -20,6 +20,7 @@ class WikiPage < ApplicationRecord
 
   scope :filter_by_title, ->(title) { where("lower(title) like :t", t: "%#{title.downcase}%") }
   scope :filter_by_wiki_page_category, ->(wiki_page_category_id) { where(wiki_page_category_id: wiki_page_category_id) }
-  scope :regular, -> { where(senior: false) }
+  scope :regular, -> { where(senior: false).where(superadmin: false) }
   scope :senior, -> { where(senior: true) }
+  scope :superadmin, -> { where(superadmin: true) }
 end

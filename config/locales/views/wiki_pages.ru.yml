@@ -3,6 +3,7 @@ ru:
     index:
       wiki: 'Wiki'
       wiki_for_seniors: 'Wiki для руководителей'
+      wiki_for_superadmins: Wiki для суперадминов
     new:
       wiki: 'Wiki'
       create_new_page: 'Создание новой страницы'
@@ -26,6 +27,7 @@ ru:
       content: 'Содержание'
       submit: 'Сохранить'
       senior: 'Статья для руководителей?'
+      superadmin: 'Статья для суперадминов?'
       images-title: 'Прикрепить изображения'
       submit-images: 'Добавить'
       image-delete: 'Удалить изображение'

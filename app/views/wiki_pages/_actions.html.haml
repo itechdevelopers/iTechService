@@ -1,16 +1,18 @@
-.wiki-row  
+.wiki-row
   .wiki-column
     .wiki_search
       = form_with url: search_wiki_pages_path, method: :get, local: false do |f|
-        - if policy(WikiPage).wiki_senior?
+        - if policy(WikiPage).wiki_superadmin?
           = f.collection_select :wiki_page_category_filter, WikiPageCategory.all, :id, :title, { prompt: t('.category_select')}
+        - elsif policy(WikiPage).wiki_senior?
+          = f.collection_select :wiki_page_category_filter, WikiPageCategory.without_superadmin, :id, :title, { prompt: t('.category_select')}
         - else
-          = f.collection_select :wiki_page_category_filter, WikiPageCategory.only_non_senior, :id, :title, { prompt: t('.category_select')}
+          = f.collection_select :wiki_page_category_filter, WikiPageCategory.without_superadmin_and_senior, :id, :title, { prompt: t('.category_select')}
         = f.search_field :title_filter
         = f.submit t('.search'), class: 'btn btn-primary'
   .wiki-column.text-right
-    = link_to t('.new_page'), new_wiki_page_path, class: 'btn btn-success'
     - if policy(WikiPage).wiki_senior?
+      = link_to t('.new_page'), new_wiki_page_path, class: 'btn btn-success'
       = link_to t('.manage_categories'), '#', class: 'btn', id: 'manage-categories'
     %ul.wiki_manage_categories
       - if policy(WikiPage).wiki_senior?
