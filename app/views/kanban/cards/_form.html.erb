@@ -1,6 +1,7 @@
 <%= simple_form_for card, url: url, html: {class: 'form-horizontal'} do |form| %>
   <%= form.input :content %>
   <%= form.association :column, collection: Kanban::Column.in_board(card.board), include_blank: false %>
+  <%= form.input :deadline, as: :my_date %>
   <%= form.input :photos, as: :file, input_html: { multiple: true } %>
   <div>
     <% @card.photos.each do |photo| %>

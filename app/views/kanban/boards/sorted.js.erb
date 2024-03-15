@@ -1,0 +1,5 @@
+<% @board.columns.each_with_index do |column, index| %>
+  document.querySelectorAll('.kanban-column-cards[data-column-id="<%= column.id %>"]').forEach(function(element) {
+    element.innerHTML = '<%= j @rendered_columns[index] %>';
+  });
+<% end %>

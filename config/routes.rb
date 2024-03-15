@@ -349,6 +349,7 @@ Rails.application.routes.draw do
       resources :columns, shallow: true, except: %i[index show] do
         resources :cards
       end
+      get :sorted, on: :member, defaults: {format: :js}
     end
   end
 
