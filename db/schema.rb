@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20240314175107) do
+ActiveRecord::Schema.define(version: 20240315184230) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -1519,6 +1519,14 @@ ActiveRecord::Schema.define(version: 20240314175107) do
     t.index ["username"], name: "index_users_on_username"
   end
 
+  create_table "wiki_documents", force: :cascade do |t|
+    t.bigint "wiki_page_id"
+    t.string "file"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["wiki_page_id"], name: "index_wiki_documents_on_wiki_page_id"
+  end
+
   create_table "wiki_page_attachments", id: :serial, force: :cascade do |t|
     t.integer "page_id", null: false
     t.string "wiki_page_attachment_file_name", limit: 255
@@ -1626,4 +1634,5 @@ ActiveRecord::Schema.define(version: 20240314175107) do
   add_foreign_key "trade_in_devices", "items"
   add_foreign_key "trade_in_devices", "users", column: "receiver_id"
   add_foreign_key "users", "dismissal_reasons"
+  add_foreign_key "wiki_documents", "wiki_pages"
 end

@@ -696,6 +696,10 @@ ru:
           attributes:
             case_color:
               required: 'не может быть пустым'
+        wiki_document:
+          attributes:
+            page:
+              required: 'не может быть пустым'
 
   attributes:
     available_for_trade_in: 'Доступно для Trade-in'
@@ -723,7 +727,7 @@ ru:
     kind: 'Вид'
     logo: 'Логотип'
     message: 'Сообщение'
-    name: 'Название'
+    # name: 'Название'
     number: 'Номер'
     object: 'Объект'
     performed_at: 'Время выполнения'
@@ -753,7 +757,7 @@ ru:
     user: 'Пользователь'
     user_comment: 'Комментарий сотрудника'
     warranty_term: 'Гарантийный срок (мес.)'
-    title: 'Название'
+    # title: 'Название'
     managers: 'Ответственные'
     allowed_user_ids: 'Доска доступна для пользователей'
 

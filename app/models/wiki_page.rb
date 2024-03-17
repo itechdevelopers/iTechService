@@ -5,6 +5,9 @@ class WikiPage < ApplicationRecord
   belongs_to :updator, class_name: 'User', optional: true
   belongs_to :wiki_page_category, optional: true
 
+  has_many :documents, class_name: 'WikiDocument', dependent: :destroy
+
+  accepts_nested_attributes_for :documents, reject_if: :all_blank, allow_destroy: true
   accepts_nested_attributes_for :wiki_page_category, reject_if: :all_blank
 
   validates :content, :title, presence: true, allow_blank: false

@@ -14,6 +14,10 @@
   .wiki_content
     = sanitize(auto_link(RedCloth.new(@page.content).to_html.html_safe))
 
+  - @page.documents.each do |document|
+    %p
+      = link_to document.file.file.filename, document.file.file.authenticated_url(expires_in: 600), target: "_blank"
+
   - @page.images.each do |image|
     %p
       = image_tag(image.url)
