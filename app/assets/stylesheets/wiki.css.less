@@ -20,18 +20,18 @@
 
 .wiki_wrapper {
   margin: 10px 50px;
-  
+
   textarea {
     resize: vertical;
     display: block;
     width: 80vw;
     height: 300px;
   }
-  
+
   input, select {
     margin: 0;
   }
-  
+
   input[type='text'] {
     width: 440px;
     height: 20px;
@@ -44,7 +44,7 @@
   .wiki_content {
     margin-bottom: 40px;
   }
-  
+
   .nav {
     li {
       font-size: 1.5rem;
@@ -55,37 +55,38 @@
       outline: none;
     }
   }
-  
+
   .wiki-row {
     display: flex;
   }
-  
+
   .wiki-column {
     flex: 50%;
   }
-  
+
   .tab-content {
     overflow: visible;
   }
-  
+
   .label-inline {
     display: inline;
   }
-  
+
   .wiki_tag {
     background: white;
     border: 1px solid #d2d2d2;
     margin-left: 10px;
     font-variant: petite-caps;
   }
-  
+
   .category-chosen-value {
     width: 200px;
     height: 20px;
     display: block;
     margin-bottom: 10px;
+    margin-top: 10px;
     transition: .3s ease-in-out;
-    
+
     &:hover {
       background-color: #FAFCFD;
       cursor: pointer;
@@ -114,11 +115,11 @@
       width: 440px;
       transition: background-color .3s;
       opacity: 1;
-      
+
       &:hover {
         background-color: #d3def1;
       }
-      
+
       &.closed {
         max-height: 0;
         overflow: hidden;
@@ -168,18 +169,18 @@
     border: 1px solid #d2d2d2;
     border-radius: 10px;
   }
-  
+
   li {
     position: relative;
     padding: 10px 5px;
     display: grid;
     grid-template-columns: 30px auto auto;
     border-bottom: 1px solid #d2d2d2;
-    
+
     .btn-group {
       justify-self: flex-end;
     }
-    
+
     .btn-danger {
       width: 10px;
     }
@@ -187,14 +188,14 @@
     .change-colors-btn {
       display: inline-block;
     }
-    
+
     .wiki_color-tag {
       width: 17px;
       height: 20px;
       border: 1px solid #d2d2d2;
       cursor: pointer;
     }
-    
+
     .wiki_manage-colors-tags {
       position: absolute;
       left: -30px;
@@ -216,5 +217,11 @@
 .wiki_category {
   margin: 10px 5px;
   font-style: italic;
-  color: #666;  
+  color: #666;
+}
+
+.danger-link {
+  color: red;
+  cursor: pointer;
+  font-style: italic;
 }

@@ -11,6 +11,10 @@
       = f.check_box :superadmin, {}, 'true', 'false'
   = f.label :content, t('.content')
   = f.text_area :content
+  = f.fields_for :documents do |document|
+    = document.label :file, t(".document")
+    = document.file_field :file
+
   = text_field_tag :category_title, '', placeholder: t('.select_category'), class: "category-chosen-value", autocomplete: "off"
   %ul.categories-value-list
     - if policy(WikiPage).wiki_superadmin?
@@ -23,6 +27,12 @@
       - WikiPageCategory.without_superadmin_and_senior.each do |category|
         %li= category.title
   = f.submit t('.submit'), class: 'submit btn btn-primary'
+
+- @page.documents.each do |document|
+  %p
+    - if document.file.present?
+      = link_to document.file.file.filename, document.file.file.authenticated_url(expires_in: 600), target: "_blank"
+      = link_to t(".remove_document"), wiki_page_document_path(wiki_page_id: @page.id, id: document.id), method: :delete, data: { confirm: 'Вы уверены?' }, class: 'danger-link'
 
 - @page.images.each_with_index do |image, index|
   %p

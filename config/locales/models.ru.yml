@@ -696,6 +696,10 @@ ru:
           attributes:
             case_color:
               required: 'не может быть пустым'
+        wiki_document:
+          attributes:
+            page:
+              required: 'не может быть пустым'
 
   attributes:
     available_for_trade_in: 'Доступно для Trade-in'

@@ -15,10 +15,12 @@ class WikiPagesController < ApplicationController
       authorize WikiPage.new
       category = WikiPageCategory.new
       @page = WikiPage.new(wiki_page_category: category)
+      @page.documents.build
     end
 
     def edit
       authorize @page
+      @page.documents.build
     end
 
     def create
@@ -27,6 +29,7 @@ class WikiPagesController < ApplicationController
       if @page.save
         redirect_to @page
       else
+        flash.now[:alert] = @page.errors.full_messages.join(', ')
         render :new
       end
     end
@@ -66,7 +69,8 @@ class WikiPagesController < ApplicationController
 
     def wiki_page_params
       params.require(:wiki_page).permit(:content, :title, :category_title, :senior, :title_filter,
-       :wiki_page_category_filter, :superadmin)
+       :wiki_page_category_filter, :superadmin,
+       documents_attributes: %i[id file _destroy])
     end
 
     def searching_params

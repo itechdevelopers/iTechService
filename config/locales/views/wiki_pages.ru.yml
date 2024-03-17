@@ -21,6 +21,8 @@ ru:
       preview: 'Предпросмотр'
       submit: 'Сохранить страницу'
     form:
+      document: "Добавление документа"
+      remove_document: "Удалить документ"
       category_title: 'Создайте новую категорию'
       select_category: 'Выберите категорию'
       title: 'Заголовок'
