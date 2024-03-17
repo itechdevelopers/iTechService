@@ -36,7 +36,7 @@ class WikiPagesController < ApplicationController
 
     def update
       authorize @page
-      if @page.update(wiki_page_params.merge(updator: current_user))
+      if @page.update(wiki_page_params.merge(updator: current_user, wiki_page_category: @category))
         redirect_to @page
       else
         render :edit
