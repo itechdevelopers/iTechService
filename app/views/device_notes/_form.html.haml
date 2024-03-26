@@ -1,3 +1,4 @@
 = simple_form_for [@service_job, @device_note], html: {id: 'device_note_form', class: 'form-verticall', remote: true} do |f|
-  = f.input :content, input_html: {rows: 3}, label: false, id: 'device_note_content'
+  = f.input :content, input_html: {rows: 3, class: 'notificationable'}, label: false, id: 'device_note_content'
+  .notificationable-users
   = f.submit t('.submit'), class: 'btn btn-primary'

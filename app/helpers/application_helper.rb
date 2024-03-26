@@ -344,4 +344,12 @@ module ApplicationHelper
   def additional_params
     params.permit!.to_h.except(:controller, :action, :id, :format)
   end
+
+  def inline_svg(filename)
+    file_path = Rails.root.join('app', 'assets', 'images', filename)
+    return '' unless File.exist?(file_path)
+
+    file = File.read(file_path)
+    file.html_safe
+  end
 end

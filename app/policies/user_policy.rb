@@ -4,6 +4,10 @@ class UserPolicy < BasePolicy
       able_to?(:see_all_users)
   end
 
+  def search?
+    show?
+  end
+
   def finance?
     same_department? && able_to?(:manage_salary)
   end

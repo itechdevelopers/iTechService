@@ -87,6 +87,23 @@ $(document).on 'click', '#search_form .clear_search_input', (event) ->
   $('#search_form').submit()
   event.preventDefault()
 
+$(document).on 'keyup', '.notificationable', (event) ->
+  input_text = $(this).val()
+  $('.notificationable-users').css('display', 'none') if input_text.indexOf('@') == -1
+  if input_text.indexOf('@') >= 0
+    search_line = input_text.split('@').pop()
+    $('.notificationable-users').css('display', 'none') if search_line.length == 0
+
+    if search_line.length > 0
+      $.ajax
+        url: '/users/search'
+        data: { query: { name: search_line } }
+        success: (data) ->
+          console.log(data)
+          processNotificationableUsers(data)
+
+
+
 $(document).on 'focus', '.datepicker', ->
   $(this).datepicker().dates = datepicker_dates
 
@@ -188,6 +205,37 @@ $(document).on 'click', '.form-inline-link', (event)->
   data_id = $(this).data('form-inline-id')
   $('.content-inline[data-form-inline-id="' + data_id + '"]').toggleClass('hidden')
   $('.form-inline[data-form-inline-id="' + data_id + '"]').toggleClass('hidden')
+
+$(document).on 'click', '.notificationable-users li', (event) ->
+  $('.notificationable-users').css('display', 'none')
+
+  $inp = $('.notificationable')
+  inputText = $inp.val()
+  ind = inputText.lastIndexOf('@')
+  $inp.val(inputText.substring(0, ind)) unless ind == -1
+
+  clickedText = $(this).text()
+  userId = $(this).data('user-id')
+  $span = $('<span class="notify-user">').text(clickedText).attr('data-user-id', userId)
+  $('.notificationable-users').after($span)
+
+processNotificationableUsers = (data) ->
+  $notificationableUsers = $('.notificationable-users')
+
+  if data is undefined || data.length == 0
+    $notificationableUsers.empty()
+    $notificationableUsers.css('display', 'none')
+  else
+    $notificationableUsers.empty()
+    $ul = $('<ul>')
+
+    for item in data
+      $li = $('<li>').text('@ ' + item.short_name)
+      $li.attr('data-user-id', item.id)
+      $ul.append($li)
+
+    $notificationableUsers.append($ul)
+    $notificationableUsers.css('display', 'block')
 
 add_fields = (target, association, content) ->
   new_id = String((new Date).getTime()) + String(Math.floor((Math.random() * 100) + 1))

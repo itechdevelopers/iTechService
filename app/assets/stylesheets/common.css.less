@@ -9,6 +9,34 @@
   width: 70%;
 }
 
+.notificationable-users {
+  background-color: #ffffff;
+  ul {
+    margin: 0 0 10px 0;
+    list-style: none;
+    border: 1px solid rgba(110, 146, 168, 0.8);
+    border-radius: 3px;
+    outline: 0;
+    box-shadow: inset 0 1px 1px rgba(0,0,0,.075), 0 0 8px rgba(0, 195, 255, .6);
+
+    li {
+      padding: 5px 0 2px 8px;
+      border-bottom: 1px solid rgba(0,0,0,0.1);
+    &:hover {
+      background-color: rgba(0, 0, 0, .1);
+      cursor: pointer;
+      }
+    }
+  }
+}
+
+.notify-user {
+  width: fit-content;
+  border-radius: 16px;
+  padding: 4px;
+  background-color: rgba(113, 144, 245, 0.6);
+}
+
 #notifications {
   width: 30%;
   left: 70%;

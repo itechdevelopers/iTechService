@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20240315184230) do
+ActiveRecord::Schema.define(version: 20240321194749) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -613,6 +613,19 @@ ActiveRecord::Schema.define(version: 20240315184230) do
     t.datetime "updated_at", null: false
     t.index ["item_id"], name: "index_movement_items_on_item_id"
     t.index ["movement_act_id"], name: "index_movement_items_on_movement_act_id"
+  end
+
+  create_table "notifications", force: :cascade do |t|
+    t.string "referenceable_type"
+    t.bigint "referenceable_id"
+    t.bigint "user_id", null: false
+    t.string "url", null: false
+    t.datetime "closed_at"
+    t.text "message"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["referenceable_type", "referenceable_id"], name: "index_notifications_on_referenceable_type_and_referenceable_id"
+    t.index ["user_id"], name: "index_notifications_on_user_id"
   end
 
   create_table "option_types", id: :serial, force: :cascade do |t|
@@ -1588,6 +1601,7 @@ ActiveRecord::Schema.define(version: 20240315184230) do
   add_foreign_key "kanban_columns", "kanban_boards", column: "board_id"
   add_foreign_key "lost_devices", "service_jobs"
   add_foreign_key "messages", "departments"
+  add_foreign_key "notifications", "users"
   add_foreign_key "option_values", "option_types"
   add_foreign_key "order_notes", "orders"
   add_foreign_key "order_notes", "users", column: "author_id"
