@@ -15,14 +15,15 @@ class OrderNotesController < ApplicationController
 
   def create
     authorize OrderNote
-    order_note = @order.notes.build(order_note_params)
-    order_note.author = current_user
+    @order_note = @order.notes.build(order_note_params)
+    @order_note.author = current_user
 
     respond_to do |format|
-      if order_note.save
-        format.js { render 'create', locals: { order_note: order_note } }
+      if @order_note.save
+        update_notifications if @notifications.any?
+        format.js { render 'create', locals: { order_note: @order_note } }
       else
-        format.js { render_error order_note.errors.full_messages.join('. ') }
+        format.js { render_error @order_note.errors.full_messages.join('. ') }
       end
     end
   end
@@ -41,6 +42,12 @@ class OrderNotesController < ApplicationController
   end
 
   private
+
+  def update_notifications
+    @notifications.each do |notification|
+      notification.update(url: order_url(@order), referenceable: @order_note, message: @order_note.content[0..50])
+    end
+  end
 
   def find_order
     @order = Order.find(params[:order_id])

@@ -64,3 +64,4 @@
 //= require wiki_pages
 //= require trade_in_evaluations
 //= require kanban
+//= require user_notifications

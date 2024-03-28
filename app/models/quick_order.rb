@@ -84,6 +84,10 @@ class QuickOrder < ApplicationRecord
     client&.human_phone_number || contact_phone
   end
 
+  def url
+    Rails.application.routes.url_helpers.quick_order_path(self)
+  end
+
   private
 
   def set_number

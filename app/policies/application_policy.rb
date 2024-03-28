@@ -66,11 +66,11 @@ class ApplicationPolicy
   def same_city?
     user.city_id == record.city_id
   end
-  
+
   def same_location?
     user.location_id == record.location_id
   end
-  
+
   def any_manager?(*additional_roles)
     has_role? *MANAGER_ROLES, *additional_roles
   end

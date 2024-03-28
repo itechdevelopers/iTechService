@@ -57,6 +57,7 @@ class CommentsController < ApplicationController
 
     respond_to do |format|
       if @comment.save
+        update_notifications if @notifications.any?
         format.html { redirect_to @comment, notice: t('comments.created') }
         format.json { render json: @comment, status: :created, location: @comment }
         format.js
@@ -74,7 +75,7 @@ class CommentsController < ApplicationController
       if @comment.update_attributes(comment_params)
         updated_text = comment_params.fetch(:content, @comment.content)
         RecordEdit.create!(editable: @comment, user: current_user, updated_text: updated_text)
-        
+
         format.html { redirect_to @comment, notice: t('comments.updated') }
         format.json { head :no_content }
         format.js
@@ -96,6 +97,14 @@ class CommentsController < ApplicationController
   end
 
   private
+
+  def update_notifications
+    @notifications.each do |notification|
+      if @comment.commentable.respond_to?(:url)
+        notification.update(url: @comment.commentable.url, referenceable: @comment, message: @comment.content[0..50])
+      end
+    end
+  end
 
   def sort_column
     Comment.column_names.include?(params[:sort]) ? params[:sort] : ''

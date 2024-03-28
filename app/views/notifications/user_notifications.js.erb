@@ -1,0 +1,4 @@
+<% if @notifications.present? %>
+  $("#user_notifications").addClass("active-notifications");
+  $("#user_notifications").attr("data-content", "<%= j render(collection: @notifications, partial: "short_notification", as: :notification) %>");
+<% end %>

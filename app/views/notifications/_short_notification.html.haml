@@ -1,0 +1,7 @@
+%div{data: { notification_id: notification.id }, class: "single-notification"}
+  %span
+    = link_to notification.message,
+        notification.url
+    = link_to glyph(:remove), close_notification_path(id: notification.id),
+        remote: true,
+        method: :post

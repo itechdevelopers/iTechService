@@ -69,4 +69,10 @@ module TopBarHelper
     link_to image_tag('bad-review.svg'), '#', rel: 'popover', class: 'hidden', id: 'bad_review_announcements',
             data: {html: true, placement: 'bottom', title: 'Негативные отзывы'}
   end
+
+  def header_link_to_notifications
+    link_to "", id: "user_notifications", rel: "popover", data: {html: true, placement: "bottom", title: "Активные уведомления"} do
+      inline_svg("letter.svg")
+    end
+  end
 end

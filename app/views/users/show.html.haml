@@ -30,6 +30,7 @@
       %li.active= link_to t("users.account"), '#account_tab', 'data-toggle' => 'tab'
       %li= link_to t("users.uniform"), '#uniform_tab', 'data-toggle' => 'tab'
       %li= link_to t("users.user_settings"), "#user_settings", "data-toggle" => "tab"
+      %li= link_to t("users.notifications"), "#notifications_tab", "data-toggle" => "tab"
 
     .tab-content
 
@@ -239,6 +240,24 @@
           = simple_form_for @user, url: update_user_settings_user_path(@user), method: :patch do |f|
             = f.input :fixed_main_menu
             = submit_button f
+
+      #notifications_tab.tab-pane
+        - if @user.notifications.any?
+          - if can? :view_notifications, @user.notifications.first
+            %table.table.table-condensed
+              %thead
+                %tr
+                  %th= "Дата"
+                  %th= "Сообщение"
+                  %th= "Закрыто"
+              %tbody
+                - @user.notifications.order(created_at: :desc).each do |notification|
+                  %tr{class: notification.closed? ? 'notification-read' : 'notification-unread'}
+                    %td= l notification.created_at, format: :date_time
+                    %td
+                      = notification.message
+                      = link_to "Перейти", notification.url if notification.url.present?
+                    %td= notification.closed? ? l(notification.closed_at, format: :date_time) : '-'
 
     - if can? :manage, User
       .form-actions

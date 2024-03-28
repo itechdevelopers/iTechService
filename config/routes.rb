@@ -70,6 +70,7 @@ Rails.application.routes.draw do
     get :finance, on: :member
     get :bonuses, on: :member
     get :experience, on: :collection, format: :js
+    get :search, on: :collection, format: :json
     resources :faults, shallow: true, only: %i[index new create destroy]
     post :create_duty_day, on: :collection
     post :destroy_duty_day, on: :collection
@@ -77,6 +78,11 @@ Rails.application.routes.draw do
     patch :update_user_settings, on: :member
     patch :update_photo, on: :member
     patch :update_self, on: :member
+  end
+
+  resources :notifications, only: %i[destroy], defaults: { format: :js } do
+    get :user_notifications, on: :collection, defaults: { format: :js }
+    post :close, on: :member, defaults: { format: :js }
   end
 
   resources :dismissal_reasons, except: :show

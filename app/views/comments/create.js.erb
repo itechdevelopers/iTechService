@@ -14,4 +14,6 @@ if ($('.comments').length > 0) {
 if ($('#comments').length > 0) {
   $('#comments').append("<%= j(cell(Comment::Cell::Preview, @comment).()) %>");
   $('.main_form #comment_content').val('');
+  $('.notify-user').remove();
+  $('.hidden-notification-inputs').css('display', 'none');
 }

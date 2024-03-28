@@ -13,6 +13,15 @@ class UsersController < ApplicationController
     end
   end
 
+  def search
+    authorize User
+    @users = User.search(params[:query]) || []
+
+    respond_to do |format|
+      format.json { render json: @users.map {|u| {id: u.id, username: u.username, short_name: u.short_name}} }
+    end
+  end
+
   def show
     @user = find_record User.includes(comments: :user)
     @service_jobs = @user.service_jobs.not_at_archive.newest
