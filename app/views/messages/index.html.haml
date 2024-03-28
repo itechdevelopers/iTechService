@@ -1,7 +1,8 @@
 .page-header
   = form_tag messages_path, method: :post, remote: true, id: 'message_form' do
     .input-append
-      = text_area_tag 'message[content]', nil, class: 'input-xxlarge', rows: 1, placeholder: t('chat.message'), autofocus: true
+      = text_area_tag 'message[content]', nil, class: 'input-xxlarge notificationable', rows: 1, placeholder: t('chat.message'), autofocus: true
+      .notificationable-users
       = submit_tag t('chat.send'), class: 'btn btn-primary'
 
 #messages.span6= render @messages
