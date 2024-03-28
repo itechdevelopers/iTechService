@@ -22,4 +22,8 @@ class Kanban::Card < ApplicationRecord
   delegate :board, :board_name, to: :column
 
   acts_as_list scope: :column_id
+
+  def url
+    Rails.application.routes.url_helpers.kanban_card_path(self)
+  end
 end
