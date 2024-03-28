@@ -5,7 +5,7 @@ class UserPolicy < BasePolicy
   end
 
   def search?
-    show?
+    true
   end
 
   def finance?
