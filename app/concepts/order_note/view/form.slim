@@ -1,3 +1,4 @@
 = simple_form_for contract, html: {id: 'order_note_form', remote: true, class: 'main_form'} do |f|
-  = f.input :content, input_html: {rows: 3}, label: false, id: 'order_note_content'
+  = f.input :content, input_html: {rows: 3, class: 'notificationable'}, label: false, id: 'order_note_content'
+  .notificationable-users
   = f.submit submit_label, class: 'btn btn-primary'

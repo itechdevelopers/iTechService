@@ -6,7 +6,7 @@ class ApplicationController < ActionController::Base
   before_action :authenticate_user!
   before_action :set_current_user
   before_action :store_location, except: [:create, :update, :destroy]
-  before_action :create_notification, if: -> { params[:register_notification].present? }
+  before_action :create_notification, if: -> { params[:notification].present? }
   after_action :verify_authorized
   around_action :set_time_zone
   rescue_from Pundit::NotAuthorizedError, with: :not_authorized
@@ -167,10 +167,17 @@ class ApplicationController < ActionController::Base
   end
 
   def notification_params
-    params.require(:notification).permit(:user_id, :message)
+    params.require(:notification).permit(user_ids: [], messages: [])
   end
 
   def create_notification
-    @notification = Notification.create(notification_params)
+    user_ids = notification_params[:user_ids]
+    messages = notification_params[:messages]
+
+    @notifications = [] if user_ids.present?
+
+    user_ids.zip(messages).each do |user_id, message|
+      @notifications << Notification.create(user_id: user_id, message: message)
+    end
   end
 end

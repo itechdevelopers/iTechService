@@ -1,3 +1,4 @@
 <% if @notifications.present? %>
-  $("#user_notifications svg#letter-icon").css("stroke", "#a51d2d");
+  $("#user_notifications").addClass("active-notifications");
+  $("#user_notifications").attr("data-content", "<%= j render(collection: @notifications, partial: "short_notification", as: :notification) %>");
 <% end %>

@@ -82,6 +82,7 @@ Rails.application.routes.draw do
 
   resources :notifications, only: %i[destroy], defaults: { format: :js } do
     get :user_notifications, on: :collection, defaults: { format: :js }
+    post :close, on: :member, defaults: { format: :js }
   end
 
   resources :dismissal_reasons, except: :show

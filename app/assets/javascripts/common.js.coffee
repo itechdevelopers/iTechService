@@ -99,7 +99,6 @@ $(document).on 'keyup', '.notificationable', (event) ->
         url: '/users/search'
         data: { query: { name: search_line } }
         success: (data) ->
-          console.log(data)
           processNotificationableUsers(data)
 
 
@@ -219,6 +218,17 @@ $(document).on 'click', '.notificationable-users li', (event) ->
   $span = $('<span class="notify-user">').text(clickedText).attr('data-user-id', userId)
   $('.notificationable-users').after($span)
 
+  $hiddenNotificationInputs = $('<div>').addClass('hidden-notification-inputs').attr('data-user-id', userId)
+  userIdInput = $('<input>').attr('type', 'hidden').attr('name', "notification[user_ids][]").val(userId)
+  messageInput = $('<input>').attr('type', 'hidden').attr('name', "notification[messages][]").val('Вас отметили в комментарии к работе')
+  $hiddenNotificationInputs.append(userIdInput, messageInput)
+  $span.after($hiddenNotificationInputs)
+
+$(document).on 'click', '.notify-user', (event) ->
+  dataUserId = $(this).data('user-id')
+  $('.hidden-notification-inputs[data-user-id="' + dataUserId + '"]').remove()
+  $(this).remove()
+
 processNotificationableUsers = (data) ->
   $notificationableUsers = $('.notificationable-users')
 
@@ -230,7 +240,7 @@ processNotificationableUsers = (data) ->
     $ul = $('<ul>')
 
     for item in data
-      $li = $('<li>').text('@ ' + item.short_name)
+      $li = $('<li>').text('@' + item.short_name)
       $li.attr('data-user-id', item.id)
       $ul.append($li)
 

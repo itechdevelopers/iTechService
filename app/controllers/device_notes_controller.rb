@@ -27,6 +27,7 @@ class DeviceNotesController < ApplicationController
 
     respond_to do |format|
       if @device_note.save
+        update_notifications if @notifications.any?
         format.js
         permitted_params = params.permit!.to_h
         Service::DeviceSubscribersNotificationJob.perform_later(@service_job.id, current_user.id, permitted_params)
@@ -50,6 +51,12 @@ class DeviceNotesController < ApplicationController
   end
 
   private
+
+  def update_notifications
+    @notifications.each do |notification|
+      notification.update(url: service_job_url(@service_job), referenceable: @device_note, message: @device_note.content[0..50])
+    end
+  end
 
   def find_service_job
     @service_job = policy_scope(ServiceJob).find(params[:service_job_id])

@@ -3,6 +3,8 @@ if ($notes.length > 0) {
   $notes.append('<%= j (render @device_note, editable: true) %>');
   $notes.scrollTop($notes[0].scrollHeight);
   $('#device_note_content').val('');
+  $('.notify-user').remove();
+  $('.hidden-notification-inputs').css('display', 'none');
 } else {
   hideModal();
   $service_job_row = $(".service_job_row[data-service_job-id=<%= @service_job.id %>]", '#actual_tasks_table');

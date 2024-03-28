@@ -1,5 +1,5 @@
 class NotificationsController < ApplicationController
-  before_action :set_notification, only: %i[destroy]
+  before_action :set_notification, only: %i[destroy, close]
 
   def destroy
     authorize @notification
@@ -11,9 +11,17 @@ class NotificationsController < ApplicationController
   end
 
   def user_notifications
-    Rails.logger.info("User notifications: #{current_user.notifications.not_closed.count}")
+    authorize Notification
     @notifications = current_user.notifications.not_closed.page(params[:page])
-    authorize @notifications
+
+    respond_to do |format|
+      format.js
+    end
+  end
+
+  def close
+    authorize @notification
+    @notification.close
 
     respond_to do |format|
       format.js

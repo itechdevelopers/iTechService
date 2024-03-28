@@ -619,7 +619,7 @@ ActiveRecord::Schema.define(version: 20240321194749) do
     t.string "referenceable_type"
     t.bigint "referenceable_id"
     t.bigint "user_id", null: false
-    t.string "url", null: false
+    t.string "url"
     t.datetime "closed_at"
     t.text "message"
     t.datetime "created_at", null: false

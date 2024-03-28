@@ -194,7 +194,7 @@ class User < ApplicationRecord
 
   def self.search(params)
     users = params[:all].present? ? User.all : User.active
-    unless (q_name = params[:name].strip).blank?
+    unless (q_name = params[:name]&.strip).blank?
       users = users.where 'username LIKE :q or name LIKE :q or surname LIKE :q', q: "%#{q_name}%"
     end
     users
