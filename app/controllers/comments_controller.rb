@@ -57,7 +57,7 @@ class CommentsController < ApplicationController
 
     respond_to do |format|
       if @comment.save
-        update_notifications if @notifications.any?
+        update_notifications if @notifications&.any?
         format.html { redirect_to @comment, notice: t('comments.created') }
         format.json { render json: @comment, status: :created, location: @comment }
         format.js

@@ -20,7 +20,7 @@ class OrderNotesController < ApplicationController
 
     respond_to do |format|
       if @order_note.save
-        update_notifications if @notifications.any?
+        update_notifications if @notifications&.any?
         format.js { render 'create', locals: { order_note: @order_note } }
       else
         format.js { render_error @order_note.errors.full_messages.join('. ') }
