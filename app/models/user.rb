@@ -300,6 +300,10 @@ class User < ApplicationRecord
     res
   end
 
+  def at_short_name
+    res = "@#{short_name}"
+  end
+
   def presentation
     short_name
   end

@@ -7,6 +7,8 @@ class Message < ApplicationRecord
   belongs_to :department
   belongs_to :user
   belongs_to :recipient, polymorphic: true, optional: true
+  has_many :notifications, as: :referenceable, dependent: :destroy
+
   validates :content, presence: true
   validates :content, length: { maximum: 255 }
 
