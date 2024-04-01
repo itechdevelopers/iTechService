@@ -2,4 +2,5 @@
 %div[message]{class: (is_my ? 'my' : '')}
   %small{style: "color: #{message.user.color}"}
     = "#{is_my ? t(:me) : message.user.short_name} [#{l(message.created_at, format: :date_time)}]"
-  %p= message.content
+  %p
+    = "#{message.content} #{message.notifications.map(&:user).map(&:at_short_name).join(', ')}"

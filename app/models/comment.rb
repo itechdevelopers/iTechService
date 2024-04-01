@@ -8,6 +8,7 @@ class Comment < ApplicationRecord
   belongs_to :commentable, polymorphic: true, optional: true
 
   has_many :record_edits, dependent: :destroy, as: :editable
+  has_many :notifications, as: :referenceable, dependent: :destroy
 
   delegate :department, :department_id, to: :commentable
 
