@@ -4,7 +4,7 @@ class NotificationPolicy < BasePolicy
   end
 
   def close?
-    manage?
+    view_notifications?
   end
 
   def view_notifications?
@@ -14,6 +14,6 @@ class NotificationPolicy < BasePolicy
   private
 
   def owner?
-    user.id == record.id
+    user.id == record.user_id
   end
 end
