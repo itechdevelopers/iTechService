@@ -52,6 +52,7 @@ class MessagesController < ApplicationController
   def update_notifications
     @notifications.each do |notification|
       notification.update(url: messages_url, referenceable: @message, message: @message.content[0..50])
+      UserNotificationChannel.broadcast_to(notification.user, notification) unless notification.errors.any?
     end
   end
 
