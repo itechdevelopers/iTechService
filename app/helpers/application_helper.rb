@@ -352,4 +352,14 @@ module ApplicationHelper
     file = File.read(file_path)
     file.html_safe
   end
+
+  def notified_users_spans(users)
+    users.map do |user| content_tag(:span,
+                                    user.at_short_name,
+                                    class: "notified-user-inline",
+                                    style: "text-decoration-color: #{user.color}")
+    end
+      .join(', ')
+      .html_safe
+  end
 end

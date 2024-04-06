@@ -11,9 +11,6 @@
         data: {form_inline_id: "device_note_#{device_note.id}"}
     - if editable
       = note_history_tag(device_note)
-  = content_tag(:p,
-                "#{device_note.content} #{device_note.notifications.map(&:user).map(&:at_short_name).join(', ')}",
-                class: "content-inline",
-                data: {form_inline_id: "device_note_#{device_note.id}"})
+  = device_note_content(device_note)
   - if editable
     = render 'device_notes/form_inline', device_note: device_note

@@ -3,4 +3,5 @@
   %small{style: "color: #{message.user.color}"}
     = "#{is_my ? t(:me) : message.user.short_name} [#{l(message.created_at, format: :date_time)}]"
   %p
-    = "#{message.content} #{message.notifications.map(&:user).map(&:at_short_name).join(', ')}"
+    = message.content
+    = notified_users_spans(message.notifications.map(&:user))
