@@ -1,7 +1,8 @@
 %div[device_note]
   = device_movement_telegram_tag(device_note.user.work_phone)
-  %small{style: "color: #{device_note.user.color}"}
-    = "#{device_note.user.short_name} [#{l(device_note.created_at, format: :date_time)}]"
+  %small{style: "color: #{device_note.user.color}", class: "uncolored-links"}
+    = link_to "#{device_note.user.short_name} [#{l(device_note.created_at, format: :date_time)}]",
+        user_path(device_note.user)
     = edited_by_tag(device_note)
     - if policy(device_note).update? && editable
       = link_to icon_tag(:edit),
