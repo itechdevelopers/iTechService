@@ -102,6 +102,7 @@ class CommentsController < ApplicationController
     @notifications.each do |notification|
       if @comment.commentable.respond_to?(:url)
         notification.update(url: @comment.commentable.url, referenceable: @comment, message: @comment.content[0..50])
+        UserNotificationChannel.broadcast_to(notification.user, notification) unless notification.errors.any?
       end
     end
   end

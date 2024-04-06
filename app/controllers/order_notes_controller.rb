@@ -46,6 +46,7 @@ class OrderNotesController < ApplicationController
   def update_notifications
     @notifications.each do |notification|
       notification.update(url: order_url(@order), referenceable: @order_note, message: @order_note.content[0..50])
+      UserNotificationChannel.broadcast_to(notification.user, notification) unless notification.errors.any?
     end
   end
 

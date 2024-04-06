@@ -309,4 +309,11 @@ module ServiceJobsHelper
     gallery_html << content_tag(:div, "", class: "btn-gallery-right")
     gallery_html.join.html_safe
   end
+
+  def device_note_content(device_note)
+    content_tag :p, class: "content-inline", data: {form_inline_id: "device_note_#{device_note.id}"} do
+      inner_content = device_note.content + notified_users_spans(device_note.notifications.map(&:user))
+      inner_content.html_safe
+    end
+  end
 end

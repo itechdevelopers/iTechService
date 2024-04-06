@@ -55,6 +55,7 @@ class DeviceNotesController < ApplicationController
   def update_notifications
     @notifications.each do |notification|
       notification.update(url: service_job_url(@service_job), referenceable: @device_note, message: @device_note.content[0..50])
+      UserNotificationChannel.broadcast_to(notification.user, notification) unless notification.errors.any?
     end
   end
 
