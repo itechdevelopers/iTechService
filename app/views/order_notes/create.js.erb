@@ -3,6 +3,6 @@ $notes.append('<%= j cell(OrderNote::Cell::Item, order_note).() %>');
 $notes.scrollTop($notes[0].scrollHeight);
 $('.main_form #order_note_content').val('');
 $('.notify-user').remove();
-$('.hidden-notification-inputs').css('display', 'none');
+$('.hidden-notification-inputs').remove();
 
 $('#edit_order_<%= @order.id %>_comment td:last').replaceWith('<%= last_note(@order) %>');
