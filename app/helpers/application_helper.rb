@@ -354,6 +354,7 @@ module ApplicationHelper
   end
 
   def notified_users_spans(users)
+    return '' unless users.present?
     users.map do |user| content_tag(:span,
                                     user.at_short_name,
                                     class: "notified-user-inline",
