@@ -381,6 +381,10 @@ Rails.application.routes.draw do
     resources :report_columns, only: %i[create destroy], defaults: {format: :js}
   end
 
+  resources :electronic_queues do
+    resources :queue_items
+  end
+
   authenticate :user do
     mount Sidekiq::Web => '/sidekiq'
   end

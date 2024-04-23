@@ -25,6 +25,7 @@ class Department < ApplicationRecord
   has_many :settings, dependent: :destroy
   has_many :service_jobs, inverse_of: :department
   has_many :locations, inverse_of: :department
+  has_many :electronic_queues
 
   # attr_accessible :name, :short_name, :role, :code, :url, :city_id, :brand_id, :address, :contact_phone, :schedule, :printer, :ip_network
   validates_presence_of :name, :role, :code
