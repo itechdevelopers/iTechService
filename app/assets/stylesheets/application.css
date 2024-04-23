@@ -57,4 +57,5 @@
  *= require users
  *= require wiki
  *= require_directory ./service
+ *= require electronic_queues
  */

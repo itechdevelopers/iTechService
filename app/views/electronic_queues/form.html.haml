@@ -1,0 +1,43 @@
+.page-header
+  %h1= auto_title
+
+= form_with model: @electronic_queue, local: true, class: 'form-horizontal' do |f|
+  .control-group
+    = f.label :queue_name, t('.queue_name'), class: 'control-label required'
+    .controls
+      = f.text_field :queue_name
+
+  .control-group
+    = f.label :department_id, t('.department_id'), class: 'control-label required'
+    .controls
+      = f.collection_select :department_id, Department.all, :id, :name, {prompt: t('.choose_department')}
+
+  .control-group
+    = f.label :windows_count, t('.windows_count'), class: 'control-label'
+    .controls
+      = f.number_field :windows_count
+
+  .control-group
+    = f.label :printer_address, t('.printer_address'), class: 'control-label'
+    .controls
+      = f.text_field :printer_address
+
+  .control-group
+    = f.label :ipad_link, t('.ipad_link'), class: 'control-label'
+    .controls
+      = t('.ipad_link_beginning')
+      = f.text_field :ipad_link
+
+  .control-group
+    = f.label :tv_link, t('.tv_link'), class: 'control-label'
+    .controls
+      = t('.tv_link_beginning')
+      = f.text_field :tv_link
+
+  .control-group
+    = f.label :enabled, t('.enabled'), class: 'control-label'
+    .controls
+      = f.check_box :enabled
+
+  .actions
+    = f.submit t('.submit'), class: 'btn btn-primary'

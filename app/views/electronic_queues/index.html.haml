@@ -1,0 +1,13 @@
+.page-header
+  %h1= auto_title
+
+.row-fluid
+  = link_to "#{glyph(:file)} #{t('.new_electronic_queue')}".html_safe, new_electronic_queue_path, class: 'btn btn-success'
+
+.row-fluid
+  #electronic_queues
+    - @electronic_queues.each do |eq|
+      .elqueue
+        = link_to eq.queue_name, electronic_queue_path(eq)
+        .elqueue-info
+          = "Подразделение: #{eq.department.name}"

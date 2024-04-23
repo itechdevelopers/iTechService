@@ -1,0 +1,34 @@
+.page-header
+  %h1
+    = link_back_to_index
+    = @electronic_queue.queue_name
+
+.row-fluid
+  .span6
+    %dl.dl-horizontal
+      %dt= t('.queue_name')
+      %dd= @electronic_queue.queue_name
+
+      %dt= t('.department')
+      %dd= @electronic_queue.department.name
+
+      %dt= t('.windows_count')
+      %dd= @electronic_queue.windows_count ? @electronic_queue.windows_count : 'Не указано'
+
+      %dt= t('.printer_address')
+      %dd= @electronic_queue.printer_address ? @electronic_queue.printer_address : 'Не указано'
+
+      %dt= t('.ipad_link')
+      %dd= @electronic_queue.ipad_link ? @electronic_queue.ipad_link : 'Не указано'
+
+      %dt= t('.tv_link')
+      %dd= @electronic_queue.tv_link ? @electronic_queue.tv_link : 'Не указано'
+
+      %dt= t('.enabled')
+      %dd= @electronic_queue.enabled ? 'Да' : 'Нет'
+
+      .form-actions
+        = link_to_edit @electronic_queue
+        = link_to_destroy @electronic_queue
+  .span6
+    = link_to glyph(:file) + t('.new_queue_item').html_safe, new_electronic_queue_queue_item_path(electronic_queue_id: @electronic_queue.id), remote: true, class: 'btn btn-success'

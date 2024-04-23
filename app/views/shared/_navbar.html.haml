@@ -31,6 +31,9 @@
         = drop_down_divider
         = menu_item t('substitute_phones.index.title'), substitute_phones_path
         = menu_item 'Инвентаризация', new_service_jobs_inventory_path if policy(ServiceJob).inventory?
+        - if can? :manage, ElectronicQueue
+          = drop_down_divider
+          = menu_item t('electronic_queues.index.title'), electronic_queues_path
 
       = drop_down t('.trade') do
         = menu_item t('.trade_in'), trade_in_devices_path

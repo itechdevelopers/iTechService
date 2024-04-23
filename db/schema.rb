@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20240321194749) do
+ActiveRecord::Schema.define(version: 20240423071545) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -331,6 +331,21 @@ ActiveRecord::Schema.define(version: 20240321194749) do
     t.index ["day"], name: "index_duty_days_on_day"
     t.index ["kind"], name: "index_duty_days_on_kind"
     t.index ["user_id"], name: "index_duty_days_on_user_id"
+  end
+
+  create_table "electronic_queues", force: :cascade do |t|
+    t.string "queue_name"
+    t.bigint "department_id", null: false
+    t.integer "windows_count"
+    t.string "printer_address"
+    t.string "ipad_link"
+    t.string "tv_link"
+    t.boolean "enabled"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["department_id"], name: "index_electronic_queues_on_department_id"
+    t.index ["ipad_link"], name: "index_electronic_queues_on_ipad_link", unique: true
+    t.index ["tv_link"], name: "index_electronic_queues_on_tv_link", unique: true
   end
 
   create_table "fault_kinds", id: :serial, force: :cascade do |t|
@@ -864,6 +879,24 @@ ActiveRecord::Schema.define(version: 20240321194749) do
     t.index ["contractor_id"], name: "index_purchases_on_contractor_id"
     t.index ["status"], name: "index_purchases_on_status"
     t.index ["store_id"], name: "index_purchases_on_store_id"
+  end
+
+  create_table "queue_items", force: :cascade do |t|
+    t.string "title"
+    t.text "annotation"
+    t.boolean "phone_input"
+    t.string "windows"
+    t.integer "task_duration"
+    t.integer "max_wait_time"
+    t.text "additional_info"
+    t.string "ticket_abbreviation"
+    t.bigint "electronic_queue_id", null: false
+    t.integer "position", default: 0, null: false
+    t.string "ancestry"
+    t.integer "ancestry_depth", default: 0
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["electronic_queue_id"], name: "index_queue_items_on_electronic_queue_id"
   end
 
   create_table "quick_orders", id: :serial, force: :cascade do |t|
@@ -1589,6 +1622,7 @@ ActiveRecord::Schema.define(version: 20240321194749) do
 
   add_foreign_key "departments", "brands"
   add_foreign_key "departments", "cities"
+  add_foreign_key "electronic_queues", "departments"
   add_foreign_key "faults", "fault_kinds", column: "kind_id"
   add_foreign_key "faults", "users", column: "causer_id"
   add_foreign_key "faults", "users", column: "issued_by_id"
@@ -1613,6 +1647,7 @@ ActiveRecord::Schema.define(version: 20240321194749) do
   add_foreign_key "product_groups_option_values", "product_groups"
   add_foreign_key "product_options", "option_values"
   add_foreign_key "product_options", "products"
+  add_foreign_key "queue_items", "electronic_queues"
   add_foreign_key "quick_orders", "clients"
   add_foreign_key "repair_prices", "departments"
   add_foreign_key "repair_prices", "repair_services"
