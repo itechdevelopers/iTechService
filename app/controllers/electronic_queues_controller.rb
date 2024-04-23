@@ -7,6 +7,7 @@ class ElectronicQueuesController < ApplicationController
   end
 
   def show
+    @queue_items = @electronic_queue.queue_items.order(position: :asc)
   end
 
   def new

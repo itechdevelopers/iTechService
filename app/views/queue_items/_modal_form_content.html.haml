@@ -1,0 +1,52 @@
+= form_with model: [@electronic_queue, @queue_item], class: 'form-horizontal', local: false do |f|
+  .modal-header
+    %a.close{'data-dismiss' => 'modal', href: '#'}
+      %i.icon-remove-sign
+    %h3= @queue_item.new_record? ? t('queue_items.new.title') : t('queue_items.edit.title')
+
+  .modal-body
+    = f.hidden_field :electronic_queue_id
+    = f.hidden_field :parent_id
+
+    .control-group
+      = f.label :title, t('.queue_title'), class: 'control-label required'
+      .controls
+        = f.text_field :title
+
+    .control-group
+      = f.label :annotation, t('.annotation'), class: 'control-label'
+      .controls
+        = f.text_area :annotation
+
+    .control-group
+      = f.label :phone_input, t('.phone_input'), class: 'control-label'
+      .controls
+        = f.check_box :phone_input
+
+    .control-group
+      = f.label :windows, t('.windows'), class: 'control-label'
+      .controls
+        = f.text_field :windows
+
+    .control-group
+      = f.label :task_duration, t('.task_duration'), class: 'control-label'
+      .controls
+        = f.number_field :task_duration
+
+    .control-group
+      = f.label :max_wait_time, t('.max_wait_time'), class: 'control-label'
+      .controls
+        = f.number_field :max_wait_time
+
+    .control-group
+      = f.label :ticket_abbreviation, t('.ticket_abbreviation'), class: 'control-label'
+      .controls
+        = f.text_field :ticket_abbreviation
+
+    .control-group
+      = f.label :position, t('.position'), class: 'control-label'
+      .controls
+        = f.number_field :position
+
+  .modal-footer
+    = f.submit t('.submit'), class: 'btn btn-primary'

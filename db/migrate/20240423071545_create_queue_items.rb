@@ -10,6 +10,9 @@ class CreateQueueItems < ActiveRecord::Migration[5.1]
       t.text :additional_info
       t.string :ticket_abbreviation
       t.references :electronic_queue, foreign_key: true, null: false
+      t.integer :position, null: false, default: 0
+      t.string :ancestry
+      t.integer :ancestry_depth, default: 0
 
       t.timestamps
     end

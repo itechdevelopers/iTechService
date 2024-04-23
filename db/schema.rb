@@ -891,6 +891,9 @@ ActiveRecord::Schema.define(version: 20240423071545) do
     t.text "additional_info"
     t.string "ticket_abbreviation"
     t.bigint "electronic_queue_id", null: false
+    t.integer "position", default: 0, null: false
+    t.string "ancestry"
+    t.integer "ancestry_depth", default: 0
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.index ["electronic_queue_id"], name: "index_queue_items_on_electronic_queue_id"

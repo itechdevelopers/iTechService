@@ -27,9 +27,25 @@ ru:
       ipad_link: "Ссылка для iPad"
       tv_link: "Ссылка для TV"
       enabled: "Включена"
+      new_queue_item: "Новый элемент очереди"
     create:
       electronic_queue_was_successfully_created: "Электронная очередь успешно создана"
     update:
       electronic_queue_was_successfully_updated: "Электронная очередь успешно обновлена"
     destroy:
       electronic_queue_was_successfully_deleted: "Электронная очередь успешно удалена"
+  queue_items:
+    new:
+      title: "Новый элемент очереди"
+    edit:
+      title: "Редактирование элемента очереди"
+    modal_form_content:
+      queue_title: "Имя элемента"
+      annotation: "Аннотация"
+      phone_input: "Доступен ввод номера телефона"
+      windows: "Окна, на которых доступен"
+      task_duration: "Продолжительность задачи"
+      max_wait_time: "Максимальное время ожидания"
+      ticket_abbreviation: "Аббревиатура на чеке"
+      position: "Позиция элемента"
+      submit: "Сохранить"

@@ -382,7 +382,7 @@ Rails.application.routes.draw do
   end
 
   resources :electronic_queues do
-    resources :queue_items
+    resources :queue_items, except: %i[index show], defaults: {format: :js}
   end
 
   authenticate :user do
