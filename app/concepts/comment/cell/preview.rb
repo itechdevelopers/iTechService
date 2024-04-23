@@ -3,7 +3,7 @@ module Comment::Cell
     include Pundit::Authorization
     private
 
-    property :user_color, :user_name, :content, :id
+    property :user_color, :user_name, :content, :id, :notifications
 
     def element_id
       "comment_" + id.to_s
@@ -34,6 +34,17 @@ module Comment::Cell
 
     def note_history_tag
       super(model)
+    end
+
+    def notified_users
+      return "" unless users = model.notifications.map(&:user)
+      users.map do |user| content_tag(:span,
+        user.at_short_name,
+        class: "notified-user-inline",
+        style: "text-decoration-color: #{user.color}")
+      end
+      .join(', ')
+      .html_safe
     end
   end
 end

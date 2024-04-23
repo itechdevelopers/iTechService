@@ -6,5 +6,6 @@
     => edited_by_tag
     => note_history_tag
   p.content-inline data-form-inline-id="order_note_#{id}"
-    = "#{content} #{model.notifications.map(&:user).map(&:at_short_name).join(', ')}"
+    = content
+    => notified_users
     => inline_form

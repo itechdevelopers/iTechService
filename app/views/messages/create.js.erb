@@ -1,4 +1,4 @@
 $('#message_content').val('');
 $('#messages').prepend("<%= j(render(@message)) %>");
 $('.notify-user').remove();
-$('.hidden-notification-inputs').css('display', 'none');
+$('.hidden-notification-inputs').remove();

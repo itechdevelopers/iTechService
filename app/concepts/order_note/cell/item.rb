@@ -3,7 +3,7 @@ module OrderNote::Cell
     include Pundit::Authorization
     private
 
-    property :author_color, :author_name, :content, :id
+    property :author_color, :author_name, :content, :id, :notifications
 
     def element_id
       "order_note_" + id.to_s
@@ -34,6 +34,17 @@ module OrderNote::Cell
 
     def note_history_tag
       super(model)
+    end
+
+    def notified_users
+      return "" unless users = model.notifications.map(&:user)
+      users.map do |user| content_tag(:span,
+        user.at_short_name,
+        class: "notified-user-inline",
+        style: "text-decoration-color: #{user.color}")
+      end
+      .join(', ')
+      .html_safe
     end
   end
 end
