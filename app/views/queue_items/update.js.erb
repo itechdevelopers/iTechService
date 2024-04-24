@@ -1,0 +1,4 @@
+$('#queue_item_<%= @queue_item.id %>').attr('title', '<%= j(@queue_item.title) %>');
+$('#queue_item_<%= @queue_item.id %> a').text('<%= j(@queue_item.title) %>');
+
+hideModal();

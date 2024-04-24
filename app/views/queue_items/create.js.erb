@@ -1,0 +1,6 @@
+<% if @queue_item.is_root? %>
+  element = $("#queue_items").append("<%= j(queue_items_tree_tag(@queue_item)) %>");
+  electronic_queues_tree(element);
+<% end %>
+
+$('#modal_form').modal('hide');
