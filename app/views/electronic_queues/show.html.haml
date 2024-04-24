@@ -32,3 +32,7 @@
         = link_to_destroy @electronic_queue
   .span6
     = link_to glyph(:file) + t('.new_queue_item').html_safe, new_electronic_queue_queue_item_path(electronic_queue_id: @electronic_queue.id), remote: true, class: 'btn btn-success'
+
+    #queue_items{ data: { electronic_queue_id: @electronic_queue.id } }
+      -# TODO Установить @opened_queue_items
+      = queue_items_trees_tag @queue_items, @opened_queue_items
