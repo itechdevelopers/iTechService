@@ -1,6 +1,6 @@
 class ElectronicQueuePolicy < ApplicationPolicy
   def manage?
-    superadmin?
+    superadmin? || user.id == 330
   end
 
   def index?
