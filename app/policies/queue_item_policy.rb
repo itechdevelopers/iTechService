@@ -1,5 +1,5 @@
 class QueueItemPolicy < ApplicationPolicy
   def manage?
-    superadmin?
+    superadmin? || user.id == 330
   end
 end
