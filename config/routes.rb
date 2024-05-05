@@ -385,6 +385,10 @@ Rails.application.routes.draw do
     resources :queue_items, except: %i[index show], defaults: {format: :js}
   end
 
+  get 'elqueue/:permalink', to: 'electronic_queues#ipad_show', as: 'ipad_show'
+
+  resources :waiting_clients, only: %i[create], defaults: {format: :js}
+
   authenticate :user do
     mount Sidekiq::Web => '/sidekiq'
   end

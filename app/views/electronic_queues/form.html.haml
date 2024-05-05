@@ -25,14 +25,38 @@
   .control-group
     = f.label :ipad_link, t('.ipad_link'), class: 'control-label'
     .controls
-      = t('.ipad_link_beginning')
+      .field-explanation= t('.ipad_link_beginning')
       = f.text_field :ipad_link
 
   .control-group
     = f.label :tv_link, t('.tv_link'), class: 'control-label'
     .controls
-      = t('.tv_link_beginning')
+      .field-explanation= t('.tv_link_beginning')
       = f.text_field :tv_link
+
+  .control-group
+    = f.label :header_boldness, t('.header_boldness'), class: 'control-label'
+    .controls
+      .field-explanation= t('.boldness_beginning')
+      = f.number_field :header_boldness
+
+  .control-group
+    = f.label :header_font_size, t('.header_font_size'), class: 'control-label'
+    .controls
+      .field-explanation= t('.font_size_beginning')
+      = f.number_field :header_font_size
+
+  .control-group
+    = f.label :annotation_boldness, t('.annotation_boldness'), class: 'control-label'
+    .controls
+      .field-explanation= t('.boldness_beginning')
+      = f.number_field :annotation_boldness
+
+  .control-group
+    = f.label :annotation_font_size, t('.annotation_font_size'), class: 'control-label'
+    .controls
+      .field-explanation= t('.font_size_beginning')
+      = f.number_field :annotation_font_size
 
   .control-group
     = f.label :enabled, t('.enabled'), class: 'control-label'

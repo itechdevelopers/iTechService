@@ -57,7 +57,8 @@ class QueueItemsController < ApplicationController
   def queue_item_params
     params.require(:queue_item).permit(:title, :annotation, :phone_input,
       :windows, :task_duration, :max_wait_time, :additional_info, :ticket_abbreviation,
-      :position, :electronic_queue_id, :ancestry, :ancestry_depth, :parent_id)
+      :position, :electronic_queue_id, :ancestry, :ancestry_depth, :parent_id,
+      :priority)
   end
 
   def set_electronic_queue

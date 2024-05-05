@@ -25,4 +25,54 @@ module ElectronicQueuesHelper
 
     end.join.html_safe
   end
+
+  def queue_item_priority_options
+    QueueItem.priorities.map do |priority, value|
+      [I18n.t("queue_items.priorities.#{priority}"), value]
+    end
+  end
+
+  # Helpers for iPad views
+  def render_queue_tree(queue_items, root, parent_id=false)
+    styles_for_annotation = render_annotation_styles(queue_items.first.electronic_queue)
+    styles_for_header = render_header_styles(queue_items.first.electronic_queue)
+    container_content = ""
+    queue_items.map do |queue_item|
+      item_class = root ? "visible" : "hidden"
+      data_parent = parent_id ? "#{parent_id}" : ""
+      has_children = queue_item.children.any?
+      content_tag(:div, class: "queue-item #{item_class}", data: {root: root, item_id: queue_item.id, parent_id: data_parent, edge: !has_children}) do
+        result = ""
+        result << content_tag(:h2, queue_item.title, class: "queue-title", style: styles_for_header)
+        result << content_tag(:p, queue_item.annotation, class: "queue-annotation", style: styles_for_annotation)
+        if has_children
+          container_content << render_queue_tree(queue_item.children, false, queue_item.id)
+        else
+          container_content << render_create_ticket_form(queue_item)
+        end
+        result.html_safe
+      end
+    end.join.html_safe + container_content.html_safe
+  end
+
+  def render_create_ticket_form(queue_item)
+    content_tag :div, class: "create-ticket hidden", data: {parent_id: queue_item.id} do
+      form_for(queue_item.queue_tickets.build, url: waiting_clients_path, remote: true, html: {class: "create-ticket-form"}) do |f|
+        result = ""
+        result << f.hidden_field(:queue_item_id, value: queue_item.id)
+        result << f.text_field(:client_name, placeholder: "Имя клиента", class: "client-name")
+        result << f.text_field(:phone_number, placeholder: "Телефон клиента", class: "client-phone") if queue_item.phone_input
+        result << f.submit("Создать талон", class: "create-ticket-button")
+        result.html_safe
+      end
+    end
+  end
+
+  def render_annotation_styles(electronic_queue)
+    "font-size: #{electronic_queue.annotation_font_size}px; font-weight: #{electronic_queue.annotation_boldness};"
+  end
+
+  def render_header_styles(electronic_queue)
+    "font-size: #{electronic_queue.header_font_size}px; font-weight: #{electronic_queue.header_boldness};"
+  end
 end

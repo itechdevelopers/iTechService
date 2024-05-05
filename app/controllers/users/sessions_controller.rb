@@ -12,6 +12,11 @@ class Users::SessionsController < Devise::SessionsController
   # POST /resource/sign_in
   def create
     super do |user|
+      if ElectronicQueue.enabled_for_department(user.department) && user.able_to?(:work_with_electronic_queues)
+        user.need_to_select_window = true
+        user.save
+      end
+
       if (location = after_sign_in_path_for(user))
         respond_with resource, location: location
         return

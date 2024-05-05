@@ -6,4 +6,8 @@ class ElectronicQueuePolicy < ApplicationPolicy
   def index?
     manage?
   end
+
+  def ipad_show?
+    true
+  end
 end

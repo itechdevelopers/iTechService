@@ -64,7 +64,7 @@ class User < ApplicationRecord
     change_client_department
     view_god_eye
     view_bad_review_announcements
-    test_new_features
+    work_with_electronic_queues
   ].freeze
 
   ACTIVITIES = %w[free fast long mac].freeze
@@ -140,6 +140,7 @@ class User < ApplicationRecord
   has_many :quick_orders
   has_many :service_free_jobs, -> { includes(:client) }, class_name: 'Service::FreeJob', foreign_key: :receiver_id
   has_many :notifications, dependent: :destroy
+  has_many :elqueue_windows, dependent: :nullify
   has_and_belongs_to_many :managed_cards,
                           class_name: 'Kanban::Card',
                           join_table: :kanban_cards_users,

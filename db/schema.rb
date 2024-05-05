@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20240423071545) do
+ActiveRecord::Schema.define(version: 20240505160905) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -343,9 +343,24 @@ ActiveRecord::Schema.define(version: 20240423071545) do
     t.boolean "enabled"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.integer "header_boldness", default: 600
+    t.integer "header_font_size", default: 24
+    t.integer "annotation_boldness", default: 400
+    t.integer "annotation_font_size", default: 18
     t.index ["department_id"], name: "index_electronic_queues_on_department_id"
     t.index ["ipad_link"], name: "index_electronic_queues_on_ipad_link", unique: true
     t.index ["tv_link"], name: "index_electronic_queues_on_tv_link", unique: true
+  end
+
+  create_table "elqueue_windows", force: :cascade do |t|
+    t.bigint "user_id"
+    t.integer "window_number", null: false
+    t.bigint "electronic_queue_id", null: false
+    t.boolean "is_active", default: false, null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["electronic_queue_id"], name: "index_elqueue_windows_on_electronic_queue_id"
+    t.index ["user_id"], name: "index_elqueue_windows_on_user_id"
   end
 
   create_table "fault_kinds", id: :serial, force: :cascade do |t|
@@ -896,6 +911,7 @@ ActiveRecord::Schema.define(version: 20240423071545) do
     t.integer "ancestry_depth", default: 0
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.integer "priority", default: 0
     t.index ["electronic_queue_id"], name: "index_queue_items_on_electronic_queue_id"
   end
 
@@ -1524,7 +1540,7 @@ ActiveRecord::Schema.define(version: 20240423071545) do
     t.text "wish"
     t.string "card_number", limit: 255
     t.string "color", limit: 255
-    t.integer "abilities_mask"
+    t.bigint "abilities_mask"
     t.boolean "schedule"
     t.integer "position"
     t.boolean "is_fired"
@@ -1548,6 +1564,7 @@ ActiveRecord::Schema.define(version: 20240423071545) do
     t.bigint "dismissal_reason_id"
     t.text "dismissal_comment"
     t.boolean "fixed_main_menu", default: false
+    t.boolean "need_to_select_window", default: false
     t.index ["authentication_token"], name: "index_users_on_authentication_token", unique: true
     t.index ["card_number"], name: "index_users_on_card_number"
     t.index ["department_id"], name: "index_users_on_department_id"
@@ -1563,6 +1580,24 @@ ActiveRecord::Schema.define(version: 20240423071545) do
     t.index ["store_id"], name: "index_users_on_store_id"
     t.index ["surname"], name: "index_users_on_surname"
     t.index ["username"], name: "index_users_on_username"
+  end
+
+  create_table "waiting_clients", force: :cascade do |t|
+    t.bigint "queue_item_id", null: false
+    t.integer "position", default: 0, null: false
+    t.string "phone_number"
+    t.string "client_name"
+    t.bigint "client_id"
+    t.datetime "ticket_issued_at"
+    t.datetime "ticket_called_at"
+    t.datetime "ticket_served_at"
+    t.string "status", default: "waiting", null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.bigint "elqueue_window_id"
+    t.index ["client_id"], name: "index_waiting_clients_on_client_id"
+    t.index ["elqueue_window_id"], name: "index_waiting_clients_on_elqueue_window_id"
+    t.index ["queue_item_id"], name: "index_waiting_clients_on_queue_item_id"
   end
 
   create_table "wiki_documents", force: :cascade do |t|
@@ -1623,6 +1658,8 @@ ActiveRecord::Schema.define(version: 20240423071545) do
   add_foreign_key "departments", "brands"
   add_foreign_key "departments", "cities"
   add_foreign_key "electronic_queues", "departments"
+  add_foreign_key "elqueue_windows", "electronic_queues"
+  add_foreign_key "elqueue_windows", "users"
   add_foreign_key "faults", "fault_kinds", column: "kind_id"
   add_foreign_key "faults", "users", column: "causer_id"
   add_foreign_key "faults", "users", column: "issued_by_id"
@@ -1683,5 +1720,8 @@ ActiveRecord::Schema.define(version: 20240423071545) do
   add_foreign_key "trade_in_devices", "items"
   add_foreign_key "trade_in_devices", "users", column: "receiver_id"
   add_foreign_key "users", "dismissal_reasons"
+  add_foreign_key "waiting_clients", "clients"
+  add_foreign_key "waiting_clients", "elqueue_windows"
+  add_foreign_key "waiting_clients", "queue_items"
   add_foreign_key "wiki_documents", "wiki_pages"
 end

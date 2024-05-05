@@ -1,6 +1,30 @@
 jQuery ->
   electronic_queues_tree('#queue_items') if $('#queue_items').length > 0
 
+  toggleVisibility = ->
+    $('.visible').removeClass('visible').addClass('hidden')
+
+  $(document).on 'click', '.queue-item', (event) ->
+    toggleVisibility()
+
+    itemId = $(this).data('item-id')
+
+    if $(this).data('edge')
+      $(".create-ticket[data-parent-id=#{itemId}]").removeClass('hidden').addClass('visible')
+    else
+      $(".queue-item[data-parent-id=#{itemId}]").removeClass('hidden').addClass('visible')
+
+  $(document).on 'click', '.back-button', (event) ->
+    parentId = $('.visible:first').data('parent-id')
+    console.log(parentId)
+    if parentId
+      toggleVisibility()
+      if $(".queue-item[data-item-id=#{parentId}]").data('root')
+        $(".queue-item[data-root=true]").removeClass('hidden').addClass('visible')
+      else
+        grandParentId = $(".queue-item[data-item-id=#{parentId}]").data('parent-id')
+        $(".queue-item[data-parent-id=#{grandParentId}]").removeClass('hidden').addClass('visible')
+
 window.electronic_queues_tree = (container)->
   $.jstree._themes = "/assets/jstree/"
   $container = $(container)
