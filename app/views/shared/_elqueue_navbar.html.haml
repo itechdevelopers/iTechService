@@ -1,0 +1,6 @@
+.elqueue_navbar
+  = drop_down "ЭО " + icon_tag(:list) do
+    = drop_down_divider
+    - if current_user.need_to_select_window?
+      :javascript
+        window.show_window_select_modal();

@@ -1,0 +1,14 @@
+= form_with model: current_user, url: update_elqueue_window_user_path(id: current_user), method: :patch, local: false, class: 'form-horizontal' do |f|
+  .modal-header
+    = button_to_close_modal
+    %h3
+      = t('elqueue_windows.select_window')
+
+  .modal-body
+    .control-group
+      %label.control-label= t('elqueue_windows.window')
+      .controls
+        = f.select :elqueue_window_id, elqueue_window_options(current_user), {include_blank: t('elqueue_windows.select_window_prompt')}
+
+  .modal-footer
+    = f.submit t('elqueue_windows.submit'), class: 'btn btn-primary'

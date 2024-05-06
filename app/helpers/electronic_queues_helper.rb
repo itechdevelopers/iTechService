@@ -32,6 +32,13 @@ module ElectronicQueuesHelper
     end
   end
 
+  def elqueue_window_options(user)
+    department_queue = user.department.electronic_queues.enabled.first
+    department_queue.elqueue_windows.map do |window|
+      [window.window_number, window.id]
+    end
+  end
+
   # Helpers for iPad views
   def render_queue_tree(queue_items, root, parent_id=false)
     styles_for_annotation = render_annotation_styles(queue_items.first.electronic_queue)

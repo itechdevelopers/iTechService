@@ -242,11 +242,27 @@ class UsersController < ApplicationController
     head(:no_content) if @users.empty?
   end
 
+  def update_elqueue_window
+    authorize User, :update?
+    @user = User.find(params[:id])
+    respond_to do |format|
+      if @user.update(elqueue_window_params)
+        format.js
+      else
+        format.js { render 'shared/show_modal_form' }
+      end
+    end
+  end
+
   private
 
   def load_infos
     # @infos = Info.actual.available_for(current_user).grouped_by_date.limit 20
     @infos = policy_scope(Info).actual.available_for(current_user).newest.limit(20)
+  end
+
+  def elqueue_window_params
+    params.require(:user).permit(:elqueue_window_id)
   end
 
   def uniform_params

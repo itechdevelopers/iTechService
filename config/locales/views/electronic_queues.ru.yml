@@ -1,4 +1,9 @@
 ru:
+  elqueue_windows:
+    select_window: "Выбор окна для работы"
+    window: "Окно"
+    select_window_prompt: "Выберите окно"
+    submit: "Выбрать"
   electronic_queues:
     index:
       title: "Электронные очереди"

@@ -12,7 +12,17 @@ class ElectronicQueue < ApplicationRecord
   validates :header_boldness, :annotation_boldness, numericality: { only_integer: true, greater_than_or_equal_to: 100, less_than_or_equal_to: 900 }
   validates :header_font_size, :annotation_font_size, numericality: { only_integer: true, greater_than_or_equal_to: 8 }, allow_nil: true
 
+  after_create :create_elqueue_windows
+
+  scope :enabled, -> { where(enabled: true) }
+
   def self.enabled_for_department(department)
     ElectronicQueue.where(department: department, enabled: true).exists?
+  end
+
+  def create_elqueue_windows
+    (1..windows_count).each do |i|
+      self.elqueue_windows.create(window_number: i, is_active: false)
+    end
   end
 end

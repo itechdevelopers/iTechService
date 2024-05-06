@@ -110,6 +110,7 @@ class User < ApplicationRecord
   belongs_to :department, optional: true
   belongs_to :service_job_sorting, optional: true
   belongs_to :dismissal_reason, optional: true
+  belongs_to :user, optional: true
   has_many :history_records, as: :object, dependent: :nullify
   has_many :schedule_days, dependent: :destroy
   has_many :duty_days, dependent: :destroy
@@ -140,7 +141,6 @@ class User < ApplicationRecord
   has_many :quick_orders
   has_many :service_free_jobs, -> { includes(:client) }, class_name: 'Service::FreeJob', foreign_key: :receiver_id
   has_many :notifications, dependent: :destroy
-  has_many :elqueue_windows, dependent: :nullify
   has_and_belongs_to_many :managed_cards,
                           class_name: 'Kanban::Card',
                           join_table: :kanban_cards_users,

@@ -1,4 +1,7 @@
 jQuery ->
+  if $('#select_window').length > 0
+    $.getScript('/elqueue_windows/select_window')
+
   electronic_queues_tree('#queue_items') if $('#queue_items').length > 0
 
   toggleVisibility = ->
@@ -99,3 +102,7 @@ window.electronic_queues_tree = (container)->
               $container.jstree('remove', obj)
     plugins: ["themes", "html_data", "ui", "crrm", "contextmenu", "dnd"]
   ).show()
+
+window.show_window_select_modal = ->
+  console.log('show_window_select_modal')
+  $.getScript("/elqueue_windows/select_window")

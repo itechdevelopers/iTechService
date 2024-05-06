@@ -78,6 +78,7 @@ Rails.application.routes.draw do
     patch :update_user_settings, on: :member
     patch :update_photo, on: :member
     patch :update_self, on: :member
+    patch :update_elqueue_window, on: :member
   end
 
   resources :notifications, only: %i[destroy], defaults: { format: :js } do
@@ -388,6 +389,10 @@ Rails.application.routes.draw do
   get 'elqueue/:permalink', to: 'electronic_queues#ipad_show', as: 'ipad_show'
 
   resources :waiting_clients, only: %i[create], defaults: {format: :js}
+
+  resource :elqueue_windows, only: %i[update] do
+    get :select_window, defaults: {format: :js}
+  end
 
   authenticate :user do
     mount Sidekiq::Web => '/sidekiq'
