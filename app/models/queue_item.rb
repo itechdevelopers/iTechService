@@ -15,4 +15,16 @@ class QueueItem < ApplicationRecord
   def priority_label
     I18n.t("queue_items.priorities.#{priority}")
   end
+
+  def increment_ticket_number!
+    new_number = last_ticket_number? ? last_ticket_number + 1 : 1
+    update!(last_ticket_number: new_number)
+    new_number
+  end
+
+  def windows_array
+    numbers = windows.scan(/\d+/).map(&:to_i)
+    max_window_number = electronic_queue.windows_count
+    numbers.select { |number| number <= max_window_number }
+  end
 end

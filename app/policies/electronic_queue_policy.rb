@@ -10,4 +10,8 @@ class ElectronicQueuePolicy < ApplicationPolicy
   def ipad_show?
     true
   end
+
+  def show_active_tickets?
+    true
+  end
 end

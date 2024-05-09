@@ -124,7 +124,7 @@
         = drop_down_divider
         = menu_item t('helpers.links.edit'), favorite_links_path
 
-      = render 'shared/elqueue_navbar'
+      .elqueue_navbar= render 'shared/elqueue_navbar'
 
     = menu_group pull: :right do
       = menu_item t('chat.title'), messages_path, class: 'nav_chat'

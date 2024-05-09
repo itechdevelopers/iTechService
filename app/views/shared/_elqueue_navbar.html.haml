@@ -1,6 +1,11 @@
-.elqueue_navbar
-  = drop_down "ЭО " + icon_tag(:list) do
-    = drop_down_divider
-    - if current_user.need_to_select_window?
-      :javascript
-        window.show_window_select_modal();
+- if current_user.working_electronic_queue?
+  - if current_user.need_to_select_window?
+    :javascript
+      window.show_window_select_modal();
+  - if current_user.window_unselected?
+    .warn-select-window
+      = link_to "Выберите \n Окно", select_window_elqueue_windows_path, data: { remote: true }
+  - else
+    = drop_down "ЭО " + icon_tag(:list) do
+      = menu_item "Окно: #{current_user.elqueue_window.window_number}", select_window_elqueue_windows_path, data: { remote: true }
+      = menu_item "Все талоны очереди", show_active_tickets_electronic_queue_path(current_user.electronic_queue), class: "elqueue_active_tickets_button", data: { remote: true }

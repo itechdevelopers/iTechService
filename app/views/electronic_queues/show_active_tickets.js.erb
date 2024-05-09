@@ -1,0 +1,9 @@
+let liElement = document.createElement('li');
+liElement.innerHTML = "<%= j render partial: 'electronic_queues/active_tickets', locals: {
+  tickets_in_service: @waiting_clients_in_service,
+  tickets_waiting: @waiting_clients_in_waiting
+} %>";
+liElement.className = "elqueue_active_tickets";
+
+liOnPage = document.querySelector('.elqueue_active_tickets_button').closest('li');
+liOnPage.parentNode.insertBefore(liElement, liOnPage.nextSibling);

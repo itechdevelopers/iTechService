@@ -20,6 +20,15 @@ class ElectronicQueue < ApplicationRecord
     ElectronicQueue.where(department: department, enabled: true).exists?
   end
 
+  def move
+    byebug
+    elqueue_windows.active_free.each do |window|
+      window.next_waiting_client&.start_service(window)
+    end
+  end
+
+  private
+
   def create_elqueue_windows
     (1..windows_count).each do |i|
       self.elqueue_windows.create(window_number: i, is_active: false)

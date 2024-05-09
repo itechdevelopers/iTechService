@@ -1,12 +1,20 @@
 class ElectronicQueuesController < ApplicationController
   layout "application"
-  before_action :set_and_authorize_record, only: [:show, :edit, :update, :destroy]
+  before_action :set_and_authorize_record, only: [:show, :edit, :update, :destroy, :show_active_tickets]
 
   def ipad_show
     authorize ElectronicQueue
     @electronic_queue = ElectronicQueue.find_by(ipad_link: params[:permalink])
     @queue_items = @electronic_queue.queue_items.roots.order(position: :asc)
     render layout: "electronic_queues"
+  end
+
+  def show_active_tickets
+    @waiting_clients_in_service = WaitingClient.in_queue(@electronic_queue).in_service
+    @waiting_clients_in_waiting = WaitingClient.in_queue(@electronic_queue).waiting
+    respond_to do |format|
+      format.js
+    end
   end
 
   def index

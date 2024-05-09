@@ -383,6 +383,7 @@ Rails.application.routes.draw do
   end
 
   resources :electronic_queues do
+    get :show_active_tickets, on: :member, defaults: {format: :js}
     resources :queue_items, except: %i[index show], defaults: {format: :js}
   end
 

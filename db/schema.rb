@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20240505160905) do
+ActiveRecord::Schema.define(version: 20240506173659) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -353,14 +353,12 @@ ActiveRecord::Schema.define(version: 20240505160905) do
   end
 
   create_table "elqueue_windows", force: :cascade do |t|
-    t.bigint "user_id"
     t.integer "window_number", null: false
     t.bigint "electronic_queue_id", null: false
     t.boolean "is_active", default: false, null: false
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.index ["electronic_queue_id"], name: "index_elqueue_windows_on_electronic_queue_id"
-    t.index ["user_id"], name: "index_elqueue_windows_on_user_id"
   end
 
   create_table "fault_kinds", id: :serial, force: :cascade do |t|
@@ -912,6 +910,7 @@ ActiveRecord::Schema.define(version: 20240505160905) do
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.integer "priority", default: 0
+    t.integer "last_ticket_number"
     t.index ["electronic_queue_id"], name: "index_queue_items_on_electronic_queue_id"
   end
 
@@ -1565,6 +1564,7 @@ ActiveRecord::Schema.define(version: 20240505160905) do
     t.text "dismissal_comment"
     t.boolean "fixed_main_menu", default: false
     t.boolean "need_to_select_window", default: false
+    t.integer "elqueue_window_id"
     t.index ["authentication_token"], name: "index_users_on_authentication_token", unique: true
     t.index ["card_number"], name: "index_users_on_card_number"
     t.index ["department_id"], name: "index_users_on_department_id"
@@ -1595,6 +1595,8 @@ ActiveRecord::Schema.define(version: 20240505160905) do
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.bigint "elqueue_window_id"
+    t.string "ticket_number", null: false
+    t.integer "priority", default: 0, null: false
     t.index ["client_id"], name: "index_waiting_clients_on_client_id"
     t.index ["elqueue_window_id"], name: "index_waiting_clients_on_elqueue_window_id"
     t.index ["queue_item_id"], name: "index_waiting_clients_on_queue_item_id"
@@ -1659,7 +1661,6 @@ ActiveRecord::Schema.define(version: 20240505160905) do
   add_foreign_key "departments", "cities"
   add_foreign_key "electronic_queues", "departments"
   add_foreign_key "elqueue_windows", "electronic_queues"
-  add_foreign_key "elqueue_windows", "users"
   add_foreign_key "faults", "fault_kinds", column: "kind_id"
   add_foreign_key "faults", "users", column: "causer_id"
   add_foreign_key "faults", "users", column: "issued_by_id"

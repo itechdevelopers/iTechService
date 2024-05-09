@@ -110,7 +110,7 @@ class User < ApplicationRecord
   belongs_to :department, optional: true
   belongs_to :service_job_sorting, optional: true
   belongs_to :dismissal_reason, optional: true
-  belongs_to :user, optional: true
+  belongs_to :elqueue_window, optional: true
   has_many :history_records, as: :object, dependent: :nullify
   has_many :schedule_days, dependent: :destroy
   has_many :duty_days, dependent: :destroy
@@ -564,6 +564,18 @@ class User < ApplicationRecord
 
   def update_authentication_token
     update_column :authentication_token, SecureRandom.uuid
+  end
+
+  def working_electronic_queue?
+    ElectronicQueue.enabled_for_department(department) && able_to?(:work_with_electronic_queues)
+  end
+
+  def window_unselected?
+    need_to_select_window || elqueue_window.nil?
+  end
+
+  def electronic_queue
+    elqueue_window.electronic_queue if elqueue_window.present?
   end
 
   private

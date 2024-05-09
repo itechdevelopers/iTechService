@@ -104,5 +104,4 @@ window.electronic_queues_tree = (container)->
   ).show()
 
 window.show_window_select_modal = ->
-  console.log('show_window_select_modal')
   $.getScript("/elqueue_windows/select_window")
