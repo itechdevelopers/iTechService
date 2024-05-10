@@ -33,9 +33,9 @@ class WaitingClient < ApplicationRecord
         max_position = max_position_with_priority(["chronological"])
         if max_position == 0
           max_position = max_position_with_priority(["always_first"])
-        elsif @@waiting_client.where(position: max_position + 2).first&.priority == "always_third"
+        elsif @@waiting_clients.where(position: max_position + 2).first&.priority == "always_third"
           max_position = max_position + 2
-        elsif @@waiting_client.where(position: max_position + 1).first&.priority == "always_second"
+        elsif @@waiting_clients.where(position: max_position + 1).first&.priority == "always_second"
           max_position = max_position + 1
         end
         move_all_with_greater_position(max_position)
@@ -60,13 +60,32 @@ class WaitingClient < ApplicationRecord
     def move_all_with_greater_position(position)
       @@waiting_clients.where("waiting_clients.position > ?", position).update_all("position = position + 1")
     end
+
+    def realign_positions(electronic_queue)
+      @@waiting_clients = in_queue(electronic_queue).waiting.where.not(position: nil)
+      @@waiting_clients.each_with_index do |waiting_client, index|
+        new_position = index + 1
+        waiting_client.update(position: new_position) if waiting_client.position != new_position
+      end
+    end
   end
 
   def start_service(window)
     self.update(status: "in_service",
                 elqueue_window: window,
-                ticket_called_at: Time.zone.now)
+                ticket_called_at: Time.zone.now,
+                position: nil)
+    self.class.realign_positions(queue_item.electronic_queue)
     # ActionCable.server.broadcast "electronic_queue_#{queue_item.electronic_queue_id}_channel", action: "start_service", waiting_client: self
+  end
+
+  def complete_service(did_not_come = false)
+    self.update(status: did_not_come ? "did_not_come" : "completed",
+                ticket_served_at: Time.zone.now,
+                elqueue_window: nil)
+    queue_item.electronic_queue.move
+    self.class.realign_positions(queue_item.electronic_queue)
+    # ActionCable.server.broadcast "electronic_queue_#{queue_item.electronic_queue_id}_channel", action: "complete_service", waiting_client: self
   end
 
   def electronic_queue

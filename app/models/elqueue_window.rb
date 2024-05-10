@@ -9,6 +9,10 @@ class ElqueueWindow < ApplicationRecord
   scope :active, -> { where(is_active: true) }
   scope :active_free, -> { active.free }
 
+  def serving_client?
+    waiting_client.present?
+  end
+
   def next_waiting_client
     waiting_clients = WaitingClient.in_queue(electronic_queue)
                                    .waiting

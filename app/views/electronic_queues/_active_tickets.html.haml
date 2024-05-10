@@ -3,7 +3,8 @@
     - tickets_in_service.each do |ticket|
       %li
         %strong Окно:
-        = ticket.elqueue_window
+        = ticket.elqueue_window.window_number
+        %br/
         \ - Номер талона:
         = ticket.ticket_number
 .active_tickets_waiting
@@ -12,7 +13,9 @@
       %li
         %strong Позиция:
         = ticket.position
+        %br/
         \ - Приоритет:
         = ticket.priority
+        %br/
         \ - Номер талона:
         = ticket.ticket_number

@@ -245,12 +245,9 @@ class UsersController < ApplicationController
   def update_elqueue_window
     authorize User, :update?
     @user = User.find(params[:id])
-    old_window = @user.elqueue_window
     respond_to do |format|
-      if @user.update(elqueue_window_params)
-        byebug
-        @user.reload.elqueue_window.set_active!
-        old_window.set_inactive! if old_window.present?
+      if @user.update!(elqueue_window_params)
+        current_user.reload
         format.js
       else
         format.js { render 'shared/show_modal_form' }

@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20240506173659) do
+ActiveRecord::Schema.define(version: 20240510183355) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -1564,11 +1564,12 @@ ActiveRecord::Schema.define(version: 20240506173659) do
     t.text "dismissal_comment"
     t.boolean "fixed_main_menu", default: false
     t.boolean "need_to_select_window", default: false
-    t.integer "elqueue_window_id"
+    t.bigint "elqueue_window_id"
     t.index ["authentication_token"], name: "index_users_on_authentication_token", unique: true
     t.index ["card_number"], name: "index_users_on_card_number"
     t.index ["department_id"], name: "index_users_on_department_id"
     t.index ["dismissal_reason_id"], name: "index_users_on_dismissal_reason_id"
+    t.index ["elqueue_window_id"], name: "index_users_on_elqueue_window_id"
     t.index ["email"], name: "index_users_on_email"
     t.index ["is_fired"], name: "index_users_on_is_fired"
     t.index ["job_title"], name: "index_users_on_job_title"
@@ -1721,6 +1722,7 @@ ActiveRecord::Schema.define(version: 20240506173659) do
   add_foreign_key "trade_in_devices", "items"
   add_foreign_key "trade_in_devices", "users", column: "receiver_id"
   add_foreign_key "users", "dismissal_reasons"
+  add_foreign_key "users", "elqueue_windows"
   add_foreign_key "waiting_clients", "clients"
   add_foreign_key "waiting_clients", "elqueue_windows"
   add_foreign_key "waiting_clients", "queue_items"

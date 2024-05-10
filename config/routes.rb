@@ -389,10 +389,13 @@ Rails.application.routes.draw do
 
   get 'elqueue/:permalink', to: 'electronic_queues#ipad_show', as: 'ipad_show'
 
-  resources :waiting_clients, only: %i[create], defaults: {format: :js}
+  resources :waiting_clients, only: %i[create], defaults: {format: :js} do
+    patch :complete, on: :member, defaults: {format: :js}
+  end
 
-  resource :elqueue_windows, only: %i[update] do
-    get :select_window, defaults: {format: :js}
+  resources :elqueue_windows, only: %i[update] do
+    get :select_window, on: :collection, defaults: {format: :js}
+    get :show_finish_service, on: :member, defaults: {format: :js}
   end
 
   authenticate :user do

@@ -39,6 +39,10 @@ module ElectronicQueuesHelper
     end
   end
 
+  def serving_client_ticket_number(window)
+    window.waiting_client&.ticket_number
+  end
+
   # Helpers for iPad views
   def render_queue_tree(queue_items, root, parent_id=false)
     styles_for_annotation = render_annotation_styles(queue_items.first.electronic_queue)
@@ -64,7 +68,7 @@ module ElectronicQueuesHelper
 
   def render_create_ticket_form(queue_item)
     content_tag :div, class: "create-ticket hidden", data: {parent_id: queue_item.id} do
-      form_for(queue_item.queue_tickets.build, url: waiting_clients_path, remote: true, html: {class: "create-ticket-form"}) do |f|
+      form_for(queue_item.queue_tickets.build, url: waiting_clients_path, html: {class: "create-ticket-form"}) do |f|
         result = ""
         result << f.hidden_field(:queue_item_id, value: queue_item.id)
         result << f.text_field(:client_name, placeholder: "Имя клиента", class: "client-name")

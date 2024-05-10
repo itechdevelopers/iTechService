@@ -177,6 +177,7 @@ class User < ApplicationRecord
   validates_numericality_of :session_duration, only_integer: true, greater_than: 0, allow_nil: true
   before_validation :validate_rights_changing
   before_update :update_schedule_column, if: :is_fired_changed?
+  before_save :update_elqueue_window_status, if: :elqueue_window_id_changed?
 
   mount_uploader :photo, PhotoUploader
   crop_uploaded :photo
@@ -578,7 +579,19 @@ class User < ApplicationRecord
     elqueue_window.electronic_queue if elqueue_window.present?
   end
 
+  def serving_client?
+    elqueue_window.present? && elqueue_window.is_active? && elqueue_window.serving_client?
+  end
+
   private
+
+  def update_elqueue_window_status
+    old_elqueue_window = ElqueueWindow.find_by(id: elqueue_window_id_was)
+    old_elqueue_window&.set_inactive!
+
+    new_elqueue_window = ElqueueWindow.find_by(id: elqueue_window_id)
+    new_elqueue_window&.set_active!
+  end
 
   def update_schedule_column
     self.schedule = false if is_fired

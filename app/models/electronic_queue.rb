@@ -21,7 +21,6 @@ class ElectronicQueue < ApplicationRecord
   end
 
   def move
-    byebug
     elqueue_windows.active_free.each do |window|
       window.next_waiting_client&.start_service(window)
     end
