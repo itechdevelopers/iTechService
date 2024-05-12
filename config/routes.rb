@@ -396,6 +396,8 @@ Rails.application.routes.draw do
   resources :elqueue_windows, only: %i[update] do
     get :select_window, on: :collection, defaults: {format: :js}
     get :show_finish_service, on: :member, defaults: {format: :js}
+    patch :take_a_break, on: :member, defaults: {format: :js}
+    patch :return_from_break, on: :member, defaults: {format: :js}
   end
 
   authenticate :user do

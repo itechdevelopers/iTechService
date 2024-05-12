@@ -583,6 +583,14 @@ class User < ApplicationRecord
     elqueue_window.present? && elqueue_window.is_active? && elqueue_window.serving_client?
   end
 
+  def can_take_a_break?
+    elqueue_window.present? && elqueue_window.is_active?
+  end
+
+  def is_on_break?
+    elqueue_window.present? && !elqueue_window.is_active?
+  end
+
   private
 
   def update_elqueue_window_status

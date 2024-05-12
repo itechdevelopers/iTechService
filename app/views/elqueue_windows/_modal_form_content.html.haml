@@ -20,6 +20,6 @@
       = "Завершить обслуживание талона ##{@waiting_client.ticket_number}?"
   .modal-body
     .complete_ticket_service
-      = link_to "Да", complete_waiting_client_path(@waiting_client), method: :patch, class: "btn btn-primary"
-      = link_to "Нет", "#", class: "close close_modal_button", data: {dismiss: "modal"}
-      = link_to "Клиент не пришел", complete_waiting_client_path(@waiting_client, did_not_come: true), method: :patch, class: "btn btn-danger"
+      = link_to "Да", complete_waiting_client_path(@waiting_client), method: :patch, data: { remote: true }, class: "btn btn-primary"
+      = link_to "Нет", "#", class: "btn btn-submit", data: {dismiss: "modal"}
+      = link_to "Клиент не пришел", complete_waiting_client_path(@waiting_client, did_not_come: true), method: :patch, data: { remote: true }, class: "btn btn-danger"

@@ -6,4 +6,12 @@ class ElqueueWindowPolicy < ApplicationPolicy
   def show_finish_service?
     true
   end
+
+  def take_a_break?
+    true
+  end
+
+  def return_from_break?
+    true
+  end
 end

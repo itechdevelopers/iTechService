@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20240510183355) do
+ActiveRecord::Schema.define(version: 20240512174804) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -1585,7 +1585,7 @@ ActiveRecord::Schema.define(version: 20240510183355) do
 
   create_table "waiting_clients", force: :cascade do |t|
     t.bigint "queue_item_id", null: false
-    t.integer "position", default: 0, null: false
+    t.integer "position", default: 0
     t.string "phone_number"
     t.string "client_name"
     t.bigint "client_id"

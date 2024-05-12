@@ -9,5 +9,9 @@
     = drop_down "ЭО " + icon_tag(:list) do
       - if current_user.serving_client?
         = menu_item "#{serving_client_ticket_number(current_user.elqueue_window)}", show_finish_service_elqueue_window_path(current_user.elqueue_window), data: { remote: true }
+      - elsif current_user.can_take_a_break?
+        = menu_item "Перерыв", take_a_break_elqueue_window_path(current_user.elqueue_window), method: :patch, data: { remote: true }
+      - elsif current_user.is_on_break?
+        = menu_item "Вернуться", return_from_break_elqueue_window_path(current_user.elqueue_window), method: :patch, data: { remote: true }
       = menu_item "Окно: #{current_user.elqueue_window.window_number}", select_window_elqueue_windows_path, data: { remote: true }
       = menu_item "Все талоны очереди", show_active_tickets_electronic_queue_path(current_user.electronic_queue), class: "elqueue_active_tickets_button", data: { remote: true }
