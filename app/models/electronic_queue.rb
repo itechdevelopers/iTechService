@@ -26,8 +26,6 @@ class ElectronicQueue < ApplicationRecord
     end
   end
 
-  private
-
   def create_elqueue_windows
     (1..windows_count).each do |i|
       self.elqueue_windows.create(window_number: i, is_active: false)
