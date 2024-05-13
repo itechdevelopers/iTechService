@@ -1,4 +1,5 @@
 class QueueItemsController < ApplicationController
+  before_action :params_to_valid_hash, only: %i[create update]
   before_action :set_electronic_queue, only: %i[new create edit update destroy]
 
   def new
@@ -57,7 +58,12 @@ class QueueItemsController < ApplicationController
   def queue_item_params
     params.require(:queue_item).permit(:title, :annotation, :phone_input,
       :windows, :task_duration, :max_wait_time, :additional_info, :ticket_abbreviation,
-      :position, :electronic_queue_id, :ancestry, :ancestry_depth, :parent_id)
+      :position, :electronic_queue_id, :ancestry, :ancestry_depth, :parent_id,
+      :priority)
+  end
+
+  def params_to_valid_hash
+    params[:queue_item][:priority] = params[:queue_item][:priority].to_i if params[:queue_item][:priority]
   end
 
   def set_electronic_queue

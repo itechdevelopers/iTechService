@@ -64,7 +64,7 @@ class User < ApplicationRecord
     change_client_department
     view_god_eye
     view_bad_review_announcements
-    test_new_features
+    work_with_electronic_queues
   ].freeze
 
   ACTIVITIES = %w[free fast long mac].freeze
@@ -110,6 +110,7 @@ class User < ApplicationRecord
   belongs_to :department, optional: true
   belongs_to :service_job_sorting, optional: true
   belongs_to :dismissal_reason, optional: true
+  belongs_to :elqueue_window, optional: true
   has_many :history_records, as: :object, dependent: :nullify
   has_many :schedule_days, dependent: :destroy
   has_many :duty_days, dependent: :destroy
@@ -176,6 +177,7 @@ class User < ApplicationRecord
   validates_numericality_of :session_duration, only_integer: true, greater_than: 0, allow_nil: true
   before_validation :validate_rights_changing
   before_update :update_schedule_column, if: :is_fired_changed?
+  before_save :update_elqueue_window_status, if: :elqueue_window_id_changed?
 
   mount_uploader :photo, PhotoUploader
   crop_uploaded :photo
@@ -565,7 +567,39 @@ class User < ApplicationRecord
     update_column :authentication_token, SecureRandom.uuid
   end
 
+  def working_electronic_queue?
+    ElectronicQueue.enabled_for_department(department) && able_to?(:work_with_electronic_queues)
+  end
+
+  def window_unselected?
+    need_to_select_window || elqueue_window.nil?
+  end
+
+  def electronic_queue
+    elqueue_window.electronic_queue if elqueue_window.present?
+  end
+
+  def serving_client?
+    elqueue_window.present? && elqueue_window.is_active? && elqueue_window.serving_client?
+  end
+
+  def can_take_a_break?
+    elqueue_window.present? && elqueue_window.is_active?
+  end
+
+  def is_on_break?
+    elqueue_window.present? && !elqueue_window.is_active?
+  end
+
   private
+
+  def update_elqueue_window_status
+    old_elqueue_window = ElqueueWindow.find_by(id: elqueue_window_id_was)
+    old_elqueue_window&.set_inactive!
+
+    new_elqueue_window = ElqueueWindow.find_by(id: elqueue_window_id)
+    new_elqueue_window&.set_active!
+  end
 
   def update_schedule_column
     self.schedule = false if is_fired

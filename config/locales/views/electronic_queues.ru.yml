@@ -1,4 +1,9 @@
 ru:
+  elqueue_windows:
+    select_window: "Выбор окна для работы"
+    window: "Окно"
+    select_window_prompt: "Выберите окно"
+    submit: "Выбрать"
   electronic_queues:
     index:
       title: "Электронные очереди"
@@ -14,6 +19,12 @@ ru:
       tv_link: "Ссылка для TV"
       ipad_link_beginning: "https://ise.itech.pw/elqueue/"
       tv_link_beginning: "https://ise.itech.pw/TV/"
+      header_boldness: "Жирность шрифта заголовков"
+      header_font_size: "Размер шрифта заголовков"
+      annotation_boldness: "Жирность шрифта аннотаций"
+      annotation_font_size: "Размер шрифта аннотаций"
+      boldness_beginning: "Введите одно из чисел: 100, 200, 300, 400 (Стандартная жирность шрифта), 500, 600, 700, 800, 900"
+      font_size_beginning: "Введите размер шрифта в пикселях (от 8 до 72)"
       enabled: "Включена"
       submit: "Сохранить"
     show:
@@ -26,6 +37,10 @@ ru:
       printer_address: "Принтер"
       ipad_link: "Ссылка для iPad"
       tv_link: "Ссылка для TV"
+      header_boldness: "Жирность шрифта заголовков"
+      header_font_size: "Размер шрифта заголовков"
+      annotation_boldness: "Жирность шрифта аннотаций"
+      annotation_font_size: "Размер шрифта аннотаций"
       enabled: "Включена"
       new_queue_item: "Новый элемент очереди"
     create:
@@ -35,6 +50,11 @@ ru:
     destroy:
       electronic_queue_was_successfully_deleted: "Электронная очередь успешно удалена"
   queue_items:
+    priorities:
+      chronological: "Хронологический"
+      always_first: "Всегда первый"
+      always_second: "Второй"
+      always_third: "Третий"
     new:
       title: "Новый элемент очереди"
     edit:
@@ -48,4 +68,5 @@ ru:
       max_wait_time: "Максимальное время ожидания"
       ticket_abbreviation: "Аббревиатура на чеке"
       position: "Позиция элемента"
+      priority: "Приоритет для талонов в очереди"
       submit: "Сохранить"

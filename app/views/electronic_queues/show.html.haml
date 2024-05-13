@@ -24,6 +24,18 @@
       %dt= t('.tv_link')
       %dd= @electronic_queue.tv_link ? @electronic_queue.tv_link : 'Не указано'
 
+      %dt= t('.header_boldness')
+      %dd= @electronic_queue.header_boldness ? @electronic_queue.header_boldness : 'Не указано'
+
+      %dt= t('.header_font_size')
+      %dd= @electronic_queue.header_font_size ? @electronic_queue.header_font_size : 'Не указано'
+
+      %dt= t('.annotation_boldness')
+      %dd= @electronic_queue.annotation_boldness ? @electronic_queue.annotation_boldness : 'Не указано'
+
+      %dt= t('.annotation_font_size')
+      %dd= @electronic_queue.annotation_font_size ? @electronic_queue.annotation_font_size : 'Не указано'
+
       %dt= t('.enabled')
       %dd= @electronic_queue.enabled ? 'Да' : 'Нет'
 

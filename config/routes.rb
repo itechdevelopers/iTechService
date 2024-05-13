@@ -78,6 +78,7 @@ Rails.application.routes.draw do
     patch :update_user_settings, on: :member
     patch :update_photo, on: :member
     patch :update_self, on: :member
+    patch :update_elqueue_window, on: :member
   end
 
   resources :notifications, only: %i[destroy], defaults: { format: :js } do
@@ -382,7 +383,21 @@ Rails.application.routes.draw do
   end
 
   resources :electronic_queues do
+    get :show_active_tickets, on: :member, defaults: {format: :js}
     resources :queue_items, except: %i[index show], defaults: {format: :js}
+  end
+
+  get 'elqueue/:permalink', to: 'electronic_queues#ipad_show', as: 'ipad_show'
+
+  resources :waiting_clients, only: %i[create], defaults: {format: :js} do
+    patch :complete, on: :member, defaults: {format: :js}
+  end
+
+  resources :elqueue_windows, only: %i[update] do
+    get :select_window, on: :collection, defaults: {format: :js}
+    get :show_finish_service, on: :member, defaults: {format: :js}
+    patch :take_a_break, on: :member, defaults: {format: :js}
+    patch :return_from_break, on: :member, defaults: {format: :js}
   end
 
   authenticate :user do
