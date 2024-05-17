@@ -243,8 +243,7 @@ class UsersController < ApplicationController
   end
 
   def update_elqueue_window
-    authorize User, :update?
-    @user = User.find(params[:id])
+    @user = find_record User
     respond_to do |format|
       if @user.update!(elqueue_window_params)
         current_user.reload

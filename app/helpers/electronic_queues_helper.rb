@@ -72,7 +72,7 @@ module ElectronicQueuesHelper
         result = ""
         result << f.hidden_field(:queue_item_id, value: queue_item.id)
         result << f.text_field(:client_name, placeholder: "Имя клиента", class: "client-name")
-        result << f.text_field(:phone_number, placeholder: "Телефон клиента", class: "client-phone") if queue_item.phone_input
+        result << f.text_field(:phone_number, placeholder: "Телефон клиента", class: "client-phone", inputmode: "numeric") if queue_item.phone_input
         result << f.submit("Создать талон", class: "create-ticket-button")
         result.html_safe
       end
