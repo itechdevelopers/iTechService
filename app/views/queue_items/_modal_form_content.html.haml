@@ -51,7 +51,7 @@
     .control-group
       = f.label :priority, t('.priority'), class: 'control-label'
       .controls
-        = f.select :priority, queue_item_priority_options, include_blank: "Выберите приоритет для очереди"
+        = f.select :priority, queue_item_priority_options, selected: @queue_item.priority_before_type_cast, include_blank: "Выберите приоритет для очереди"
 
   .modal-footer
     = f.submit t('.submit'), class: 'btn btn-primary'
