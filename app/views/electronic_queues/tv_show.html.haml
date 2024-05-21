@@ -1,0 +1,63 @@
+%table.tv-elqueue-clients-table
+  %thead
+    %tr.tv-elqueue-clients-table-header
+      %th= t("elqueue_windows.ticket")
+      %th
+      %th= t("elqueue_windows.window")
+  %tbody
+    - @clients_in_service.each do |client|
+      %tr.tv-elqueue-clients-table-row
+        %td= client.ticket_number
+        %td.arrow &#x279C;
+        %td= client.elqueue_window.window_number
+
+:scss
+  .tv-elqueue-clients-table {
+    width: 80%;
+    margin: auto;
+    border-collapse: collapse;
+    font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+    font-size: 48px;
+
+    th, td {
+      text-align: center;
+      padding: 20px;
+    }
+
+    .tv-elqueue-clients-table-header {
+      background-color: #ffe88e;
+      color: #ff4800;
+      display: flex;
+      justify-content: space-between;
+      flex-direction: row;
+      border-bottom: 2px solid #ccc;
+      padding-left: 250px;
+      padding-right: 250px;
+    }
+
+    .tv-elqueue-clients-table-row {
+      background-color: #fff;
+      display: flex;
+      justify-content: space-between;
+      flex-direction: row;
+      border-bottom: 1px solid #d3d3d3;
+      padding-left: 250px;
+      padding-right: 250px;
+
+      td:first-child {
+        flex: 0 0 25%;
+        text-align: left;
+      }
+
+      td:last-child {
+        flex: 0 0 20%;
+        text-align: right;
+        font-weight: bold;
+        padding-right: 25px;
+      }
+
+      td:nth-child(2) {
+        flex: 0 0 40%;
+      }
+    }
+  }

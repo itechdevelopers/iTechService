@@ -4,6 +4,7 @@ ru:
     window: "Окно"
     select_window_prompt: "Выберите окно"
     submit: "Выбрать"
+    ticket: "Талон"
   electronic_queues:
     index:
       title: "Электронные очереди"

@@ -85,6 +85,9 @@ gem 'uglifier', '~> 4.2.0'
 gem 'nokogiri', '~> 1.13.1'
 gem 'ru_propisju', '~> 2.6.0'
 
+gem 'countries'
+gem 'phony_rails'
+
 group :development do
   gem 'web-console'
   gem 'binding_of_caller'

@@ -362,4 +362,10 @@ module ApplicationHelper
       .join(', ')
       .html_safe
   end
+
+  def country_phone_code_options
+    ISO3166::Country.all.map do |country|
+      ["+#{country.country_code} (#{country.alpha2})", country.alpha2]
+    end
+  end
 end

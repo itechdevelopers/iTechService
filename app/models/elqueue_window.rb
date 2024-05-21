@@ -6,6 +6,7 @@ class ElqueueWindow < ApplicationRecord
   validates :window_number, presence: true
 
   scope :free, -> { left_joins(:waiting_client).where(waiting_clients: { id: nil }) }
+  scope :not_chosen, -> { left_joins(:user).where(users: { id: nil }) }
   scope :active, -> { where(is_active: true) }
   scope :active_free, -> { active.free }
 
