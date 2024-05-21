@@ -9,6 +9,13 @@ class ElectronicQueuesController < ApplicationController
     render layout: "electronic_queues"
   end
 
+  def tv_show
+    authorize ElectronicQueue
+    @electronic_queue = ElectronicQueue.find_by(tv_link: params[:permalink])
+    @clients_in_service = WaitingClient.in_queue(@electronic_queue).in_service
+    render layout: "electronic_queues"
+  end
+
   def show_active_tickets
     @waiting_clients_in_service = WaitingClient.in_queue(@electronic_queue).in_service
     @waiting_clients_in_waiting = WaitingClient.in_queue(@electronic_queue).waiting

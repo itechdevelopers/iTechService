@@ -11,6 +11,10 @@ class ElectronicQueuePolicy < ApplicationPolicy
     true
   end
 
+  def tv_show?
+    true
+  end
+
   def show_active_tickets?
     true
   end

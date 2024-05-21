@@ -167,6 +167,8 @@ GEM
     commonjs (0.2.7)
     concurrent-ruby (1.1.10)
     connection_pool (2.2.5)
+    countries (5.7.2)
+      unaccent (~> 0.3)
     crass (1.0.6)
     daemons (1.4.1)
     data_migrate (7.0.2)
@@ -414,6 +416,10 @@ GEM
       racc
     pdf-core (0.9.0)
     pg (1.5.4)
+    phony (2.20.12)
+    phony_rails (0.15.0)
+      activesupport (>= 3.0)
+      phony (>= 2.18.12)
     pipetree (0.1.1)
     poltergeist (1.18.1)
       capybara (>= 2.1, < 4)
@@ -680,6 +686,7 @@ GEM
     uber (0.1.0)
     uglifier (4.2.0)
       execjs (>= 0.3.0, < 3)
+    unaccent (0.4.0)
     unicode-display_width (2.4.2)
     uuidtools (2.2.0)
     vpim (13.11.11)
@@ -733,6 +740,7 @@ DEPENDENCIES
   chronic_duration (~> 0.10.6)
   ckeditor (~> 4.3.0)
   coffee-rails (~> 4.2.2)
+  countries
   daemons (~> 1.4.1)
   data_migrate (~> 7.0.2)
   database_cleaner
@@ -770,6 +778,7 @@ DEPENDENCIES
   nokogiri (~> 1.13.1)
   paperclip (~> 6.1.0)
   pg (~> 1.5.4)
+  phony_rails
   poltergeist
   prawn (~> 2.4.0)
   prawn-table (~> 0.2.2)

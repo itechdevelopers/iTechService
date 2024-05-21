@@ -21,6 +21,8 @@ class WaitingClient < ApplicationRecord
     always_third: 3
   }
 
+  attr_accessor :country_code
+
   class << self
     def add_to_queue(waiting_client)
       @@waiting_clients = in_queue(waiting_client.electronic_queue).waiting.where.not(position: nil)
@@ -105,7 +107,7 @@ class WaitingClient < ApplicationRecord
   def set_initial_attributes
     self.ticket_number ||= evaluate_ticket_number
     self.status ||= "waiting"
-    self.priority ||= queue_item.priority if queue_item.present?
+    self.priority = queue_item.priority
     self.client ||= Client.find_by(phone_number: phone_number)
     self.ticket_issued_at ||= Time.zone.now
     self.class.add_to_queue(self)

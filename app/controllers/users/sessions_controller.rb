@@ -54,9 +54,21 @@ class Users::SessionsController < Devise::SessionsController
   end
 
   # DELETE /resource/sign_out
-  # def destroy
-  #   super
-  # end
+  def destroy
+    if current_user.need_to_select_window
+      current_user.need_to_select_window = false
+    end
+
+    if elqueue_window = current_user.elqueue_window
+      elqueue_window.is_active = false
+      elqueue_window.save
+      current_user.elqueue_window = nil
+    end
+
+    current_user.save
+
+    super
+  end
 
   protected
 

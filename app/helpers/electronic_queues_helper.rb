@@ -34,9 +34,14 @@ module ElectronicQueuesHelper
 
   def elqueue_window_options(user)
     department_queue = user.department.electronic_queues.enabled.first
-    department_queue.elqueue_windows.map do |window|
+    options = department_queue.elqueue_windows.not_chosen.map do |window|
       [window.window_number, window.id]
     end
+
+    if user.elqueue_window.present?
+      options << [user.elqueue_window.window_number, user.elqueue_window.id]
+    end
+    options || []
   end
 
   def serving_client_ticket_number(window)
@@ -71,8 +76,14 @@ module ElectronicQueuesHelper
       form_for(queue_item.queue_tickets.build, url: waiting_clients_path, html: {class: "create-ticket-form"}) do |f|
         result = ""
         result << f.hidden_field(:queue_item_id, value: queue_item.id)
-        result << f.text_field(:client_name, placeholder: "Имя клиента", class: "client-name")
-        result << f.text_field(:phone_number, placeholder: "Телефон клиента", class: "client-phone", inputmode: "numeric") if queue_item.phone_input
+        if queue_item.phone_input
+          result << content_tag(:div, class: "elqueue-inline-fields") do
+            inline_result = ""
+            inline_result << f.select(:country_code, country_phone_code_options, {}, class: "elqueue-country-code-select")
+            inline_result << f.telephone_field(:phone_number, placeholder: "123-345-6789", class: "client-phone")
+            inline_result.html_safe
+          end
+        end
         result << f.submit("Создать талон", class: "create-ticket-button")
         result.html_safe
       end
