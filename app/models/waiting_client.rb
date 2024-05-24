@@ -78,7 +78,10 @@ class WaitingClient < ApplicationRecord
                 ticket_called_at: Time.zone.now,
                 position: nil)
     self.class.realign_positions(queue_item.electronic_queue)
-    # ActionCable.server.broadcast "electronic_queue_#{queue_item.electronic_queue_id}_channel", action: "start_service", waiting_client: self
+    ElectronicQueueChannel.broadcast_to(queue_item.electronic_queue,
+                                        action: "start_service",
+                                        waiting_client: self,
+                                        window: elqueue_window.window_number)
   end
 
   def complete_service(did_not_come = false)
@@ -87,6 +90,9 @@ class WaitingClient < ApplicationRecord
                 elqueue_window: nil)
     queue_item.electronic_queue.move
     self.class.realign_positions(queue_item.electronic_queue)
+    ElectronicQueueChannel.broadcast_to(queue_item.electronic_queue,
+                                        action: "complete_service",
+                                        waiting_client: self)
     # ActionCable.server.broadcast "electronic_queue_#{queue_item.electronic_queue_id}_channel", action: "complete_service", waiting_client: self
   end
 

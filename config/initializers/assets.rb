@@ -29,6 +29,7 @@ Rails.application.config.assets.precompile += %w[
   bootstrap-datetimepicker.min.js
   jquery.jstree.js
   electronic_queue.js
+  tv_show.js.coffee
 ]
 
 Rails.application.config.assets.precompile += %w[

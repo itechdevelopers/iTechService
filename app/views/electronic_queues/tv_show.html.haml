@@ -11,6 +11,9 @@
         %td.arrow &#x279C;
         %td= client.elqueue_window.window_number
 
+%input#electronic_queue_id{type: "hidden", value: @electronic_queue.id}
+= javascript_include_tag "tv_show"
+
 :scss
   .tv-elqueue-clients-table {
     width: 80%;
