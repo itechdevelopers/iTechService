@@ -7,7 +7,6 @@ class WaitingClientsController < ApplicationController
 
     normilized_phone = PhonyRails.normalize_number(@waiting_client.phone_number, country_code: @waiting_client.country_code)
     @waiting_client.phone_number = normilized_phone
-    byebug
 
     @waiting_client.save
     redirect_to ipad_show_path(permalink: @waiting_client.queue_item.electronic_queue.ipad_link)

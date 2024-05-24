@@ -79,7 +79,7 @@ module ElectronicQueuesHelper
         if queue_item.phone_input
           result << content_tag(:div, class: "elqueue-inline-fields") do
             inline_result = ""
-            inline_result << f.select(:country_code, country_phone_code_options, {}, class: "elqueue-country-code-select")
+            inline_result << f.select(:country_code, country_phone_code_options, {selected: "RU"}, class: "elqueue-country-code-select")
             inline_result << f.telephone_field(:phone_number, placeholder: "123-345-6789", class: "client-phone")
             inline_result.html_safe
           end

@@ -6,5 +6,7 @@
 //= require jquery-ui/droppable
 //= require jquery-ui/selectable
 //= require jquery.jcrop
+//= require app.js.coffee
+//= require cable
 
 //= require electronic_queues
