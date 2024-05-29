@@ -1,4 +1,9 @@
 ru:
+  waiting_clients:
+    pdf:
+      your_queue_number: "Ваш номер в очереди"
+      discover_of_goods: "Узнать о наличии и ценах на товары, а также стоимость услуг вы можете на нашем сайте:"
+      site_url: "www.itechstore.ru"
   elqueue_windows:
     select_window: "Выбор окна для работы"
     window: "Окно"
