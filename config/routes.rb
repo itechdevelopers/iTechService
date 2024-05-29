@@ -390,7 +390,7 @@ Rails.application.routes.draw do
   get 'elqueue/:permalink', to: 'electronic_queues#ipad_show', as: 'ipad_show'
   get 'TV/:permalink', to: 'electronic_queues#tv_show', as: 'tv_show'
 
-  resources :waiting_clients, only: %i[create], defaults: {format: :js} do
+  resources :waiting_clients, only: %i[create show], defaults: {format: :js} do
     patch :complete, on: :member, defaults: {format: :js}
   end
 
