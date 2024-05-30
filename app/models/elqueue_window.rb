@@ -27,9 +27,16 @@ class ElqueueWindow < ApplicationRecord
 
   def set_active!
     update!(is_active: true)
+    trigger_electronic_queue_move
   end
 
   def set_inactive!
     update!(is_active: false)
+  end
+
+  private
+
+  def trigger_electronic_queue_move
+    electronic_queue.move
   end
 end
