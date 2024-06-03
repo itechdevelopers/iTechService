@@ -580,7 +580,7 @@ class User < ApplicationRecord
   end
 
   def serving_client?
-    elqueue_window.present? && elqueue_window.is_active? && elqueue_window.serving_client?
+    elqueue_window.present? && elqueue_window.serving_client?
   end
 
   def can_take_a_break?
@@ -598,7 +598,6 @@ class User < ApplicationRecord
     old_elqueue_window&.set_inactive!
 
     new_elqueue_window = ElqueueWindow.find_by(id: elqueue_window_id)
-    new_elqueue_window&.set_active!
   end
 
   def update_schedule_column

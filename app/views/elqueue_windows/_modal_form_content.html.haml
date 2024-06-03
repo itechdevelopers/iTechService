@@ -1,8 +1,12 @@
 - if @modal == "select_window"
   = form_with model: current_user, url: update_elqueue_window_user_path(id: current_user), method: :patch, local: false, class: 'form-horizontal' do |f|
     .modal-header
+      .select_window_notice
+        На данном филиале активирована электронная очередь.
+        Чтобы начать обслуживание - выберите номер окна.
+        (номер можете узнать посмотрев наверх)
       = button_to_close_modal
-      %h3
+      %h3.select_window_header
         = t('elqueue_windows.select_window')
 
     .modal-body
@@ -12,6 +16,10 @@
           = f.select :elqueue_window_id, elqueue_window_options(current_user), {include_blank: t('elqueue_windows.select_window_prompt')}
 
     .modal-footer
+      .select_window_notice
+        После выбора окна, ваш статус будет «на паузе».
+        Чтобы начать обслуживание клиентов, необходимо
+        снять «паузу» в разделе «Электронная очередь».
       = f.submit t('elqueue_windows.submit'), class: 'btn btn-primary'
 - elsif @modal.start_with?("finish_service")
   .modal-header

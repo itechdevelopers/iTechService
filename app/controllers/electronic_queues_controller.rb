@@ -72,7 +72,7 @@ class ElectronicQueuesController < ApplicationController
 
   def electronic_queue_params
     params.require(:electronic_queue).permit(:queue_name, :department_id, :windows_count,
-      :printer_address, :ipad_link, :tv_link, :enabled,
+      :printer_address, :ipad_link, :tv_link, :enabled, :check_info,
       :header_boldness, :annotation_boldness, :header_font_size, :annotation_font_size)
   end
 end

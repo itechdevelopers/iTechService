@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20240518113610) do
+ActiveRecord::Schema.define(version: 20240603120910) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -347,6 +347,7 @@ ActiveRecord::Schema.define(version: 20240518113610) do
     t.integer "header_font_size", default: 24
     t.integer "annotation_boldness", default: 400
     t.integer "annotation_font_size", default: 18
+    t.string "check_info", default: ""
     t.index ["department_id"], name: "index_electronic_queues_on_department_id"
     t.index ["ipad_link"], name: "index_electronic_queues_on_ipad_link", unique: true
     t.index ["tv_link"], name: "index_electronic_queues_on_tv_link", unique: true
