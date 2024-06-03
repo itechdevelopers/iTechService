@@ -59,6 +59,11 @@
       = f.number_field :annotation_font_size
 
   .control-group
+    = f.label :check_info, t('.check_info'), class: 'control-label'
+    .controls
+      = f.text_field :check_info
+
+  .control-group
     = f.label :enabled, t('.enabled'), class: 'control-label'
     .controls
       = f.check_box :enabled
