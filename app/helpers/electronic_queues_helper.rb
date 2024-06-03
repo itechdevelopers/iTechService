@@ -48,6 +48,39 @@ module ElectronicQueuesHelper
     window.waiting_client&.ticket_number
   end
 
+  def dropdown_el_menu_for_user(user)
+    menu_items = ""
+    title = "ЭО "
+    style = ""
+    if user.serving_client?
+      ticket_num = serving_client_ticket_number(user.elqueue_window)
+      title = ticket_num
+      style = "color: #424242; font-weight: bold;"
+      menu_items << menu_item("#{ticket_num}", show_finish_service_elqueue_window_path(user.elqueue_window), data: { remote: true })
+    end
+
+    if user.can_take_a_break?
+      if title.start_with?("ЭО ")
+        title = "В ожидании"
+        style = "color: #36b300; font-size: 14px;"
+      end
+      menu_items << menu_item("Пауза", take_a_break_elqueue_window_path(user.elqueue_window), method: :patch, data: { remote: true })
+    elsif user.is_on_break?
+      if title.start_with?("ЭО ")
+        title = "На паузе"
+        style = "color: #bd0000; font-size: 16px;"
+      end
+      menu_items << menu_item("Старт", return_from_break_elqueue_window_path(user.elqueue_window), method: :patch, data: { remote: true })
+    end
+
+    menu_items << menu_item("Окно: #{user.elqueue_window.window_number}", select_window_elqueue_windows_path, data: { remote: true })
+    menu_items << menu_item("Все талоны очереди", show_active_tickets_electronic_queue_path(user.electronic_queue), class: "elqueue_active_tickets_button", data: { remote: true })
+
+    custom_drop_down("#{title}", style: style) do
+      menu_items.html_safe
+    end
+  end
+
   # Helpers for iPad views
   def render_queue_tree(queue_items, root, parent_id=false)
     styles_for_annotation = render_annotation_styles(queue_items.first.electronic_queue)
@@ -96,5 +129,24 @@ module ElectronicQueuesHelper
 
   def render_header_styles(electronic_queue)
     "font-size: #{electronic_queue.header_font_size}px; font-weight: #{electronic_queue.header_boldness};"
+  end
+
+  # Customize drop_down
+  def custom_drop_down(name, style:)
+    content_tag :li, :class => "dropdown" do
+      custom_drop_down_link(name, style: style) + custom_drop_down_list { yield }
+    end
+  end
+
+  def custom_name_and_caret(name)
+    "#{name} #{content_tag(:b, :class => "caret", style: "margin-left: 4px; margin-top: 8px; display: inline-block;") {}}".html_safe
+  end
+
+  def custom_drop_down_link(name, style:)
+    link_to(custom_name_and_caret(name), "#", :class => "dropdown-toggle", style: style, "data-toggle" => "dropdown")
+  end
+
+  def custom_drop_down_list(&block)
+    content_tag :ul, :class => "dropdown-menu", &block
   end
 end
