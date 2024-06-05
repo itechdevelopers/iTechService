@@ -1,5 +1,7 @@
 class ElectronicQueuesController < ApplicationController
   layout "application"
+  skip_before_action :authenticate_user!, only: [:ipad_show, :tv_show]
+  before_action :custom_authenticate_user, only: [:ipad_show, :tv_show]
   before_action :set_and_authorize_record, only: [:show, :edit, :update, :destroy, :show_active_tickets]
 
   def ipad_show
@@ -65,6 +67,13 @@ class ElectronicQueuesController < ApplicationController
   end
 
   private
+
+  def custom_authenticate_user
+    unless user_signed_in?
+      session[:user_return_to] = request.fullpath
+      redirect_to user_new_technical_login_path
+    end
+  end
 
   def set_and_authorize_record
     @electronic_queue = authorize ElectronicQueue.find(params[:id])

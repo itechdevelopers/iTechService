@@ -1,7 +1,7 @@
 - service_job = service_job
 %tr{class: "#{table_highlighting(service_job)} service_job_row", data: { service_job_id: service_job.id }}
   %td.device_movement_column
-    = device_movement_telegram_tag(service_job.moved_by.work_phone)
+    = device_movement_telegram_tag(service_job.moved_by&.work_phone)
     = device_movement_information_tag(service_job)
   %td.device_task_column
     %span{class: "device_tasks_toggle #{progress_badge_class_for_service_job(service_job)}"}

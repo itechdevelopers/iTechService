@@ -53,6 +53,20 @@ class Users::SessionsController < Devise::SessionsController
     end
   end
 
+  def sign_in_technical
+    tech_user = User.find_by(username: "tech_user")
+    location = after_sign_in_path_for(tech_user)
+
+    if tech_user.valid_password?(params[:user][:password])
+      sign_in :user, tech_user
+      respond_with tech_user, location: location
+    else
+      render :new_technical_login
+    end
+  end
+
+  def new_technical_login; end
+
   # DELETE /resource/sign_out
   def destroy
     if current_user.need_to_select_window
@@ -76,6 +90,11 @@ class Users::SessionsController < Devise::SessionsController
   # def configure_sign_in_params
   #   devise_parameter_sanitizer.permit(:sign_in, keys: [:attribute])
   # end
+
+  def after_sign_in_path_for(resource)
+    stored_location = session.delete(:user_return_to)
+    stored_location || super
+  end
 
   def autochange_department(user)
     departments = if (user.superadmin? || user.able_to?(:access_all_departments))

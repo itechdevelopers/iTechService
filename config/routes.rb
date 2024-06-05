@@ -28,6 +28,8 @@ Rails.application.routes.draw do
   namespace :users, as: :user do
     devise_scope :user do
       post 'sign_in_by_card', to: 'sessions#sign_in_by_card'
+      post 'sign_in_technical', to: 'sessions#sign_in_technical'
+      get 'technical_login', to: 'sessions#new_technical_login', as: 'new_technical_login'
     end
     resource :departments, only: %i[edit update], as: :department
   end
