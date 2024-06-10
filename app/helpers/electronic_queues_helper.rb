@@ -65,6 +65,8 @@ module ElectronicQueuesHelper
         style = "color: #36b300; font-size: 14px;"
       end
       menu_items << menu_item("Пауза", take_a_break_elqueue_window_path(user.elqueue_window), method: :patch, data: { remote: true })
+    elsif user.waiting_for_break?
+      menu_items << content_tag(:div, "Пауза после этого клиента", class: "waiting-for-break_menu-item")
     elsif user.is_on_break?
       if title.start_with?("ЭО ")
         title = "На паузе"

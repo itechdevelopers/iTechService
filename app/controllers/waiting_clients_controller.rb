@@ -17,6 +17,7 @@ class WaitingClientsController < ApplicationController
     authorize @waiting_client
     did_not_come = params[:did_not_come].present? ? true : false
     @waiting_client.complete_service(did_not_come)
+    current_user.unset_remember_pause if current_user.waiting_for_break?
   end
 
   def show
