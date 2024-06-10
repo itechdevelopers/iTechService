@@ -587,8 +587,20 @@ class User < ApplicationRecord
     elqueue_window.present? && elqueue_window.is_active?
   end
 
+  def waiting_for_break?
+    elqueue_window.present? && !elqueue_window.is_active? && remember_pause?
+  end
+
   def is_on_break?
     elqueue_window.present? && !elqueue_window.is_active?
+  end
+
+  def set_remember_pause
+    update!(remember_pause: true)
+  end
+
+  def unset_remember_pause
+    update!(remember_pause: false)
   end
 
   private

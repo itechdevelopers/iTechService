@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20240603120910) do
+ActiveRecord::Schema.define(version: 20240610090350) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -181,6 +181,16 @@ ActiveRecord::Schema.define(version: 20240603120910) do
     t.index ["patronymic"], name: "index_clients_on_patronymic"
     t.index ["phone_number"], name: "index_clients_on_phone_number"
     t.index ["surname"], name: "index_clients_on_surname"
+  end
+
+  create_table "clients_viewings", force: :cascade do |t|
+    t.bigint "user_id", null: false
+    t.datetime "time", null: false
+    t.string "ip", null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["time"], name: "index_clients_viewings_on_time"
+    t.index ["user_id"], name: "index_clients_viewings_on_user_id"
   end
 
   create_table "comments", id: :serial, force: :cascade do |t|
@@ -1566,6 +1576,7 @@ ActiveRecord::Schema.define(version: 20240603120910) do
     t.boolean "fixed_main_menu", default: false
     t.boolean "need_to_select_window", default: false
     t.bigint "elqueue_window_id"
+    t.boolean "remember_pause", default: false, null: false
     t.index ["authentication_token"], name: "index_users_on_authentication_token", unique: true
     t.index ["card_number"], name: "index_users_on_card_number"
     t.index ["department_id"], name: "index_users_on_department_id"
@@ -1658,6 +1669,7 @@ ActiveRecord::Schema.define(version: 20240603120910) do
     t.index ["path"], name: "index_wiki_pages_on_path", unique: true
   end
 
+  add_foreign_key "clients_viewings", "users"
   add_foreign_key "departments", "brands"
   add_foreign_key "departments", "cities"
   add_foreign_key "electronic_queues", "departments"
