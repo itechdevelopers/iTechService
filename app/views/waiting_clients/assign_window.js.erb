@@ -1,0 +1,9 @@
+var ticketCard = $('.elqueue-ticket-card[data-ticket-id="<%= @waiting_client.id %>"]');
+var ticketWindows = ticketCard.find('.ticket-windows');
+
+ticketWindows.empty();
+ticketWindows.append(
+  $('<strong>', { text: 'Закреплён за окном: ' }).add(
+      $('<span>', { text: '<%= @waiting_client.attached_window %>' })
+    )
+);

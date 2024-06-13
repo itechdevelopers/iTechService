@@ -2,7 +2,7 @@ class ElectronicQueuesController < ApplicationController
   layout "application"
   skip_before_action :authenticate_user!, only: [:ipad_show, :tv_show]
   before_action :custom_authenticate_user, only: [:ipad_show, :tv_show]
-  before_action :set_and_authorize_record, only: [:show, :edit, :update, :destroy, :show_active_tickets]
+  before_action :set_and_authorize_record, only: [:show, :edit, :update, :destroy, :show_active_tickets, :manage_tickets, :sort_tickets, :return_old_ticket]
 
   def ipad_show
     authorize ElectronicQueue
@@ -24,6 +24,21 @@ class ElectronicQueuesController < ApplicationController
     respond_to do |format|
       format.js
     end
+  end
+
+  def manage_tickets
+    @modal = "manage_tickets"
+    @waiting_clients = WaitingClient.in_queue(@electronic_queue).waiting
+    respond_to do |format|
+      format.js { render 'shared/show_modal_form' }
+    end
+  end
+
+  def return_old_ticket
+    @modal = "manage_tickets"
+    @waiting_clients = WaitingClient.in_queue(@electronic_queue).waiting
+    @waiting_client = WaitingClient.find(params[:ticket_id].to_i)
+    @waiting_client.return_to_queue
   end
 
   def index
@@ -66,6 +81,19 @@ class ElectronicQueuesController < ApplicationController
     redirect_to electronic_queues_path, notice: t('.electronic_queue_was_successfully_deleted')
   end
 
+  def sort_tickets
+    sorted_tickets = JSON.parse(electronic_queue_params[:ticket_ids])
+    ActiveRecord::Base.transaction do
+      sorted_tickets.each do |ticket|
+        WaitingClient.find(ticket['id'])
+                    .update(position: ticket['position'])
+      end
+    end
+    respond_to do |format|
+      format.js { head :ok }
+    end
+  end
+
   private
 
   def custom_authenticate_user
@@ -82,6 +110,7 @@ class ElectronicQueuesController < ApplicationController
   def electronic_queue_params
     params.require(:electronic_queue).permit(:queue_name, :department_id, :windows_count,
       :printer_address, :ipad_link, :tv_link, :enabled, :check_info,
-      :header_boldness, :annotation_boldness, :header_font_size, :annotation_font_size)
+      :header_boldness, :annotation_boldness, :header_font_size, :annotation_font_size,
+      :ticket_ids)
   end
 end

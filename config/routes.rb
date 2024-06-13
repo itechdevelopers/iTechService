@@ -386,6 +386,9 @@ Rails.application.routes.draw do
 
   resources :electronic_queues do
     get :show_active_tickets, on: :member, defaults: {format: :js}
+    get :manage_tickets, on: :member, defaults: {format: :js}
+    patch :sort_tickets, on: :member, defaults: {format: :js}
+    patch :return_old_ticket, on: :member, defaults: {format: :js}
     resources :queue_items, except: %i[index show], defaults: {format: :js}
   end
 
@@ -394,6 +397,7 @@ Rails.application.routes.draw do
 
   resources :waiting_clients, only: %i[create show], defaults: {format: :js} do
     patch :complete, on: :member, defaults: {format: :js}
+    patch :assign_window, on: :member, defaults: {format: :js}
   end
 
   resources :elqueue_windows, only: %i[update] do

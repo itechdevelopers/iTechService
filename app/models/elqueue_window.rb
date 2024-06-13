@@ -19,10 +19,15 @@ class ElqueueWindow < ApplicationRecord
                                    .waiting
                                    .where.not(position: nil)
 
-    waiting_clients_for_window = waiting_clients.to_a
+    waiting_client_only_for_this_window = waiting_clients.with_attached_window(window_number).to_a
+
+    waiting_clients_for_window = waiting_clients.without_attached_window
+                                                .to_a
                                                 .select { |wc| wc.queue_item.windows_array.include?(window_number) }
-    return waiting_clients_for_window.min_by(&:position) if waiting_clients_for_window.any?
-    waiting_clients.order(:position).first
+
+    wcs = waiting_clients_for_window.concat(waiting_client_only_for_this_window)
+    return wcs.min_by(&:position) if wcs.any?
+    waiting_clients.without_attached_window.order(:position).first
   end
 
   def set_active!
