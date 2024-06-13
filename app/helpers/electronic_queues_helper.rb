@@ -76,11 +76,15 @@ module ElectronicQueuesHelper
     end
 
     menu_items << menu_item("Окно: #{user.elqueue_window.window_number}", select_window_elqueue_windows_path, data: { remote: true })
-    menu_items << menu_item("Все талоны очереди", show_active_tickets_electronic_queue_path(user.electronic_queue), class: "elqueue_active_tickets_button", data: { remote: true })
+    menu_items << menu_item("Выбор талона", manage_tickets_electronic_queue_path(user.electronic_queue), class: "elqueue_active_tickets_button", data: { remote: true })
 
     custom_drop_down("#{title}", style: style) do
       menu_items.html_safe
     end
+  end
+
+  def finalized_ticket_options(queue)
+    WaitingClient.in_queue(queue).today.finalized.pluck(:ticket_number, :id)
   end
 
   # Helpers for iPad views

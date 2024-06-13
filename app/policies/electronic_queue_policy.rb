@@ -18,4 +18,16 @@ class ElectronicQueuePolicy < ApplicationPolicy
   def show_active_tickets?
     true
   end
+
+  def manage_tickets?
+    true
+  end
+
+  def sort_tickets?
+    true
+  end
+
+  def return_old_ticket?
+    true
+  end
 end

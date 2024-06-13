@@ -6,4 +6,8 @@ class WaitingClientPolicy < ApplicationPolicy
   def complete?
     true
   end
+
+  def assign_window?
+    true
+  end
 end

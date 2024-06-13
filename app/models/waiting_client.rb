@@ -10,9 +10,17 @@ class WaitingClient < ApplicationRecord
 
   default_scope { order(position: :asc) }
 
+  scope :with_attached_window, ->(win_num) {
+    where(attached_window: win_num)
+  }
+  scope :without_attached_window, -> { where(attached_window: nil) }
   scope :waiting, -> { where(status: "waiting") }
   scope :in_service, -> { where(status: "in_service") }
+  scope :finalized, -> { where(status: ["completed", "did_not_come"]) }
   scope :in_queue, ->(electronic_queue) { joins(:queue_item).where(queue_items: { electronic_queue_id: electronic_queue.id }) }
+  scope :today, -> {
+    where(ticket_issued_at: Time.zone.now.beginning_of_day..Time.zone.now.end_of_day)
+  }
 
   enum priority: {
     chronological: 0,
@@ -94,6 +102,14 @@ class WaitingClient < ApplicationRecord
                                         action: "complete_service",
                                         waiting_client: self)
     # ActionCable.server.broadcast "electronic_queue_#{queue_item.electronic_queue_id}_channel", action: "complete_service", waiting_client: self
+  end
+
+  def return_to_queue
+    return unless ["completed", "did_not_come"].include? status
+    self.status = "waiting"
+    self.class.add_to_queue(self)
+    self.save
+    trigger_electronic_queue_move
   end
 
   def electronic_queue

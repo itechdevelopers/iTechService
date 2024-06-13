@@ -1,5 +1,5 @@
 class WaitingClientsController < ApplicationController
-  before_action :set_waiting_client, only: %i[complete show]
+  before_action :set_waiting_client, only: %i[complete show assign_window]
 
   def create
     authorize WaitingClient
@@ -30,10 +30,22 @@ class WaitingClientsController < ApplicationController
     end
   end
 
+  def assign_window
+    authorize @waiting_client
+    respond_to do |format|
+      if @waiting_client.update(attached_window: waiting_client_params[:attached_window])
+        format.js
+      else
+        format.js { head :unprocessable_entity }
+      end
+    end
+  end
+
   private
 
   def waiting_client_params
-    params.require(:waiting_client).permit(:queue_item_id, :client_name, :phone_number, :country_code)
+    params.require(:waiting_client).permit(:queue_item_id, :client_name, :phone_number, :country_code,
+    :attached_window)
   end
 
   def set_waiting_client

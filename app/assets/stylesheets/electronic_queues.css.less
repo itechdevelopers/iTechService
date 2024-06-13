@@ -71,3 +71,83 @@
   white-space: nowrap;
   font-size: 14px;
 }
+
+.elqueue-ticket-container {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 20px;
+
+  .elqueue-ticket-card {
+    background-color: #ddd;
+    box-shadow: 2px 2px 4px rgba(0, 0, 0, 0.29);
+    padding: 6px;
+    margin-bottom: 20px;
+    height: 200px;
+    width: 140px;
+    cursor: grab;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+
+    &:active {
+      cursor: grabbing;
+    }
+
+    .ticket-content {
+      flex-grow: 1;
+      text-align: center;
+
+      .ticket-number {
+        font-size: 20px;
+        font-weight: bold;
+        margin-bottom: 5px;
+      }
+
+      .ticket-queue-item {
+        font-size: 14px;
+        font-weight: bold;
+        margin-bottom: 10px;
+      }
+
+      .client-phone {
+        font-size: 14px;
+        margin-bottom: 5px;
+      }
+
+      .ticket-windows {
+        font-size: 16px;
+      }
+    }
+
+    .ticket-footer {
+      text-align: center;
+      font-size: 12px;
+
+      p {
+        font-weight: bold;
+        padding: 4px 5px 6px 5px;
+      }
+
+      select {
+        width: 40px;
+        margin-bottom: 0;
+      }
+
+      .ticket-assign {
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        a {
+          color: #fff;
+        }
+        a:hover {
+          color: #fff;
+        }
+      }
+    }
+  }
+}
+
+.add-old-ticket {
+  select {
+    margin-bottom: 0;
+  }
+}

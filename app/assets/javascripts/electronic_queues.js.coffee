@@ -105,3 +105,22 @@ window.electronic_queues_tree = (container)->
 
 window.show_window_select_modal = ->
   $.getScript("/elqueue_windows/select_window")
+
+$(document).on "openManageTicketsModal", () ->
+  ticketLis = $('.modal-body .elqueue-ticket-container')
+  if ticketLis.length
+    initTicketsSortable ticketLis
+
+initTicketsSortable = (lis) ->
+  lis.each (index, element) ->
+    new Sortable(element, { group: 'tickets', animation: 300, onEnd: () => saveTicketsSorting($('.modal-body .elqueue-ticket-card')) })
+
+saveTicketsSorting = (lis) ->
+  ticketIds = []
+  lis.each (index, li) ->
+    ticketIds.push({
+      'id': Number.parseInt($(li).data('ticket-id')),
+      'position': index+1
+    })
+  $('#ticket-ids').val(JSON.stringify(ticketIds))
+  $('#form-sort-tickets').submit()

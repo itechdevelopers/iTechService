@@ -1,0 +1,36 @@
+- if @modal == "manage_tickets"
+  = form_with url: sort_tickets_electronic_queue_path(@electronic_queue), local: false, method: :patch, id: "form-sort-tickets" do |f|
+    = f.hidden_field("electronic_queue[ticket_ids]", value: [], id: "ticket-ids")
+  .modal-header
+    %h3 Управление талонами
+
+  .modal-body
+    %ul.elqueue-ticket-container
+      - @waiting_clients.each do |client|
+        %li.elqueue-ticket-card{data: {ticket_id: client.id}}
+          .ticket-content
+            %p.ticket-number= client.ticket_number
+            %p.ticket-queue-item= client.queue_item.title
+            %p.client-phone= client.phone_number.present? ? client.phone_number : ""
+            %p.ticket-windows
+              - if client.attached_window.present?
+                %strong Закреплён за окном:
+                = client.attached_window
+              - else
+                %strong Окна:
+                = client.queue_item.windows_array.join(", ")
+          .ticket-footer
+            %p Закрепить за окном:
+            = form_with url: assign_window_waiting_client_path(client.id), method: :patch, local: false do |form|
+              = form.fields_for :waiting_client do |f|
+                = f.select :attached_window, @electronic_queue.elqueue_windows.active.pluck(:window_number), {}, { class: 'select-window' }
+              = form.submit 'Закрепить', class: "btn btn-primary ticket-assign"
+
+    .add-old-ticket
+      %p Вернуть старый талон в очередь
+      = form_with url: return_old_ticket_electronic_queue_path(@electronic_queue), method: :patch, local: false do |form|
+        = form.select :ticket_id, finalized_ticket_options(@electronic_queue), {}, { class: 'select-window' }
+        = form.submit "Вернуть", class: "btn btn-success"
+
+:javascript
+  $(document).trigger('openManageTicketsModal')
