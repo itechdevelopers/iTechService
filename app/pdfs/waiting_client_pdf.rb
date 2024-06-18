@@ -50,9 +50,10 @@ class WaitingClientPdf < Prawn::Document
       text @view.t("waiting_clients.pdf.discover_of_goods")
       text @view.t("waiting_clients.pdf.site_url")
       stroke_line [0, cursor], [80, cursor]
-      move_down 3
+      move_down 10
       text waiting_client.electronic_queue.check_info if waiting_client.electronic_queue.check_info.present?
     end
+    move_down 15
   end
 
   def logo
