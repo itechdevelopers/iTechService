@@ -7,26 +7,28 @@ $ ->
       if data['action'] == 'complete_service'
         @completeService(data['waiting_client'].ticket_number)
 
-    startService: (ticketNumber, window) ->
-      $tr = $('<tr>').addClass('tv-elqueue-clients-table-row')
-      $tdTicketNumber = $('<td>').text(ticketNumber)
-      $tdArrow = $('<td>').html('&#x279C;')
-      $tdWindowNumber = $('<td>').text(window)
+    startService: (ticketNumber, windowNumber) ->
+      $card = $('<div>').addClass('elqueue-tv-card').data('ticket-number', ticketNumber)
 
-      $tr.append($tdTicketNumber)
-      $tr.append($tdArrow)
-      $tr.append($tdWindowNumber)
+      $ticketNumber = $('<span>').addClass('ticket-info').text(ticketNumber)
+      $ticketNumber.append($('<span>').addClass('label').text('Талон'))
+      $arrow = $('<span>').addClass('arrow').html('&#x279C;')
+      $ticketWindow = $('<span>').addClass('ticket-info').text(windowNumber)
+      $ticketWindow.append($('<span>').addClass('label').text('Окно'))
 
-      $('.tv-elqueue-clients-table tbody').append($tr)
+      $card.append($ticketNumber)
+      $card.append($arrow)
+      $card.append($ticketWindow)
 
-      $tr.fadeIn(1000).fadeOut(1000).fadeIn(1000).fadeOut(1000).fadeIn(1000, ->
-        $tr.show()
+      $('.elqueue-tv').append($card)
+      $card.fadeIn(1000).fadeOut(1000).fadeIn(1000).fadeOut(1000).fadeIn(1000, ->
+        $card.show()
       )
 
     completeService: (ticketNumber) ->
-      $('.tv-elqueue-clients-table td').each (index, element) ->
-        if $(element).text() == ticketNumber
+      $('.elqueue-tv-card').each (index, element) ->
+        if $(element).data('ticket-number') == ticketNumber
           $(element).fadeOut(1000, ->
-            $(element).closest('tr').remove()
+            $(element).remove()
           )
           return false
