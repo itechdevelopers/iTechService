@@ -45,15 +45,12 @@ class WaitingClientPdf < Prawn::Document
       text waiting_client.queue_item.annotation, align: :center
     end
 
-    move_down 50
+    move_cursor_to 50
     font_size 10 do
       text @view.t("waiting_clients.pdf.discover_of_goods")
       text @view.t("waiting_clients.pdf.site_url")
       stroke_line [0, cursor], [80, cursor]
-      move_down 10
-      text waiting_client.electronic_queue.check_info if waiting_client.electronic_queue.check_info.present?
     end
-    move_down 15
   end
 
   def logo
