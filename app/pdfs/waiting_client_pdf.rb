@@ -6,7 +6,7 @@ class WaitingClientPdf < Prawn::Document
     @department = @waiting_client.electronic_queue.department
     @view = view
 
-    super page_size: [80.mm, 90.mm], page_layout: :portrait, margin: [10, 5, 10, 20]
+    super page_size: [80.mm, 90.mm], page_layout: :portrait, margin: [10, 5, 10, 24]
     font_families.update 'DroidSans' => {
       normal: "#{Rails.root}/app/assets/fonts/droidsans-webfont.ttf",
       bold: "#{Rails.root}/app/assets/fonts/droidsans-bold-webfont.ttf"
@@ -45,7 +45,7 @@ class WaitingClientPdf < Prawn::Document
       text waiting_client.queue_item.annotation, align: :center
     end
 
-    move_down 15
+    move_down 50
     font_size 10 do
       text @view.t("waiting_clients.pdf.discover_of_goods")
       text @view.t("waiting_clients.pdf.site_url")
