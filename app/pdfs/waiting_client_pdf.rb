@@ -6,7 +6,7 @@ class WaitingClientPdf < Prawn::Document
     @department = @waiting_client.electronic_queue.department
     @view = view
 
-    super page_size: [80.mm, 90.mm], page_layout: :portrait, margin: [10, 10, 10, 20]
+    super page_size: [80.mm, 90.mm], page_layout: :portrait, margin: [10, 5, 10, 20]
     font_families.update 'DroidSans' => {
       normal: "#{Rails.root}/app/assets/fonts/droidsans-webfont.ttf",
       bold: "#{Rails.root}/app/assets/fonts/droidsans-bold-webfont.ttf"
