@@ -183,16 +183,6 @@ ActiveRecord::Schema.define(version: 20240613044446) do
     t.index ["surname"], name: "index_clients_on_surname"
   end
 
-  create_table "clients_viewings", force: :cascade do |t|
-    t.bigint "user_id", null: false
-    t.datetime "time", null: false
-    t.string "ip", null: false
-    t.datetime "created_at", null: false
-    t.datetime "updated_at", null: false
-    t.index ["time"], name: "index_clients_viewings_on_time"
-    t.index ["user_id"], name: "index_clients_viewings_on_user_id"
-  end
-
   create_table "comments", id: :serial, force: :cascade do |t|
     t.integer "user_id", null: false
     t.integer "commentable_id", null: false
@@ -1670,7 +1660,6 @@ ActiveRecord::Schema.define(version: 20240613044446) do
     t.index ["path"], name: "index_wiki_pages_on_path", unique: true
   end
 
-  add_foreign_key "clients_viewings", "users"
   add_foreign_key "departments", "brands"
   add_foreign_key "departments", "cities"
   add_foreign_key "electronic_queues", "departments"

@@ -1,21 +1,24 @@
-@wikiColors: #e0ecea,#060503,#b8aaaf,#281f0a,#5b6dd5,#299c6f,#d2ce2a,#db4216;
+$wikiColors: #e0ecea,#060503,#b8aaaf,#281f0a,#5b6dd5,#299c6f,#d2ce2a,#db4216;
 
-.generate-color-styles(@color) {
-  .color-@{color} {
-    background-color: @color;
+@mixin generate-color-styles($color){
+  .color-#{$color} {
+    background-color: $color;
+  }
+}
+@mixin loop-colors($index: 1) {
+  @if $index <= length($wikiColors) {
+    $color: nth($wikiColors, $index);
+    li:nth-child(#{$index}) {
+      background-color: $color;
+      color: #fff;
+    }
+    @include loop-colors($index + 1);
   }
 }
 
-.loop-colors(@index: 1) when (@index <= length(@wikiColors)) {
-  @color: extract(@wikiColors, @index);
-  li:nth-child(@{index}) {
-    background-color: @color;
-    color: #fff;
-  }
-}
 
 .wiki_tag-choose-color {
-  .loop-colors();
+  @include loop-colors();
 }
 
 .wiki_wrapper {

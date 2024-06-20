@@ -76,4 +76,5 @@ Rails.application.configure do
   config.active_job.queue_name_prefix = "ise_#{Rails.env}"
   config.active_job.queue_name_delimiter = '_'
   Paperclip.options[:command_path] = '/usr/local/bin'
+  config.serve_static_files = ENV['RAILS_SERVE_STATIC_FILES'].present?
 end

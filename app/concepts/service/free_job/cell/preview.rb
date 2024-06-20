@@ -29,7 +29,7 @@ module Service
       end
 
       def link_to_show
-        link_to icon('eye-open'), model, class: 'btn btn-info btn-small'
+        link_to icon('eye'), model, class: 'btn btn-info btn-small'
       end
 
       def link_to_edit

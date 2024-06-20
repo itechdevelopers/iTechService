@@ -81,6 +81,6 @@
     <%= header_link_for_coffee %>
     <%= header_link_to_announce %>
     <%= link_to icon_tag(:lock), destroy_user_session_path, method: :delete, remote: true, class: 'lock_link', id: 'lock_session' %>
-    <%= link_to icon_tag(:signout), destroy_user_session_path, method: :delete, class: 'signout_link' %>
+    <%= link_to icon_tag('sign-out'), destroy_user_session_path, method: :delete, class: 'signout_link' %>
   </span>
 </div>

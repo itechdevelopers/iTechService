@@ -5,7 +5,7 @@
     = link_back_to_index
     = service_job.device_name
     %small
-      = link_to icon('eye-open'), service_job_viewings_path(@service_job), title: t('service_jobs.viewings'), class: 'no-decoration', remote: true if policy(ServiceJobViewing).index?
+      = link_to icon('eye'), service_job_viewings_path(@service_job), title: t('service_jobs.viewings'), class: 'no-decoration', remote: true if policy(ServiceJobViewing).index?
       = history_link_to history_service_job_path(@service_job)
       = link_to icon_tag('file-text-alt'), service_job_device_notes_path(@service_job), class: 'no-decoration', remote: true
 
@@ -15,7 +15,7 @@
   = link_to "#{icon_tag(:file)} #{t('service_jobs.completion_act')}".html_safe, completion_act_service_job_path(@service_job, format: 'pdf'), class: 'btn btn-info', target: '_blank' if @service_job.at_done? || @service_job.in_archive?
   -if can? :print_receipt, @service_job
     = link_to icon_tag(:print) + t('tickets.link'), service_job_path(@service_job, format: 'pdf', print: true), class: 'btn btn-primary', target: '_blank', id: 'print_service_job_ticket'
-    = link_to icon_tag('eye-open') + t('tickets.link'), service_job_path(@service_job, format: 'pdf'), class: 'btn btn-info pull-right', target: '_blank', id: 'show_service_job_ticket'
+    = link_to icon_tag('eye') + t('tickets.link'), service_job_path(@service_job, format: 'pdf'), class: 'btn btn-info pull-right', target: '_blank', id: 'show_service_job_ticket'
 
   = new_sms_notification_link(@service_job) if @service_job.at_done?
 

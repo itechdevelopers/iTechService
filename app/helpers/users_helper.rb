@@ -18,7 +18,7 @@ module UsersHelper
       c += content_tag(:td) do
         content_tag(:div, class: 'btn-group') do
           content = link_to_show_small(user)
-          content += link_to glyph(:'minus-sign'), new_user_fault_path(user), remote: true, class: 'btn btn-small'
+          content += link_to glyph(:'minus-circle'), new_user_fault_path(user), remote: true, class: 'btn btn-small'
           content += link_to glyph(:money), finance_user_path(user), remote: true, class: 'btn btn-small'
           content += link_to_edit_small(user) if can? :edit, user
           content

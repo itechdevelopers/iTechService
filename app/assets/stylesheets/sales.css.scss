@@ -180,7 +180,7 @@
   }
 }
 
-@span-width: 100/12%;
+$span-width: 100/12 * 1%;
 
 #sale_form_container{
   margin-top: 20px;
@@ -188,40 +188,40 @@
     margin-left: 0;
   }
   .span1{
-    width: @span-width;
+    width: $span-width;
   }
   .span2{
-    width: @span-width*2;
+    width: $span-width*2;
   }
   .span3{
-    width: @span-width*3;
+    width: $span-width*3;
   }
   .span4{
-    width: @span-width*4;
+    width: $span-width*4;
   }
   .span5{
-    width: @span-width*5;
+    width: $span-width*5;
   }
   .span6{
-    width: @span-width*6;
+    width: $span-width*6;
   }
   .span7{
-    width: @span-width*7;
+    width: $span-width*7;
   }
   .span8{
-    width: @span-width*8;
+    width: $span-width*8;
   }
   .span9{
-    width: @span-width*9;
+    width: $span-width*9;
   }
   .span10{
-    width: @span-width*10;
+    width: $span-width*10;
   }
   .span11{
-    width: @span-width*11;
+    width: $span-width*11;
   }
   .span12{
-    width: @span-width*12;
+    width: $span-width*12;
   }
 }
 

@@ -71,9 +71,10 @@ gem 'dotenv-rails', '~> 2.7.6'
 gem 'tzinfo-data'
 
 gem 'sprockets', '~>3.7'
-gem 'less-rails', '~>2.8'
+# gem 'less-rails', '~>2.8'
 gem 'execjs', '~>2.7.0'
-gem 'therubyracer', '~>0.12.3'
+gem 'bootstrap-sass', '~> 2.3', '>= 2.3.2.2'
+# gem 'therubyracer', '~>0.12.3'
 gem 'sass-rails', '~> 6.0.0'
 gem 'twitter-bootstrap-rails', '~> 2.2.7'
 gem 'bootstrap-colorpicker-rails', '~> 0.3.1', :require => 'bootstrap-colorpicker-rails'
@@ -107,7 +108,6 @@ group :test do
   gem 'poltergeist'
   gem 'database_cleaner'
   gem 'factory_girl_rails'
-  gem 'faker'
   gem 'simplecov', :require => false
 
   gem 'shoulda'
@@ -117,6 +117,7 @@ group :test do
 end
 
 group :development, :test do
+  gem 'faker'
   gem "rspec-rails"
   gem "shoulda-matchers"
   gem "standard"

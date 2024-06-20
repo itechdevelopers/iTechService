@@ -53,7 +53,7 @@ module TradeInDevice::Cell
     end
 
     def link_to_show
-      link_to icon('eye-open'), trade_in_device_path(id), class: 'btn btn-small'
+      link_to icon('eye'), trade_in_device_path(id), class: 'btn btn-small'
     end
 
     def link_to_edit
