@@ -21,7 +21,7 @@
           <td>
             <div class="btn-group">
               <%= link_to icon_tag(:print), service_job_path(service_job, format: 'pdf', print: true), class: 'btn btn-primary btn-small', target: '_blank' %>
-              <%= link_to icon('eye-open'), service_job_viewings_path(service_job), title: t('service_jobs.viewings'), class: 'btn btn-small', remote: true if policy(ServiceJobViewing).index? %>
+              <%= link_to icon('eye'), service_job_viewings_path(service_job), title: t('service_jobs.viewings'), class: 'btn btn-small', remote: true if policy(ServiceJobViewing).index? %>
               <%= link_to icon('info-sign'), service_job, class: 'btn btn-small', target: '_blank' %>
             </div>
           </td>

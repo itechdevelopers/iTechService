@@ -1,6 +1,6 @@
 module FaultsHelper
   def header_fault_button
-    link_to glyph('minus-sign'), new_fault_path, remote: true, id: 'header-fault-link'
+    link_to glyph('minus-circle'), new_fault_path, remote: true, id: 'header-fault-link'
   end
 
   def fault_causers_collection

@@ -6,7 +6,7 @@
     %small= history_link_to history_quick_order_path(@quick_order)
 
   = link_to glyph(:print) + t('tickets.link'), quick_order_path(@quick_order, format: 'pdf', print: true), class: 'btn btn-primary', target: '_blank'
-  = link_to glyph('eye-open') + t('tickets.link'), quick_order_path(@quick_order, format: 'pdf'), class: 'btn btn-info', target: '_blank'
+  = link_to glyph('eye') + t('tickets.link'), quick_order_path(@quick_order, format: 'pdf'), class: 'btn btn-info', target: '_blank'
 
 .row-fluid
   .span6

@@ -22,7 +22,7 @@ module ModelCell
 
   def link_to_show_small(options = {})
     options.merge! class: 'btn btn-small'
-    link_to icon('eye-open'), model, options
+    link_to icon('eye'), model, options
   end
 
   def link_to_edit(options = {})

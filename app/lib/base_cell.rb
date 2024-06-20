@@ -27,7 +27,7 @@ class BaseCell < Trailblazer::Cell
   end
 
   def icon_tag(name)
-    "<i class='icon-#{name.to_s}'></i>".html_safe
+    "<i class='fa fa-#{name.to_s}'></i>".html_safe
   end
 
   def edited_by_tag(editable)

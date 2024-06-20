@@ -1,22 +1,26 @@
-@import "twitter/bootstrap/bootstrap";
-@import "twitter/bootstrap/responsive";
+@import "bootstrap";
+@import "bootstrap/variables";
 
 // Set the correct sprite paths
-@iconSpritePath: image-url("twitter/bootstrap/glyphicons-halflings.png");
-@iconWhiteSpritePath: image-url("twitter/bootstrap/glyphicons-halflings-white.png");
+$iconSpritePath: image-url("twitter/bootstrap/glyphicons-halflings.png");
+$iconWhiteSpritePath: image-url("twitter/bootstrap/glyphicons-halflings-white.png");
 
 // Set the Font Awesome (Font Awesome is default. You can disable by commenting below lines)
-@fontAwesomeEotPath: asset-url("fontawesome-webfont.eot");
-@fontAwesomeEotPath_iefix: asset-url("fontawesome-webfont.eot?#iefix");
-@fontAwesomeWoffPath: asset-url("fontawesome-webfont.woff");
-@fontAwesomeTtfPath: asset-url("fontawesome-webfont.ttf");
-@fontAwesomeSvgPath: asset-url("fontawesome-webfont.svg#fontawesomeregular");
+$fontAwesomeEotPath: asset-url("fontawesome-webfont.eot");
+$fontAwesomeEotPath_iefix: asset-url("fontawesome-webfont.eot?#iefix");
+$fontAwesomeWoffPath: asset-url("fontawesome-webfont.woff");
+$fontAwesomeTtfPath: asset-url("fontawesome-webfont.ttf");
+$fontAwesomeSvgPath: asset-url("fontawesome-webfont.svg#fontawesomeregular");
+
+$warningBackground: #f0ad4e;
+$errorBackground: #d9534f;
+$successBackground: #5cb85c;
 
 // Font Awesome
-@import "fontawesome/font-awesome";
+@import "font-awesome";
 
 // Glyphicons
-//@import "twitter/bootstrap/sprites.less";
+//@import "twitter/bootstrap/sprites.scss";
 
 // Your custom LESS stylesheets goes here
 //
@@ -27,7 +31,7 @@
 // See http://twitter.github.com/bootstrap/customize.html#variables for their names and documentation
 //
 // Example:
-// @linkColor: #ff0000;
+// $linkColor: #ff0000;
 
 body {
   padding-bottom: 40px;
@@ -146,13 +150,6 @@ td.align_center {
   }
 }
 
-#new_wiki_page_attachment {
-  input[type=submit] {
-    .btn();
-    .btn-primary();
-  }
-}
-
 .table tbody tr.disabled > td {
   background-color: #f5f5f5;
 }
@@ -208,28 +205,28 @@ table>tbody>tr>td.num, table tr>td.number {
 
 .device_task_row {
   &.pending > td {
-    background-color: @warningBackground;
+    background-color: $warningBackground;
   }
   &.pending.actual > td {
-    background-color: @errorBackground;
+    background-color: $errorBackground;
   }
   &.done > td {
-    background-color: @successBackground;
+    background-color: $successBackground;
   }
 //  &.undone > td {
-//    background-color: @infoBackground;
+//    background-color: $infoBackground;
 //  }
   &.pending:hover > td {
-    background-color: darken(@warningBackground, 5%);
+    background-color: darken($warningBackground, 5%);
   }
   &.pending.actual:hover > td {
-    background-color: darken(@errorBackground, 5%);
+    background-color: darken($errorBackground, 5%);
   }
   &.done:hover > td {
-    background-color: darken(@successBackground, 5%);
+    background-color: darken($successBackground, 5%);
   }
 //  &.undone:hover > td {
-//    background-color: darken(@infoBackground, 5%);
+//    background-color: darken($infoBackground, 5%);
 //  }
 }
 

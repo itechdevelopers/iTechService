@@ -112,7 +112,7 @@ module ApplicationHelper
 
   def link_to_show_small(object, options = {})
     options.merge! class: 'btn btn-small'
-    link_to icon_tag('eye-open'), url_for(controller: object.class.name.tableize, action: 'show', id: object.id), options
+    link_to icon_tag('eye'), url_for(controller: object.class.name.tableize, action: 'show', id: object.id), options
   end
 
   def link_to_edit_small(object, options = {})
@@ -183,7 +183,7 @@ module ApplicationHelper
 
   def icon_tag(name, type = nil)
     white_class = type.to_s == 'white' ? 'icon-white' : ''
-    "<i class='icon-#{name.to_s} #{white_class}'></i>".html_safe
+    "<i class='fa fa-#{name.to_s} #{white_class}'></i>".html_safe
   end
 
   def title_for(model_class)
