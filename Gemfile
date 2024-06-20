@@ -74,7 +74,6 @@ gem 'sprockets', '~>3.7'
 # gem 'less-rails', '~>2.8'
 gem 'execjs', '~>2.7.0'
 gem 'bootstrap-sass', '~> 2.3', '>= 2.3.2.2'
-gem 'mini_racer', platforms: :ruby
 gem 'sass-rails', '~> 6.0.0'
 gem 'twitter-bootstrap-rails', '~> 2.2.7'
 gem 'bootstrap-colorpicker-rails', '~> 0.3.1', :require => 'bootstrap-colorpicker-rails'
