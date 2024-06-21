@@ -7,7 +7,7 @@
     %small
       = link_to icon('eye'), service_job_viewings_path(@service_job), title: t('service_jobs.viewings'), class: 'no-decoration', remote: true if policy(ServiceJobViewing).index?
       = history_link_to history_service_job_path(@service_job)
-      = link_to icon_tag('file-text-alt'), service_job_device_notes_path(@service_job), class: 'no-decoration', remote: true
+      = link_to icon_tag('file-text-o'), service_job_device_notes_path(@service_job), class: 'no-decoration', remote: true
 
   %span.help-block
     %small= timestamp_string_for @service_job

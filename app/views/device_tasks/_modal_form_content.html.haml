@@ -2,7 +2,7 @@
 - if @device_task.done? && @device_task.errors.empty? && !current_user.superadmin?
   .modal-header
     %a.close{'data-dismiss' => 'modal', href: '#'}
-      %i.icon-remove-sign
+      %i.fa.fa-times-circle
     %h3= @device_task.service_job.type_name
 
   .modal-body
@@ -46,7 +46,7 @@
   = simple_form_for @device_task, html: { class: 'form-horizontal', remote: true } do |f|
     .modal-header
       %a.close{'data-dismiss' => 'modal', href: '#'}
-        %i.icon-remove-sign
+        %i.fa.fa-times-circle
       %h3
         = @device_task.service_job.type_name
 

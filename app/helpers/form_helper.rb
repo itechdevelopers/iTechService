@@ -6,7 +6,7 @@ module FormHelper
 
   def secondary_form_close_button(size=nil)
     if size == :small
-      name = glyph('remove-sign')
+      name = glyph('times-circle')
       button_class = 'close'
     else
       name = t 'helpers.links.close'

@@ -28,7 +28,7 @@
   %td.time_return_column
     = time_to_return_ru service_job
   %td.device_task_action_column
-    - notes_icon_name = service_job.device_notes.exists? ? 'file-text-alt' : 'file-alt'
+    - notes_icon_name = service_job.device_notes.exists? ? 'file-text-o' : 'file-alt'
     = link_to_edit_service_job(service_job)
     = link_to(glyph(notes_icon_name), service_job_device_notes_path(service_job), class: 'device_notes-button btn btn-small', remote: true)
     = service_job.decorate.subscription_button

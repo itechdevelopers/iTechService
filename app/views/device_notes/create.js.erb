@@ -8,5 +8,5 @@ if ($notes.length > 0) {
 } else {
   hideModal();
   $service_job_row = $(".service_job_row[data-service_job-id=<%= @service_job.id %>]", '#actual_tasks_table');
-  $service_job_row.find('.device_notes-button').replaceWith('<%= j link_to(glyph('file-text-alt'), service_job_device_notes_path(@service_job), class: 'device_notes-button btn btn-small', remote: true) %>');
+  $service_job_row.find('.device_notes-button').replaceWith('<%= j link_to(glyph('file-text-o'), service_job_device_notes_path(@service_job), class: 'device_notes-button btn btn-small', remote: true) %>');
 }
