@@ -74,7 +74,7 @@ module UsersHelper
       end.join.html_safe +
         content_tag(:td, class: 'job_schedule_hours_actions') do
           link_to(icon_tag('ok-sign'), '#', remote: true, class: 'save_job_schedule_hours pull-left') +
-            link_to(icon_tag('remove-sign'), '#', remote: true, class: 'delete_job_schedule_hours pull-right')
+            link_to(icon_tag('times-circle'), '#', remote: true, class: 'delete_job_schedule_hours pull-right')
         end.html_safe
     end.html_safe
   end

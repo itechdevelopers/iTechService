@@ -1,7 +1,7 @@
 = form_with model: [@electronic_queue, @queue_item], class: 'form-horizontal', local: false do |f|
   .modal-header
     %a.close{'data-dismiss' => 'modal', href: '#'}
-      %i.icon-remove-sign
+      %i.fa.fa-times-circle
     %h3= @queue_item.new_record? ? t('queue_items.new.title') : t('queue_items.edit.title')
 
   .modal-body

@@ -254,7 +254,7 @@ module ApplicationHelper
   end
 
   def button_to_close_modal
-    content_tag(:a, glyph('remove-sign'), class: 'close close_modal_button', 'data-dismiss' => 'modal', href: '#')
+    content_tag(:a, glyph('times-circle'), class: 'close close_modal_button', 'data-dismiss' => 'modal', href: '#')
   end
 
   def modal_header_tag(title = nil)

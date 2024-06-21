@@ -1,7 +1,7 @@
 = simple_form_for @product_group, html: { class: 'form-horizontal' }, remote: true do |f|
   .modal-header
     %a.close{'data-dismiss' => 'modal', href: '#'}
-      %i.icon-remove-sign
+      %i.fa.fa-times-circle
     %h3= @product_group.new_record? ? t('product_groups.new.title') : t('product_groups.edit.title')
 
   .modal-body

@@ -55,7 +55,7 @@ class ServiceJobDecorator < ApplicationDecorator
       form_method = :delete
       hint = I18n.t 'service_jobs.unsubscribe'
     else
-      icon_name = 'star-empty'
+      icon_name = 'star-o'
       form_method = :post
       hint = I18n.t 'service_jobs.subscribe'
     end
