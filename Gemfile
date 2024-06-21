@@ -71,7 +71,6 @@ gem 'dotenv-rails', '~> 2.7.6'
 gem 'tzinfo-data'
 
 gem 'sprockets', '~>3.7'
-# gem 'less-rails', '~>2.8'
 gem 'execjs', '~>2.7.0'
 gem 'bootstrap-sass', '~> 2.3', '>= 2.3.2.2'
 gem 'sass-rails', '~> 6.0.0'
