@@ -1,6 +1,6 @@
 %tr.device_task.fields{class: row_class_for_task(f.object)}
   - if can? :update, f.object
-    %td= f.object.done ? tag(:i, class: 'icon-check') : tag(:i, class: 'icon-check-empty')
+    %td= f.object.done ? tag(:i, class: 'fa fa-check-square-o') : tag(:i, class: 'fa fa-square-o')
     %td= f.select :task_id, Task.all.collect{|t|[t.name,t.id]}, {include_blank: true}, class: 'device_task_task'
     %td.align_right= f.number_field :cost, class: 'device_task_cost input-small'
     %td= f.text_area :comment, rows: 3
@@ -16,7 +16,7 @@
     - if can? :remove_device_tasks, f.object.service_job
       %td= link_to_remove_fields f
   - else
-    %td= f.object.done ? tag(:i, class: 'icon-check') : tag(:i, class: 'icon-check-empty')
+    %td= f.object.done ? tag(:i, class: 'fa fa-check-square-o') : tag(:i, class: 'fa fa-square-o')
     %td= f.object.task_name
     %td.align_right= f.object.cost
     %td= f.object.comment

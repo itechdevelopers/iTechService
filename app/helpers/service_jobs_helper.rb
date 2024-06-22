@@ -44,7 +44,7 @@ module ServiceJobsHelper
   def task_list_for(service_job)
     content_tag(:ul, style: 'list-style:none; text-align:left; margin:0') do
       service_job.device_tasks.collect do |task|
-        content_tag(:li, "#{icon_tag(task.done ? 'check' : 'check-empty')} #{task.task_name}")
+        content_tag(:li, "#{icon_tag(task.done ? 'check' : 'square-o')} #{task.task_name}")
       end.join.html_safe
     end.html_safe
   end

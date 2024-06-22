@@ -15,7 +15,7 @@
       %tr
         %td= link_to announcement.id, announcement_path(announcement)
         %td
-          %i{class: "change_announce_state_button icon-#{(announcement.active ? 'check' : 'check-empty')}",
+          %i{class: "change_announce_state_button fa fa-#{(announcement.active ? 'check' : 'square-o')}",
               data: {id: announcement.id, state: announcement.active.to_s}}
         %td= announcement.kind
         %td= announcement.user_name

@@ -14,7 +14,7 @@
     %dt= Purchase.human_attribute_name :comment
     %dd= @purchase.comment.blank? ? '-' : @purchase.comment
     %dt= Purchase.human_attribute_name :skip_revaluation
-    %dd= @purchase.skip_revaluation? ? icon_tag('check') : icon_tag('check-empty')
+    %dd= @purchase.skip_revaluation? ? icon_tag('check') : icon_tag('square-o')
 
   %table#batches.table.table-condensed.table-hover
     %caption

@@ -19,8 +19,8 @@ $(document).on 'click', '.change_announce_state_button', ->
     success: (data)->
       $this.data('state', data.active)
       if data.active
-        $this.removeClass('icon-check-empty').addClass('icon-check')
+        $this.removeClass('fa fa-square-o').addClass('fa fa-check-square-o')
       else
-        $this.removeClass('icon-check').addClass('icon-check-empty')
+        $this.removeClass('fa fa-check-square-o').addClass('fa fa-square-o')
     error: (jqXHR, textStatus, errorThrown)->
       alert jqXHR.status+' ('+errorThrown+')'
