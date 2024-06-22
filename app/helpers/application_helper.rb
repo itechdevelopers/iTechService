@@ -229,7 +229,7 @@ module ApplicationHelper
   end
 
   def history_link_to(url)
-    link_to glyph(:time), url, class: 'history_link', remote: true
+    link_to glyph('clock-o'), url, class: 'history_link', remote: true
   end
 
   def telegram_link_to(url)

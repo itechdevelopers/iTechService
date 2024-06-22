@@ -40,6 +40,13 @@ body {
   display: none;
 }
 
+@media (max-width: 576px) {
+  .row-fluid .span4 {
+    width: 100%;
+    margin-left: 0;
+  }
+}
+
 .modal {
   &.large {
     width: 1000px;
