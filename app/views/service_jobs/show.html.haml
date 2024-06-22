@@ -86,7 +86,7 @@
 
       %tr
         %td= ServiceJob.human_attribute_name :is_tray_present
-        %td= @service_job.is_tray_present ? icon_tag('check') : icon_tag('check-empty')
+        %td= @service_job.is_tray_present ? icon_tag('check') : icon_tag('square-o')
 
       %tr
         %td= ServiceJob.human_attribute_name :carrier

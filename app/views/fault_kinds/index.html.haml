@@ -9,7 +9,7 @@
     - fault_kinds.each do |fault_kind|
       %tr
         %td= fault_kind.name
-        %td= fault_kind.is_permanent? ? icon_tag('ok') : icon_tag('minus')
+        %td= fault_kind.is_permanent? ? icon_tag('check') : icon_tag('minus')
         %td
           .btn-group
             = link_to_edit_small fault_kind if can? :edit, fault_kind

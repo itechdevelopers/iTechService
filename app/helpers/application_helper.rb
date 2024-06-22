@@ -130,7 +130,7 @@ module ApplicationHelper
     if rec.new_value.present?
       case rec.column_type
       when 'boolean'
-        icon_class = rec.new_value == 't' ? 'check' : 'check-empty'
+        icon_class = rec.new_value == 't' ? 'check' : 'square-o'
         val = icon_tag icon_class
       when 'integer'
         case rec.column_name

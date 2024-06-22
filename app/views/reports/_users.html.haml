@@ -23,8 +23,8 @@
             %br
             = service_job.client_presentation_link
           %td= l service_job.created_at.to_datetime, format: :date_time
-          %td= icon_tag(:ok) if service_job.at_done?
-          %td= icon_tag(:ok) if service_job.in_archive?
+          %td= icon_tag(:check) if service_job.at_done?
+          %td= icon_tag(:check) if service_job.in_archive?
   %tfoot
     %tr
       %td= t('reports.total')
