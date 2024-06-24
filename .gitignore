@@ -44,3 +44,4 @@ pickle-email-*.html
 /.env.test
 .byebug_history
 docker-compose.yml
+/config/local_sidekiq.yml

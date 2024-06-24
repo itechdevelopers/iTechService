@@ -2,7 +2,6 @@ class ClientReviewsReport < BaseReport
 
   def call
     @result = { name: "Отзывы клиентов", data: client_reviews }
-    @result
   end
 
   private

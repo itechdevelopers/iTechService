@@ -33,3 +33,9 @@ bad_review_announcements:
   class: 'BadReviewAnnouncementsJob'
   queue: 'default'
   active_job: true
+
+reset_elqueue_vars:
+  cron: '0 0 * * * Asia/Vladivostok'
+  class: 'ResetElqueueVarsJob'
+  queue: 'default'
+  active_job: true

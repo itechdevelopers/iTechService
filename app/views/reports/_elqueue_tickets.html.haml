@@ -1,0 +1,21 @@
+%table.table.table-bordered.table-hover
+  %caption= t '.title'
+  %thead
+    %tr
+      %th.center= t '.elqueue_name'
+      %th.center= t '.ticket_number'
+      %th.center= t '.ticket_issued_at'
+      %th.center= t '.ticket_called_at'
+      %th.center= t '.ticket_served_at'
+      %th.center= t '.queue_name'
+      %th.center= t '.status'
+    %tbody
+      - report.result[:data].each do |ticket|
+        %tr
+          %td= ticket[:elqueue_name]
+          %td= ticket[:ticket_number]
+          %td= ticket[:ticket_issued_at]
+          %td= ticket[:ticket_called_at]
+          %td= ticket[:ticket_served_at]
+          %td= ticket[:queue_name]
+          %td= ticket[:status]
