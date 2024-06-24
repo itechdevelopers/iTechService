@@ -86,6 +86,15 @@ ru:
       job_number: "Номер работы"
       user: "Сотрудник"
       no_comment: "-"
+    elqueue_tickets:
+      title: "Отчет по талонам электронной очереди"
+      ticket_number: "Номер талона"
+      elqueue_name: "Название электронной очереди"
+      ticket_issued_at: "Когда талон создан"
+      ticket_called_at: "Когда талон позвали"
+      ticket_served_at: "Когда талон завершен"
+      queue_name: "Название задачи"
+      status: "Завершён или клиент не пришёл"
     phone_substitutions:
       title: 'Отчёт по подменкам'
       substitute_phone: 'Телефон'
