@@ -1,17 +1,73 @@
 .queue-container
   = render_queue_tree(@queue_items, true)
-  %button.back-button Назад
+  %button.back-button.hidden Назад
+.show-client-ticket-number.hidden
+  %h2 Ваш номер талона:
+  .ticket-number СП3
+  %button.back-to-root-button На главную
+
+:javascript
+  document.addEventListener('DOMContentLoaded', function() {
+    document.body.style.backgroundColor = "#{@electronic_queue.background_color}";
+    document.querySelector('.back-button').style.backgroundColor = "#{@electronic_queue.back_button_color}";
+    document.querySelector('.show-client-ticket-number').style.backgroundColor = "#{@electronic_queue.queue_item_color}"
+  });
 
 :scss
+  .show-client-ticket-number {
+    position: absolute;
+    top: 4vh;
+    left: 8.5vw;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-evenly;
+    align-items: center;
+    height: 80vh;
+    width: 70vw;
+    border-radius: 4px;
+    padding: 50px;
+    font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+    border: 1px solid #ccc;
+
+    &.hidden {
+      display: none;
+    }
+
+    h2 {
+      font-size: 48px;
+      text-align: center;
+    }
+
+    .ticket-number {
+      font-size: 64px;
+      margin: 40px 0 60px 0;
+    }
+
+    .back-to-root-button {
+      padding: 8px 16px;
+      background-color: #e9e9e9;
+      color: black;
+      border: 1px solid #ccc;
+      border-radius: 5px;
+      font-size: 32px;
+      cursor: pointer;
+      transition: box-shadow 0.3s ease;
+    }
+  }
   .queue-container {
     display: flex;
     flex-direction: column;
     justify-content: space-around;
     align-items: center;
-    gap: 10px;
-    height: 97vh;
+    gap: 40px;
+    height: 90vh;
     padding: 20px;
     font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+
+
+    &.hidden {
+      display: none;
+    }
 
     .back-button {
       padding: 8px 16px;
@@ -19,9 +75,13 @@
       color: black;
       border: 1px solid #ccc;
       border-radius: 5px;
-      font-size: 16px;
+      font-size: 32px;
       cursor: pointer;
       transition: box-shadow 0.3s ease;
+
+      &.hidden {
+        display: none;
+      }
     }
 
     .back-button:active {
@@ -33,13 +93,6 @@
       flex-direction: column;
       justify-content: center;
       align-items: center;
-      width: 90%;
-      text-align: center;
-      border: 1px solid #ccc;
-      box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.1);
-      background-color: #f9f9f9;
-      cursor: pointer;
-      height: 80%;
 
       &.hidden {
         display: none;
@@ -68,12 +121,13 @@
       flex-direction: column;
       justify-content: center;
       align-items: center;
-      width: 90%;
+      width: 80%;
       text-align: center;
       border: 1px solid #ccc;
       box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.1);
       background-color: #f9f9f9;
       cursor: pointer;
+      padding: 18px;
 
       &.hidden {
         display: none;

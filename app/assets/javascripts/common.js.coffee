@@ -38,7 +38,7 @@ jQuery ->
   $('.color_input>.color_template').css 'background-color', $('.color_value').val()
 
   $('.color_input>.color_value').colorpicker().on 'changeColor', (event)->
-    $('.color_input>.color_template').css 'background-color', event.color.toHex()
+    $(this).closest('.color_input').find('.color_template').css 'background-color', event.color.toHex()
 
   if $('table.enumerable').length > 0
     enumerate_table('table.enumerable')

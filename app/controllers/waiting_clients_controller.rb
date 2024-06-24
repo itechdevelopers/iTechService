@@ -5,12 +5,20 @@ class WaitingClientsController < ApplicationController
     authorize WaitingClient
     @waiting_client = WaitingClient.new(waiting_client_params)
 
-    normilized_phone = PhonyRails.normalize_number(@waiting_client.phone_number, country_code: @waiting_client.country_code)
-    @waiting_client.phone_number = normilized_phone
+    if @waiting_client.phone_number.present?
+      normalized_phone = PhonyRails.normalize_number(@waiting_client.phone_number,
+                                                     country_code: @waiting_client.country_code)
+      @waiting_client.phone_number = normalized_phone
+    end
 
-    @waiting_client.save
-    print_pdf
-    redirect_to ipad_show_path(permalink: @waiting_client.queue_item.electronic_queue.ipad_link)
+    respond_to do |format|
+      if @waiting_client.save
+        print_pdf
+        format.json { render json: { ticket_number: @waiting_client.ticket_number } }
+      else
+        format.json { render json: @waiting_client.errors, status: :unprocessable_entity }
+      end
+    end
   end
 
   def complete
@@ -45,7 +53,7 @@ class WaitingClientsController < ApplicationController
 
   def waiting_client_params
     params.require(:waiting_client).permit(:queue_item_id, :client_name, :phone_number, :country_code,
-    :attached_window)
+                                           :attached_window)
   end
 
   def set_waiting_client
