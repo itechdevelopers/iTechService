@@ -64,6 +64,27 @@
       = f.text_field :check_info
 
   .control-group
+    = f.label :background_color, 'Цвет фона очереди (для iPad)', class: 'control-label'
+    .controls
+      %span.input-append.color_input
+        = f.text_field :background_color, class: 'string optional color_value'
+        %span.add-on.color_template
+
+  .control-group
+    = f.label :queue_item_color, 'Цвет элементов очереди (для iPad)', class: 'control-label'
+    .controls
+      %span.input-append.color_input
+        = f.text_field :queue_item_color, class: 'string optional color_value'
+        %span.add-on.color_template
+
+  .control-group
+    = f.label :back_button_color, 'Цвет кнопки "Назад" очереди (для iPad)', class: 'control-label'
+    .controls
+      %span.input-append.color_input
+        = f.text_field :back_button_color, class: 'string optional color_value'
+        %span.add-on.color_template
+
+  .control-group
     = f.label :enabled, t('.enabled'), class: 'control-label'
     .controls
       = f.check_box :enabled

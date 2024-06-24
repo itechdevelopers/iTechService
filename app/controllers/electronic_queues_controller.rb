@@ -111,6 +111,6 @@ class ElectronicQueuesController < ApplicationController
     params.require(:electronic_queue).permit(:queue_name, :department_id, :windows_count,
       :printer_address, :ipad_link, :tv_link, :enabled, :check_info,
       :header_boldness, :annotation_boldness, :header_font_size, :annotation_font_size,
-      :ticket_ids)
+      :ticket_ids, :background_color, :queue_item_color, :back_button_color)
   end
 end

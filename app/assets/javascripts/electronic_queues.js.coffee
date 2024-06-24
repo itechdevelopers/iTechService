@@ -4,30 +4,65 @@ jQuery ->
 
   electronic_queues_tree('#queue_items') if $('#queue_items').length > 0
 
+#  iPad show страница
   toggleVisibility = ->
     $('.visible').removeClass('visible').addClass('hidden')
 
   $(document).on 'click', '.queue-item', (event) ->
-    toggleVisibility()
-
     itemId = $(this).data('item-id')
 
     if $(this).data('edge')
-      $(".create-ticket[data-parent-id=#{itemId}]").removeClass('hidden').addClass('visible')
+      sendTicketRequest(itemId)
     else
+      toggleVisibility()
+      $('.back-button').removeClass('hidden')
       $(".queue-item[data-parent-id=#{itemId}]").removeClass('hidden').addClass('visible')
 
   $(document).on 'click', '.back-button', (event) ->
     parentId = $('.visible:first').data('parent-id')
-    console.log(parentId)
     if parentId
       toggleVisibility()
       if $(".queue-item[data-item-id=#{parentId}]").data('root')
-        $(".queue-item[data-root=true]").removeClass('hidden').addClass('visible')
+        showRootElements()
       else
         grandParentId = $(".queue-item[data-item-id=#{parentId}]").data('parent-id')
         $(".queue-item[data-parent-id=#{grandParentId}]").removeClass('hidden').addClass('visible')
 
+  $(document).on 'click', '.back-to-root-button', (event) ->
+    showClientTicketNumber = $('.show-client-ticket-number')
+    showClientTicketNumber.find('.ticket-number').text ''
+    showClientTicketNumber.addClass 'hidden'
+    showRootElements()
+
+  showRootElements = ->
+    $('.back-button').addClass('hidden')
+    $(".queue-item[data-root=true]").removeClass('hidden').addClass('visible')
+
+  sendTicketRequest = (itemId) ->
+    form = $(".create-ticket[data-parent-queue-item-id=#{itemId}] .create-ticket-form")
+    $.ajax
+      type: form.attr 'method'
+      url: form.attr 'action'
+      data: form.serialize()
+      dataType: 'json'
+      headers: { 'Accept': 'application/json' }
+      success: (data) ->
+        toggleVisibility()
+        ticketNumber = data.ticket_number
+        showClientTicketNumber = $('.show-client-ticket-number')
+
+        showClientTicketNumber.removeClass('hidden')
+        showClientTicketNumber.find('.ticket-number').text ticketNumber
+
+        setTimeout (->
+          showClientTicketNumber.find('.ticket-number').text ''
+          showClientTicketNumber.addClass 'hidden'
+          showRootElements()
+        ), 5000
+
+      error: (jqXHR, textStatus, errorThrown) ->
+        console.log 'Error:', textStatus, errorThrown
+# Управление электронной очередью
 window.electronic_queues_tree = (container)->
   $.jstree._themes = "/assets/jstree/"
   $container = $(container)
@@ -103,6 +138,7 @@ window.electronic_queues_tree = (container)->
     plugins: ["themes", "html_data", "ui", "crrm", "contextmenu", "dnd"]
   ).show()
 
+# Управление талонами электронной очереди из интерфейса сотрудника
 window.show_window_select_modal = ->
   $.getScript("/elqueue_windows/select_window")
 
