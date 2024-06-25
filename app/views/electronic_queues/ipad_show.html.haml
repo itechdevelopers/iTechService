@@ -3,7 +3,9 @@
   %button.back-button.hidden Назад
 .show-client-ticket-number.hidden
   %h2 Ваш номер талона:
-  .ticket-number СП3
+  .ticket-number-block
+    .ticket-number
+    .ticket-notice На всякий случай лучше запомнить или сфотографировать талон
   %button.back-to-root-button На главную
 
 :javascript
@@ -17,7 +19,7 @@
   .show-client-ticket-number {
     position: absolute;
     top: 4vh;
-    left: 8.5vw;
+    left: 9.3vw;
     display: flex;
     flex-direction: column;
     justify-content: space-evenly;
@@ -38,9 +40,21 @@
       text-align: center;
     }
 
+    .ticket-number-block {
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      gap: 30px;
+      border: 3px solid #1b1e21;
+      text-align: center;
+      font-size: 24px;
+      padding: 40px 0 60px 0;
+      height: 300px;
+      width: 360px;
+    }
+
     .ticket-number {
       font-size: 64px;
-      margin: 40px 0 60px 0;
     }
 
     .back-to-root-button {
@@ -59,7 +73,7 @@
     flex-direction: column;
     justify-content: space-around;
     align-items: center;
-    gap: 40px;
+    gap: 24px;
     height: 90vh;
     padding: 20px;
     font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
@@ -121,13 +135,13 @@
       flex-direction: column;
       justify-content: center;
       align-items: center;
-      width: 80%;
+      width: 100%;
       text-align: center;
       border: 1px solid #ccc;
-      box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.1);
+      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
       background-color: #f9f9f9;
       cursor: pointer;
-      padding: 18px;
+      padding: 0 12px;
 
       &.hidden {
         display: none;
@@ -136,7 +150,7 @@
       .queue-title {
         font-size: 24px;
         color: #333;
-        margin-bottom: 10px;
+        margin: 8px 0;
       }
 
       .queue-annotation {
