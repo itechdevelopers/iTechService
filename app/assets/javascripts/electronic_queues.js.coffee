@@ -58,7 +58,7 @@ jQuery ->
           showClientTicketNumber.find('.ticket-number').text ''
           showClientTicketNumber.addClass 'hidden'
           showRootElements()
-        ), 5000
+        ), 10000
 
       error: (jqXHR, textStatus, errorThrown) ->
         console.log 'Error:', textStatus, errorThrown
