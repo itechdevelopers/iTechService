@@ -185,6 +185,16 @@ class User < ApplicationRecord
 
   acts_as_list
 
+  def self.reset_windows
+    where.not(elqueue_window_id: nil).find_each do |user|
+      ElqueueWindow.find_by(id: user.elqueue_window_id).set_inactive!
+
+      user.update(elqueue_window_id: nil)
+    end
+  rescue StandardError => e
+    Rails.logger.error("Ошибка при обнулении окон пользователей: #{e.message}")
+  end
+
   def self.find_first_by_auth_conditions(warden_conditions)
     conditions = warden_conditions.dup
     if auth_token = conditions.delete(:auth_token)
