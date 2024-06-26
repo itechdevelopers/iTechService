@@ -249,7 +249,7 @@ class UsersController < ApplicationController
         current_user.reload
         format.js
       else
-        format.js { render 'shared/show_modal_form' }
+        format.js { render json: @user.errors, status: :unprocessable_entity }
       end
     end
   end

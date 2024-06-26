@@ -107,7 +107,6 @@ class WaitingClient < ApplicationRecord
     ElectronicQueueChannel.broadcast_to(queue_item.electronic_queue,
                                         action: "complete_service",
                                         waiting_client: self)
-    # ActionCable.server.broadcast "electronic_queue_#{queue_item.electronic_queue_id}_channel", action: "complete_service", waiting_client: self
   end
 
   def return_to_queue
