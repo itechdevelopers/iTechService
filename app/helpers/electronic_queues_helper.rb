@@ -56,7 +56,7 @@ module ElectronicQueuesHelper
       ticket_num = serving_client_ticket_number(user.elqueue_window)
       title = ticket_num
       style = 'color: #424242; font-weight: bold;'
-      menu_items << menu_item(ticket_num.to_s, show_finish_service_elqueue_window_path(user.elqueue_window), 
+      menu_items << menu_item(ticket_num.to_s, show_finish_service_elqueue_window_path(user.elqueue_window),
                               data: { remote: true })
     end
 
@@ -65,7 +65,7 @@ module ElectronicQueuesHelper
         title = 'В ожидании'
         style = 'color: #36b300; font-size: 14px;'
       end
-      menu_items << menu_item('Пауза', take_a_break_elqueue_window_path(user.elqueue_window), method: :patch, 
+      menu_items << menu_item('Пауза', take_a_break_elqueue_window_path(user.elqueue_window), method: :patch,
                                                                                               data: { remote: true })
     elsif user.waiting_for_break?
       menu_items << content_tag(:div, 'Пауза после этого клиента', class: 'waiting-for-break_menu-item')
@@ -74,13 +74,14 @@ module ElectronicQueuesHelper
         title = 'На паузе'
         style = 'color: #bd0000; font-size: 16px;'
       end
-      menu_items << menu_item('Старт', return_from_break_elqueue_window_path(user.elqueue_window), method: :patch, 
-                                                                                                   data: { remote: true })
+      menu_items << menu_item('Старт', return_from_break_elqueue_window_path(user.elqueue_window),
+                              method: :patch,
+                              data: { remote: true })
     end
 
-    menu_items << menu_item("Окно: #{user.elqueue_window.window_number}", select_window_elqueue_windows_path, 
+    menu_items << menu_item("Окно: #{user.elqueue_window.window_number}", select_window_elqueue_windows_path,
                             data: { remote: true })
-    menu_items << menu_item('Выбор талона', manage_tickets_electronic_queue_path(user.electronic_queue), 
+    menu_items << menu_item('Выбор талона', manage_tickets_electronic_queue_path(user.electronic_queue),
                             class: 'elqueue_active_tickets_button', data: { remote: true })
 
     custom_drop_down(title.to_s, style: style) do
@@ -161,7 +162,7 @@ module ElectronicQueuesHelper
   end
 
   def custom_drop_down_link(name, style:)
-    link_to(custom_name_and_caret(name), '#', :class => 'dropdown-toggle', style: style, 'data-toggle' => 'dropdown')
+    link_to(custom_name_and_caret(name), '#', :class => 'dropdown-toggle elqueue_navbar_title', style: style, 'data-toggle' => 'dropdown')
   end
 
   def custom_drop_down_list(&block)

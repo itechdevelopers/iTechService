@@ -6,4 +6,28 @@
     .warn-select-window
       = link_to "Выберите \n Окно", select_window_elqueue_windows_path, data: { remote: true }
   - else
+    %input#electronic_queue_id{type: 'hidden', value: current_user.electronic_queue.id}
+    %input#elqueue_window_number{type: 'hidden', value: current_user.elqueue_window.window_number}
     = dropdown_el_menu_for_user(current_user)
+    :coffee
+      electronicQueueId = $('#electronic_queue_id').val()
+      elqueueWindowNumber = $('#elqueue_window_number').val()
+      App.cable.subscriptions.create { channel: 'ElectronicQueueChannel', id: electronicQueueId },
+        received: (data) ->
+          if data['action'] == 'start_service' && data['window']?.toString() == elqueueWindowNumber
+            @startService(data['waiting_client']['ticket_number'])
+
+        startService: (ticketNumber) ->
+          $elqueueTitleElement = $('.elqueue_navbar_title')
+          if $elqueueTitleElement.text().trim().startsWith('В ожидании')
+            newHtml = ticketNumber + "<b class='caret' style='margin-left: 4px; margin-top: 8px; display: inline-block;'></b>"
+            $elqueueTitleElement.html(newHtml)
+            $elqueueTitleElement.css
+              color: '#424242'
+              fontWeight: 'bold'
+              fontSize: '19.6px'
+            $dropdownMenu = $elqueueTitleElement.next('ul.dropdown-menu')
+            $newListItem = $("<li><a data-remote='true' href='/elqueue_windows/" +
+              elqueueWindowNumber + "/show_finish_service'>" +
+              ticketNumber + "</a></li>")
+            $dropdownMenu.prepend($newListItem)

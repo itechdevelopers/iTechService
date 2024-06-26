@@ -167,6 +167,7 @@ class User < ApplicationRecord
   delegate :name, to: :department, prefix: true, allow_nil: true
   delegate :name, to: :location, prefix: true, allow_nil: true
   delegate :time_zone, to: :city, allow_nil: true
+  delegate :electronic_queue, to: :elqueue_window, allow_nil: true
 
   devise :database_authenticatable, :timeoutable, :recoverable, :trackable, :validatable
 
