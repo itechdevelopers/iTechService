@@ -186,11 +186,7 @@ class User < ApplicationRecord
   acts_as_list
 
   def self.reset_windows
-    where.not(elqueue_window_id: nil).find_each do |user|
-      ElqueueWindow.find_by(id: user.elqueue_window_id).set_inactive!
-
-      user.update(elqueue_window_id: nil)
-    end
+    where.not(elqueue_window_id: nil).find_each(&:free_window)
   rescue StandardError => e
     Rails.logger.error("Ошибка при обнулении окон пользователей: #{e.message}")
   end
@@ -612,6 +608,11 @@ class User < ApplicationRecord
 
   def unset_remember_pause
     update!(remember_pause: false)
+  end
+
+  def free_window
+    ElqueueWindow.find_by(id: elqueue_window_id).set_inactive!
+    update!(elqueue_window_id: nil)
   end
 
   private

@@ -3,6 +3,10 @@ class ElqueueWindowPolicy < ApplicationPolicy
     true
   end
 
+  def free_window?
+    admin? || superadmin?
+  end
+
   def show_finish_service?
     true
   end

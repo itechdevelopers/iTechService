@@ -42,6 +42,10 @@
       .form-actions
         = link_to_edit @electronic_queue
         = link_to_destroy @electronic_queue
+        = link_to icon_tag('window-restore') + " Управление окнами",
+                  manage_windows_electronic_queue_path(@electronic_queue),
+                  remote: true,
+                  class: 'btn btn-primary'
   .span6
     = link_to glyph(:file) + t('.new_queue_item').html_safe, new_electronic_queue_queue_item_path(electronic_queue_id: @electronic_queue.id), remote: true, class: 'btn btn-success'
 
