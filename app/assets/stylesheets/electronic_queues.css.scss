@@ -151,3 +151,24 @@
     margin-bottom: 0;
   }
 }
+
+.elqueue_windows-info {
+  margin-left: 30px;
+}
+.dl-horizontal {
+  .elqueue_window-info {
+    border-bottom: 1px solid #cbcbcb;
+    padding: 8px 0;
+
+    dt {
+      width: 60px;
+    }
+    dd {
+      margin-left: 90px;
+    }
+    .close-red {
+      color: #c90000cc;
+      float: right;
+    }
+  }
+}

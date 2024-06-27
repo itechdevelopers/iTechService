@@ -3,6 +3,10 @@ class ElectronicQueuePolicy < ApplicationPolicy
     superadmin? || user.id == 330
   end
 
+  def manage_windows?
+    admin? || superadmin?
+  end
+
   def index?
     manage?
   end

@@ -1,0 +1,13 @@
+windowId = <%= @elqueue_window.id %>;
+let ddElement = $(`.elqueue_window-info[data-window-id='${windowId}'] dd`);
+ddElement.text("Не занято");
+let linkElement = $('<a></a>');
+const linkHref = `/elqueue_windows/${windowId}/free_window`
+linkElement.attr({
+    'class': 'close-red',
+    'data-remote': 'true',
+    'data-method': 'patch',
+    'href': linkHref
+});
+linkElement.append($('<i></i>').addClass('fa fa-times-circle-o'));
+ddElement.append(linkElement);

@@ -1,5 +1,6 @@
 class ElqueueWindowsController < ApplicationController
-  before_action :set_elqueue_window, only: %i[show_finish_service take_a_break return_from_break]
+  before_action :set_elqueue_window, only: %i[show_finish_service take_a_break
+                                              return_from_break free_window]
 
   def select_window
     authorize ElqueueWindow
@@ -34,6 +35,11 @@ class ElqueueWindowsController < ApplicationController
     respond_to do |format|
       format.js { render 'renew_elqueue_navbar' }
     end
+  end
+
+  def free_window
+    authorize @elqueue_window
+    @elqueue_window.user&.free_window
   end
 
   private
