@@ -20,6 +20,7 @@ Rails.application.config.assets.precompile += %w[
   datepicker.css
   bootstrap-datetimepicker.min.css
   customicons.css
+  electronic_queue.css
 ]
 
 Rails.application.config.assets.precompile += %w[

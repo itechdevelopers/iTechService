@@ -105,7 +105,11 @@ module ElectronicQueuesHelper
       data_parent = parent_id ? parent_id.to_s : ''
       has_children = queue_item.children.any?
       content_tag(:div, class: "queue-item #{item_class}", style: styles_for_item,
-                        data: { root: root, item_id: queue_item.id, parent_id: data_parent, edge: !has_children }) do
+                        data: { root: root,
+                                item_id: queue_item.id,
+                                parent_id: data_parent,
+                                edge: !has_children,
+                                disabled: false }) do
         result = ''
         result << content_tag(:h2, queue_item.title, class: 'queue-title', style: styles_for_header)
         result << content_tag(:p, queue_item.annotation, class: 'queue-annotation', style: styles_for_annotation)

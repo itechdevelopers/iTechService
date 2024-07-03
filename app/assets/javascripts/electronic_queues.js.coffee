@@ -10,8 +10,10 @@ jQuery ->
 
   $(document).on 'click', '.queue-item', (event) ->
     itemId = $(this).data('item-id')
+    return if $(this).data('disabled')
 
     if $(this).data('edge')
+      $(this).attr('data-disabled', true)
       sendTicketRequest(itemId)
     else
       toggleVisibility()
@@ -46,13 +48,17 @@ jQuery ->
       data: form.serialize()
       dataType: 'json'
       headers: { 'Accept': 'application/json' }
+      beforeSend: ->
+        $('.loading-indicator, .loading-overlay').removeClass('hidden')
       success: (data) ->
+        $('.loading-indicator, .loading-overlay').addClass('hidden')
         toggleVisibility()
         ticketNumber = data.ticket_number
         showClientTicketNumber = $('.show-client-ticket-number')
 
         showClientTicketNumber.removeClass('hidden')
         showClientTicketNumber.find('.ticket-number').text ticketNumber
+        $(".queue-item[data-item-id='#{itemId}'").attr('data-disabled', false)
 
         setTimeout (->
           showClientTicketNumber.find('.ticket-number').text ''
@@ -61,7 +67,10 @@ jQuery ->
         ), 10000
 
       error: (jqXHR, textStatus, errorThrown) ->
+        $(".queue-item[data-item-id='#{itemId}'").attr('data-disabled', false)
+        $('.loading-indicator, .loading-overlay').addClass('hidden')
         console.log 'Error:', textStatus, errorThrown
+
 # Управление электронной очередью
 window.electronic_queues_tree = (container)->
   $.jstree._themes = "/assets/jstree/"
