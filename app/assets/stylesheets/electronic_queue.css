@@ -1,2 +1,4 @@
-@import '_bootstrap_and_overrides.css.scss';
-@import 'ipad_show.css.scss';
+/*
+*= require _bootstrap_and_overrides
+*= require ipad_show
+ */
