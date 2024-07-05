@@ -11,10 +11,10 @@ $ ->
       $card = $('<div>').addClass('elqueue-tv-card').data('ticket-number', ticketNumber)
 
       $ticketNumber = $('<span>').addClass('ticket-info').text(ticketNumber)
-      $ticketNumber.append($('<span>').addClass('label').text('Талон'))
-      $arrow = $('<span>').addClass('arrow').html('&#x279C;')
+      $ticketNumber.append($('<span>').addClass('label-tv').text('Талон'))
+      $arrow = $('<span>').addClass('arrow-tv').html('&#x279C;')
       $ticketWindow = $('<span>').addClass('ticket-info').text(windowNumber)
-      $ticketWindow.append($('<span>').addClass('label').text('Окно'))
+      $ticketWindow.append($('<span>').addClass('label-tv').text('Окно'))
 
       $card.append($ticketNumber)
       $card.append($arrow)

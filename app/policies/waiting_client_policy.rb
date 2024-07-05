@@ -10,4 +10,8 @@ class WaitingClientPolicy < ApplicationPolicy
   def assign_window?
     true
   end
+
+  def reassign_window?
+    true
+  end
 end

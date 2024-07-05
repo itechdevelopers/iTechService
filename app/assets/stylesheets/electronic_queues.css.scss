@@ -63,6 +63,15 @@
   padding-left: 35px;
 }
 
+.reassign-window-form {
+  display: inline-block;
+  float: right;
+
+  .select-window {
+    margin-bottom: 0;
+  }
+}
+
 .waiting-for-break_menu-item {
   font-weight: bold;
   display: block;

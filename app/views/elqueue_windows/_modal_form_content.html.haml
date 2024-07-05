@@ -31,3 +31,13 @@
       = link_to "Да", complete_waiting_client_path(@waiting_client), method: :patch, data: { remote: true }, class: "btn btn-primary"
       = link_to "Нет", "#", class: "btn btn-submit", data: {dismiss: "modal"}
       = link_to "Клиент не пришел", complete_waiting_client_path(@waiting_client, did_not_come: true), method: :patch, data: { remote: true }, class: "btn btn-danger"
+      = form_with url: reassign_window_waiting_client_path(@waiting_client),
+                  method: :patch,
+                  local: false,
+                  class: 'reassign-window-form' do |form|
+        = form.submit 'Передать талон в окно', class: 'btn btn-submit'
+        = form.fields_for :waiting_client do |f|
+          = f.select :attached_window,
+                      @waiting_client.electronic_queue.elqueue_windows.chosen.pluck(:window_number),
+                      {},
+                      { class: 'select-window' }
