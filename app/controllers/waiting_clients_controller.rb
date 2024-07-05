@@ -1,5 +1,5 @@
 class WaitingClientsController < ApplicationController
-  before_action :set_waiting_client, only: %i[complete show assign_window]
+  before_action :set_waiting_client, only: %i[complete show assign_window reassign_window]
 
   def create
     authorize WaitingClient
@@ -41,12 +41,18 @@ class WaitingClientsController < ApplicationController
   def assign_window
     authorize @waiting_client
     respond_to do |format|
-      if @waiting_client.update(attached_window: waiting_client_params[:attached_window])
+      if @waiting_client.assign_window(waiting_client_params[:attached_window].to_i)
         format.js
       else
         format.js { head :unprocessable_entity }
       end
     end
+  end
+
+  def reassign_window
+    authorize @waiting_client
+    @waiting_client.reassign_window(waiting_client_params[:attached_window].to_i)
+    respond_to(&:js)
   end
 
   private

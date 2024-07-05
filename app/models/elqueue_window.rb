@@ -7,6 +7,7 @@ class ElqueueWindow < ApplicationRecord
 
   scope :free, -> { left_joins(:waiting_client).where(waiting_clients: { id: nil }) }
   scope :not_chosen, -> { left_joins(:user).where(users: { id: nil }) }
+  scope :chosen, -> { left_joins(:user).where.not(users: { id: nil }) }
   scope :active, -> { where(is_active: true) }
   scope :active_free, -> { active.free }
 
@@ -15,9 +16,7 @@ class ElqueueWindow < ApplicationRecord
   end
 
   def next_waiting_client
-    waiting_clients = WaitingClient.in_queue(electronic_queue)
-                                   .waiting
-                                   .where.not(position: nil)
+    waiting_clients = WaitingClient.waiting_in_queue(electronic_queue)
 
     waiting_client_only_for_this_window = waiting_clients.with_attached_window(window_number).to_a
 
@@ -27,6 +26,7 @@ class ElqueueWindow < ApplicationRecord
 
     wcs = waiting_clients_for_window.concat(waiting_client_only_for_this_window)
     return wcs.min_by(&:position) if wcs.any?
+
     waiting_clients.without_attached_window.order(:position).first
   end
 

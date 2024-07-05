@@ -399,6 +399,7 @@ Rails.application.routes.draw do
   resources :waiting_clients, only: %i[create show] do
     patch :complete, on: :member, defaults: {format: :js}
     patch :assign_window, on: :member, defaults: {format: :js}
+    patch :reassign_window, on: :member, defaults: {format: :js}
   end
 
   resources :elqueue_windows, only: %i[update] do
