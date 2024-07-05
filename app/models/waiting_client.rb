@@ -134,6 +134,7 @@ class WaitingClient < ApplicationRecord
   # Метод для талона в очереди
   def assign_window(window_number)
     update!(attached_window: window_number)
+    trigger_electronic_queue_move
   end
 
   # Метод вызывается в момент, когда талон уже обслуживается в окне
@@ -161,14 +162,14 @@ class WaitingClient < ApplicationRecord
   end
 
   def broadcast_start_service
-    ElectronicQueueChannel.broadcast_to(queue_item.electronic_queue,
+    ElectronicQueueChannel.broadcast_to(electronic_queue,
                                         action: 'start_service',
                                         waiting_client: self,
                                         window: elqueue_window.window_number)
   end
 
   def broadcast_complete
-    ElectronicQueueChannel.broadcast_to(queue_item.electronic_queue,
+    ElectronicQueueChannel.broadcast_to(electronic_queue,
                                         action: 'complete_service',
                                         waiting_client: self)
   end

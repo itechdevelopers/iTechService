@@ -25,9 +25,7 @@ class ElqueueWindow < ApplicationRecord
                                                 .select { |wc| wc.queue_item.windows_array.include?(window_number) }
 
     wcs = waiting_clients_for_window.concat(waiting_client_only_for_this_window)
-    return wcs.min_by(&:position) if wcs.any?
-
-    waiting_clients.without_attached_window.order(:position).first
+    wcs.min_by(&:position) if wcs.any?
   end
 
   def set_active!

@@ -22,7 +22,9 @@ class ElectronicQueue < ApplicationRecord
   end
 
   def move
-    elqueue_windows.active_free.each do |window|
+    shuffled_window_ids = shuffle_windows(elqueue_windows.active_free.pluck(:id))
+    shuffled_window_ids.each do |window_id|
+      window = ElqueueWindow.find(window_id)
       window.next_waiting_client&.start_service(window)
     end
   end
@@ -31,5 +33,18 @@ class ElectronicQueue < ApplicationRecord
     (1..windows_count).each do |i|
       self.elqueue_windows.create(window_number: i, is_active: false)
     end
+  end
+
+  private
+
+  def shuffle_windows(ary)
+    result = []
+
+    while ary.any?
+      random_index = rand(ary.length)
+      result << ary.delete_at(random_index)
+    end
+
+    result
   end
 end
