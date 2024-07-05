@@ -578,6 +578,10 @@ class User < ApplicationRecord
     ElectronicQueue.enabled_for_department(department) && able_to?(:work_with_electronic_queues)
   end
 
+  def department_elqueue
+    department.electronic_queues.first
+  end
+
   def window_unselected?
     need_to_select_window || elqueue_window.nil?
   end
