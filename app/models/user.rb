@@ -582,6 +582,10 @@ class User < ApplicationRecord
     department.electronic_queues.first
   end
 
+  def any_elqueues_on_department?
+    department.electronic_queues.any?
+  end
+
   def window_unselected?
     need_to_select_window || elqueue_window.nil?
   end
