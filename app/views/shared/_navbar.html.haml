@@ -36,9 +36,10 @@
         - if can?(:manage, ElectronicQueue) || can?(:manage_windows, ElectronicQueue)
           = drop_down_divider
         = menu_item t('electronic_queues.index.title'), electronic_queues_path if can?(:manage, ElectronicQueue)
-        = menu_item 'Управление окнами очереди',
-            manage_windows_electronic_queue_path(current_user.department_elqueue),
-            remote: true if can? :manage_windows, ElectronicQueue
+        - if current_user.any_elqueues_on_department? && can?(:manage_windows, ElectronicQueue)
+          = menu_item 'Управление окнами очереди',
+              manage_windows_electronic_queue_path(current_user.department_elqueue),
+              remote: true
 
       = drop_down t('.trade') do
         = menu_item t('.trade_in'), trade_in_devices_path
