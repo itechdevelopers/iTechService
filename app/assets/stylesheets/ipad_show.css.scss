@@ -71,6 +71,7 @@
     font-size: 32px;
     cursor: pointer;
     transition: box-shadow 0.3s ease;
+    line-height: 1.2em;
   }
 }
 .queue-container {
@@ -156,11 +157,13 @@
       font-size: 24px;
       color: #333;
       margin: 8px 0;
+      line-height: 1em;
     }
 
     .queue-annotation {
       font-size: 18px;
       color: #666;
+      line-height: 0.9em;
     }
   }
 
