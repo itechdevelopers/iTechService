@@ -37,7 +37,7 @@ module AnnouncementsHelper
 
   def header_link_to_announce
     case current_user.role
-      when 'software' then icon = 'bell-alt'; kind = 'help'
+      when 'software' then icon = 'bell'; kind = 'help'
       when 'media' then icon = 'coffee'; kind = 'coffee'
       when 'technician' then icon = 'file'; kind = 'protector'
       else return nil

@@ -180,3 +180,42 @@
     flex-grow: 1;
   }
 }
+
+.queue-breadcrumbs {
+  display: flex;
+  align-items: center;
+  height: 44px;
+  padding: 0 20px;
+  background-color: #f7f7f7;
+  border-bottom: 1px solid #e5e5e5;
+  font-size: 17px;
+
+  &:empty {
+    height: 0;
+  }
+
+  .queue-breadcrumbs_item {
+    position: relative;
+    padding-right: 24px;
+    margin-right: 12px;
+    color: #007aff;
+
+    &:last-child {
+      padding-right: 0;
+      margin-right: 0;
+      color: #000;
+    }
+
+    &:not(:last-child):after {
+      content: "";
+      position: absolute;
+      top: 50%;
+      right: 0;
+      width: 12px;
+      height: 12px;
+      border-top: 2px solid #c7c7cc;
+      border-right: 2px solid #c7c7cc;
+      transform: translateY(-50%) rotate(45deg);
+    }
+  }
+}

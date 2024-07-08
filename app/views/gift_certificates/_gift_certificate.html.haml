@@ -3,7 +3,7 @@
   %td.number_col
     = link_to gift_certificate.number, gift_certificate_path(gift_certificate)
     - if can? :manage, GiftCertificate
-      = link_to icon_tag(:time), history_gift_certificate_path(gift_certificate), style: 'text-decoration:none;', remote: true
+      = link_to icon_tag('clock-o'), history_gift_certificate_path(gift_certificate), style: 'text-decoration:none;', remote: true
   %td.nominal_col= human_gift_certificate_nominal gift_certificate
   %td.consumed_col= number_to_currency gift_certificate.consumed, precision: 0
   %td.status_col= gift_certificate.status_h

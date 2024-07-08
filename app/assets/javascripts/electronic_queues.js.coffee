@@ -5,12 +5,25 @@ jQuery ->
   electronic_queues_tree('#queue_items') if $('#queue_items').length > 0
 
 #  iPad show страница
+  addToBreadcrumbs = (text) ->
+    $('<div>', {
+      class: 'queue-breadcrumbs_item',
+      text: text
+    }).appendTo '.queue-breadcrumbs'
+
+  popBreadcrumbs = ->
+    $('.queue-breadcrumbs .queue-breadcrumbs_item:last').remove()
+
+  clearBreadcrumbs = ->
+    $('.queue-breadcrumbs').html ''
+
   toggleVisibility = ->
     $('.visible').removeClass('visible').addClass('hidden')
 
   $(document).on 'click', '.queue-item', (event) ->
     itemId = $(this).data('item-id')
     return if $(this).data('disabled')
+    title = $(this).find('h2').text()
 
     if $(this).data('edge')
       $(this).attr('data-disabled', true)
@@ -18,6 +31,7 @@ jQuery ->
     else
       toggleVisibility()
       $('.back-button').removeClass('hidden')
+      addToBreadcrumbs(title)
       $(".queue-item[data-parent-id=#{itemId}]").removeClass('hidden').addClass('visible')
 
   $(document).on 'click', '.back-button', (event) ->
@@ -26,9 +40,11 @@ jQuery ->
       toggleVisibility()
       if $(".queue-item[data-item-id=#{parentId}]").data('root')
         showRootElements()
+        clearBreadcrumbs()
       else
         grandParentId = $(".queue-item[data-item-id=#{parentId}]").data('parent-id')
         $(".queue-item[data-parent-id=#{grandParentId}]").removeClass('hidden').addClass('visible')
+        popBreadcrumbs()
 
   $(document).on 'click', '.back-to-root-button', (event) ->
     showClientTicketNumber = $('.show-client-ticket-number')
@@ -53,6 +69,7 @@ jQuery ->
       success: (data) ->
         $('.loading-indicator, .loading-overlay').addClass('hidden')
         toggleVisibility()
+        clearBreadcrumbs()
         ticketNumber = data.ticket_number
         showClientTicketNumber = $('.show-client-ticket-number')
 
@@ -69,6 +86,7 @@ jQuery ->
       error: (jqXHR, textStatus, errorThrown) ->
         $(".queue-item[data-item-id='#{itemId}'").attr('data-disabled', false)
         $('.loading-indicator, .loading-overlay').addClass('hidden')
+        clearBreadcrumbs()
         console.log 'Error:', textStatus, errorThrown
 
 # Управление электронной очередью

@@ -2,7 +2,7 @@
   %h1
     = link_back_to_index
     = t('orders.order_num', num: @order.number)
-    %small= link_to icon_tag(:time), history_order_path(@order), style: 'text-decoration:none;', remote: true
+    %small= link_to icon_tag('clock-o'), history_order_path(@order), style: 'text-decoration:none;', remote: true
 
   %span.help-block
     %small= timestamp_string_for @order
