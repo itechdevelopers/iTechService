@@ -20,7 +20,7 @@ class ElqueueTicketsReport < BaseReport
         ticket_issued_at: wc.ticket_issued_at.strftime('%d.%m.%Y %H:%M'),
         ticket_called_at: wc.ticket_called_at&.strftime('%d.%m.%Y %H:%M') || '',
         ticket_served_at: wc.ticket_served_at&.strftime('%d.%m.%Y %H:%M') || '',
-        queue_name: wc.queue_item.title,
+        queue_name: wc.queue_item_ancestors,
         status: wc.status.start_with?('completed') ? 'Завершён' : 'Не пришёл'
       }
     end
