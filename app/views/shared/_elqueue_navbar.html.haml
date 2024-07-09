@@ -10,14 +10,15 @@
     %input#elqueue_window_number{type: 'hidden', value: current_user.elqueue_window.window_number}
     = dropdown_el_menu_for_user(current_user)
     :coffee
+      $('.elqueue_navbar_title').tooltip({placement: 'bottom'})
       electronicQueueId = $('#electronic_queue_id').val()
       elqueueWindowNumber = $('#elqueue_window_number').val()
       App.cable.subscriptions.create { channel: 'ElectronicQueueChannel', id: electronicQueueId },
         received: (data) ->
           if data['action'] == 'start_service' && data['window']?.toString() == elqueueWindowNumber
-            @startService(data['waiting_client']['ticket_number'])
+            @startService(data['waiting_client']['ticket_number'], data['waiting_client']['queue_item_ancestors'])
 
-        startService: (ticketNumber) ->
+        startService: (ticketNumber, ticketInfo) ->
           $elqueueTitleElement = $('.elqueue_navbar_title')
           if $elqueueTitleElement.text().trim().startsWith('В ожидании')
             newHtml = ticketNumber + "<b class='caret' style='margin-left: 4px; margin-top: 8px; display: inline-block;'></b>"
@@ -31,3 +32,6 @@
               elqueueWindowNumber + "/show_finish_service'>" +
               ticketNumber + "</a></li>")
             $dropdownMenu.prepend($newListItem)
+          $elqueueTitleElement.attr('title', ticketInfo)
+          $elqueueTitleElement.addClass('has-tooltip')
+          $elqueueTitleElement.tooltip({placement: 'bottom'})

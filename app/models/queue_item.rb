@@ -1,6 +1,6 @@
 class QueueItem < ApplicationRecord
   belongs_to :electronic_queue
-  has_many :queue_tickets, class_name: "WaitingClient", foreign_key: "queue_item_id", dependent: :destroy
+  has_many :queue_tickets, class_name: 'WaitingClient', foreign_key: 'queue_item_id', dependent: :destroy
   has_ancestry orphan_strategy: :rootify, cache_depth: true
 
   validates :priority, presence: true, numericality: { only_integer: true, greater_than_or_equal_to: 0, less_than_or_equal_to: 3}
@@ -11,6 +11,12 @@ class QueueItem < ApplicationRecord
     always_second: 2,  # "Второй"
     always_third: 3    # "Третий"
   }
+
+  def ancestors_and_self_titles
+    ancestor_titles = self.class.ancestors_of(self).order(:ancestry_depth).pluck(:title)
+    ancestor_titles << title
+    ancestor_titles.join(' - ')
+  end
 
   def priority_label
     I18n.t("queue_items.priorities.#{priority}")

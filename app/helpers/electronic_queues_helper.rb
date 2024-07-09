@@ -48,14 +48,21 @@ module ElectronicQueuesHelper
     window.waiting_client&.ticket_number
   end
 
+  def tooltip_text(waiting_client)
+    waiting_client.queue_item_ancestors
+  end
+
   def dropdown_el_menu_for_user(user)
     menu_items = ''
     title = 'ЭО '
     style = ''
+    tooltip = { has_tooltip: false, text: '' }
     if user.serving_client?
       ticket_num = serving_client_ticket_number(user.elqueue_window)
       title = ticket_num
       style = 'color: #424242; font-weight: bold;'
+      tooltip[:has_tooltip] = true
+      tooltip[:text] = tooltip_text(user.elqueue_window.waiting_client)
       menu_items << menu_item(ticket_num.to_s, show_finish_service_elqueue_window_path(user.elqueue_window),
                               data: { remote: true })
     end
@@ -84,7 +91,7 @@ module ElectronicQueuesHelper
     menu_items << menu_item('Выбор талона', manage_tickets_electronic_queue_path(user.electronic_queue),
                             class: 'elqueue_active_tickets_button', data: { remote: true })
 
-    custom_drop_down(title.to_s, style: style) do
+    custom_drop_down(title.to_s, style: style, tooltip: tooltip) do
       menu_items.html_safe
     end
   end
@@ -154,22 +161,31 @@ module ElectronicQueuesHelper
   end
 
   # Customize drop_down
-  def custom_drop_down(name, style:)
-    content_tag :li, :class => 'dropdown' do
-      custom_drop_down_link(name, style: style) + custom_drop_down_list { yield }
+  def custom_drop_down(name, style:, tooltip:)
+    content_tag :li, class: 'dropdown' do
+      custom_drop_down_link(name, style: style, tooltip: tooltip) + custom_drop_down_list { yield }
     end
   end
 
   def custom_name_and_caret(name)
-    "#{name} #{content_tag(:b, :class => "caret", style: "margin-left: 4px; margin-top: 8px; display: inline-block;") {
-}}".html_safe
+    "#{name} #{content_tag(:b, class: 'caret', style: 'margin-left: 4px; margin-top: 8px; display: inline-block;') {}}".html_safe
   end
 
-  def custom_drop_down_link(name, style:)
-    link_to(custom_name_and_caret(name), '#', :class => 'dropdown-toggle elqueue_navbar_title', style: style, 'data-toggle' => 'dropdown')
+  def custom_drop_down_link(name, style:, tooltip:)
+    has_tooltip = tooltip[:has_tooltip]
+    classes = 'dropdown-toggle elqueue_navbar_title'
+    classes << (has_tooltip ? ' has-tooltip' : '')
+    link_to(custom_name_and_caret(name),
+            '#',
+            class: classes,
+            style: style,
+            data: {
+              toggle: 'dropdown',
+              title: tooltip[:text]
+            })
   end
 
   def custom_drop_down_list(&block)
-    content_tag :ul, :class => 'dropdown-menu', &block
+    content_tag :ul, class: 'dropdown-menu', &block
   end
 end

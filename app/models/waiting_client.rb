@@ -149,6 +149,10 @@ class WaitingClient < ApplicationRecord
     trigger_electronic_queue_move
   end
 
+  def queue_item_ancestors
+    queue_item.ancestors_and_self_titles
+  end
+
   private
 
   def set_move_ticket_job
@@ -162,16 +166,23 @@ class WaitingClient < ApplicationRecord
   end
 
   def broadcast_start_service
+    waiting_client_data = {
+      ticket_number: ticket_number,
+      queue_item_ancestors: queue_item_ancestors
+    }
     ElectronicQueueChannel.broadcast_to(electronic_queue,
                                         action: 'start_service',
-                                        waiting_client: self,
+                                        waiting_client: waiting_client_data,
                                         window: elqueue_window.window_number)
   end
 
   def broadcast_complete
+    waiting_client_data = {
+      ticket_number: ticket_number
+    }
     ElectronicQueueChannel.broadcast_to(electronic_queue,
                                         action: 'complete_service',
-                                        waiting_client: self)
+                                        waiting_client: waiting_client_data)
   end
 
   def set_initial_attributes
