@@ -98,6 +98,7 @@ group :development do
   gem 'puma'
   gem 'awesome_print'
   gem 'byebug'
+  gem 'active_record_query_trace'
 end
 
 group :test do
