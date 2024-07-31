@@ -40,6 +40,8 @@
           = menu_item 'Управление окнами очереди',
               manage_windows_electronic_queue_path(current_user.department_elqueue),
               remote: true
+          = menu_item 'Мониторинг талонов очереди',
+              monitoring_electronic_queue_path(current_user.department_elqueue)
 
       = drop_down t('.trade') do
         = menu_item t('.trade_in'), trade_in_devices_path

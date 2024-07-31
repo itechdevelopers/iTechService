@@ -3,6 +3,8 @@ class WaitingClient < ApplicationRecord
   belongs_to :client, optional: true
   belongs_to :elqueue_window, optional: true
 
+  has_many :elqueue_ticket_movements
+
   before_create :set_initial_attributes
   after_create :set_move_ticket_job
   after_create :trigger_electronic_queue_move
@@ -96,12 +98,20 @@ class WaitingClient < ApplicationRecord
   end
 
   def start_service(window)
+    old_pos = position
     update!(status: 'in_service',
             elqueue_window: window,
             ticket_called_at: Time.zone.now,
             position: nil)
     self.class.realign_positions(queue_item.electronic_queue)
     broadcast_start_service
+
+    elqueue_ticket_movements.create(type: 'ElqueueTicketMovement::Called',
+                                    old_position: old_pos,
+                                    elqueue_window: window,
+                                    user: window.user,
+                                    electronic_queue: electronic_queue,
+                                    queue_state: electronic_queue.queue_state)
   end
 
   def complete_service(did_not_come = false)
@@ -112,23 +122,37 @@ class WaitingClient < ApplicationRecord
     broadcast_complete
   end
 
-  def return_to_queue
+  def return_to_queue(user)
     return unless %w[completed did_not_come].include? status
 
     update!(status: 'waiting')
     self.class.add_to_queue(self)
+    elqueue_ticket_movements.create(type: 'ElqueueTicketMovement::RequeuedCompleted',
+                                    new_position: position,
+                                    electronic_queue: electronic_queue,
+                                    queue_state: electronic_queue.queue_state,
+                                    user: user,
+                                    priority: priority_value)
     trigger_electronic_queue_move
   end
 
   def electronic_queue
-    queue_item.electronic_queue
+    @electronic_queue ||= queue_item.electronic_queue
   end
 
   # Двигаем талон автоматически по времени
   def move_to_beginning
+    old_position = position
     update!(position: nil, priority: 'moved_by_timing')
     self.class.add_to_queue(self)
     self.class.realign_positions(electronic_queue)
+
+    elqueue_ticket_movements.create(type: 'ElqueueTicketMovement::TimeoutMoved',
+                                    old_position: old_position,
+                                    new_position: position,
+                                    electronic_queue: electronic_queue,
+                                    queue_state: electronic_queue.queue_state,
+                                    priority: priority_value)
   end
 
   # Метод для талона в очереди
@@ -138,7 +162,8 @@ class WaitingClient < ApplicationRecord
   end
 
   # Метод вызывается в момент, когда талон уже обслуживается в окне
-  def reassign_window(window_number)
+  def reassign_window(window_number, user)
+    old_window = elqueue_window
     update!(elqueue_window: nil,
             ticket_called_at: nil,
             priority: 'always_first',
@@ -146,11 +171,23 @@ class WaitingClient < ApplicationRecord
             attached_window: window_number)
     broadcast_complete
     self.class.add_to_queue(self)
+
+    elqueue_ticket_movements.create(type: 'ElqueueTicketMovement::Requeued',
+                                    new_position: position,
+                                    electronic_queue: electronic_queue,
+                                    queue_state: electronic_queue.queue_state,
+                                    user: user,
+                                    elqueue_window: old_window,
+                                    priority: priority_value)
     trigger_electronic_queue_move
   end
 
   def queue_item_ancestors
     queue_item.ancestors_and_self_titles
+  end
+
+  def priority_value
+    priority_before_type_cast
   end
 
   private
@@ -189,7 +226,7 @@ class WaitingClient < ApplicationRecord
     self.ticket_number ||= evaluate_ticket_number
     self.status ||= 'waiting'
     self.priority = queue_item.priority
-    self.client ||= Client.find_by(phone_number: phone_number)
+    # self.client ||= Client.find_by(phone_number: phone_number)
     self.ticket_issued_at ||= Time.zone.now
     self.class.add_to_queue(self)
   end

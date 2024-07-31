@@ -1,0 +1,42 @@
+let container = $('#detailed-ticket-info');
+headerLine = 'Информация о талоне <%= @ticket.ticket_number %>:';
+addLineToContainer(container, headerLine);
+
+ticketIssuedLine = 'Талон получен: <%= @ticket.ticket_issued_at.strftime('%H:%M:%S') %>';
+addLineToContainer(container, ticketIssuedLine);
+
+ticketCalledLine = 'Начали обслуживать в: <%= @ticket.ticket_called_at.strftime('%H:%M:%S') %>';
+addLineToContainer(container, ticketCalledLine);
+
+timeServed = '<%= (@ticket.ticket_served_at - @ticket.ticket_called_at).div(60) %>';
+ticketBeenServedLine = `Время обслуживания: ${timeServed} минут`;
+addLineToContainer(container, ticketBeenServedLine);
+
+timeWaited = '<%= (@ticket.ticket_called_at - @ticket.ticket_issued_at).div(60) %>';
+ticketBeenWaitingLine = `Время ожидания: ${timeWaited} минут`;
+addLineToContainer(container, ticketBeenWaitingLine);
+
+usernameServed = '<%= user_served_str(@ticket_movements) %>';
+ticketServedByLine = `Талон обслуживал сотрудник: ${usernameServed}`;
+addLineToContainer(container, ticketServedByLine);
+
+usernameRequeued = '<%= user_requeued_completed_str(@ticket_movements) %>';
+ticketRequeuedByLine = `Талон вернул в очередь сотрудник: ${usernameRequeued}`;
+addLineToContainer(container, ticketRequeuedByLine);
+
+manualBoostStr = '<%= manual_boost_str(@ticket_movements) %>';
+ticketManualBoostLine = `Талон двигали вручную: ${manualBoostStr}`;
+addLineToContainer(container, ticketManualBoostLine);
+
+timeoutBoostStr = '<%= timeout_boost_str(@ticket_movements) %>';
+ticketTimeoutBoostLine = `Талон двигался по времени: ${timeoutBoostStr}`;
+addLineToContainer(container, ticketTimeoutBoostLine);
+
+priorityBoostStr = '<%= priority_boost_str(@ticket_movements) %>';
+ticketPriorityBoostLine = `Талон двигался по приоритету: ${priorityBoostStr}`;
+addLineToContainer(container, ticketPriorityBoostLine);
+
+function addLineToContainer(container, line) {
+    line = $('<p>').text(line).addClass('ticket-info-line');
+    container.append(line);
+}

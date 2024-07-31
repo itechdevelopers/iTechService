@@ -1,6 +1,7 @@
 - if @modal == "manage_tickets"
   = form_with url: sort_tickets_electronic_queue_path(@electronic_queue), local: false, method: :patch, id: "form-sort-tickets" do |f|
     = f.hidden_field("electronic_queue[ticket_ids]", value: [], id: "ticket-ids")
+    = f.hidden_field("electronic_queue[id_moved]", value: [], id: "id-moved")
   .modal-header
     %h3 Управление талонами
 

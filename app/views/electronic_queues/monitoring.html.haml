@@ -1,0 +1,21 @@
+.page-header
+  %h1= "Мониторинг талонов очереди #{@electronic_queue.queue_name}"
+
+.row-fluid
+  = form_with url: filter_movements_by_called_elqueue_ticket_movements_path,
+              method: :get,
+              local: false,
+              class: 'monitoring-filter-form' do |form|
+    = form.fields_for :elqueue_ticket_movement do |f|
+      = f.hidden_field :electronic_queue_id, value: @electronic_queue.id
+      .form-group
+        = f.label :date, 'Дата'
+        = f.text_field :date, class: 'bootstrap-datepicker input-small'
+      .form-group
+        = f.label :time, 'Час'
+        = f.number_field :time, min: 0, max: 23, class: 'input-xsmall'
+    = form.submit 'Поиск', class: 'btn btn-submit'
+
+.row-fluid.monitoring-container
+  #dots-movements-container
+  #timing-axis

@@ -176,9 +176,14 @@ $(document).on "openManageTicketsModal", () ->
 
 initTicketsSortable = (lis) ->
   lis.each (index, element) ->
-    new Sortable(element, { group: 'tickets', animation: 300, onEnd: () => saveTicketsSorting($('.modal-body .elqueue-ticket-card')) })
+    new Sortable(element, {
+      group: 'tickets',
+      animation: 300,
+      onEnd: (evt) =>
+        saveTicketsSorting($('.modal-body .elqueue-ticket-card'), $(evt.item).data('ticket-id'))
+    })
 
-saveTicketsSorting = (lis) ->
+saveTicketsSorting = (lis, idMoved) ->
   ticketIds = []
   lis.each (index, li) ->
     ticketIds.push({
@@ -186,4 +191,5 @@ saveTicketsSorting = (lis) ->
       'position': index+1
     })
   $('#ticket-ids').val(JSON.stringify(ticketIds))
+  $('#id-moved').val(idMoved)
   $('#form-sort-tickets').submit()
