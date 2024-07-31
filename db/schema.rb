@@ -10,12 +10,13 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20240624134831) do
+ActiveRecord::Schema.define(version: 20240725130302) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
   enable_extension "citext"
   enable_extension "hstore"
+  enable_extension "pg_stat_statements"
 
   create_table "announcements", id: :serial, force: :cascade do |t|
     t.string "content", limit: 255
@@ -354,6 +355,25 @@ ActiveRecord::Schema.define(version: 20240624134831) do
     t.index ["department_id"], name: "index_electronic_queues_on_department_id"
     t.index ["ipad_link"], name: "index_electronic_queues_on_ipad_link", unique: true
     t.index ["tv_link"], name: "index_electronic_queues_on_tv_link", unique: true
+  end
+
+  create_table "elqueue_ticket_movements", force: :cascade do |t|
+    t.string "type"
+    t.bigint "waiting_client_id", null: false
+    t.integer "old_position"
+    t.integer "new_position"
+    t.jsonb "queue_state", default: {}, null: false
+    t.bigint "user_id"
+    t.integer "priority"
+    t.bigint "elqueue_window_id"
+    t.bigint "electronic_queue_id", null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["created_at"], name: "index_elqueue_ticket_movements_on_created_at"
+    t.index ["electronic_queue_id"], name: "index_elqueue_ticket_movements_on_electronic_queue_id"
+    t.index ["elqueue_window_id"], name: "index_elqueue_ticket_movements_on_elqueue_window_id"
+    t.index ["user_id"], name: "index_elqueue_ticket_movements_on_user_id"
+    t.index ["waiting_client_id"], name: "index_elqueue_ticket_movements_on_waiting_client_id"
   end
 
   create_table "elqueue_windows", force: :cascade do |t|
@@ -1666,6 +1686,7 @@ ActiveRecord::Schema.define(version: 20240624134831) do
   add_foreign_key "departments", "brands"
   add_foreign_key "departments", "cities"
   add_foreign_key "electronic_queues", "departments"
+  add_foreign_key "elqueue_ticket_movements", "waiting_clients"
   add_foreign_key "elqueue_windows", "electronic_queues"
   add_foreign_key "faults", "fault_kinds", column: "kind_id"
   add_foreign_key "faults", "users", column: "causer_id"

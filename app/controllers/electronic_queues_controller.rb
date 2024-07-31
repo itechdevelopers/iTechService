@@ -4,7 +4,7 @@ class ElectronicQueuesController < ApplicationController
   before_action :custom_authenticate_user, only: %i[ipad_show tv_show]
   before_action :set_and_authorize_record, only: %i[show edit update destroy show_active_tickets
                                                     manage_tickets sort_tickets return_old_ticket
-                                                    manage_windows]
+                                                    manage_windows monitoring]
 
   def ipad_show
     authorize ElectronicQueue
@@ -46,7 +46,11 @@ class ElectronicQueuesController < ApplicationController
     @modal = 'manage_tickets'
     @waiting_clients = WaitingClient.in_queue(@electronic_queue).waiting
     @waiting_client = WaitingClient.find(params[:ticket_id].to_i)
-    @waiting_client.return_to_queue
+    @waiting_client.return_to_queue(current_user)
+  end
+
+  def monitoring
+
   end
 
   def index
@@ -91,11 +95,22 @@ class ElectronicQueuesController < ApplicationController
 
   def sort_tickets
     sorted_tickets = JSON.parse(electronic_queue_params[:ticket_ids])
+    moved_ticket_id = electronic_queue_params[:id_moved]
+    wc = WaitingClient.find(moved_ticket_id)
+    old_pos = wc.position
     ActiveRecord::Base.transaction do
       sorted_tickets.each do |ticket|
         WaitingClient.find(ticket['id'])
-                    .update(position: ticket['position'])
+                     .update(position: ticket['position'])
       end
+      wc.reload
+      new_pos = wc.position
+      wc.elqueue_ticket_movements.create(type: 'ElqueueTicketMovement::Manual',
+                                         user: current_user,
+                                         old_position: old_pos,
+                                         new_position: new_pos,
+                                         electronic_queue: @electronic_queue,
+                                         queue_state: @electronic_queue.queue_state)
     end
     respond_to do |format|
       format.js { head :ok }
@@ -120,6 +135,6 @@ class ElectronicQueuesController < ApplicationController
                                              :printer_address, :ipad_link, :tv_link, :enabled, :check_info,
                                              :header_boldness, :annotation_boldness, :header_font_size,
                                              :annotation_font_size, :ticket_ids, :background_color, :queue_item_color,
-                                             :back_button_color)
+                                             :back_button_color, :id_moved)
   end
 end

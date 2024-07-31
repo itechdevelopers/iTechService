@@ -1,0 +1,114 @@
+#dots-movements-container {
+  display: flex;
+  flex-direction: row;
+  flex-wrap: nowrap;
+  gap: 5px;
+  height: 180px;
+  overflow-x: scroll;
+  padding-top: 120px;
+  padding-bottom: 600px;
+  padding-left: 55px;
+  padding-right: 50px;
+
+  #detailed-ticket-info {
+    position: absolute;
+    width: 300px;
+    z-index: 2;
+    background-color: #ffffff;
+    border: none;
+    border-radius: 8px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1), 0 1px 3px rgba(0, 0, 0, 0.08);
+
+    .ticket-info-line {
+      margin: 4px 0 0 8px;
+    }
+  }
+
+  .dot-movement {
+    display: flex;
+    flex-direction: column;
+    justify-content: space-around;
+    align-items: center;
+    width: 100px;
+    position: relative;
+    cursor: pointer;
+
+    .has-boosts {
+      position: absolute;
+      top: -5px;
+      color: #2d3739;
+    }
+
+    .priority-boost {
+      position: absolute;
+      top: -37px;
+      color: #fca700;
+    }
+
+    .manual-boost {
+      position: absolute;
+      top: -75px;
+      color: #4766b9;
+    }
+
+    .timeout-boost {
+      position: absolute;
+      top: -115px;
+      color: #40a64e;
+    }
+
+    .dot {
+      border-radius: 50%;
+      height: 10px;
+      width: 10px;
+      background-color: #1b1e21;
+    }
+
+    &.red-dot {
+      .dot {
+        background-color: #fd0101;
+      }
+    }
+
+    &.pink-dot {
+      .dot {
+        background-color: #ffaad1;
+      }
+    }
+  }
+}
+
+.input-xsmall {
+  width: 30px;
+}
+
+.monitoring-container {
+  position: relative;
+}
+
+#timing-axis {
+  position: absolute;
+  border-bottom: 1.4px solid #bcbcbc;
+  height: 209px;
+  width: 100%;
+  top: 0;
+  z-index: -1;
+}
+
+.monitoring-filter-form {
+  display: flex;
+  flex-direction: row;
+  gap: 10px;
+  align-items: center;
+
+  .form-group {
+    display: flex;
+    flex-direction: row;
+    gap: 5px;
+    align-items: center;
+  }
+
+  label, input {
+    margin: 0;
+  }
+}

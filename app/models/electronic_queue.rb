@@ -21,6 +21,16 @@ class ElectronicQueue < ApplicationRecord
     ElectronicQueue.where(department: department, enabled: true).exists?
   end
 
+  def queue_state
+    result = { waiting: [], in_service: []}
+    WaitingClient.in_queue(self).waiting.each do |wc|
+      result[:waiting] << { wc.id => { wc.ticket_number => wc.position } }
+    end
+    WaitingClient.in_queue(self).in_service.preload(:elqueue_window).each do |wc|
+      result[:in_service] << { wc.id => { wc.ticket_number => wc.elqueue_window.window_number } }
+    end
+    result
+  end
   def move
     shuffled_window_ids = shuffle_windows(elqueue_windows.active_free.pluck(:id))
     shuffled_window_ids.each do |window_id|

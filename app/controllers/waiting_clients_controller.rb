@@ -10,9 +10,15 @@ class WaitingClientsController < ApplicationController
                                                      country_code: @waiting_client.country_code)
       @waiting_client.phone_number = normalized_phone
     end
+    @waiting_client.save!
 
     respond_to do |format|
-      if @waiting_client.save
+      if @waiting_client.valid?
+        @waiting_client.elqueue_ticket_movements.create(type: 'ElqueueTicketMovement::NewTicket',
+                                                        priority: @waiting_client.priority_value,
+                                                        new_position: @waiting_client.position,
+                                                        electronic_queue: @waiting_client.electronic_queue,
+                                                        queue_state: @waiting_client.electronic_queue.queue_state)
         print_pdf
         format.json { render json: { ticket_number: @waiting_client.ticket_number } }
       else
@@ -51,7 +57,7 @@ class WaitingClientsController < ApplicationController
 
   def reassign_window
     authorize @waiting_client
-    @waiting_client.reassign_window(waiting_client_params[:attached_window].to_i)
+    @waiting_client.reassign_window(waiting_client_params[:attached_window].to_i, current_user)
     respond_to(&:js)
   end
 

@@ -388,9 +388,15 @@ Rails.application.routes.draw do
     get :show_active_tickets, on: :member, defaults: {format: :js}
     get :manage_tickets, on: :member, defaults: {format: :js}
     get :manage_windows, on: :member, defaults: {format: :js}
+    get :monitoring, on: :member
     patch :sort_tickets, on: :member, defaults: {format: :js}
     patch :return_old_ticket, on: :member, defaults: {format: :js}
     resources :queue_items, except: %i[index show], defaults: {format: :js}
+  end
+
+  resources :elqueue_ticket_movements, only: [] do
+    get :filter_movements_by_called, on: :collection, defaults: {format: :js}
+    get :detailed_ticket_info, on: :collection, defaults: { format: :js }
   end
 
   get 'elqueue/:permalink', to: 'electronic_queues#ipad_show', as: 'ipad_show'

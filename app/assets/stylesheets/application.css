@@ -58,4 +58,5 @@
  *= require wiki
  *= require_directory ./service
  *= require electronic_queues
+ *= require elqueue_ticket_movements
  */

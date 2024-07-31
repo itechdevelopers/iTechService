@@ -1,0 +1,50 @@
+let container = $('#dots-movements-container');
+container.empty();
+
+<% @tickets.each do |ticket| %>
+  dotMovement = $('<div>').addClass('dot-movement');
+  dotMovement.attr('data-ticket-id', '<%= ticket.id %>')
+
+  ticketNumber = $('<div>').addClass('ticket-number').text('<%= ticket.ticket_number %>');
+
+  dot = $('<div>').addClass('dot');
+
+  timestamp = $('<div>').addClass('timestamp').text('<%= ticket.ticket_called_at.strftime("%H:%M:%S") %>');
+
+  colorStr = '<%= dot_color_str(ticket, @movements) %>';
+  switch (colorStr) {
+    case 'pink':
+      dotMovement.addClass('pink-dot');
+    case 'red':
+      dotMovement.addClass('red-dot');
+  }
+
+  ticketBoosts = '<%= ticket_boosts_str(ticket, @movements) %>';
+  /* Если например есть has-boost*/
+  if (ticketBoosts.length > 0) {
+    hasBoostsIcon = $('<div>').addClass('has-boosts');
+    hasBoostsIcon.append($('<i>').addClass('fa fa-2x fa-long-arrow-left'));
+    dotMovement.append(hasBoostsIcon);
+  }
+
+  if (ticketBoosts.includes('priority_boost')) {
+    hasPriorityBoost = $('<div>').addClass('priority-boost');
+    hasPriorityBoost.append($('<i>').addClass('fa fa-2x fa-trophy'));
+    dotMovement.append(hasPriorityBoost);
+  }
+
+  if (ticketBoosts.includes('timeout_boost')) {
+    hasTimeoutBoost = $('<div>').addClass('timeout-boost');
+    hasTimeoutBoost.append($('<i>').addClass('fa fa-2x fa-hourglass'));
+    dotMovement.append(hasTimeoutBoost);
+  }
+
+  if (ticketBoosts.includes('manual_boost')) {
+    hasManualBoost = $('<div>').addClass('manual-boost')
+    hasManualBoost.append($('<i>').addClass('fa fa-2x fa-hand-paper-o'))
+    dotMovement.append(hasManualBoost)
+  }
+
+  dotMovement.append(ticketNumber, dot, timestamp);
+  container.append(dotMovement);
+<% end %>

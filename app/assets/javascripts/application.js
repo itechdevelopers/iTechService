@@ -66,3 +66,4 @@
 //= require kanban
 //= require user_notifications
 //= require electronic_queues
+//= require elqueue_ticket_movements
