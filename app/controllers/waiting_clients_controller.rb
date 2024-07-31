@@ -58,6 +58,7 @@ class WaitingClientsController < ApplicationController
   def reassign_window
     authorize @waiting_client
     @waiting_client.reassign_window(waiting_client_params[:attached_window].to_i, current_user)
+    current_user.unset_remember_pause if current_user.waiting_for_break?
     respond_to(&:js)
   end
 

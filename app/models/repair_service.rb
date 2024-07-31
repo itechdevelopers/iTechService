@@ -29,6 +29,8 @@ class RepairService < ApplicationRecord
 
   def find_price(department)
     prices.in_department(department).first
+    # Убираем N+1 запрос
+    # prices.find { |price| price.department_id == department.id }
   end
 
   def price(department = nil)
