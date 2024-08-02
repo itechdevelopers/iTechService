@@ -158,7 +158,7 @@ window.electronic_queues_tree = (container)->
             $.get "/electronic_queues/#{queue_id}/queue_items/#{queue_item_id}/edit"
           separator_after: true
         remove:
-          label: "Удалить"
+          label: "Архивировать"
           action: (obj)->
             if confirm("Вы уверены?")
               $container.jstree('remove', obj)

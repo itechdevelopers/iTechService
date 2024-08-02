@@ -55,8 +55,6 @@ class WaitingClient < ApplicationRecord
 
   class << self
     def add_to_queue(waiting_client)
-      return if waiting_client.position
-
       queue = waiting_client.electronic_queue
       position = nil
       case waiting_client.priority
@@ -228,7 +226,6 @@ class WaitingClient < ApplicationRecord
     self.priority = queue_item.priority
     # self.client ||= Client.find_by(phone_number: phone_number)
     self.ticket_issued_at ||= Time.zone.now
-    self.class.add_to_queue(self)
   end
 
   def evaluate_ticket_number

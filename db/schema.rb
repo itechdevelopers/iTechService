@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20240725130302) do
+ActiveRecord::Schema.define(version: 20240802204514) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -935,6 +935,7 @@ ActiveRecord::Schema.define(version: 20240725130302) do
     t.datetime "updated_at", null: false
     t.integer "priority", default: 0
     t.integer "last_ticket_number"
+    t.boolean "archived", default: false
     t.index ["electronic_queue_id"], name: "index_queue_items_on_electronic_queue_id"
   end
 
