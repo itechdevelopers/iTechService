@@ -9,7 +9,7 @@ class ElectronicQueuesController < ApplicationController
   def ipad_show
     authorize ElectronicQueue
     @electronic_queue = ElectronicQueue.find_by(ipad_link: params[:permalink])
-    @queue_items = @electronic_queue.queue_items.roots.order(position: :asc)
+    @queue_items = @electronic_queue.queue_items.not_archived.roots.order(position: :asc)
     render layout: 'electronic_queues'
   end
 

@@ -110,7 +110,7 @@ module ElectronicQueuesHelper
     queue_items.map do |queue_item|
       item_class = root ? 'visible' : 'hidden'
       data_parent = parent_id ? parent_id.to_s : ''
-      has_children = queue_item.children.any?
+      has_children = queue_item.children.not_archived.any?
       content_tag(:div, class: "queue-item #{item_class}", style: styles_for_item,
                         data: { root: root,
                                 item_id: queue_item.id,
@@ -121,7 +121,7 @@ module ElectronicQueuesHelper
         result << content_tag(:h2, queue_item.title, class: 'queue-title', style: styles_for_header)
         result << content_tag(:p, queue_item.annotation, class: 'queue-annotation', style: styles_for_annotation)
         if has_children
-          container_content << render_queue_tree(queue_item.children, false, queue_item.id)
+          container_content << render_queue_tree(queue_item.children.not_archived, false, queue_item.id)
         else
           result << render_create_ticket_form(queue_item)
         end
