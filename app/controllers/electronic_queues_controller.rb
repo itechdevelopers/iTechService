@@ -59,7 +59,7 @@ class ElectronicQueuesController < ApplicationController
   end
 
   def show
-    @queue_items = @electronic_queue.queue_items.roots.order(position: :asc)
+    @queue_items = @electronic_queue.queue_items.not_archived.roots.order(position: :asc)
   end
 
   def new

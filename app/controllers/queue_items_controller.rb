@@ -42,7 +42,7 @@ class QueueItemsController < ApplicationController
 
   def destroy
     @queue_item = authorize @electronic_queue.queue_items.find(params[:id])
-    @queue_item.destroy
+    @queue_item.update(archived: true)
     respond_to do |format|
       format.js { head :no_content}
     end

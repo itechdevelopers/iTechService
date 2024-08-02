@@ -6,7 +6,7 @@ module ElectronicQueuesHelper
   end
 
   def queue_items_tree_tag(queue_item, current_id=nil, options={})
-    content_tag :ul, nested_queue_items_list(queue_item.subtree.arrange(order: :position), current_id, options),
+    content_tag :ul, nested_queue_items_list(queue_item.subtree.not_archived.arrange(order: :position), current_id, options),
                 class: 'queue_items_tree unstyled', id: "queue_items_tree_#{queue_item.id}",
                 data: { root_id: queue_item.id, queue_item_id: current_id, opened: [current_id] }
   end
