@@ -8,7 +8,7 @@ class ElectronicQueuePolicy < ApplicationPolicy
   end
 
   def monitoring?
-    admin? || superadmin?
+    true
   end
 
   def index?

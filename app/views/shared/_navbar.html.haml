@@ -33,15 +33,15 @@
         = drop_down_divider
         = menu_item t('substitute_phones.index.title'), substitute_phones_path
         = menu_item 'Инвентаризация', new_service_jobs_inventory_path if policy(ServiceJob).inventory?
-        - if can?(:manage, ElectronicQueue) || can?(:manage_windows, ElectronicQueue)
+        - if current_user.any_elqueues_on_department?
           = drop_down_divider
-        = menu_item t('electronic_queues.index.title'), electronic_queues_path if can?(:manage, ElectronicQueue)
-        - if current_user.any_elqueues_on_department? && can?(:manage_windows, ElectronicQueue)
-          = menu_item 'Управление окнами очереди',
-              manage_windows_electronic_queue_path(current_user.department_elqueue),
-              remote: true
           = menu_item 'Мониторинг талонов очереди',
               monitoring_electronic_queue_path(current_user.department_elqueue)
+          - if can?(:manage_windows, ElectronicQueue)
+            = menu_item 'Управление окнами очереди',
+                manage_windows_electronic_queue_path(current_user.department_elqueue),
+                remote: true
+        = menu_item t('electronic_queues.index.title'), electronic_queues_path if can?(:manage, ElectronicQueue)
 
       = drop_down t('.trade') do
         = menu_item t('.trade_in'), trade_in_devices_path
