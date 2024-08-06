@@ -395,8 +395,9 @@ Rails.application.routes.draw do
   end
 
   resources :elqueue_ticket_movements, only: [] do
-    get :filter_movements_by_called, on: :collection, defaults: {format: :js}
+    get :filter_movements_by_called, on: :collection, defaults: { format: :js }
     get :detailed_ticket_info, on: :collection, defaults: { format: :js }
+    get :find_ticket_by_called, on: :collection, defaults: { format: :js }
   end
 
   get 'elqueue/:permalink', to: 'electronic_queues#ipad_show', as: 'ipad_show'
