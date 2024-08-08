@@ -6,7 +6,9 @@
       %th.center= t '.ticket_number'
       %th.center= t '.ticket_issued_at'
       %th.center= t '.ticket_called_at'
+      %th.center= t '.ticket_time_waited'
       %th.center= t '.ticket_served_at'
+      %th.center= t '.ticket_time_served'
       %th.center= t '.queue_name'
       %th.center= t '.status'
     %tbody
@@ -16,6 +18,15 @@
           %td= ticket[:ticket_number]
           %td= ticket[:ticket_issued_at]
           %td= ticket[:ticket_called_at]
+          %td= ticket[:ticket_time_waited]
           %td= ticket[:ticket_served_at]
+          %td= ticket[:ticket_time_served]
           %td= ticket[:queue_name]
           %td= ticket[:status]
+
+      - report.result[:resume].each do |key, value|
+        %tr
+          %td{colspan: 2}
+            %strong= t ".#{key}"
+          %td{colspan: 5}= value
+          %td{colspan: 2}

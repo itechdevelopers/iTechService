@@ -27,6 +27,14 @@
           <%= f.select :location_id, locations_collection(report.location_id), prompt: t('activerecord.models.location') %>
         <% end %>
 
+        <% if report.show_param?(:start_end_time) %>
+          <%= f.label :start_time, 'Время от' %>
+          <%= f.time_field :start_time, class: 'input-small' %>
+
+          <%= f.label :end_time, 'Время до' %>
+          <%= f.time_field :end_time, class: 'input-small' %>
+        <% end %>
+
         <% if report.show_param?(:subject) %>
           <%= f.select :subject, report.subjects_collection %>
         <% end %>
