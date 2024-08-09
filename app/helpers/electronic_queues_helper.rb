@@ -119,7 +119,7 @@ module ElectronicQueuesHelper
                                 disabled: false }) do
         result = ''
         result << content_tag(:h2, queue_item.title, class: 'queue-title', style: styles_for_header)
-        result << content_tag(:p, queue_item.annotation, class: 'queue-annotation', style: styles_for_annotation)
+        result << simple_format(queue_item.annotation, class: 'queue-annotation', style: styles_for_annotation)
         if has_children
           container_content << render_queue_tree(queue_item.children.not_archived, false, queue_item.id)
         else
