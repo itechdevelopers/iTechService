@@ -30,7 +30,10 @@ window.repair_groups_tree = (container)->
     $container.jstree('open_node', data.rslt.obj[0])
   ).bind('move_node.jstree', (e, data)->
     moved_group_id = data.rslt.o[0].dataset.repairGroupId
-    target_group_id = data.rslt.r[0].dataset.repairGroupId
+    if data.rslt.np[0].dataset.repairGroupId?
+      target_group_id = data.rslt.r[0].dataset.repairGroupId
+    else
+      target_group_id = 'nil'
     $.ajax
       type: 'PUT'
       url: "/repair_groups/#{moved_group_id}"

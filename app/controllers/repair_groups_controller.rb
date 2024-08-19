@@ -47,8 +47,17 @@ class RepairGroupsController < ApplicationController
   def update
     @repair_group = find_record RepairGroup
     @repair_groups = RepairGroup.roots.order('id asc')
+
+    parent_id_param = repair_group_params[:parent_id]
+    if parent_id_param == 'nil'
+      @repair_group.parent = nil
+      @repair_group.save!
+    else
+      @repair_group.update_attributes(repair_group_params.slice(:parent_id))
+    end
+
     respond_to do |format|
-      if @repair_group.update_attributes(repair_group_params)
+      if @repair_group.update_attributes(repair_group_params.except(:parent_id))
         format.js
       else
         format.js { render 'shared/show_modal_form' }
