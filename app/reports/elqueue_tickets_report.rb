@@ -55,7 +55,8 @@ class ElqueueTicketsReport < BaseReport
 
   def resume
     result = {}
-    waiting_clients = WaitingClient.where(status: ['completed', 'did_not_come'])
+    waiting_clients = WaitingClient.unscoped
+                                   .where(status: ['completed', 'did_not_come'])
                                    .where(ticket_issued_at: period)
                                    .joins(queue_item: { electronic_queue: :department })
                                    .where(queue_items:
@@ -63,30 +64,33 @@ class ElqueueTicketsReport < BaseReport
                                                 { departments: { id: department_id } } })
     result[:total] = waiting_clients.count(:ticket_number)
 
-    queue_items_total =  WaitingClient.unscoped
-                                      .where(status: ['completed', 'did_not_come'])
-                                      .where(ticket_issued_at: period)
-                                      .joins(queue_item: { electronic_queue: :department })
-                                      .where(queue_items: { electronic_queues: { departments: { id: department_id } } })
-                                      .group('queue_items.id, queue_items.ticket_abbreviation')
-                                      .select('queue_items.ticket_abbreviation, queue_items.id, COUNT(waiting_clients.id) as count')
-                                      .map do |record|
-                                        record_title = QueueItem.find(record.id).ancestors_and_self_titles
-                                        "#{record.ticket_abbreviation} - #{record_title} - #{record.count}"
-                                      end
+    queue_items_ary = waiting_clients.group('queue_items.id').select('queue_items.id').map do |queue_item_id|
+      item = QueueItem.find(queue_item_id.id)
+      [queue_item_id.id, item.ancestors_and_self_titles, item.ticket_abbreviation]
+    end
+
+    queue_items_total = []
+    queue_items_average = []
+    queue_items_ary.each do |items|
+      wcs_for_item = waiting_clients.where(queue_item_id: items[0])
+      queue_items_total << "#{items[2]} - #{items[1]} - #{wcs_for_item.size}"
+      wcs_with_served = wcs_for_item.select(&:ticket_served_at)
+      served_durations = wcs_with_served.map { |wc| (wc.ticket_served_at - wc.ticket_called_at).div(60) }
+      average_served_time = served_durations.sum / served_durations.size.to_f
+      queue_items_average << "#{items[2]} - #{items[1]} - #{average_served_time.round(2)}"
+    end
+
     queue_items_total = queue_items_total.sort_by { |str| -str[/\d+\z/].to_i }.map { |str| str << ' шт.' }.join("\n")
     result[:queue_items_total] = queue_items_total
+
+    queue_items_average = queue_items_average.sort_by { |str| -str[/\d+(?:.\d+)?\z/].to_f }.map { |str| str << ' мин.' }.join("\n")
+    result[:avg_served_time] = queue_items_average
 
     filtered_with_called = waiting_clients.select(&:ticket_called_at)
     waiting_durations = filtered_with_called.map { |wc| (wc.ticket_called_at - wc.ticket_issued_at).div(60) }
     average_waiting_time = waiting_durations.sum / waiting_durations.size.to_f
 
-    filtered_with_served = waiting_clients.select(&:ticket_served_at)
-    served_durations = filtered_with_served.map { |wc| (wc.ticket_served_at - wc.ticket_called_at).div(60) }
-    average_served_time = served_durations.sum / served_durations.size.to_f
-
     result[:avg_waiting_time] = average_waiting_time.round(2)
-    result[:avg_served_time] = average_served_time.round(2)
     result
   end
 end
