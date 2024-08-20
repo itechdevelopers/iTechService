@@ -98,7 +98,7 @@ ru:
       total: "Всего клиентов"
       queue_items_total: "Сколько клиентов и что выбирали"
       avg_waiting_time: "Среднее время ожидания"
-      avg_served_time: "Среднее время выполнения задачи"
+      avg_served_time: "Среднее время выполнения задач"
       queue_name: "Название задачи"
       status: "Завершён или клиент не пришёл"
     phone_substitutions:
