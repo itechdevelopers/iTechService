@@ -88,6 +88,10 @@ ru:
       no_comment: "-"
     elqueue_tickets:
       title: "Отчет по талонам электронной очереди"
+      title_name: "Отчет по талонам электронной очереди %{elqueue_name}"
+      title_name_morning: "Утренний отчет (с 10 до 12)"
+      title_name_daytime: "Дневной отчет (с 12 до 18)"
+      title_name_evening: "Вечерний отчет (с 18 до 20)"
       ticket_number: "Номер талона"
       elqueue_name: "Название электронной очереди"
       ticket_issued_at: "Когда талон создан"
@@ -99,7 +103,9 @@ ru:
       queue_items_total: "Сколько клиентов и что выбирали"
       avg_waiting_time: "Среднее время ожидания"
       avg_served_time: "Среднее время выполнения задач"
+      median_served_time: "Медианное время выполнения задач"
       queue_name: "Название задачи"
+      user_called: "Сотрудник"
       status: "Завершён или клиент не пришёл"
     phone_substitutions:
       title: 'Отчёт по подменкам'
