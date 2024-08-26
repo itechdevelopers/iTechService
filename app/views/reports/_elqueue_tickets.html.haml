@@ -1,8 +1,7 @@
 %table.table.table-bordered.table-hover
-  %caption= t '.title'
+  %caption= t('.title_name', elqueue_name: report.result[:resume][:elqueue_name])
   %thead
     %tr
-      %th.center= t '.elqueue_name'
       %th.center= t '.ticket_number'
       %th.center= t '.ticket_issued_at'
       %th.center= t '.ticket_called_at'
@@ -10,24 +9,232 @@
       %th.center= t '.ticket_served_at'
       %th.center= t '.ticket_time_served'
       %th.center= t '.queue_name'
+      %th.center= t '.user_called'
       %th.center= t '.status'
     %tbody
-      - report.result[:data].each do |ticket|
+      - report.result[:data][:waiting_clients].each do |ticket|
         %tr
-          %td= ticket[:elqueue_name]
           %td= ticket[:ticket_number]
           %td= ticket[:ticket_issued_at]
           %td= ticket[:ticket_called_at]
           %td= ticket[:ticket_time_waited]
           %td= ticket[:ticket_served_at]
-          %td= ticket[:ticket_time_served]
+          %td.working-time= ticket[:ticket_time_served]
           %td= ticket[:queue_name]
-          %td= ticket[:status]
+          %td= ticket[:user_called]
+          %td.ticket-status= ticket[:status]
 
-      - report.result[:resume].each do |key, value|
+      %tr
+        %td{colspan: 2}
+          %strong= t '.queue_items_total'
+        %td{colspan: 3}
+          %pre.pre-unformatted= report.result[:resume][:queue_items_total]
+        %td{colspan: 1}
+          %strong Сводка по клиентам
+        %td{colspan: 3}
+          %pre.pre-unformatted= report.result[:resume][:total]
+      %tr
+        %td{colspan: 2}
+          %strong= t '.avg_served_time'
+        %td{colspan: 3}
+          %pre.pre-unformatted= report.result[:resume][:avg_served_time]
+        %td{colspan: 1}
+          %strong Сводка по талонам, которые обслуживали меньше 3 минут
+        %td{colspan: 3}
+          %pre.pre-unformatted= report.result[:data][:short_working_time]
+      %tr
+        %td{colspan: 2}
+          %strong= t '.median_served_time'
+        %td{colspan: 3}
+          %pre.pre-unformatted= report.result[:resume][:median_served_time]
+        %td{colspan: 4}
+      %tr
+        %td{colspan: 2}
+          %strong= t '.avg_waiting_time'
+        %td{colspan: 3}
+          %pre.pre-unformatted= report.result[:resume][:avg_waiting_time]
+        %td{colspan: 4}
+
+%table.table.table-bordered.table-hover
+  %caption= t('.title_name_morning')
+  %thead
+    %tr
+      %th.center= t '.ticket_number'
+      %th.center= t '.ticket_issued_at'
+      %th.center= t '.ticket_called_at'
+      %th.center= t '.ticket_time_waited'
+      %th.center= t '.ticket_served_at'
+      %th.center= t '.ticket_time_served'
+      %th.center= t '.queue_name'
+      %th.center= t '.user_called'
+      %th.center= t '.status'
+    %tbody
+      - report.result[:morning_time][:data][:waiting_clients].each do |ticket|
         %tr
-          %td{colspan: 2}
-            %strong= t ".#{key}"
-          %td{colspan: 5}
-            %pre.pre-unformatted= value
-          %td{colspan: 2}
+          %td= ticket[:ticket_number]
+          %td= ticket[:ticket_issued_at]
+          %td= ticket[:ticket_called_at]
+          %td= ticket[:ticket_time_waited]
+          %td= ticket[:ticket_served_at]
+          %td.working-time= ticket[:ticket_time_served]
+          %td= ticket[:queue_name]
+          %td= ticket[:user_called]
+          %td.ticket-status= ticket[:status]
+
+      %tr
+        %td{colspan: 2}
+          %strong= t '.queue_items_total'
+        %td{colspan: 3}
+          %pre.pre-unformatted= report.result[:morning_time][:resume][:queue_items_total]
+        %td{colspan: 1}
+          %strong Сводка по клиентам
+        %td{colspan: 3}
+          %pre.pre-unformatted= report.result[:morning_time][:resume][:total]
+      %tr
+        %td{colspan: 2}
+          %strong= t '.avg_served_time'
+        %td{colspan: 3}
+          %pre.pre-unformatted= report.result[:morning_time][:resume][:avg_served_time]
+        %td{colspan: 1}
+          %strong Сводка по талонам, которые обслуживали меньше 3 минут
+        %td{colspan: 3}
+          %pre.pre-unformatted= report.result[:morning_time][:data][:short_working_time]
+      %tr
+        %td{colspan: 2}
+          %strong= t '.median_served_time'
+        %td{colspan: 3}
+          %pre.pre-unformatted= report.result[:morning_time][:resume][:median_served_time]
+        %td{colspan: 4}
+      %tr
+        %td{colspan: 2}
+          %strong= t '.avg_waiting_time'
+        %td{colspan: 3}
+          %pre.pre-unformatted= report.result[:morning_time][:resume][:avg_waiting_time]
+        %td{colspan: 4}
+
+%table.table.table-bordered.table-hover
+  %caption= t('.title_name_daytime')
+  %thead
+    %tr
+      %th.center= t '.ticket_number'
+      %th.center= t '.ticket_issued_at'
+      %th.center= t '.ticket_called_at'
+      %th.center= t '.ticket_time_waited'
+      %th.center= t '.ticket_served_at'
+      %th.center= t '.ticket_time_served'
+      %th.center= t '.queue_name'
+      %th.center= t '.user_called'
+      %th.center= t '.status'
+    %tbody
+      - report.result[:day_time][:data][:waiting_clients].each do |ticket|
+        %tr
+          %td= ticket[:ticket_number]
+          %td= ticket[:ticket_issued_at]
+          %td= ticket[:ticket_called_at]
+          %td= ticket[:ticket_time_waited]
+          %td= ticket[:ticket_served_at]
+          %td.working-time= ticket[:ticket_time_served]
+          %td= ticket[:queue_name]
+          %td= ticket[:user_called]
+          %td.ticket-status= ticket[:status]
+
+      %tr
+        %td{colspan: 2}
+          %strong= t '.queue_items_total'
+        %td{colspan: 3}
+          %pre.pre-unformatted= report.result[:day_time][:resume][:queue_items_total]
+        %td{colspan: 1}
+          %strong Сводка по клиентам
+        %td{colspan: 3}
+          %pre.pre-unformatted= report.result[:day_time][:resume][:total]
+      %tr
+        %td{colspan: 2}
+          %strong= t '.avg_served_time'
+        %td{colspan: 3}
+          %pre.pre-unformatted= report.result[:day_time][:resume][:avg_served_time]
+        %td{colspan: 1}
+          %strong Сводка по талонам, которые обслуживали меньше 3 минут
+        %td{colspan: 3}
+          %pre.pre-unformatted= report.result[:day_time][:data][:short_working_time]
+      %tr
+        %td{colspan: 2}
+          %strong= t '.median_served_time'
+        %td{colspan: 3}
+          %pre.pre-unformatted= report.result[:day_time][:resume][:median_served_time]
+        %td{colspan: 4}
+      %tr
+        %td{colspan: 2}
+          %strong= t '.avg_waiting_time'
+        %td{colspan: 3}
+          %pre.pre-unformatted= report.result[:day_time][:resume][:avg_waiting_time]
+        %td{colspan: 4}
+
+%table.table.table-bordered.table-hover
+  %caption= t('.title_name_evening')
+  %thead
+    %tr
+      %th.center= t '.ticket_number'
+      %th.center= t '.ticket_issued_at'
+      %th.center= t '.ticket_called_at'
+      %th.center= t '.ticket_time_waited'
+      %th.center= t '.ticket_served_at'
+      %th.center= t '.ticket_time_served'
+      %th.center= t '.queue_name'
+      %th.center= t '.user_called'
+      %th.center= t '.status'
+    %tbody
+      - report.result[:evening_time][:data][:waiting_clients].each do |ticket|
+        %tr
+          %td= ticket[:ticket_number]
+          %td= ticket[:ticket_issued_at]
+          %td= ticket[:ticket_called_at]
+          %td= ticket[:ticket_time_waited]
+          %td= ticket[:ticket_served_at]
+          %td.working-time= ticket[:ticket_time_served]
+          %td= ticket[:queue_name]
+          %td= ticket[:user_called]
+          %td.ticket-status= ticket[:status]
+
+      %tr
+        %td{colspan: 2}
+          %strong= t '.queue_items_total'
+        %td{colspan: 3}
+          %pre.pre-unformatted= report.result[:evening_time][:resume][:queue_items_total]
+        %td{colspan: 1}
+          %strong Сводка по клиентам
+        %td{colspan: 3}
+          %pre.pre-unformatted= report.result[:evening_time][:resume][:total]
+      %tr
+        %td{colspan: 2}
+          %strong= t '.avg_served_time'
+        %td{colspan: 3}
+          %pre.pre-unformatted= report.result[:evening_time][:resume][:avg_served_time]
+        %td{colspan: 1}
+          %strong Сводка по талонам, которые обслуживали меньше 3 минут
+        %td{colspan: 3}
+          %pre.pre-unformatted= report.result[:evening_time][:data][:short_working_time]
+      %tr
+        %td{colspan: 2}
+          %strong= t '.median_served_time'
+        %td{colspan: 3}
+          %pre.pre-unformatted= report.result[:evening_time][:resume][:median_served_time]
+        %td{colspan: 4}
+      %tr
+        %td{colspan: 2}
+          %strong= t '.avg_waiting_time'
+        %td{colspan: 3}
+          %pre.pre-unformatted= report.result[:evening_time][:resume][:avg_waiting_time]
+        %td{colspan: 4}
+
+:coffee
+  $ ->
+    $('.ticket-status').each ->
+      if $(this).text().trim() == 'Не пришёл'
+        $(this).css({
+          'color': '#ff9999',
+          'font-style': 'italic'
+        })
+    $('.working-time').each ->
+      time = $(this).text().match(/\d+/)[0]
+      if time <= 3
+        $(this).css('color', 'red')
