@@ -55,21 +55,27 @@ class ElqueueTicketsReport < BaseReport
     result[:waiting_clients] = waiting_clients.map do |wc|
       time_waited = wc.ticket_called_at ? (wc.ticket_called_at - wc.ticket_issued_at).div(60) : ''
       time_served = wc.ticket_served_at ? (wc.ticket_served_at - wc.ticket_called_at).div(60) : ''
+      missing_ticket = !wc.status.start_with?('completed')
       called_event = wc.elqueue_ticket_movements.where(type: "ElqueueTicketMovement::Called").order(created_at: :desc).first
       username = called_event&.user&.short_name || '-'
-      short_working_time << { number: wc.ticket_number, time: time_served, user: username } if time_served <= 3
+
+      if !missing_ticket && time_served <= 3
+        short_working_time << { number: wc.ticket_number, time: time_served, user: username }
+      end
+
       {
         ticket_number: wc.ticket_number,
         ticket_issued_at: wc.ticket_issued_at.strftime('%d.%m.%Y %H:%M'),
         ticket_called_at: wc.ticket_called_at&.strftime('%d.%m.%Y %H:%M') || '',
         ticket_time_waited: time_waited,
         ticket_served_at: wc.ticket_served_at&.strftime('%d.%m.%Y %H:%M') || '',
-        ticket_time_served: time_served,
+        ticket_time_served: missing_ticket ? '-' : time_served,
         queue_name: wc.queue_item_ancestors,
-        status: wc.status.start_with?('completed') ? 'Завершён' : 'Не пришёл',
+        status: missing_ticket ? 'Не пришёл' : 'Завершён',
         user_called: username
       }
     end
+
     result[:short_working_time] = short_working_time.map { |elem| "#{elem[:number]} - #{elem[:user]} #{elem[:time]} мин." }
                                                     .join("\n")
     result

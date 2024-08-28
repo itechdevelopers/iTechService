@@ -78,10 +78,11 @@ jQuery ->
         $(".queue-item[data-item-id='#{itemId}'").attr('data-disabled', false)
 
         setTimeout (->
-          showClientTicketNumber.find('.ticket-number').text ''
-          showClientTicketNumber.addClass 'hidden'
-          showRootElements()
-        ), 10000
+          if (showClientTicketNumber.find('.ticket-number').text() == data.ticket_number)
+            showClientTicketNumber.find('.ticket-number').text ''
+            showClientTicketNumber.addClass 'hidden'
+            showRootElements()
+        ), 30000
 
       error: (jqXHR, textStatus, errorThrown) ->
         $(".queue-item[data-item-id='#{itemId}'").attr('data-disabled', false)
