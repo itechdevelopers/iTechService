@@ -120,6 +120,23 @@ class WaitingClient < ApplicationRecord
     broadcast_complete
   end
 
+  def complete_automatically
+    update!(status: 'did_not_come',
+            completed_automatically: true,
+            ticket_served_at: Time.zone.now,
+            elqueue_window: nil)
+    broadcast_complete
+  end
+
+  def complete_waiting_automatically
+    time_completed = Time.zone.now
+    update!(status: 'did_not_come',
+            completed_automatically: true,
+            ticket_called_at: time_completed,
+            ticket_served_at: time_completed,
+            position: nil)
+  end
+
   def return_to_queue(user)
     return unless %w[completed did_not_come].include? status
 

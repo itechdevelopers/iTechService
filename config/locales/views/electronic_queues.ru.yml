@@ -48,6 +48,7 @@ ru:
       header_font_size: "Размер шрифта заголовков"
       annotation_boldness: "Жирность шрифта аннотаций"
       annotation_font_size: "Размер шрифта аннотаций"
+      automatic_completion: "Время автоматического завершения талонов"
       check_info: "Дополнительная информация на чеке"
       enabled: "Включена"
       new_queue_item: "Новый элемент очереди"

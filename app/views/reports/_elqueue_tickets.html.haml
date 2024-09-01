@@ -229,7 +229,7 @@
 :coffee
   $ ->
     $('.ticket-status').each ->
-      if $(this).text().trim() == 'Не пришёл'
+      if $(this).text().trim().indexOf('Не пришёл') == 0
         $(this).css({
           'color': '#ff9999',
           'font-style': 'italic'

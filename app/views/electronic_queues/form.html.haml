@@ -85,6 +85,11 @@
         %span.add-on.color_template
 
   .control-group
+    = f.label :automatic_completion, 'Время автоматического завершения талонов', class: 'control-label'
+    .controls
+      = f.time_field :automatic_completion, value: @electronic_queue.automatic_completion, include_blank: true
+
+  .control-group
     = f.label :enabled, t('.enabled'), class: 'control-label'
     .controls
       = f.check_box :enabled
