@@ -12,6 +12,7 @@ class ElectronicQueue < ApplicationRecord
             uniqueness: { message: "Должен быть уникальным." }
   validates :header_boldness, :annotation_boldness, numericality: { only_integer: true, greater_than_or_equal_to: 100, less_than_or_equal_to: 900 }
   validates :header_font_size, :annotation_font_size, numericality: { only_integer: true, greater_than_or_equal_to: 8 }, allow_nil: true
+  validates :automatic_completion, format: { with: /\A([01]?[0-9]|2[0-3]):[0-5][0-9]\z/, message: "должно быть в формате HH:MM" }, allow_blank: true
 
   after_create :create_elqueue_windows
 

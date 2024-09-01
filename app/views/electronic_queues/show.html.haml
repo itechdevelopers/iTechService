@@ -5,7 +5,7 @@
 
 .row-fluid
   .span6
-    %dl.dl-horizontal
+    %dl.dl-horizontal.electronic-queue-info
       %dt= t('.queue_name')
       %dd= @electronic_queue.queue_name
 
@@ -35,6 +35,9 @@
 
       %dt= t('.annotation_font_size')
       %dd= @electronic_queue.annotation_font_size ? @electronic_queue.annotation_font_size : 'Не указано'
+
+      %dt= t('.automatic_completion')
+      %dd= @electronic_queue.automatic_completion.present? ? @electronic_queue.automatic_completion : 'Не указано'
 
       %dt= t('.enabled')
       %dd= @electronic_queue.enabled ? 'Да' : 'Нет'

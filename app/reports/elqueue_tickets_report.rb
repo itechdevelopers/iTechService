@@ -56,6 +56,7 @@ class ElqueueTicketsReport < BaseReport
       time_waited = wc.ticket_called_at ? (wc.ticket_called_at - wc.ticket_issued_at).div(60) : ''
       time_served = wc.ticket_served_at ? (wc.ticket_served_at - wc.ticket_called_at).div(60) : ''
       missing_ticket = !wc.status.start_with?('completed')
+      completed_automatically = wc.completed_automatically
       called_event = wc.elqueue_ticket_movements.where(type: "ElqueueTicketMovement::Called").order(created_at: :desc).first
       username = called_event&.user&.short_name || '-'
 
@@ -71,7 +72,11 @@ class ElqueueTicketsReport < BaseReport
         ticket_served_at: wc.ticket_served_at&.strftime('%d.%m.%Y %H:%M') || '',
         ticket_time_served: missing_ticket ? '-' : time_served,
         queue_name: wc.queue_item_ancestors,
-        status: missing_ticket ? 'Не пришёл' : 'Завершён',
+        status: if missing_ticket
+                  completed_automatically ? 'Не пришёл (завершено автоматически)' : 'Не пришёл'
+                else
+                  'Завершён'
+                end,
         user_called: username
       }
     end

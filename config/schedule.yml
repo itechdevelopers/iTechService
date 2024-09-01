@@ -39,3 +39,9 @@ reset_elqueue_vars:
   class: 'ResetElqueueVarsJob'
   queue: 'default'
   active_job: true
+
+schedule_automatic_completion:
+  cron: '0 18 * * * Asia/Vladivostok'
+  class: 'ScheduleAutomaticCompletionJob'
+  queue: 'default'
+  active_job: true

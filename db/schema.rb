@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20240802204514) do
+ActiveRecord::Schema.define(version: 20240828122306) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -352,6 +352,7 @@ ActiveRecord::Schema.define(version: 20240802204514) do
     t.string "background_color"
     t.string "queue_item_color"
     t.string "back_button_color"
+    t.string "automatic_completion"
     t.index ["department_id"], name: "index_electronic_queues_on_department_id"
     t.index ["ipad_link"], name: "index_electronic_queues_on_ipad_link", unique: true
     t.index ["tv_link"], name: "index_electronic_queues_on_tv_link", unique: true
@@ -1624,6 +1625,7 @@ ActiveRecord::Schema.define(version: 20240802204514) do
     t.string "ticket_number", null: false
     t.integer "priority", default: 0, null: false
     t.integer "attached_window"
+    t.boolean "completed_automatically", default: false, null: false
     t.index ["client_id"], name: "index_waiting_clients_on_client_id"
     t.index ["elqueue_window_id"], name: "index_waiting_clients_on_elqueue_window_id"
     t.index ["queue_item_id"], name: "index_waiting_clients_on_queue_item_id"
