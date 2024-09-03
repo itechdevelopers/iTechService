@@ -1,3 +1,6 @@
+= label_tag 'accuracy_checkbox' do
+  = check_box_tag 'accuracy_checkbox', '1', false, id: 'accuracy_checkbox', class: 'accuracy_checkbox'
+  Не учитывать время работы меньше 3 минут
 %table.table.table-bordered.table-hover
   %caption= t('.title_name', elqueue_name: report.result[:resume][:elqueue_name])
   %thead
@@ -38,6 +41,7 @@
           %strong= t '.avg_served_time'
         %td{colspan: 3}
           %pre.pre-unformatted= report.result[:resume][:avg_served_time]
+          %pre.pre-unformatted.hidden= report.result[:resume][:long_avg_served_time]
         %td{colspan: 1}
           %strong Сводка по талонам, которые обслуживали меньше 3 минут
         %td{colspan: 3}
@@ -47,6 +51,7 @@
           %strong= t '.median_served_time'
         %td{colspan: 3}
           %pre.pre-unformatted= report.result[:resume][:median_served_time]
+          %pre.pre-unformatted.hidden= report.result[:resume][:long_median_served_time]
         %td{colspan: 4}
       %tr
         %td{colspan: 2}
@@ -95,6 +100,7 @@
           %strong= t '.avg_served_time'
         %td{colspan: 3}
           %pre.pre-unformatted= report.result[:morning_time][:resume][:avg_served_time]
+          %pre.pre-unformatted.hidden= report.result[:morning_time][:resume][:long_avg_served_time]
         %td{colspan: 1}
           %strong Сводка по талонам, которые обслуживали меньше 3 минут
         %td{colspan: 3}
@@ -104,6 +110,7 @@
           %strong= t '.median_served_time'
         %td{colspan: 3}
           %pre.pre-unformatted= report.result[:morning_time][:resume][:median_served_time]
+          %pre.pre-unformatted.hidden= report.result[:morning_time][:resume][:long_median_served_time]
         %td{colspan: 4}
       %tr
         %td{colspan: 2}
@@ -152,6 +159,7 @@
           %strong= t '.avg_served_time'
         %td{colspan: 3}
           %pre.pre-unformatted= report.result[:day_time][:resume][:avg_served_time]
+          %pre.pre-unformatted.hidden= report.result[:day_time][:resume][:long_avg_served_time]
         %td{colspan: 1}
           %strong Сводка по талонам, которые обслуживали меньше 3 минут
         %td{colspan: 3}
@@ -161,6 +169,7 @@
           %strong= t '.median_served_time'
         %td{colspan: 3}
           %pre.pre-unformatted= report.result[:day_time][:resume][:median_served_time]
+          %pre.pre-unformatted.hidden= report.result[:day_time][:resume][:long_median_served_time]
         %td{colspan: 4}
       %tr
         %td{colspan: 2}
@@ -209,6 +218,7 @@
           %strong= t '.avg_served_time'
         %td{colspan: 3}
           %pre.pre-unformatted= report.result[:evening_time][:resume][:avg_served_time]
+          %pre.pre-unformatted.hidden= report.result[:evening_time][:resume][:long_avg_served_time]
         %td{colspan: 1}
           %strong Сводка по талонам, которые обслуживали меньше 3 минут
         %td{colspan: 3}
@@ -218,6 +228,7 @@
           %strong= t '.median_served_time'
         %td{colspan: 3}
           %pre.pre-unformatted= report.result[:evening_time][:resume][:median_served_time]
+          %pre.pre-unformatted.hidden= report.result[:evening_time][:resume][:long_median_served_time]
         %td{colspan: 4}
       %tr
         %td{colspan: 2}

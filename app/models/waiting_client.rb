@@ -121,7 +121,7 @@ class WaitingClient < ApplicationRecord
   end
 
   def complete_automatically
-    update!(status: 'did_not_come',
+    update!(status: 'completed',
             completed_automatically: true,
             ticket_served_at: Time.zone.now,
             elqueue_window: nil)
@@ -133,7 +133,6 @@ class WaitingClient < ApplicationRecord
     update!(status: 'did_not_come',
             completed_automatically: true,
             ticket_called_at: time_completed,
-            ticket_served_at: time_completed,
             position: nil)
   end
 
