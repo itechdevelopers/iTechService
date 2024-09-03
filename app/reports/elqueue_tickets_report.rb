@@ -64,6 +64,12 @@ class ElqueueTicketsReport < BaseReport
         short_working_time << { number: wc.ticket_number, time: time_served, user: username }
       end
 
+      status = if completed_automatically
+                 missing_ticket ? 'Не пришёл (завершено автоматически)' : 'Завершено (завершено автоматически)'
+               else
+                 missing_ticket ? 'Не пришёл' : 'Завершено'
+               end
+
       {
         ticket_number: wc.ticket_number,
         ticket_issued_at: wc.ticket_issued_at.strftime('%d.%m.%Y %H:%M'),
@@ -72,11 +78,7 @@ class ElqueueTicketsReport < BaseReport
         ticket_served_at: wc.ticket_served_at&.strftime('%d.%m.%Y %H:%M') || '',
         ticket_time_served: missing_ticket ? '-' : time_served,
         queue_name: wc.queue_item_ancestors,
-        status: if missing_ticket
-                  completed_automatically ? 'Не пришёл (завершено автоматически)' : 'Не пришёл'
-                else
-                  'Завершён'
-                end,
+        status: status,
         user_called: username
       }
     end
@@ -108,7 +110,7 @@ class ElqueueTicketsReport < BaseReport
       result[:total] << "#{wc.ticket_number} - #{waiting_time} минут \n"
       waiting_times << waiting_time
     end
-    average_waiting_time_missing = (waiting_times.sum / waiting_times.size.to_f).round(2)
+    average_waiting_time_missing = average_time(waiting_times).round(2)
     result[:total] << "Среднее время ожидания для клиентов, которые не пришли: #{average_waiting_time_missing} минут."
 
     # Подсчет среднего и медианного времени выполнения и количества клиентов по пунктам электронной очереди
@@ -120,14 +122,21 @@ class ElqueueTicketsReport < BaseReport
     queue_items_total = []
     queue_items_average = []
     queue_items_median = []
+    long_queue_items_median = []
+    long_queue_items_average = []
+
     queue_items_ary.each do |items|
       wcs_for_item = waiting_clients.where(queue_item_id: items[0])
       queue_items_total << "#{items[2]} - #{items[1]} - #{wcs_for_item.size}"
-      wcs_with_served = wcs_for_item.select(&:ticket_served_at)
+      wcs_with_served = wcs_for_item.where(status: 'completed').select(&:ticket_served_at)
+
       served_durations = wcs_with_served.map { |wc| (wc.ticket_served_at - wc.ticket_called_at).div(60) }
-      average_served_time = served_durations.sum / served_durations.size.to_f
+      long_served_durations = served_durations.select { |duration| duration > 3 }
+
       queue_items_median << "#{items[2]} - #{items[1]} - #{median_time(served_durations).round(2)}"
-      queue_items_average << "#{items[2]} - #{items[1]} - #{average_served_time.round(2)}"
+      queue_items_average << "#{items[2]} - #{items[1]} - #{average_time(served_durations).round(2)}"
+      long_queue_items_median << "#{items[2]} - #{items[1]} - #{median_time(long_served_durations).round(2)}"
+      long_queue_items_average << "#{items[2]} - #{items[1]} - #{average_time(long_served_durations).round(2)}"
     end
 
     queue_items_total = queue_items_total.sort_by { |str| -str[/\d+\z/].to_i }.map { |str| str << ' шт.' }.join("\n")
@@ -138,6 +147,12 @@ class ElqueueTicketsReport < BaseReport
 
     queue_items_median = queue_items_median.sort_by { |str| -str[/\d+(?:.\d+)?\z/].to_f }.map { |str| str << ' мин.' }.join("\n")
     result[:median_served_time] = queue_items_median
+
+    long_queue_items_average = long_queue_items_average.sort_by { |str| -str[/\d+(?:.\d+)?\z/].to_f }.map { |str| str << ' мин.' }.join("\n")
+    result[:long_avg_served_time] = long_queue_items_average
+
+    long_queue_items_median = long_queue_items_median.sort_by { |str| -str[/\d+(?:.\d+)?\z/].to_f }.map { |str| str << ' мин.' }.join("\n")
+    result[:long_median_served_time] = long_queue_items_median
 
     # Среднее время ожидания всех задач
     filtered_with_called = waiting_clients.select(&:ticket_called_at)
@@ -159,5 +174,12 @@ class ElqueueTicketsReport < BaseReport
     else
       (sorted[(size - 1) / 2] + sorted[size / 2]) / 2.0
     end
+  end
+
+  def average_time(durations)
+    size = durations.size
+    return 0 if size.zero?
+
+    durations.sum / size.to_f
   end
 end

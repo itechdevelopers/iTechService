@@ -107,6 +107,12 @@ $(document).on 'click', '#report_result .detailable>td', ->
 
   return
 
+$(document).on 'click', '#accuracy_checkbox', ->
+  $('pre.pre-unformatted.hidden')
+    .removeClass('hidden')
+    .siblings()
+    .addClass('hidden')
+
 $(document).on 'click', '#report_result .toggle_depth', ->
   depth = Number $(this).data('depth')
   $table = $('#report_result table')
