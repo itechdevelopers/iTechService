@@ -3,9 +3,23 @@
   %thead
     %tr
       %th.center{rowspan: 2}= ServiceJob.human_attribute_name :item
+      %th.center= 'Задачи'
       %th.center{colspan: 2}= t('reports.qty')
   %tbody
     - report.result[:jobs].each do |job|
       %tr.detailable
         %td= job.presentation
+        %td= report.result[:sj_to_tasks][job.item_id]
         %td= job['qty']
+      - report.result[:item_to_jobs][job.item_id].each do |service_job_element|
+        %tr.details
+          %td
+            = link_to service_job_element[:service_job].decorate.device_name,
+                      service_job_path(service_job_element[:service_job].id)
+          %td{colspan: 2}= service_job_element[:tasks].join(', ')
+
+    %tr.detailable
+      %td{colspan: 2}
+        %strong= 'Общее количество'
+      %td
+        = report.result[:jobs_size]
