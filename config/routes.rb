@@ -384,6 +384,10 @@ Rails.application.routes.draw do
     resources :report_columns, only: %i[create destroy], defaults: {format: :js}
   end
 
+  resources :report_cards, only: [] do
+    patch :update_annotation, on: :member, defaults: {format: :js}
+  end
+
   resources :electronic_queues do
     get :show_active_tickets, on: :member, defaults: {format: :js}
     get :manage_tickets, on: :member, defaults: {format: :js}

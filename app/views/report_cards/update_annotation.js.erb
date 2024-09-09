@@ -1,0 +1,12 @@
+const forms = document.querySelectorAll('.annotation-form-container');
+forms.forEach(form => form.style.display = 'none');
+
+const elementId = "<%= @report_card.id %>";
+const elementAnnotation = "<%= @report_card.annotation %>";
+
+const card = document.querySelector(`.report_column-card[data-id="${elementId}"]`);
+
+if (card) {
+    card.setAttribute('data-annotation', elementAnnotation);
+} else {
+}

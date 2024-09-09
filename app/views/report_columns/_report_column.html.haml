@@ -11,5 +11,5 @@
         data: { confirm: "Вы уверены?" },                 |
         remote: true
   - report_column.report_cards.sort_by{ |rc| rc.position }.each do |rc|
-    %li.report_col-card{data: { card_id: rc.id } }
+    %li.report_col-card{data: { card_id: rc.id, annotation: rc.annotation } }
       = link_to t("reports.#{rc.content}.title"), new_report_path(report: report_default_params(rc.content))

@@ -7,6 +7,8 @@
     = text_field_tag "search", "", id: "search-input", placeholder: "Поиск"
     - if can?(:manage, ReportsBoard)
       = link_to t('reports.manage'), reports_board_path(@reports_board), class: 'btn btn-success reports-board-btn'
+    - if can?(:update_annotation, ReportCard)
+      = link_to 'Редактировать аннотации', '#', class: 'btn btn-submit reports-annotation-btn'
     - else
       .report-stub= ""
 
@@ -16,8 +18,17 @@
       %li.report_column-name= column.name
       - column.report_cards.sort_by{ |rc| rc.position }.each do |rc|
         - unless (rc.content == 'salary' && !can?(:manage, Salary)) || (rc.content == 'client_reviews' && !can?(:read, Review))
-          %li.report_column-card.searchable
+          %li.report_column-card.searchable{data: { id: rc.id, annotation: rc.annotation } }
             = link_to t("reports.#{rc.content}.title"), new_report_path(report: report_default_params(rc.content))
+            %i.fa.fa-pencil-square-o.report-annotation-form
+            .annotation-form-container
+              = form_with url: update_annotation_report_card_path(rc),
+                          local: false,
+                          method: :patch,
+                          html: { class: 'annotation-form' } do |f|
+                = f.fields_for :report_card do |form|
+                  = form.text_area :annotation, rows: 3, cols: 30
+                = f.submit 'Сохранить', class: 'btn btn-sm btn-primary'
 
 :scss
   .highlighted {
