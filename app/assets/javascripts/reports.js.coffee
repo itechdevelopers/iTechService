@@ -1,5 +1,62 @@
 jQuery ->
+  #  Аннотации к отчетам
+  $annotationBtn = $('.reports-annotation-btn')
 
+  $annotationBtn.on 'click', (e) ->
+    e.preventDefault()
+    currentText = $annotationBtn.text().trim()
+
+    if currentText == 'Редактировать аннотации'
+      $annotationBtn.text('Закончить редактирование')
+      $('.report-annotation-form').css('display', 'block')
+    else
+      $annotationBtn.text('Редактировать аннотации')
+      $('.report-annotation-form').css('display', 'none')
+      $('.annotation-form-container').css('display', 'none')
+
+  $('.report-annotation-form').on 'click', (e) ->
+    e.preventDefault()
+    $formContainer = $(this).siblings('.annotation-form-container')
+
+    if $formContainer.is(':visible')
+      $formContainer.hide()
+    else
+      $formContainer.show()
+
+  hoverTimeout = null
+  tooltip = $('<div class="report-annotation"></div>').appendTo('body').hide()
+
+  $('.report_col-card, .report_column-card').hover(
+    (e) ->
+      clearTimeout(hoverTimeout)
+      $card = $(this)
+      annotation = $card.attr('data-annotation')
+
+      if annotation && annotation.trim() != ''
+        hoverTimeout = setTimeout( ->
+          tooltipText = annotation
+          posX = e.pageX
+          posY = e.pageY + 20
+
+          tooltip.text(tooltipText)
+            .css({
+            top: posY + 'px',
+            left: posX + 'px'
+          })
+            .fadeIn(200)
+        , 500)  # Задержка в 500 мс перед показом тултипа
+  , ->
+      clearTimeout(hoverTimeout)
+      tooltip.fadeOut(200)
+  )
+
+  $('.report_col-card, .report_column-card').mousemove (e) ->
+    tooltip.css({
+      top: (e.pageY + 20) + 'px',
+      left: e.pageX + 'px'
+    })
+
+  #
   if $('#report_form .multiselect').length
     $('#report_form .multiselect').multiselect
       enableClickableOptGroups: true,
@@ -142,4 +199,3 @@ saveReportsBoard = (uls) ->
   boardId = $('.reports_board').data('id')
   $('#board-ids').val(JSON.stringify(reportsIds))
   $('#form-reports-board').submit()
-  

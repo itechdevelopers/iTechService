@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20240828122306) do
+ActiveRecord::Schema.define(version: 20240909133110) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -1048,6 +1048,7 @@ ActiveRecord::Schema.define(version: 20240828122306) do
     t.bigint "report_column_id"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.text "annotation", default: ""
     t.index ["report_column_id"], name: "index_report_cards_on_report_column_id"
   end
 

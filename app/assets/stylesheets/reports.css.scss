@@ -354,6 +354,32 @@ h1.new_report {
     background-color: white;
     margin-bottom: 4px;
     padding: 16px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    position: relative;
+  }
+}
+
+.annotation-form-container {
+  display: none;
+  position: absolute;
+  right: -360px;
+  top: 0;
+}
+
+.annotation-form {
+  display: flex;
+  flex-direction: column;
+}
+
+.report-annotation-form {
+  display: none;
+  color: #2d3739;
+
+  &:hover {
+    text-decoration: underline;
+    color: #00cfff;
   }
 }
 
@@ -370,4 +396,15 @@ h1.new_report {
 
 input#accuracy_checkbox {
   margin: 0 10px 2px 0;
+}
+
+.report-annotation {
+  position: absolute;
+  background: rgba(0, 0, 0, 0.8);
+  color: #fff;
+  padding: 5px 10px;
+  border-radius: 4px;
+  font-size: 12px;
+  z-index: 1000;
+  max-width: 200px;
 }
