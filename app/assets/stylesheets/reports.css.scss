@@ -364,13 +364,19 @@ h1.new_report {
 .annotation-form-container {
   display: none;
   position: absolute;
-  right: -360px;
+  left: 360px;
   top: 0;
 }
 
 .annotation-form {
   display: flex;
   flex-direction: column;
+}
+
+.report-annotation-header {
+  font-size: 1.2em;
+  font-style: oblique;
+  color: #7b7b7b;
 }
 
 .report-annotation-form {

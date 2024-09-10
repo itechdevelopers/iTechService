@@ -51,11 +51,13 @@ module ReportsHelper
     ].freeze
   end
 
-  def report_default_params(report_name)
-    {
+  def report_default_params(report_name, annotation = nil)
+    result = {
       few_remnants_goods: {base_name: 'few_remnants', kind: 'goods'},
       few_remnants_spare_parts: {base_name: 'few_remnants', kind: 'spare_parts'}
     }.fetch report_name.to_sym, {base_name: report_name}
+    result[:annotation] = annotation if annotation
+    result
   end
 
   def remnants_row(data)
