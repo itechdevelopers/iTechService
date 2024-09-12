@@ -1,6 +1,11 @@
 <tr class="device_task fields">
   <td class="task_type">
-    <%= f.select :task_id, Task.visible.collect{|t|[t.name,t.id]}, {include_blank: true}, class: 'device_task_task' %>
+    <%= f.input :task_id,
+                as: :custom_select,
+                collection: Task.visible,
+                prompt: 'Выберите задачу',
+                input_html: { class: 'device_task_task'},
+                label: false %>
   </td>
   <td class="task_cost">
     <%= f.number_field :cost, class: 'device_task_cost input-small' %>
