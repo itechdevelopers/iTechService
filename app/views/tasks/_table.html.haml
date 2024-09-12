@@ -13,6 +13,7 @@
         %th= Task.human_attribute_name(:cost)
         -#%th= Task.human_attribute_name(:duration)
         %th= Task.human_attribute_name(:created_at)
+        %th= Task.human_attribute_name(:color)
         %th
     %tbody
       - @tasks.each do |task|
@@ -25,6 +26,7 @@
           %td= task.cost
           -#%td= task.duration
           %td=l task.created_at, format: :date_time
+          %td.tasks-table-color{data: { color: task.color } }
           %td.btn-group
             = link_to_edit_small task
             = link_to_destroy_small task
@@ -33,3 +35,10 @@
   
 - else
   = render 'shared/empty'
+
+:coffee
+  $ ->
+    $('.tasks-table-color').each ->
+      taskColor = $(this).data('color')
+      if taskColor
+        $(this).css('background-color', taskColor)

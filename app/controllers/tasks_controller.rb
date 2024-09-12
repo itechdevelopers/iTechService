@@ -73,6 +73,6 @@ class TasksController < ApplicationController
 
   def task_params
     params.require(:task)
-          .permit(:code, :cost, :duration, :hidden, :location_code, :name, :priority, :product_id, :role)
+          .permit(:code, :cost, :duration, :hidden, :location_code, :name, :priority, :product_id, :role, :color)
   end
 end

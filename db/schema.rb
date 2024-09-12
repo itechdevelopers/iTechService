@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20240909133110) do
+ActiveRecord::Schema.define(version: 20240912120202) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -1466,6 +1466,7 @@ ActiveRecord::Schema.define(version: 20240909133110) do
     t.boolean "hidden", default: false
     t.string "code"
     t.string "location_code"
+    t.string "color", default: ""
     t.index ["name"], name: "index_tasks_on_name"
     t.index ["product_id"], name: "index_tasks_on_product_id"
     t.index ["role"], name: "index_tasks_on_role"
