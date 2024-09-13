@@ -17,7 +17,8 @@ class WaitingClientPdf < Prawn::Document
   end
 
   def page_height_mm
-    page_height / 1.mm
+    height = (page_height / 1.mm)
+    height > 80 ? height : 81
   end
 
   private
@@ -33,7 +34,7 @@ class WaitingClientPdf < Prawn::Document
 
     move_down 50
     font_size 12 do
-      text @view.t("waiting_clients.pdf.your_queue_number"), align: :center, inline_format: true, style: :bold
+      text @view.t("waiting_clients.pdf.your_queue_number"), align: :center, style: :bold
     end
 
     move_down 5
