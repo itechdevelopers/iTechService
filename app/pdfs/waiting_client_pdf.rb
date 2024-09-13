@@ -17,8 +17,7 @@ class WaitingClientPdf < Prawn::Document
   end
 
   def page_height_mm
-    height = (page_height / 1.mm)
-    height > 80 ? height : 81
+    page_height / 1.mm
   end
 
   private
@@ -62,7 +61,8 @@ class WaitingClientPdf < Prawn::Document
     line_height_small = 12
     medium_symbol_lines = count_lines(waiting_client.queue_item.annotation, 27)
     small_symbol_lines = count_lines(waiting_client.electronic_queue.check_info, 32)
-    line_height_medium * medium_symbol_lines + line_height_small * small_symbol_lines + 130
+    height = (line_height_medium * medium_symbol_lines + line_height_small * small_symbol_lines + 130)
+    height > 255 ? height : 255
   end
 
   def count_lines(text, max_chars_per_line = 30)
