@@ -1,15 +1,12 @@
 .custom-select-wrapper {
   position: relative;
   user-select: none;
-  //width: 200px;
 }
 
 .custom_select {
   position: relative;
   display: flex;
   flex-direction: column;
-  //border: 1px solid #ccc;
-  //border-radius: 4px;
 }
 
 .custom-options {
@@ -57,39 +54,5 @@
 }
 .custom-option:hover {
   cursor: pointer;
-  //background-color: rgba(0,0,0,0.1);
 }
-.custom-option.selected {
-  //color: #ffffff;
-}
-//.arrow {
-//  position: relative;
-//  height: 10px;
-//  width: 10px;
-//}
-//.arrow::before, .arrow::after {
-//  content: "";
-//  position: absolute;
-//  bottom: 0px;
-//  width: 0.1rem;
-//  height: 100%;
-//  transition: all 0.3s;
-//}
-//.arrow::before {
-//  left: -2px;
-//  transform: rotate(45deg);
-//  background-color: #394a6d;
-//}
-//.arrow::after {
-//  left: 2px;
-//  transform: rotate(-45deg);
-//  background-color: #394a6d;
-//}
-//.open .arrow::before {
-//  left: -2px;
-//  transform: rotate(-45deg);
-//}
-//.open .arrow::after {
-//  left: 2px;
-//  transform: rotate(45deg);
-//}
+
