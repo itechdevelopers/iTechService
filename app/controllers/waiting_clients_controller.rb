@@ -80,6 +80,7 @@ class WaitingClientsController < ApplicationController
     filepath = "#{Rails.root}/tmp/pdf/#{@pdf_filename}"
     @pdf.render_file filepath
     printer = @waiting_client.electronic_queue.printer_address
+    Rails.logger.info("Waiting Client PDF height #{@pdf.page_height_mm}")
     PrinterTools.print_file filepath,
                             type: :waiting_client,
                             height: @pdf.page_height_mm,
