@@ -11,8 +11,8 @@ jQuery ->
   if $service_job_form.length > 0
     $service_job_form.find('label.important').tooltip(title: 'Информация, которая заполняется здесь, отображается в заказ-наряде. Будьте внимательны.')
 
-    $(document).on 'change', '.device_task_task', () ->
-      task_id = $(this).val()
+    $(document).on 'click', '.device_task_task .custom-option', () ->
+      task_id = $(this).data('value')
       $row = $(this).parents('.device_task')
       task_cost = $row.find('.device_task_cost')
       is_change_location = $row.is(':first-child')
