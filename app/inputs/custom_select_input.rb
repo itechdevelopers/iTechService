@@ -6,7 +6,7 @@ class CustomSelectInput < SimpleForm::Inputs::Base
       @builder.template.content_tag(:div, class: 'custom-select', **merged_input_options) do
         trigger + select_options_container
       end +
-        @builder.hidden_field(attribute_name, value: '')
+        @builder.hidden_field(attribute_name, value: selected_option)
     end
   end
 
@@ -15,7 +15,6 @@ class CustomSelectInput < SimpleForm::Inputs::Base
   def trigger
     @builder.template.content_tag(:div, class: 'custom-select__trigger') do
       @builder.template.content_tag(:span, placeholder_text)
-        # @builder.template.content_tag(:div, "", class: "arrow")
     end
   end
 
@@ -59,5 +58,9 @@ class CustomSelectInput < SimpleForm::Inputs::Base
 
   def placeholder_text
     @options[:prompt] || 'Выберите задачу'
+  end
+
+  def selected_option
+    @options[:selected_option] || ''
   end
 end
