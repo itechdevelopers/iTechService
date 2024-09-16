@@ -1,4 +1,25 @@
 $ ->
+  $('.custom-select-wrapper').each ->
+    $wrapper = $(this)
+    $hiddenInput = $wrapper.find('input[type="hidden"]')
+    selectedValue = $hiddenInput.val()
+
+    $wrapper.find('.custom-option').each ->
+      $option = $(this)
+      optionValue = $option.data('value').toString()
+
+      if optionValue == selectedValue
+        $option.addClass('selected')
+        optionColor = $option.data('color')
+        optionText = $option.text()
+
+        $trigger = $wrapper.find('.custom-select__trigger')
+        $span = $trigger.find('span')
+        $trigger.css('background-color', optionColor)
+        $span.text(optionText)
+      else
+        $option.removeClass('selected')
+
   $(document).on 'click', '.custom-select__trigger', (event) ->
     event.stopPropagation()
     select = $(this).closest('.custom_select')
