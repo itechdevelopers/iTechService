@@ -6,9 +6,12 @@ $ ->
     select.toggleClass('open')
 
     if select.hasClass('open')
+      select.find('.custom-option.selected').addClass('hover')
       select.find('.custom-option').each ->
         color = $(this).data('color')
         $(this).css('background-color', color) if color
+    else
+      select.find('.custom-option').removeClass('hover')
 
   $(document).on 'click', '.custom-option', (event) ->
     event.stopPropagation()
@@ -28,3 +31,24 @@ $ ->
 
   $(document).on 'click', ->
     $('.custom_select').removeClass('open')
+
+  $(document).on 'keydown', (event) ->
+    if event.key in ['Enter', ' '] and $('.custom_select.open').length
+      event.preventDefault()
+      $('.custom_select.open').find('.custom-option.hover').trigger('click')
+
+  $(document).on 'mouseenter', '.custom-option', ->
+    $(this).addClass('hover')
+
+  $(document).on 'mouseleave', '.custom-option', ->
+    $(this).removeClass('hover')
+
+  $(document).on 'keydown', (event) ->
+    select = $('.custom_select.open')
+    if select.length and event.key in ['ArrowUp', 'ArrowDown']
+      event.preventDefault()
+      options = select.find('.custom-option')
+      currentIndex = options.index(options.filter('.hover'))
+      newIndex = if event.key is 'ArrowUp' then currentIndex - 1 else currentIndex + 1
+      newIndex = Math.max(0, Math.min(newIndex, options.length - 1))
+      options.eq(newIndex).addClass('hover').siblings().removeClass('hover')
