@@ -3,7 +3,7 @@
     %td= f.object.done ? tag(:i, class: 'fa fa-check-square-o') : tag(:i, class: 'fa fa-square-o')
     %td= f.input :task_id,
                   as: :custom_select,
-                  collection: Task.all,
+                  collection: Task.positioned,
                   input_html: { class: 'device_task_task'},
                   selected_option: f.object.task_id,
                   label: false

@@ -2,7 +2,7 @@
   <td class="task_type">
     <%= f.input :task_id,
                 as: :custom_select,
-                collection: Task.visible,
+                collection: Task.visible.positioned,
                 prompt: 'Выберите задачу',
                 input_html: { class: 'device_task_task'},
                 label: false %>

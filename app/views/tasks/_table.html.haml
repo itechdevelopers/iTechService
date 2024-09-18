@@ -2,6 +2,14 @@
 = hidden_field_tag :sort, params[:sort]
 - if @tasks.any?
 
+  - if can? :update_positions, Task
+    = form_with url: update_positions_tasks_path,
+                method: :patch,
+                local: false,
+                html: { id: 'update-positions-form' } do |f|
+      = f.fields_for :task do |form|
+        = form.hidden_field :tasks_positions, id: 'tasks_positions'
+
   %table.table.table-striped.table-hover
     %thead
       %tr
@@ -15,8 +23,8 @@
         %th= Task.human_attribute_name(:created_at)
         %th= Task.human_attribute_name(:color)
         %th
-    %tbody
-      - @tasks.each do |task|
+    %tbody.tasks-body
+      - @tasks.positioned.each do |task|
         %tr
           %td= task.id
           %td= task.name
@@ -42,3 +50,6 @@
       taskColor = $(this).data('color')
       if taskColor
         $(this).css('background-color', taskColor)
+
+    if $('#update-positions-form').length
+      initTasksSortable $('.tasks-body')

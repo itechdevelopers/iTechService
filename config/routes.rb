@@ -124,6 +124,7 @@ Rails.application.routes.draw do
     scope module: 'tasks' do
       resource :device_validation, only: :show
     end
+    patch :update_positions, on: :collection, defaults: {format: :js}
   end
 
   resources :locations, except: :show
