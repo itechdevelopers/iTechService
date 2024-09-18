@@ -7,12 +7,17 @@ class Task < ApplicationRecord
   scope :tasks_for, ->(user) { where(task: { role: user.role }) }
   scope :visible, -> { where hidden: [false, nil] }
   scope :mac_service, -> { where code: 'mac' }
+  scope :positioned, -> { order(position: :asc) }
 
   belongs_to :product, inverse_of: :task, optional: true
   has_many :device_tasks, dependent: :restrict_with_error
   has_many :service_jobs, through: :device_tasks
   delegate :is_repair?, :is_service?, to: :product, allow_nil: true
   delegate :name, :id, to: :location, prefix: true, allow_nil: true
+
+  validates :position, presence: true, numericality: { greater_than: 0 }
+
+  before_validation :set_position, on: :create
 
   # attr_accessible :cost, :duration, :name, :code, :priority, :role, :location_code, :product_id, :hidden
 
@@ -56,5 +61,11 @@ class Task < ApplicationRecord
 
   def engraving?
     code == 'laser'
+  end
+
+  private
+
+  def set_position
+    self.position ||= Task.maximum(:position).to_i + 1
   end
 end

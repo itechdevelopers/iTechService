@@ -1,2 +1,21 @@
 = auto_header_tag
 = render partial: "form"
+
+:scss
+  .modal.large {
+    width: 90vw;
+    margin-left: -45vw;
+    height: 85vh;
+
+    form {
+      height: 100%;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+    }
+
+    form > .modal-body {
+      margin-top: 10px;
+      margin-bottom: auto;
+    }
+  }

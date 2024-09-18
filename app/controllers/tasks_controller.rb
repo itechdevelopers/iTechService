@@ -3,7 +3,7 @@
 class TasksController < ApplicationController
   def index
     authorize Task
-    @tasks = Task.all.order(:id).page(params[:page])
+    @tasks = Task.all.page(params[:page])
 
     respond_to do |format|
       format.html
@@ -61,6 +61,19 @@ class TasksController < ApplicationController
     end
   end
 
+  def update_positions
+    authorize Task
+    positioned_tasks = JSON.parse(task_params[:tasks_positions])
+    ActiveRecord::Base.transaction do
+      positioned_tasks.each do |task|
+        Task.find(task['id']).update(position: task['position'])
+      end
+    end
+    respond_to do |format|
+      format.js { head :ok }
+    end
+  end
+
   def destroy
     @task = find_record Task
     @task.destroy
@@ -73,6 +86,7 @@ class TasksController < ApplicationController
 
   def task_params
     params.require(:task)
-          .permit(:code, :cost, :duration, :hidden, :location_code, :name, :priority, :product_id, :role, :color)
+          .permit(:code, :cost, :duration, :hidden, :location_code, :name,
+                  :priority, :product_id, :role, :color, :tasks_positions)
   end
 end
