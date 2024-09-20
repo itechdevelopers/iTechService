@@ -8,6 +8,7 @@ class DeviceInput < SimpleForm::Inputs::Base
     content << template.link_to(template.glyph(:plus), template.new_device_path, class: 'new_item_btn btn btn-default', remote: true) unless disabled?
     content << template.link_to(template.glyph(:edit), device.present? ? template.edit_device_path(device) : '#', class: 'edit_item_btn btn btn-default', remote: device.present?) unless disabled?
     content << template.link_to(template.glyph('eye'), device.present? ? template.device_path(device) : '#', class: 'show_item_btn btn btn-default', remote: device.present?)
+    content << template.content_tag(:div, '', class: 'device_1c_status')
     template.content_tag(:div, content.html_safe, class: "device_input input-group input-append input-prepend")
   end
 

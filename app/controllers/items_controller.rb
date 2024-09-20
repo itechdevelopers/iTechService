@@ -135,6 +135,12 @@ class ItemsController < ApplicationController
     render json: { status: item.status, status_info: item.status_info }
   end
 
+  def check_1c_status
+    item = find_record(Item).decorate
+    response = ::CheckDeviceStatus.call(serial_number: item.serial_number)
+    render json: { status: response }.as_json
+  end
+
   def item_params
     params.require(:item)
           .permit(:barcode_num, :product_id,
