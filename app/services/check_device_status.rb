@@ -11,7 +11,7 @@ class CheckDeviceStatus
 
   def initialize(serial_number:)
     @serial_number = serial_number
-    @auth = { username: ENV['1C_API_USERNAME'], password: ENV['1C_API_PASSWORD'] }
+    @auth = { username: ENV['ONE_C_API_USERNAME'], password: ENV['ONE_C_API_PASSWORD'] }
     @base_url = 'http://89.108.120.99:8899'
   end
 
