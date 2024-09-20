@@ -17,6 +17,16 @@
           $search_input.tooltip('destroy')
         }
       })
+    },
+    check_1c_status: function () {
+      const $input = $('.device_input')
+      const item_id = $input.find('.item_id').val()
+      const $status_field = $input.find('.device_1c_status')
+      fetch(`/items/${item_id}/check_1c_status`)
+        .then(response => response.json())
+        .then(data => {
+          $status_field.text(data.status)
+        })
     }
   }
 
@@ -33,6 +43,7 @@
         $(this).siblings('.edit_item_btn').attr('href', "/devices/" + ui.item.value + "/edit.js").attr('data-remote', true)
         $(this).siblings('.show_item_btn').attr('href', "/devices/" + ui.item.value + ".js").attr('data-remote', true)
         App.Inputs.Device.check_imei()
+        App.Inputs.Device.check_1c_status()
         return false
       }
     })
