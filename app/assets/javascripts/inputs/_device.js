@@ -58,7 +58,6 @@
         return false
       },
       search: function( event, ui ) {
-        console.log("Выполняется поиск для: " + $(this).val())
         App.Inputs.Device.check_1c_status_by_sn()
       }
     })
