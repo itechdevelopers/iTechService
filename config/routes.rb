@@ -277,6 +277,7 @@ Rails.application.routes.draw do
     get :autocomplete, on: :collection
     get :check_status, on: :member, defaults: {format: :json}
     get :check_1c_status, on: :member, defaults: {format: :json}
+    get :check_1c_status_by_sn, on: :collection, defaults: {format: :json}
     get :remains_in_store, on: :member, defaults: {format: :json}
   end
 

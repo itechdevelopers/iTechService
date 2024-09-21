@@ -27,6 +27,17 @@
         .then(data => {
           $status_field.text(data.status)
         })
+    },
+    check_1c_status_by_sn: function () {
+      const $input = $('.device_input');
+      const serial_number = $('#item_search').val();
+      const $status_field = $input.find('.device_1c_status');
+
+      fetch(`/items/check_1c_status_by_sn?serial_number=${encodeURIComponent(serial_number)}`)
+          .then(response => response.json())
+          .then(data => {
+            $status_field.text(data.status);
+          });
     }
   }
 
@@ -45,6 +56,10 @@
         App.Inputs.Device.check_imei()
         App.Inputs.Device.check_1c_status()
         return false
+      },
+      search: function( event, ui ) {
+        console.log("Выполняется поиск для: " + $(this).val())
+        App.Inputs.Device.check_1c_status_by_sn()
       }
     })
   })
