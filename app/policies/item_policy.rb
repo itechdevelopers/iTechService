@@ -7,6 +7,8 @@ class ItemPolicy < CommonPolicy
 
   def check_1c_status?; read?; end
 
+  def check_1c_status_by_sn?; read?; end
+
   def manage?; any_manager?; end
 
   def modify?
