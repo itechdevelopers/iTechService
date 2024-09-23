@@ -8,5 +8,11 @@ const card = document.querySelector(`.report_column-card[data-id="${elementId}"]
 
 if (card) {
     card.setAttribute('data-annotation', elementAnnotation);
+
+    if (elementAnnotation.trim() !== '') {
+        card.classList.add('card_with-annotation');
+    } else {
+        card.classList.remove('card_with-annotation');
+    }
 } else {
 }
