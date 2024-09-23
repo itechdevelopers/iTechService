@@ -351,8 +351,10 @@ kind: 'device_return', content: id.to_s)
   def create_filled_sale
     sale_attributes = { client_id: client_id, store_id: User.current.retail_store.id, sale_items_attributes: {} }
     device_tasks.paid.each_with_index do |device_task, index|
-      sale_item_attributes = { device_task_id: device_task.id, item_id: device_task.task&.product&.items&.first&.id,
-price: device_task.cost.to_f, quantity: 1 }
+      sale_item_attributes = { device_task_id: device_task.id,
+                               item_id: device_task.task&.product&.product_item&.id,
+                               price: device_task.cost.to_f,
+                               quantity: 1 }
       sale_attributes[:sale_items_attributes].store index.to_s, sale_item_attributes
       # new_sale.sale_items.build item_id: device_task.item.id, price: device_task.cost, quantity: 1
     end

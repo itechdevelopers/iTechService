@@ -56,7 +56,7 @@ class Product < ApplicationRecord
   delegate :full_name, to: :device_type, prefix: true, allow_nil: true
   delegate :color, to: :top_salable, allow_nil: true
   delegate :cost, to: :task, prefix: true, allow_nil: true
-  
+
   validates_presence_of :name, :code, :product_group, :product_category
   # validates_presence_of :device_type, if: :is_equipment
   validates_uniqueness_of :code, unless: :undefined?
@@ -96,6 +96,10 @@ class Product < ApplicationRecord
     elsif product_group_id.present? && option_ids.blank? && ProductGroup.find(product_group_id).option_values.none?
       (products = where(product_group_id: product_group_id)).many? ? nil : products.first
     end
+  end
+
+  def product_item
+    items.first_or_create!
   end
 
   def generate_barcode_num
