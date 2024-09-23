@@ -1,4 +1,4 @@
-#modal_form.modal.large.fade.hide
+#modal_form.modal.large.fade.hide.enlarged_modal
   = form_tag select_products_path, remote: true, id: 'product_choose_form' do
     = hidden_field_tag 'product_id', params[:product_id], disabled: params[:product_id].blank?
     = hidden_field_tag 'item_id', params[:item_id], disabled: params[:item_id].blank?
