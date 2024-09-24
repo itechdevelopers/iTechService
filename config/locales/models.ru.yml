@@ -702,6 +702,7 @@ ru:
               required: 'не может быть пустым'
 
   attributes:
+    archive: 'Архив'
     available_for_trade_in: 'Доступно для Trade-in'
     city: :activerecord.models.city
     client: 'Клиент'

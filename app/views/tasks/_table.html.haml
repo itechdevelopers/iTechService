@@ -16,6 +16,7 @@
         %th= Task.human_attribute_name(:id)
         %th= Task.human_attribute_name(:name)
         %th= Task.human_attribute_name(:role)
+        %th= Task.human_attribute_name(:archive)
         %th= Task.human_attribute_name :location
         -#%th= Task.human_attribute_name(:priority)
         %th= Task.human_attribute_name(:cost)
@@ -29,6 +30,7 @@
           %td= task.id
           %td= task.name
           %td= t "users.roles.#{task.role}"
+          %td= task.hidden ? 'В архиве' : ''
           %td= task.location_code
           -#%td= task.priority
           %td= task.cost
@@ -53,3 +55,7 @@
 
     if $('#update-positions-form').length
       initTasksSortable $('.tasks-body')
+
+    $('.tasks-body tr').each ->
+      if $(this).find('td:contains("В архиве")').length > 0
+        $(this).addClass('archived')
