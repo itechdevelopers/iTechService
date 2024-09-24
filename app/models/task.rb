@@ -30,6 +30,21 @@ class Task < ApplicationRecord
     end
   end
 
+  paginates_per 30
+
+  def self.reassign_positions
+    pos = all.maximum(:position)
+    pos += 1
+    positioned.where(hidden: true).each do |element|
+      element.update!(position: pos)
+      pos += 1
+    end
+
+    positioned.each_with_index do |element, index|
+      element.update!(position: index + 1)
+    end
+  end
+
   def location(department = nil)
     department ||= Department.current
     Location.find_by(code: location_code, department: department)
