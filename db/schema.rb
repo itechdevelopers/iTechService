@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20240918072939) do
+ActiveRecord::Schema.define(version: 20240925091907) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -897,6 +897,8 @@ ActiveRecord::Schema.define(version: 20240918072939) do
     t.text "comment"
     t.integer "product_category_id"
     t.string "barcode_num"
+    t.string "article"
+    t.index ["article"], name: "index_products_on_article", unique: true
     t.index ["barcode_num"], name: "index_products_on_barcode_num"
     t.index ["code"], name: "index_products_on_code"
     t.index ["device_type_id"], name: "index_products_on_device_type_id"

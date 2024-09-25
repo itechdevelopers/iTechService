@@ -17,6 +17,10 @@
           .controls= text_field_tag :customer, @order.customer.presentation, class: 'input-xlarge', disabled: true
       = f.input :object_kind, as: :object_kind
       = f.input :object, as: :object
+      .control-group.optional
+        %label.control-label.optional= Order.human_attribute_name :article
+        .controls= text_field_tag :product_article
+        #article_not_found
       = f.input :object_url, input_html: {rows: 3, class: 'input-xlarge'}
 
       .control-group

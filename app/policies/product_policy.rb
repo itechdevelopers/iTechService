@@ -46,4 +46,8 @@ class ProductPolicy < CommonPolicy
   def select?
     has_role?(:software, :media, :universal, :marketing, :technician)
   end
+
+  def product_by_article?
+    read?
+  end
 end

@@ -61,6 +61,7 @@ class Product < ApplicationRecord
   # validates_presence_of :device_type, if: :is_equipment
   validates_uniqueness_of :code, unless: :undefined?
   validates :barcode_num, length: {is: 13}, uniqueness: true, allow_nil: true, allow_blank: true
+  validates :article, uniqueness: true, allow_blank: true
 
   after_initialize do
     self.warranty_term ||= default_warranty_term
@@ -100,6 +101,19 @@ class Product < ApplicationRecord
 
   def product_item
     items.first_or_create!
+  end
+
+  def object_kind_for_order
+    device_group_id = ProductGroup.find_by(name: 'Техника').id
+    sp_group_id = ProductGroup.find_by(name: 'Запчасти').id
+    groups_id = product_group.ancestry.split('/').map(&:strip).map(&:to_i)
+    if groups_id.include? device_group_id
+      'device'
+    elsif groups_id.include? sp_group_id
+      'spare_part'
+    else
+      ''
+    end
   end
 
   def generate_barcode_num

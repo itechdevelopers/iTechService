@@ -330,6 +330,7 @@ ru:
       order:
         approximate_price: 'Ориентировочная цена'
         customer: 'Заказчик'
+        article: 'Артикул сайта'
         customer_id: 'Заказчик'
         customer_type: 'Тип заказчика'
         desired_date: 'Желаемая дата'
@@ -387,6 +388,7 @@ ru:
         quantity_threshold: 'Пороговое количество'
         warning_quantities: 'Количество для уведомления'
         barcode_num: Штрихкод
+        article: 'Артикул сайта'
 
       product_category:
         feature_types: "Типы характеристик"
