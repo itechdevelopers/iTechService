@@ -180,6 +180,22 @@ class ProductsController < ApplicationController
     end
   end
 
+  def product_by_article
+    authorize Product
+    article = params[:article]
+    product = Product.find_by(article: article)
+
+    if product
+      render json: {
+        status: 'found',
+        name: product.name,
+        kind: product.object_kind_for_order
+      }
+    else
+      render json: { status: 'not_found' }
+    end
+  end
+
   def remains_in_store
     product = find_record Product
     store = Store.find params[:store_id]
@@ -210,7 +226,7 @@ class ProductsController < ApplicationController
   def product_params
     params.require(:product)
           .permit(:code, :comment, :device_type_id, :name, :product_category_id, :product_group_id,
-                  :quantity_threshold, :warranty_term, :barcode_num,
+                  :quantity_threshold, :warranty_term, :barcode_num, :article,
                   store_products_attributes: %i[id warning_quantity store_id product_id _destroy],
                   option_ids: [],
                   items: [:product, :product_id, :features_attributes, :barcode_num],
