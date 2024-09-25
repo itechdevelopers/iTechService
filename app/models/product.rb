@@ -104,8 +104,8 @@ class Product < ApplicationRecord
   end
 
   def object_kind_for_order
-    device_group_id = ProductGroup.find_by(name: 'Техника').id
-    sp_group_id = ProductGroup.find_by(name: 'Запчасти').id
+    device_group_id = ProductGroup.where('name LIKE ?', '%Техника%').first.id
+    sp_group_id = ProductGroup.where('name LIKE ?', '%Запчасти%').first.id
     groups_id = product_group.ancestry.split('/').map(&:strip).map(&:to_i)
     if groups_id.include? device_group_id
       'device'
