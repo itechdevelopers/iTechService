@@ -310,7 +310,15 @@ class User < ApplicationRecord
   end
 
   def at_short_name
-    res = "@#{short_name}"
+    "@#{short_name}"
+  end
+
+  def dismissed_info
+    if dismissed_date
+      "#{dismissed_date&.strftime('%d.%m.%Y')} #{dismissal_reason&.name}. Комментарий: #{dismissal_comment}"
+    else
+      '-'
+    end
   end
 
   def presentation
@@ -629,7 +637,7 @@ class User < ApplicationRecord
     old_elqueue_window = ElqueueWindow.find_by(id: elqueue_window_id_was)
     old_elqueue_window&.set_inactive!
 
-    new_elqueue_window = ElqueueWindow.find_by(id: elqueue_window_id)
+    ElqueueWindow.find_by(id: elqueue_window_id)
   end
 
   def update_schedule_column
