@@ -20,6 +20,9 @@
   %dt= model_class.human_attribute_name :warranty_term
   %dd= @product.warranty_term.blank? ? '-' : @product.warranty_term
 
+  %dt= model_class.human_attribute_name :article
+  %dd= @product.article.blank? ? '-' : @product.article
+
   - if @product.is_equipment
     %dt= model_class.human_attribute_name :device_type
     %dd= @product.device_type_full_name || '-'
