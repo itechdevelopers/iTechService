@@ -75,7 +75,9 @@ module Kanban
     end
 
     def board_params
-      params.require(:kanban_board).permit(:name, :background, :sort_order, manager_ids: [], allowed_user_ids: [])
+      params.require(:kanban_board).permit(:name, :background, :sort_order, :open_background_color, :card_font_color,
+                                           :open_card_font_size, :card_font_size,
+                                           manager_ids: [], allowed_user_ids: [])
     end
   end
 end

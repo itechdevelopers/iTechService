@@ -5,7 +5,7 @@ class Kanban::Column < ApplicationRecord
   belongs_to :board, class_name: 'Kanban::Board'
   has_many :cards, -> { ordered }, class_name: 'Kanban::Card', dependent: :restrict_with_error
 
-  validates :name, presence: true, uniqueness: true
+  validates :name, presence: true, uniqueness: { scope: :board_id }
 
   delegate :name, to: :board, prefix: true
 

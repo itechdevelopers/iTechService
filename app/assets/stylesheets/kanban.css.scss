@@ -11,6 +11,19 @@
   overflow: auto;
 }
 
+.kanban-card.thumbnail {
+  padding: 8px 12px 4px;
+  line-height: 25px;
+  font-size: 15px;
+  border: none;
+  box-shadow: var(--ds-shadow-raised, 0px 1px 1px #091e4240, 0px 0px 1px #091e424f);
+
+  a {
+    color: #2b0065d6;
+    text-shadow: 1px 1px 2px #ffffff, 10px 5px 1em #65001140;
+  }
+}
+
 .kanban-card-content {
   overflow: auto;
 }
@@ -55,7 +68,7 @@ input.filter-kanban-users {
 }
 
 .kanban-card-info {
-  margin: 5px 2px;
+  margin: 9px 2px 5px 0;
   font-style: italic;
   min-height: 20px;
 

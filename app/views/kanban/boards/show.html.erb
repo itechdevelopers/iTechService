@@ -1,4 +1,8 @@
-<div class="kanban-board" style="background-color: <%= @board.background || '#ffffff' %>;">
+<div class="kanban-board"
+     data-background=<%= @board.open_background_color %>
+     data-font-color=<%= @board.card_font_color %>
+     data-font-size=<%= @board.card_font_size %>
+>
   <div class="page-header">
     <h2>
       <%= link_back_to kanban_boards_path %>

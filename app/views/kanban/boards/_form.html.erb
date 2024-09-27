@@ -1,6 +1,10 @@
 <%= simple_form_for(board, html: {class: 'form-horizontal'}) do |form| %>
   <%= form.input :name %>
   <%= form.input :background, as: :color %>
+  <%= form.input :open_background_color, as: :color %>
+  <%= form.input :card_font_color, as: :color %>
+  <%= form.input :card_font_size %>
+  <%= form.input :open_card_font_size %>
   <div class="row-fluid">
     <div class="span6">
       <div class="control-group kanban-users">

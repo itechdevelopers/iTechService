@@ -21,3 +21,20 @@ jQuery ->
           $span.hide()
         else
           $span.show()
+
+  $('.kanban-board').each ->
+    $board = $(this)
+    backgroundColor = $board.data('background') || '#ffffff'
+    $board.css 'background-color', backgroundColor
+    fontColor = $board.data('font-color')
+    if fontColor && fontColor.trim() != ''
+      $board.find('.kanban-card a').css 'color', fontColor
+    fontSize = $board.data('font-size')
+    if fontSize && fontSize.toString().trim() != ''
+      $board.find('.kanban-card a').css 'font-size', "#{fontSize}px"
+
+  $('.kanban-card-content').each ->
+    $card = $(this)
+    fontSize = $card.data('font-size')
+    if fontSize && fontSize.toString().trim() != ''
+      $card.css 'font-size', "#{fontSize}px"

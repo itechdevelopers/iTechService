@@ -35,7 +35,10 @@ jQuery ->
   $('#scan_barcode_button').click ->
     scanTicket()
 
-  $('.color_input>.color_template').css 'background-color', $('.color_value').val()
+  $('.color_input>.color_template').each ->
+    $template = $(this)
+    $value = $template.siblings('.color_value')
+    $template.css 'background-color', $value.val()
 
   $('.color_input>.color_value').colorpicker().on 'changeColor', (event)->
     $(this).closest('.color_input').find('.color_template').css 'background-color', event.color.toHex()
