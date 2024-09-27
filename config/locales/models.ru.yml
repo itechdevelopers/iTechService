@@ -292,7 +292,11 @@ ru:
         description: 'Описание'
 
       kanban/board:
-        background: 'Фон'
+        background: 'Фон карточки'
+        open_background_color: 'Фон для открытой доски'
+        card_font_color: 'Цвет шрифта'
+        card_font_size: 'Размер шрифта карточек (в px)'
+        open_card_font_size: 'Размер шрифта внутри в карточках (в px)'
 
       karma:
         good: 'good'  #g
