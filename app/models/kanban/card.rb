@@ -16,6 +16,7 @@ class Kanban::Card < ApplicationRecord
   mount_uploaders :photos, KanbanPhotoUploader
 
   validates_presence_of :author, :column, :content
+  validates :name, presence: true, length: { maximum: 200 }
 
   delegate :presentation, to: :author, prefix: true
   delegate :name, to: :column, prefix: true

@@ -19,6 +19,7 @@ ru:
         model_names: 'Модели'
       kanban_card:
         deadline: Сделать до
+        name: Название карточки
 
     prompts:
       data_sync:
