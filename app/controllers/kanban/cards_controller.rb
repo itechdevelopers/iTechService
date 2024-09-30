@@ -22,6 +22,7 @@ module Kanban
 
       respond_to do |format|
         if @card.save
+          update_notifications if @notifications&.any?
           format.html { redirect_to kanban_card_url(@card), notice: t('.created') }
           format.json { render :show, status: :created, location: @card }
         else
@@ -61,6 +62,13 @@ module Kanban
     def card_params
       params.require(:kanban_card).permit(:content, :column_id, :deadline,
         manager_ids: [], photos: [])
+    end
+
+    def update_notifications
+      @notifications.each do |notification|
+        notification.update(url: kanban_card_url(@card), referenceable: @card)
+        UserNotificationChannel.broadcast_to(notification.user, notification) unless notification.errors.any?
+      end
     end
   end
 end

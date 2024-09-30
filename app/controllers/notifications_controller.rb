@@ -5,27 +5,21 @@ class NotificationsController < ApplicationController
     authorize @notification
     @notification.destroy
 
-    respond_to do |format|
-      format.js
-    end
+    respond_to(&:js)
   end
 
   def user_notifications
     authorize Notification
     @notifications = current_user.notifications.not_closed.page(params[:page])
 
-    respond_to do |format|
-      format.js
-    end
+    respond_to(&:js)
   end
 
   def close
     authorize @notification
     @notification.close
 
-    respond_to do |format|
-      format.js
-    end
+    respond_to(&:js)
   end
 
   private

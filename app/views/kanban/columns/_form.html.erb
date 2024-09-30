@@ -2,6 +2,13 @@
   <%= form.input :name %>
   <%= form.input :position %>
 
+  <% if column.new_record? && column.board.managers.any? %>
+    <% column.board.managers.each do |manager| %>
+      <%= hidden_field_tag 'notification[user_ids][]', manager.id %>
+      <%= hidden_field_tag 'notification[messages][]', 'На вашей доске добавлена новая колонка.' %>
+    <% end %>
+  <% end %>
+
   <div class="form-actions">
     <%= submit_button form %>
   </div>
