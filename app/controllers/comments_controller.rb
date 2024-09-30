@@ -57,7 +57,7 @@ class CommentsController < ApplicationController
 
     respond_to do |format|
       if @comment.save
-        update_notifications if @notifications&.any?
+        create_notifications
         format.html { redirect_to @comment, notice: t('comments.created') }
         format.json { render json: @comment, status: :created, location: @comment }
         format.js
@@ -97,6 +97,22 @@ class CommentsController < ApplicationController
   end
 
   private
+
+  def create_notifications
+    if @notifications&.any?
+      update_notifications
+    elsif @comment.commentable.respond_to?(:notification_recipients)
+      message = @comment.commentable.notification_message
+      @comment.commentable.notification_recipients.each do |recipient|
+        notification = Notification.create(user_id: recipient.id,
+                                           message: message,
+                                           url: @comment.commentable.url,
+                                           referenceable: @comment.commentable)
+        UserNotificationChannel.broadcast_to(notification.user, notification) unless notification.errors.any?
+      end
+
+    end
+  end
 
   def update_notifications
     @notifications.each do |notification|

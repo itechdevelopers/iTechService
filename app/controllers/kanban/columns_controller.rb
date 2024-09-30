@@ -15,6 +15,7 @@ module Kanban
 
       respond_to do |format|
         if @column.save
+          update_notifications if @notifications&.any?
           format.html { redirect_to kanban_board_path(@column.board), notice: t('.created') }
           format.json { render :show, status: :created, location: @column }
         else
@@ -57,6 +58,13 @@ module Kanban
 
     def column_params
       params.require(:kanban_column).permit(:name, :position)
+    end
+
+    def update_notifications
+      @notifications.each do |notification|
+        notification.update(url: kanban_board_url(@board), referenceable: @column)
+        UserNotificationChannel.broadcast_to(notification.user, notification) unless notification.errors.any?
+      end
     end
   end
 end

@@ -17,6 +17,13 @@
     </div>
   </div>
 
+  <% if card.new_record? && card.board.managers.any? %>
+    <% card.board.managers.each do |manager| %>
+      <%= hidden_field_tag 'notification[user_ids][]', manager.id %>
+      <%= hidden_field_tag 'notification[messages][]', 'На вашей доске добавлена новая карточка.' %>
+    <% end %>
+  <% end %>
+
   <div class="submit-actions">
     <%= submit_button form %>
   </div>

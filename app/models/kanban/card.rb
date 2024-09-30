@@ -26,4 +26,12 @@ class Kanban::Card < ApplicationRecord
   def url
     Rails.application.routes.url_helpers.kanban_card_path(self)
   end
+
+  def notification_recipients
+    board.managers
+  end
+
+  def notification_message
+    "Новый комментарий к канбан карточке: #{content[0..50]}."
+  end
 end
