@@ -1,5 +1,5 @@
 <div class="kanban-card thumbnail">
-  <%= link_to card.content, kanban_card_path(card) %>
+  <%= link_to card.name, kanban_card_path(card) %>
   <div class="kanban-card-info">
     <% if card.managers.present? %>
       <%= t(".manager_person", name: card.managers.map(&:presentation).join(", ")) %>
