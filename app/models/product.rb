@@ -63,6 +63,8 @@ class Product < ApplicationRecord
   validates :barcode_num, length: {is: 13}, uniqueness: true, allow_nil: true, allow_blank: true
   validates :article, uniqueness: true, allow_blank: true
 
+  before_validation :normalize_article
+
   after_initialize do
     self.warranty_term ||= default_warranty_term
     self.product_category_id ||= product_group.try(:product_category).try(:id)
@@ -213,5 +215,9 @@ class Product < ApplicationRecord
 
   def undefined?
     code == '?'
+  end
+
+  def normalize_article
+    self.article = nil if article.blank?
   end
 end
