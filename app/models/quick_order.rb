@@ -17,7 +17,7 @@ class QuickOrder < ApplicationRecord
   has_many :history_records, as: :object, dependent: :destroy
   has_many :comments, as: :commentable, dependent: :destroy
   validates_presence_of :security_code, :device_kind
-  # validates :quick_tasks, presence: { message: "Должна быть отмечена хотя бы одна быстрая задача." }
+  validates :quick_tasks, presence: { message: "Должна быть отмечена хотя бы одна быстрая задача." }
 
   delegate :short_name, to: :user, prefix: true, allow_nil: true
   delegate :name, to: :department, prefix: true, allow_nil: true
