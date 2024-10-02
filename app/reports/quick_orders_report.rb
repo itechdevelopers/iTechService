@@ -48,11 +48,16 @@ class QuickOrdersReport < BaseReport
             .group(:quick_task_id)
             .count('quick_orders.id')
             .each do |task_id, qty|
-        task = QuickTask.find(task_id)
+        if task_id
+          task = QuickTask.find(task_id)
+          task_name = task.name
+        else
+          task_name = 'Без задач'
+        end
         percentage = (qty.to_f / result[:total_qty] * 100).round(2)
-        order_ids_numbers = orders.where(quick_tasks: { id: task.id })
+        order_ids_numbers = orders.where(quick_tasks: { id: task_id })
                                   .map { |o| { id: o.id, number: o.number_s } }
-        result[:quick_tasks] << { name: task.name, qty: qty, percentage: percentage,
+        result[:quick_tasks] << { name: task_name, qty: qty, percentage: percentage,
                                   order_ids_numbers: order_ids_numbers }
       end
     end
