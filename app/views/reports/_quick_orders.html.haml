@@ -1,18 +1,44 @@
 %table#quick_orders_report.table.table-bordered.table-hover
   %caption= report_title report
-  %thead
-    %tr
-      %th= t 'activerecord.models.user'
-      %th= t 'reports.qty'
-      %th= t 'reports.qty_done'
-  %tbody
-    - report.result[:users].each do |user|
-      %tr.user_row
-        %td= user[:name]
-        %td= user[:qty]
-        %td= user[:qty_done]
-  %tfoot
-    %tr
-      %td= t 'reports.total'
-      %td= report.result[:total_qty]
-      %td
+  - if report.result[:quick_by_types]
+    %thead
+      %tr
+        %th= 'Название задачи'
+        %th= 'Количество'
+        %th= 'Процент от общего количества быстрых задач'
+    %tbody
+      - report.result[:quick_tasks].each do |task|
+        %tr.detailable
+          %td= task[:name]
+          %td= task[:qty]
+          %td= task[:percentage]
+        - task[:order_ids_numbers].each do |element|
+          %tr.details
+            %td{colspan: 3}
+              = link_to element[:number], quick_order_path(id: element[:id])
+    %tfoot
+      %tr
+        %td= 'Общее количество быстрых заказов'
+        %td= report.result[:total_qty]
+        %td
+  - else
+    %thead
+      %tr
+        %th= t 'activerecord.models.user'
+        %th= t 'reports.qty'
+        %th= t 'reports.qty_done'
+    %tbody
+      - report.result[:users].each do |user|
+        %tr.user_row.detailable
+          %td= user[:name]
+          %td= user[:qty]
+          %td= user[:qty_done]
+        - user[:order_ids_numbers].each do |element|
+          %tr.details
+            %td{colspan: 3}
+              = link_to element[:number], quick_order_path(id: element[:id])
+    %tfoot
+      %tr
+        %td= t 'reports.total'
+        %td= report.result[:total_qty]
+        %td
