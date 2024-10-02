@@ -1,7 +1,17 @@
 # frozen_string_literal: true
 
 class QuickOrdersReport < BaseReport
+  attr_reader :quick_orders_by_type
+
+  params %i[start_date end_date department_id quick_orders_by_type]
+
+  def quick_orders_by_type=(value)
+    @quick_orders_by_type = value == '1'
+  end
   def call
+    result[:quick_by_types] = false
+    return quick_by_types if quick_orders_by_type
+
     result[:users] = []
     orders = QuickOrder.includes(:user)
                        .where(created_at: period)
@@ -17,7 +27,33 @@ class QuickOrdersReport < BaseReport
         user = User.find(user_id)
         done = info.detect { |i| i[:is_done] }&.dig(:qty) || 0
         total = done + (info.detect { |i| !i[:is_done] }&.dig(:qty) || 0)
-        result[:users] << { name: user.short_name, qty: total, qty_done: done }
+        order_ids_numbers = orders.where(user: user).map { |o| { id: o.id, number: o.number_s } }
+        result[:users] << { name: user.short_name, qty: total, qty_done: done, order_ids_numbers: order_ids_numbers }
+      end
+    end
+    result
+  end
+
+  private
+
+  def quick_by_types
+    result[:quick_by_types] = true
+    orders = QuickOrder.includes(:quick_tasks)
+                       .where(created_at: period)
+                       .in_department(department)
+    result[:total_qty] = orders.count
+    if result[:total_qty].positive?
+      result[:quick_tasks] = []
+      orders.order('count_quick_orders_id desc')
+            .group(:quick_task_id)
+            .count('quick_orders.id')
+            .each do |task_id, qty|
+        task = QuickTask.find(task_id)
+        percentage = (qty.to_f / result[:total_qty] * 100).round(2)
+        order_ids_numbers = orders.where(quick_tasks: { id: task.id })
+                                  .map { |o| { id: o.id, number: o.number_s } }
+        result[:quick_tasks] << { name: task.name, qty: qty, percentage: percentage,
+                                  order_ids_numbers: order_ids_numbers }
       end
     end
     result

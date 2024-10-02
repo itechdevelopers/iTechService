@@ -78,6 +78,11 @@
                         {},
                         { multiple: true, class: 'multiselect-sp' } %>
         <% end %>
+
+        <% if report.show_param?(:quick_orders_by_type) %>
+          <%= f.check_box :quick_orders_by_type %>
+          <%= f.label :quick_orders_by_type, 'Быстрые по типам задач' %>
+        <% end %>
       <% end %>
     </div>
   </div>
