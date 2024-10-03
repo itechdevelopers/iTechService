@@ -1,0 +1,14 @@
+%p
+  На канбан доске "#{@board.name}" была создана новая карточка:
+
+%h2= @card.name
+
+%p Содержание карточки:
+
+%pre= @card.content
+
+%p
+  Время создания: #{@card.created_at.strftime("%d.%m.%Y в %H:%M")}
+
+%p
+  = link_to "Перейти на карточку", kanban_card_url(@card)
