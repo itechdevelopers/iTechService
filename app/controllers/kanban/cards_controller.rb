@@ -23,6 +23,7 @@ module Kanban
       respond_to do |format|
         if @card.save
           update_notifications if @notifications&.any?
+          send_mail_to_managers
           format.html { redirect_to kanban_card_url(@card), notice: t('.created') }
           format.json { render :show, status: :created, location: @card }
         else
@@ -69,6 +70,11 @@ module Kanban
         notification.update(url: kanban_card_url(@card), referenceable: @card)
         UserNotificationChannel.broadcast_to(notification.user, notification) unless notification.errors.any?
       end
+    end
+
+    def send_mail_to_managers
+      manager_ids = @card.board.managers.pluck(:id)
+      KanbanMailer.new_card_notification(manager_ids, @card.id).deliver_now if manager_ids.any?
     end
   end
 end
