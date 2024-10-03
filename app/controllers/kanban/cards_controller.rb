@@ -74,7 +74,7 @@ module Kanban
 
     def send_mail_to_managers
       manager_ids = @card.board.managers.pluck(:id)
-      KanbanMailer.new_card_notification(manager_ids, @card.id).deliver_now if manager_ids.any?
+      KanbanMailer.new_card_notification(manager_ids, @card.id).deliver_later if manager_ids.any?
     end
   end
 end
