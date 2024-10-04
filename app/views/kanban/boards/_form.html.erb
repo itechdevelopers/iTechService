@@ -13,7 +13,7 @@
           <%= text_field_tag "manager_user", nil, placeholder: t(".filter_user"), class: "filter-kanban-users" %>
           <%= link_to t(".check_all"), "", class: "btn btn-secondary check-all-users" %>
           <%= link_to t(".uncheck_all"), "", class: "btn btn-secondary uncheck-all-users" %>
-          <%= form.collection_check_boxes :manager_ids, User.active, :id, :presentation %>
+          <%= form.collection_check_boxes :manager_ids, User.active, :id, :name_role_department %>
         </div>
       </div>
     </div>
@@ -25,7 +25,7 @@
           <%= text_field_tag "allowed_users", nil, placeholder: t(".filter_user"), class: "filter-kanban-users" %>
           <%= link_to t(".check_all"), "", class: "btn btn-secondary check-all-users" %>
           <%= link_to t(".uncheck_all"), "", class: "btn btn-secondary uncheck-all-users" %>
-          <%= form.collection_check_boxes :allowed_user_ids, User.active, :id, :presentation %>
+          <%= form.collection_check_boxes :allowed_user_ids, User.active, :id, :name_role_department %>
         </div>
       </div>
     </div>
