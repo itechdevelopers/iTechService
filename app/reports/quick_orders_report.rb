@@ -1,12 +1,16 @@
 # frozen_string_literal: true
 
 class QuickOrdersReport < BaseReport
-  attr_reader :quick_orders_by_type
+  attr_reader :quick_orders_by_type, :ignored_types
 
   params %i[start_date end_date department_id quick_orders_by_type]
 
   def quick_orders_by_type=(value)
     @quick_orders_by_type = value == '1'
+  end
+
+  def ignored_types=(value)
+    @ignored_types = value.reject(&:empty?).map(&:to_i)
   end
   def call
     result[:quick_by_types] = false
@@ -41,6 +45,9 @@ class QuickOrdersReport < BaseReport
     orders = QuickOrder.includes(:quick_tasks)
                        .where(created_at: period)
                        .in_department(department)
+                       .where.not(id: QuickOrder.joins(:quick_tasks)
+                                                .where(quick_tasks: { id: ignored_types })
+                                                .select(:id))
     result[:total_qty] = orders.count
     if result[:total_qty].positive?
       result[:quick_tasks] = []

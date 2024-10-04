@@ -82,6 +82,13 @@
         <% if report.show_param?(:quick_orders_by_type) %>
           <%= f.check_box :quick_orders_by_type %>
           <%= f.label :quick_orders_by_type, 'Быстрые по типам задач' %>
+
+          <%= f.collection_select :ignored_types,
+                                  QuickTask.all,
+                                  :id,
+                                  :name,
+                                  {},
+                                  { multiple: true, class: 'multiselect-tasks' } %>
         <% end %>
       <% end %>
     </div>
