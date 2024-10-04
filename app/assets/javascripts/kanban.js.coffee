@@ -1,4 +1,7 @@
 jQuery ->
+  $(document).on 'change', '.kanban-manager-checkbox', ->
+    toggleEmailWarning(this)
+
   $(".check-all-users").on "click", (event) ->
     event.preventDefault()
     $(this).closest(".kanban-user-choice").find(":checkbox").prop "checked", true
@@ -38,3 +41,14 @@ jQuery ->
     fontSize = $card.data('font-size')
     if fontSize && fontSize.toString().trim() != ''
       $card.css 'font-size', "#{fontSize}px"
+
+  toggleEmailWarning = (checkbox) ->
+    $label = $(checkbox).next('label')
+    $warning = $label.next('.email-warning')
+
+    if $(checkbox).is(':checked') && $(checkbox).data('email') == false
+      if $warning.length == 0
+        $warning = $('<span class="email-warning">У данного пользователя не указан email</span>')
+        $label.after($warning)
+    else
+      $warning.remove()

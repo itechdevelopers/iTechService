@@ -29,7 +29,7 @@ class CitiesController < ApplicationController
   def update
     @city = find_record(City)
 
-    if @city.update(params[:city])
+    if @city.update(city_params)
       redirect_to cities_path, notice: 'Город изменён'
     else
       render 'form'

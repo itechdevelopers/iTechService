@@ -3,7 +3,7 @@ module UsersHelper
     content_tag(:tr, id: "user_row_#{user.id}", class: user.is_fired? ? 'user_row error' : 'user_row') do
       c = ''.html_safe
       c += content_tag(:td, link_to(user.id, user_path(user)))
-      c += content_tag(:td, link_to(user.username, user_path(user)))
+      c += content_tag(:td, link_to(user.username, user_path(user), class: "highlight", data: { color: user.city.color }))
       c += content_tag(:td) do
         c = link_to(user_path(user)) do
           c = ''.html_safe
@@ -13,7 +13,7 @@ module UsersHelper
         "#{c} #{karma_tag(user)} #{senior_label_tag(user)}".html_safe
       end
       c += content_tag(:td, t("users.roles.#{user.role}"))
-      c += content_tag(:td, user.location_name || '-')
+      c += content_tag(:td, link_to(user.location_name || '-', user_path(user), class: "highlight", data: { color: user.city.color }))
       c += content_tag(:td, l(user.created_at, format: :date_time))
       c += content_tag(:td) do
         content_tag(:div, class: 'btn-group') do

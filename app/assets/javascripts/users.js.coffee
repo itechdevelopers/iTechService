@@ -260,6 +260,19 @@ jQuery ->
       $temp.remove()
       return
 
+  $('.highlight').each ->
+    color = $(this).data('color')
+    $(this).css('background-color', color)
+    textColor = getContrastColor(color)
+    $(this).css('color', textColor)
+
+getContrastColor = (hexcolor) ->
+  r = parseInt(hexcolor.substr(1,2),16)
+  g = parseInt(hexcolor.substr(3,2),16)
+  b = parseInt(hexcolor.substr(5,2),16)
+  yiq = ((r*299)+(g*587)+(b*114))/1000
+  if yiq >= 128 then '#000000' else '#FFFFFF'
+
 toggle_schedule_day = (el) ->
   el.toggleClass 'work_hour'
 
