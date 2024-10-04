@@ -185,6 +185,8 @@ class User < ApplicationRecord
 
   acts_as_list
 
+  paginates_per 100
+
   def self.reset_windows
     where.not(elqueue_window_id: nil).find_each(&:free_window)
   rescue StandardError => e
@@ -311,6 +313,11 @@ class User < ApplicationRecord
 
   def at_short_name
     "@#{short_name}"
+  end
+
+  def name_role_department
+    role_name = I18n.t("users.roles.#{role}")
+    "#{presentation} #{role_name} #{department.name}"
   end
 
   def dismissed_info
