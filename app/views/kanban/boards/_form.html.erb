@@ -13,12 +13,16 @@
           <%= text_field_tag "manager_user", nil, placeholder: t(".filter_user"), class: "filter-kanban-users" %>
           <%= link_to t(".check_all"), "", class: "btn btn-secondary check-all-users" %>
           <%= link_to t(".uncheck_all"), "", class: "btn btn-secondary uncheck-all-users" %>
-          <%= form.collection_check_boxes :manager_ids, User.active, :id, :name_role_department do |b| %>
+          <%= form.collection_check_boxes :manager_ids, User.active, :id, :presentation do |b| %>
             <%= b.check_box(
                   data: { email: b.object.email.present?.to_s },
                   class: 'kanban-manager-checkbox'
                 ) %>
             <%= b.label %>
+            <%= content_tag :span,
+                  b.object.role_department,
+                  data: { color: b.object.city.color },
+                  class: 'highlight role-dep-info' %>
           <% end %>
         </div>
       </div>
@@ -31,7 +35,14 @@
           <%= text_field_tag "allowed_users", nil, placeholder: t(".filter_user"), class: "filter-kanban-users" %>
           <%= link_to t(".check_all"), "", class: "btn btn-secondary check-all-users" %>
           <%= link_to t(".uncheck_all"), "", class: "btn btn-secondary uncheck-all-users" %>
-          <%= form.collection_check_boxes :allowed_user_ids, User.active, :id, :name_role_department %>
+          <%= form.collection_check_boxes :allowed_user_ids, User.active, :id, :presentation do |b| %>
+            <%= b.check_box %>
+            <%= b.label %>
+            <%= content_tag :span,
+                            b.object.role_department,
+                            data: { color: b.object.city.color },
+                            class: 'highlight role-dep-info' %>
+          <% end %>
         </div>
       </div>
     </div>
