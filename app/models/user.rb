@@ -316,8 +316,12 @@ class User < ApplicationRecord
   end
 
   def name_role_department
+    "#{presentation} #{role_department}"
+  end
+
+  def role_department
     role_name = I18n.t("users.roles.#{role}")
-    "#{presentation} #{role_name} #{department.name}"
+    "#{role_name} #{department.name}"
   end
 
   def dismissed_info

@@ -1,0 +1,10 @@
+const newArchivedItem = '<div class="archived_queue_item">' +
+    '<%= j @queue_item.title %>' +
+    '<%= j link_to "Разархивировать",
+                   unarchive_electronic_queue_queue_item_path(electronic_queue_id: @queue_item.electronic_queue.id,
+                                                 id: @queue_item.id),
+                   method: :patch %>' +
+    '</div>';
+
+$('.archived_queue_items').append(newArchivedItem);
+$('.archived_queue_items .archived_queue_item:last').hide().fadeIn(500);

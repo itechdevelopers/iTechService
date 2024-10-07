@@ -1,17 +1,17 @@
 module ElectronicQueuesHelper
-  def queue_items_trees_tag(queue_items, current_id=nil, options={})
+  def queue_items_trees_tag(queue_items, current_id = nil, options = {})
     queue_items.map do |queue_item|
       queue_items_tree_tag queue_item, current_id, options
     end.join.html_safe
   end
 
-  def queue_items_tree_tag(queue_item, current_id=nil, options={})
+  def queue_items_tree_tag(queue_item, current_id = nil, options = {})
     content_tag :ul, nested_queue_items_list(queue_item.subtree.not_archived.arrange(order: :position), current_id, options),
                 class: 'queue_items_tree unstyled', id: "queue_items_tree_#{queue_item.id}",
                 data: { root_id: queue_item.id, queue_item_id: current_id, opened: [current_id] }
   end
 
-  def nested_queue_items_list(queue_items, current_id=nil, options={})
+  def nested_queue_items_list(queue_items, current_id = nil, options = {})
     queue_items.map do |queue_item, sub_queue_items|
       is_current = queue_item.id == current_id.to_i
       li_class = 'opened'
@@ -101,7 +101,7 @@ module ElectronicQueuesHelper
   end
 
   # Helpers for iPad views
-  def render_queue_tree(queue_items, root, parent_id=false)
+  def render_queue_tree(queue_items, root, parent_id = false)
     elqueue = queue_items.first.electronic_queue
     styles_for_annotation = render_annotation_styles(elqueue)
     styles_for_header = render_header_styles(elqueue)

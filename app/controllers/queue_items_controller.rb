@@ -43,8 +43,15 @@ class QueueItemsController < ApplicationController
   def destroy
     @queue_item = authorize @electronic_queue.queue_items.find(params[:id])
     @queue_item.update(archived: true)
-    respond_to do |format|
-      format.js { head :no_content}
+    respond_to(&:js)
+  end
+
+  def unarchive
+    @queue_item = find_record QueueItem
+    if @queue_item.update(archived: false)
+      redirect_to @queue_item.electronic_queue, notice: 'Элемент очереди успешно разархивирован.'
+    else
+      redirect_to @queue_item.electronic_queue, alert: 'Не удалось разархивировать элемент очереди.'
     end
   end
 

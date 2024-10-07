@@ -5,7 +5,7 @@ class UsersController < ApplicationController
 
   def index
     authorize User
-    @users = policy_scope(User).search(search_params).id_asc.page(params[:page]).per(50)
+    @users = policy_scope(User).search(search_params).id_asc.page(params[:page])
 
     respond_to do |format|
       format.html

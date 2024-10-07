@@ -83,6 +83,9 @@
           <%= f.check_box :quick_orders_by_type %>
           <%= f.label :quick_orders_by_type, 'Быстрые по типам задач' %>
 
+          <%= f.label :ignored_types,
+                      'Игнорировать в отчете заказы с быстрыми задачами:',
+                      class: 'label-ignored-types' %>
           <%= f.collection_select :ignored_types,
                                   QuickTask.all,
                                   :id,
