@@ -399,7 +399,9 @@ Rails.application.routes.draw do
     get :monitoring, on: :member
     patch :sort_tickets, on: :member, defaults: {format: :js}
     patch :return_old_ticket, on: :member, defaults: {format: :js}
-    resources :queue_items, except: %i[index show], defaults: {format: :js}
+    resources :queue_items, except: %i[index show], defaults: {format: :js} do
+      patch :unarchive, on: :member
+    end
   end
 
   resources :elqueue_ticket_movements, only: [] do

@@ -20,6 +20,23 @@
   margin-top: 20px;
 }
 
+.archived_queue_items {
+  font-size: 13px;
+
+  .archived_queue_item {
+    margin-bottom: 12px;
+  }
+
+  a {
+    color: #006b18;
+    font-size: 13px;
+    border-radius: 4px;
+    border: 1px solid #006b18;
+    padding: 5px 9px;
+    margin-left: 5px;
+  }
+}
+
 .elqueue_navbar {
   padding: 10px 10px 0 15px;
   font-size: 1.4em;

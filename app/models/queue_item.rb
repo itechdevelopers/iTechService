@@ -1,5 +1,6 @@
 class QueueItem < ApplicationRecord
   scope :not_archived, -> { where(archived: false) }
+  scope :archived, -> { where(archived: true) }
   belongs_to :electronic_queue
   has_many :queue_tickets, class_name: 'WaitingClient', foreign_key: 'queue_item_id', dependent: :destroy
   has_ancestry orphan_strategy: :rootify, cache_depth: true
