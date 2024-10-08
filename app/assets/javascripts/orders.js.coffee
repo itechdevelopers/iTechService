@@ -26,6 +26,7 @@ jQuery ->
   $('#product_article').on 'input', ->
     article = $(this).val().trim()
     if article != ''
+      $('#order_object_url').val("http://itechstore.ru/api/v1/redirects/product-by-sku/#{article}/")
       $.ajax
         url: '/products/product_by_article'
         method: 'GET'

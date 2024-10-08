@@ -259,8 +259,19 @@ form.service_job_form{
 }
 
 .device_1c_status {
-  width: 100%;
+  width: 400px;
   height: 30px;
   color: #000db5;
   font-size: 12px;
+  margin-top: 10px;
+}
+
+.device .device_input {
+  display: flex;
+  gap: 20px;
+  align-items: center;
+}
+
+.device-input-container input#item_search {
+  width: 400px;
 }

@@ -24,3 +24,4 @@ $imei_inputs.addClass('hidden');
 $('.popover-content', '#client_devices').html("<%= j service_tasks_list(@device.last_service_job) %>");
 
 App.DeviceInput.check_imei();
+App.DeviceInput.check_1c_status();

@@ -80,7 +80,7 @@ class Product < ApplicationRecord
     unless query.blank?
       query = query.mb_chars.downcase.to_s
       products = products.includes(items: :features).references(:features, :items)
-                         .where('LOWER(products.name) LIKE :ql OR products.code LIKE :ql OR features.value = :q OR items.barcode_num = :q',
+                         .where('LOWER(products.name) LIKE :ql OR products.code LIKE :ql OR features.value = :q OR items.barcode_num = :q OR products.article = :q',
                                 q: query, ql: "%#{query}%")
     end
 
