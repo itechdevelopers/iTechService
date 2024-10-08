@@ -95,9 +95,7 @@ class UsersController < ApplicationController
   def update_uniform
     @user = find_record User
     @user.update_attributes(uniform_params)
-    respond_to do |format|
-      format.js
-    end
+    respond_to(&:js)
   end
 
   def update_user_settings
@@ -150,17 +148,13 @@ class UsersController < ApplicationController
 
   def duty_calendar
     @user = find_record User
-    respond_to do |format|
-      format.js
-    end
+    respond_to(&:js)
   end
 
   def staff_duty_schedule
     authorize User
     @calendar_month = params[:date].blank? ? Date.current : params[:date].to_date
-    respond_to do |format|
-      format.js
-    end
+    respond_to(&:js)
   end
 
   def update_wish
@@ -213,9 +207,7 @@ class UsersController < ApplicationController
   def actions
     @user = find_record User
 
-    respond_to do |format|
-      format.html
-    end
+    respond_to(&:html)
   end
 
   def finance
@@ -231,9 +223,7 @@ class UsersController < ApplicationController
   def bonuses
     @user = find_record User
     @bonuses = @user.bonuses
-    respond_to do |format|
-      format.js
-    end
+    respond_to(&:js)
   end
 
   def experience
@@ -301,7 +291,7 @@ class UsersController < ApplicationController
       :photo, :photo_cache, :remove_photo, :work_phone, :service_job_sorting_id, :is_senior,
       :dismissed_date, :dismissal_reason_id, :dismissal_comment,
 
-      abilities: [], activities: [],
+      ability_ids: [], activities: [],
       schedule_days: [:day, :hours, :user, :user_id],
       duty_days: [:day, :user_id, :kind],
       karmas: [:comment, :user_id, :karma_group_id, :good],

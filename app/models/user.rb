@@ -111,6 +111,8 @@ class User < ApplicationRecord
   belongs_to :service_job_sorting, optional: true
   belongs_to :dismissal_reason, optional: true
   belongs_to :elqueue_window, optional: true
+  has_many :user_abilities
+  has_many :abilities, through: :user_abilities
   has_many :history_records, as: :object, dependent: :nullify
   has_many :schedule_days, dependent: :destroy
   has_many :duty_days, dependent: :destroy
@@ -414,16 +416,16 @@ class User < ApplicationRecord
     end
   end
 
-  def abilities=(abilities)
+  def abilities_old=(abilities)
     self.abilities_mask = (abilities & ABILITIES).map { |a| 2**ABILITIES.index(a) }.inject(0, :+)
   end
 
-  def abilities
+  def abilities_old
     ABILITIES.reject { |a| ((abilities_mask || 0) & 2**ABILITIES.index(a)).zero? }
   end
 
-  def able_to?(ability)
-    abilities.include? ability.to_s
+  def able_to?(ability_name)
+    abilities.exists?(name: ability_name)
   end
 
   def activities=(activities)

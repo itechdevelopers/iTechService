@@ -10,13 +10,20 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20240930114746) do
+ActiveRecord::Schema.define(version: 20241008101233) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
   enable_extension "citext"
   enable_extension "hstore"
   enable_extension "pg_stat_statements"
+
+  create_table "abilities", force: :cascade do |t|
+    t.string "name", null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["name"], name: "index_abilities_on_name", unique: true
+  end
 
   create_table "announcements", id: :serial, force: :cascade do |t|
     t.string "content", limit: 255
@@ -1547,6 +1554,16 @@ ActiveRecord::Schema.define(version: 20240930114746) do
     t.index ["receiver_id"], name: "index_trade_in_devices_on_receiver_id"
   end
 
+  create_table "user_abilities", force: :cascade do |t|
+    t.bigint "user_id"
+    t.bigint "ability_id"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["ability_id"], name: "index_user_abilities_on_ability_id"
+    t.index ["user_id", "ability_id"], name: "index_user_abilities_on_user_id_and_ability_id", unique: true
+    t.index ["user_id"], name: "index_user_abilities_on_user_id"
+  end
+
   create_table "users", id: :serial, force: :cascade do |t|
     t.string "username", limit: 255
     t.string "role", limit: 255
@@ -1760,6 +1777,8 @@ ActiveRecord::Schema.define(version: 20240930114746) do
   add_foreign_key "trade_in_devices", "departments"
   add_foreign_key "trade_in_devices", "items"
   add_foreign_key "trade_in_devices", "users", column: "receiver_id"
+  add_foreign_key "user_abilities", "abilities"
+  add_foreign_key "user_abilities", "users"
   add_foreign_key "users", "dismissal_reasons"
   add_foreign_key "users", "elqueue_windows"
   add_foreign_key "waiting_clients", "clients"

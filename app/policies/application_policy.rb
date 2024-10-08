@@ -96,7 +96,7 @@ class ApplicationPolicy
   end
 
   def able_to?(ability)
-    user.abilities.include?(ability.to_s)
+    user.able_to?(ability.to_s)
   end
 
   class Scope

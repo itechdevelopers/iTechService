@@ -85,11 +85,11 @@
           .control-group.span6
             %label.control-label= User.human_attribute_name :abilities
             .controls
-              - User::ABILITIES.each do |ability|
-                = label_tag "user_abilities_#{ability}", class: 'checkbox' do
-                  = check_box_tag "user[abilities][#{ability}]", ability, @user.able_to?(ability), {name: "user[abilities][]"}
-                  = t("users.abilities.#{ability}")
-              = hidden_field_tag 'user[abilities][]', ''
+              - Ability.all.each do |ability|
+                = label_tag "user_ability_ids_#{ability.id}", class: 'checkbox' do
+                  = check_box_tag "user[ability_ids][]", ability.id, @user.abilities.include?(ability), id: "user_ability_ids_#{ability.id}"
+                  = t("users.abilities.#{ability.name}")
+              = hidden_field_tag 'user[ability_ids][]', ''
 
           .control-group.span6
             %label.control-label= User.human_attribute_name :activities
