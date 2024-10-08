@@ -42,7 +42,7 @@
   }
 
   $(function(){
-    $('.device_input>.item_search').autocomplete({
+    $('.device-input-container>.item_search').autocomplete({
       source: '/devices/autocomplete.json',
       focus: function(event, ui) {
         $(this).val(ui.item.label)
