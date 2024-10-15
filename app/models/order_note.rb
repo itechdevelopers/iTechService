@@ -1,6 +1,8 @@
 # frozen_string_literal: true
 
 class OrderNote < ApplicationRecord
+  include Auditable
+
   scope :oldest_first, -> { order(created_at: :asc) }
   scope :newest_first, -> { order(created_at: :desc) }
 
@@ -12,6 +14,8 @@ class OrderNote < ApplicationRecord
 
   delegate :department, :department_id, to: :order
   validates_presence_of :content
+
+  audited if: :should_audit_elqueue_work?, associated_with: :order
 
   def self.newest
     newest_first.first

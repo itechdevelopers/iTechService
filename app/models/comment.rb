@@ -1,6 +1,8 @@
 # frozen_string_literal: true
 
 class Comment < ApplicationRecord
+  include Auditable
+
   scope :newest, -> { order('comments.created_at desc') }
   scope :oldest, -> { order('comments.created_at asc') }
 
@@ -16,11 +18,23 @@ class Comment < ApplicationRecord
 
   validates :content, :user_id, :commentable_id, :commentable_type, presence: true
 
+  audited associated_with: :commentable,
+          if: :should_audit_comment?
   def user_name
     user&.full_name
   end
 
   def user_color
     user&.color
+  end
+
+  private
+
+  def should_audit_comment?
+    should_audit_elqueue_work? && should_audit_for_commentable?
+  end
+
+  def should_audit_for_commentable?
+    %w[QuickOrder Kanban::Card].include? commentable_type
   end
 end

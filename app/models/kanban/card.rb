@@ -1,4 +1,6 @@
 class Kanban::Card < ApplicationRecord
+  include Auditable
+
   scope :ordered, -> { order :position }
   scope :deadline_asc, -> { reorder(deadline: :asc) }
   scope :deadline_desc, -> { reorder(deadline: :desc) }
@@ -24,6 +26,8 @@ class Kanban::Card < ApplicationRecord
 
   acts_as_list scope: :column_id
 
+  audited if: :should_audit_elqueue_work?
+  has_associated_audits
   def url
     Rails.application.routes.url_helpers.kanban_card_path(self)
   end

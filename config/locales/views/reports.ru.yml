@@ -78,6 +78,8 @@ ru:
       doc_type: "Тип документа"
       doc_number: "Номер документа / работы"
       comment: "Комментарий"
+    tracked_work:
+      title: 'Отчёт о действиях в рамках талона'
     client_reviews:
       title: "Отчёт по отзывам клиентов"
       review: "Оценка"

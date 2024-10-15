@@ -1,6 +1,8 @@
 # frozen_string_literal: true
 
 class DeviceTask < ApplicationRecord
+  include Auditable
+
   scope :in_department, ->(department) { where(service_job_id: ServiceJob.in_department(department)) }
   scope :ordered, -> { joins(:task).order('done asc, tasks.priority desc') }
   scope :pending, -> { where(done: 0) }
@@ -48,6 +50,9 @@ class DeviceTask < ApplicationRecord
       dt.done_at = nil
     end
   end
+
+  audited associated_with: :service_job, if: :should_audit_elqueue_work?
+  has_associated_audits
 
   def as_json(_options = {})
     {

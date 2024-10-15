@@ -1,6 +1,8 @@
 # frozen_string_literal: true
 
 class Message < ApplicationRecord
+  include Auditable
+
   scope :newest, -> { order('messages.created_at desc') }
   scope :today, -> { where('created_at > ?', Time.current.beginning_of_day) }
 
@@ -15,4 +17,6 @@ class Message < ApplicationRecord
   before_validation do |message|
     message.user_id = User.current.id
   end
+
+  audited if: :should_audit_elqueue_work?
 end

@@ -1,0 +1,17 @@
+Rails.application.config.after_initialize do
+  ElqueueAuditReport::StrategyFactory.register(ElqueueAuditReport::ServiceJobLocationChangeStrategy)
+  ElqueueAuditReport::StrategyFactory.register(ElqueueAuditReport::ServiceJobCommentStrategy)
+  ElqueueAuditReport::StrategyFactory.register(ElqueueAuditReport::ServiceJobCreateStrategy)
+  ElqueueAuditReport::StrategyFactory.register(ElqueueAuditReport::DeviceTaskCreateStrategy)
+  ElqueueAuditReport::StrategyFactory.register(ElqueueAuditReport::DeviceTaskDoneChangeStrategy)
+  ElqueueAuditReport::StrategyFactory.register(ElqueueAuditReport::QuickOrderCreateStrategy)
+  ElqueueAuditReport::StrategyFactory.register(ElqueueAuditReport::CommentCreateStrategy)
+  ElqueueAuditReport::StrategyFactory.register(ElqueueAuditReport::QuickOrderDoneStrategy)
+  ElqueueAuditReport::StrategyFactory.register(ElqueueAuditReport::ServiceFreeJobCreateStrategy)
+  ElqueueAuditReport::StrategyFactory.register(ElqueueAuditReport::OrderCreateStrategy)
+  ElqueueAuditReport::StrategyFactory.register(ElqueueAuditReport::OrderStatusChangeStrategy)
+  ElqueueAuditReport::StrategyFactory.register(ElqueueAuditReport::OrderNoteCreateStrategy)
+  ElqueueAuditReport::StrategyFactory.register(ElqueueAuditReport::TradeInDeviceCreateStrategy)
+  ElqueueAuditReport::StrategyFactory.register(ElqueueAuditReport::MessageChatCreateStrategy)
+  ElqueueAuditReport::StrategyFactory.register(ElqueueAuditReport::KanbanCardCreateStrategy)
+end

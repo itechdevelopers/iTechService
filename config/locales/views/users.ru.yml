@@ -32,6 +32,7 @@ ru:
       view_god_eye: 'Включить глаз Бога'
       view_bad_review_announcements: 'Видеть уведомления о плохих отзывах'
       test_new_features: 'Тестировать новые фичи'
+      track_elqueue_work: 'Учитывать работу с электронной очередью'
       work_with_electronic_queues: 'Может работать с электронными очередями'
     activities:
       free: Бесплатные

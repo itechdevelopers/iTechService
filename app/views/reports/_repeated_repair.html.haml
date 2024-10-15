@@ -15,7 +15,8 @@
         %tr.details
           %td
             = link_to service_job_element[:service_job].decorate.device_name,
-                      service_job_path(service_job_element[:service_job].id)
+                      service_job_path(service_job_element[:service_job].id),
+                      target: '_blank'
           %td{colspan: 2}= service_job_element[:tasks].join(', ')
 
     %tr.detailable
