@@ -75,6 +75,9 @@ GEM
       io-like (~> 0.3.0)
     arel (8.0.0)
     ast (2.4.2)
+    audited (5.4.3)
+      activerecord (>= 5.0, < 7.2)
+      request_store (~> 1.2)
     awesome_print (1.9.2)
     barby (0.6.8)
     base64 (0.1.1)
@@ -711,6 +714,7 @@ DEPENDENCIES
   active_record_query_trace
   acts_as_list (~> 1.0.4)
   ancestry (~> 3.2.1)
+  audited (~> 5.4.3)
   awesome_print
   barby (~> 0.6.4)
   bcrypt_pbkdf

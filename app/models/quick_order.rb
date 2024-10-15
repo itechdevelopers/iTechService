@@ -1,6 +1,8 @@
 # frozen_string_literal: true
 
 class QuickOrder < ApplicationRecord
+  include Auditable
+
   DEVICE_KINDS = %w[iPhone iPad iPod Storage].freeze
 
   scope :in_department, ->(department) { where department_id: department }
@@ -29,6 +31,9 @@ class QuickOrder < ApplicationRecord
   end
 
   before_create :set_number
+
+  audited if: :should_audit_elqueue_work?
+  has_associated_audits
 
   def self.search(params)
     quick_orders = QuickOrder.all

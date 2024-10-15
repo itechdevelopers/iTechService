@@ -1,5 +1,6 @@
 module Service
   class FreeJob < ApplicationRecord
+    include Auditable
     self.table_name = 'service_free_jobs'
 
     scope :in_department, ->(department) { where department_id: department }
@@ -17,5 +18,7 @@ module Service
     delegate :short_name, to: :receiver, prefix: true
     delegate :short_name, to: :performer, prefix: true
     delegate :code, to: :task, prefix: true
+
+    audited if: :should_audit_elqueue_work?
   end
 end

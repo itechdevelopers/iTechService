@@ -1,6 +1,8 @@
 # frozen_string_literal: true
 
 class Order < ApplicationRecord
+  include Auditable
+
   OBJECT_KINDS = %w[device accessory soft misc spare_part].freeze
   STATUSES = %w[new pending done canceled notified issued archive].freeze
 
@@ -54,6 +56,9 @@ class Order < ApplicationRecord
   end
 
   after_update :make_announcement
+
+  audited if: :should_audit_elqueue_work?
+  has_associated_audits
 
   def self.order_by_status
     ret = 'CASE'

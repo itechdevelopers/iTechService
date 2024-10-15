@@ -1,5 +1,7 @@
 
 class ServiceJob < ApplicationRecord
+  include Auditable
+
   scope :in_department, ->(department) { located_at(Location.in_department(department)) }
   scope :order_by_product_name, -> { includes(item: :product).order('products.name') }
   scope :received_at, ->(period) { where created_at: period }
@@ -118,6 +120,9 @@ class ServiceJob < ApplicationRecord
   after_create :create_alert
   after_update :service_job_update_announce
   after_update :deduct_spare_parts
+
+  audited if: :should_audit_elqueue_work?
+  has_associated_audits
 
   def self.search(params)
     service_jobs = ServiceJob.includes :device_tasks, :tasks

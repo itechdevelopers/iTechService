@@ -1,6 +1,8 @@
 # frozen_string_literal: true
 
 class DeviceNote < ApplicationRecord
+  include Auditable
+
   scope :newest_first, -> { order('device_notes.created_at desc') }
   scope :oldest_first, -> { order('device_notes.created_at asc') }
 
@@ -16,6 +18,8 @@ class DeviceNote < ApplicationRecord
   before_validation do |device_note|
     device_note.user_id = User.current&.id
   end
+
+  audited associated_with: :service_job, if: :should_audit_elqueue_work?
 
   def user_name
     user&.full_name

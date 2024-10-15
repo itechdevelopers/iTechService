@@ -7,6 +7,7 @@ gem 'pg', '~> 1.5.4'
 gem 'rails-pg-extras', '~> 3.2.6'
 gem 'sqlite3', '1.3.13'
 gem 'newrelic_rpm'
+gem 'audited', '~> 5.4.3'
 
 gem 'rails-observers', '~> 0.1.5'
 gem 'httparty', '~> 0.20.0'

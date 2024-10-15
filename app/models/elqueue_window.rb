@@ -1,6 +1,6 @@
 class ElqueueWindow < ApplicationRecord
   belongs_to :electronic_queue
-  has_one :waiting_client, class_name: "WaitingClient", dependent: :nullify
+  has_one :waiting_client, class_name: 'WaitingClient', dependent: :nullify
   has_one :user, dependent: :nullify
 
   validates :window_number, presence: true
