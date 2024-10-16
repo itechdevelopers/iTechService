@@ -11,10 +11,21 @@
       </div>
     <% end %>
   </div>
-  <div class="control-group kanban-managers">
-    <%= form.label :managers, class: 'control-label' %>
-    <div class="controls">
-      <%= form.collection_check_boxes :manager_ids, User.active, :id, :presentation %>
+  <div class='row-fluid'>
+    <div class='span8'>
+      <div class="control-group kanban-managers">
+        <%= form.label :managers, class: 'control-label' %>
+        <div class="controls">
+          <%= form.collection_check_boxes :manager_ids, User.active, :id, :presentation do |b| %>
+            <%= b.check_box %>
+            <%= b.label class: 'label-card-managers' %>
+            <%= content_tag :span,
+                            b.object.role_department,
+                            data: { color: b.object.city.color },
+                            class: 'highlight role-dep-info' %>
+          <% end %>
+        </div>
+      </div>
     </div>
   </div>
 
