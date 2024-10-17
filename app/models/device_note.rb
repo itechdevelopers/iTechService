@@ -19,7 +19,7 @@ class DeviceNote < ApplicationRecord
     device_note.user_id = User.current&.id
   end
 
-  audited associated_with: :service_job, if: :should_audit_elqueue_work?
+  audited associated_with: :service_job
 
   def user_name
     user&.full_name

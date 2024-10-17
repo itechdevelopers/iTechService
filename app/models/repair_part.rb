@@ -1,4 +1,5 @@
 class RepairPart < ApplicationRecord
+  include Auditable
   scope :in_department, ->(department) { where(repair_task_id: RepairTask.in_department(department)) }
 
   belongs_to :repair_task, inverse_of: :repair_parts, optional: true
@@ -18,6 +19,7 @@ class RepairPart < ApplicationRecord
   after_initialize do
     self.warranty_term ||= item.try(:warranty_term)
   end
+  audited
 
   def defect_qty
     return self['defect_qty'] if self['defect_qty'].present?

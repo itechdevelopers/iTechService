@@ -1,4 +1,4 @@
-module ElqueueAuditReport
+module AuditReport
   class KanbanCardCreateStrategy < BaseStrategy
     def matches?(audit)
       audit.auditable_type == 'Kanban::Card' &&

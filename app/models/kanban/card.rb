@@ -26,7 +26,7 @@ class Kanban::Card < ApplicationRecord
 
   acts_as_list scope: :column_id
 
-  audited if: :should_audit_elqueue_work?
+  audited
   has_associated_audits
   def url
     Rails.application.routes.url_helpers.kanban_card_path(self)

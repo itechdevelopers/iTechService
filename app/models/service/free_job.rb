@@ -19,6 +19,6 @@ module Service
     delegate :short_name, to: :performer, prefix: true
     delegate :code, to: :task, prefix: true
 
-    audited if: :should_audit_elqueue_work?
+    audited
   end
 end

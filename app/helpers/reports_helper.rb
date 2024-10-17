@@ -121,4 +121,8 @@ module ReportsHelper
 
     res_url
   end
+
+  def optional_link_to(href)
+    href.present? ? link_to('Ссылка', href, target: '_blank') : ''
+  end
 end

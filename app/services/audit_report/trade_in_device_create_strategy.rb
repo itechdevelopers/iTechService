@@ -1,4 +1,4 @@
-module ElqueueAuditReport
+module AuditReport
   class TradeInDeviceCreateStrategy < BaseStrategy
     def matches?(audit)
       audit.auditable_type == 'TradeInDevice' &&

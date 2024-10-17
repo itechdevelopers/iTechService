@@ -2,14 +2,48 @@
   %caption= 'Действия пользователей в рамках талона'
   %thead
     %th.center Талон
+    %th.center Время
     %th.center Действия пользователя
     %th.center Ссылка
   %tbody
-    - report.result[:users].each do |user|
+    - report.result[:elqueue_work][:users].each do |user|
       %tr.detailable
         %td{colspan: 3}= User.find(user[:user_id]).short_name
       - user[:audits].each do |audit|
         %tr.details
           %td= audit[:ticket_number]
+          %td= audit[:time].strftime('%H:%M')
           %td= audit[:action]
-          %td= link_to 'Ссылка', audit[:link], target: '_blank'
+          %td= optional_link_to(audit[:link])
+
+%table.table.table-hover.table-boarder
+  %caption= 'Действия технических пользователей'
+  %thead
+    %th.center Время
+    %th.center Действия пользователя
+    %th.center Ссылка
+  %tbody
+    - report.result[:technician_work][:users].each do |user|
+      %tr.detailable
+        %td{colspan: 3}= User.find(user[:user_id]).short_name
+      - user[:audits].each do |audit|
+        %tr.details
+          %td= audit[:time].strftime('%H:%M')
+          %td= audit[:action]
+          %td= optional_link_to(audit[:link])
+
+%table.table.table-hover.table-boarder
+  %caption= 'Действия пользователей (без талонов электронной очереди)'
+  %thead
+    %th.center Время
+    %th.center Действия пользователя
+    %th.center Ссылка
+  %tbody
+    - report.result[:tracked_work][:users].each do |user|
+      %tr.detailable
+        %td{colspan: 3}= User.find(user[:user_id]).short_name
+      - user[:audits].each do |audit|
+        %tr.details
+          %td= audit[:time].strftime('%H:%M')
+          %td= audit[:action]
+          %td= optional_link_to(audit[:link])
