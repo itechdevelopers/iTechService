@@ -32,7 +32,7 @@ class QuickOrder < ApplicationRecord
 
   before_create :set_number
 
-  audited if: :should_audit_elqueue_work?
+  audited
   has_associated_audits
 
   def self.search(params)

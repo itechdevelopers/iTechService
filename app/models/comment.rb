@@ -19,7 +19,7 @@ class Comment < ApplicationRecord
   validates :content, :user_id, :commentable_id, :commentable_type, presence: true
 
   audited associated_with: :commentable,
-          if: :should_audit_comment?
+          if: :should_audit_for_commentable?
   def user_name
     user&.full_name
   end
@@ -29,10 +29,6 @@ class Comment < ApplicationRecord
   end
 
   private
-
-  def should_audit_comment?
-    should_audit_elqueue_work? && should_audit_for_commentable?
-  end
 
   def should_audit_for_commentable?
     %w[QuickOrder Kanban::Card].include? commentable_type

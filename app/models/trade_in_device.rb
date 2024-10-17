@@ -21,7 +21,7 @@ class TradeInDevice < ApplicationRecord
   delegate :name, :color, to: :department, prefix: true, allow_nil: true
 
   enum replacement_status: { not_replaced: 0, replaced: 1, in_service: 2 }
-  audited if: :should_audit_elqueue_work?
+  audited
 
   def self.search(query, in_archive: false, department_id: nil, sort_column: nil, sort_direction: :asc)
     result = in_archive ? confirmed.archived : confirmed.not_archived

@@ -15,7 +15,7 @@ class OrderNote < ApplicationRecord
   delegate :department, :department_id, to: :order
   validates_presence_of :content
 
-  audited if: :should_audit_elqueue_work?, associated_with: :order
+  audited associated_with: :order
 
   def self.newest
     newest_first.first

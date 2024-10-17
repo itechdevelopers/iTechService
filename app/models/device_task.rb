@@ -51,7 +51,7 @@ class DeviceTask < ApplicationRecord
     end
   end
 
-  audited associated_with: :service_job, if: :should_audit_elqueue_work?
+  audited associated_with: :service_job
   has_associated_audits
 
   def as_json(_options = {})

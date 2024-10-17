@@ -121,7 +121,7 @@ class ServiceJob < ApplicationRecord
   after_update :service_job_update_announce
   after_update :deduct_spare_parts
 
-  audited if: :should_audit_elqueue_work?
+  audited
   has_associated_audits
 
   def self.search(params)

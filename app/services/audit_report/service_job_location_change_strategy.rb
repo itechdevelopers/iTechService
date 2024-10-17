@@ -1,4 +1,4 @@
-module ElqueueAuditReport
+module AuditReport
   class ServiceJobLocationChangeStrategy < BaseStrategy
     def matches?(audit)
       audit.auditable_type == 'ServiceJob' &&

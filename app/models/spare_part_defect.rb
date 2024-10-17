@@ -1,4 +1,6 @@
 class SparePartDefect < ApplicationRecord
+  include Auditable
+
   scope :in_department, ->(department) { where(repair_part_id: RepairPart.in_department(department)) }
 
   scope :new_records, -> { where(id: nil) }
@@ -15,4 +17,5 @@ class SparePartDefect < ApplicationRecord
   # attr_accessible :item_id, :repair_part_id, :contractor_id, :qty, :is_warranty
   validates_presence_of :qty
   validates_numericality_of :qty, only_integer: true, greater_than: 0
+  audited
 end

@@ -57,7 +57,7 @@ class Order < ApplicationRecord
 
   after_update :make_announcement
 
-  audited if: :should_audit_elqueue_work?
+  audited
   has_associated_audits
 
   def self.order_by_status

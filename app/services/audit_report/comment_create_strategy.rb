@@ -1,4 +1,4 @@
-module ElqueueAuditReport
+module AuditReport
   class CommentCreateStrategy < BaseStrategy
     def matches?(audit)
       audit.auditable_type == 'Comment' &&

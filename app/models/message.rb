@@ -18,5 +18,5 @@ class Message < ApplicationRecord
     message.user_id = User.current.id
   end
 
-  audited if: :should_audit_elqueue_work?
+  audited
 end
