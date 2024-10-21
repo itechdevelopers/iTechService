@@ -14,6 +14,8 @@ Rails.application.config.after_initialize do
   AuditReport::StrategyFactory.register(AuditReport::TradeInDeviceCreateStrategy)
   AuditReport::StrategyFactory.register(AuditReport::MessageChatCreateStrategy)
   AuditReport::StrategyFactory.register(AuditReport::KanbanCardCreateStrategy)
+  AuditReport::StrategyFactory.register(AuditReport::PhotoContainerUpdateStrategy)
   AuditReport::StrategyFactory.register(AuditReport::SparePartDefectCreateStrategy)
   AuditReport::StrategyFactory.register(AuditReport::RepairPartCreateStrategy)
+  AuditReport::StrategyFactory.register(AuditReport::ActDefectCreateStrategy)
 end

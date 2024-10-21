@@ -1,4 +1,4 @@
-%table.table.table-hover.table-bordered
+%table.table.table-hover.table-bordered.tracked-tickets-table
   %caption= 'Действия пользователей в рамках талона'
   %thead
     %th.center Талон
@@ -47,3 +47,19 @@
           %td= audit[:time].strftime('%H:%M')
           %td= audit[:action]
           %td= optional_link_to(audit[:link])
+
+:coffee
+  $table = $('.tracked-tickets-table')
+  $rows = $table.find('tr.details')
+  currentColor = true
+  previousVal = null
+
+  $rows.each (ind, row) ->
+    $firstCell = $(row).find('td:first')
+    currentVal = $firstCell.text().trim()
+
+    if currentVal != previousVal
+      currentColor = !currentColor
+      previousVal = currentVal
+
+    $(row).addClass('row-colored') if currentColor
