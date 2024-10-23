@@ -167,7 +167,7 @@ class User < ApplicationRecord
 
   delegate :city, :city_id, to: :department, allow_nil: true
   delegate :name, to: :department, prefix: true, allow_nil: true
-  delegate :name, to: :location, prefix: true, allow_nil: true
+  delegate :name, :short_name, to: :location, prefix: true, allow_nil: true
   delegate :time_zone, to: :city, allow_nil: true
   delegate :electronic_queue, to: :elqueue_window, allow_nil: true
 

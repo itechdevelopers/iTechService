@@ -68,7 +68,7 @@
         = menu_item t('infos.link', default: 'Infos'), infos_path if can? :index, Info
         = menu_item t('announcements.link'), announcements_path if current_user.any_admin?
         = drop_down_divider
-        = menu_item t('users.link', default: 'Users'), users_path if can? :manage, User
+        = menu_item t('users.link', default: 'Users'), users_path if can? :read, User
         -#= menu_item t('users.rating'), rating_users_path
         = menu_item t('users.schedule'), schedule_users_path if can? :manage, ScheduleDay
         = menu_item t('users.timesheet'), timesheet_days_path if can? :manage, TimesheetDay

@@ -13,8 +13,7 @@ module UsersHelper
         "#{c} #{karma_tag(user)} #{senior_label_tag(user)}".html_safe
       end
       c += content_tag(:td, t("users.roles.#{user.role}"))
-      c += content_tag(:td, link_to(user.location_name || '-', user_path(user), class: "highlight", data: { color: user.city.color }))
-      c += content_tag(:td, l(user.created_at, format: :date_time))
+      c += content_tag(:td, link_to(user.location_short_name || '-', user_path(user), class: "highlight", data: { color: user.city.color }))
       c += content_tag(:td) do
         content_tag(:div, class: 'btn-group') do
           content = link_to_show_small(user)
