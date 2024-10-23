@@ -1,0 +1,7 @@
+$('#users_table').html("<%= j(render(partial: 'users_table')) %>");
+document.querySelectorAll('.highlight').forEach(element => {
+    const color = element.dataset.color;
+    element.style.backgroundColor = color;
+    const textColor = App.utils.getContrastColor(color);
+    element.style.color = textColor;
+});

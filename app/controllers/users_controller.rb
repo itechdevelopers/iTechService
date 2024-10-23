@@ -5,7 +5,7 @@ class UsersController < ApplicationController
 
   def index
     authorize User
-    @users = policy_scope(User).search(search_params).id_asc.page(params[:page])
+    @users = User.search(search_params).id_asc.page(params[:page])
 
     respond_to do |format|
       format.html
@@ -15,10 +15,11 @@ class UsersController < ApplicationController
 
   def search
     authorize User
-    @users = User.search(params[:query]) || []
+    @users = User.search(params[:query]).page(params[:page]) || []
 
     respond_to do |format|
-      format.json { render json: @users.map {|u| {id: u.id, username: u.username, short_name: u.short_name}} }
+      format.json { render json: @users.map { |u| {id: u.id, username: u.username, short_name: u.short_name} } }
+      format.js { render :search }
     end
   end
 

@@ -263,10 +263,12 @@ jQuery ->
   $('.highlight').each ->
     color = $(this).data('color')
     $(this).css('background-color', color)
-    textColor = getContrastColor(color)
+    textColor = App.utils.getContrastColor(color)
     $(this).css('color', textColor)
 
-getContrastColor = (hexcolor) ->
+window.App ||= {}
+App.utils ||= {}
+App.utils.getContrastColor = (hexcolor) ->
   r = parseInt(hexcolor.substr(1,2),16)
   g = parseInt(hexcolor.substr(3,2),16)
   b = parseInt(hexcolor.substr(5,2),16)

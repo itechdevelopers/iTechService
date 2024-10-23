@@ -67,6 +67,10 @@ class Location < ApplicationRecord
     path.all.map(&:name).join(' / ')
   end
 
+  def short_name
+    name.split('(').first.strip
+  end
+
   def is_done?
     code == 'done'
   end

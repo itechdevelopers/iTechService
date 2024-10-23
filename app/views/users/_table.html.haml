@@ -1,17 +1,13 @@
 = hidden_field_tag :direction, params[:direction]
 = hidden_field_tag :sort, params[:sort]
-%table.table.table-striped.table-hover
-  %thead
-    %tr
-      %th= User.human_attribute_name(:id)
-      %th= User.human_attribute_name(:username)
-      %th= User.human_attribute_name(:name)
-      %th= User.human_attribute_name(:role)
-      %th= User.human_attribute_name(:location)
-      %th= User.human_attribute_name(:created_at)
-      %th
-  %tbody
-    - @users.each do |user|
-      = user_row_tag user
+#users_table_filter.table_filter.navbar
+  .navbar-inner
+    .container
+      = form_with url: search_users_path, method: :get, local: false, class: 'navbar-search form-search', id: 'search_form' do |f|
+        .input-append
+          = f.fields_for 'query' do |form|
+            = form.text_field :name, class: 'search-query input-large', placeholder: 'Поиск пользователя'
+          %span.add-on.btn.clear_search_input
+            %i.icon-remove
 
-= paginate @users
+#users_table= render 'users_table'

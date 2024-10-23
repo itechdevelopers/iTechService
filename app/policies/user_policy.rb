@@ -1,7 +1,16 @@
 class UserPolicy < BasePolicy
+
+  def index?
+    read?
+  end
+
   def show?
     (same_department? && read?) ||
       able_to?(:see_all_users)
+  end
+
+  def see_all_users?
+    any_admin? || able_to?(:see_all_users)
   end
 
   def search?
@@ -52,7 +61,7 @@ class UserPolicy < BasePolicy
   end
 
   def schedule?
-    manage_schedule?
+    read?
   end
 
   def create_duty_day?
