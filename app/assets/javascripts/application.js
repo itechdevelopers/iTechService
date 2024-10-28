@@ -69,3 +69,4 @@
 //= require elqueue_ticket_movements
 //= require custom_select
 //= require tasks
+//= require achievements

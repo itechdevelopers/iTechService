@@ -1,0 +1,3 @@
+$('#add-achievement').before('<%= j render '/users/user_achievement', user_achievement: @user_achievement %>');
+$('#achievements-container .achievement-form').remove();
+$('#add-achievement').removeClass('hidden');

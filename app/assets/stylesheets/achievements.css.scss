@@ -1,0 +1,93 @@
+.control-group {
+  .img-icon-achievement {
+    display: inline-block;
+    margin-left: 20px;
+  }
+}
+
+#achievements-container {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 10px;
+}
+
+#add-achievement {
+  min-height: 180px;
+  height: 100%;
+  box-sizing: border-box;
+  border: 1px dashed #cbcbcb;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  .add-achievement-btn {
+    width: 160px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 15px;
+  }
+
+  &.hidden {
+    display: none;
+  }
+}
+
+.achievement-form>form, .user-achievement{
+  display: grid;
+  grid-template-columns: repeat(6, 1fr);
+  grid-template-rows: auto 150px;
+  grid-template-areas:
+    "col col col col . btns"
+    "img img com com com com";
+  height: 180px;
+  margin: 0;
+  border: 0.5px solid #d1d1d1;
+  padding: 8px;
+
+  .collection, .achievement-name {
+    grid-area: col;
+    justify-self: stretch;
+    select.form-control {
+      width: 100%;
+    }
+    font-weight: bold;
+  }
+  .btn-group-achievements {
+    grid-area: btns;
+    justify-self: end;
+  }
+  .achievement-icon-preview, .achievement-img {
+    grid-area: img;
+    width: 96%;
+    height: 100%;
+    background-color: #f6f6f6;
+  }
+  .achievement-commentary {
+    grid-area: com;
+    justify-self: stretch;
+    align-self: stretch;
+    text-align: right;
+
+    textarea.form-control {
+      width: 96%;
+      height: 90%;
+    }
+  }
+  img.achievement-img-icon {
+    height: 100%;
+    object-fit: contain;
+  }
+}
+
+img.achievement-img-icon-mini {
+  display: inline-block;
+  width: 15px;
+  height: auto;
+  object-fit: contain;
+  padding: 0 10px;
+}
+
+.achievement-date {
+  font-style: oblique;
+}

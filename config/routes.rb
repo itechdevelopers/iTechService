@@ -81,6 +81,7 @@ Rails.application.routes.draw do
     patch :update_photo, on: :member
     patch :update_self, on: :member
     patch :update_elqueue_window, on: :member
+    resources :achievements, controller: 'user_achievements', defaults: { format: :js }
   end
 
   resources :notifications, only: %i[destroy], defaults: { format: :js } do
@@ -425,6 +426,10 @@ Rails.application.routes.draw do
     patch :free_window, on: :member, defaults: {format: :js}
     patch :take_a_break, on: :member, defaults: {format: :js}
     patch :return_from_break, on: :member, defaults: {format: :js}
+  end
+
+  resources :achievements, except: %i[show] do
+    get :icon_url, on: :member, format: :json
   end
 
   authenticate :user do

@@ -1,0 +1,16 @@
+.user-achievement{ data: { achievement_id: user_achievement.id } }
+  .achievement-name= user_achievement.achievement.name
+  .achievement-actions.btn-group-achievements
+    - if can? :manage, UserAchievement
+      = link_to icon_tag(:trash),
+                user_achievement_path(user_id: @user, id: user_achievement),
+                class: 'btn btn-small btn-danger',
+                method: :delete,
+                remote: true,
+                data: { confirm: 'Удалить достижение?' }
+  .achievement-img
+    = image_tag user_achievement.achievement.icon.url, class: 'achievement-img-icon'
+  .achievement-commentary
+    = user_achievement.comment
+    .achievement-date
+      = "Получено: #{user_achievement.achieved_at.strftime('%d.%m.%Y')}"

@@ -1,0 +1,15 @@
+- if @achievements.exists?
+  %table.table.table-hover.table-striped
+    %thead
+      %tr
+        %th id
+        %th Название достижения
+        %th
+    %tbody
+      - @achievements.each do |achievement|
+        %tr
+          %td= achievement.id
+          %td= achievement.name
+          %td.btn-group
+            = link_to_edit_small achievement
+            = link_to_destroy_small achievement

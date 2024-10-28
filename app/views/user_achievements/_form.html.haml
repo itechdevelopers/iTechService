@@ -1,0 +1,18 @@
+.achievement-form
+  = form_with model: @user_achievement, local: false do |f|
+    .form-group.collection
+      = f.collection_select :achievement_id, Achievement.all, :id, :name,
+        { prompt: '-' },
+        class: 'form-control',
+        data: { action: 'achievement#preview' }
+
+    .btn-group-achievements
+      = button_tag type: 'submit', class: 'btn btn-primary btn-small' do
+        = "#{glyph(:save)}".html_safe
+      = button_tag glyph(:times).html_safe, type: 'button', class: 'btn btn-small cancel-achievement-btn'
+
+    .achievement-icon-preview
+      = image_tag(@user_achievement.achievement&.icon || '', class: 'achievement-icon')
+
+    .form-group.achievement-commentary
+      = f.text_area :comment, class: 'form-control', placeholder: 'Комментарий'
