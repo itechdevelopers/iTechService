@@ -28,6 +28,7 @@
       -#- if can? :manage, Salary
       -#  %li= link_to t('salaries.index.title'), '#salary_tab', 'data-toggle' => 'tab'
       %li= link_to t("users.account"), '#account_tab', 'data-toggle' => 'tab'
+      %li= link_to 'Достижения', '#achievements_tab', 'data-toggle' => 'tab'
       %li= link_to t("users.uniform"), '#uniform_tab', 'data-toggle' => 'tab'
       %li= link_to t("users.user_settings"), "#user_settings", "data-toggle" => "tab"
       %li= link_to t("users.notifications"), "#notifications_tab", "data-toggle" => "tab"
@@ -132,26 +133,12 @@
                 = f.input :hobby, as: :text, input_html: {id: :input_hobby}
                 = submit_button f
 
-
-          %dt= User.human_attribute_name :karmas
+          %dt Достижения
           %dd
-            #user_karmas
-              - if can? :create, Karma
-                = link_to_add_karma @user, true, class: 'large'
-                = link_to_add_karma @user, false, class: 'large'
-              #karma_popover_container
-              #karma_group_popover_container
-              #good_karmas.good.well
-                = render @user.karma_groups.unused if @user.karma_groups.any?
-                = render @user.karmas.good.unused.ungrouped.created_asc
-              = link_to t('karmas.select'), '#', id: 'select_karmas_button', class: 'btn btn-info'
-              = form_for :karma_group, url: karma_groups_path, remote: true, html: {id: 'create_karma_group_form', class: 'form-inline'} do |f|
-                = f.hidden_field :karma_ids
-                .input-append.input-prepend
-                  = link_to glyph(:remove), '#', class: 'btn', id: 'close_karma_group_form_link'
-                  = number_field_tag :karma_qty, nil, id: 'karma_group_karma_qty', class: 'input-mini', min: 0
-                  = f.submit t('karmas.group'), class: 'btn btn-primary'
-              #bad_karmas.bad.well= render @user.karmas.bad.created_asc
+            - @user.user_achievements.each do |achievement|
+              = image_tag achievement.achievement.icon_mini.url,
+                          class: 'achievement-img-icon-mini has-tooltip',
+                          data: { original_title: achievement.achievement.name }
 
           %dt= link_to t('bonuses.index.title'), bonuses_user_path(@user), remote: true
           %dd
@@ -218,6 +205,16 @@
           - if current_user.superadmin?
             %dt Auth Token
             %dd= @user.authentication_token
+
+      #achievements_tab.tab-pane
+        #achievements-container
+          = render partial: 'user_achievement', collection: @user.user_achievements
+          - if can? :manage, UserAchievement
+            #add-achievement
+              = button_tag class: 'btn btn-success add-achievement-btn',
+                           data: { url: new_user_achievement_path(user_id: @user) } do
+                = "#{glyph(:plus)} Добавить".html_safe
+
 
       #uniform_tab.tab-pane
         #uniform_view

@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20241011095809) do
+ActiveRecord::Schema.define(version: 20241023113833) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -23,6 +23,14 @@ ActiveRecord::Schema.define(version: 20241011095809) do
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.index ["name"], name: "index_abilities_on_name", unique: true
+  end
+
+  create_table "achievements", force: :cascade do |t|
+    t.string "name", null: false
+    t.string "icon_mini"
+    t.string "icon"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
   end
 
   create_table "announcements", id: :serial, force: :cascade do |t|
@@ -1590,6 +1598,18 @@ ActiveRecord::Schema.define(version: 20241011095809) do
     t.index ["user_id"], name: "index_user_abilities_on_user_id"
   end
 
+  create_table "user_achievements", force: :cascade do |t|
+    t.bigint "user_id", null: false
+    t.bigint "achievement_id", null: false
+    t.text "comment"
+    t.datetime "achieved_at"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["achievement_id"], name: "index_user_achievements_on_achievement_id"
+    t.index ["user_id", "achievement_id"], name: "index_user_achievements_on_user_id_and_achievement_id"
+    t.index ["user_id"], name: "index_user_achievements_on_user_id"
+  end
+
   create_table "users", id: :serial, force: :cascade do |t|
     t.string "username", limit: 255
     t.string "role", limit: 255
@@ -1805,6 +1825,8 @@ ActiveRecord::Schema.define(version: 20241011095809) do
   add_foreign_key "trade_in_devices", "users", column: "receiver_id"
   add_foreign_key "user_abilities", "abilities"
   add_foreign_key "user_abilities", "users"
+  add_foreign_key "user_achievements", "achievements"
+  add_foreign_key "user_achievements", "users"
   add_foreign_key "users", "dismissal_reasons"
   add_foreign_key "users", "elqueue_windows"
   add_foreign_key "waiting_clients", "clients"

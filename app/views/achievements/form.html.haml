@@ -1,0 +1,34 @@
+.page-header
+  %h2
+    = link_to icon('chevron-left'), achievements_path
+    - if @achievement.new_record?
+      Новое Достижение
+    - else
+      Редактировать Достижение
+
+= form_with model: @achievement, local: false, class: 'form-horizontal' do |f|
+  .control-group
+    = f.label :name, 'Название', class: 'control-label required'
+    .controls
+      = f.text_field :name, required: true
+
+  .control-group
+    .img-icon-achievement
+      - if @achievement.icon.present?
+        = image_tag @achievement.icon.url
+    = f.label :icon, 'Большая иконка', class: 'control-label'
+    .controls
+      = f.file_field :icon
+
+  .control-group
+    .img-icon-achievement
+      - if @achievement.icon_mini.present?
+        = image_tag @achievement.icon_mini.url
+    = f.label :icon_mini, 'Маленькая иконка', class: 'control-label'
+    .controls
+      = f.file_field :icon_mini
+
+  .form-actions
+    = button_tag type: 'submit', class: 'btn btn-primary' do
+      = icon(:save)
+      Сохранить

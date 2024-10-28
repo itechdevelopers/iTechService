@@ -7,6 +7,8 @@
         .input-append
           = f.fields_for 'query' do |form|
             = form.text_field :name, class: 'search-query input-large', placeholder: 'Поиск пользователя'
+            - if can? :see_all_users, User
+              = form.hidden_field :all, value: true
           %span.add-on.btn.clear_search_input
             %i.icon-remove
 

@@ -12,6 +12,7 @@ module UsersHelper
         end
         "#{c} #{karma_tag(user)} #{senior_label_tag(user)}".html_safe
       end
+      c += user_achievements_tag(user)
       c += content_tag(:td, t("users.roles.#{user.role}"))
       c += content_tag(:td, link_to(user.location_short_name || '-', user_path(user), class: "highlight", data: { color: user.city.color }))
       c += content_tag(:td) do
@@ -25,6 +26,19 @@ module UsersHelper
       end
       c
     end.html_safe
+  end
+
+  def user_achievements_tag(user)
+    content_tag(:td) do
+      achievements = user.user_achievements.first(4)
+      icons = achievements.map do |achievement|
+        image_tag(achievement.achievement.icon_mini.url,
+                  class: 'achievement-img-icon-mini has-tooltip',
+                  data: { original_title: achievement.achievement.name })
+      end
+      icons << '...' if user.user_achievements.count > 4
+      safe_join(icons)
+    end
   end
 
   def senior_label_tag(user)
