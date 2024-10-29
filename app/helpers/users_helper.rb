@@ -29,14 +29,31 @@ module UsersHelper
   end
 
   def user_achievements_tag(user)
-    content_tag(:td) do
-      achievements = user.user_achievements.first(4)
-      icons = achievements.map do |achievement|
-        image_tag(achievement.achievement.icon_mini.url,
+    achievements = user.user_achievements.includes(:achievement).to_a
+    total_count = achievements.size
+
+    content_tag(:td, class: 'achievements-cell') do
+      icons = achievements.first(4).map do |user_achievement|
+        achievement = user_achievement.achievement
+        image_tag(achievement.icon_mini.url,
                   class: 'achievement-img-icon-mini has-tooltip',
-                  data: { original_title: achievement.achievement.name })
+                  data: { original_title: achievement.name })
       end
-      icons << '...' if user.user_achievements.count > 4
+
+      if total_count > 4
+        icons << content_tag(:div, class: 'full-achievements-btn') do
+          content_tag(:b, '', class: 'caret')
+        end
+        icons << content_tag(:div, class: 'full-achievements hidden') do
+          all_icons = achievements.map do |user_achievement|
+            achievement = user_achievement.achievement
+            image_tag(achievement.icon_mini.url,
+                      class: 'achievement-img-icon-mini has-tooltip',
+                      data: { original_title: achievement.name })
+          end
+          safe_join(all_icons)
+        end
+      end
       safe_join(icons)
     end
   end

@@ -266,6 +266,9 @@ jQuery ->
     textColor = App.utils.getContrastColor(color)
     $(this).css('color', textColor)
 
+  $(document).on 'click', '.full-achievements-btn', ->
+    $(this).next('.full-achievements').toggleClass('hidden')
+
 window.App ||= {}
 App.utils ||= {}
 App.utils.getContrastColor = (hexcolor) ->
