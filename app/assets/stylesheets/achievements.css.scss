@@ -44,12 +44,14 @@
   margin: 0;
   border: 0.5px solid #d1d1d1;
   padding: 8px;
+  row-gap: 4px;
 
   .collection, .achievement-name {
     grid-area: col;
     justify-self: stretch;
     select.form-control {
       width: 100%;
+      margin: 0;
     }
     font-weight: bold;
   }
@@ -128,4 +130,29 @@ img.achievement-img-icon-mini {
     border-bottom-color: #8f8f8f;
     border-top-color: #8f8f8f;
   }
+}
+
+.btn-group-achievements {
+  & > * {
+    border-radius: 0;
+  }
+  & > *:first-child {
+    border-top-left-radius: 3px;
+    border-bottom-left-radius: 3px;
+    border-right: none;
+  }
+  & > *:last-child {
+    border-top-right-radius: 3px;
+    border-bottom-right-radius: 3px;
+    border-left: none;
+  }
+  & > *:not(:first-child):not(:last-child) {
+    border-left: none;
+    border-right: none;
+  }
+}
+
+img.achievement-icon {
+  height: 100%;
+  object-fit: contain;
 }
