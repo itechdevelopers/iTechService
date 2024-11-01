@@ -89,6 +89,9 @@ gem 'ru_propisju', '~> 2.6.0'
 gem 'countries'
 gem 'phony_rails'
 
+gem 'caxlsx'
+gem 'caxlsx_rails'
+
 group :development do
   gem 'web-console'
   gem 'binding_of_caller'
