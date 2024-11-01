@@ -3,7 +3,7 @@
 class UsersJobsReport < BaseReport
   attr_accessor :user_id
 
-  params %i[start_date end_date department_id user]
+  params %i[start_date end_date department_id user xlsx_format]
 
   def call
     users = User
@@ -46,5 +46,55 @@ class UsersJobsReport < BaseReport
     time = job.created_at.strftime('%H:%M')
     item[:dates][date] ||= { fast: [], long: [], free: [] }
     item[:dates][date][type] << { time: time, item: job }
+  end
+
+  def to_xlsx(workbook)
+    workbook.add_worksheet(name: 'Report') do |sheet|
+      header_style = sheet.styles.add_style(
+        bg_color: 'E6E6E6',
+        b: true,
+        alignment: { horizontal: :center, vertical: :center },
+        border: { style: :thin, color: '000000' }
+      )
+      detail_style = sheet.styles.add_style(
+        bg_color: 'F5F5F5',
+        border: { style: :thin, color: '000000' }
+      )
+      sheet.add_row ['', 'Быстрые', 'Длинные', 'Бесплатный сервис'], style: header_style
+
+      result[:users].each do |user|
+        sheet.add_row [
+          user[:user_name],
+          user[:counts][:fast],
+          user[:counts][:long],
+          user[:counts][:free]
+        ], style: detail_style
+
+        user[:dates].each do |date, jobs|
+          sheet.add_row [
+            date,
+            jobs[:fast].size,
+            jobs[:long].size,
+            jobs[:free].size
+          ]
+          sheet.add_row [
+            '',
+            jobs[:fast].map do |job|
+              quick_order = job[:item]
+              "#{job[:time]} #{quick_order.client_name || quick_order.contact_phone}"
+            end.join(";\r\n "),
+            jobs[:long].map do |job|
+              service_job = job[:item]
+              "#{job[:time]} #{service_job.presentation} #{service_job.client.presentation}"
+            end.join(";\r\n "),
+            jobs[:free].map do |job|
+              service_free_job = job[:item]
+              "#{job[:time]} #{service_free_job.client.presentation}"
+            end.join(";\r\n ")
+          ]
+        end
+      end
+      sheet.column_widths nil, nil, 100, 50
+    end
   end
 end

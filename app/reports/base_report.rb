@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 class BaseReport
-  attr_reader :kind, :department_id
+  attr_reader :kind, :department_id, :format
   class_attribute :report_params
 
   def self.params(items = [])

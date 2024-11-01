@@ -2,9 +2,15 @@
   <div id="reports_filter" class="navbar container">
     <div class="navbar-inner<%= ' new_type_report' if @new_type_report %>">
       <%= form_for report, as: :report, html: { id: 'report_form', class: "navbar-search form-search" } do |f| %>
-        <%= button_tag glyph(:filter), class: 'btn btn-info', type: 'submit' %>
+        <%= button_tag glyph(:filter), class: 'btn btn-info', type: 'submit', onclick: "document.getElementById('report_format').value = ''" %>
+        <% if report.show_param?(:xlsx_format) %>
+          <%= button_tag class: 'btn btn-success', type: 'submit', onclick: "document.getElementById('report_format').value = 'xlsx'" do %>
+            <%= "#{glyph(:table)} Excel".html_safe %>
+          <% end %>
+        <% end %>
         <%= f.hidden_field :base_name %>
         <%= f.hidden_field :kind %>
+        <%= f.hidden_field :format %>
         <%= f.text_field :start_date, class: 'bootstrap-datepicker input-small' if report.show_param?(:start_date) %>
 
         <% unless report.only_day? %>

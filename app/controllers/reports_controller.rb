@@ -12,9 +12,10 @@ class ReportsController < ApplicationController
   before_action -> { authorize :report, :manage? }
   before_action :indent_jobs, only: %i[new create]
   before_action :set_bootstrap_version, except: :index
+  before_action :create_report, only: %i[create]
 
   def index
-    @reports_board = ReportsBoard.find_by(name: "Default")
+    @reports_board = ReportsBoard.find_by(name: 'Default')
     respond_to do |format|
       format.html
     end
@@ -28,15 +29,33 @@ class ReportsController < ApplicationController
   end
 
   def create
-    @report = build_report
-    @report.call
     respond_to do |format|
-      format.html { render 'result' }
+      format.html do
+        if params[:report][:format] == 'xlsx'
+          export_report
+        else
+          render 'result'
+        end
+      end
       format.js { render 'result' }
     end
   end
 
   private
+
+  def export_report
+    p = Axlsx::Package.new
+    wb = p.workbook
+    @report.to_xlsx(wb)
+    send_data p.to_stream.read,
+              filename: "#{@report.name}_#{Time.current.strftime('%Y%m%d_%H%M')}.xlsx",
+              type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
+  end
+
+  def create_report
+    @report = build_report
+    @report.call
+  end
 
   def set_bootstrap_version
     @new_type_report ||= false
