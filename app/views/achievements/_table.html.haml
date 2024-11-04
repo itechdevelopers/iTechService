@@ -4,12 +4,16 @@
       %tr
         %th id
         %th Название достижения
+        %th Иконка
         %th
     %tbody
       - @achievements.each do |achievement|
         %tr
           %td= achievement.id
           %td= achievement.name
+          %td
+            = image_tag achievement.icon_mini.url,
+                        class: 'achievement-img-icon-mini'
           %td.btn-group
             = link_to_edit_small achievement
             = link_to_destroy_small achievement
