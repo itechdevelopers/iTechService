@@ -1,7 +1,7 @@
 class RemnantsReport < BaseReport
   attr_accessor :store_id
 
-  params [:start_date, :end_date, :store_id]
+  params [:start_date, :end_date, :store_id, :xlsx_format]
 
   def call
     result[:data] = []
@@ -12,6 +12,73 @@ class RemnantsReport < BaseReport
     result[:data] = nested_product_groups_remnants product_groups, store_items, store
 
     result
+  end
+
+  def to_xlsx(workbook)
+    workbook.add_worksheet(name: 'Remnants Report') do |sheet|
+      styles = {}
+      styles[:header_style] = sheet.styles.add_style(
+        bg_color: 'E6E6E6',
+        b: true,
+        alignment: { horizontal: :center, vertical: :center },
+        border: { style: :thin, color: '000000' }
+      )
+
+      styles[:main_style] = sheet.styles.add_style(
+        border: { style: :thin, color: '000000' },
+        alignment: { horizontal: :left, vertical: :center }
+      )
+
+      styles[:detail_style] = sheet.styles.add_style(
+        border: { style: :thin, color: '000000' },
+        alignment: { horizontal: :left, vertical: :center },
+        bg_color: 'F5F5F5'
+      )
+
+      styles[:integer_style] = sheet.styles.add_style(
+        border: { style: :thin, color: '000000' },
+        alignment: { horizontal: :right, vertical: :center },
+        num_fmt: 1
+      )
+
+      styles[:detail_integer_style] = sheet.styles.add_style(
+        border: { style: :thin, color: '000000' },
+        alignment: { horizontal: :right, vertical: :center },
+        bg_color: 'F5F5F5',
+        num_fmt: 1
+      )
+
+      styles[:number_style] = sheet.styles.add_style(
+        border: { style: :thin, color: '000000' },
+        alignment: { horizontal: :right, vertical: :center },
+        num_fmt: 2
+      )
+
+      styles[:detail_number_style] = sheet.styles.add_style(
+        border: { style: :thin, color: '000000' },
+        alignment: { horizontal: :right, vertical: :center },
+        bg_color: 'F5F5F5',
+        num_fmt: 2
+      )
+
+      headers = [
+        'Код',
+        'Номенклатура',
+        'Остаток',
+        'Закупочная цена',
+        'Сумма закупа',
+        'Цена',
+        'Розн. сумма остатка'
+      ]
+      sheet.add_row headers, style: styles[:header_style]
+      result[:data].each do |data|
+        add_remnant_rows(sheet, data, styles)
+      end
+
+      widths = [25, 40, 15]
+      widths += [20] * 4
+      sheet.column_widths(*widths)
+    end
   end
 
   private
@@ -88,6 +155,33 @@ class RemnantsReport < BaseReport
         sum: group_retail_sum,
         details: nested_product_groups_remnants(sub_product_groups, store_items, store) + products
       }
+    end
+  end
+
+  def add_remnant_rows(sheet, data, styles)
+    return unless (data[:quantity]).positive?
+
+    row_styles = if (data[:depth]).positive?
+                   [styles[:detail_style]] * 2 + [styles[:detail_integer_style]] + [styles[:detail_number_style]] * 4
+                 else
+                   [styles[:main_style]] * 2 + [styles[:integer_style]] + [styles[:number_style]] * 4
+                 end
+
+    indent = '  ' * data[:depth]
+    name_with_indent = "#{indent}#{data[:name]}"
+
+    sheet.add_row [
+      data[:code],
+      name_with_indent,
+      data[:quantity],
+      data[:purchase_price],
+      data[:purchase_sum],
+      data[:price],
+      data[:sum]
+    ], style: row_styles
+
+    data[:details].each do |detail|
+      add_remnant_rows(sheet, detail, styles)
     end
   end
 end
