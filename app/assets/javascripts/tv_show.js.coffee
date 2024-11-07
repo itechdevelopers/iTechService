@@ -45,7 +45,7 @@ $ ->
     constructor: ->
       @waitingTickets = JSON.parse($('#waiting_tickets').val() || '[]')
       @currentPage = 0
-      @ticketsPerPage = 6
+      @ticketsPerPage = 4
       @container = $('.elqueue-tv-waiting__tickets')
       @intervalTime = 5000
       @animationDuration = 1000
