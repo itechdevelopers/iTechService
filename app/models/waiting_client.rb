@@ -57,7 +57,8 @@ class WaitingClient < ApplicationRecord
     def add_to_queue(waiting_client)
       queue = waiting_client.electronic_queue
       position = nil
-      case waiting_client.priority
+      priority = waiting_client.priority
+      case priority
       when 'moved_by_timing'
         max_position = max_position_with_priority(['moved_by_timing', 'always_first'], queue)
         move_all_with_greater_position(max_position, queue)
@@ -91,7 +92,10 @@ class WaitingClient < ApplicationRecord
         position = max_position + 1
       end
 
-      waiting_client.update!(position: position) if position
+      if position
+        waiting_client.update!(position: position)
+        waiting_client.broadcast_add_to_queue unless priority == 'moved_by_timing'
+      end
     end
   end
 
@@ -202,6 +206,15 @@ class WaitingClient < ApplicationRecord
 
   def priority_value
     priority_before_type_cast
+  end
+
+  def broadcast_add_to_queue
+    waiting_client_data = {
+      ticket_number: ticket_number
+    }
+    ElectronicQueueChannel.broadcast_to(electronic_queue,
+                                        action: 'add_to_queue',
+                                        waiting_client: waiting_client_data)
   end
 
   private

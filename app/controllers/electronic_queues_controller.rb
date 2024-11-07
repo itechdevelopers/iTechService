@@ -17,6 +17,7 @@ class ElectronicQueuesController < ApplicationController
     authorize ElectronicQueue
     @electronic_queue = ElectronicQueue.find_by(tv_link: params[:permalink])
     @clients_in_service = WaitingClient.in_queue(@electronic_queue).in_service
+    @waiting_clients = WaitingClient.in_queue(@electronic_queue).waiting
     render layout: 'electronic_queues'
   end
 
