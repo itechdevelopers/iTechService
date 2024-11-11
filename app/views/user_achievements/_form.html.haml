@@ -1,9 +1,10 @@
 .achievement-form
   = form_with model: @user_achievement, local: false do |f|
     .form-group.collection
-      = f.collection_select :achievement_id, Achievement.all, :id, :name,
-        { prompt: '-' },
-        class: 'form-control',
+      = custom_select f, :achievement_id, Achievement.all,
+        prompt: 'Выберите достижение',
+        class: 'custom_select form-control',
+        trigger_class: 'custom-select__trigger long',
         data: { action: 'achievement#preview' }
 
     .btn-group-achievements

@@ -10,7 +10,7 @@ module UsersHelper
           c += image_tag user.photo.medium.url, class: :avatar if user.photo?
           c + user.short_name
         end
-        "#{c} #{karma_tag(user)} #{senior_label_tag(user)}".html_safe
+        "#{c} #{senior_label_tag(user)}".html_safe
       end
       c += user_achievements_tag(user)
       c += content_tag(:td, t("users.roles.#{user.role}"))
@@ -35,9 +35,11 @@ module UsersHelper
     content_tag(:td, class: 'achievements-cell') do
       icons = achievements.first(4).map do |user_achievement|
         achievement = user_achievement.achievement
-        image_tag(achievement.icon_mini.url,
-                  class: 'achievement-img-icon-mini has-tooltip',
-                  data: { original_title: achievement.name })
+        link_to user_path(user, anchor: 'achievements_tab') do
+          image_tag(achievement.icon_mini.url,
+                    class: 'achievement-img-icon-mini has-tooltip',
+                    data: { original_title: achievement.name })
+        end
       end
 
       if total_count > 4
@@ -47,9 +49,11 @@ module UsersHelper
         icons << content_tag(:div, class: 'full-achievements hidden') do
           all_icons = achievements.map do |user_achievement|
             achievement = user_achievement.achievement
-            image_tag(achievement.icon_mini.url,
-                      class: 'achievement-img-icon-mini has-tooltip',
-                      data: { original_title: achievement.name })
+            link_to user_path(user, anchor: 'achievements_tab') do
+              image_tag(achievement.icon_mini.url,
+                        class: 'achievement-img-icon-mini has-tooltip',
+                        data: { original_title: achievement.name })
+            end
           end
           safe_join(all_icons)
         end

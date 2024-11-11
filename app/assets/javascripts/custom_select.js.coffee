@@ -43,10 +43,12 @@ $ ->
     selectedValue = $(this).data('value')
     selectedColor = $(this).data('color')
 
-    trigger.find('span').text($(this).text())
+    trigger.find('span').html($(this).html())
     trigger.css('background-color', selectedColor)
     select.find('.custom-option').removeClass('selected')
-    hiddenInput.val(selectedValue)
+    hiddenInput
+      .val(selectedValue)
+      .trigger('customSelect:change', [selectedValue])
     $(this).addClass('selected')
     select.removeClass('open')
 

@@ -10,8 +10,9 @@ $ ->
     $(this).closest('.achievement-form').remove()
     $('#add-achievement').removeClass('hidden')
 
-  $(document).on 'change', 'select[data-action="achievement#preview"]', ->
-    achievement_id = $(this).val()
-    form = $(this).closest('form')
-    $.get "/achievements/#{achievement_id}/icon_url", dataType: 'json', (data) ->
-      form.find('.achievement-icon').attr('src', data.icon_url)
+$(document).on 'customSelect:change', 'input[type="hidden"][data-action="achievement#preview"]', (event, selectedValue) ->
+  return unless selectedValue
+
+  form = $(this).closest('form')
+  $.get "/achievements/#{selectedValue}/icon_url", dataType: 'json', (data) ->
+    form.find('.achievement-icon').attr('src', data.icon_url)
