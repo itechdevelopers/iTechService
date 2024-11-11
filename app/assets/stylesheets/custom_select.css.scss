@@ -1,6 +1,7 @@
 .custom-select-wrapper {
   position: relative;
   user-select: none;
+  font-weight: normal;
 }
 
 .custom_select {
@@ -32,6 +33,10 @@
   border-radius: 4px;
   cursor: pointer;
   width: 200px;
+
+  &.long {
+    width: 343px;
+  }
 }
 
 .custom_select.open .custom-options {
@@ -49,6 +54,11 @@
   cursor: pointer;
   transition: all 0.2s;
   border: 0.5px solid rgba(82, 168, 236, 0.8);
+
+  &.default {
+    font-style: italic;
+    color: #8a8a8a;
+  }
 }
 .custom-option:hover {
   cursor: pointer;

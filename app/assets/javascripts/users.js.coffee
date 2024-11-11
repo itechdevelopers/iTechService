@@ -86,6 +86,7 @@ jQuery ->
     $('#wishlist_hobby_view, #wishlist_hobby_edit').toggleClass 'hide'
 
   $(document).ready () ->
+    ready()
     $(".add_wishlist_fields").click (event) ->
       $("#wishlist_list").append($(this).data("field"))
       $('a.remove_field').click (event) ->
@@ -269,6 +270,11 @@ jQuery ->
   $(document).on 'click', '.full-achievements-btn', ->
     $(this).next('.full-achievements').toggleClass('hidden')
 
+  $(window).on 'hashchange', ->
+    if hash = window.location.hash
+      tab = $(".nav-tabs a[href='#{hash}']")
+      tab.tab('show') if tab.length
+
 window.App ||= {}
 App.utils ||= {}
 App.utils.getContrastColor = (hexcolor) ->
@@ -277,6 +283,11 @@ App.utils.getContrastColor = (hexcolor) ->
   b = parseInt(hexcolor.substr(5,2),16)
   yiq = ((r*299)+(g*587)+(b*114))/1000
   if yiq >= 128 then '#000000' else '#FFFFFF'
+
+ready = ->
+  if hash = window.location.hash
+    tab = $(".nav-tabs a[href='#{hash}']")
+    tab.tab('show') if tab.length
 
 toggle_schedule_day = (el) ->
   el.toggleClass 'work_hour'
