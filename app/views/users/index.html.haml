@@ -2,7 +2,7 @@
   %h1
     = auto_title
     - if can? :see_all_users, User
-      %small= link_to t('users.all'), users_path(all: true)
+      %small= link_to t('users.all'), users_path(all: true, city: params[:city])
     - if can? :read, ScheduleDay
       %small= link_to t('users.schedule'), schedule_users_path
     - if can? :manage, TimesheetDay

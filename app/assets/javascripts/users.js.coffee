@@ -275,6 +275,18 @@ jQuery ->
       tab = $(".nav-tabs a[href='#{hash}']")
       tab.tab('show') if tab.length
 
+  $(document).on 'submit', '#search_form', (e) ->
+    e.preventDefault()
+    form = $(this)
+    currentCity = new URLSearchParams(window.location.search).get('city')
+
+    # Добавляем текущий город к параметрам поиска, если он выбран
+    if currentCity
+      form.append('<input type="hidden" name="[query][city]" value="' + currentCity + '">')
+
+    $.get form.attr('action'), form.serialize(), null, 'script'
+    false
+
 window.App ||= {}
 App.utils ||= {}
 App.utils.getContrastColor = (hexcolor) ->

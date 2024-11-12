@@ -5,7 +5,9 @@ class UsersController < ApplicationController
 
   def index
     authorize User
-    @users = User.search(search_params).id_asc.page(params[:page])
+
+    @users = User.search(sanitized_search_params).id_asc.page(params[:page])
+    @current_city = params[:city]
 
     respond_to do |format|
       format.html
@@ -281,6 +283,12 @@ class UsersController < ApplicationController
 
       p.delete :hiring_date
     end
+  end
+
+  def sanitized_search_params
+    params = search_params
+    params.delete(:all) if params.key?(:all) && !can?(:see_all_users, User)
+    params
   end
 
   def user_params
