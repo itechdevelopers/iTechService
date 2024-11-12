@@ -209,10 +209,28 @@ class User < ApplicationRecord
 
   def self.search(params)
     users = params[:all].present? ? User.all : User.active
+    users = users.includes(:department => :city)
+
+    if params[:city].present?
+      users = users.joins(:department)
+                   .joins('INNER JOIN cities ON departments.city_id = cities.id')
+                   .where('cities.name = ?', params[:city])
+    end
+
     unless (q_name = params[:name]&.strip).blank?
-      users = users.where 'username ILIKE :q or name ILIKE :q or surname ILIKE :q', q: "%#{q_name}%"
+      users = users.where 'users.username ILIKE :q or users.name ILIKE :q or users.surname ILIKE :q', q: "%#{q_name}%"
     end
     users
+  end
+
+  def self.available_cities
+    Rails.cache.fetch('user_cities', expires_in: 1.hour) do
+      joins(:department)
+        .joins('INNER JOIN cities ON departments.city_id = cities.id')
+        .distinct
+        .pluck('cities.name')
+        .sort
+    end
   end
 
   def self.oncoming_salary
