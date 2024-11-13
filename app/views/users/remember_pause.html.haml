@@ -1,0 +1,11 @@
+.page-header
+  %h1 Пользователи с активным статусом 'Запомнить паузу'
+
+.remember-pause
+  - @users.each do |user|
+    .remember-pause__user{ data: { id: user.id } }
+      = "#{user.short_name} (#{user.department_name})"
+      = link_to 'Снять статус',
+                unset_remember_pause_user_path(user),
+                method: :patch
+

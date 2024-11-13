@@ -247,6 +247,17 @@ class UsersController < ApplicationController
     end
   end
 
+  def remember_pause
+    authorize User
+    @users = User.where(remember_pause: true)
+  end
+
+  def unset_remember_pause
+    @user = find_record User
+    @user.unset_remember_pause
+    redirect_to remember_pause_users_path, notice: 'Статус удален'
+  end
+
   private
 
   def load_infos
