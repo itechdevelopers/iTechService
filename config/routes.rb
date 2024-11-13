@@ -82,6 +82,8 @@ Rails.application.routes.draw do
     patch :update_self, on: :member
     patch :update_elqueue_window, on: :member
     resources :achievements, controller: 'user_achievements', defaults: { format: :js }
+    get :remember_pause, on: :collection
+    patch :unset_remember_pause, on: :member
   end
 
   resources :notifications, only: %i[destroy], defaults: { format: :js } do

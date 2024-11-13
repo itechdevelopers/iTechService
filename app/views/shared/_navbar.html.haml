@@ -42,6 +42,7 @@
                 manage_windows_electronic_queue_path(current_user.department_elqueue),
                 remote: true
         = menu_item t('electronic_queues.index.title'), electronic_queues_path if can?(:manage, ElectronicQueue)
+        = menu_item "Снять статус 'запомнить паузу'", remember_pause_users_path if can?(:remember_pause, User)
 
       = drop_down t('.trade') do
         = menu_item t('.trade_in'), trade_in_devices_path

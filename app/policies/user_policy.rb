@@ -84,6 +84,14 @@ class UserPolicy < BasePolicy
     superadmin? || able_to?(:manage_salary)
   end
 
+  def remember_pause?
+    any_admin?
+  end
+
+  def unset_remember_pause?
+    any_admin?
+  end
+
   private
 
   def owner?
