@@ -3,7 +3,15 @@ class WaitingClientPolicy < ApplicationPolicy
     true
   end
 
+  def test_printing?
+    true
+  end
+
   def complete?
+    true
+  end
+
+  def archive?
     true
   end
 

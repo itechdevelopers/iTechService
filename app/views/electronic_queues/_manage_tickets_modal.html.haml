@@ -1,10 +1,9 @@
-- if @modal == "manage_tickets"
-  = form_with url: sort_tickets_electronic_queue_path(@electronic_queue),
+= form_with url: sort_tickets_electronic_queue_path(@electronic_queue),
             local: false,
             method: :patch,
             id: "form-sort-tickets" do |f|
-    = f.hidden_field("electronic_queue[ticket_ids]", value: [], id: "ticket-ids")
-    = f.hidden_field("electronic_queue[id_moved]", value: [], id: "id-moved")
+  = f.hidden_field("electronic_queue[ticket_ids]", value: [], id: "ticket-ids")
+  = f.hidden_field("electronic_queue[id_moved]", value: [], id: "id-moved")
   .modal-header
     %h3 Управление талонами
 
@@ -45,24 +44,5 @@
         = form.select :ticket_id, finalized_ticket_options(@electronic_queue), {}, { class: 'select-window' }
         = form.submit "Вернуть", class: "btn btn-success"
 
-  :javascript
-    $(document).trigger('openManageTicketsModal')
-- elsif @modal == 'manage_windows'
-  .modal-header
-    %h3
-      = "Окна электронной очереди #{@electronic_queue.queue_name}"
-      = button_to_close_modal
-  .modal-body
-    .elqueue_windows-info.row-fluid
-      .span4
-        %dl.dl-horizontal
-          - @elqueue_windows.each do |window|
-            .elqueue_window-info{data: {window_id: window.id}}
-              %dt= window.window_number
-              %dd
-                = window.user&.short_name || "Не занято"
-                = link_to icon_tag('times-circle-o'),
-                          free_window_elqueue_window_path(window),
-                          remote: true,
-                          method: :patch,
-                          class: 'close-red'
+:javascript
+  $(document).trigger('openManageTicketsModal')

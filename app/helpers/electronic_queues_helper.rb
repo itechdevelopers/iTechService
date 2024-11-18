@@ -88,8 +88,12 @@ module ElectronicQueuesHelper
 
     menu_items << menu_item("Окно: #{user.elqueue_window.window_number}", select_window_elqueue_windows_path,
                             data: { remote: true })
-    menu_items << menu_item('Выбор талона', manage_tickets_electronic_queue_path(user.electronic_queue),
+    elqueue = user.electronic_queue
+    menu_items << menu_item('Выбор талона', manage_tickets_electronic_queue_path(elqueue),
                             class: 'elqueue_active_tickets_button', data: { remote: true })
+    menu_items << menu_item('Печать тестового талона',
+                            test_printing_waiting_clients_path(electronic_queue_id: elqueue),
+                            data: { remote: true })
 
     custom_drop_down(title.to_s, style: style, tooltip: tooltip) do
       menu_items.html_safe
