@@ -78,4 +78,12 @@ module ElqueueTicketMovementsHelper
       'Отсутствует'
     end
   end
+
+  def ticket_archived_at(ticket_movements)
+    archived_events = ticket_movements.select { |m| m.type == 'ElqueueTicketMovement::Archived' }
+    latest_element = archived_events.max_by(&:created_at)
+    return '' unless latest_element
+
+    latest_element.created_at.strftime('%H:%M:%S')
+  end
 end

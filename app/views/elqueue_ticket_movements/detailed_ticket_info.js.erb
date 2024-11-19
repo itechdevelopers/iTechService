@@ -5,20 +5,27 @@ addLineToContainer(container, headerLine);
 ticketIssuedLine = 'Талон получен: <%= @ticket.ticket_issued_at.strftime('%H:%M:%S') %>';
 addLineToContainer(container, ticketIssuedLine);
 
-ticketCalledLine = 'Начали обслуживать в: <%= @ticket.ticket_called_at.strftime('%H:%M:%S') %>';
-addLineToContainer(container, ticketCalledLine);
+<% if @ticket.been_archived? %>
+    ticketArchivedLine = 'Ошибочный талон, архивирован в: <%= ticket_archived_at(@ticket_movements) %>';
+    addLineToContainer(container, ticketArchivedLine);
+<% end %>
 
-timeServed = '<%= (@ticket.ticket_served_at - @ticket.ticket_called_at).div(60) %>';
-ticketBeenServedLine = `Время обслуживания: ${timeServed} минут`;
-addLineToContainer(container, ticketBeenServedLine);
+<% unless @ticket.status == 'archived' %>
+    ticketCalledLine = 'Начали обслуживать в: <%= @ticket.ticket_called_at.strftime('%H:%M:%S') %>';
+    addLineToContainer(container, ticketCalledLine);
 
-timeWaited = '<%= (@ticket.ticket_called_at - @ticket.ticket_issued_at).div(60) %>';
-ticketBeenWaitingLine = `Время ожидания: ${timeWaited} минут`;
-addLineToContainer(container, ticketBeenWaitingLine);
+    timeServed = '<%= (@ticket.ticket_served_at - @ticket.ticket_called_at).div(60) %>';
+    ticketBeenServedLine = `Время обслуживания: ${timeServed} минут`;
+    addLineToContainer(container, ticketBeenServedLine);
 
-usernameServed = '<%= user_served_str(@ticket_movements) %>';
-ticketServedByLine = `Талон обслуживал сотрудник: ${usernameServed}`;
-addLineToContainer(container, ticketServedByLine);
+    timeWaited = '<%= (@ticket.ticket_called_at - @ticket.ticket_issued_at).div(60) %>';
+    ticketBeenWaitingLine = `Время ожидания: ${timeWaited} минут`;
+    addLineToContainer(container, ticketBeenWaitingLine);
+
+    usernameServed = '<%= user_served_str(@ticket_movements) %>';
+    ticketServedByLine = `Талон обслуживал сотрудник: ${usernameServed}`;
+    addLineToContainer(container, ticketServedByLine);
+<% end %>
 
 usernameRequeued = '<%= user_requeued_completed_str(@ticket_movements) %>';
 ticketRequeuedByLine = `Талон вернул в очередь сотрудник: ${usernameRequeued}`;

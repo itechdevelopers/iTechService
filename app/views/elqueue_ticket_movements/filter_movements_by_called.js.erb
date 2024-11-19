@@ -9,7 +9,7 @@ container.empty();
 
   dot = $('<div>').addClass('dot');
 
-  timestamp = $('<div>').addClass('timestamp').text('<%= ticket.ticket_called_at.strftime("%H:%M:%S") %>');
+  timestamp = $('<div>').addClass('timestamp').text('<%= ticket.ticket_called_at&.strftime("%H:%M:%S") || "Ошиб." %>');
 
   colorStr = '<%= dot_color_str(ticket, @movements) %>';
   switch (colorStr) {

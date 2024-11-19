@@ -9,7 +9,9 @@ class ElqueueTicketMovementsController < ApplicationController
     ids = ElqueueTicketMovement::Called.where(created_at: start_datetime(date_str, time_str)..end_datetime,
                                               electronic_queue_id: elqueue_ticket_movements_params[:electronic_queue_id])
                                        .pluck(:waiting_client_id)
-    @tickets = WaitingClient.where(id: ids).order(ticket_called_at: :asc)
+    tickets = WaitingClient.where(id: ids).order(ticket_called_at: :asc)
+    archived_tickets = WaitingClient.where(status: 'archived')
+    @tickets = tickets + archived_tickets
     @movements = ElqueueTicketMovement.where(waiting_client: @tickets).select(:type, :priority, :waiting_client_id)
 
     respond_to(&:js)
@@ -21,10 +23,12 @@ class ElqueueTicketMovementsController < ApplicationController
     date_s = elqueue_ticket_movements_params[:date].to_datetime.in_time_zone
     ticket_number = elqueue_ticket_movements_params[:ticket_number]
     electronic_queue_id = elqueue_ticket_movements_params[:electronic_queue_id]
-    @tickets = WaitingClient.joins(:queue_item)
-                            .where(ticket_called_at: date_s.beginning_of_day..date_s.end_of_day,
-                                   ticket_number: ticket_number,
-                                   queue_items: { electronic_queue_id: electronic_queue_id })
+    tickets = WaitingClient.joins(:queue_item)
+                           .where(ticket_called_at: date_s.beginning_of_day..date_s.end_of_day,
+                                  ticket_number: ticket_number,
+                                  queue_items: { electronic_queue_id: electronic_queue_id })
+    archived_tickets = WaitingClient.where(status: :archived, ticket_number: ticket_number)
+    @tickets = tickets + archived_tickets
     @movements = ElqueueTicketMovement.where(waiting_client_id: @tickets).select(:type, :priority, :waiting_client_id)
     render 'filter_movements_by_called'
   end
