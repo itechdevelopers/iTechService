@@ -32,5 +32,9 @@ module UserTicketMovementProcessor
       "Передвинул талон с позиции #{movement.old_position} на
         позицию #{movement.new_position}"
     end
+
+    def process_archived(_movement)
+      'Архивировал талон'
+    end
   end
 end

@@ -4,6 +4,7 @@ class TrackedWorkReport < BaseReport
     ElqueueTicketMovement::Manual
     ElqueueTicketMovement::Requeued
     ElqueueTicketMovement::RequeuedCompleted
+    ElqueueTicketMovement::Archived
   ].freeze
 
   def call

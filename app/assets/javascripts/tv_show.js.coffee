@@ -9,6 +9,11 @@ $ ->
         @completeService(data['waiting_client'].ticket_number)
       if data['action'] == 'add_to_queue'
         @addToQueue(data['waiting_client'].ticket_number)
+      if data['action'] == 'archive'
+        @archive(data['waiting_client'].ticket_number)
+
+    archive: (ticketNumber) ->
+      window.waitingTicketsDisplay?.removeTicket(ticketNumber)
 
     addToQueue: (ticketNumber) ->
       window.waitingTicketsDisplay?.addTicket(ticketNumber)

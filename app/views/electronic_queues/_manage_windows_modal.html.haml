@@ -1,0 +1,18 @@
+.modal-header
+  %h3
+    = "Окна электронной очереди #{@electronic_queue.queue_name}"
+    = button_to_close_modal
+.modal-body
+  .elqueue_windows-info.row-fluid
+    .span4
+      %dl.dl-horizontal
+        - @elqueue_windows.each do |window|
+          .elqueue_window-info{data: {window_id: window.id}}
+            %dt= window.window_number
+            %dd
+              = window.user&.short_name || "Не занято"
+              = link_to icon_tag('times-circle-o'),
+                        free_window_elqueue_window_path(window),
+                        remote: true,
+                        method: :patch,
+                        class: 'close-red'

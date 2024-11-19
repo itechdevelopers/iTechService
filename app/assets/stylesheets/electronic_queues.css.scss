@@ -103,13 +103,21 @@
   flex-wrap: wrap;
   gap: 20px;
 
+  .ticket-archived {
+    margin-bottom: 0;
+
+    a {
+      font-size: 13px;
+    }
+  }
+
   .elqueue-ticket-card {
     background-color: #ddd;
     box-shadow: 2px 2px 4px rgba(0, 0, 0, 0.29);
     padding: 6px;
     margin-bottom: 20px;
-    height: 200px;
-    width: 140px;
+    height: 230px;
+    width: 160px;
     cursor: grab;
     display: flex;
     flex-direction: column;
@@ -152,6 +160,11 @@
       p {
         font-weight: bold;
         padding: 4px 5px 6px 5px;
+        margin-bottom: 1px;
+      }
+
+      .ticket-status {
+        color: #de0000;
       }
 
       select {

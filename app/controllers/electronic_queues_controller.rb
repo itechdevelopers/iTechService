@@ -48,11 +48,10 @@ class ElectronicQueuesController < ApplicationController
     @waiting_clients = WaitingClient.in_queue(@electronic_queue).waiting
     @waiting_client = WaitingClient.find(params[:ticket_id].to_i)
     @waiting_client.return_to_queue(current_user)
+    respond_to(&:js)
   end
 
-  def monitoring
-
-  end
+  def monitoring; end
 
   def index
     authorize ElectronicQueue

@@ -9,7 +9,7 @@ class WaitingClient < ApplicationRecord
   after_create :set_move_ticket_job
   after_create :trigger_electronic_queue_move
 
-  validates :status, inclusion: { in: ['waiting', 'in_service', 'completed', 'did_not_come'] }
+  validates :status, inclusion: { in: %w[waiting in_service completed did_not_come archived] }
 
   default_scope { order(position: :asc) }
 
@@ -19,7 +19,7 @@ class WaitingClient < ApplicationRecord
   scope :without_attached_window, -> { where(attached_window: nil) }
   scope :waiting, -> { where(status: 'waiting') }
   scope :in_service, -> { where(status: 'in_service') }
-  scope :finalized, -> { where(status: %w[completed did_not_come]) }
+  scope :finalized, -> { where(status: %w[completed did_not_come archived]) }
   scope :in_queue, lambda { |electronic_queue|
     joins(:queue_item).where(queue_items: { electronic_queue_id: electronic_queue.id })
   }
@@ -105,7 +105,7 @@ class WaitingClient < ApplicationRecord
             elqueue_window: window,
             ticket_called_at: Time.zone.now,
             position: nil)
-    self.class.realign_positions(queue_item.electronic_queue)
+    self.class.realign_positions(electronic_queue)
     broadcast_start_service
 
     elqueue_ticket_movements.create(type: 'ElqueueTicketMovement::Called',
@@ -122,6 +122,20 @@ class WaitingClient < ApplicationRecord
             elqueue_window: nil)
     trigger_electronic_queue_move
     broadcast_complete
+  end
+
+  def archive(user)
+    old_pos = position
+    update!(status: 'archived',
+            position: nil)
+    self.class.realign_positions(electronic_queue)
+
+    elqueue_ticket_movements.create(type: 'ElqueueTicketMovement::Archived',
+                                    old_position: old_pos,
+                                    electronic_queue: electronic_queue,
+                                    user: user,
+                                    queue_state: electronic_queue.queue_state)
+    broadcast_archived
   end
 
   def complete_automatically
@@ -141,7 +155,7 @@ class WaitingClient < ApplicationRecord
   end
 
   def return_to_queue(user)
-    return unless %w[completed did_not_come].include? status
+    return unless %w[completed did_not_come archived].include? status
 
     update!(status: 'waiting')
     self.class.add_to_queue(self)
@@ -208,6 +222,10 @@ class WaitingClient < ApplicationRecord
     priority_before_type_cast
   end
 
+  def been_archived?
+    elqueue_ticket_movements.where(type: 'ElqueueTicketMovement::Archived').exists?
+  end
+
   def broadcast_add_to_queue
     waiting_client_data = {
       ticket_number: ticket_number
@@ -246,6 +264,15 @@ class WaitingClient < ApplicationRecord
     }
     ElectronicQueueChannel.broadcast_to(electronic_queue,
                                         action: 'complete_service',
+                                        waiting_client: waiting_client_data)
+  end
+
+  def broadcast_archived
+    waiting_client_data = {
+      ticket_number: ticket_number
+    }
+    ElectronicQueueChannel.broadcast_to(electronic_queue,
+                                        action: 'archive',
                                         waiting_client: waiting_client_data)
   end
 

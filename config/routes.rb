@@ -420,6 +420,8 @@ Rails.application.routes.draw do
     patch :complete, on: :member, defaults: {format: :js}
     patch :assign_window, on: :member, defaults: {format: :js}
     patch :reassign_window, on: :member, defaults: {format: :js}
+    patch :archive, on: :member, defaults: {format: :js}
+    get :test_printing, on: :collection
   end
 
   resources :elqueue_windows, only: %i[update] do

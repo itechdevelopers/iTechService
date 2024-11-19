@@ -1,5 +1,6 @@
 class WaitingClientsController < ApplicationController
-  before_action :set_waiting_client, only: %i[complete show assign_window reassign_window]
+  before_action :set_waiting_client, only: %i[complete show assign_window
+                                              reassign_window archive]
 
   def create
     authorize WaitingClient
@@ -28,6 +29,23 @@ class WaitingClientsController < ApplicationController
     end
   end
 
+  def test_printing
+    authorize WaitingClient
+    @electronic_queue = ElectronicQueue.find(params[:electronic_queue_id])
+    @waiting_client = OpenStruct.new(
+      created_at: DateTime.current,
+      ticket_number: 'A001',
+      electronic_queue: @electronic_queue,
+      queue_item: OpenStruct.new(
+        annotation: 'Тестовая услуга'
+      )
+    )
+    print_pdf
+    respond_to do |format|
+      format.js { head :ok }
+    end
+  end
+
   def complete
     authorize @waiting_client
     did_not_come = params[:did_not_come].present? ? true : false
@@ -35,12 +53,20 @@ class WaitingClientsController < ApplicationController
     current_user.unset_remember_pause if current_user.waiting_for_break?
   end
 
+  def archive
+    @modal = 'manage_tickets'
+    authorize @waiting_client
+    @waiting_client.archive(current_user)
+    @electronic_queue = @waiting_client.electronic_queue
+    @waiting_clients = WaitingClient.in_queue(@electronic_queue).waiting
+  end
+
   def show
     authorize @waiting_client
     respond_to do |format|
       format.pdf do
         print_pdf
-        send_data @pdf.render, filename: @pdf_filename, type: "application/pdf", disposition: "inline"
+        send_data @pdf.render, filename: @pdf_filename, type: 'application/pdf', disposition: 'inline'
       end
     end
   end
