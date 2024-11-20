@@ -67,7 +67,7 @@ class TicketPdf < Prawn::Document
     text @view.number_to_phone @service_job.client.full_phone_number || @service_job.client.phone_number, area_code: true
     text "#{@view.t('tickets.service_job_contact_phone', number: @view.number_to_phone(@service_job.contact_phone, area_code: true))}"
     move_down 5
-    text "#{ServiceJob.human_attribute_name(:security_code)}: #{@service_job.security_code}"
+    text "#{ServiceJob.human_attribute_name(:security_code)}: #{@service_job.security_code_display}"
     move_down 5
     text @view.t('tickets.operations_list')
     text @service_job.tasks.map{|t|t.name}.join(', ')

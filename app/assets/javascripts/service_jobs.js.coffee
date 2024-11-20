@@ -44,9 +44,15 @@ jQuery ->
 #            $field.append "<option value='#{data.location_id}'>#{data.location_name}</option>"
 #          $field.val(data.location_id)
 
-    $('#service_job_security_code_none').click (event)->
-      $('#service_job_security_code').val '-'
-      event.preventDefault()
+
+    $(document).on 'click', '.security-code-option', (e) ->
+      e.preventDefault()
+      value = $(this).data('value')
+      inputField = $(this).closest('.input-append').find('input')
+      inputField.val(value)
+
+      button = $(this).closest('.btn-group').find('.dropdown-toggle')
+      button.text($(this).text())
 
     $('#service_job_contact_phone_none').click (event)->
       $('#service_job_contact_phone').val '-'

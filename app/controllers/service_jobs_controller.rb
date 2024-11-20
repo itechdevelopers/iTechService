@@ -50,18 +50,14 @@ class ServiceJobsController < ApplicationController
       }
     ]
 
-    respond_to do |format|
-      format.js
-    end
+    respond_to(&:js)
   end
 
   def show_qr
     @division = params[:division]
     @service_job = find_record ServiceJob
     generate_qr_link
-    respond_to do |format|
-      format.js
-    end
+    respond_to(&:js)
   end
 
   def show
@@ -330,9 +326,7 @@ class ServiceJobsController < ApplicationController
     @service_job = find_record ServiceJob
     new_keeper_id = @service_job.keeper == current_user ? nil : current_user.id
     @service_job.update_attribute :keeper_id, new_keeper_id
-    respond_to do |format|
-      format.js
-    end
+    respond_to(&:js)
   end
 
   def archive
