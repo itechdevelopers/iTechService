@@ -420,6 +420,12 @@ kind: 'device_return', content: id.to_s)
     moved_at
   end
 
+  def security_code_display
+    return security_code unless security_code_predefined?
+
+    I18n.t("service_jobs.security_codes.#{security_code}")
+  end
+
   private
 
   def generate_ticket_number
@@ -559,5 +565,9 @@ kind: 'device_return', content: id.to_s)
     if location_id_changed? && location.is_done?
       repair_parts.all?(&:deduct_spare_parts)
     end
+  end
+
+  def security_code_predefined?
+    I18n.t("service_jobs.security_codes").keys.include?(security_code.to_sym)
   end
 end

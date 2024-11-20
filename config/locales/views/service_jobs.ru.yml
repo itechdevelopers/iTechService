@@ -1,5 +1,9 @@
 ru:
   service_jobs:
+    security_codes:
+      none: 'Нет пароля'
+      not_provided: 'Не дают пароль'
+      not_known: 'Не знают пароль'
     photos:
       title_reception: "Фото при приёмке"
       title_in_operation: "Фото хода работы"
