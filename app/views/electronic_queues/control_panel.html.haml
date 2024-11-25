@@ -1,0 +1,12 @@
+.page-header
+  %h1= "Панель управления очередью #{@electronic_queue.queue_name}"
+
+%table.table.queue-items-table.table-hover
+  %thead
+    %tr
+      %th Название
+      %th Окна
+      %th Переадресация
+  %tbody
+    - @root_items.each do |root_item|
+      = render_queue_item_row(root_item, 0, @electronic_queue)

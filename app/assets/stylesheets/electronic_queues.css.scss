@@ -220,3 +220,120 @@
     margin-left: 380px;
   }
 }
+
+.windows-checkboxes {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+
+  .window-checkbox {
+    display: flex;
+    align-items: center;
+    margin-right: 15px;
+
+    .checkbox-label {
+      margin-left: 5px;
+      margin-bottom: 0;
+    }
+  }
+}
+
+.queue-items-table {
+  .parent-cell {
+    background-color: #fff;
+    height: 34px;
+  }
+  .leaf-node {
+    background-color: #fffafa;
+  }
+}
+
+.panel-window-selection {
+
+  .circles-container {
+    display: flex;
+    gap: 15px;
+    align-items: center;
+  }
+
+  .circle-checkbox {
+    position: relative;
+  }
+
+  .hidden-checkbox {
+    position: absolute;
+    opacity: 0;
+    cursor: pointer;
+  }
+
+  .circle-label {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 30px;
+    height: 30px;
+    border-radius: 50%;
+    border: 2px solid #FF5252;
+    background-color: white;
+    color: #333;
+    font-size: 16px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+
+    &:hover {
+      transform: scale(1.05);
+    }
+  }
+
+  .hidden-checkbox:checked + .circle-label {
+    background-color: #4CAF50;
+    border-color: #4CAF50;
+    color: white;
+  }
+}
+
+.panel-form-content {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  width: 100%;
+
+  .spacer {
+    width: 20px;
+  }
+
+  .submit-container {
+    margin-right: auto;
+  }
+}
+
+.windows-update-form {
+  width: 100%;
+
+  .save-windows-btn {
+    width: 30px;   // Фиксированная ширина для квадратной кнопки
+    height: 30px;  // Фиксированная высота для квадратной кнопки
+    background-color: #0098ff;
+    color: white;
+    border: none;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    &:hover {
+      background-color: #0064c5;
+    }
+
+    &:disabled {
+      background-color: #cccccc;
+      cursor: not-allowed;
+    }
+
+    // Стили для иконки
+    i {
+      font-size: 16px;
+    }
+  }
+}

@@ -6,4 +6,8 @@ class QueueItemPolicy < ApplicationPolicy
   def unarchive?
     manage?
   end
+
+  def update_windows?
+    any_admin?
+  end
 end

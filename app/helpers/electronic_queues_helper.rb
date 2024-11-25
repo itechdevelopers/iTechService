@@ -192,4 +192,119 @@ module ElectronicQueuesHelper
   def custom_drop_down_list(&block)
     content_tag :ul, class: 'dropdown-menu', &block
   end
+
+  # Методы для панели управления очередью
+  def render_queue_item_row(item, level, electronic_queue)
+    content_tag(:tr, class: queue_item_row_classes(item)) do
+      if item.has_children?
+        content_tag(:td, colspan: 4, class: 'parent-cell', style: "padding-left: #{level * 20}px") do
+          item.title
+        end
+      else
+        safe_join([
+                    content_tag(:td, style: "padding-left: #{level * 20}px") do
+                      item.title
+                    end,
+                    content_tag(:td) do
+                      form_tag(
+                        update_windows_electronic_queue_queue_item_path(electronic_queue, item),
+                        method: :patch,
+                        remote: true,
+                        class: 'windows-update-form'
+                      ) do
+                        content_tag(:div, class: 'panel-form-content') do
+                          safe_join([
+                                      render_window_selection(item, electronic_queue, 'windows'),
+                                      content_tag(:div, '', class: 'spacer'),
+                                      content_tag(:div, class: 'submit-container') do
+                                        button_tag(
+                                          type: 'submit',
+                                          class: 'save-windows-btn',
+                                          data: { disable_with: '<i class="fa fa-spinner fa-spin"></i>' }
+                                        ) do
+                                          content_tag(:i, '', class: 'fa fa-floppy-o')
+                                        end
+                                      end
+                                    ])
+                        end
+                      end
+                    end,
+                    content_tag(:td) do
+                      form_tag(
+                        update_windows_electronic_queue_queue_item_path(electronic_queue, item),
+                        method: :patch,
+                        remote: true,
+                        class: 'windows-update-form'
+                      ) do
+                        content_tag(:div, class: 'panel-form-content') do
+                          safe_join([
+                                      render_window_selection(item, electronic_queue, 'redirect_windows'),
+                                      content_tag(:div, '', class: 'spacer'),
+                                      content_tag(:div, class: 'submit-container') do
+                                        button_tag(
+                                          type: 'submit',
+                                          class: 'save-windows-btn',
+                                          data: { disable_with: '<i class="fa fa-spinner fa-spin"></i>' }
+                                        ) do
+                                          content_tag(:i, '', class: 'fa fa-floppy-o')
+                                        end
+                                      end
+                                    ])
+                        end
+                      end
+                    end
+                  ])
+      end
+    end + nested_queue_items(item, level + 1, electronic_queue)
+  end
+
+  def nested_queue_items(item, level, electronic_queue)
+    return ''.html_safe unless item.has_children?
+
+    safe_join(
+      item.children.not_archived.map { |child| render_queue_item_row(child, level, electronic_queue) }
+    )
+  end
+
+  def queue_item_row_classes(item)
+    classes = []
+    classes << 'leaf-node' unless item.has_children?
+    classes.join(' ')
+  end
+
+  def render_window_selection(queue_item, electronic_queue, attribute)
+    queue_item_id = queue_item.id
+    content_tag(:div, class: 'panel-window-selection') do
+      circles_container = content_tag(:div, class: 'circles-container') do
+        if attribute == 'windows'
+          queue_item_windows = queue_item.windows
+        elsif attribute == 'redirect_windows'
+          queue_item_windows = queue_item.redirect_windows
+        end
+        electronic_queue.elqueue_windows
+                        .map(&:window_number)
+                        .sort
+                        .map { |number| render_window_circle(queue_item_id, number, queue_item_windows.include?(number), attribute) }
+                        .join
+                        .html_safe
+      end
+      hidden_field = hidden_field_tag("queue_item[#{attribute}][]", nil)
+
+      circles_container + hidden_field
+    end
+  end
+
+  def render_window_circle(queue_item_id, window_number, selected, attribute)
+    content_tag(:div, class: 'circle-checkbox') do
+      check_box = check_box_tag("queue_item[#{attribute}][]",
+                                window_number,
+                                selected,
+                                id: "queue_item_#{attribute}_#{queue_item_id}_#{window_number}",
+                                class: 'hidden-checkbox')
+      label = label_tag("queue_item_#{attribute}_#{queue_item_id}_#{window_number}",
+                        window_number,
+                        class: 'circle-label')
+      check_box + label
+    end
+  end
 end

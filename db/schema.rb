@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20241023113833) do
+ActiveRecord::Schema.define(version: 20241125084753) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -971,7 +971,6 @@ ActiveRecord::Schema.define(version: 20241023113833) do
     t.string "title"
     t.text "annotation"
     t.boolean "phone_input"
-    t.string "windows"
     t.integer "task_duration"
     t.integer "max_wait_time"
     t.text "additional_info"
@@ -985,6 +984,8 @@ ActiveRecord::Schema.define(version: 20241023113833) do
     t.integer "priority", default: 0
     t.integer "last_ticket_number"
     t.boolean "archived", default: false
+    t.integer "windows", default: [], array: true
+    t.integer "redirect_windows", default: [], array: true
     t.index ["electronic_queue_id"], name: "index_queue_items_on_electronic_queue_id"
   end
 

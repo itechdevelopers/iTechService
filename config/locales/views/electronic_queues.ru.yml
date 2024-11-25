@@ -79,3 +79,4 @@ ru:
       position: "Позиция элемента"
       priority: "Приоритет для талонов в очереди"
       submit: "Сохранить"
+      window_number: "Окно %{number}"
