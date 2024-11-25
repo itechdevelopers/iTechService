@@ -404,7 +404,9 @@ Rails.application.routes.draw do
     patch :return_old_ticket, on: :member, defaults: {format: :js}
     resources :queue_items, except: %i[index show], defaults: {format: :js} do
       patch :unarchive, on: :member
+      patch :update_windows, on: :member, defaults: {format: :js}
     end
+    get :control_panel, on: :member
   end
 
   resources :elqueue_ticket_movements, only: [] do

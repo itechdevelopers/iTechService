@@ -41,6 +41,9 @@
             = menu_item 'Управление окнами очереди',
                 manage_windows_electronic_queue_path(current_user.department_elqueue),
                 remote: true
+          - if can?(:control_panel, ElectronicQueue)
+            = menu_item 'Панель управления очередью',
+                control_panel_electronic_queue_path(current_user.department_elqueue)
         = menu_item t('electronic_queues.index.title'), electronic_queues_path if can?(:manage, ElectronicQueue)
         = menu_item "Снять статус 'запомнить паузу'", remember_pause_users_path if can?(:remember_pause, User)
 

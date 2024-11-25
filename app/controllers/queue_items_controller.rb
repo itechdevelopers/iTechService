@@ -1,6 +1,7 @@
 class QueueItemsController < ApplicationController
   before_action :params_to_valid_hash, only: %i[create update]
-  before_action :set_electronic_queue, only: %i[new create edit update destroy]
+  before_action :set_electronic_queue, only: %i[new create edit update destroy update_windows]
+  before_action :set_queue_item, only: %i[update_windows]
 
   def new
     @queue_item = authorize @electronic_queue.queue_items.new(new_queue_item_params)
@@ -40,6 +41,16 @@ class QueueItemsController < ApplicationController
     end
   end
 
+  def update_windows
+    respond_to do |format|
+      if @queue_item.update(queue_item_params)
+        format.js { head :ok }
+      else
+        format.js { head :unprocessable_entity }
+      end
+    end
+  end
+
   def destroy
     @queue_item = authorize @electronic_queue.queue_items.find(params[:id])
     @queue_item.update(archived: true)
@@ -64,9 +75,9 @@ class QueueItemsController < ApplicationController
 
   def queue_item_params
     params.require(:queue_item).permit(:title, :annotation, :phone_input,
-      :windows, :task_duration, :max_wait_time, :additional_info, :ticket_abbreviation,
+      :task_duration, :max_wait_time, :additional_info, :ticket_abbreviation,
       :position, :electronic_queue_id, :ancestry, :ancestry_depth, :parent_id,
-      :priority)
+      :priority, windows: [], redirect_windows: [])
   end
 
   def params_to_valid_hash
@@ -75,5 +86,9 @@ class QueueItemsController < ApplicationController
 
   def set_electronic_queue
     @electronic_queue = authorize ElectronicQueue.find(params[:electronic_queue_id])
+  end
+
+  def set_queue_item
+    @queue_item = authorize @electronic_queue.queue_items.find(params[:id])
   end
 end

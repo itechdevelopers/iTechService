@@ -26,7 +26,17 @@
     .control-group
       = f.label :windows, t('.windows'), class: 'control-label'
       .controls
-        = f.text_field :windows
+        .windows-checkboxes
+          - @electronic_queue.elqueue_windows.map(&:window_number).sort.each do |window_number|
+            .window-checkbox
+              = check_box_tag 'queue_item[windows][]',
+                             window_number,
+                             @queue_item.windows&.include?(window_number),
+                             id: "queue_item_windows_#{window_number}"
+              = label_tag "queue_item_windows_#{window_number}",
+                         t('.window_number', number: window_number),
+                         class: 'checkbox-label'
+        = hidden_field_tag 'queue_item[windows][]', nil
 
     .control-group
       = f.label :task_duration, t('.task_duration'), class: 'control-label'

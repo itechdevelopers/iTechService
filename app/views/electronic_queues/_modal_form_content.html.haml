@@ -22,7 +22,7 @@
                 = client.attached_window
               - else
                 %strong Окна:
-                = client.queue_item.windows_array.join(", ")
+                = client.queue_item.windows.join(", ")
           .ticket-footer
             %p Закрепить за окном:
             = form_with url: assign_window_waiting_client_path(client.id), method: :patch, local: false do |form|

@@ -4,7 +4,7 @@ class ElectronicQueuesController < ApplicationController
   before_action :custom_authenticate_user, only: %i[ipad_show tv_show]
   before_action :set_and_authorize_record, only: %i[show edit update destroy show_active_tickets
                                                     manage_tickets sort_tickets return_old_ticket
-                                                    manage_windows monitoring]
+                                                    manage_windows monitoring control_panel]
 
   def ipad_show
     authorize ElectronicQueue
@@ -41,6 +41,10 @@ class ElectronicQueuesController < ApplicationController
     respond_to do |format|
       format.js { render 'shared/show_modal_form' }
     end
+  end
+
+  def control_panel
+    @root_items = @electronic_queue.queue_items.not_archived.roots
   end
 
   def return_old_ticket

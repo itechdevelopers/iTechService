@@ -7,6 +7,14 @@ class ElectronicQueuePolicy < ApplicationPolicy
     admin? || superadmin?
   end
 
+  def update_windows?
+    any_admin?
+  end
+
+  def control_panel?
+    any_admin?
+  end
+
   def monitoring?
     true
   end

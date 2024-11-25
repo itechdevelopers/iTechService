@@ -1,10 +1,13 @@
 class QueueItem < ApplicationRecord
   scope :not_archived, -> { where(archived: false) }
   scope :archived, -> { where(archived: true) }
+
   belongs_to :electronic_queue
   has_many :queue_tickets, class_name: 'WaitingClient', foreign_key: 'queue_item_id', dependent: :destroy
+
   has_ancestry orphan_strategy: :rootify, cache_depth: true
 
+  before_validation :clean_windows_arrays
   validates :priority, presence: true, numericality: { only_integer: true, greater_than_or_equal_to: 0, less_than_or_equal_to: 3}
 
   enum priority: {
@@ -29,10 +32,16 @@ class QueueItem < ApplicationRecord
     update!(last_ticket_number: new_number)
     new_number
   end
-
   def windows_array
     numbers = windows.scan(/\d+/).map(&:to_i)
     max_window_number = electronic_queue.windows_count
     numbers.select { |number| number <= max_window_number }
+  end
+
+  private
+
+  def clean_windows_arrays
+    self.windows = windows.reject(&:nil?) if windows.present?
+    self.redirect_windows = redirect_windows.reject(&:nil?) if redirect_windows.present?
   end
 end
