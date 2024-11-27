@@ -705,7 +705,7 @@ GEM
       activemodel (>= 5.0)
       bindex (>= 0.4.0)
       railties (>= 5.0)
-    websocket (1.2.9)
+    websocket (1.2.10)
     websocket-driver (0.6.5)
       websocket-extensions (>= 0.1.0)
     websocket-extensions (0.1.5)
@@ -814,6 +814,7 @@ DEPENDENCIES
   russian (~> 0.6.0)
   sass-rails (~> 6.0.0)
   seedbank (~> 0.5.0)
+  selenium-webdriver (~> 4.3.0)
   shoulda
   shoulda-matchers
   sidekiq (~> 6.4.1)

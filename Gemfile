@@ -108,6 +108,7 @@ end
 group :test do
   gem 'capybara'
   gem 'capybara-selenium'
+  gem 'selenium-webdriver', '~> 4.3.0'
   gem 'chromedriver-helper'
   gem 'poltergeist'
   gem 'database_cleaner'
