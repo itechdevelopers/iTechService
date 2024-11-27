@@ -41,6 +41,12 @@
             = menu_item 'Управление окнами очереди',
                 manage_windows_electronic_queue_path(current_user.department_elqueue),
                 remote: true
+            = menu_item 'Выбор талона',
+                manage_tickets_electronic_queue_path(current_user.department_elqueue),
+                remote: true
+            = menu_item 'Печать тестового талона',
+                test_printing_waiting_clients_path(electronic_queue_id: current_user.department_elqueue),
+                remote: true
           - if can?(:control_panel, ElectronicQueue)
             = menu_item 'Панель управления очередью',
                 control_panel_electronic_queue_path(current_user.department_elqueue)
