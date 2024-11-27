@@ -423,3 +423,11 @@ tr.fields {
     max-height: none;
   }
 }
+
+@media (max-width: 767px) {
+  .mobile-full {
+    width: 100% !important;
+    margin-left: 0 !important;
+    float: none !important;
+  }
+}

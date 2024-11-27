@@ -11,7 +11,7 @@
 <div class="row-fluid">
   <% @boards.each do |board| %>
     <% if can? :show, board %>
-      <div class="span2 text-center">
+      <div class="span2 text-center mobile-full">
         <%= link_to kanban_board_path(board) do %>
           <div class="thumbnail" style="background-color: <%= board.background || '#ffffff' %>;">
             <h3><%= board.name %></h3>
