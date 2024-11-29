@@ -1,5 +1,5 @@
 .page-header
   %h2
     = 'Достижения'
-    = link_to icon(:plus), new_achievement_path, class: 'btn btn-success btn-large'
+    = link_to icon(:plus), new_achievement_path, class: 'btn btn-success btn-large' if can? :manage, Achievement
 #resource_table= render 'table'

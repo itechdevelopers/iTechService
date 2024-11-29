@@ -11,9 +11,9 @@
         = f.search_field :title_filter
         = f.submit t('.search'), class: 'btn btn-primary'
   .wiki-column.text-right
-    - if policy(WikiPage).wiki_senior?
+    - if can? :manage, WikiPage
       = link_to t('.new_page'), new_wiki_page_path, class: 'btn btn-success'
+    - if policy(WikiPage).wiki_senior?
       = link_to t('.manage_categories'), '#', class: 'btn', id: 'manage-categories'
-    %ul.wiki_manage_categories
-      - if policy(WikiPage).wiki_senior?
+      %ul.wiki_manage_categories
         = render WikiPageCategory.all

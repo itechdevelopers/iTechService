@@ -3,7 +3,11 @@ module Comment::Cell
     include Pundit::Authorization
     private
 
-    property :user_color, :user_name, :content, :id, :notifications
+    property :user_color, :user_name, :user, :content, :id, :notifications
+
+    def user_name_link
+      link_to user_name, user_path(user), style: "color: #{user_color};"
+    end
 
     def element_id
       "comment_" + id.to_s

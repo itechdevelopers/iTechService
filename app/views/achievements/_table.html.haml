@@ -14,6 +14,8 @@
           %td
             = image_tag achievement.icon_mini.url,
                         class: 'achievement-img-icon-mini'
-          %td.btn-group
-            = link_to_edit_small achievement
-            = link_to_destroy_small achievement
+          %td
+            - if can? :manage, Achievement
+              .btn-group
+                = link_to_edit_small achievement
+                = link_to_destroy_small achievement

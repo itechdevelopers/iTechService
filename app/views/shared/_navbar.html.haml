@@ -115,7 +115,7 @@
         = menu_item 'Города', cities_path if can? :manage, City
         = menu_item 'Бренды', brands_path if can? :manage, Brand
         = drop_down_divider
-        = menu_item 'Достижения', achievements_path if can? :manage, Achievement
+        = menu_item 'Достижения', achievements_path
         = menu_item t('dismissal_reasons.index.title'), dismissal_reasons_path if can? :manage, DismissalReason
 
       = drop_down t('.misc') do

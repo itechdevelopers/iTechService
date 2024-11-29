@@ -59,7 +59,7 @@ class Client < ApplicationRecord
     clients = Client.all
 
     if (query = params[:client_q] || params[:client] || params[:phone_number]).present?
-      query = query.sub(/\+?7[\s(]\d{3}\)?\s\d{3}-\d{2}-?\d{2}/) { |m| m.gsub(/\D+/, '') }
+      query = query.sub(/\+?7\s*\(?\d{3}\)?\s*\d{3}-\d{2}-?\d{2}/) { |m| m.gsub(/\D+/, '') }
       query.chomp.split(/\s+/).each do |q|
         clients = clients.where [
           'LOWER(clients.surname) LIKE :q OR LOWER(clients.name) LIKE :q OR LOWER(clients.patronymic) LIKE :q OR clients.full_phone_number LIKE :q OR clients.phone_number LIKE :q OR LOWER(clients.card_number) LIKE :q', { q: "%#{q.mb_chars.downcase}%" }
