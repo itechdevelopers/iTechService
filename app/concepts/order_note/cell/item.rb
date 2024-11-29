@@ -3,7 +3,11 @@ module OrderNote::Cell
     include Pundit::Authorization
     private
 
-    property :author_color, :author_name, :content, :id, :notifications
+    property :author_color, :author_name, :author, :content, :id, :notifications
+
+    def author_name_link
+      link_to author_name, user_path(author), style: "color: #{author_color};"
+    end
 
     def element_id
       "order_note_" + id.to_s
