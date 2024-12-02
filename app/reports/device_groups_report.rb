@@ -17,7 +17,7 @@ class DeviceGroupsReport < BaseReport
           end
         end
       end
-      received_service_jobs = ServiceJob.where id: service_job_ids
+      received_service_jobs = ServiceJob.where id: service_job_ids.flatten
       qty_received = received_service_jobs.count
       qty_done = received_service_jobs.at_done.count
       qty_archived = received_service_jobs.at_archive.count
