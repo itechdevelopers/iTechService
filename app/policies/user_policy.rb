@@ -5,8 +5,7 @@ class UserPolicy < BasePolicy
   end
 
   def show?
-    (same_department? && read?) ||
-      able_to?(:see_all_users)
+    read?
   end
 
   def see_all_users?

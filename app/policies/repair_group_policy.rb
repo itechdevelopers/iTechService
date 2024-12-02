@@ -1,9 +1,9 @@
 class RepairGroupPolicy < CommonPolicy
   def update?
-    superadmin?
+    any_admin?
   end
 
   def manage?
-    superadmin?
+    any_admin?
   end
 end
