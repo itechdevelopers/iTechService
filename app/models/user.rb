@@ -218,13 +218,12 @@ class User < ApplicationRecord
     end
 
     unless (q_name = params[:name]&.strip).blank?
-      # users = users.where 'users.username ILIKE :q or users.name ILIKE :q or users.surname ILIKE :q', q: "%#{q_name}%"
       # users = users.where(
-      #       "username ILIKE :q COLLATE \"ru_RU.UTF-8\" OR
-      #        name ILIKE :q COLLATE \"ru_RU.UTF-8\" OR
-      #        surname ILIKE :q COLLATE \"ru_RU.UTF-8\"",
-      #       q: "%#{q_name}%"
-      #     )
+      #   "username ILIKE :q COLLATE \"ru_RU.UTF-8\" OR
+      #      name ILIKE :q COLLATE \"ru_RU.UTF-8\" OR
+      #      surname ILIKE :q COLLATE \"ru_RU.UTF-8\" ",
+      #     q: "%#{q_name}%"
+      # )
       users = users.where(
         "username ILIKE :q COLLATE \"ru_RU.utf8\" OR
              name ILIKE :q COLLATE \"ru_RU.utf8\" OR
