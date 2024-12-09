@@ -5,6 +5,40 @@ jQuery ->
   electronic_queues_tree('#queue_items') if $('#queue_items').length > 0
 
 #  iPad show страница
+  keyboard = null
+
+  # Функция для создания клавиатуры
+  createKeyboard = (inputElement) ->
+    keyboard = new SimpleKeyboard.default({
+      onChange: (input) ->
+        inputElement.value = input
+        console.log("Input changed", input)
+
+      onKeyPress: (button) ->
+        console.log("Button pressed", button)
+        handleShift(button)
+
+      layout: {
+        default: ["1 2 3", "4 5 6", "7 8 9", "{bksp} 0 +", "{space}"]
+        shift: ["! / #", "$ % ^", "& * (", "{shift} ) +", "{bksp}"]
+      }
+
+      theme: "hg-theme-default hg-layout-numeric numeric-theme"
+    })
+    # Обработчик прямого ввода в input
+    inputElement.addEventListener "input", (event) ->
+      keyboard.setInput(event.target.value)
+
+  handleShift = (button) ->
+    return unless button in ["{shift}", "{lock}"]
+
+    currentLayout = keyboard.options.layoutName
+    shiftToggle = if currentLayout == "default" then "shift" else "default"
+
+    keyboard.setOptions({
+      layoutName: shiftToggle
+    })
+
   addToBreadcrumbs = (text) ->
     $('<div>', {
       class: 'queue-breadcrumbs_item',
@@ -24,6 +58,7 @@ jQuery ->
     itemId = $(this).data('item-id')
     return if $(this).data('disabled')
     title = $(this).find('h2').text()
+    hasPhoneInput = $(this).data('has-phone-input')
 
     if $(this).data('edge')
       $(this).attr('data-disabled', true)
@@ -33,9 +68,40 @@ jQuery ->
       $('.back-button').removeClass('hidden')
       addToBreadcrumbs(title)
       $(".queue-item[data-parent-id=#{itemId}]").removeClass('hidden').addClass('visible')
+      if hasPhoneInput
+        openQueueItemPhone(itemId)
+
+  $(document).on 'click', '.create-ticket-button', ->
+    itemId = $(this).closest('.queue-item-phone').data('item-id')
+    queueItemElement = $(".queue-item[data-item-id=#{itemId}]")
+    return if queueItemElement.data('disabled')
+
+    queueItemElement.attr('data-disabled', true)
+    sendTicketRequest(itemId)
+
+  openQueueItemPhone = (itemId) ->
+    element = $(".queue-item-phone[data-item-id=#{itemId}]")
+    element.removeClass('hidden').addClass('visible')
+    phoneInput = element.find('#waiting_client_phone_number')
+    if phoneInput.length > 0
+      $('<div>', {
+        class: 'simple-keyboard'
+      }).insertAfter(phoneInput)
+
+      createKeyboard(phoneInput[0])
+    else
+      console.error("Phone input element not found")
+
+  destroyKeyboard = ->
+    if keyboard?
+      keyboard.destroy()
+      keyboard = null
+      $('.simple-keyboard').remove()
+      $('input[type="tel"]').val('')
 
   $(document).on 'click', '.back-button', (event) ->
     parentId = $('.visible:first').data('parent-id')
+    destroyKeyboard()
     if parentId
       toggleVisibility()
       if $(".queue-item[data-item-id=#{parentId}]").data('root')
@@ -70,6 +136,7 @@ jQuery ->
         $('.loading-indicator, .loading-overlay').addClass('hidden')
         toggleVisibility()
         clearBreadcrumbs()
+        destroyKeyboard()
         ticketNumber = data.ticket_number
         showClientTicketNumber = $('.show-client-ticket-number')
 

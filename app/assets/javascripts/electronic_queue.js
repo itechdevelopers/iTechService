@@ -6,6 +6,7 @@
 //= require jquery-ui/droppable
 //= require jquery-ui/selectable
 //= require jquery.jcrop
+//= require hodgef-simple-keyboard/simple-keyboard
 //= require app.js.coffee
 //= require cable
 
