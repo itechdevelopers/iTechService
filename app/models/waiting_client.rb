@@ -280,7 +280,12 @@ class WaitingClient < ApplicationRecord
     self.ticket_number ||= evaluate_ticket_number
     self.status ||= 'waiting'
     self.priority = queue_item.priority
-    # self.client ||= Client.find_by(phone_number: phone_number)
+    if phone_number.present?
+      normalized_phone = phone_number.gsub(/\D/, '')
+      self.phone_number = normalized_phone
+      self.client = Client.where("phone_number = ? OR full_phone_number = ?",
+                                 normalized_phone, normalized_phone).first
+    end
     self.ticket_issued_at ||= Time.zone.now
   end
 

@@ -44,12 +44,19 @@ module ElectronicQueuesHelper
     options || []
   end
 
-  def serving_client_ticket_number(window)
-    window.waiting_client&.ticket_number
+  def serving_client_ticket_number
+    @current_waiting_client&.ticket_number
   end
 
   def tooltip_text(waiting_client)
     waiting_client.queue_item_ancestors
+  end
+
+  def menus_for_client_service_jobs(client)
+    client.service_jobs.not_at_archive.map do |service_job|
+      job_decorated = service_job.decorate
+      menu_item(job_decorated.presentation, service_job_path(job_decorated.object))
+    end.join.html_safe
   end
 
   def dropdown_el_menu_for_user(user)
@@ -57,14 +64,20 @@ module ElectronicQueuesHelper
     title = 'ЭО '
     style = ''
     tooltip = { has_tooltip: false, text: '' }
+    @current_elqueue_window = user.elqueue_window
     if user.serving_client?
-      ticket_num = serving_client_ticket_number(user.elqueue_window)
+      @current_waiting_client = @current_elqueue_window.waiting_client
+      ticket_num = serving_client_ticket_number
       title = ticket_num
       style = 'color: #424242; font-weight: bold;'
       tooltip[:has_tooltip] = true
-      tooltip[:text] = tooltip_text(user.elqueue_window.waiting_client)
-      menu_items << menu_item(ticket_num.to_s, show_finish_service_elqueue_window_path(user.elqueue_window),
+      tooltip[:text] = tooltip_text(@current_waiting_client)
+      menu_items << menu_item(ticket_num.to_s, show_finish_service_elqueue_window_path(@current_elqueue_window),
                               data: { remote: true })
+      if (client = @current_waiting_client.client)
+        menu_items << menu_item(client.full_name, client_path(client))
+        menu_items << menus_for_client_service_jobs(client)
+      end
     end
 
     if user.can_take_a_break?
@@ -72,7 +85,7 @@ module ElectronicQueuesHelper
         title = 'В ожидании'
         style = 'color: #36b300; font-size: 14px;'
       end
-      menu_items << menu_item('Пауза', take_a_break_elqueue_window_path(user.elqueue_window), method: :patch,
+      menu_items << menu_item('Пауза', take_a_break_elqueue_window_path(@current_elqueue_window), method: :patch,
                                                                                               data: { remote: true })
     elsif user.waiting_for_break?
       menu_items << content_tag(:div, 'Пауза после этого клиента', class: 'waiting-for-break_menu-item')
@@ -81,12 +94,12 @@ module ElectronicQueuesHelper
         title = 'На паузе'
         style = 'color: #bd0000; font-size: 16px;'
       end
-      menu_items << menu_item('Старт', return_from_break_elqueue_window_path(user.elqueue_window),
+      menu_items << menu_item('Старт', return_from_break_elqueue_window_path(@current_elqueue_window),
                               method: :patch,
                               data: { remote: true })
     end
 
-    menu_items << menu_item("Окно: #{user.elqueue_window.window_number}", select_window_elqueue_windows_path,
+    menu_items << menu_item("Окно: #{@current_elqueue_window.window_number}", select_window_elqueue_windows_path,
                             data: { remote: true })
     elqueue = user.electronic_queue
     menu_items << menu_item('Выбор талона', manage_tickets_electronic_queue_path(elqueue),
@@ -115,17 +128,21 @@ module ElectronicQueuesHelper
       item_class = root ? 'visible' : 'hidden'
       data_parent = parent_id ? parent_id.to_s : ''
       has_children = queue_item.children.not_archived.any?
+      has_phone_input = queue_item.phone_input
       content_tag(:div, class: "queue-item #{item_class}", style: styles_for_item,
                         data: { root: root,
                                 item_id: queue_item.id,
+                                has_phone_input: has_phone_input,
                                 parent_id: data_parent,
-                                edge: !has_children,
+                                edge: !(has_children || has_phone_input),
                                 disabled: false }) do
         result = ''
         result << content_tag(:h2, queue_item.title, class: 'queue-title', style: styles_for_header)
         result << simple_format(queue_item.annotation, class: 'queue-annotation', style: styles_for_annotation)
         if has_children
           container_content << render_queue_tree(queue_item.children.not_archived, false, queue_item.id)
+        elsif queue_item.phone_input
+          container_content << render_create_ticket_phone_form(queue_item)
         else
           result << render_create_ticket_form(queue_item)
         end
@@ -134,20 +151,40 @@ module ElectronicQueuesHelper
     end.join.html_safe + container_content.html_safe
   end
 
+  def render_create_ticket_phone_form(queue_item)
+    elqueue = queue_item.electronic_queue
+    styles_for_item = render_item_styles(elqueue)
+    styles_for_annotation = render_annotation_styles(elqueue)
+    styles_for_header = render_header_styles(elqueue)
+    content_tag(:div, class: 'queue-item-phone hidden', style: styles_for_item,
+                      data: {
+                        root: false,
+                        item_id: queue_item.id,
+                        parent_id: queue_item.id,
+                        edge: true,
+                        disabled: false
+                      }) do
+      result = ''
+      result << content_tag(:h2, queue_item.title, class: 'queue-title', style: styles_for_header)
+      result << simple_format(queue_item.annotation, class: 'queue-annotation', style: styles_for_annotation)
+      result << content_tag(:div, class: 'create-ticket', data: { parent_queue_item_id: queue_item.id }) do
+        form_for(queue_item.queue_tickets.build, url: waiting_clients_path, html: { class: 'create-ticket-form' }) do |f|
+          form_content = ''
+          form_content << f.hidden_field(:queue_item_id, value: queue_item.id)
+          form_content << f.telephone_field(:phone_number, readonly: true, placeholder: 'Номер телефона')
+          form_content << content_tag(:div, 'Создать талон', class: 'create-ticket-button')
+          form_content.html_safe
+        end
+      end
+      result.html_safe
+    end
+  end
+
   def render_create_ticket_form(queue_item)
     content_tag :div, class: 'create-ticket', data: { parent_queue_item_id: queue_item.id } do
       form_for(queue_item.queue_tickets.build, url: waiting_clients_path, html: { class: 'create-ticket-form' }) do |f|
         result = ''
         result << f.hidden_field(:queue_item_id, value: queue_item.id)
-        # if queue_item.phone_input
-        #   result << content_tag(:div, class: 'elqueue-inline-fields') do
-        #     inline_result = ''
-        #     inline_result << f.select(:country_code, country_phone_code_options, { selected: 'RU' },
-        #                               class: 'elqueue-country-code-select').join('')
-        #     inline_result << f.telephone_field(:phone_number, placeholder: '123-345-6789', class: 'client-phone')
-        #     inline_result.html_safe
-        #   end
-        # end
         result.html_safe
       end
     end

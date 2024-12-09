@@ -6,12 +6,6 @@ class WaitingClientsController < ApplicationController
     authorize WaitingClient
     @waiting_client = WaitingClient.new(waiting_client_params)
     WaitingClient.add_to_queue(@waiting_client)
-
-    if @waiting_client.phone_number.present?
-      normalized_phone = PhonyRails.normalize_number(@waiting_client.phone_number,
-                                                     country_code: @waiting_client.country_code)
-      @waiting_client.phone_number = normalized_phone
-    end
     @waiting_client.save!
 
     respond_to do |format|
