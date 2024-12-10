@@ -91,6 +91,9 @@
   padding: 20px;
   font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
 
+  .simple-keyboard.hg-theme-default.hg-layout-numeric.numeric-theme.hg-layout-default {
+    font-size: 30px;
+  }
 
   &.hidden {
     display: none;
@@ -119,7 +122,7 @@
     display: flex;
     flex-direction: column;
     justify-content: center;
-    width: 50%;
+    width: 60%;
     align-items: center;
 
     &.hidden {
@@ -136,7 +139,8 @@
     .create-ticket-form {
       display: flex;
       flex-direction: column;
-      gap: 10px;
+      gap: 25px;
+      margin-top: 25px;
       align-items: center;
       width: 100%;
 
