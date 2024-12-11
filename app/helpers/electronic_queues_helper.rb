@@ -55,7 +55,11 @@ module ElectronicQueuesHelper
   def menus_for_client_service_jobs(client)
     client.service_jobs.not_at_archive.map do |service_job|
       job_decorated = service_job.decorate
-      menu_item(job_decorated.presentation, service_job_path(job_decorated.object))
+      menu_item(
+        job_decorated.presentation_ticket,
+        service_job_path(service_job),
+        class: job_decorated.menu_class
+      )
     end.join.html_safe
   end
 
@@ -75,8 +79,9 @@ module ElectronicQueuesHelper
       menu_items << menu_item(ticket_num.to_s, show_finish_service_elqueue_window_path(@current_elqueue_window),
                               data: { remote: true })
       if (client = @current_waiting_client.client)
-        menu_items << menu_item(client.full_name, client_path(client))
+        menu_items << menu_item(client.name_phone, client_path(client), class: 'elqueue-menu-client')
         menu_items << menus_for_client_service_jobs(client)
+        menu_items << drop_down_divider
       end
     end
 

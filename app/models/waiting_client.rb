@@ -281,7 +281,7 @@ class WaitingClient < ApplicationRecord
     self.status ||= 'waiting'
     self.priority = queue_item.priority
     if phone_number.present?
-      normalized_phone = phone_number.gsub(/\D/, '')
+      normalized_phone = phone_number.gsub(/\D/, '')[0, 11]
       self.phone_number = normalized_phone
       self.client = Client.where("phone_number = ? OR full_phone_number = ?",
                                  normalized_phone, normalized_phone).first

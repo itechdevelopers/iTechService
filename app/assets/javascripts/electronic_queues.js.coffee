@@ -6,38 +6,32 @@ jQuery ->
 
 #  iPad show страница
   keyboard = null
+  formatPhoneNumber = (value) ->
+      digits = value.replace(/\D/g, '')
+      digits = digits.replace(/^(77|78|7)/, '')
 
-  # Функция для создания клавиатуры
+      digits = digits.slice(0, 10)
+
+      if digits.length > 0
+        "+7 (#{digits.slice(0,3)}#{if digits.length > 3 then ') ' else ''}#{digits.slice(3,6)}#{if digits.length > 6 then '-' else ''}#{digits.slice(6,8)}#{if digits.length > 8 then '-' else ''}#{digits.slice(8)}"
+      else
+        "+7 ("
+
   createKeyboard = (inputElement) ->
     keyboard = new SimpleKeyboard.default({
       onChange: (input) ->
-        inputElement.value = input
-        console.log("Input changed", input)
-
-      onKeyPress: (button) ->
-        console.log("Button pressed", button)
-        handleShift(button)
+        formattedValue = formatPhoneNumber(input)
+        inputElement.value = formattedValue
+        keyboard.setInput(formattedValue)
 
       layout: {
         default: ["1 2 3", "4 5 6", "7 8 9", "{bksp} 0 +", "{space}"]
-        shift: ["! / #", "$ % ^", "& * (", "{shift} ) +", "{bksp}"]
       }
 
       theme: "hg-theme-default hg-layout-numeric numeric-theme"
     })
-    # Обработчик прямого ввода в input
-    inputElement.addEventListener "input", (event) ->
-      keyboard.setInput(event.target.value)
-
-  handleShift = (button) ->
-    return unless button in ["{shift}", "{lock}"]
-
-    currentLayout = keyboard.options.layoutName
-    shiftToggle = if currentLayout == "default" then "shift" else "default"
-
-    keyboard.setOptions({
-      layoutName: shiftToggle
-    })
+    inputElement.value = "+7 ("
+    keyboard.setInput("+7 (")
 
   addToBreadcrumbs = (text) ->
     $('<div>', {

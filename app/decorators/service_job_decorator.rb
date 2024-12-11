@@ -10,6 +10,10 @@ class ServiceJobDecorator < ApplicationDecorator
     [device_name, serial_number, imei].join(' / ')
   end
 
+  def presentation_ticket
+    [presentation, ticket_number].join(' / ')
+  end
+
   def presentation_link
     link_to presentation, service_job_path(object)
   end
@@ -46,6 +50,10 @@ class ServiceJobDecorator < ApplicationDecorator
 
   def client_presentation_link
     link_to service_job.client_presentation, client_path(service_job.client)
+  end
+
+  def menu_class
+    done_at.present? ? 'elqueue-menu-done-job' : 'elqueue-menu-pending-job'
   end
 
   def subscription_button
