@@ -98,6 +98,19 @@
   font-size: 14px;
 }
 
+a.elqueue-menu-client {
+  outline: 1px solid #1f77c8;
+  outline-offset: -4px;
+}
+
+a.elqueue-menu-done-job {
+  background-color: #dff0d8;
+}
+
+a.elqueue-menu-pending-job {
+  background-color: #fcf8e3;
+}
+
 .elqueue-ticket-container {
   display: flex;
   flex-wrap: wrap;
