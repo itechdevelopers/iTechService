@@ -178,6 +178,9 @@ module ElectronicQueuesHelper
           form_content << f.hidden_field(:queue_item_id, value: queue_item.id)
           form_content << f.telephone_field(:phone_number, readonly: true, placeholder: 'Номер телефона')
           form_content << content_tag(:div, 'Создать талон', class: 'create-ticket-button')
+          form_content << content_tag(:div,
+                                      'Не хочу вводить номер телефона',
+                                      class: 'create-ticket-button clear-phone')
           form_content.html_safe
         end
       end

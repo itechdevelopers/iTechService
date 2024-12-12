@@ -156,6 +156,10 @@
         align-items: center;
         box-sizing: border-box;
         width: 60%;
+
+        &.clear-phone {
+          width: 80%;
+        }
       }
     }
   }
