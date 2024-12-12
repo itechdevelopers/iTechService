@@ -67,6 +67,8 @@ jQuery ->
 
   $(document).on 'click', '.create-ticket-button', ->
     itemId = $(this).closest('.queue-item-phone').data('item-id')
+    if $(this).hasClass('clear-phone')
+      $(this).closest('.create-ticket').find('#waiting_client_phone_number').val('')
     queueItemElement = $(".queue-item[data-item-id=#{itemId}]")
     return if queueItemElement.data('disabled')
 
