@@ -39,6 +39,9 @@
       %dt= t('.automatic_completion')
       %dd= @electronic_queue.automatic_completion.present? ? @electronic_queue.automatic_completion : 'Не указано'
 
+      %dt= t('.sounds_enabled')
+      %dd= @electronic_queue.sounds_enabled? ? 'Включено' : 'Выключено'
+
       %dt= t('.enabled')
       %dd= @electronic_queue.enabled ? 'Да' : 'Нет'
 

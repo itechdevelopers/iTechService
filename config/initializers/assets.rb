@@ -21,6 +21,7 @@ Rails.application.config.assets.precompile += %w[
   bootstrap-datetimepicker.min.css
   customicons.css
   electronic_queue.css
+  notifications/ticket_called.mp3
 ]
 
 Rails.application.config.assets.precompile += %w[

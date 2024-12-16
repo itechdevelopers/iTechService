@@ -32,6 +32,7 @@ $ ->
       $card.append($ticketWindow)
 
       $('.elqueue-tv').append($card)
+      window.audioPlayer?.playSound('ticket_called')
       $card.fadeIn(500).fadeOut(500).fadeIn(500).fadeOut(500).fadeIn(500, ->
         $card.show()
         window.waitingTicketsDisplay?.removeTicket(ticketNumber)
@@ -121,5 +122,52 @@ $ ->
     getTotalPages: ->
       Math.ceil(@waitingTickets.length / @ticketsPerPage)
 
+  class AudioPlayer
+    constructor: ->
+      @audioBuffers = {}
+      @audioContext = null
+      @setupInitializationButton()
+
+    setupInitializationButton: ->
+      $('.initialize-audio').on 'click', (e) =>
+        e.preventDefault()
+        @initializeAudio()
+        $(e.target).parent().hide()
+
+    initializeAudio: ->
+      @audioContext = new AudioContext()
+      @loadInitialSounds()
+
+    loadInitialSounds: ->
+      Object.keys(AUDIO_PATHS).forEach (soundName) =>
+        @loadSound(soundName)
+
+    loadSound: (soundName) ->
+      audioPath = window.AUDIO_PATHS[soundName]
+      return Promise.reject("Звук #{soundName} не найден") unless audioPath
+
+      fetch(audioPath)
+        .then((response) =>
+          if !response.ok
+            console.log("HTTP ошибка! статус: #{response.status}")
+          response.arrayBuffer()
+        )
+        .then((arrayBuffer) => @audioContext.decodeAudioData(arrayBuffer))
+        .then((audioBuffer) =>
+          @audioBuffers[soundName] = audioBuffer
+          console.log("Загружен звук: #{soundName}")
+        )
+        .catch((error) => console.error("Ошибка загрузки звука #{soundName}:", error))
+        .then(() => @playSound('ticket_called'))
+
+    playSound: (soundName) ->
+      return unless buffer = @audioBuffers[soundName]
+
+      source = @audioContext.createBufferSource()
+      source.buffer = buffer
+      source.connect(@audioContext.destination)
+      source.start()
+
   $(document).ready ->
     window.waitingTicketsDisplay = new WaitingTicketsDisplay()
+    window.audioPlayer = new AudioPlayer()

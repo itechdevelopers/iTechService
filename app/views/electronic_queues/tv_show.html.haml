@@ -1,3 +1,6 @@
+- if @electronic_queue.sounds_enabled?
+  .initialize-audio
+    %button.btn.btn-primary Нажмите для активации аудио оповещений
 .elqueue-tv
   - @clients_in_service.each do |client|
     .elqueue-tv-card{data: {ticket_number: client.ticket_number}}
@@ -17,7 +20,10 @@
 %input#electronic_queue_id{type: "hidden", value: @electronic_queue.id}
 %input#waiting_tickets{type: "hidden", value: @waiting_clients.pluck(:ticket_number).to_json}
 = javascript_include_tag "tv_show"
-
+:javascript
+  window.AUDIO_PATHS = {
+    ticket_called: "#{asset_path("notifications/ticket_called.mp3")}"
+  };
 :scss
   body {
     line-height: normal;

@@ -13,6 +13,11 @@
       = f.collection_select :department_id, Department.all, :id, :name, {prompt: t('.choose_department')}
 
   .control-group
+    = f.label :sounds_enabled, t('.sounds_enabled'), class: 'control-label'
+    .controls
+      = f.check_box :sounds_enabled
+
+  .control-group
     = f.label :windows_count, t('.windows_count'), class: 'control-label'
     .controls
       = f.number_field :windows_count
