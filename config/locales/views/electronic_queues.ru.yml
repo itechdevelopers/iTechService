@@ -16,6 +16,7 @@ ru:
       new_electronic_queue: "Новая электронная очередь"
     form:
       title: "Электронная очередь"
+      sounds_enabled: 'Включить аудио оповещения'
       queue_name: "Название очереди"
       department_id: "Подразделение"
       choose_department: "Выберите подразделение"
@@ -36,6 +37,7 @@ ru:
       submit: "Сохранить"
     show:
       title: "Электронная очередь"
+      sounds_enabled: "Аудио оповещения"
       edit: "Редактировать"
       destroy: "Удалить"
       queue_name: "Название очереди"
