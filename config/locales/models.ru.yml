@@ -427,6 +427,7 @@ ru:
         client_info: 'Информация для клиента'
         difficult: 'Сложный'
         is_body_repair: 'Корпусный ремонт'
+        has_range_prices: 'Ориентировочная стоимость работы'
         is_positive_price: 'Ненулевая стоимость'
         prices: 'Цены'
         spare_parts: 'Запчасти'

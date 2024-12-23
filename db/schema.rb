@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20241216155545) do
+ActiveRecord::Schema.define(version: 20241219081707) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -1062,6 +1062,9 @@ ActiveRecord::Schema.define(version: 20241216155545) do
     t.decimal "value"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.boolean "is_range_price", default: false
+    t.decimal "value_from"
+    t.decimal "value_to"
     t.index ["department_id"], name: "index_repair_prices_on_department_id"
     t.index ["repair_service_id"], name: "index_repair_prices_on_repair_service_id"
   end
@@ -1075,6 +1078,7 @@ ActiveRecord::Schema.define(version: 20241216155545) do
     t.boolean "is_positive_price", default: false
     t.boolean "difficult", default: false
     t.boolean "is_body_repair", default: false
+    t.boolean "has_range_prices", default: false
     t.index ["repair_group_id"], name: "index_repair_services_on_repair_group_id"
   end
 

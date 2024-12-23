@@ -3,11 +3,19 @@
 
   = f.hidden_field :repair_group_id
   = f.full_error :product_group
+  = f.input :has_range_prices
   = f.input :name
   %b= RepairService.human_attribute_name :prices
+  %br
   = f.simple_fields_for :prices do |pf|
     = pf.hidden_field :department_id
-    = pf.input :value, label: pf.object.department&.name
+    .one-liner.range-prices
+      %span= pf.object.department&.name
+      = pf.input :value_from, label: 'От'
+      = pf.input :value_to, label: 'До'
+    .accurate-prices
+      = pf.input :value, label: pf.object.department&.name
+    = pf.hidden_field :is_range_price, value: false, class: 'is-range-price'
   %br
   = f.input :difficult
   = f.input :is_positive_price

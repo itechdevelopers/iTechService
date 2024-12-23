@@ -18,11 +18,22 @@
 
         <tbody>
           <% @repair_services.each do |repair_service| %>
-            <tr>
-              <td class="name"><%= repair_service.name %></td>
+            <tr data-repair-service-id="<%=repair_service.id%>">
+              <td class="name">
+                <%= repair_service.name %>
+                <br>
+                <%= check_box_tag "repair_services[#{repair_service.id}][has_range_prices]", repair_service.has_range_prices, repair_service.has_range_prices, class: 'has-range-prices-td' %>
+                <%= label_tag "repair_services_has_range_prices_#{repair_service.id}",'Ориентировочные цены' %>
+              </td>
               <% real_departments.each do |department| %>
                 <td class="price">
-                  <%= number_field_tag "repair_services[#{repair_service.id}][#{department.id}]", repair_service.price(department.id) %>
+                  <span class="accurate-prices-td">
+                    <%= number_field_tag "repair_services[#{repair_service.id}][#{department.id}][value]", repair_service.price(department.id)&.value %>
+                  </span>
+                  <span class="range-prices-td">
+                    От <%= number_field_tag "repair_services[#{repair_service.id}][#{department.id}][value_from]", repair_service.price(department.id)&.value_from %>
+                    До <%= number_field_tag "repair_services[#{repair_service.id}][#{department.id}][value_to]", repair_service.price(department.id)&.value_to %>
+                  </span>
                 </td>
               <% end %>
               <td class="btn-group">
@@ -51,7 +62,7 @@
           <tr>
             <td class="name"><%= repair_service.name %></td>
             <% real_departments.each do |department| %>
-              <td class="price number"><%= human_currency repair_service.price(department.id) %></td>
+              <td class="price number"><%= human_currency repair_service.price(department.id)&.shown_price %></td>
             <% end %>
           </tr>
         <% end %>
@@ -61,3 +72,6 @@
 <% else %>
   <strong>Выберите группу или введите поисковой запрос</strong>
 <% end %>
+<script>
+  window.initializeRangePricesView();
+</script>

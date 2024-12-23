@@ -44,6 +44,7 @@ class RepairServicesController < ApplicationController
   def edit
     @repair_service = find_record RepairService
     build_prices
+
     respond_to do |format|
       format.html { render 'form' }
     end
@@ -75,19 +76,11 @@ class RepairServicesController < ApplicationController
     authorize RepairService
     params[:repair_services].each do |id, value|
       # When updating several departments
-      if value.is_a?(ActionController::Parameters)
-        value.each do |dep_id, val|
-          price = RepairPrice.find_by(repair_service_id: id, department_id: dep_id)
-          val = 0 unless val.present?
-          if price.nil?
-            RepairPrice.create(repair_service_id: id, department_id: dep_id, value: val)
-          else
-            price.update value: val
-          end
-        end
+      has_range_prices = value.delete(:has_range_prices)      
+      if params[:mode] == 'prices-all-branches'
+        update_prices(id, value, has_range_prices)
       else
-        price = RepairPrice.find_by(repair_service_id: id, department_id: params[:department_id])
-        price.update value: value
+        update_prices(id, { params[:department_id] => value }, has_range_prices)
       end
     end
     redirect_to repair_services_path(params.permit(:mode, :department_id, :group))
@@ -118,6 +111,24 @@ class RepairServicesController < ApplicationController
 
   private
 
+  def update_prices(repair_service_id, prices, has_range_prices)
+    has_range_prices = has_range_prices || false
+    prices.each do |dep_id, values|
+      if has_range_prices 
+        values = values.except(:value).reject {|_,v| v.blank? }.merge(is_range_price: true)
+      else
+        values = values[:value].blank? ? {} : values.slice(:value)
+      end
+      next if values.empty? 
+
+      byebug
+      price = RepairPrice.find_or_create_by(repair_service_id: repair_service_id,
+                                            department_id: dep_id)
+      price.update!(values.permit(:value, :value_to, :value_from, :is_range_price))
+    end
+    RepairService.find(repair_service_id).update!(has_range_prices: has_range_prices)
+  end
+
   def build_prices
     Department.real.each do |department|
       @repair_service.prices.find_or_initialize_by(department_id: department.id)
@@ -127,8 +138,9 @@ class RepairServicesController < ApplicationController
   def repair_service_params
     params.require(:repair_service).permit(
       :name, :client_info, :repair_group_id, :is_positive_price, :difficult, :is_body_repair,
+      :has_range_prices,
       spare_parts_attributes: [:id, :_destroy, :quantity, :warranty_term, :product_id],
-      prices_attributes: [:id, :value, :department_id]
+      prices_attributes: [:id, :value, :department_id, :is_range_price, :value_from, :value_to]
     )
   end
 end

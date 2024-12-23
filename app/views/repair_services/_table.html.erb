@@ -19,7 +19,7 @@
         <td class="name">
           <span class="label label-info"><%= repair_service.name %></span>
         </td>
-        <td class="price"><%= human_currency repair_service.price(params[:department_id]), false %></td>
+        <td class="price"><%= human_currency repair_service.price(params[:department_id])&.shown_price, false %></td>
         <td class="client_info text-info" rowspan="<%= parts_qty+1 %>"><%= repair_service.client_info %></td>
         <% if can? :manage, RepairService %>
           <td class="btn-group" rowspan="<%= parts_qty+1 %>">
