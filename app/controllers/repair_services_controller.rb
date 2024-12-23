@@ -82,20 +82,6 @@ class RepairServicesController < ApplicationController
       else
         update_prices(id, { params[:department_id] => value }, has_range_prices)
       end
-#      if value.is_a?(ActionController::Parameters)
-#        value.each do |dep_id, val|
-#          price = RepairPrice.find_by(repair_service_id: id, department_id: dep_id)
-#          val = 0 unless val.present?
-#          if price.nil?
-#            RepairPrice.create(repair_service_id: id, department_id: dep_id, value: val)
-#          else
-#            price.update value: val
-#          end
-#        end
-#      else
-#        price = RepairPrice.find_by(repair_service_id: id, department_id: params[:department_id])
-#        price.update value: value
-#      end
     end
     redirect_to repair_services_path(params.permit(:mode, :department_id, :group))
   end
