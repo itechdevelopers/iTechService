@@ -5,6 +5,7 @@ ru:
     index:
       title: 'Виды ремонта'
       edit: "Редактировать"
+      has_range_prices: 'Ориентировочные цены'
     new:
       title: 'Новый Вид ремонта'
     edit:

@@ -10,27 +10,38 @@
   </div>
 
   <% if can? :mass_update, RepairService %>
-    <%= form_tag mass_update_repair_services_path, method: :put, remote: true do %>
+    <%= form_tag mass_update_repair_services_path, method: :put, remote: true, id: "dep_prices_t" do %>
       <%= hidden_field_tag :department_id, params[:department_id] %>
       <%= hidden_field_tag :mode, params[:mode] %>
       <%= hidden_field_tag :group, params[:group] %>
       <table id="repair_services_table" class="table table-hover">
         <thead>
-        <tr>
-          <th><%= RepairService.human_attribute_name(:name) %></th>
-          <th><%= t('attributes.quantity') %></th>
-          <th><%= RepairService.human_attribute_name(:price) %></th>
-          <th></th>
-        </tr>
+          <tr>
+            <th><%= RepairService.human_attribute_name(:name) %></th>
+            <th><%= t('attributes.quantity') %></th>
+            <th><%= RepairService.human_attribute_name(:price) %></th>
+            <th></th>
+          </tr>
         </thead>
 
         <tbody>
         <% @repair_services.each do |repair_service| %>
-          <tr>
-            <td class="name"><%= repair_service.name %></td>
+          <tr data-repair-service-id="<%=repair_service.id%>">
+            <td class="name">
+              <%= repair_service.name %>
+              <br>
+              <%= check_box_tag "repair_services[#{repair_service.id}][has_range_prices]", repair_service.has_range_prices, repair_service.has_range_prices, class: 'has-range-prices-td' %>
+              <%= label_tag "repair_services_has_range_prices_#{repair_service.id}",'Ориентировочные цены' %>
+            </td>
             <td class="align_center"><%= repair_service.remnants_qty(params[:department_id]) %></td>
             <td class="price">
-              <%= number_field_tag "repair_services[#{repair_service.id}]", repair_service.price(params[:department_id]) %>
+              <span class="accurate-prices-td">
+                <%= number_field_tag "repair_services[#{repair_service.id}][value]", repair_service.price(params[:department_id])&.value %>
+              </span>
+              <span class="range-prices-td">
+                От <%= number_field_tag "repair_services[#{repair_service.id}][value_from]", repair_service.price(params[:department])&.value_from %>
+                До <%= number_field_tag "repair_services[#{repair_service.id}][value_to]", repair_service.price(params[:department])&.value_to %>
+              </span>
             </td>
             <td class="btn-group">
               <%= link_to_edit_small repair_service %>
@@ -63,7 +74,7 @@
         <tr>
           <td class="name"><%= repair_service.name %></td>
           <td class="align_center"><%= repair_service.remnants_qty(params[:department_id]) %></td>
-          <td class="price number"><%= human_currency repair_service.price(params[:department_id]) %></td>
+          <td class="price number"><%= human_currency repair_service.price(params[:department_id])&.shown_price %></td>
         </tr>
       <% end %>
       </tbody>
@@ -72,3 +83,6 @@
 <% else %>
   <strong>Выберите группу или введите поисковой запрос</strong>
 <% end %>
+<script>
+  window.initializeRangePricesView();
+</script>

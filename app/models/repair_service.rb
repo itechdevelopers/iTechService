@@ -35,7 +35,7 @@ class RepairService < ApplicationRecord
 
   def price(department = nil)
     department ||= Department.current
-    find_price(department)&.value
+    find_price(department)
   end
 
   def total_cost
