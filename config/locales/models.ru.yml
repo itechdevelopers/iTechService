@@ -425,6 +425,8 @@ ru:
 
       repair_service:
         client_info: 'Информация для клиента'
+        repair_time: 'Объективное время ремонта'
+        special_marks: 'Особые отметки'
         difficult: 'Сложный'
         is_body_repair: 'Корпусный ремонт'
         has_range_prices: 'Ориентировочная стоимость работы'

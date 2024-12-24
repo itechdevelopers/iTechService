@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20241219081707) do
+ActiveRecord::Schema.define(version: 20241224150636) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -1079,6 +1079,8 @@ ActiveRecord::Schema.define(version: 20241219081707) do
     t.boolean "difficult", default: false
     t.boolean "is_body_repair", default: false
     t.boolean "has_range_prices", default: false
+    t.integer "repair_time"
+    t.text "special_marks"
     t.index ["repair_group_id"], name: "index_repair_services_on_repair_group_id"
   end
 
