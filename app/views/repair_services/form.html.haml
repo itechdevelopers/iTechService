@@ -18,8 +18,10 @@
     = pf.hidden_field :is_range_price, value: false, class: 'is-range-price'
   %br
   = f.input :difficult
+  = f.input :repair_time
   = f.input :is_positive_price
   = f.input :is_body_repair
+  = f.input :special_marks
   = f.input :client_info, input_html: {rows: 3}
 
   %table#spare_parts.table.table-condensed.table-hover
