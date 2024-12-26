@@ -1,0 +1,2 @@
+class RepairCausePolicy < CommonPolicy
+end

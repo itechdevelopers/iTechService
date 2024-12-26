@@ -138,7 +138,7 @@ class RepairServicesController < ApplicationController
   def repair_service_params
     params.require(:repair_service).permit(
       :name, :client_info, :repair_group_id, :is_positive_price, :difficult, :is_body_repair,
-      :has_range_prices, :repair_time, :special_marks,
+      :has_range_prices, :repair_time, :special_marks, repair_cause_ids: [],
       spare_parts_attributes: [:id, :_destroy, :quantity, :warranty_term, :product_id],
       prices_attributes: [:id, :value, :department_id, :is_range_price, :value_from, :value_to]
     )

@@ -1,0 +1,19 @@
+:plain
+  App.closeModalForm();
+  group_name = "#{@repair_cause.repair_cause_group.title}"
+  $new_option = $("<option>")
+    .attr({
+      "value": "#{@repair_cause.id}"
+      })
+    .text("#{@repair_cause.title}");
+
+  $select = $('#repair_service_repair_causes')
+  $opt_group = $select.find(`optgroup[label="${group_name}"]`)
+  if ($opt_group.length) {
+    $opt_group.append($new_option)
+  } else {
+    $opt_group = $("<optgroup>").attr("label", group_name)
+    $opt_group.append($new_option)
+    $select.append($opt_group)
+  }
+

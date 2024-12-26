@@ -22,6 +22,14 @@
   = f.input :is_positive_price
   = f.input :is_body_repair
   = f.input :special_marks
+  = f.input :repair_cause_ids,
+    collection: RepairCauseGroup.all,
+    as: :grouped_select,
+    group_method: :repair_causes,
+    input_html: { multiple: true }
+  .control-group
+    .controls
+      = link_to 'Создать новую причину', new_repair_cause_path, remote: true, class: 'btn btn-success' 
   = f.input :client_info, input_html: {rows: 3}
 
   %table#spare_parts.table.table-condensed.table-hover

@@ -427,6 +427,7 @@ ru:
         client_info: 'Информация для клиента'
         repair_time: 'Объективное время ремонта'
         special_marks: 'Особые отметки'
+        repair_cause_ids: 'Причины ремонта'
         difficult: 'Сложный'
         is_body_repair: 'Корпусный ремонт'
         has_range_prices: 'Ориентировочная стоимость работы'
