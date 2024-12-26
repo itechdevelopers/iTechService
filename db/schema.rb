@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20241224150636) do
+ActiveRecord::Schema.define(version: 20241225180013) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -1033,6 +1033,29 @@ ActiveRecord::Schema.define(version: 20241224150636) do
     t.text "updated_text"
     t.index ["editable_type", "editable_id"], name: "index_record_edits_on_editable_type_and_editable_id"
     t.index ["user_id"], name: "index_record_edits_on_user_id"
+  end
+
+  create_table "repair_cause_groups", force: :cascade do |t|
+    t.string "title"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+  end
+
+  create_table "repair_causes", force: :cascade do |t|
+    t.string "title"
+    t.bigint "repair_cause_group_id"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["repair_cause_group_id"], name: "index_repair_causes_on_repair_cause_group_id"
+  end
+
+  create_table "repair_causes_services", force: :cascade do |t|
+    t.bigint "repair_cause_id"
+    t.bigint "repair_service_id"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["repair_cause_id"], name: "index_repair_causes_services_on_repair_cause_id"
+    t.index ["repair_service_id"], name: "index_repair_causes_services_on_repair_service_id"
   end
 
   create_table "repair_groups", id: :serial, force: :cascade do |t|

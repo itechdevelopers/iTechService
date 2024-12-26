@@ -6,6 +6,22 @@ $(document).on 'change', '#spare_parts .quantity>input', ->
   calculateTableTotal '#spare_parts', '.cost', '.quantity'
 
 $ ->
+  if $('#repair_service_form .multiselect').length
+    $('#repair_service_form .multiselect').multiselect
+      nonSelectedText: 'Причины',
+      onInitialized: ->
+        $('#repair_service_form .multiselect-option').each ->
+          $(this).attr('type', 'button')
+          return
+        return
+      onChange: (element, checked) ->
+        brands = $('#repair_service_form .multiselect option:selected')
+        selected = []
+        $(brands).each (ind, br) ->
+          selected.push [ $(this).val() ]
+          return
+        return
+
   window.displayAccuratePricesTd = (repairServiceId) ->
     $("tr[data-repair-service-id='#{repairServiceId}']").find('.price').each (_, element) ->
       $(element).find('.accurate-prices-td').css('display', 'block')

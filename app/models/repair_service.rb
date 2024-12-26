@@ -21,6 +21,7 @@ class RepairService < ApplicationRecord
   has_many :store_items, through: :spare_parts
   has_many :prices, class_name: 'RepairPrice', inverse_of: :repair_service, dependent: :destroy
   has_many :repair_tasks, dependent: :restrict_with_error
+  has_and_belongs_to_many :repair_causes
 
   accepts_nested_attributes_for :spare_parts, allow_destroy: true
   accepts_nested_attributes_for :prices
