@@ -6,6 +6,26 @@ $(document).on 'change', '#spare_parts .quantity>input', ->
   calculateTableTotal '#spare_parts', '.cost', '.quantity'
 
 $ ->
+  window.setAllValuesFrom = (value) ->
+    $('.repair_service_prices_value_from').each (_, element) ->
+      $(element).find('input[type="number"]').val(value)
+
+  window.setAllValuesTo = (value) ->
+    $('.repair_service_prices_value_to').each (_, element) ->
+      $(element).find('input[type="number"]').val(value)
+
+  $(document).on 'click', '.copy-prices-btn', (e) ->
+    e.preventDefault()
+    $parentContainer = $(this).parent()
+    currentValueFrom = $parentContainer.find('.repair_service_prices_value_from')
+      .find('input[type="number"]')
+      .val()
+    window.setAllValuesFrom(currentValueFrom)
+    currentValueTo = $parentContainer.find('.repair_service_prices_value_to')
+      .find('input[type="number"]')
+      .val()
+    window.setAllValuesTo(currentValueTo)
+
   window.displayAccuratePricesTd = (repairServiceId) ->
     $("tr[data-repair-service-id='#{repairServiceId}']").find('.price').each (_, element) ->
       $(element).find('.accurate-prices-td').css('display', 'block')

@@ -10,9 +10,11 @@
   = f.simple_fields_for :prices do |pf|
     = pf.hidden_field :department_id
     .one-liner.range-prices
+      %br
       %span= pf.object.department&.name
       = pf.input :value_from, label: 'От'
       = pf.input :value_to, label: 'До'
+      %button.btn.copy-prices-btn Скопировать цены на все подразделения
     .accurate-prices
       = pf.input :value, label: pf.object.department&.name
     = pf.hidden_field :is_range_price, value: false, class: 'is-range-price'
