@@ -114,7 +114,7 @@ class ProductGroupsController < ApplicationController
     params.require(:product_group)
           .permit(:ancestry, :ancestry_depth, :code, :name, :available_for_trade_in,
           :trademark, :product_line,
-          :parent_id, :position, :product_category_id, :warranty_term, :repair_service_ids,
+          :parent_id, :position, :product_category_id, :warranty_term, :repair_group_id,
           option_value_ids: [], related_product_ids: [], related_product_group_ids: [])
   end
 end
