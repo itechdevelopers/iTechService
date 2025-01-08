@@ -31,6 +31,7 @@ class ProductGroup < ApplicationRecord
   has_many :related_products, through: :product_relations, source: :relatable, source_type: 'Product'
   has_many :related_product_groups, through: :product_relations, source: :relatable, source_type: 'ProductGroup'
   has_and_belongs_to_many :option_values, join_table: 'product_groups_option_values', uniq: true
+  has_and_belongs_to_many :repair_services
   has_many :option_types, -> { distinct }, through: :option_values
 
   delegate :feature_accounting, :feature_types, :warranty_term, :is_service, :is_equipment, :is_accessory,
@@ -43,6 +44,8 @@ class ProductGroup < ApplicationRecord
   after_initialize :set_product_category
   before_save :set_available_for_trade_in_to_children, if: :available_for_trade_in?
   before_save :unset_available_for_trade_in_to_children, unless: :available_for_trade_in?
+  after_save :update_descendants_trademark, if: :saved_change_to_trademark?
+  after_save :update_descendants_product_line, if: :saved_change_to_product_line?
   has_ancestry orphan_strategy: :restrict, cache_depth: true
   acts_as_list scope: [:ancestry]
 
@@ -110,5 +113,13 @@ class ProductGroup < ApplicationRecord
 
   def unset_available_for_trade_in_to_children
     children.update_all(available_for_trade_in: false) if persisted?
+  end
+  
+  def update_descendants_trademark
+    descendants.update_all(trademark: trademark)
+  end
+
+  def update_descendants_product_line
+    descendants.update_all(product_line: product_line)
   end
 end

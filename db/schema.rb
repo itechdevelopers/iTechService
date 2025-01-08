@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20241225180013) do
+ActiveRecord::Schema.define(version: 20250108035532) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -889,6 +889,8 @@ ActiveRecord::Schema.define(version: 20241225180013) do
     t.integer "position", default: 0, null: false
     t.integer "warranty_term", default: 0, null: false
     t.boolean "available_for_trade_in"
+    t.string "trademark"
+    t.string "product_line"
     t.index ["ancestry"], name: "index_product_groups_on_ancestry"
     t.index ["code"], name: "index_product_groups_on_code"
     t.index ["product_category_id"], name: "index_product_groups_on_product_category_id"
@@ -899,6 +901,16 @@ ActiveRecord::Schema.define(version: 20241225180013) do
     t.integer "option_value_id"
     t.index ["option_value_id"], name: "index_product_groups_option_values_on_option_value_id"
     t.index ["product_group_id"], name: "index_product_groups_option_values_on_product_group_id"
+  end
+
+  create_table "product_groups_repair_services", force: :cascade do |t|
+    t.bigint "product_group_id", null: false
+    t.bigint "repair_service_id", null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["product_group_id", "repair_service_id"], name: "index_pg_rs_on_pg_id_and_rs_id", unique: true
+    t.index ["product_group_id"], name: "index_product_groups_repair_services_on_product_group_id"
+    t.index ["repair_service_id"], name: "index_product_groups_repair_services_on_repair_service_id"
   end
 
   create_table "product_options", id: false, force: :cascade do |t|
@@ -1817,6 +1829,8 @@ ActiveRecord::Schema.define(version: 20241225180013) do
   add_foreign_key "phone_substitutions", "users", column: "receiver_id"
   add_foreign_key "product_groups_option_values", "option_values"
   add_foreign_key "product_groups_option_values", "product_groups"
+  add_foreign_key "product_groups_repair_services", "product_groups"
+  add_foreign_key "product_groups_repair_services", "repair_services"
   add_foreign_key "product_options", "option_values"
   add_foreign_key "product_options", "products"
   add_foreign_key "queue_items", "electronic_queues"
