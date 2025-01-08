@@ -28,7 +28,7 @@
     collection: RepairCauseGroup.all,
     as: :grouped_select,
     group_method: :repair_causes,
-    input_html: { multiple: true }
+    input_html: { multiple: true, class: 'multiselect-rep-causes' }
   .control-group
     .controls
       = link_to 'Создать новую причину', new_repair_cause_path, remote: true, class: 'btn btn-success' 

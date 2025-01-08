@@ -75,3 +75,24 @@ $(document).on 'keyup', '#product_choose_form #new_item_fields input', ->
 
 $(document).on 'click', '.add_fields', ->
   $('.product_select_button:last').click()
+
+
+$ ->
+  if $('.multiselect-rep-causes').length
+    $('.multiselect-rep-causes').multiselect
+      enableClickableOptGroups: true,
+      nonSelectedText: 'Все причины',
+      includeSelectAllOption: true,
+      selectAllText: 'Все причины',
+      onInitialized: ->
+        $('.multiselect-rep-causes .multiselect-group, .multiselect-rep-causes .multiselect-option, .multiselect-rep-causes .multiselect-all').each ->
+          $(this).attr('type', 'button')
+          return
+        return
+      onChange: (element, checked) ->
+        brands = $('.multiselect-rep-causes option:selected')
+        selected = []
+        $(brands).each (index, brand) ->
+          selected.push [ $(this).val() ]
+          return
+        return

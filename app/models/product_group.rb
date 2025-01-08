@@ -31,7 +31,7 @@ class ProductGroup < ApplicationRecord
   has_many :related_products, through: :product_relations, source: :relatable, source_type: 'Product'
   has_many :related_product_groups, through: :product_relations, source: :relatable, source_type: 'ProductGroup'
   has_and_belongs_to_many :option_values, join_table: 'product_groups_option_values', uniq: true
-  has_and_belongs_to_many :repair_services
+  belongs_to :repair_group
   has_many :option_types, -> { distinct }, through: :option_values
 
   delegate :feature_accounting, :feature_types, :warranty_term, :is_service, :is_equipment, :is_accessory,

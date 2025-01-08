@@ -14,15 +14,11 @@
     = f.input :available_for_trade_in, as: :boolean
     = f.input :trademark
     = f.input :product_line
-    = f.association :repair_services,
-        collection: RepairGroup.includes(:repair_services).map { |g| [g.name, g.repair_services.map { |s| [s.name, s.id] }] },
-        prompt: 'Выбрать вид ремонта',
+    = f.association :repair_group,
+        collection: RepairGroup.all.map { |g| [g.name, g.id] },
+        prompt: 'Выбрать группу видов ремонта',
         label: 'Вид ремонта',
-        include_blank: false,
-        as: :grouped_select,
-        group_method: :last,
-        group_label_method: :first,
-        input_html: { multiple: false }
+        include_blank: false
 
     %h5.text-center= ProductGroup.human_attribute_name(:option_values)
     .product_options
