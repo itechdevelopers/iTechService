@@ -2,7 +2,12 @@
   .wiki_header
     %h1= h(@page.title)
 
-  .wiki_category= "#{t('.category')} #{@page.wiki_page_category&.title}"
+  .wiki_category
+    = "#{t('.category')} #{@page.wiki_page_category&.title}"
+    %br
+    = "#{t('.author')} #{@page.creator.short_name}" 
+    %br
+    = "#{t('.last_edited')} #{@page.updator.short_name}" if @page.updator
   .wiki_actions.btn-group
     = link_to t('.edit'), edit_wiki_page_path(@page), class: 'btn' if policy(WikiPage).manage?
     = link_to t('.destroy'),
