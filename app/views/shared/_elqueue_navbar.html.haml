@@ -7,15 +7,17 @@
       = link_to "Выберите \n Окно", select_window_elqueue_windows_path, data: { remote: true }
   - else
     %input#electronic_queue_id{type: 'hidden', value: current_user.electronic_queue.id}
+    %input#elqueue_window_id{type: 'hidden', value: current_user.elqueue_window.id}
     %input#elqueue_window_number{type: 'hidden', value: current_user.elqueue_window.window_number}
     = dropdown_el_menu_for_user(current_user)
     :coffee
       $('.elqueue_navbar_title').tooltip({placement: 'bottom'})
       electronicQueueId = $('#electronic_queue_id').val()
-      elqueueWindowNumber = $('#elqueue_window_number').val()
+      elqueueWindowId = $('#elqueue_window_id').val()
+      windowNumber = $('#elqueue_window_number').val()
       App.cable.subscriptions.create { channel: 'ElectronicQueueChannel', id: electronicQueueId },
         received: (data) ->
-          if data['action'] == 'start_service' && data['window']?.toString() == elqueueWindowNumber
+          if data['action'] == 'start_service' && data['window']?.toString() == windowNumber
             @startService(data['waiting_client']['ticket_number'], data['waiting_client']['queue_item_ancestors'])
 
         startService: (ticketNumber, ticketInfo) ->
@@ -29,7 +31,7 @@
               fontSize: '19.6px'
             $dropdownMenu = $elqueueTitleElement.next('ul.dropdown-menu')
             $newListItem = $("<li><a data-remote='true' href='/elqueue_windows/" +
-              elqueueWindowNumber + "/show_finish_service'>" +
+              elqueueWindowId + "/show_finish_service'>" +
               ticketNumber + "</a></li>")
             $dropdownMenu.prepend($newListItem)
           $elqueueTitleElement.attr('title', ticketInfo)

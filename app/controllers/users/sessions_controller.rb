@@ -23,9 +23,7 @@ class Users::SessionsController < Devise::SessionsController
       end
 
       if user.department_autochangeable?
-        unless autochange_department(user)
-          return redirect_to edit_user_department_path
-        end
+        return redirect_to edit_user_department_path unless autochange_department(user)
       end
     end
   end
@@ -41,9 +39,7 @@ class Users::SessionsController < Devise::SessionsController
 
         location = after_sign_in_path_for(user)
         if user.department_autochangeable?
-          unless autochange_department(user)
-            location = edit_user_department_path
-          end
+          location = edit_user_department_path unless autochange_department(user)
         end
 
         format.json { respond_with user, location: location }
@@ -69,15 +65,15 @@ class Users::SessionsController < Devise::SessionsController
 
   # DELETE /resource/sign_out
   def destroy
-    if current_user.need_to_select_window
-      current_user.need_to_select_window = false
-    end
+    current_user.need_to_select_window = false if current_user.need_to_select_window
 
-    if elqueue_window = current_user.elqueue_window
+    if (elqueue_window = current_user.elqueue_window)
       elqueue_window.is_active = false
       elqueue_window.save
       current_user.elqueue_window = nil
     end
+
+    current_user.unset_remember_pause
 
     current_user.save
 
