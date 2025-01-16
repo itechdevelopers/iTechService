@@ -1,3 +1,23 @@
+.board-title {
+  display: inline-block;
+  position: relative;
+}
+
+.help-tooltip {
+  display: inline-block;
+  margin-left: 5px;
+  cursor: help;
+}
+
+.help-tooltip i {
+  color: #999;
+  font-size: 16px;
+}
+
+.help-tooltip:hover i {
+  color: #666;
+}
+
 .kanban-board {
   padding: 0 1rem 1rem 1rem;
 }

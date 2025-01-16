@@ -1,4 +1,6 @@
 jQuery ->
+  $('.help-tooltip').tooltip()
+
   $(document).on 'change', '.kanban-manager-checkbox', ->
     toggleEmailWarning(this)
 

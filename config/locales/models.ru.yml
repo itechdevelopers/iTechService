@@ -297,6 +297,8 @@ ru:
         card_font_color: 'Цвет шрифта'
         card_font_size: 'Размер шрифта карточек (в px)'
         open_card_font_size: 'Размер шрифта внутри в карточках (в px)'
+        outer_annotation: 'Аннотация для доски'
+        inner_annotation: 'Аннотация для доски (внутри открытой доски)'
 
       karma:
         good: 'good'  #g
