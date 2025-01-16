@@ -46,7 +46,7 @@ module Kanban
     end
 
     def destroy
-      @card.destroy
+      @card.archive!
 
       respond_to do |format|
         format.html { redirect_to kanban_board_url(@card.board), notice: t('.destroyed') }

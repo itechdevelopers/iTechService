@@ -1,6 +1,6 @@
 module Kanban
   class BoardsController < ApplicationController
-    before_action :set_board, only: %i[edit update destroy sorted]
+    before_action :set_board, only: %i[edit update destroy sorted archived]
 
     def index
       authorize Board
@@ -62,6 +62,10 @@ module Kanban
       respond_to do |format|
         format.js
       end
+    end
+
+    def archived
+      @archived_cards = @board.archived_cards
     end
 
     private

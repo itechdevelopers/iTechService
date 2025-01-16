@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20250108094009) do
+ActiveRecord::Schema.define(version: 20250116084359) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -608,6 +608,7 @@ ActiveRecord::Schema.define(version: 20250108094009) do
     t.string "photos", default: [], array: true
     t.date "deadline"
     t.string "name"
+    t.boolean "archived", default: false
     t.index ["column_id"], name: "index_kanban_cards_on_column_id"
   end
 

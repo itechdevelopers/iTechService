@@ -1,0 +1,16 @@
+
+  <div class="page-header">
+    <h2>
+      <%= link_back_to kanban_boards_path %>
+      <%= "Архивные карточки #{@board.name}" %>
+
+    </h2>
+
+  <div class="row-fluid kanban-column-headers">
+    <div class="span2 mobile-full kanban-column-cards" >
+      <div class="kanban-card-container">
+        <%= render partial: 'kanban/cards/card_in_column', collection: @archived_cards, as: :card %>
+      </div>
+    </div>
+  </div>
+</div>
