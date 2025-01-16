@@ -1,6 +1,7 @@
 class Kanban::Card < ApplicationRecord
   include Auditable
 
+  default_scope { where(archived: false) }
   scope :ordered, -> { order :position }
   scope :deadline_asc, -> { reorder(deadline: :asc) }
   scope :deadline_desc, -> { reorder(deadline: :desc) }
@@ -28,6 +29,7 @@ class Kanban::Card < ApplicationRecord
 
   audited
   has_associated_audits
+
   def url
     Rails.application.routes.url_helpers.kanban_card_path(self)
   end
@@ -38,5 +40,13 @@ class Kanban::Card < ApplicationRecord
 
   def notification_message
     "Новый комментарий к канбан карточке: #{content[0..50]}."
+  end
+
+  def archive!
+    update(archived: true)
+  end
+
+  def unarchive!
+    update(archived: true)
   end
 end

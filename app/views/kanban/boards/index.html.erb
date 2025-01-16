@@ -15,6 +15,9 @@
         <%= link_to kanban_board_path(board) do %>
           <div class="thumbnail" style="background-color: <%= board.background || '#ffffff' %>;">
             <h3><%= board.name %></h3>
+            <span class="help-tooltip" data-toggle="tooltip" data-placement="right" title="<%= board.outer_annotation %>">
+              <i class="fa fa-question-circle"></i>
+            </span>
           </div>
         <% end %>
       </div>

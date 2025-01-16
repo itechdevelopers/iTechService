@@ -366,6 +366,7 @@ Rails.application.routes.draw do
         resources :cards
       end
       get :sorted, on: :member, defaults: {format: :js}
+      get :archived, on: :member
     end
   end
 

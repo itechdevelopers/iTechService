@@ -11,5 +11,9 @@ module Kanban
     def sorted?
       read?
     end
+
+    def archived?
+      read?
+    end
   end
 end

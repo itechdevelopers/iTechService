@@ -1,6 +1,6 @@
 module Kanban
   class BoardsController < ApplicationController
-    before_action :set_board, only: %i[edit update destroy sorted]
+    before_action :set_board, only: %i[edit update destroy sorted archived]
 
     def index
       authorize Board
@@ -64,6 +64,10 @@ module Kanban
       end
     end
 
+    def archived
+      @archived_cards = @board.archived_cards
+    end
+
     private
 
     def set_board
@@ -75,8 +79,7 @@ module Kanban
     end
 
     def board_params
-      params.require(:kanban_board).permit(:name, :background, :sort_order, :open_background_color, :card_font_color,
-                                           :open_card_font_size, :card_font_size,
+      params.require(:kanban_board).permit(:name, :background, :sort_order, :open_background_color, :card_font_color, :outer_annotation, :inner_annotation, :open_card_font_size, :card_font_size,
                                            manager_ids: [], allowed_user_ids: [])
     end
   end

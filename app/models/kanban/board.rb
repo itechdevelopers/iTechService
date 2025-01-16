@@ -11,4 +11,11 @@ class Kanban::Board < ApplicationRecord
   def initial_column
     columns.ordered.first
   end
+
+  def archived_cards
+    Kanban::Card.unscoped
+                .joins(:column)
+                .where(kanban_columns: {board_id: id})
+                .where(archived: true)
+  end
 end

@@ -18,6 +18,7 @@
       <% end %>
       <%= link_to(icon(:edit), edit_kanban_board_path(@board), class: 'btn btn-small') if can?(:edit, @board) %>
       <%= link_to_destroy_small(@board) if can?(:destroy, @board) %>
+      <%= link_to 'Архивные карточки', archived_kanban_board_path(@board), class: 'btn btn-submit' %>
     </h2>
     <div class="kanban-board-description">
       <% if @board.managers.present? %>

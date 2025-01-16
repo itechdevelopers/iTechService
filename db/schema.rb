@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20250108094009) do
+ActiveRecord::Schema.define(version: 20250116204314) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -589,6 +589,8 @@ ActiveRecord::Schema.define(version: 20250108094009) do
     t.string "card_font_color"
     t.integer "card_font_size"
     t.integer "open_card_font_size"
+    t.text "outer_annotation"
+    t.text "inner_annotation"
     t.index ["allowed_user_ids"], name: "index_kanban_boards_on_allowed_user_ids"
   end
 
@@ -608,6 +610,7 @@ ActiveRecord::Schema.define(version: 20250108094009) do
     t.string "photos", default: [], array: true
     t.date "deadline"
     t.string "name"
+    t.boolean "archived", default: false
     t.index ["column_id"], name: "index_kanban_cards_on_column_id"
   end
 

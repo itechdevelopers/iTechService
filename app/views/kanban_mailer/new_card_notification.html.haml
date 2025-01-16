@@ -8,6 +8,9 @@
 %pre= @card.content
 
 %p
+  Автор карточки: #{@card_author.short_name}
+
+%p
   Время создания: #{@card.created_at.strftime("%d.%m.%Y в %H:%M")}
 
 %p
