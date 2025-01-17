@@ -44,6 +44,7 @@ ru:
       created: 'Карточка создана'
       updated: 'Карточка изменена'
       destroyed: 'Карточка архивирована'
+      unarchived: 'Карточка разархивирована'
       card_in_column:
         manager_person: "Ответственный %{name}"
         deadline: "Сделать до %{date}"

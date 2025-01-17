@@ -22,7 +22,20 @@
 
     <div class="form-actions mobile-full">
       <%= link_to_edit @card, controller: 'kanban/cards' %>
-      <%= link_to_destroy @card, controller: 'kanban/cards' %>
+      <% unless @card.archived? %>
+        <%= link_to kanban_card_path(@card),
+                    method: :delete,
+                    class: 'btn btn-danger',
+                    data: { confirm: "Вы уверены?" } do %>
+          <%= "#{glyph(:trash)} Архивировать".html_safe %>
+        <% end %>
+      <% else %>
+        <%= link_to unarchive_kanban_card_path(@card),
+                    method: :patch,
+                    class: 'btn btn-danger' do %>
+          <%= "#{glyph(:trash)} Разархивировать".html_safe %>
+        <% end %>
+      <% end %> 
     </div>
   </div>
 
