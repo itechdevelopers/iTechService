@@ -3,5 +3,9 @@ module Kanban
     def modify?
       true
     end
+
+    def unarchive?
+      true
+    end
   end
 end

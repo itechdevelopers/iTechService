@@ -43,10 +43,10 @@ class Kanban::Card < ApplicationRecord
   end
 
   def archive!
-    update(archived: true)
+    update!(archived: true)
   end
 
   def unarchive!
-    update(archived: true)
+    update!(archived: false)
   end
 end

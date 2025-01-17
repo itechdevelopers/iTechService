@@ -363,7 +363,9 @@ Rails.application.routes.draw do
   namespace :kanban do
     resources :boards, shallow: true do
       resources :columns, shallow: true, except: %i[index show] do
-        resources :cards
+        resources :cards do
+          patch :unarchive, on: :member
+        end
       end
       get :sorted, on: :member, defaults: {format: :js}
       get :archived, on: :member

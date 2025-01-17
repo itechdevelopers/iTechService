@@ -1,12 +1,13 @@
 module Kanban
   class CardsController < ApplicationController
-    before_action :set_card, only: %i[show edit update destroy]
+    before_action :set_card, only: %i[edit update destroy]
 
     def index
       @cards = Card.all
     end
 
     def show
+      @card = authorize Card.unscoped.find_by(id: params[:id])
     end
 
     def new
@@ -51,6 +52,15 @@ module Kanban
       respond_to do |format|
         format.html { redirect_to kanban_board_url(@card.board), notice: t('.destroyed') }
         format.json { head :no_content }
+      end
+    end
+
+    def unarchive
+      @card = authorize Card.unscoped.find(params[:id])
+      @card.unarchive!
+
+      respond_to do |format|
+        format.html { redirect_to kanban_board_url(@card.board), notice: t('.unarchived') }
       end
     end
 

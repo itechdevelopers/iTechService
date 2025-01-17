@@ -18,6 +18,18 @@
   color: #666;
 }
 
+.inner-annotation {
+  font-weight: 600;
+  font-style: oblique;
+}
+
+.sort-kanban-board {
+  display: flex;
+  flex-direction: row;
+  gap: 18px;
+  align-items: center;
+}
+
 .kanban-board {
   padding: 0 1rem 1rem 1rem;
 }
