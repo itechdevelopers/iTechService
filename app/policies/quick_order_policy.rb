@@ -1,21 +1,21 @@
 class QuickOrderPolicy < BasePolicy
   def show?
-    view_everywhere? || same_department?
+    view_everywhere? || same_department? || able_to?(:access_all_departments)
   end
 
   def create?
-    any_manager?(:software, :media, :universal)
+    any_manager?(:software, :media, :universal) || able_to?(:access_all_departments)
   end
 
   def update?
     superadmin? ||
       same_department? && any_manager?(:media, :universal) ||
-      (has_role?(:software, :universal) && record.user_id == user.id)
+      (has_role?(:software, :universal) && record.user_id == user.id) || able_to?(:access_all_departments)
   end
 
   def set_done?
     superadmin? ||
-      same_department? && any_manager?(:software, :media, :universal)
+      same_department? && any_manager?(:software, :media, :universal) || able_to?(:access_all_departments)
   end
 
   def history?
