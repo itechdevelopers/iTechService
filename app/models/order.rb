@@ -147,6 +147,13 @@ class Order < ApplicationRecord
       )
     end
 
+    if (article_q = params[:article]).present?
+      product_name = Product.find_by(article: article_q)&.name
+      orders = orders.where(
+        'object LIKE :q', q: "%#{product_name}%"
+      )
+    end
+
     unless (department_ids = params[:department_ids]).blank?
       orders = orders.where(department_id: department_ids)
     end

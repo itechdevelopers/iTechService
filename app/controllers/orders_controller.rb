@@ -159,7 +159,7 @@ class OrdersController < ApplicationController
   # @return [Hash]
   def filter_params
     filter = params.permit(filter: [:order_number, :object_kind,
-                                    :object, :customer, :user,
+                                    :object, :customer, :user, :article,
                                     { statuses: [], department_ids: [] }])[:filter] || { department_ids: [],
                                                                                          statuses: [] }
     filter.tap do |p|

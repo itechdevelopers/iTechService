@@ -18,7 +18,8 @@
         collection: Order::OBJECT_KINDS.map {|s| [t("orders.object_kinds.#{s}"), s] }
       %br
         .search-query
-      =f.input :object, as: :object, placeholder: Order.human_attribute_name(:object), input_html: { class: 'input-xxlarge' }
+      =f.input :object, as: :object, placeholder: Order.human_attribute_name(:object), input_html: { class: 'input-xlarge' }
+      =f.input :article, placeholder: 'Артикул'
       %br
       =f.input :department_ids, as: :select, input_html: { multiple: true },
         collection: Department.all.order(:name), selected: current_department&.id,
