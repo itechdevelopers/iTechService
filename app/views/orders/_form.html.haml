@@ -8,7 +8,7 @@
           .controls= text_field_tag 'order_user', @order.user.short_name, class: 'input-xlarge', disabled: true
 
       = f.input :number, disabled: true, input_html: { class: 'input-xlarge' }
-      = f.association :department, prompt: false
+      = f.association :department, prompt: true
       - if @order.new_record?
         = f.input :customer, as: :client, wrapper_html: {id: 'client_fields'}, no_devices: true
       - else

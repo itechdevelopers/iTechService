@@ -200,7 +200,7 @@ class Order < ApplicationRecord
     self.department_id ||= if User.current.user_settings.auto_department_detection?
       Department.current.id
     else
-      Department.first.id
+      nil
     end
   end
 end
