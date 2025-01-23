@@ -1,0 +1,12 @@
+:javascript
+  $(document).ready(function() {
+   if (#{@repair_cause.repair_cause_group.repair_causes.reload.empty?}) {
+     $("#cause-#{@repair_cause.id}").closest('.cause-group').fadeOut(function() {
+       $(this).remove();
+     });
+   } else {
+     $("#cause-#{@repair_cause.id}").fadeOut(function() {
+       $(this).remove(); 
+     });
+   }
+  });

@@ -32,6 +32,7 @@
   .control-group
     .controls
       = link_to 'Создать новую причину', new_repair_cause_path, remote: true, class: 'btn btn-success' 
+      = link_to 'Управление причинами', repair_causes_path, remote: true, class: 'btn btn-submit'
   = f.input :client_info, input_html: {rows: 3}
 
   %table#spare_parts.table.table-condensed.table-hover

@@ -103,7 +103,7 @@ class UsersController < ApplicationController
 
   def update_user_settings
     @user = find_record User
-    @user.update_attributes(user_settings_params)
+    @user.user_settings.update(user_settings_params)
     redirect_to @user
   end
 
@@ -274,7 +274,7 @@ class UsersController < ApplicationController
   end
 
   def user_settings_params
-    params.require(:user).permit(:fixed_main_menu)
+    params.require(:user_settings).permit(:fixed_main_menu, :auto_department_detection)
   end
 
   def update_self_params

@@ -1,23 +1,41 @@
-= form_with model: @repair_cause, class: 'form-horizontal', local: false do |f|
+- if @modal == "manage_repair_causes"
   .modal-header
     = button_to_close_modal
-    %h3 Новая причина для ремонта
-
+    %h3 Управление причинами для ремонта
   .modal-body
-    .control-group
-      = f.label 'Группа причин', class: 'control-label'
-      .controls
-        = f.select :repair_cause_group_id, RepairCauseGroup.all.map {|g| [g.title, g.id]}
+    - @repair_cause_groups.each do |group|
+      .cause-group
+        %h4= group.title
+        %ul.causes-list
+          - group.repair_causes.each do |cause|
+            %li.cause-item{id: "cause-#{cause.id}"}
+              = cause.title
+              = link_to repair_cause_path(cause), 
+                       method: :delete,
+                       remote: true,
+                       class: 'delete-cause' do
+                %i.fa.fa-times
+- else
+  = form_with model: @repair_cause, class: 'form-horizontal', local: false do |f|
+    .modal-header
+      = button_to_close_modal
+      %h3 Новая причина для ремонта
 
-    .control-group
-      = f.label 'Новая группа', class: 'control-label'
-      .controls
-        = f.text_field :repair_cause_group_name
+    .modal-body
+      .control-group
+        = f.label 'Группа причин', class: 'control-label'
+        .controls
+          = f.select :repair_cause_group_id, RepairCauseGroup.all.map {|g| [g.title, g.id]}
 
-    .control-group
-      = f.label 'Название причины', class: 'control-label'
-      .controls
-        = f.text_field :title
+      .control-group
+        = f.label 'Новая группа', class: 'control-label'
+        .controls
+          = f.text_field :repair_cause_group_name
 
-  .modal-footer
-    = f.submit 'Сохранить', class: 'btn btn-primary'
+      .control-group
+        = f.label 'Название причины', class: 'control-label'
+        .controls
+          = f.text_field :title
+
+    .modal-footer
+      = f.submit 'Сохранить', class: 'btn btn-primary'

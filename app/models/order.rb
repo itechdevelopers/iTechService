@@ -40,7 +40,7 @@ class Order < ApplicationRecord
   delegate :name, to: :department, prefix: true, allow_nil: true
   validates :customer, :department, :quantity, :object, :object_kind, presence: true
   validates :priority, numericality: { greater_than_or_equal_to: 0, less_than_or_equal_to: 10 }
-  after_initialize { self.department_id ||= Department.current.id }
+  after_initialize :set_department
   before_validation :generate_number
 
   before_validation do |order|
@@ -194,5 +194,13 @@ class Order < ApplicationRecord
     kind = done? ? 'order_done' : 'order_status'
     content = "#{I18n.t('orders.order_num', num: number)} #{I18n.t("orders.statuses.#{status}")}"
     Announcement.create user_id: user_id, kind: kind, active: true, content: content
+  end
+
+  def set_department
+    self.department_id ||= if User.current.user_settings.auto_department_detection?
+      Department.current.id
+    else
+      nil
+    end
   end
 end
