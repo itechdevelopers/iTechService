@@ -676,6 +676,9 @@ ru:
         uniform_size: Размер футболки
         is_senior: Старший сотрудник
         fixed_main_menu: Зафиксировать основное меню
+      user_settings:
+        fixed_main_menu: Зафиксировать основное меню
+        auto_department_detection: Автоматическое определение подразделения в заказах
 
     errors:
       models:

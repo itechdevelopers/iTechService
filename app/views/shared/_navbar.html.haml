@@ -1,4 +1,4 @@
-%div{class: ("fixed-menu" if current_user.fixed_main_menu)}
+%div{class: ("fixed-menu" if current_user.user_settings.fixed_main_menu)}
   = nav_bar static: :top, brand: logo_tag, responsive: true, fluid: true do
     = menu_group do
       .elqueue_navbar= render 'shared/elqueue_navbar'

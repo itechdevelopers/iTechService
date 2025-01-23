@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20250116204314) do
+ActiveRecord::Schema.define(version: 20250122224216) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -1648,6 +1648,15 @@ ActiveRecord::Schema.define(version: 20250116204314) do
     t.index ["user_id"], name: "index_user_achievements_on_user_id"
   end
 
+  create_table "user_settings", force: :cascade do |t|
+    t.bigint "user_id", null: false
+    t.boolean "fixed_main_menu", default: false, null: false
+    t.boolean "auto_department_detection", default: true, null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["user_id"], name: "index_user_settings_on_user_id"
+  end
+
   create_table "users", id: :serial, force: :cascade do |t|
     t.string "username", limit: 255
     t.string "role", limit: 255
@@ -1699,7 +1708,6 @@ ActiveRecord::Schema.define(version: 20250116204314) do
     t.datetime "dismissed_date"
     t.bigint "dismissal_reason_id"
     t.text "dismissal_comment"
-    t.boolean "fixed_main_menu", default: false
     t.boolean "need_to_select_window", default: false
     t.bigint "elqueue_window_id"
     t.boolean "remember_pause", default: false, null: false
@@ -1866,6 +1874,7 @@ ActiveRecord::Schema.define(version: 20250116204314) do
   add_foreign_key "user_abilities", "users"
   add_foreign_key "user_achievements", "achievements"
   add_foreign_key "user_achievements", "users"
+  add_foreign_key "user_settings", "users"
   add_foreign_key "users", "dismissal_reasons"
   add_foreign_key "users", "elqueue_windows"
   add_foreign_key "waiting_clients", "clients"

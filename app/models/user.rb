@@ -111,6 +111,7 @@ class User < ApplicationRecord
   belongs_to :service_job_sorting, optional: true
   belongs_to :dismissal_reason, optional: true
   belongs_to :elqueue_window, optional: true
+  has_one :user_settings, dependent: :destroy
   has_many :user_abilities
   has_many :abilities, through: :user_abilities
   has_many :history_records, as: :object, dependent: :nullify
@@ -172,6 +173,7 @@ class User < ApplicationRecord
   delegate :name, :short_name, to: :location, prefix: true, allow_nil: true
   delegate :time_zone, to: :city, allow_nil: true
   delegate :electronic_queue, to: :elqueue_window, allow_nil: true
+  delegate :fixed_main_menu?, :auto_department_detection?, to: :user_settings, allow_nil: true
 
   devise :database_authenticatable, :timeoutable, :recoverable, :trackable, :validatable
 
@@ -183,6 +185,7 @@ class User < ApplicationRecord
   before_validation :validate_rights_changing
   before_update :update_schedule_column, if: :is_fired_changed?
   before_save :update_elqueue_window_status, if: :elqueue_window_id_changed?
+  after_create :create_default_settings
 
   mount_uploader :photo, PhotoUploader
   crop_uploaded :photo
@@ -676,6 +679,10 @@ class User < ApplicationRecord
   end
 
   private
+
+  def create_default_settings
+    create_user_settings unless user_settings
+  end
 
   def update_elqueue_window_status
     old_elqueue_window = ElqueueWindow.find_by(id: elqueue_window_id_was)
