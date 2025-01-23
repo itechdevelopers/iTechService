@@ -1,4 +1,13 @@
 class RepairCausesController < ApplicationController
+  def index
+    authorize RepairCause
+    @modal = "manage_repair_causes"
+    @repair_cause_groups = RepairCauseGroup.all
+
+    respond_to do |format|
+      format.js { render 'shared/show_modal_form' }
+    end
+  end
 
   def new
     authorize RepairCause
@@ -24,6 +33,18 @@ class RepairCausesController < ApplicationController
         format.js { render "shared/show_modal_form" }
       end
     end
+  end
+
+  def destroy
+    @repair_cause = authorize RepairCause.find(params[:id])
+    group = @repair_cause.repair_cause_group
+
+    ActiveRecord::Base.transaction do
+      @repair_cause.destroy!
+      group.destroy! if group.repair_causes.reload.empty?
+    end
+
+    respond_to(&:js)
   end
 
   private

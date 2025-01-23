@@ -56,3 +56,38 @@
 
 }
 
+
+.modal-body {
+  .cause-group {
+    margin-bottom: 20px;
+    
+    h4 {
+      color: #333;
+      border-bottom: 1px solid #eee;
+      padding-bottom: 8px;
+      margin-bottom: 10px;
+    }
+  }
+
+  .causes-list {
+    list-style: none;
+    padding-left: 0;
+    
+    .cause-item {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 8px 0;
+      border-bottom: 1px solid #f5f5f5;
+
+      .delete-cause {
+        color: #999;
+        padding: 4px 8px;
+        
+        &:hover {
+          color: #d9534f;
+        }
+      }
+    }
+  }
+}

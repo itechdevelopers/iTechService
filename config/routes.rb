@@ -441,7 +441,7 @@ Rails.application.routes.draw do
     get :icon_url, on: :member, format: :json
   end
 
-  resources :repair_causes, only: %i[new create]
+  resources :repair_causes, only: %i[index destroy new create]
 
   authenticate :user do
     mount Sidekiq::Web => '/sidekiq'
