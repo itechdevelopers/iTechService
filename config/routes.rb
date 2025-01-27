@@ -365,6 +365,7 @@ Rails.application.routes.draw do
       resources :columns, shallow: true, except: %i[index show] do
         resources :cards do
           patch :unarchive, on: :member
+          patch :update_card_columns, on: :collection
         end
       end
       get :sorted, on: :member, defaults: {format: :js}

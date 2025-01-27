@@ -64,6 +64,16 @@ module Kanban
       end
     end
 
+    def update_card_columns
+      authorize Card
+      positioned_cards = JSON.parse(card_params[:cards_positions])
+      ActiveRecord::Base.transaction do
+        positioned_cards.each do |card|
+          Card.find(card['id']).update(column_id: card['column_id'])
+        end
+      end
+    end
+
     private
 
     def set_card
@@ -71,7 +81,7 @@ module Kanban
     end
 
     def card_params
-      params.require(:kanban_card).permit(:content, :column_id, :deadline, :name,
+      params.require(:kanban_card).permit(:content, :column_id, :deadline, :name, :cards_positions,
         manager_ids: [], photos: [])
     end
 
