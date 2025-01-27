@@ -1,4 +1,4 @@
-<div class="kanban-card thumbnail">
+<div class="kanban-card thumbnail" data-card-id="<%= card.id %>">
   <%= link_to card.name, kanban_card_path(card) %>
   <div class="kanban-card-info">
     <% if card.managers.present? %>

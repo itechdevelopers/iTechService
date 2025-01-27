@@ -1,6 +1,32 @@
 jQuery ->
   $('.help-tooltip').tooltip()
 
+  window.initKanbanCardsSortable = (list) ->
+    i = 0
+    list.each (_index, element) ->
+      console.log(i++)
+      new Sortable(element, {
+                  group: 'cards',
+                  animation: 300,
+                  onEnd: (e) =>
+                    saveCardsSorting($('.kanban-card'))
+                  })
+
+  window.saveCardsSorting = (newList) ->
+    cardIds = []
+    newList.each (i, element) ->
+      colId = $(element).closest('.kanban-column-cards').attr('data-column-id')
+      cardId = $(element).attr('data-card-id')
+      cardIds.push({
+       'id': cardId,
+       'column_id': colId
+      })
+    $('#card-positions').val(JSON.stringify(cardIds))
+    $('#update-card-columns-form').submit()
+
+  if $('#update-card-columns-form').length
+    initKanbanCardsSortable $('.kanban-card-container')
+
   $(document).on 'change', '.kanban-manager-checkbox', ->
     toggleEmailWarning(this)
 

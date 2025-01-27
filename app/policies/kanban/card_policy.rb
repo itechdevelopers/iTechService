@@ -7,5 +7,9 @@ module Kanban
     def unarchive?
       true
     end
+
+    def update_card_columns?
+      modify?
+    end
   end
 end

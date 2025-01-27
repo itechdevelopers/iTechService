@@ -20,6 +20,7 @@
       <%= link_to_destroy_small(@board) if can?(:destroy, @board) %>
       <%= link_to 'Архивные карточки', archived_kanban_board_path(@board), class: 'btn btn-submit' %>
     </h2>
+
     <div class="kanban-board-description">
       <% if @board.managers.present? %>
         <span class="board-mananger-name">
@@ -43,6 +44,17 @@
         </div>
       </span>
     </div>
+
+  <% if can? :update_card_columns, Kanban::Card %>
+    <%= form_with url: update_card_columns_kanban_column_cards_path(column_id: Kanban::Column.first.id),
+      method: :patch,
+      local: false,
+      html: { id: 'update-card-columns-form' } do |f| %>
+      <%= f.fields_for :kanban_card do |form| %>
+        <%= form.hidden_field :cards_positions, id: 'card-positions' %>
+      <% end %>
+    <% end %>
+  <% end %>
 
   <div class="row-fluid kanban-column-headers">
     <% @board.columns.each do |column| %>
