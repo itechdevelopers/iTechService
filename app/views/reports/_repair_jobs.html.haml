@@ -21,3 +21,12 @@
                 %td= link_to job[:service_job_presentation], service_job_path(job[:device_id]), target: '_blank'
                 %td.number.job_price
                   %span.has-tooltip{'data-title' => "Job Price: #{human_currency(job[:price], false)}. Parts Cost: #{human_currency(job[:parts_cost], false)}"}= human_currency job[:margin], false
+    - if report.result[group].present?
+      %tr.summary-row
+        %td.summary-title{colspan: 2}= t('.total_report')
+        %td.summary-value.number
+          %span.total-count= report.result[group].values.sum { |g| g[:jobs_qty] }
+      %tr.summary-row
+        %td.summary-title{colspan: 2}= t('.total_sum')
+        %td.summary-value.number
+          %span.total-sum= human_currency(report.result[group].values.sum { |g| g[:services]&.values&.sum { |s| s[:jobs_sum] } || 0 }, false)

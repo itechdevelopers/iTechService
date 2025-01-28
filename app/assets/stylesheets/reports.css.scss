@@ -430,3 +430,26 @@ label.label-ignored-types {
     background-color: #f0f0f0;
   }
 }
+
+.summary-row {
+  background-color: #f8f9fa;
+  font-weight: bold;
+  
+  .summary-title {
+    text-align: right;
+    padding-right: 15px;
+  }
+  
+  .summary-value {
+    text-align: right;
+    padding-right: 15px;
+    
+    .total-count {
+      color: #333;
+    }
+    
+    .total-sum {
+      color: #d73925;
+    }
+  }
+}
