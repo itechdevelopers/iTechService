@@ -7,6 +7,10 @@
 
 <div class="row-fluid">
   <div class="span6 mobile-full">
+    <%= simple_form_for @card, html: {class: 'form-inline'} do |f| %>
+      <%= f.association :column, collection: Kanban::Column.in_board(@card.board), include_blank: false, label: false %>
+      <%= submit_button f %>
+    <% end %>
     <h4><%= @card.name %></h4>
     <blockquote>
       <p class="kanban-card-content" data-font-size="<%= @card.board.open_card_font_size %>"><%= @card.content %></p>
