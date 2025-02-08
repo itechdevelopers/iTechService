@@ -46,3 +46,4 @@ pickle-email-*.html
 docker-compose.yml
 /config/local_sidekiq.yml
 backup*.sql
+.DS_Store
