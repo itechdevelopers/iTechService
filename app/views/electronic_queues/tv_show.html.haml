@@ -10,7 +10,7 @@
       %span.arrow-tv &#x279C;
       %span.ticket-info
         = client.elqueue_window.window_number
-        %span.label-tv Окно
+%span.label-tv Окно
 .elqueue-tv-waiting
   .elqueue-tv-waiting__title
     Ожидающие
@@ -22,7 +22,54 @@
 = javascript_include_tag "tv_show"
 :javascript
   window.AUDIO_PATHS = {
-    ticket_called: "#{asset_path("notifications/ticket_called.mp3")}"
+    ticket_called: "#{asset_path("notifications/ticket_called.mp3")}",
+    abbr_kk: "#{asset_path("notifications/abbreviations/Талон КК.wav")}",
+    abbr_sp: "#{asset_path("notifications/abbreviations/Талон СП.wav")}",
+    abbr_sv: "#{asset_path("notifications/abbreviations/Талон СВ.wav")}",
+    abbr_ss: "#{asset_path("notifications/abbreviations/Талон СС.wav")}",
+    abbr_sd: "#{asset_path("notifications/abbreviations/Талон СД.wav")}",
+    abbr_pk: "#{asset_path("notifications/abbreviations/Талон ПК.wav")}",
+    abbr_pt: "#{asset_path("notifications/abbreviations/Талон ПТ.wav")}",
+    abbr_pb: "#{asset_path("notifications/abbreviations/Талон ПБ.wav")}",
+    abbr_pd: "#{asset_path("notifications/abbreviations/Талон ПД.wav")}",
+
+    number_1: "#{asset_path("notifications/numbers/1.wav")}",
+    number_2: "#{asset_path("notifications/numbers/2.wav")}",
+    number_3: "#{asset_path("notifications/numbers/3.wav")}",
+    number_4: "#{asset_path("notifications/numbers/4.wav")}",
+    number_5: "#{asset_path("notifications/numbers/5.wav")}",
+    number_6: "#{asset_path("notifications/numbers/6.wav")}",
+    number_7: "#{asset_path("notifications/numbers/7.wav")}",
+    number_8: "#{asset_path("notifications/numbers/8.wav")}",
+    number_9: "#{asset_path("notifications/numbers/9.wav")}",
+    
+    number_10: "#{asset_path("notifications/numbers/10.wav")}",
+    number_11: "#{asset_path("notifications/numbers/11.wav")}",
+    number_12: "#{asset_path("notifications/numbers/12.wav")}",
+    number_13: "#{asset_path("notifications/numbers/13.wav")}",
+    number_14: "#{asset_path("notifications/numbers/14.wav")}",
+    number_15: "#{asset_path("notifications/numbers/15.wav")}",
+    number_16: "#{asset_path("notifications/numbers/16.wav")}",
+    number_17: "#{asset_path("notifications/numbers/17.wav")}",
+    number_18: "#{asset_path("notifications/numbers/18.wav")}",
+    number_19: "#{asset_path("notifications/numbers/19.wav")}",
+    
+    number_20: "#{asset_path("notifications/numbers/20.wav")}",
+    number_30: "#{asset_path("notifications/numbers/30.wav")}",
+    number_40: "#{asset_path("notifications/numbers/40.wav")}",
+    number_50: "#{asset_path("notifications/numbers/50.wav")}",
+    number_60: "#{asset_path("notifications/numbers/60.wav")}",
+    number_70: "#{asset_path("notifications/numbers/70.wav")}",
+    number_80: "#{asset_path("notifications/numbers/80.wav")}",
+    number_90: "#{asset_path("notifications/numbers/90.wav")}",
+
+    window_1: "#{asset_path("notifications/windows/Окно номер 1.wav")}",
+    window_2: "#{asset_path("notifications/windows/Окно номер 2.wav")}",
+    window_3: "#{asset_path("notifications/windows/Окно номер 3.wav")}",
+    window_4: "#{asset_path("notifications/windows/Окно номер 4.wav")}",
+    window_5: "#{asset_path("notifications/windows/Окно номер 5.wav")}",
+    window_6: "#{asset_path("notifications/windows/Окно номер 6.wav")}",
+    window_7: "#{asset_path("notifications/windows/Окно номер 7.wav")}"
   };
 :scss
   body {

@@ -32,7 +32,7 @@ $ ->
       $card.append($ticketWindow)
 
       $('.elqueue-tv').append($card)
-      window.audioPlayer?.playSound('ticket_called')
+      window.audioPlayer?.playSound({ ticketNumber: ticketNumber, windowNumber: windowNumber })
       $card.fadeIn(500).fadeOut(500).fadeIn(500).fadeOut(500).fadeIn(500, ->
         $card.show()
         window.waitingTicketsDisplay?.removeTicket(ticketNumber)
@@ -123,6 +123,19 @@ $ ->
       Math.ceil(@waitingTickets.length / @ticketsPerPage)
 
   class AudioPlayer
+
+    @ABBREVIATION_MAP = Object.freeze({
+      'КК': 'kk'
+      'СП': 'sp'
+      'СВ': 'sv'
+      'СС': 'ss'
+      'СД': 'sd'
+      'ПК': 'pk'
+      'ПТ': 'pt'
+      'ПБ': 'pb'
+      'ПД': 'pd'
+    })
+
     constructor: ->
       @audioBuffers = {}
       @audioContext = null
@@ -142,8 +155,92 @@ $ ->
       Object.keys(AUDIO_PATHS).forEach (soundName) =>
         @loadSound(soundName)
 
+    # Преобразует номер талона в массив названий аудио-файлов
+    getAudioPartsForTicket: (ticketNumber, windowNumber) ->
+      audioParts = []
+      
+      # Разбираем буквенную часть
+      letters = ticketNumber.match(/[А-Я]+/)?[0] || ''
+      if letters
+        latinLetters = AudioPlayer.ABBREVIATION_MAP[letters]
+        audioParts.push("abbr_#{latinLetters}") 
+
+      numbers = ticketNumber.match(/\d+/)?[0] || ''
+      if numbers
+        numberInt = parseInt(numbers, 10)
+        if numberInt > 0 && numberInt <= 99
+          if numberInt <= 19
+            # Для чисел от 1 до 19 используем прямое соответствие
+            audioParts.push("number_#{numberInt}")
+          else
+            # Для чисел от 20 до 99
+            tens = Math.floor(numberInt / 10) * 10
+            ones = numberInt % 10
+            
+            # Добавляем десятки (20, 30, 40 и т.д.)
+            audioParts.push("number_#{tens}")
+            
+            # Добавляем единицы, если число не круглое
+            if ones > 0
+              audioParts.push("number_#{ones}")
+      
+      # Добавляем "окно номер X"
+      audioParts.push("window_#{windowNumber}")
+      
+      audioParts
+
+    # Создаёт склеенный аудио-буфер из массива названий звуков
+    mergeAudioBuffers: (soundNames) ->
+      buffers = soundNames
+        .map((name) => @audioBuffers[name])
+        .filter((buffer) -> buffer?) # Убираем отсутствующие буферы
+
+      return null if buffers.length == 0
+      
+      totalLength = buffers.reduce((sum, buffer) ->
+        sum + buffer.length
+      , 0)
+
+      mergedBuffer = @audioContext.createBuffer(
+        buffers[0].numberOfChannels,
+        totalLength,
+        buffers[0].sampleRate
+      )
+
+      # Склеиваем буферы
+      offset = 0
+      for buffer in buffers
+        # Для каждого канала
+        for channel in [0...buffer.numberOfChannels]
+          inputData = buffer.getChannelData(channel)
+          outputData = mergedBuffer.getChannelData(channel)
+          
+          # Копируем данные с учётом смещения
+          for i in [0...inputData.length]
+            outputData[offset + i] = inputData[i]
+        
+        offset += buffer.length
+
+      mergedBuffer
+
+    playSound: (soundNameOrTicketInfo) ->
+      if typeof soundNameOrTicketInfo == 'string'
+        buffer = @audioBuffers[soundNameOrTicketInfo]
+      else
+        {ticketNumber, windowNumber} = soundNameOrTicketInfo
+        audioParts = @getAudioPartsForTicket(ticketNumber, windowNumber)
+        buffer = @mergeAudioBuffers(audioParts)
+
+      return unless buffer
+
+      source = @audioContext.createBufferSource()
+      source.buffer = buffer
+      source.connect(@audioContext.destination)
+      source.start()
+
     loadSound: (soundName) ->
       audioPath = window.AUDIO_PATHS[soundName]
+      console.log('load sound')
       return Promise.reject("Звук #{soundName} не найден") unless audioPath
 
       fetch(audioPath)
@@ -158,15 +255,6 @@ $ ->
           console.log("Загружен звук: #{soundName}")
         )
         .catch((error) => console.error("Ошибка загрузки звука #{soundName}:", error))
-        .then(() => @playSound('ticket_called'))
-
-    playSound: (soundName) ->
-      return unless buffer = @audioBuffers[soundName]
-
-      source = @audioContext.createBufferSource()
-      source.buffer = buffer
-      source.connect(@audioContext.destination)
-      source.start()
 
   $(document).ready ->
     window.waitingTicketsDisplay = new WaitingTicketsDisplay()
