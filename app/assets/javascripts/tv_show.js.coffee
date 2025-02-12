@@ -125,15 +125,15 @@ $ ->
   class AudioPlayer
 
     @ABBREVIATION_MAP = Object.freeze({
-      'КК': 'kk'
-      'СП': 'sp'
-      'СВ': 'sv'
-      'СС': 'ss'
-      'СД': 'sd'
-      'ПК': 'pk'
-      'ПТ': 'pt'
-      'ПБ': 'pb'
-      'ПД': 'pd'
+      'К': 'k'
+      'П': 'p'
+      'З': 'z'
+      'С': 's'
+      'Д': 'd'
+      'А': 'a'
+      'Б': 'b'
+      'В': 'v'
+      'Г': 'g'
     })
 
     constructor: ->
