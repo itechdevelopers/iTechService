@@ -12,6 +12,7 @@
         %th= model_class.human_attribute_name(:customer)
         %th= sortable 'object_kind', model_class.human_attribute_name(:object_kind)
         %th= sortable 'object', "#{model_class.human_attribute_name(:object)} / #{model_class.human_attribute_name(:approximate_price)}"
+        %th= model_class.human_attribute_name(:article)
         %th= sortable 'quantity', model_class.human_attribute_name(:quantity)
         %th= sortable 'priority', model_class.human_attribute_name(:priority)
         %th= sortable 'status', model_class.human_attribute_name(:status)
@@ -34,6 +35,7 @@
             = human_currency order.approximate_price
             %br
             = link_to Order.human_attribute_name(:object_url), order.object_url, target: '_blank' if order.object_url.present?
+          %td= order.article? ? order.article : '-'
           %td= order.quantity
           %td= (icon_tag(:star) * order.priority).html_safe
           %td= t("orders.statuses.#{order.status}")
