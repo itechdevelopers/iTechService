@@ -38,6 +38,9 @@
         %td= @order.object
 
       %tr
+        %td= Order.human_attribute_name :article
+        %td= @order.article? ? @order.article : '-'
+      %tr
         %td= Order.human_attribute_name :object_url
         %td= @order.object_url.present? ? link_to(@order.object_url, @order.object_url) : '-'
 

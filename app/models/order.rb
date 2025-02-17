@@ -40,6 +40,7 @@ class Order < ApplicationRecord
   delegate :name, to: :department, prefix: true, allow_nil: true
   validates :customer, :department, :quantity, :object, :object_kind, presence: true
   validates :priority, numericality: { greater_than_or_equal_to: 0, less_than_or_equal_to: 10 }
+  validates :article, presence: true, on: :create, if: :device_order?
   after_initialize :set_department
   before_validation :generate_number
 
@@ -202,5 +203,9 @@ class Order < ApplicationRecord
     else
       nil
     end
+  end
+
+  def device_order?
+    object_kind == 'device'
   end
 end

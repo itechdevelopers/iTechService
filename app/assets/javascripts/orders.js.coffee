@@ -23,7 +23,7 @@ jQuery ->
     $(event.currentTarget).addClass('hidden')
     $('.last_order_note[data-order-id="' + order_id + '"').removeClass('hidden')
 
-  $('#product_article').on 'input', ->
+  $('#order_article').on 'input', ->
     article = $(this).val().trim()
     if article != ''
       $('#order_object_url').val("http://itechstore.ru/api/v1/redirects/product-by-sku/#{article}/")
