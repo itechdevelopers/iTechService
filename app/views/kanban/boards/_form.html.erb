@@ -7,6 +7,16 @@
   <%= form.input :open_card_font_size %>
   <%= form.input :outer_annotation %>
   <%= form.input :inner_annotation %>
+  <fieldset>
+    <%= form.input :auto_add_department_ids, 
+                       collection: Department.all,
+                       as: :check_boxes,
+                       label: "Подразделения для автодобавления пользователей",
+                       label_method: :name,
+                       value_method: :id,
+                       include_blank: false,
+                       input_html: { multiple: true } %>
+  </fieldset>
   <div class="row-fluid">
     <div class="span6">
       <div class="control-group kanban-users">

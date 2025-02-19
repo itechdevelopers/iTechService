@@ -80,7 +80,7 @@ module Kanban
 
     def board_params
       params.require(:kanban_board).permit(:name, :background, :sort_order, :open_background_color, :card_font_color, :outer_annotation, :inner_annotation, :open_card_font_size, :card_font_size,
-                                           manager_ids: [], allowed_user_ids: [])
+                                           manager_ids: [], allowed_user_ids: [], auto_add_department_ids: [])
     end
   end
 end

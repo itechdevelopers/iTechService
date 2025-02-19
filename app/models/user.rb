@@ -186,6 +186,7 @@ class User < ApplicationRecord
   before_update :update_schedule_column, if: :is_fired_changed?
   before_save :update_elqueue_window_status, if: :elqueue_window_id_changed?
   after_create :create_default_settings
+  after_create :add_to_auto_add_boards
 
   mount_uploader :photo, PhotoUploader
   crop_uploaded :photo
@@ -679,6 +680,17 @@ class User < ApplicationRecord
   end
 
   private
+
+  def add_to_auto_add_boards
+    return unless department_id.present?
+    
+    boards_to_update = Kanban::Board.where("? = ANY(auto_add_department_ids)", department_id)
+    
+    boards_to_update.each do |board|
+      board.allowed_user_ids = (board.allowed_user_ids || []) | [id]
+      board.save
+    end
+  end
 
   def create_default_settings
     create_user_settings unless user_settings
