@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20250217061438) do
+ActiveRecord::Schema.define(version: 20250219084945) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -591,7 +591,9 @@ ActiveRecord::Schema.define(version: 20250217061438) do
     t.integer "open_card_font_size"
     t.text "outer_annotation"
     t.text "inner_annotation"
+    t.integer "auto_add_department_ids", default: [], array: true
     t.index ["allowed_user_ids"], name: "index_kanban_boards_on_allowed_user_ids"
+    t.index ["auto_add_department_ids"], name: "index_kanban_boards_on_auto_add_department_ids", using: :gin
   end
 
   create_table "kanban_boards_users", id: false, force: :cascade do |t|

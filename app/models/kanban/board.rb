@@ -8,6 +8,14 @@ class Kanban::Board < ApplicationRecord
 
   validates :name, presence: true, uniqueness: true
 
+  def auto_add_departments
+    Department.where(id: auto_add_department_ids)
+  end
+
+  def auto_add_department_ids=(ids)
+    super(ids.reject(&:blank?).map(&:to_i))
+  end
+
   def initial_column
     columns.ordered.first
   end
