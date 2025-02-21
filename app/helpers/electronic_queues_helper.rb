@@ -175,12 +175,12 @@ module ElectronicQueuesHelper
       result << content_tag(:div, class: 'create-ticket', data: { parent_queue_item_id: queue_item.id }) do
         form_for(queue_item.queue_tickets.build, url: waiting_clients_path, html: { class: 'create-ticket-form' }) do |f|
           form_content = ''
-          form_content << f.hidden_field(:queue_item_id, value: queue_item.id)
-          form_content << f.telephone_field(:phone_number, readonly: true, placeholder: 'Номер телефона')
-          form_content << content_tag(:div, 'Создать талон', class: 'create-ticket-button')
           form_content << content_tag(:div,
                                       'Не хочу вводить номер телефона',
                                       class: 'create-ticket-button clear-phone')
+          form_content << f.hidden_field(:queue_item_id, value: queue_item.id)
+          form_content << f.telephone_field(:phone_number, readonly: true, placeholder: 'Номер телефона')
+          form_content << content_tag(:div, 'Создать талон', class: 'create-ticket-button')
           form_content.html_safe
         end
       end
