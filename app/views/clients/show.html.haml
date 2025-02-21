@@ -9,46 +9,52 @@
       = "#{t('attributes.user')}: "
       = link_to(@client.creator.short_name, user_path(@client.creator))
 
-%dl.dl-horizontal
+.row-fluid
+  .span4
+    %dl.dl-horizontal
 
-  %dt= Client.human_attribute_name :birthday
-  %dd= @client.birthday.present? ? human_date(@client.birthday) : '-'
+      %dt= Client.human_attribute_name :birthday
+      %dd= @client.birthday.present? ? human_date(@client.birthday) : '-'
 
-  %dt= Client.human_attribute_name :phone_number
-  %dd.tel-info__add
-    %span.tel-info__add__value
-      = @client.human_phone_number
-    - if @client.phone_number.length > 1
-      #tel_info_add_list.tel-info__add__list
-        .tel-info__add__list__main-item
-          = image_tag('/tel_in.jpg', width: '60')
-        .tel-info__add__list__items
-          %a{ href: "http://wa.me/#{@client.human_phone_number.gsub(/\D/, '')}", target: '_blank' }
-            = image_tag('/tel_tel.jpg', width: '60')
-          %a{ href: "tel:8#{@client.human_phone_number[2..-1].gsub(/\D/, '')}" }
-            = image_tag('/tel_call.jpg', width: '60')
-          = image_tag('/tel_copy.jpg', width: '60', class: 'js--copy-number')
+      %dt= Client.human_attribute_name :phone_number
+      %dd.tel-info__add
+        %span.tel-info__add__value
+          = @client.human_phone_number
+        - if @client.phone_number.length > 1
+          #tel_info_add_list.tel-info__add__list
+            .tel-info__add__list__main-item
+              = image_tag('/tel_in.jpg', width: '60')
+            .tel-info__add__list__items
+              %a{ href: "http://wa.me/#{@client.human_phone_number.gsub(/\D/, '')}", target: '_blank' }
+                = image_tag('/tel_tel.jpg', width: '60')
+              %a{ href: "tel:8#{@client.human_phone_number[2..-1].gsub(/\D/, '')}" }
+                = image_tag('/tel_call.jpg', width: '60')
+              = image_tag('/tel_copy.jpg', width: '60', class: 'js--copy-number')
 
-  %dt= Client.human_attribute_name :email
-  %dd= @client.email.present? ? @client.email : '-'
+      %dt= Client.human_attribute_name :email
+      %dd= @client.email.present? ? @client.email : '-'
 
-  %dt= Client.human_attribute_name :card_number
-  %dd= @client.card_number.present? ? @client.card_number : '-'
+      %dt= Client.human_attribute_name :card_number
+      %dd= @client.card_number.present? ? @client.card_number : '-'
 
-  %dt= Client.human_attribute_name :client_characteristic
-  %dd
-    = @client.category_name
-    %br
-    = @client.characteristic
+      %dt= Client.human_attribute_name :client_characteristic
+      %dd
+        = @client.category_name
+        %br
+        = @client.characteristic
 
-  %dt= Client.human_attribute_name :category
-  %dd= human_client_category @client
+      %dt= Client.human_attribute_name :category
+      %dd= human_client_category @client
 
-  %dt= Client.human_attribute_name :admin_info
-  %dd= @client.admin_info.present? ? @client.admin_info : '-'
+      %dt= Client.human_attribute_name :admin_info
+      %dd= @client.admin_info.present? ? @client.admin_info : '-'
 
-  %dt= Client.human_attribute_name :comments
-  %dd= render @client.comments
+      %dt= Client.human_attribute_name :comments
+      %dd= render @client.comments
+
+  .span4
+    #comments.comments_list= comments_list_for @client
+    = comment_form_for @client
 
 #client_devices
   %table.table.table-bordered.table-hover.table-condensed
