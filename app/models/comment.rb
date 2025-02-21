@@ -20,6 +20,7 @@ class Comment < ApplicationRecord
 
   audited associated_with: :commentable,
           if: :should_audit_for_commentable?
+
   def user_name
     user&.full_name
   end
