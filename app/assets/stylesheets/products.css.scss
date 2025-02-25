@@ -170,3 +170,13 @@ select#product_product_category_id{
 #product_form #product_name {
   width: 480px;
 }
+
+#product_form .multiselect-rep-services {
+  display: none;
+}
+
+
+.multiselect-group.dropdown-item-text {
+    display: block;
+    padding-left: 12px;
+}
