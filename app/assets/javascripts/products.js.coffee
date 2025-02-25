@@ -96,3 +96,21 @@ $ ->
           selected.push [ $(this).val() ]
           return
         return
+
+  if $('.multiselect-rep-services').length
+    $('.multiselect-rep-services').multiselect
+      enableClickableOptGroups: false,
+      nonSelectedText: 'Все виды ремонта',
+      selectAllText: 'Все виды ремонта',
+      onInitialized: ->
+        $('.multiselect-rep-services .multiselect-group, .multiselect-rep-services .multiselect-option, .multiselect-rep-services .multiselect-all').each ->
+          $(this).attr('type', 'button')
+          return
+        return
+      onChange: (element, checked) ->
+        brands = $('.multiselect-rep-services option:selected')
+        selected = []
+        $(brands).each (index, brand) ->
+          selected.push [ $(this).val() ]
+          return
+        return

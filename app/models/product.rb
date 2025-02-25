@@ -28,6 +28,7 @@ class Product < ApplicationRecord
   has_one :task, inverse_of: :product, dependent: :nullify
   has_one :top_salable, dependent: :nullify
   has_and_belongs_to_many :options, class_name: 'OptionValue', join_table: 'product_options'
+  has_and_belongs_to_many :repair_services
   has_many :option_types, -> { ordered.distinct }, through: :product_group
   has_many :option_values, through: :product_group
   has_many :items, inverse_of: :product, dependent: :restrict_with_error
