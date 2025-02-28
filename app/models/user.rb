@@ -679,6 +679,19 @@ class User < ApplicationRecord
     update!(elqueue_window_id: nil)
   end
 
+  def deactivate_elqueue_window
+    if (elqueue_window = self.elqueue_window)
+      if elqueue_window.serving_client?
+        elqueue_window.waiting_client.complete_automatically
+      end
+      elqueue_window.reload
+      elqueue_window.is_active = false
+      elqueue_window.save
+      self.elqueue_window = nil
+      save
+    end
+  end
+
   private
 
   def add_to_auto_add_boards
