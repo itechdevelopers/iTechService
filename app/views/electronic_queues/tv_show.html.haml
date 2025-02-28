@@ -5,12 +5,10 @@
   - @clients_in_service.each do |client|
     .elqueue-tv-card{data: {ticket_number: client.ticket_number}}
       %span.ticket-info
-        = client.ticket_number
-        %span.label-tv Талон
+        = colorize_ticket_number(client.ticket_number)
       %span.arrow-tv &#x279C;
       %span.ticket-info
         = client.elqueue_window.window_number
-%span.label-tv Окно
 .elqueue-tv-waiting
   .elqueue-tv-waiting__title
     Ожидающие
@@ -76,6 +74,13 @@
     line-height: normal;
     padding-bottom: 0;
   }
+  .digit-color {
+    color: red;
+  }
+
+  .letter-color {
+    color: black;
+  }
   .elqueue-tv {
     font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
     background-color: white;
@@ -102,7 +107,7 @@
 
     .ticket-info {
       display: flex;
-      flex-direction: column;
+      flex-direction: row;
       justify-content: center;
       align-items: center;
       gap: 2px;

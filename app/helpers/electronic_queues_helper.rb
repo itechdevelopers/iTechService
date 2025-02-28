@@ -1,4 +1,16 @@
 module ElectronicQueuesHelper
+  def colorize_ticket_number(ticket_number)
+    result = ""
+    ticket_number.to_s.each_char do |char|
+      if char =~ /\d/ # Если символ - цифра
+        result += "<span class='digit-color'>#{char}</span>"
+      else
+        result += "<span class='letter-color'>#{char}</span>"
+      end
+    end
+    result.html_safe
+  end
+
   def queue_items_trees_tag(queue_items, current_id = nil, options = {})
     queue_items.map do |queue_item|
       queue_items_tree_tag queue_item, current_id, options

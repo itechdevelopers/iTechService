@@ -256,6 +256,19 @@ $ ->
         )
         .catch((error) => console.error("Ошибка загрузки звука #{soundName}:", error))
 
+  createColorizedTicketNumber = (ticketNumber) ->
+    $container = $('<span>').addClass('ticket-info')
+    
+    String(ticketNumber).split('').forEach (char) ->
+      $span = $('<span>')
+      if /\d/.test(char)
+        $span.addClass('digit-color')
+      else
+        $span.addClass('letter-color')
+      $span.text(char)
+      $container.append($span)
+    
+    return $container
   $(document).ready ->
     window.waitingTicketsDisplay = new WaitingTicketsDisplay()
     window.audioPlayer = new AudioPlayer()
