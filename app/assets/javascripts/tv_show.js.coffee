@@ -21,11 +21,11 @@ $ ->
     startService: (ticketNumber, windowNumber) ->
       $card = $('<div>').addClass('elqueue-tv-card').data('ticket-number', ticketNumber)
 
-      $ticketNumber = $('<span>').addClass('ticket-info').text(ticketNumber)
-      $ticketNumber.append($('<span>').addClass('label-tv').text('Талон'))
+      $ticketNumber = window.createColorizedTicketNumber(ticketNumber)
+      $ticketNumber.append($('<span>').addClass('label-tv').text(''))
       $arrow = $('<span>').addClass('arrow-tv').html('&#x279C;')
       $ticketWindow = $('<span>').addClass('ticket-info').text(windowNumber)
-      $ticketWindow.append($('<span>').addClass('label-tv').text('Окно'))
+      $ticketWindow.append($('<span>').addClass('label-tv').text(''))
 
       $card.append($ticketNumber)
       $card.append($arrow)
@@ -256,19 +256,20 @@ $ ->
         )
         .catch((error) => console.error("Ошибка загрузки звука #{soundName}:", error))
 
-  createColorizedTicketNumber = (ticketNumber) ->
-    $container = $('<span>').addClass('ticket-info')
-    
-    String(ticketNumber).split('').forEach (char) ->
-      $span = $('<span>')
-      if /\d/.test(char)
-        $span.addClass('digit-color')
-      else
-        $span.addClass('letter-color')
-      $span.text(char)
-      $container.append($span)
-    
-    return $container
   $(document).ready ->
+    window.createColorizedTicketNumber = (ticketNumber) ->
+      $container = $('<span>').addClass('ticket-info')
+      
+      String(ticketNumber).split('').forEach (char) ->
+        $span = $('<span>')
+        if /\d/.test(char)
+          $span.addClass('digit-color')
+        else
+          $span.addClass('letter-color')
+        $span.text(char)
+        $container.append($span)
+      
+      return $container
+
     window.waitingTicketsDisplay = new WaitingTicketsDisplay()
     window.audioPlayer = new AudioPlayer()
