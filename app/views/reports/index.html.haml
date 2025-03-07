@@ -6,6 +6,7 @@
   .right
     = text_field_tag "search", "", id: "search-input", placeholder: "Поиск"
     - if can?(:manage, ReportsBoard)
+      = link_to 'Добавить/забрать отчет', access_control_reports_board_path(@reports_board), class: 'btn btn-success reports-board-btn'
       = link_to t('reports.manage'), reports_board_path(@reports_board), class: 'btn btn-success reports-board-btn'
     - if can?(:update_annotation, ReportCard)
       = link_to 'Редактировать аннотации', '#', class: 'btn btn-submit reports-annotation-btn'
