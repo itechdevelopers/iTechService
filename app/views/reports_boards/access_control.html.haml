@@ -1,0 +1,16 @@
+%header.reports_index-container
+  .left
+    %a.brand{href: "#{root_url}"}= logo_tag
+  .center
+    %h1#report_title Добавить/забрать отчёт
+  .right
+    = link_to t('reports_boards.back'), reports_path, class: 'btn btn-submit reports-board-btn'
+
+.row-fluid
+  .span8
+    %ul.nav.nav-tabs
+      %li= link_to 'Добавить отчёт(ы)', '#add_reports', 'data-toggle' => 'tab'      %li= link_to 'Забрать отчёт', '#remove_report', 'data-toggle' => 'tab'
+
+    .tab-content
+      #add_reports.tab-pane
+      #remove_report.tab-pane

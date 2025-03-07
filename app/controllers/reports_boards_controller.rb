@@ -1,6 +1,10 @@
 class ReportsBoardsController < ApplicationController
   layout "reports"
 
+  def access_control
+    authorize ReportsBoard
+  end
+
   def show
     authorize ReportsBoard
     @reports_board = ReportsBoard.find_by(name: "Default")
