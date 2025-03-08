@@ -126,6 +126,8 @@ class User < ApplicationRecord
   has_many :karmas, dependent: :destroy, inverse_of: :user
   has_many :karma_groups, through: :karmas
   has_many :bonuses, through: :karma_groups
+  has_many :report_permissions, dependent: :destroy
+  has_many :accessible_report_cards, through: :report_permissions, source: :report_card
   has_many :messages, dependent: :destroy
   has_many :infos, inverse_of: :recipient, dependent: :destroy
   has_many :salaries, inverse_of: :user, dependent: :destroy

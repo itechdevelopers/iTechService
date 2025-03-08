@@ -1,4 +1,61 @@
 jQuery ->
+  $('#add-access-tab').tab('show')
+
+  $('#reportsAccessTabs a').on 'click', (e) ->
+    e.preventDefault()
+    $(this).tab('show')
+
+  # Обработка кнопки "Выбрать все отчеты"
+  $('#select-all-reports').on 'click', ->
+    $checkboxes = $('.report-checkbox')
+    isAllChecked = $('.report-checkbox:checked').length == $checkboxes.length
+    
+    $checkboxes.prop('checked', !isAllChecked)
+    
+    # Меняем текст кнопки в зависимости от состояния
+    if !isAllChecked
+      $(this).text('Отменить все')
+    else
+      $(this).text('Выбрать все')
+
+  $('#select-all-reports-remove').on 'click', ->
+    $checkboxes = $('.report-checkbox-remove')
+    isAllChecked = $('.report-checkbox-remove:checked').length == $checkboxes.length
+    
+    $checkboxes.prop('checked', !isAllChecked)
+    
+    if !isAllChecked
+      $(this).text('Отменить все')
+    else
+      $(this).text('Выбрать все')
+
+  $('.user-search-input-remove').on 'keyup', ->
+    searchTerm = $(this).val().toLowerCase()
+    
+    if searchTerm.length > 0
+      $('.user-item-remove').each ->
+        searchableText = $(this).find('label').data('searchable')
+        if searchableText.indexOf(searchTerm) > -1
+          $(this).show()
+        else
+          $(this).hide()
+    else
+      $('.user-item-remove').show()
+  
+  # Поиск пользователей
+  $('.user-search-input').on 'keyup', ->
+    searchTerm = $(this).val().toLowerCase()
+    
+    if searchTerm.length > 0
+      $('.user-item').each ->
+        searchableText = $(this).find('label').data('searchable')
+        if searchableText.indexOf(searchTerm) > -1
+          $(this).show()
+        else
+          $(this).hide()
+    else
+      $('.user-item').show()
+
   #  Аннотации к отчетам
   $annotationBtn = $('.reports-annotation-btn')
 

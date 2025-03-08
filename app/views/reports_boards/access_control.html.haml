@@ -6,11 +6,89 @@
   .right
     = link_to t('reports_boards.back'), reports_path, class: 'btn btn-submit reports-board-btn'
 
-.row-fluid
-  .span8
-    %ul.nav.nav-tabs
-      %li= link_to 'Добавить отчёт(ы)', '#add_reports', 'data-toggle' => 'tab'      %li= link_to 'Забрать отчёт', '#remove_report', 'data-toggle' => 'tab'
+%ul.nav.nav-tabs.mt-3#reportsAccessTabs{role: "tablist"}
+  %li.nav-item
+    %a.nav-link.active#add-access-tab{"data-toggle": "tab", href: "#add-access", role: "tab", "aria-controls": "add-access", "aria-selected": "true"} Добавить отчёты
+  %li.nav-item
+    %a.nav-link#remove-access-tab{"data-toggle": "tab", href: "#remove-access", role: "tab", "aria-controls": "remove-access", "aria-selected": "false"} Удалить отчёты
 
-    .tab-content
-      #add_reports.tab-pane
-      #remove_report.tab-pane
+.tab-content.mt-3#reportsAccessTabContent
+  .tab-pane.active.show#add-access{role: "tabpanel", "aria-labelledby": "add-access-tab"}
+    %h3.mb-3 Добавление отчётов
+  
+    = form_tag assign_permissions_reports_board_path(@reports_board), method: :post, class: 'reports-access-form' do
+      .row-reports-access
+        .col-md-6
+          .card
+            .card-header
+              .d-flex.justify-content-between.align-items-center
+                %h4 Отчеты
+                %button.btn.btn-sm.btn-outline-primary#select-all-reports{type: "button"} Выбрать все
+
+            .card-body.reports-list
+              .form-group
+                - ReportCard.all.each do |report|
+                  .custom-control.custom-checkbox.mb-2
+                    = check_box_tag "report_ids[]", report.id, false, class: 'custom-control-input report-checkbox', id: "report_#{report.id}"
+                    = label_tag "report_#{report.id}", t("reports.#{report.content}.title"), class: 'custom-control-label'
+        
+        .col-md-6
+          .card
+            .card-header
+              %h4 Пользователи
+              .input-group.mt-2
+                = text_field_tag :user_search, nil, placeholder: "Поиск пользователей...", class: 'form-control user-search-input'
+                .input-group-append
+                  %button.btn.btn-outline-secondary{type: "button"}
+                    %i.fa.fa-search
+
+            .card-body.users-list
+              .form-group
+                - User.all.each do |user|
+                  .custom-control.custom-checkbox.mb-2.user-item
+                    = check_box_tag "user_ids[]", user.id, false, class: 'custom-control-input user-checkbox', id: "user_#{user.id}"
+                    = label_tag "user_#{user.id}", "#{user.short_name}", class: 'custom-control-label', data: { searchable: "#{user.short_name}".downcase }
+      
+      .row-reports-access.mt-3
+        .col-12.text-center
+          = submit_tag "Предоставить доступ", class: 'btn btn-primary btn-lg'
+ 
+  .tab-pane.fade#remove-access{role: "tabpanel", "aria-labelledby": "remove-access-tab"}
+    %h3.mb-3 Удаление прав доступа
+    
+    = form_tag revoke_permissions_reports_board_path(@reports_board), method: :delete, class: 'reports-access-form' do
+      .row-reports-access
+        .col-md-6
+          .card
+            .card-header
+              .d-flex.justify-content-between.align-items-center
+                %h4 Отчеты
+                %button.btn.btn-sm.btn-outline-primary#select-all-reports-remove{type: "button"} Выбрать все
+
+            .card-body.reports-list
+              .form-group
+                - ReportCard.all.each do |report|
+                  .custom-control.custom-checkbox.mb-2
+                    = check_box_tag "report_ids[]", report.id, false, class: 'custom-control-input report-checkbox-remove', id: "report_remove_#{report.id}"
+                    = label_tag "report_remove_#{report.id}", t("reports.#{report.content}.title"), class: 'custom-control-label'
+        
+        .col-md-6
+          .card
+            .card-header
+              %h4 Пользователи
+              .input-group.mt-2
+                = text_field_tag :user_search_remove, nil, placeholder: "Поиск пользователей...", class: 'form-control user-search-input-remove'
+                .input-group-append
+                  %button.btn.btn-outline-secondary{type: "button"}
+                    %i.fa.fa-search
+
+            .card-body.users-list
+              .form-group
+                - User.all.each do |user|
+                  .custom-control.custom-checkbox.mb-2.user-item-remove
+                    = check_box_tag "user_ids[]", user.id, false, class: 'custom-control-input user-checkbox-remove', id: "user_remove_#{user.id}"
+                    = label_tag "user_remove_#{user.id}", "#{user.short_name}", class: 'custom-control-label', data: { searchable: "#{user.short_name}".downcase }
+      
+      .row-reports-access.mt-3
+        .col-12.text-center
+          = submit_tag "Удалить доступ", class: 'btn btn-danger btn-lg' 

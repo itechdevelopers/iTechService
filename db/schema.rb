@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20250225081722) do
+ActiveRecord::Schema.define(version: 20250308151925) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -1157,6 +1157,16 @@ ActiveRecord::Schema.define(version: 20250225081722) do
     t.index ["reports_board_id"], name: "index_report_columns_on_reports_board_id"
   end
 
+  create_table "report_permissions", force: :cascade do |t|
+    t.bigint "user_id", null: false
+    t.bigint "report_card_id", null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["report_card_id"], name: "index_report_permissions_on_report_card_id"
+    t.index ["user_id", "report_card_id"], name: "index_report_permissions_on_user_id_and_report_card_id", unique: true
+    t.index ["user_id"], name: "index_report_permissions_on_user_id"
+  end
+
   create_table "reports_boards", force: :cascade do |t|
     t.string "name"
     t.string "description"
@@ -1853,6 +1863,8 @@ ActiveRecord::Schema.define(version: 20250225081722) do
   add_foreign_key "repair_tasks", "users", column: "repairer_id"
   add_foreign_key "report_cards", "report_columns"
   add_foreign_key "report_columns", "reports_boards"
+  add_foreign_key "report_permissions", "report_cards"
+  add_foreign_key "report_permissions", "users"
   add_foreign_key "reviews", "clients"
   add_foreign_key "reviews", "service_jobs"
   add_foreign_key "reviews", "users"
