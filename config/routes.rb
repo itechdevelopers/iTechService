@@ -393,6 +393,8 @@ Rails.application.routes.draw do
   resources :reports_boards, only: %i[show] do
     patch :sort, on: :member, defaults: {format: :js}
     get :access_control, on: :member
+    post :assign_permissions, on: :member
+    delete :revoke_permissions, on: :member
     resources :report_columns, only: %i[create destroy], defaults: {format: :js}
   end
 
