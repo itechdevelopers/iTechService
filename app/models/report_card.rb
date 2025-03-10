@@ -5,8 +5,8 @@ class ReportCard < ApplicationRecord
   has_many :authorized_users, through: :report_permissions, source: :user
   
   def accessible_by?(user)
-    # Если пользователь имеет права администратора, доступ разрешен
-    return true if user.admin? || user.superadmin?
+    # Если пользователь имеет права суперадминистратора, доступ разрешен
+    return true if user.superadmin?
     
     authorized_users.include?(user)
   end
