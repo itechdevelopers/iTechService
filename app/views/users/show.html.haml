@@ -32,6 +32,7 @@
       %li= link_to t("users.uniform"), '#uniform_tab', 'data-toggle' => 'tab'
       %li= link_to t("users.user_settings"), "#user_settings", "data-toggle" => "tab"
       %li= link_to t("users.notifications"), "#notifications_tab", "data-toggle" => "tab"
+      %li= link_to 'Отчёты', '#reports_tab', 'data-toggle' => 'tab'
 
     .tab-content
 
@@ -234,6 +235,18 @@
               = f.input :uniform_sex, collection: User::UNIFORM_SEX, value_method: :to_s, selected: @user.uniform_sex, input_html: {id: :input_uniform_sex}
               = f.input :uniform_size, collection: User::UNIFORM_SIZE, value_method: :to_s, selected: @user.uniform_size, input_html: {id: :input_uniform_size}
               = submit_button f
+
+      #reports_tab.tab-pane
+        %h3 Доступные отчёты
+        - if @user.accessible_report_cards.exists?
+          %ul.report-permissions-list
+            - @user.accessible_report_cards.includes(:report_column).each do |report_card|
+              %li.report-item
+                = t("reports.#{report_card.content}.title")
+                - if report_card.annotation.present?
+                  %small.text-muted= "- #{report_card.annotation}"
+        - else
+          %p.text-muted Нет доступных отчетов
 
       #user_settings.tab-pane
         - if can? :update_user_settings, @user
