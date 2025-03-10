@@ -99,6 +99,10 @@ class ApplicationPolicy
     user.able_to?(ability.to_s)
   end
 
+  def has_reports_access?
+    user.accessible_report_cards.exists?
+  end
+
   class Scope
     attr_reader :user, :scope
 

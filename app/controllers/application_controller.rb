@@ -27,6 +27,10 @@ class ApplicationController < ActionController::Base
     policy(object).public_send("#{action}?")
   end
 
+  def has_reports_access?
+    current_user.accessible_report_cards.exists?
+  end
+
   def able_to?(ability)
     current_user.able_to?(ability)
   end
