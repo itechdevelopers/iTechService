@@ -44,7 +44,7 @@
 
             .card-body.users-list
               .form-group
-                - User.all.each do |user|
+                - User.active.each do |user|
                   .custom-control.custom-checkbox.mb-2.user-item
                     = check_box_tag "user_ids[]", user.id, false, class: 'custom-control-input user-checkbox', id: "user_#{user.id}"
                     = label_tag "user_#{user.id}", "#{user.short_name}", class: 'custom-control-label', data: { searchable: "#{user.short_name}".downcase }
@@ -84,7 +84,7 @@
 
             .card-body.users-list
               .form-group
-                - User.all.each do |user|
+                - User.active.each do |user|
                   .custom-control.custom-checkbox.mb-2.user-item-remove
                     = check_box_tag "user_ids[]", user.id, false, class: 'custom-control-input user-checkbox-remove', id: "user_remove_#{user.id}"
                     = label_tag "user_remove_#{user.id}", "#{user.short_name}", class: 'custom-control-label', data: { searchable: "#{user.short_name}".downcase }
