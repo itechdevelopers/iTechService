@@ -1,18 +1,28 @@
 jQuery ->
+  $('.report-checkbox-remove').on 'change', ->
+    updateUsersList()
+
+  $('#reportsAccessTabs a').on 'click', (e) ->
+    e.preventDefault()
+    $(this).tab('show')
+    
+    if $(this).attr('id') == 'remove-access-tab'
+      $('.report-checkbox-remove').prop('checked', false)
+      $('.user-search-input-remove').val('')
+      updateUsersList()
+
   $('#add-access-tab').tab('show')
 
   $('#reportsAccessTabs a').on 'click', (e) ->
     e.preventDefault()
     $(this).tab('show')
 
-  # Обработка кнопки "Выбрать все отчеты"
   $('#select-all-reports').on 'click', ->
     $checkboxes = $('.report-checkbox')
     isAllChecked = $('.report-checkbox:checked').length == $checkboxes.length
     
     $checkboxes.prop('checked', !isAllChecked)
     
-    # Меняем текст кнопки в зависимости от состояния
     if !isAllChecked
       $(this).text('Отменить все')
     else
@@ -32,17 +42,36 @@ jQuery ->
   $('.user-search-input-remove').on 'keyup', ->
     searchTerm = $(this).val().toLowerCase()
     
-    if searchTerm.length > 0
-      $('.user-item-remove').each ->
-        searchableText = $(this).find('label').data('searchable')
-        if searchableText.indexOf(searchTerm) > -1
-          $(this).show()
-        else
-          $(this).hide()
-    else
-      $('.user-item-remove').show()
+    selectedReports = $('.report-checkbox-remove:checked').map(->
+      return $(this).val()
+    ).get()
+    
+    visibleCount = 0
+    totalCount = $('.user-item-remove').length
+    
+    $('.user-item-remove').each ->
+      $user = $(this)
+      searchableText = $user.find('label').data('searchable')
+      userReports = $user.find('label').data('accessible-reports').toString().split(',')
+      
+      matchesSearch = searchTerm.length == 0 || searchableText.indexOf(searchTerm) > -1
+      
+      matchesReports = true
+      if selectedReports.length > 0
+        matchesReports = false
+        for reportId in selectedReports
+          if $.inArray(reportId, userReports) >= 0
+            matchesReports = true
+            break
+      
+      if matchesSearch && matchesReports
+        $user.show()
+        visibleCount++
+      else
+        $user.hide()
+    
+    $('.users-visible-count').text(visibleCount)
   
-  # Поиск пользователей
   $('.user-search-input').on 'keyup', ->
     searchTerm = $(this).val().toLowerCase()
     
@@ -256,3 +285,37 @@ saveReportsBoard = (uls) ->
   boardId = $('.reports_board').data('id')
   $('#board-ids').val(JSON.stringify(reportsIds))
   $('#form-reports-board').submit()
+
+# Функция для обновления списка пользователей с доступом к отчету
+updateUsersList = ->
+  selectedReports = $('.report-checkbox-remove:checked').map(->
+    return $(this).val()
+  ).get()
+  
+  visibleCount = 0
+  totalCount = $('.user-item-remove').length
+  
+  if selectedReports.length > 0
+    $('.user-item-remove').each ->
+      $user = $(this)
+      userReports = $user.find('label').data('accessible-reports').toString().split(',')
+      
+      hasAccess = false
+      for reportId in selectedReports
+        if $.inArray(reportId, userReports) >= 0
+          hasAccess = true
+          break
+      
+      if hasAccess
+        $user.show()
+        visibleCount++
+      else
+        $user.hide()
+  else
+    $('.user-item-remove').show()
+    visibleCount = totalCount
+  
+  $('.users-visible-count').text(visibleCount)
+  $('.users-total-count').text(totalCount)
+
+

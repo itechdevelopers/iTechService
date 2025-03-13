@@ -632,6 +632,10 @@ class User < ApplicationRecord
     update_column :authentication_token, SecureRandom.uuid
   end
 
+  def has_access_to_report?(report_id)
+    accessible_report_cards.include?(report_id.to_i)
+  end
+
   def working_electronic_queue?
     ElectronicQueue.enabled_for_department(department) && able_to?(:work_with_electronic_queues)
   end
