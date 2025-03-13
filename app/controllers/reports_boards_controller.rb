@@ -4,6 +4,8 @@ class ReportsBoardsController < ApplicationController
   def access_control
     authorize ReportsBoard
     @reports_board = ReportsBoard.find(params[:id])
+
+    @users = User.active.includes(:report_permissions)
   end
 
   def assign_permissions

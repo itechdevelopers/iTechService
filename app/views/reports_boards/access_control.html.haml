@@ -76,6 +76,11 @@
           .card
             .card-header
               %h4 Пользователи
+              %small.text-muted.user-counter-remove
+                Показано: 
+                %span.users-visible-count= User.active.count
+                из 
+                %span.users-total-count= User.active.count
               .input-group.mt-2
                 = text_field_tag :user_search_remove, nil, placeholder: "Поиск пользователей...", class: 'form-control user-search-input-remove'
                 .input-group-append
@@ -87,7 +92,8 @@
                 - User.active.each do |user|
                   .custom-control.custom-checkbox.mb-2.user-item-remove
                     = check_box_tag "user_ids[]", user.id, false, class: 'custom-control-input user-checkbox-remove', id: "user_remove_#{user.id}"
-                    = label_tag "user_remove_#{user.id}", "#{user.short_name}", class: 'custom-control-label', data: { searchable: "#{user.short_name}".downcase }
+                    = label_tag "user_remove_#{user.id}", "#{user.short_name}", class: 'custom-control-label', data: { searchable: "#{user.short_name}".downcase,
+                accessible_reports: user.accessible_report_cards.map(&:id).join(',') }
       
       .row-reports-access.mt-3
         .col-12.text-center
