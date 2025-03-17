@@ -453,3 +453,21 @@ label.label-ignored-types {
     }
   }
 }
+
+.row-reports-access {
+  display: flex;
+  flex-wrap: wrap;
+  margin-right: -15px;
+  margin-left: 8px;
+}
+
+@media (max-width: 767px) {
+  .row-reports-access {
+    flex-direction: column;
+  }
+  
+  .row-reports-access .col-md-6 {
+    width: 100%;
+    margin-bottom: 15px;
+  }
+}
