@@ -139,6 +139,8 @@ $ ->
     constructor: ->
       @audioBuffers = {}
       @audioContext = null
+      @soundQueue = []
+      @audioIsCurrentlyPlaying = false
       @setupInitializationButton()
 
     setupInitializationButton: ->
@@ -224,6 +226,7 @@ $ ->
       mergedBuffer
 
     playSound: (soundNameOrTicketInfo) ->
+      buffer = null
       if typeof soundNameOrTicketInfo == 'string'
         buffer = @audioBuffers[soundNameOrTicketInfo]
       else
@@ -232,10 +235,32 @@ $ ->
         buffer = @mergeAudioBuffers(audioParts)
 
       return unless buffer
+    
+      # Добавляем звук в очередь
+      @soundQueue.push(buffer)
+      
+      # Запускаем воспроизведение, если оно еще не идет
+      @playNextSound() unless @audioIsCurrentlyPlaying
 
+    # Воспроизводит следующий звук из очереди
+    playNextSound: ->
+      return if @soundQueue.length == 0
+      
+      @audioIsCurrentlyPlaying = true
+      buffer = @soundQueue.shift()
+      
       source = @audioContext.createBufferSource()
       source.buffer = buffer
       source.connect(@audioContext.destination)
+      
+      # Устанавливаем обработчик окончания воспроизведения
+      source.onended = => 
+        @audioIsCurrentlyPlaying = false
+        if @soundQueue.length > 0
+          setTimeout(=>
+            @playNextSound()
+          , 100)
+      
       source.start()
 
     loadSound: (soundName) ->
