@@ -47,7 +47,7 @@ jQuery ->
     else
       $spans.each ->
         $span = $(this)
-        labelText = $span.find('label.collection_check_boxes').text().toLowerCase()
+        labelText = $span.find('label').text().toLowerCase()
         if labelText.indexOf(filterText) == -1
           $span.hide()
         else
