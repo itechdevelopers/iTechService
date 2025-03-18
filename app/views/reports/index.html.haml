@@ -22,7 +22,7 @@
           - if rc.accessible_by?(current_user)
             %li.report_column-card.searchable{class: rc.annotation.present? ? 'card_with-annotation' : '',
                                               data: { id: rc.id, annotation: rc.annotation } }
-              = link_to t("reports.#{rc.content}.title"), new_report_path(report: report_default_params(rc.content, rc.annotation))
+              = link_to t("reports.#{rc.content}.title"), new_report_path(report: report_default_params(rc.content))
               %i.fa.fa-pencil-square-o.report-annotation-form
               .annotation-form-container
                 = form_with model: rc,

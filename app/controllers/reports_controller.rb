@@ -23,6 +23,7 @@ class ReportsController < ApplicationController
 
   def new
     @report = build_report
+    @report_annotation = ReportCard.find_by(content: params[:report][:base_name]).annotation
     respond_to do |format|
       format.html
     end
