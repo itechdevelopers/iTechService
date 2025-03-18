@@ -56,7 +56,6 @@ module ReportsHelper
       few_remnants_goods: {base_name: 'few_remnants', kind: 'goods'},
       few_remnants_spare_parts: {base_name: 'few_remnants', kind: 'spare_parts'}
     }.fetch report_name.to_sym, {base_name: report_name}
-    result[:annotation] = annotation if annotation
     result
   end
 

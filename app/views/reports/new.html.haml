@@ -1,8 +1,8 @@
 %h1{class: @new_type_report ? 'new_report' : ''}
   = link_back_to_index
   = report_title @report
-- if params[:report].has_key?(:annotation) && !params[:report][:annotation].blank?
+- if @report_annotation
   .report-annotation-header
     Аннотация:
-    = params[:report][:annotation]
+    = @report_annotation
 = render 'form', report: @report
