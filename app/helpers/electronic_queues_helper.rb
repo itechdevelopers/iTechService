@@ -89,7 +89,9 @@ module ElectronicQueuesHelper
       tooltip[:has_tooltip] = true
       tooltip[:text] = tooltip_text(@current_waiting_client)
       menu_items << menu_item(ticket_num.to_s, show_finish_service_elqueue_window_path(@current_elqueue_window),
+                              class: 'elqueue-menu-ticket-number', 
                               data: { remote: true })
+      menu_items << menu_item("#{glyph('volume-up')} Повторить аудио".html_safe, repeat_audio_waiting_client_path(@current_waiting_client), class: 'elqueue-menu-ticket-repeat', data: { remote: true })
       if (client = @current_waiting_client.client)
         menu_items << menu_item(client.name_phone, client_path(client), class: 'elqueue-menu-client')
         menu_items << menus_for_client_service_jobs(client)
