@@ -1,6 +1,6 @@
 class WaitingClientsController < ApplicationController
   before_action :set_waiting_client, only: %i[complete show assign_window
-                                              reassign_window archive]
+                                              reassign_window archive repeat_audio]
 
   def create
     authorize WaitingClient
@@ -53,6 +53,14 @@ class WaitingClientsController < ApplicationController
     @waiting_client.archive(current_user)
     @electronic_queue = @waiting_client.electronic_queue
     @waiting_clients = WaitingClient.in_queue(@electronic_queue).waiting
+  end
+
+  def repeat_audio
+    authorize @waiting_client
+    @waiting_client.broadcast_repeat_audio
+    respond_to do |format|
+      format.js { head :ok }
+    end
   end
 
   def show

@@ -22,4 +22,8 @@ class WaitingClientPolicy < ApplicationPolicy
   def reassign_window?
     true
   end
+  
+  def repeat_audio?
+    true
+  end
 end

@@ -235,6 +235,16 @@ class WaitingClient < ApplicationRecord
                                         waiting_client: waiting_client_data)
   end
 
+  def broadcast_repeat_audio
+    waiting_client_data = {
+      ticket_number: ticket_number
+    }
+    ElectronicQueueChannel.broadcast_to(electronic_queue,
+                                        action: 'repeat_audio',
+                                        waiting_client: waiting_client_data, 
+                                        window: elqueue_window.window_number)
+  end
+
   private
 
   def set_move_ticket_job

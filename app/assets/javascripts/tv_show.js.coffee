@@ -11,6 +11,8 @@ $ ->
         @addToQueue(data['waiting_client'].ticket_number)
       if data['action'] == 'archive'
         @archive(data['waiting_client'].ticket_number)
+      if data['action'] == 'repeat_audio'
+        @repeatAudio(data['waiting_client'].ticket_number, data['window'])
 
     archive: (ticketNumber) ->
       window.waitingTicketsDisplay?.removeTicket(ticketNumber)
@@ -45,6 +47,9 @@ $ ->
             $(element).remove()
           )
           return false
+
+    repeatAudio: (ticketNumber, windowNumber) ->
+      window.audioPlayer?.playSound({ ticketNumber: ticketNumber, windowNumber: windowNumber })
 
 #  Показ ожидающих талонов
   class WaitingTicketsDisplay
