@@ -1,22 +1,38 @@
-- if @products.any?
-  - model_class = Product
-  %table.table.table-striped
-    %thead
-      %tr
-        %th= model_class.human_attribute_name(:id)
-        %th= model_class.human_attribute_name(:code)
-        %th= model_class.human_attribute_name(:name)
-        - if can? :manage, Product
-          %th
-    %tbody
-      - @products.each do |product|
-        %tr
-          %td= link_to product.id, product_path(product)
-          %td= link_to product.code, product_path(product)
-          %td= link_to product.name, product_path(product)
-          - if can? :manage, Product
-            %td.btn-group
-              = link_to_edit_small product
-              = link_to_destroy_small product
+= simple_form_for :product, url: update_repair_services_products_path, method: :patch, html: { id: 'batch_update_form', local: true } do |f|
+  .row-fluid
+    .span6
+      = f.input :repair_service_ids,
+        collection: RepairGroup.all,
+        as: :grouped_select,
+        group_method: :repair_services,
+        label: 'Прикрепить виды ремонта',
+        input_html: { class: 'multiselect-rep-services optional', multiple: true }
+    .span6
+      = f.button :submit, "Сохранить", class: 'btn-primary', id: 'batch_update_submit', disabled: true
 
-  = paginate @products, remote: true
+  - if @products.any?
+    - model_class = Product
+    %table.table.table-striped
+      %thead
+        %tr
+          %th= model_class.human_attribute_name(:id)
+          %th
+            = check_box_tag 'select_all', '', false, class: 'select-all-checkbox'
+          %th= model_class.human_attribute_name(:code)
+          %th= model_class.human_attribute_name(:name)
+          - if can? :manage, Product
+            %th
+      %tbody
+        - @products.each do |product|
+          %tr
+            %td= link_to product.id, product_path(product)
+            %td
+              = check_box_tag 'product_ids[]', product.id, false, class: 'product-checkbox'
+            %td= link_to product.code, product_path(product)
+            %td= link_to product.name, product_path(product)
+            - if can? :manage, Product
+              %td.btn-group
+                = link_to_edit_small product
+                = link_to_destroy_small product
+
+    = paginate @products, remote: true

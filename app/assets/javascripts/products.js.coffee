@@ -78,6 +78,47 @@ $(document).on 'click', '.add_fields', ->
 
 
 $ ->
+  initMultiselect = ->
+    $('.multiselect-rep-services-table').multiselect
+      includeSelectAllOption: true
+      enableFiltering: true
+      enableCaseInsensitiveFiltering: true
+      buttonWidth: '100%'
+      maxHeight: 300
+      selectAllText: 'Выбрать все'
+      nonSelectedText: 'Виды ремонта'
+      nSelectedText: 'выбрано'
+      allSelectedText: 'Все выбраны'
+      onInitialized: ->
+        $('.multiselect-rep-services-table .multiselect-group, .multiselect-rep-services-table .multiselect-option, .multiselect-rep-services-table .multiselect-all').each ->
+          $(this).attr('type', 'button')
+          return
+        return
+
+  handleCheckboxes = ->
+    $('.select-all-checkbox').on 'change', ->
+      $('.product-checkbox').prop('checked', $(this).prop('checked'))
+      updateSubmitButton()
+
+    $('.product-checkbox').on 'change', ->
+      if !$(this).prop('checked')
+        $('.select-all-checkbox').prop('checked', false)
+      else if $('.product-checkbox:checked').length == $('.product-checkbox').length
+        $('.select-all-checkbox').prop('checked', true)
+      updateSubmitButton()
+
+    $('.multiselect-rep-services-table').on 'change', ->
+      updateSubmitButton()
+
+  updateSubmitButton = ->
+    if $('.product-checkbox:checked').length > 0 && $('.multiselect-rep-services').val()?.length > 0
+      $('#batch_update_submit').prop('disabled', false)
+    else
+      $('#batch_update_submit').prop('disabled', true)
+
+  initMultiselect()
+  handleCheckboxes()
+
   if $('.multiselect-rep-causes').length
     $('.multiselect-rep-causes').multiselect
       enableClickableOptGroups: true,
@@ -114,3 +155,8 @@ $ ->
           selected.push [ $(this).val() ]
           return
         return
+
+$(document).on 'ajax:success', '.pagination a', ->
+  setTimeout ->
+    handleCheckboxes()
+  , 100
