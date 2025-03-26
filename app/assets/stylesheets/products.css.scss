@@ -175,6 +175,14 @@ select#product_product_category_id{
   display: none;
 }
 
+select.multiselect-rep-services {
+  display: none;
+}
+
+span.multiselect-native-select {
+  width: 20%;
+  display: block;
+}
 
 .multiselect-group.dropdown-item-text {
     display: block;

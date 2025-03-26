@@ -25,7 +25,7 @@
         collection: Department.all.order(:name), selected: current_department&.id,
         placeholder: Order.human_attribute_name(:department)
       =f.input :statuses, as: :select, input_html: { multiple: true },
-        collection: Order::STATUSES.map {|s| [t("orders.statuses.#{s}"), s] }, selected: %w[new done]
+        collection: Order::STATUSES.map {|s| [t("orders.statuses.#{s}"), s] }, selected: %w[new pending done]
       =f.button :submit, "Найти"
 
       -# = orders_department_filter_tag

@@ -214,6 +214,23 @@ class ProductsController < ApplicationController
     end
   end
 
+  def update_repair_services
+    authorize Product
+    if params[:product_ids].present? && params[:product][:repair_service_ids].present?
+      products = Product.where(id: params[:product_ids])
+      
+      products.each do |product|
+        product.repair_service_ids = params[:product][:repair_service_ids]
+      end
+      
+      flash[:success] = "Виды ремонта обновлены для #{products.count} продуктов"
+    else
+      flash[:error] = "Необходимо выбрать продукты и услуги ремонта"
+    end
+    
+    redirect_to products_path
+  end
+
   private
 
   def update_barcode_num

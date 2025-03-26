@@ -1,4 +1,8 @@
 class ProductPolicy < CommonPolicy
+  def update_repair_services?
+    modify?
+  end
+
   def modify?
     any_manager?(:marketing)
   end

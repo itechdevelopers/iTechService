@@ -148,11 +148,21 @@ class Order < ApplicationRecord
       )
     end
 
-    if (article_q = params[:article]).present?
+    if params[:article].present?
+      article_q = params[:article]
       product_name = Product.find_by(article: article_q)&.name
-      orders = orders.where(
-        'object LIKE :q', q: "%#{product_name}%"
-      )
+      
+      # Проверяем, был ли найден продукт
+      if product_name.present?
+        orders = orders.where(
+          'object LIKE :q OR article = :article_q',
+          q: "%#{product_name}%",
+          article_q: article_q
+        )
+      else
+        # Если продукт не найден, ищем только по артикулу
+        orders = orders.where(article: article_q)
+      end
     end
 
     unless (department_ids = params[:department_ids]).blank?

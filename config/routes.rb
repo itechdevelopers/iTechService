@@ -274,6 +274,7 @@ Rails.application.routes.draw do
     get :related, on: :member, defaults: {format: :js}
     post :select, on: :collection, defaults: {format: :js}
     get :find, on: :collection
+    patch :update_repair_services, on: :collection, defaults: {format: :js}
     resources :items, except: [:show]
   end
 
