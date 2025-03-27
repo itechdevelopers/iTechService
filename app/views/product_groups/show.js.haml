@@ -8,4 +8,6 @@
     $('#product_choose_form  #product_items').hide();
     $('#new_product_link').removeAttr('disabled');
     $('#new_product_link').attr('href', "#{new_product_path(product: {product_group_id: @product_group.id})}");
+    window.initRepairServicesMultiselect();
+    window.handleCheckboxes();
 -#$('#new_product_group_link').attr('href', "#{new_product_group_path(product_group: {parent_id: @product_group.id})}");

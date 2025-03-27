@@ -1,6 +1,8 @@
 :plain
   $("#resource_table").html("#{j(render(params[:table_name] || 'table'))}");
   $('#product_choose_form  #product_items').hide();
+  window.initRepairServicesMultiselect();
+  window.handleCheckboxes();
 - if @current_product_group.present?
   :plain
     $('#new_product_link').removeAttr('disabled');

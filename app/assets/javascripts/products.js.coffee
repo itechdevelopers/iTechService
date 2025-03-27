@@ -78,24 +78,7 @@ $(document).on 'click', '.add_fields', ->
 
 
 $ ->
-  initMultiselect = ->
-    $('.multiselect-rep-services-table').multiselect
-      includeSelectAllOption: true
-      enableFiltering: true
-      enableCaseInsensitiveFiltering: true
-      buttonWidth: '100%'
-      maxHeight: 300
-      selectAllText: 'Выбрать все'
-      nonSelectedText: 'Виды ремонта'
-      nSelectedText: 'выбрано'
-      allSelectedText: 'Все выбраны'
-      onInitialized: ->
-        $('.multiselect-rep-services-table .multiselect-group, .multiselect-rep-services-table .multiselect-option, .multiselect-rep-services-table .multiselect-all').each ->
-          $(this).attr('type', 'button')
-          return
-        return
-
-  handleCheckboxes = ->
+  window.handleCheckboxes = ->
     $('.select-all-checkbox').on 'change', ->
       $('.product-checkbox').prop('checked', $(this).prop('checked'))
       updateSubmitButton()
@@ -116,8 +99,6 @@ $ ->
     else
       $('#batch_update_submit').prop('disabled', true)
 
-  initMultiselect()
-  handleCheckboxes()
 
   if $('.multiselect-rep-causes').length
     $('.multiselect-rep-causes').multiselect
@@ -138,25 +119,33 @@ $ ->
           return
         return
 
-  if $('.multiselect-rep-services').length
-    $('.multiselect-rep-services').multiselect
-      enableClickableOptGroups: false,
-      nonSelectedText: 'Все виды ремонта',
-      selectAllText: 'Все виды ремонта',
-      onInitialized: ->
-        $('.multiselect-rep-services .multiselect-group, .multiselect-rep-services .multiselect-option, .multiselect-rep-services .multiselect-all').each ->
-          $(this).attr('type', 'button')
+  window.initRepairServicesMultiselect = ->
+    if $('.multiselect-rep-services').length
+      $('.multiselect-rep-services').multiselect
+        enableClickableOptGroups: false,
+        nonSelectedText: 'Все виды ремонта',
+        selectAllText: 'Все виды ремонта',
+        onInitialized: ->
+          $('.multiselect-rep-services .multiselect-group, .multiselect-rep-services .multiselect-option, .multiselect-rep-services .multiselect-all').each ->
+            $(this).attr('type', 'button')
+            return
           return
-        return
-      onChange: (element, checked) ->
-        brands = $('.multiselect-rep-services option:selected')
-        selected = []
-        $(brands).each (index, brand) ->
-          selected.push [ $(this).val() ]
+        onChange: (element, checked) ->
+          brands = $('.multiselect-rep-services option:selected')
+          selected = []
+          $(brands).each (index, brand) ->
+            selected.push [ $(this).val() ]
+            return
           return
-        return
+
+  window.initRepairServicesMultiselect()
+  window.handleCheckboxes()
+
+$(document).on 'ready turbolinks:load', ->
+  window.initRepairServicesMultiselect()
 
 $(document).on 'ajax:success', '.pagination a', ->
+  window.initRepairServicesMultiselect()
   setTimeout ->
-    handleCheckboxes()
+    window.handleCheckboxes()
   , 100
