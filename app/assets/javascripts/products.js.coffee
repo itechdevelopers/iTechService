@@ -93,6 +93,9 @@ $ ->
     $('.multiselect-rep-services-table').on 'change', ->
       updateSubmitButton()
 
+    $('.multiselect-option').on 'click', ->
+      updateSubmitButton()
+
   updateSubmitButton = ->
     if $('.product-checkbox:checked').length > 0 && $('.multiselect-rep-services').val()?.length > 0
       $('#batch_update_submit').prop('disabled', false)
