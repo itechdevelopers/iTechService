@@ -11,6 +11,12 @@
       = f.button :submit, "Сохранить", class: 'btn-primary', id: 'batch_update_submit', disabled: true
 
   - if @products.any?
+    .row-fluid
+      .span12.text-right
+        - if params[:show_all].blank?
+          = link_to "Показать все продукты", products_path(group: params[:group], show_all: true), class: 'btn btn-info'
+        - else
+          = link_to "Вернуться к постраничному просмотру", products_path(group: params[:group]), class: 'btn btn-default'
     - model_class = Product
     %table.table.table-striped
       %thead
@@ -35,4 +41,5 @@
                 = link_to_edit_small product
                 = link_to_destroy_small product
 
-    = paginate @products, remote: true
+    - unless params[:show_all].present?
+      = paginate @products, remote: true

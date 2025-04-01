@@ -188,3 +188,22 @@ span.multiselect-native-select {
     display: block;
     padding-left: 12px;
 }
+
+.multiselect-group.collapsible-group {
+  position: relative;
+  font-weight: bold;
+  padding-left: 20px;
+}
+
+.multiselect-group .collapse-indicator {
+  position: absolute;
+  left: 5px;
+  top: 50%;
+  transform: translateY(-50%);
+}
+
+.multiselect-container {
+  max-height: 300px;
+  overflow-y: auto;
+}
+

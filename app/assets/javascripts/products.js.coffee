@@ -78,6 +78,25 @@ $(document).on 'click', '.add_fields', ->
 
 
 $ ->
+  window.setupMultiselectGroups = ->
+    $('.multiselect-group').each (i, group) ->
+      $group = $(group)
+      
+      $group.addClass('collapsible-group')
+      $group.css('cursor', 'pointer')
+      
+      $group.prepend('<i class="fa fa-caret-down collapse-indicator" style="margin-right: 5px;"></i>')
+      
+      groupId = 'multiselect-group-' + i
+      $group.attr('id', groupId)
+      
+      current = $group.next()
+      
+      while current.length && !current.hasClass('multiselect-group')
+        if current.hasClass('multiselect-option')
+          current.addClass('belongs-to-' + groupId)
+        current = current.next()
+
   window.handleCheckboxes = ->
     $('.select-all-checkbox').on 'change', ->
       $('.product-checkbox').prop('checked', $(this).prop('checked'))
@@ -132,6 +151,7 @@ $ ->
           $('.multiselect-rep-services .multiselect-group, .multiselect-rep-services .multiselect-option, .multiselect-rep-services .multiselect-all').each ->
             $(this).attr('type', 'button')
             return
+          $(document).trigger('multiselect:created')
           return
         onChange: (element, checked) ->
           brands = $('.multiselect-rep-services option:selected')
@@ -147,8 +167,12 @@ $ ->
 $(document).on 'ready turbolinks:load', ->
   window.initRepairServicesMultiselect()
 
+$(document).on 'multiselect:created', ->
+  window.setupMultiselectGroups()
+
 $(document).on 'ajax:success', '.pagination a', ->
   window.initRepairServicesMultiselect()
   setTimeout ->
     window.handleCheckboxes()
   , 100
+

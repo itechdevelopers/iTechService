@@ -17,7 +17,7 @@ class ProductsController < ApplicationController
 
     @products = @products.available if params[:form] == 'sale'
     @products = @products.preload(:product_group, :product_category)
-    @products = @products.page(params[:page])
+    @products = @products.page(params[:page]) unless params[:show_all].present?
 
     params[:table_name] = 'small_table' if params[:choose] == 'true'
 
