@@ -71,3 +71,4 @@
 //= require custom_select
 //= require tasks
 //= require achievements
+//= require highlight_notifications
