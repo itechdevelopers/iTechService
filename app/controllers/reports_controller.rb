@@ -23,7 +23,7 @@ class ReportsController < ApplicationController
 
   def new
     @report = build_report
-    @report_annotation = ReportCard.find_by(content: params[:report][:base_name]).annotation
+    @report_annotation = get_annotation
     respond_to do |format|
       format.html
     end
@@ -43,6 +43,14 @@ class ReportsController < ApplicationController
   end
 
   private
+
+  def get_annotation
+    if params[:report][:kind]
+      ReportCard.find_by(content: "#{params[:report][:base_name]}_#{params[:report][:kind]}").annotation
+    else
+      ReportCard.find_by(content: params[:report][:base_name]).annotation
+    end
+  end
 
   def export_report
     p = Axlsx::Package.new
