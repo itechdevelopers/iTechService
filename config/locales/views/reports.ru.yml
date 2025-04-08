@@ -104,6 +104,7 @@ ru:
       total: "Всего клиентов"
       queue_items_total: "Сколько клиентов и что выбирали"
       avg_waiting_time: "Среднее время ожидания"
+      median_waiting_time: 'Медианное время ожидания'
       avg_served_time: "Среднее время выполнения задач"
       median_served_time: "Медианное время выполнения задач"
       queue_name: "Название задачи"
