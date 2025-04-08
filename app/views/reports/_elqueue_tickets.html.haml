@@ -58,7 +58,10 @@
           %strong= t '.avg_waiting_time'
         %td{colspan: 3}
           %pre.pre-unformatted= report.result[:resume][:avg_waiting_time]
-        %td{colspan: 4}
+        %td{colspan: 1}
+          %strong= t '.median_waiting_time'
+        %td{colspan: 3}
+          %pre.pre-unformatted= report.result[:resume][:median_waiting_time]
 
 %table.table.table-bordered.table-hover
   %caption= t('.title_name_morning')
@@ -117,7 +120,10 @@
           %strong= t '.avg_waiting_time'
         %td{colspan: 3}
           %pre.pre-unformatted= report.result[:morning_time][:resume][:avg_waiting_time]
-        %td{colspan: 4}
+        %td{colspan: 1}
+          %strong= t '.median_waiting_time'
+        %td{colspan: 3}
+          %pre.pre-unformatted= report.result[:morning_time][:resume][:median_waiting_time]
 
 %table.table.table-bordered.table-hover
   %caption= t('.title_name_daytime')
@@ -176,7 +182,10 @@
           %strong= t '.avg_waiting_time'
         %td{colspan: 3}
           %pre.pre-unformatted= report.result[:day_time][:resume][:avg_waiting_time]
-        %td{colspan: 4}
+        %td{colspan: 1}
+          %strong= t '.median_waiting_time'
+        %td{colspan: 3}
+          %pre.pre-unformatted= report.result[:day_time][:resume][:median_waiting_time]
 
 %table.table.table-bordered.table-hover
   %caption= t('.title_name_evening')
@@ -235,7 +244,10 @@
           %strong= t '.avg_waiting_time'
         %td{colspan: 3}
           %pre.pre-unformatted= report.result[:evening_time][:resume][:avg_waiting_time]
-        %td{colspan: 4}
+        %td{colspan: 1}
+          %strong= t '.median_waiting_time'
+        %td{colspan: 3}
+          %pre.pre-unformatted= report.result[:evening_time][:resume][:median_waiting_time]
 
 :coffee
   $ ->

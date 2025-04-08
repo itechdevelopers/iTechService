@@ -59,9 +59,10 @@ class ElqueueTicketsReport < BaseReport
       completed_automatically = wc.completed_automatically
       called_event = wc.elqueue_ticket_movements.where(type: "ElqueueTicketMovement::Called").order(created_at: :desc).first
       username = called_event&.user&.short_name || '-'
+      called_at = called_event&.created_at.strftime('%d.%m.%Y %H:%M')
 
       if !missing_ticket && time_served <= 3
-        short_working_time << { number: wc.ticket_number, time: time_served, user: username }
+        short_working_time << { number: wc.ticket_number, time: time_served, user: username, called_at: called_at }
       end
 
       status = if completed_automatically
@@ -83,7 +84,7 @@ class ElqueueTicketsReport < BaseReport
       }
     end
 
-    result[:short_working_time] = short_working_time.map { |elem| "#{elem[:number]} - #{elem[:user]} #{elem[:time]} мин." }
+    result[:short_working_time] = short_working_time.map { |elem| "#{elem[:called_at]} #{elem[:number]} - #{elem[:user]} #{elem[:time]} мин." }
                                                     .join("\n")
     result
   end
@@ -158,7 +159,9 @@ class ElqueueTicketsReport < BaseReport
     filtered_with_called = waiting_clients.select(&:ticket_called_at)
     waiting_durations = filtered_with_called.map { |wc| (wc.ticket_called_at - wc.ticket_issued_at).div(60) }
     average_waiting_time = waiting_durations.sum / waiting_durations.size.to_f
+    median_waiting_time = median_time(waiting_durations).round(2)
     result[:avg_waiting_time] = average_waiting_time.round(2)
+    result[:median_waiting_time] = median_waiting_time
 
     result
   end
