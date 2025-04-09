@@ -107,6 +107,7 @@ ru:
       median_waiting_time: 'Медианное время ожидания'
       avg_served_time: "Среднее время выполнения задач"
       median_served_time: "Медианное время выполнения задач"
+      window_user_pairs: 'Сводка по работе окон'
       queue_name: "Название задачи"
       user_called: "Сотрудник"
       status: "Завершён или клиент не пришёл"

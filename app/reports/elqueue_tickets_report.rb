@@ -52,6 +52,8 @@ class ElqueueTicketsReport < BaseReport
                                             { electronic_queue: electronic_queue })
                                    .order('waiting_clients.ticket_issued_at ASC')
 
+    window_user_pairs = []
+
     result[:waiting_clients] = waiting_clients.map do |wc|
       time_waited = wc.ticket_called_at ? (wc.ticket_called_at - wc.ticket_issued_at).div(60) : ''
       time_served = wc.ticket_served_at ? (wc.ticket_served_at - wc.ticket_called_at).div(60) : ''
@@ -60,6 +62,16 @@ class ElqueueTicketsReport < BaseReport
       called_event = wc.elqueue_ticket_movements.where(type: "ElqueueTicketMovement::Called").order(created_at: :desc).first
       username = called_event&.user&.short_name || '-'
       called_at = called_event&.created_at.strftime('%d.%m.%Y %H:%M')
+
+      window = called_event&.elqueue_window
+      calling_user = called_event&.user
+
+      if called_event
+        window_user_pairs << {
+          window: window.window_number,
+          user: calling_user
+        }
+      end
 
       if !missing_ticket && time_served <= 3
         short_working_time << { number: wc.ticket_number, time: time_served, user: username, called_at: called_at }
@@ -83,6 +95,9 @@ class ElqueueTicketsReport < BaseReport
         user_called: username
       }
     end
+
+    window_user_pairs = window_user_pairs.uniq { |pair| [pair[:window], pair[:user].id] }
+    result[:window_user_pairs] = format_window_user_summary(window_user_pairs)
 
     result[:short_working_time] = short_working_time.map { |elem| "#{elem[:called_at]} #{elem[:number]} - #{elem[:user]} #{elem[:time]} мин." }
                                                     .join("\n")
@@ -163,6 +178,28 @@ class ElqueueTicketsReport < BaseReport
     result[:avg_waiting_time] = average_waiting_time.round(2)
     result[:median_waiting_time] = median_waiting_time
 
+    result
+  end
+
+  def format_window_user_summary(pairs)
+    return "Нет данных о работе окон" if pairs.empty?
+    
+    window_groups = pairs.group_by { |pair| pair[:window] }
+    unique_windows_count = window_groups.keys.size
+
+    result = "Всего работало окон: #{unique_windows_count}\n"
+    
+    window_groups.each do |_window_id, window_data|
+      window = window_data.first[:window]
+      users = window_data.map { |pair| pair[:user] }.uniq
+      
+      result << "Окно №#{window}:\n"
+      users.each do |user|
+        result << "  - #{user.short_name}\n"
+      end
+      result << "\n"
+    end
+    
     result
   end
 

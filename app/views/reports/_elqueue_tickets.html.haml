@@ -52,7 +52,10 @@
         %td{colspan: 3}
           %pre.pre-unformatted= report.result[:resume][:median_served_time]
           %pre.pre-unformatted.hidden= report.result[:resume][:long_median_served_time]
-        %td{colspan: 4}
+        %td{colspan: 1}
+          %strong= t '.window_user_pairs'
+        %td{colspan: 3}
+          %pre.pre-unformatted= report.result[:data][:window_user_pairs]
       %tr
         %td{colspan: 2}
           %strong= t '.avg_waiting_time'
@@ -114,7 +117,10 @@
         %td{colspan: 3}
           %pre.pre-unformatted= report.result[:morning_time][:resume][:median_served_time]
           %pre.pre-unformatted.hidden= report.result[:morning_time][:resume][:long_median_served_time]
-        %td{colspan: 4}
+        %td{colspan: 1}
+          %strong= t '.window_user_pairs'
+        %td{colspan: 3}
+          %pre.pre-unformatted= report.result[:morning_time][:data][:window_user_pairs]
       %tr
         %td{colspan: 2}
           %strong= t '.avg_waiting_time'
@@ -176,7 +182,10 @@
         %td{colspan: 3}
           %pre.pre-unformatted= report.result[:day_time][:resume][:median_served_time]
           %pre.pre-unformatted.hidden= report.result[:day_time][:resume][:long_median_served_time]
-        %td{colspan: 4}
+        %td{colspan: 1}
+          %strong= t '.window_user_pairs'
+        %td{colspan: 3}
+          %pre.pre-unformatted= report.result[:day_time][:data][:window_user_pairs]
       %tr
         %td{colspan: 2}
           %strong= t '.avg_waiting_time'
@@ -238,7 +247,10 @@
         %td{colspan: 3}
           %pre.pre-unformatted= report.result[:evening_time][:resume][:median_served_time]
           %pre.pre-unformatted.hidden= report.result[:evening_time][:resume][:long_median_served_time]
-        %td{colspan: 4}
+        %td{colspan: 1}
+          %strong= t '.window_user_pairs'
+        %td{colspan: 3}
+          %pre.pre-unformatted= report.result[:evening_time][:data][:window_user_pairs]
       %tr
         %td{colspan: 2}
           %strong= t '.avg_waiting_time'
