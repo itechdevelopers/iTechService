@@ -1,6 +1,9 @@
 = label_tag 'accuracy_checkbox' do
   = check_box_tag 'accuracy_checkbox', '1', false, id: 'accuracy_checkbox', class: 'accuracy_checkbox'
   Не учитывать время работы меньше 3 минут
+= label_tag 'fixed_header_checkbox' do
+  = check_box_tag 'fixed_header_checkbox', '1', false, id: 'fixed_header_checkbox', class: 'fixed_header_checkbox'
+  Закрепить заголовок таблицы
 %table.table.table-bordered.table-hover
   %caption= t('.title_name', elqueue_name: report.result[:resume][:elqueue_name])
   %thead
@@ -273,3 +276,8 @@
       time = $(this).text().match(/\d+/)[0]
       if time <= 3
         $(this).css('color', 'red')
+    $('#fixed_header_checkbox').change ->
+      if $(this).is(':checked')
+        $('.table').addClass('fixed-header')
+      else
+        $('.table').removeClass('fixed-header')
