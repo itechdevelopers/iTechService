@@ -471,3 +471,11 @@ label.label-ignored-types {
     margin-bottom: 15px;
   }
 }
+
+.fixed-header thead tr {
+  position: sticky;
+  top: 0;
+  background-color: white;
+  z-index: 10;
+  box-shadow: 0 1px 1px rgba(0,0,0,0.1);
+}
