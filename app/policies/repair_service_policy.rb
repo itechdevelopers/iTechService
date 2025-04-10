@@ -8,4 +8,8 @@ class RepairServicePolicy < CommonPolicy
   def mass_update?
     superadmin? || able_to?(:manage_stocks)
   end
+
+  def see_quantity?
+    superadmin? || able_to?(:show_spare_parts_qty)
+  end
 end

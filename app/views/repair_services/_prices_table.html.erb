@@ -18,7 +18,9 @@
         <thead>
           <tr>
             <th><%= RepairService.human_attribute_name(:name) %></th>
-            <th><%= t('attributes.quantity') %></th>
+            <% if can? :see_quantity, RepairService %>
+              <th><%= t('attributes.quantity') %></th>
+            <% end %>
             <th><%= RepairService.human_attribute_name(:price) %></th>
             <th></th>
           </tr>
@@ -33,7 +35,9 @@
               <%= check_box_tag "repair_services[#{repair_service.id}][has_range_prices]", repair_service.has_range_prices, repair_service.has_range_prices, class: 'has-range-prices-td' %>
               <%= label_tag "repair_services_has_range_prices_#{repair_service.id}",'Ориентировочные цены' %>
             </td>
-            <td class="align_center"><%= repair_service.remnants_qty(params[:department_id]) %></td>
+            <% if can? :see_quantity, RepairService %>
+              <td class="align_center"><%= repair_service.remnants_qty(params[:department_id]) %></td>
+            <% end %>
             <td class="price">
               <span class="accurate-prices-td">
                 <%= number_field_tag "repair_services[#{repair_service.id}][value]", repair_service.price(params[:department_id])&.value %>
@@ -64,7 +68,9 @@
       <thead>
       <tr>
         <th><%= RepairService.human_attribute_name(:name) %></th>
-        <th><%= t('attributes.quantity') %></th>
+        <% if can? :see_quantity, RepairService %>
+          <th><%= t('attributes.quantity') %></th>
+        <% end %>
         <th><%= RepairService.human_attribute_name(:price) %></th>
       </tr>
       </thead>
@@ -73,7 +79,9 @@
       <% @repair_services.each do |repair_service| %>
         <tr>
           <td class="name"><%= repair_service.name %></td>
-          <td class="align_center"><%= repair_service.remnants_qty(params[:department_id]) %></td>
+          <% if can? :see_quantity, RepairService %>
+            <td class="align_center"><%= repair_service.remnants_qty(params[:department_id]) %></td>
+          <% end %>
           <td class="price number"><%= human_currency repair_service.price(params[:department_id])&.shown_price %></td>
         </tr>
       <% end %>
