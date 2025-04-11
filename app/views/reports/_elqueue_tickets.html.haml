@@ -276,7 +276,7 @@
       time = $(this).text().match(/\d+/)[0]
       if time <= 3
         $(this).css('color', 'red')
-    $('#fixed_header_checkbox').change ->
+    $(document).on 'change', '#fixed_header_checkbox', ->
       if $(this).is(':checked')
         $('.table').addClass('fixed-header')
       else
