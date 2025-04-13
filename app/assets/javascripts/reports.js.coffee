@@ -318,4 +318,12 @@ updateUsersList = ->
   $('.users-visible-count').text(visibleCount)
   $('.users-total-count').text(totalCount)
 
+$(document).on 'change', '#fixed_header_checkbox', ->
+  console.log("Callback for fixed header working")
+  if $(this).is(':checked')
+    console.log("Checkbox is checked")
+    $('.table').addClass('fixed-header')
+  else
+    console.log("Checkbox is unchecked")
+    $('.table').removeClass('fixed-header')
 
