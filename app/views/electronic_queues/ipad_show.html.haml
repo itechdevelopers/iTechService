@@ -19,14 +19,9 @@
     document.body.style.backgroundColor = "#{@electronic_queue.background_color}";
     document.querySelector('.back-button').style.backgroundColor = "#{@electronic_queue.back_button_color}";
     document.querySelector('.show-client-ticket-number').style.backgroundColor = "#{@electronic_queue.queue_item_color}"
-    document.addEventListener('gesturestart', event => event.preventDefault())
-    document.addEventListener('touchmove', function(event) {
-      if (event.scale !== 1) { event.preventDefault(); }
-    }, { passive: false });
   });
 
 :scss
   body {
     overflow: hidden;
-    touch-action: pan-x pan-y;
   }
