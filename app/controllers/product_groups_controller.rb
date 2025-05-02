@@ -25,6 +25,7 @@ class ProductGroupsController < ApplicationController
 
     @products = @products.available if (params[:form] == 'sale') && !@product_group.is_service
     params[:table_name] = 'products/small_table' if params[:choose] == 'true'
+    params[:group] = @product_group.id
     @products = @products.page(params[:page])
     respond_to do |format|
       format.js
