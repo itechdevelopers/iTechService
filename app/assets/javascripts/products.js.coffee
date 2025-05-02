@@ -95,6 +95,7 @@ $ ->
       while current.length && !current.hasClass('multiselect-group')
         if current.hasClass('multiselect-option')
           current.addClass('belongs-to-' + groupId)
+          current.addClass('hidden')
         current = current.next()
 
   window.handleCheckboxes = ->
@@ -114,6 +115,13 @@ $ ->
 
     $('.multiselect-option').on 'click', ->
       updateSubmitButton()
+
+    $('.multiselect-group').on 'click', ->
+      toggleCollapsibleGroup(this.id)
+
+  toggleCollapsibleGroup = (groupId) ->
+    groupClass = "belongs-to-multiselect-group-#{groupId.split('-').pop()}"
+    $(".#{groupClass}").toggleClass('hidden')
 
   updateSubmitButton = ->
     if $('.product-checkbox:checked').length > 0 && $('.multiselect-rep-services').val()?.length > 0
