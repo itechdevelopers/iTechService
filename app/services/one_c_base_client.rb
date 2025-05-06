@@ -25,7 +25,7 @@ class OneCBaseClient
     options[:body] = body.to_json if body
 
     begin
-      response = self.class.send(method, "#{base_url}#{path}", options)
+      response = self.class.send(method, "#{@base_url}#{path}", options)
       
       if response.code == 200
         { success: true, data: JSON.parse(response.body) }

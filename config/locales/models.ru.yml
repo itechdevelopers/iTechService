@@ -334,6 +334,8 @@ ru:
         option_values: 'Значения опции'
 
       order:
+        source_store: 'Склад отгрузки'
+        source_store_id: 'Склад отгрузки'
         approximate_price: 'Ориентировочная цена'
         customer: 'Заказчик'
         article: 'Артикул сайта'

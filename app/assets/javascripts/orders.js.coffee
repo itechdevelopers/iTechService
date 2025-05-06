@@ -40,8 +40,28 @@ jQuery ->
               kind_text = $('#object_kinds_list a[object_kind="' + response.kind + '"]').text()
               $('#object_kind_value').text(kind_text)
               $('#order_object_kind').val(response.kind)
+            if response.price != ''
+              $('#order_approximate_price').val(response.price)
+            if response.stores && response.stores.length > 0
+              $('#order_source_store_id option').each ->
+                store_id = $(this).val()
+                store_name = $(this).text().split(' - ')[0]
+                if store_id != '' && store_id != null
+                  $(this).text("#{store_name} - нет информации о количестве на складе")
+
+              for store in response.stores
+                option = $("#order_source_store_id option[value='#{store.id}']")
+                if option.length > 0
+                  store_name = option.text().split(' - ')[0]
+                  option.text("#{store_name} - #{store.quantity} шт.")
           else if response.status == 'not_found'
             $('#order_object').val('')
             $('#article_not_found').text('В базе Айса не найдено')
+
+            $('#order_source_store_id option').each ->
+              store_id = $(this).val()
+              if store_id != '' && store_id != null
+                store_name = $(this).text().split(' - ')[0]
+                $(this).text("#{store_name} - нет информации о количестве на складе")
         error: ->
           console.log('Произошла ошибка при выполнении запроса')
