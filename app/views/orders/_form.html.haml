@@ -18,6 +18,13 @@
       .control-group.optional
         = f.input :article
         #article_not_found
+      .control-group.select.optional
+        %label.control-label.select.optional= Order.human_attribute_name :source_store
+        .controls
+          = f.select :source_store_id,
+                    Store.visible.map { |s| ["#{s.name} - нет информации о количестве на складе", s.id] } + [["Нет на складе", nil]],
+                    { include_blank: false },
+                    { class: 'input-xlarge' }
       = f.input :object_kind, as: :object_kind
       = f.input :object, as: :object
       = f.input :object_url, input_html: {rows: 3, class: 'input-xlarge'}

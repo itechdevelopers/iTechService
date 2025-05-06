@@ -183,17 +183,9 @@ class ProductsController < ApplicationController
   def product_by_article
     authorize Product
     article = params[:article]
-    product = Product.find_by(article: article)
 
-    if product
-      render json: {
-        status: 'found',
-        name: product.name,
-        kind: product.object_kind_for_order
-      }
-    else
-      render json: { status: 'not_found' }
-    end
+    result = ProductFinderService.call(article: article)
+    render json: result
   end
 
   def remains_in_store

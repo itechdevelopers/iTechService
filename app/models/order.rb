@@ -29,6 +29,7 @@ class Order < ApplicationRecord
 
   belongs_to :department
   belongs_to :customer, polymorphic: true, optional: true
+  belongs_to :source_store, class_name: 'Store', optional: true
   belongs_to :user, optional: true
   has_many :history_records, as: :object
   has_many :notes, class_name: 'OrderNote', dependent: :destroy
@@ -182,8 +183,6 @@ class Order < ApplicationRecord
     }
   end
 
-  private
-
   def generate_number
     if number.blank?
       num = nil
@@ -194,6 +193,8 @@ class Order < ApplicationRecord
       self.number = num
     end
   end
+
+  private
 
   def make_announcement
     if !changed_attributes[:status].present? && (announcement = create_announcement).present?

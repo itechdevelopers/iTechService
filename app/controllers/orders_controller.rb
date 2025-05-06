@@ -67,12 +67,15 @@ class OrdersController < ApplicationController
   def create
     @order = authorize Order.new(order_params)
 
+    service = Orders::CreateService.new(order_params, current_user)
+    result = service.call
+
     respond_to do |format|
-      if @order.save
-        OrdersMailer.notice(@order.id).deliver_later
-        format.html { redirect_to orders_url, notice: t('orders.created') }
-        format.json { render json: @order, status: :created, location: @order }
+      if result[:success]
+        format.html { redirect_to orders_url, notice: result[:message] }
+        format.json { render json: result[:order], status: :created, location: result[:order] }
       else
+        @order = result[:order]
         format.html { render action: 'new' }
         format.json { render json: @order.errors, status: :unprocessable_entity }
       end
@@ -176,7 +179,7 @@ class OrdersController < ApplicationController
     params.require(:order)
           .permit(:approximate_price, :comment, :customer_id, :customer_type, :department_id, :desired_date, :model,
                   :number, :object, :object_kind, :object_url, :payment_method, :picture, :prepayment, :priority, :article,
-                  :quantity, :status, :user_comment, :user_id, :picture_cache, :remove_picture)
+                  :quantity, :status, :user_comment, :user_id, :picture_cache, :remove_picture, :source_store_id)
   end
 
   def new_order_params

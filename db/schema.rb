@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20250308151925) do
+ActiveRecord::Schema.define(version: 20250506200913) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -788,11 +788,14 @@ ActiveRecord::Schema.define(version: 20250308151925) do
     t.integer "payment_method"
     t.string "picture"
     t.string "article"
+    t.bigint "source_store_id"
+    t.boolean "one_c_synced", default: false
     t.index ["customer_id", "customer_type"], name: "index_orders_on_customer_id_and_customer_type"
     t.index ["customer_id"], name: "index_orders_on_customer_id"
     t.index ["department_id"], name: "index_orders_on_department_id"
     t.index ["object_kind"], name: "index_orders_on_object_kind"
     t.index ["priority"], name: "index_orders_on_priority"
+    t.index ["source_store_id"], name: "index_orders_on_source_store_id"
     t.index ["status"], name: "index_orders_on_status"
     t.index ["user_id"], name: "index_orders_on_user_id"
   end
@@ -1847,6 +1850,7 @@ ActiveRecord::Schema.define(version: 20250308151925) do
   add_foreign_key "option_values", "option_types"
   add_foreign_key "order_notes", "orders"
   add_foreign_key "order_notes", "users", column: "author_id"
+  add_foreign_key "orders", "stores", column: "source_store_id"
   add_foreign_key "phone_substitutions", "service_jobs"
   add_foreign_key "phone_substitutions", "substitute_phones"
   add_foreign_key "phone_substitutions", "users", column: "issuer_id"
