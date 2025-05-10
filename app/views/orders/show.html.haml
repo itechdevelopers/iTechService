@@ -66,7 +66,17 @@
 
       %tr
         %td= Order.human_attribute_name :status
-        %td= t("orders.statuses.#{@order.status}")
+        %td.status= t("orders.statuses.#{@order.status}")
+
+      %tr.archive_reason
+        - if @order.archived?
+          %td= Order.human_attribute_name :archive_reason
+          %td= t("orders.archive_reasons.#{@order.archive_reason}") || '-'
+
+      %tr.archive_comment
+        - if @order.archived?
+          %td= Order.human_attribute_name :archive_comment
+          %td= @order.archive_comment || '-'
 
       %tr
         %td= Order.human_attribute_name :user_comment
@@ -88,6 +98,7 @@
       .form-actions
         = link_to_edit @order if can? :edit, @order
         = link_to_destroy @order if can? :destroy, @order
+        = archive_button @order if can? :edit_archive_reason, @order
 
   .span6
     #order_notes.order_notes= cell(OrderNote::Cell::Item, collection: @order.notes.oldest_first).()

@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20250506200913) do
+ActiveRecord::Schema.define(version: 20250510085245) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -790,6 +790,8 @@ ActiveRecord::Schema.define(version: 20250506200913) do
     t.string "article"
     t.bigint "source_store_id"
     t.boolean "one_c_synced", default: false
+    t.string "archive_reason"
+    t.text "archive_comment"
     t.index ["customer_id", "customer_type"], name: "index_orders_on_customer_id_and_customer_type"
     t.index ["customer_id"], name: "index_orders_on_customer_id"
     t.index ["department_id"], name: "index_orders_on_department_id"

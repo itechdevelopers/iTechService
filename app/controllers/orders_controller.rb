@@ -120,6 +120,27 @@ class OrdersController < ApplicationController
     end
   end
 
+  def edit_archive_reason
+    @order = find_record Order
+
+    @modal = "order_#{@order.id}_archive_reason"
+    respond_to do |format|
+      format.js { render 'shared/show_modal_form' }
+    end
+  end
+
+  def update_archive_reason
+    @order = find_record Order
+     
+    respond_to do |format|
+      if @order.update_attributes(archive_reason_params)
+        format.js
+      else
+        format.js { render 'shared/show_modal_form' }
+      end
+    end
+  end
+
   def history
     order = find_record Order
     @records = order.history_records
@@ -184,10 +205,14 @@ class OrdersController < ApplicationController
 
   def new_order_params
     new_order_params = order_params rescue {}
-    new_order_params.merge(status: 'new')
+    new_order_params.merge(status: 'current')
   end
 
   def order_change_status_params
     params.require(:order).permit(:status)
+  end
+
+  def archive_reason_params
+    params.require(:order).permit(:archive_reason, :archive_comment, :status)
   end
 end

@@ -4,7 +4,9 @@ class Order < ApplicationRecord
   include Auditable
 
   OBJECT_KINDS = %w[device accessory soft misc spare_part].freeze
-  STATUSES = %w[new pending done canceled notified issued archive].freeze
+  STATUSES = %w[new pending current on_the_way done canceled notified issued archive].freeze
+  NEW_STATUSES = %w[current on_the_way done notified archive].freeze
+  ARCHIVE_REASONS = %w[order_picked_up order_cancelled_by_customer order_cancelled_by_company order_created_by_mistake].freeze
 
   scope :in_department, ->(department) { where department_id: department }
   scope :newest, -> { order('orders.created_at desc') }
@@ -42,6 +44,7 @@ class Order < ApplicationRecord
   validates :customer, :department, :quantity, :object, :object_kind, presence: true
   validates :priority, numericality: { greater_than_or_equal_to: 0, less_than_or_equal_to: 10 }
   validates :article, presence: true, on: :create, if: :device_order?
+  validates :archive_reason, inclusion: { in: ARCHIVE_REASONS }, allow_nil: true
   after_initialize :set_department
   before_validation :generate_number
 
