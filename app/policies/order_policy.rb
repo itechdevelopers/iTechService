@@ -13,6 +13,14 @@ class OrderPolicy < CommonPolicy
     manage? || (record.user_id == user.id) || has_role?(:software)
   end
 
+  def edit_archive_reason?
+    change_status?
+  end
+
+  def update_archive_reason?
+    change_status?
+  end
+
   def history?
     manage?
   end

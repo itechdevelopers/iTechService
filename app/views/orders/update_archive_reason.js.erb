@@ -1,0 +1,13 @@
+App.closeModalForm();
+
+if ($('tr.archive_reason').length > 0) {
+  $('tr.archive_reason').html('<td><%= Order.human_attribute_name(:archive_reason) %></td>' +
+    '<td><%= j(t("orders.archive_reasons.#{@order.archive_reason}") || '-') %></td>');
+}
+
+if ($('tr.archive_comment').length > 0) {
+  $('tr.archive_comment').html('<td><%= Order.human_attribute_name(:archive_comment) %></td>' +
+    '<td><%= j(@order.archive_comment || '-') %></td>');
+}
+
+$('td.status').text('Архив');

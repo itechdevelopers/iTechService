@@ -336,6 +336,8 @@ ru:
       order:
         source_store: 'Склад отгрузки'
         source_store_id: 'Склад отгрузки'
+        archive_reason: 'Причина архивации заказа'
+        archive_comment: 'Комментарий к архивации заказа'
         approximate_price: 'Ориентировочная цена'
         customer: 'Заказчик'
         article: 'Артикул сайта'

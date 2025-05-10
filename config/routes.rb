@@ -181,6 +181,8 @@ Rails.application.routes.draw do
 
   resources :orders do
     patch :change_status, on: :member, defaults: { format: 'js' }
+    get :edit_archive_reason, on: :member
+    patch :update_archive_reason, on: :member
     get :history, on: :member, defaults: { format: 'js' }
     get :device_type_select, on: :collection, defaults: {format: 'js'}
     resources :order_notes, only: %i[index create update], shallow: true, defaults: { format: :js }

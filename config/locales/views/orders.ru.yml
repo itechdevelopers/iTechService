@@ -1,5 +1,16 @@
 ru:
   orders:
+    modal_form_content:
+      title: "Архивация заказа №%{order}"
+      archive_reason: 'Причина архивации'
+      archive_comment: 'Комментарий'
+      select_reason: 'Выберите причину'
+      submit: 'Архивировать'
+    archive_reasons:
+      order_picked_up: 'Заказ забрали'
+      order_cancelled_by_customer: 'Заказ отменил клиент'
+      order_cancelled_by_company: 'Заказ отменила компания'
+      order_created_by_mistake: 'Заказ создан по ошибке'
     edit:
       title: 'Редактирование заказа'
     new:
@@ -23,15 +34,19 @@ ru:
     statuses:
       new: 'Новый'
       pending: 'Выполняется'
+      current: 'В работе'
+      on_the_way: 'В пути на филиал'
       done: 'Дозваниваемся'
       canceled: 'Отменен'
-      notified: 'Уведомлён (позвонили)'
+      notified: 'Уведомлён'
       issued: 'Забрал гость'
       archive: 'Архив'
       all_statuses: 'Все статусы'
       short:
         new: 'Новый'
         pending: 'Выполняется'
+        current: 'В работе'
+        on_the_way: 'В пути'
         done: 'Выполнен'
         canceled: 'Отменен'
         notified: 'Уведомлён'

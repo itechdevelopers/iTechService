@@ -11,7 +11,7 @@ class StatusInput < SimpleForm::Inputs::Base
                 template.content_tag(:span, nil, class: 'caret pull-right')
           end +
               template.content_tag(:ul, id: 'statuses_list', class: 'dropdown-menu') do
-                Order::STATUSES.map do |status|
+                Order::NEW_STATUSES.map do |status|
                   template.content_tag(:li, template.link_to(template.t("orders.statuses.#{status}").html_safe, '#',
                                                              status: status))
                 end.join.html_safe

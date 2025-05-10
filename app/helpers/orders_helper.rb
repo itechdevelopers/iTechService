@@ -72,7 +72,11 @@ module OrdersHelper
   end
 
   def button_to_change_order_status(order)
-    statuses = Order::STATUSES.dup
+    statuses = if order.created_at >= Date.new(2025, 5, 11).in_time_zone
+                 Order::NEW_STATUSES.dup
+               else
+                 Order::STATUSES.dup
+               end
     statuses.delete 'canceled'
     next_status = statuses[statuses.index(order.status).next]
     return unless next_status.present?
@@ -82,6 +86,13 @@ module OrdersHelper
       hidden_field_tag('order[status]', next_status) +
         f.submit(name, class: 'btn btn-primary btn-small')
     end
+  end
+
+  def archive_button(order)
+    link_to 'В архив',
+            edit_archive_reason_order_path(order),
+            remote: true,
+            class: 'btn btn-danger'
   end
 
   def order_payment_method_options

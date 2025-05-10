@@ -1,0 +1,21 @@
+= simple_form_for @order, url: update_archive_reason_order_path(@order), html: { class: 'form-horizontal' }, remote: true do |f|
+  .modal-header
+    = button_to_close_modal
+    %h3= t('.title', order: @order.number)
+
+  .modal-body
+    = f.input :archive_reason, 
+              collection: Order::ARCHIVE_REASONS.map { |reason| [t("orders.archive_reasons.#{reason}"), reason] },
+              include_blank: t('.select_reason'),
+              label: t('.archive_reason'),
+              input_html: { class: 'form-control' }
+              
+    = f.input :archive_comment,
+              as: :text,
+              label: t('.archive_comment'),
+              input_html: { class: 'form-control', rows: 4 }
+
+    = f.hidden_field :status, value: 'archive'
+  .modal-footer
+    = link_to t('helpers.links.cancel'), '#', 'data-dismiss' => 'modal', class: 'btn'
+    = f.submit t('.submit'), class: 'btn btn-primary'
