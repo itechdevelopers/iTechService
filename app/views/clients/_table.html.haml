@@ -19,7 +19,7 @@
           %td=l client.created_at, format: :date_time
           %td.btn-group
             - if can? :create, ServiceJob
-              = link_to icon_tag('plus-sign'), new_service_job_path(service_job: {client_id: client.id}), class: 'btn btn-small'
+              = link_to icon_tag('plus'), new_service_job_path(service_job: {client_id: client.id}), class: 'btn btn-small'
             = link_to_show_small client
             = link_to_edit_small client
             = link_to_destroy_small client

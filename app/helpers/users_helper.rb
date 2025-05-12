@@ -114,7 +114,7 @@ module UsersHelper
   end
 
   def link_to_add_user_hours(day)
-    link_to icon_tag('plus-sign'), '#', remote: true, class: 'add_user_to_job_schedule', data: { day: day }
+    link_to icon_tag('plus'), '#', remote: true, class: 'add_user_to_job_schedule', data: { day: day }
   end
 
   def duty_calendar(kind, month, user = nil)

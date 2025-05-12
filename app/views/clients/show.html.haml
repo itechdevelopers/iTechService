@@ -142,12 +142,12 @@
 .form-actions
   - if can? :create, ServiceJob
     = link_to new_service_job_path(service_job: {client_id: @client.id}), class: 'btn' do
-      = icon_tag('plus-sign') + t('.new_device')
+      = icon_tag('plus') + t('.new_device')
   - if can? :create, Sale
     = link_to new_sale_path(sale: {client_id: @client.id}), class: 'btn' do
-      = icon_tag('plus-sign') + t('.new_sale')
+      = icon_tag('plus') + t('.new_sale')
   - if can? :create, Order
     = link_to new_order_path(order: {customer_type: 'Client', customer_id: @client.id}), class: 'btn' do
-      = icon_tag('plus-sign') + t('dashboard.new_order')
+      = icon_tag('plus') + t('dashboard.new_order')
   = link_to_edit @client
   = link_to_destroy @client

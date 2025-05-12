@@ -97,7 +97,6 @@
     - if can? :manage, Order
       .form-actions
         = link_to_edit @order if can? :edit, @order
-        = link_to_destroy @order if can? :destroy, @order
         = archive_button @order if can? :edit_archive_reason, @order
 
   .span6
