@@ -17,7 +17,7 @@ class Order < ApplicationRecord
   scope :canceled_orders, -> { where(status: 'canceled') }
   scope :notified_orders, -> { where(status: 'notified') }
   scope :archive_orders, -> { where(status: 'archive') }
-  scope :actual_orders, -> { where(status: %w[new pending notified done]) }
+  scope :actual_orders, -> { where(status: %w[current on_the_way new pending notified done]) }
   scope :technician_orders, -> { where(object_kind: 'spare_part') }
   scope :marketing_orders, -> { where('object_kind <> ?', 'spare_part') }
   scope :device, -> { where(object_kind: 'device') }
