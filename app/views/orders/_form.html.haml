@@ -48,6 +48,16 @@
         = f.hidden_field :status
       - else
         = f.input :status, as: :status
+        #archival_features{class: ('hidden' unless @order.archived?)}
+          = f.input :archive_reason,
+                    collection: Order::ARCHIVE_REASONS.map { |reason| [t("orders.archive_reasons.#{reason}"), reason] },
+                    include_blank: t('.select_reason'),
+                    label: t('.archive_reason'),
+                    input_html: {class: 'input-xlarge'}
+          = f.input :archive_comment,
+                    as: :text,
+                    label: t('.archive_comment'),
+                    input_html: {class: 'input-xlarge', rows: 4}
       = f.input :priority, input_html: {class: 'input-xlarge'}
       = f.input :model, input_html: {class: 'input-xlarge'}
       = f.input :prepayment, input_html: {class: 'input-xlarge'}

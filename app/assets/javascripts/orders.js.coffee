@@ -23,6 +23,13 @@ jQuery ->
     $(event.currentTarget).addClass('hidden')
     $('.last_order_note[data-order-id="' + order_id + '"').removeClass('hidden')
 
+  $(document).on 'click', '#statuses_list a', (e) ->
+    status = $('#order_status').val()
+    if status == 'archive'
+      $('#archival_features').removeClass('hidden')
+    else
+      $('#archival_features').addClass('hidden')
+
   $('#order_article').on 'input', ->
     article = $(this).val().trim()
     if article != ''

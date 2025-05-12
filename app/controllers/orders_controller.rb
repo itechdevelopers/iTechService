@@ -200,7 +200,7 @@ class OrdersController < ApplicationController
     params.require(:order)
           .permit(:approximate_price, :comment, :customer_id, :customer_type, :department_id, :desired_date, :model,
                   :number, :object, :object_kind, :object_url, :payment_method, :picture, :prepayment, :priority, :article,
-                  :quantity, :status, :user_comment, :user_id, :picture_cache, :remove_picture, :source_store_id)
+                  :quantity, :status, :user_comment, :user_id, :picture_cache, :remove_picture, :source_store_id, :archive_reason, :archive_comment)
   end
 
   def new_order_params
