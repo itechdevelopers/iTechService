@@ -7,6 +7,12 @@
     color: #7e3535;
   }
 
+  #archival_features {
+    .hidden {
+      display: none;
+    }
+  }
+
   #object_kind_select_button,
   #object_kinds_list,
   #status_select_button,
