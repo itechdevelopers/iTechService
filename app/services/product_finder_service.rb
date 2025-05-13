@@ -1,50 +1,19 @@
 #frozen_string_literal: true
 
 class ProductFinderService < OneCBaseClient
-  def self.call(**args)
-    new.find_by_article(args[:article])
+  attr_reader :article, :path
+
+  def initialize(article)
+    super()
+    @article = article
+    @path = "/api/products/#{article}"
   end
 
-  def find_by_article(article)
-    #TODO: сделать в обратном порядке
-    find_by_database(article) || find_by_1c(article)
-  end
+  def call
+    one_c_response = make_request(path, method: :get)
 
-  private
-
-  def find_by_1c(article)
-    {
-      status: 'found',
-      price: '100',
-      name: 'ЗАГЛУШКА ДЛЯ ТЕСТА iPhone 16 Pro Desert Titanium 128GB',
-      kind: 'device',
-      stores: [
-        {
-          id: '6',
-          name: 'Дефолт подразделение запчасти',
-          quantity: '15'
-        },
-        {
-          id: '5',
-          name: 'Дефолт подразделение ритэйл',
-          quantity: '0'
-        }
-      ]
-    }
-  rescue => e
-    Rails.logger.warn("Got an error while finding product info by 1C: #{e.message}")
-    nil
-  end
-
-  def find_by_database(article)
-    product = Product.find_by(article: article)
-
-    if product
-      {
-        status: 'found',
-        name: product.name,
-        kind: product.object_kind_for_order
-      }
-    end
+    return { status: 'not_found', message: one_c_response[:error] } unless one_c_response[:success]
+    
+    { status: 'found' }.merge(one_c_response[:data]) 
   end
 end

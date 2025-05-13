@@ -63,7 +63,7 @@ jQuery ->
                   option.text("#{store_name} - #{store.quantity} шт.")
           else if response.status == 'not_found'
             $('#order_object').val('')
-            $('#article_not_found').text('В базе Айса не найдено')
+            $('#article_not_found').text('Ошибка при поиске по артикулу в 1С')
 
             $('#order_source_store_id option').each ->
               store_id = $(this).val()

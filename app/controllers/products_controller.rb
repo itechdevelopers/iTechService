@@ -184,7 +184,8 @@ class ProductsController < ApplicationController
     authorize Product
     article = params[:article]
 
-    result = ProductFinderService.call(article: article)
+    service = ProductFinderService.new(article)
+    result = service.call
     render json: result
   end
 
