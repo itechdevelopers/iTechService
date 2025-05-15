@@ -72,12 +72,10 @@ module OrdersHelper
   end
 
   def button_to_change_order_status(order)
-    statuses = if order.created_at >= Date.new(2025, 5, 11).in_time_zone
-                 Order::NEW_STATUSES.dup
-               else
-                 Order::OLD_STATUSES.dup
-               end
-    statuses.delete 'canceled'
+    statuses = Order::NEW_STATUSES.dup
+    index = statuses.index(order.status)
+    return unless index.present?
+
     next_status = statuses[statuses.index(order.status).next]
     return unless next_status.present?
 
@@ -106,7 +104,7 @@ module OrdersHelper
   end
 
   def last_note(order)
-    content_tag(:td, class: "order_note_column", colspan: 6) do
+    content_tag(:td, class: "order_note_column", colspan: 7) do
       content_tag(:strong, "#{t('orders.notes.last')}: ") +
         content_tag(:span, class: "last_order_note", data: { order_id: order.id }) do
           trim_text(order.notes&.newest&.content)
