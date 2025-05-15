@@ -191,7 +191,7 @@ class OrdersController < ApplicationController
       p[:statuses].reject! { |e| e.to_s.empty? }
       if request.format.html?
         p[:department_ids] = [current_department&.id] if p[:department_ids].blank? && current_department
-        p[:statuses] = %w[new done] if p[:statuses].blank?
+        p[:statuses] = %w[current on_the_way done] if p[:statuses].blank?
       end
     end
   end
