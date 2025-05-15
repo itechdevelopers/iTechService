@@ -48,8 +48,14 @@
     tr.pending > td {
       background-color: #fcf8e3;
     }
+    tr.current > td {
+      background-color: #d9edf7;
+    }
     tr.done > td {
-      background-color: #ffeaf2;
+      background-color: #f9d3c6;
+    }
+    tr.on_the_way > td {
+      background-color: #fcf8e3;
     }
     tr.canceled > td {
       background-color: #f2dede;
