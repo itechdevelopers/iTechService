@@ -75,16 +75,20 @@ module OrdersHelper
     statuses = if order.created_at >= Date.new(2025, 5, 11).in_time_zone
                  Order::NEW_STATUSES.dup
                else
-                 Order::STATUSES.dup
+                 Order::OLD_STATUSES.dup
                end
     statuses.delete 'canceled'
     next_status = statuses[statuses.index(order.status).next]
     return unless next_status.present?
 
     name = t "orders.statuses.short.#{next_status}"
-    form_for order, url: change_status_order_path(order), html: { class: 'button_to' }, remote: true do |f|
-      hidden_field_tag('order[status]', next_status) +
-        f.submit(name, class: 'btn btn-primary btn-small')
+    if next_status == 'archive'
+      archive_button(order)
+    else
+      form_for order, url: change_status_order_path(order), html: { class: 'button_to' }, remote: true do |f|
+        hidden_field_tag('order[status]', next_status) +
+          f.submit(name, class: 'btn btn-primary btn-small')
+      end
     end
   end
 
