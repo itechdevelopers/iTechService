@@ -25,7 +25,7 @@ class OrdersController < ApplicationController
                 @orders.newest
               end
 
-    @orders = @orders.page(params[:page]) if params[:status].present?
+    @orders = @orders.page(params[:page])
 
     respond_to do |format|
       format.html
