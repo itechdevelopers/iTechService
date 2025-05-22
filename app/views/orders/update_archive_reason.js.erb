@@ -11,3 +11,7 @@ if ($('tr.archive_comment').length > 0) {
 }
 
 $('td.status').text('Архив');
+
+<% if @order.archived? %>
+  <%= render template: 'orders/change_status' %>
+<% end %>

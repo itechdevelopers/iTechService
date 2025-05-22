@@ -38,7 +38,8 @@
           %td= order.article? ? order.article : '-'
           %td= order.quantity
           %td= (icon_tag(:star) * order.priority).html_safe
-          %td= t("orders.statuses.#{order.status}")
+          %td{id: "order_#{ order.id }_status"}
+            = t("orders.statuses.#{order.status}")
           %td= order.desired_date.present? ? l(order.desired_date) : '-'
           %td
             = l order.created_at, format: :date_time

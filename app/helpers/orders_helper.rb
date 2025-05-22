@@ -94,7 +94,7 @@ module OrdersHelper
     link_to 'В архив',
             edit_archive_reason_order_path(order),
             remote: true,
-            class: 'btn btn-danger'
+            class: 'btn btn-danger button_to_archive'
   end
 
   def order_payment_method_options
