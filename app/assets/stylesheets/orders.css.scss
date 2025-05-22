@@ -41,6 +41,10 @@
 }
 
 #orders-table {
+  .button_to_archive {
+    margin-top: 8px;
+  }
+
   tbody {
     tr.new > td {
       background-color: #d9edf7;
