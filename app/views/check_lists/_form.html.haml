@@ -1,0 +1,21 @@
+= simple_form_for @check_list, html: { class: 'form-horizontal' } do |f|
+  = f.input :name, label: 'Название чек-листа'
+  = f.input :description, as: :text, label: 'Описание'
+  = f.input :entity_type,
+            collection: CheckList::ENTITY_TYPES,
+            value_method: :to_s,
+            label_method: lambda { |type| t("check_lists.entity_types.#{type.underscore}") },
+            label: 'Тип сущности'
+  = f.input :active, label: 'Активен'
+
+  .control-group
+    %label.control-label Вопросы
+    .controls
+      #check-list-items
+        = f.simple_fields_for :check_list_items do |item_form|
+          = render 'check_list_item_fields', f: item_form
+      = link_to_add_fields 'Добавить вопрос', '#check-list-items', f, :check_list_items,
+                                class: 'btn btn-small'
+
+  .form-actions
+    = submit_button f

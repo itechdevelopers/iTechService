@@ -14,6 +14,7 @@ class TradeInDevice < ApplicationRecord
   belongs_to :department, optional: true
   has_many :features, through: :item
   has_many :comments, as: :commentable, dependent: :destroy
+  has_many :check_list_responses, as: :checkable, dependent: :destroy
 
   validates_presence_of :received_at, :item, :appraised_value, :appraiser, :bought_device,  :check_icloud
 
@@ -21,6 +22,7 @@ class TradeInDevice < ApplicationRecord
   delegate :name, :color, to: :department, prefix: true, allow_nil: true
 
   enum replacement_status: { not_replaced: 0, replaced: 1, in_service: 2 }
+  accepts_nested_attributes_for :check_list_responses, allow_destroy: true
   audited
 
   def self.search(query, in_archive: false, department_id: nil, sort_column: nil, sort_direction: :asc)
@@ -42,6 +44,26 @@ class TradeInDevice < ApplicationRecord
     else
       result.ordered
     end
+  end
+
+  def check_list_responses_attributes=(attributes)
+    attributes.each do |_, response_attrs|
+      next if response_attrs[:check_list_id].blank?
+      
+      response = check_list_responses.find_or_initialize_by(
+        check_list_id: response_attrs[:check_list_id]
+      )
+      response.responses = response_attrs[:responses] if response_attrs[:responses]
+      response.save if persisted?
+    end
+  end
+
+  def available_check_lists
+    CheckList.active.for_entity('TradeInDevice')
+  end
+
+  def check_list_response_for(check_list)
+    check_list_responses.find_by(check_list: check_list)
   end
 
   def client_name

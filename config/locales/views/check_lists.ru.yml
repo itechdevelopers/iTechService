@@ -1,0 +1,21 @@
+ru:
+  activerecord:
+    attributes:
+      check_list:
+        entity_type: "Тип сущности"
+        active: "Активный"
+  check_lists:
+    title: "Чек-листы"
+    new:
+      title: "Новый чек-лист"
+    edit:
+      title: "Редактирование чек-листа"
+    index:
+      title: "Чек-листы"
+    created: "Чек-лист успешно создан"
+    updated: "Чек-лист успешно обновлен"
+    deleted: "Чек-лист успешно удален"
+    entity_types:
+      trade_in_device: "Trade-in устройство"
+      product: "Продукт"
+      task: "Задача"

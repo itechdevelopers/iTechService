@@ -1,0 +1,23 @@
+- if @check_lists.any?
+  %table.table.table-striped.table-hover
+    %thead
+      %tr
+        %th= CheckList.human_attribute_name(:id)
+        %th= CheckList.human_attribute_name(:name) 
+        %th= CheckList.human_attribute_name(:description)
+        %th= CheckList.human_attribute_name(:entity_type)
+        %th= CheckList.human_attribute_name(:active)
+        %th
+    %tbody.check-lists-body
+      - @check_lists.each do |cl|
+        %tr
+          %td= cl.id
+          %td= cl.name
+          %td= cl.description
+          %td= t("check_lists.entity_types.#{cl.entity_type}")
+          %td= cl.active? ? "+" : "-"
+          %td.btn-group
+            = link_to_edit_small cl
+            = link_to_destroy_small cl
+- else
+  = render 'shared/empty'

@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20250515195731) do
+ActiveRecord::Schema.define(version: 20250522214017) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -157,6 +157,40 @@ ActiveRecord::Schema.define(version: 20250515195731) do
     t.integer "cash_drawer_id"
     t.index ["cash_drawer_id"], name: "index_cash_shifts_on_cash_drawer_id"
     t.index ["user_id"], name: "index_cash_shifts_on_user_id"
+  end
+
+  create_table "check_list_items", force: :cascade do |t|
+    t.bigint "check_list_id", null: false
+    t.text "question", null: false
+    t.boolean "required", default: false
+    t.integer "position", null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["check_list_id", "position"], name: "index_check_list_items_on_check_list_id_and_position", unique: true
+    t.index ["check_list_id"], name: "index_check_list_items_on_check_list_id"
+  end
+
+  create_table "check_list_responses", force: :cascade do |t|
+    t.bigint "check_list_id", null: false
+    t.string "checkable_type", null: false
+    t.bigint "checkable_id", null: false
+    t.text "responses"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["check_list_id", "checkable_type", "checkable_id"], name: "unique_check_list_response", unique: true
+    t.index ["check_list_id"], name: "index_check_list_responses_on_check_list_id"
+    t.index ["checkable_type", "checkable_id"], name: "index_check_list_responses_on_checkable_type_and_checkable_id"
+  end
+
+  create_table "check_lists", force: :cascade do |t|
+    t.string "name", null: false
+    t.text "description"
+    t.string "entity_type", null: false
+    t.boolean "active", default: true
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["active"], name: "index_check_lists_on_active"
+    t.index ["entity_type"], name: "index_check_lists_on_entity_type"
   end
 
   create_table "cities", id: :serial, force: :cascade do |t|
@@ -1831,6 +1865,8 @@ ActiveRecord::Schema.define(version: 20250515195731) do
     t.index ["path"], name: "index_wiki_pages_on_path", unique: true
   end
 
+  add_foreign_key "check_list_items", "check_lists"
+  add_foreign_key "check_list_responses", "check_lists"
   add_foreign_key "departments", "brands"
   add_foreign_key "departments", "cities"
   add_foreign_key "electronic_queues", "departments"

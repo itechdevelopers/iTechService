@@ -96,6 +96,7 @@
         = menu_item t('option_types.index.title'), option_types_path if can? :manage, FeatureType
         = menu_item t('product_categories.index.title'), product_categories_path if can? :manage, ProductCategory
         = menu_item t('device_types.link', default: 'Device types'), device_types_path if can? :manage, DeviceType
+        = menu_item t('check_lists.title'), check_lists_path if can? :manage, CheckList
         = drop_down_divider
         = menu_item t('tasks.link'), tasks_path if can? :manage, Task
         = menu_item t('quick_tasks.link'), quick_tasks_path if can? :manage, QuickTask

@@ -6,7 +6,6 @@
   = f.input :name
   = f.input :code
   = f.input :role, collection: User::ROLES, value_method: :to_s, label_method: lambda{|role|t("users.roles.#{role}")}
-  -# TODO get rid
   = f.input :location_code, collection: Location::CODES
   = f.input :cost
   = f.input :color, as: :color
