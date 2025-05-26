@@ -96,7 +96,8 @@ class TradeInDevicesController < ApplicationController
 
   def trade_in_device_params
     params.require(:trade_in_device)
-          .permit(:apple_guarantee, :appraised_value, :appraiser, :archived, :archiving_comment, :bought_device, :check_icloud, :client_id, :client_name, :client_phone, :condition, :confirmed, :department_id, :equipment, :extended_guarantee, :item_id, :number, :received_at, :receiver_id, :replacement_status, :sale_amount)
+          .permit(:apple_guarantee, :appraised_value, :appraiser, :archived, :archiving_comment, :bought_device, :check_icloud, :client_id, :client_name, :client_phone, :condition, :confirmed, :department_id, :equipment, :extended_guarantee, :item_id, :number, :received_at, :receiver_id, :replacement_status, :sale_amount,
+      check_list_responses_attributes: [:id, :check_list_id, responses: {}])
   end
 
   def update_trade_in_device_params

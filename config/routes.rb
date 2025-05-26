@@ -130,6 +130,8 @@ Rails.application.routes.draw do
     patch :update_positions, on: :collection, defaults: {format: :js}
   end
 
+  resources :check_lists
+
   resources :locations, except: :show
 
   namespace :service_jobs do
