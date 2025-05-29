@@ -11,21 +11,43 @@
   .navbar-inner
     = simple_form_for :filter, url: orders_path, wrapper: :search_inputs,
       method: 'get', html: {class: 'navbar-search form-search', id: 'search_form'}, remote: true do |f|
-      =f.input :order_number, placeholder: t('orders.index.search_number_placeholder'), input_html: { class: 'input-small' }
-      =f.input :customer, placeholder: Order.human_attribute_name(:customer)
-      =f.input :user, input_html: { class: 'input-medium'}, placeholder: t('orders.index.search_user_placeholder')
-      =f.input :object_kind, as: :select, include_blank: t("orders.object_kinds.all_kinds"),
+      =f.input :order_number,
+                placeholder: t('orders.index.search_number_placeholder'),
+                input_html: { class: 'input-small', value: @filter_params[:order_number] }
+      =f.input :customer,
+        placeholder: Order.human_attribute_name(:customer),
+        input_html: { value: @filter_params[:customer] }
+      =f.input :user,
+        input_html: { class: 'input-medium', value: @filter_params[:user] },
+        placeholder: t('orders.index.search_user_placeholder')
+      =f.input :object_kind,
+        as: :select,
+        include_blank: t("orders.object_kinds.all_kinds"),
+        selected: @filter_params[:object_kind],
         collection: Order::OBJECT_KINDS.map {|s| [t("orders.object_kinds.#{s}"), s] }
+
       %br
         .search-query
-      =f.input :object, as: :object, placeholder: Order.human_attribute_name(:object), input_html: { class: 'input-xlarge' }
-      =f.input :article, placeholder: 'Артикул'
+      =f.input :object,
+        as: :object,
+        placeholder: Order.human_attribute_name(:object),
+        input_html: { class: 'input-xlarge', value: @filter_params[:object] }
+      =f.input :article,
+        placeholder: 'Артикул',
+        input_html: { value: @filter_params[:article] }
+
       %br
-      =f.input :department_ids, as: :select, input_html: { multiple: true },
-        collection: Department.all.order(:name), selected: current_department&.id,
+      =f.input :department_ids,
+        as: :select,
+        input_html: { multiple: true },
+        collection: Department.all.order(:name),
+        selected: @filter_params[:department_ids],
         placeholder: Order.human_attribute_name(:department)
-      =f.input :statuses, as: :select, input_html: { multiple: true },
-        collection: Order::STATUSES.map {|s| [t("orders.statuses.#{s}"), s] }, selected: %w[current on_the_way done]
+      =f.input :statuses,
+        as: :select,
+        input_html: { multiple: true },
+        selected: @filter_params[:statuses],
+        collection: Order::STATUSES.map {|s| [t("orders.statuses.#{s}"), s] }
       =f.button :submit, "Найти"
 
       -# = orders_department_filter_tag
