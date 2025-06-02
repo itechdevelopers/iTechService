@@ -24,7 +24,29 @@
       = f.input :archiving_comment if superadmin? || able_to_manage_trade_in?
       = f.input :sale_amount if superadmin? || able_to_manage_trade_in?
 
+      - if available_check_lists.any?
+        - available_check_lists.each_with_index do |check_list, index|
+          - response = check_list_responses_hash[check_list.id]
+          .control-group
+            label.control-label = check_list.name
+            .controls
+              = hidden_field_tag "trade_in_device[check_list_responses_attributes][#{index}][check_list_id]", check_list.id
+              - if response.persisted?
+                = hidden_field_tag "trade_in_device[check_list_response_attributes][#{index}][id]", response.id
+
+              - check_list_items_for(check_list).each do |item|
+                .checkbox
+                  label
+                  = check_box_tag "trade_in_device[check_list_responses_attributes][#{index}][responses][#{item.id}]",
+                                  "true",
+                                  response_for_item(response, item),
+                                  id: "trade_in_device_check_list_responses_attributes_#{index}_responses_#{item.id}"
+                  = item.question
+                  - if item.required?
+                    span.required *
+
       .form-actions
         = submit_button f
 
-  .span6= secondary_form_container
+  .span6
+    = secondary_form_container

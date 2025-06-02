@@ -22,7 +22,9 @@ class TradeInDevice < ApplicationRecord
   delegate :name, :color, to: :department, prefix: true, allow_nil: true
 
   enum replacement_status: { not_replaced: 0, replaced: 1, in_service: 2 }
-  accepts_nested_attributes_for :check_list_responses, allow_destroy: true
+  accepts_nested_attributes_for :check_list_responses,
+                                allow_destroy: true,
+                                reject_if: proc { |attrs| attrs[:check_list_id].blank? }
   audited
 
   def self.search(query, in_archive: false, department_id: nil, sort_column: nil, sort_direction: :asc)
@@ -43,18 +45,6 @@ class TradeInDevice < ApplicationRecord
       result.order(sort_column => sort_direction)
     else
       result.ordered
-    end
-  end
-
-  def check_list_responses_attributes=(attributes)
-    attributes.each do |_, response_attrs|
-      next if response_attrs[:check_list_id].blank?
-      
-      response = check_list_responses.find_or_initialize_by(
-        check_list_id: response_attrs[:check_list_id]
-      )
-      response.responses = response_attrs[:responses] if response_attrs[:responses]
-      response.save if persisted?
     end
   end
 

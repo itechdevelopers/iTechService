@@ -109,7 +109,7 @@ class TradeInDevicesController < ApplicationController
 
   def permitted_update_attributes
     if policy(TradeInDevice).manage?
-      [:apple_guarantee, :appraised_value, :appraiser, :archived, :archiving_comment, :bought_device, :check_icloud, :client_id, :client_name, :client_phone, :condition, :confirmed, :department_id, :equipment, :extended_guarantee, :item_id, :number, :received_at, :receiver_id, :replacement_status, :sale_amount]
+      [:apple_guarantee, :appraised_value, :appraiser, :archived, :archiving_comment, :bought_device, :check_icloud, :client_id, :client_name, :client_phone, :condition, :confirmed, :department_id, :equipment, :extended_guarantee, :item_id, :number, :received_at, :receiver_id, :replacement_status, :sale_amount, check_list_responses_attributes: [:id, :check_list_id, responses: {}]]
     else
       [:apple_guarantee]
     end
