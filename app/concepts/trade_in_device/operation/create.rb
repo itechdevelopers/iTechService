@@ -13,9 +13,29 @@ class TradeInDevice::Create < BaseOperation
   step :assign_received_at
   success :assign_receiver
   success :assign_department
+  step :process_check_list_responses!
   step :save_model
   step :assign_number
   step :success_message
+
+  def process_check_list_responses!(model:, params:, **)
+    check_list_responses_params = params.dig(:trade_in_device, :check_list_responses_attributes)
+    return true unless check_list_responses_params
+
+    model.check_list_responses.clear
+    check_list_responses_params.each do |_, response_attrs|
+      next unless response_attrs[:check_list_id].present?
+
+      response = model.check_list_responses.find_or_initialize_by(
+        check_list_id: response_attrs[:check_list_id]
+      ) do |new_response|
+        new_response.checkable = model
+      end
+      response.responses = response_attrs[:responses] || {}
+    end
+
+    true
+  end
 
   def assign_received_at(model:, **)
     model.received_at = Time.current
