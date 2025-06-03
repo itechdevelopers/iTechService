@@ -7,15 +7,6 @@ class TradeInDevice::Contract < BaseContract
              :archiving_comment, :condition, :equipment, :apple_guarantee, :department_id,
              :confirmed, :extended_guarantee, :sale_amount
 
-  collection :check_list_responses, 
-             populate_if_empty: CheckListResponse do
-    property :id
-    property :check_list_id
-    property :responses
-    
-    validates :check_list_id, presence: true
-  end
-
   validates :received_at, :item_id, :client_id, :appraised_value, :appraiser, :bought_device,
             :check_icloud, presence: true
 end
