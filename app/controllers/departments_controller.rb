@@ -44,6 +44,7 @@ class DepartmentsController < ApplicationController
   def update
     respond_to do |format|
       if @department.update_attributes(department_params)
+        byebug
         format.html { redirect_to @department, notice: t('departments.updated') }
       else
         format.html { render 'form' }
@@ -67,6 +68,6 @@ class DepartmentsController < ApplicationController
 
   def department_params
     params.require(:department)
-          .permit(:address, :brand_id, :city_id, :code, :contact_phone, :ip_network, :name, :printer, :role, :schedule, :short_name, :url, :archive)
+          .permit(:address, :brand_id, :city_id, :code, :contact_phone, :ip_network, :name, :printer, :role, :schedule, :short_name, :url, :archive, :code_one_c)
   end
 end

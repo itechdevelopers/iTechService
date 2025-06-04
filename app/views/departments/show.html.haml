@@ -11,6 +11,9 @@
   %dt= model_class.human_attribute_name :code
   %dd= @department.code.blank? ? '-' : @department.code
 
+  %dt= model_class.human_attribute_name :code_one_c
+  %dd= @department.code_one_c.blank? ? '-' : @department.code_one_c
+
   %dt= model_class.human_attribute_name :role
   %dd= human_department_role @department
 

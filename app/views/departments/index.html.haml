@@ -6,6 +6,7 @@
       %th= model_class.human_attribute_name(:id)
       %th= model_class.human_attribute_name(:name)
       %th= model_class.human_attribute_name(:code)
+      %th= model_class.human_attribute_name(:code_one_c)
       %th= model_class.human_attribute_name(:archive)
       %th= model_class.human_attribute_name(:role)
       - if can? :manage, model_class
@@ -16,6 +17,7 @@
         %td= link_to department.id, department_path(department)
         %td= link_to department.name, department_path(department)
         %td= department.code
+        %td= department.code_one_c
         %td= department.archive ? 'Да' : ''
         %td= human_department_role department
         - if can? :manage, model_class
