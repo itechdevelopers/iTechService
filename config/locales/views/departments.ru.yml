@@ -18,3 +18,7 @@ ru:
       store: 'Склад'
       transfer: 'Трансфер'
     all: "Все"
+  activerecord:
+    attributes:
+      department:
+        code_one_c: 'Код из 1С'

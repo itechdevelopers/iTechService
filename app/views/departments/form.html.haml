@@ -6,6 +6,7 @@
   = f.input :name
   = f.input :short_name
   = f.input :code, readonly: @department.persisted?
+  = f.input :code_one_c
   = f.input :role, collection: department_roles_for_select, prompt: false
   = f.input :ip_network
   = f.input :url

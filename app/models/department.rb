@@ -38,6 +38,8 @@ class Department < ApplicationRecord
   delegate :logo, to: :brand, allow_nil: true
   delegate :path, :url, to: :logo, prefix: true, allow_nil: true
 
+  before_save :sanitize_code_one_c
+
   def self.find_by_network(network)
     where('ip_network LIKE ?', "%#{network}%").first
   end
@@ -107,6 +109,10 @@ class Department < ApplicationRecord
   end
 
   private
+
+  def sanitize_code_one_c
+    self[:code_one_c] = self[:code_one_c].strip if self[:code_one_c].present?
+  end
 
   def only_one_main
     errors.add :role, :main_exists if role.zero? && (Department.where('id <> ? AND role = ?', id, 0).count > 1)
