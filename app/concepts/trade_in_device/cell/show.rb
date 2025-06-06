@@ -36,7 +36,7 @@ module TradeInDevice::Cell
     end
 
     def check_for_item(response, question)
-      if response.answer_for_item(question.id)
+      if response&.answer_for_item(question.id)
         "#{glyph(:check)} "
       else
         "#{glyph(:times)} "
