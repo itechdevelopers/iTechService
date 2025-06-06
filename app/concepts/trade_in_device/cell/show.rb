@@ -17,6 +17,32 @@ module TradeInDevice::Cell
       end
     end
 
+    def check_lists_answers
+      result = ''
+      model.available_check_lists.each do |check_list|
+        result << content_tag(:h4, check_list.name)
+        result << content_tag(:p) do
+          p_result = ''
+          check_list.check_list_items.ordered.each do |question|
+            response = model.check_list_response_for(check_list)
+            p_result << check_for_item(response, question)
+            p_result << question.question
+            p_result << content_tag(:br)
+          end
+          p_result
+        end
+      end
+      result
+    end
+
+    def check_for_item(response, question)
+      if response.answer_for_item(question.id)
+        "#{glyph(:check)} "
+      else
+        "#{glyph(:times)} "
+      end
+    end
+
     def item
       link_to presentation, device_path(model.item), remote: true
     end

@@ -9,7 +9,7 @@ class CheckListResponse < ApplicationRecord
   serialize :responses, JSON
 
   def answer_for_item(item_id)
-    responses&.dig(item_id.to_s)
+    responses&.dig(item_id.to_s) == "true"
   end
 
   def set_answer(item_id, value)

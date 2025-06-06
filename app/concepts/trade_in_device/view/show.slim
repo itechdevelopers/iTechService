@@ -4,7 +4,7 @@
   =< name
 
 .row
-  .span6
+  .span4
 
     table.attributes_table
       = attribute_presentation :department
@@ -32,7 +32,11 @@
       = link_to_edit
       = link_to_destroy
 
-  .span6
+  .span4
+    .tradein-checklist-responses
+      = check_lists_answers
+
+  .span4
     = secondary_form_container
     #comments.comments_list = comments
     = comment_form
