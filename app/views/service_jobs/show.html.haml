@@ -165,6 +165,12 @@
     %hr
     = render 'photos', division: :completed
 
+    - if @available_check_lists.any?
+      %hr
+      .service-job-checklist-responses
+        %h4 Чек-листы
+        = render_check_lists_answers_for(@service_job, 'ServiceJob')
+
   .span4
     #sms_notification_form_container
     #device_notes_container= render 'device_notes', editable: true
