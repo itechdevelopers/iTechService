@@ -1,6 +1,7 @@
 
 class ServiceJob < ApplicationRecord
   include Auditable
+  include Checkable
 
   scope :in_department, ->(department) { located_at(Location.in_department(department)) }
   scope :order_by_product_name, -> { includes(item: :product).order('products.name') }
