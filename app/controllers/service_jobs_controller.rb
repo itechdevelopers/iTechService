@@ -2,7 +2,10 @@
 
 class ServiceJobsController < ApplicationController
   include ServiceJobsHelper
+  include CheckListsHelper
+
   helper_method :sort_column, :sort_direction
+
   skip_before_action :authenticate_user!, :set_current_user, only: :check_status
   skip_after_action :verify_authorized, only: %i[index check_status device_type_select quick_search]
 
@@ -76,6 +79,7 @@ class ServiceJobsController < ApplicationController
     else
       @service_job = find_record ServiceJob.includes(:device_notes)
       @device_note = @service_job.device_notes.build(user_id: current_user.id)
+      @available_check_lists = available_check_lists_for('ServiceJob')
       respond_to do |format|
         format.html do
           log_viewing
@@ -115,6 +119,7 @@ class ServiceJobsController < ApplicationController
     new_params = service_job_params rescue {}
     @service_job = authorize ServiceJob.new(new_params)
     @service_job.department_id = current_user.department_id
+    prepare_check_list_data
 
     respond_to do |format|
       format.html { render_form }
@@ -124,6 +129,7 @@ class ServiceJobsController < ApplicationController
 
   def edit
     @service_job = find_record ServiceJob.includes(:device_notes)
+    prepare_check_list_data
     @modal = "service-job-#{@service_job.id}"
     build_device_note
     log_viewing
@@ -136,13 +142,19 @@ class ServiceJobsController < ApplicationController
   def create
     @service_job = authorize ServiceJob.new(service_job_params)
     @service_job.initial_department = current_user.department
+
     respond_to do |format|
       if @service_job.save
         create_phone_substitution if @service_job.phone_substituted?
         Service::Feedback::Create.call(service_job: @service_job)
+
+        processor = CheckListResponsesProcessor.new(@service_job, 'service_job')
+        processor.process(params, strategy: :create)
+
         format.html { redirect_to @service_job, notice: t('service_jobs.created') }
         format.json { render json: @service_job, status: :created, location: @service_job }
       else
+        prepare_check_list_data
         format.html { render_form }
         format.json { render json: @service_job.errors, status: :unprocessable_entity }
       end
@@ -151,6 +163,7 @@ class ServiceJobsController < ApplicationController
 
   def update
     @service_job = ServiceJob.find(params[:id])
+
     the_policy = policy(@service_job)
 
     if the_policy.update?
@@ -173,10 +186,15 @@ class ServiceJobsController < ApplicationController
 
         create_phone_substitution if @service_job.phone_substituted?
         Service::DeviceSubscribersNotificationJob.perform_later @service_job.id, current_user.id, notify_params
+        
+        processor = CheckListResponsesProcessor.new(@service_job, 'service_job')
+        processor.process(params, strategy: :update)
+
         format.html { redirect_to @service_job, notice: t('service_jobs.updated') }
         format.json { head :no_content }
         format.js { render 'update' }
       else
+        prepare_check_list_data
         format.html { render_form }
         format.json { render json: @service_job.errors, status: :unprocessable_entity }
         format.js { render 'shared/show_modal_form' }
@@ -417,6 +435,11 @@ class ServiceJobsController < ApplicationController
     RQRCode::QRCode.new(link).as_svg(viewbox: true)
   end
 
+  def prepare_check_list_data
+    @available_check_lists = available_check_lists_for('ServiceJob')
+    @check_list_responses_hash = check_list_responses_hash_for(@service_job, 'ServiceJob')
+  end
+
   def service_job_params
     params.require(:service_job).permit(
       :app_store_pass, :carrier_id, :case_color_id, :claimed_defect, :client_address, :client_comment,
@@ -426,7 +449,8 @@ class ServiceJobsController < ApplicationController
       :replaced, :return_at, :sale_id, :security_code, :serial_number, :status, :tech_notice,
       :ticket_number, :trademark, :type_of_work, :user_id, :substitute_phone_id, :substitute_phone_icloud_connected,
       data_storages: [],
-      device_tasks_attributes: %i[id _destroy task_id cost comment user_comment performer_id]
+      device_tasks_attributes: %i[id _destroy task_id cost comment user_comment performer_id],
+      check_list_responses_attributes: [:id, :check_list_id, responses: {}]
     )
   end
 

@@ -8,7 +8,6 @@ class TradeInDevice::Update < BaseOperation
   end
 
   step Nested(Present)
-#  step ->(options, **) { byebug }
   step Contract.Validate(key: :trade_in_device)
   failure :contract_invalid!
   step :process_check_list_responses!

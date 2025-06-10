@@ -1,5 +1,6 @@
 class TradeInDevice < ApplicationRecord
   include Auditable
+  include Checkable
 
   scope :ordered, -> { order :number }
   scope :archived, -> { where archived: true }
@@ -14,7 +15,6 @@ class TradeInDevice < ApplicationRecord
   belongs_to :department, optional: true
   has_many :features, through: :item
   has_many :comments, as: :commentable, dependent: :destroy
-  has_many :check_list_responses, as: :checkable, dependent: :destroy
 
   validates_presence_of :received_at, :item, :appraised_value, :appraiser, :bought_device,  :check_icloud
 
@@ -22,9 +22,6 @@ class TradeInDevice < ApplicationRecord
   delegate :name, :color, to: :department, prefix: true, allow_nil: true
 
   enum replacement_status: { not_replaced: 0, replaced: 1, in_service: 2 }
-  accepts_nested_attributes_for :check_list_responses,
-                                allow_destroy: true,
-                                reject_if: proc { |attrs| attrs[:check_list_id].blank? }
   audited
 
   def self.search(query, in_archive: false, department_id: nil, sort_column: nil, sort_direction: :asc)
@@ -46,14 +43,6 @@ class TradeInDevice < ApplicationRecord
     else
       result.ordered
     end
-  end
-
-  def available_check_lists
-    CheckList.active.for_entity('TradeInDevice')
-  end
-
-  def check_list_response_for(check_list)
-    check_list_responses.find_by(check_list: check_list)
   end
 
   def client_name
