@@ -1,4 +1,5 @@
 class RepairTask < ApplicationRecord
+  include Checkable
   scope :in_department, ->(department) { where(device_task_id: DeviceTask.in_department(department)) }
 
   belongs_to :repair_service, optional: true

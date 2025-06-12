@@ -121,7 +121,6 @@ class RepairServicesController < ApplicationController
       end
       next if values.empty? 
 
-      byebug
       price = RepairPrice.find_or_create_by(repair_service_id: repair_service_id,
                                             department_id: dep_id)
       price.update!(values.permit(:value, :value_to, :value_from, :is_range_price))

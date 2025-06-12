@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 class CheckList < ApplicationRecord
-  ENTITY_TYPES = %w[TradeInDevice Product Task ServiceJob].freeze
+  ENTITY_TYPES = %w[TradeInDevice Product Task ServiceJob RepairTask].freeze
 
   has_many :check_list_items, dependent: :destroy
   has_many :check_list_responses, dependent: :destroy
