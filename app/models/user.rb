@@ -112,6 +112,7 @@ class User < ApplicationRecord
   belongs_to :dismissal_reason, optional: true
   belongs_to :elqueue_window, optional: true
   has_one :user_settings, dependent: :destroy
+  has_many :user_pauses, dependent: :destroy
   has_many :user_abilities
   has_many :abilities, through: :user_abilities
   has_many :history_records, as: :object, dependent: :nullify
@@ -660,16 +661,42 @@ class User < ApplicationRecord
     elqueue_window.present? && elqueue_window.serving_client?
   end
 
+  def works_with_queue?
+    elqueue_window.present?
+  end
+
   def can_take_a_break?
-    elqueue_window.present? && elqueue_window.is_active?
+    works_with_queue? && !paused?
   end
 
   def waiting_for_break?
-    elqueue_window.present? && !elqueue_window.is_active? && remember_pause?
+    works_with_queue? && !elqueue_window.is_active? && remember_pause?
   end
 
   def is_on_break?
-    elqueue_window.present? && !elqueue_window.is_active?
+    paused?
+  end
+
+  def pause!
+    return if paused?
+
+    transaction do
+      user_pauses.create!(paused_at: Time.current)
+      update!(paused: true)
+    end
+  end
+
+  def resume!
+    return unless paused?
+
+    transaction do
+      current_pause&.update!(resumed_at: Time.current)
+      update!(paused: false)
+    end
+  end
+
+  def current_pause
+    user_pauses.where(resumed_at: nil).order(paused_at: :desc).first
   end
 
   def set_remember_pause
@@ -678,6 +705,7 @@ class User < ApplicationRecord
 
   def unset_remember_pause
     update!(remember_pause: false)
+    pause!
   end
 
   def free_window

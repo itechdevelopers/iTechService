@@ -1,0 +1,46 @@
+- if pause_data.present? && (pause_data[:by_count].present? || pause_data[:by_duration].present?)
+  %tr
+    %td{colspan: 9}
+      %h4.text-center= t('reports.elqueue_tickets.pauses_title')
+  %tr
+    %td{colspan: 4}
+      %strong.text-center= t('reports.elqueue_tickets.pauses_by_count')
+    %td{colspan: 5}
+      %strong.text-center= t('reports.elqueue_tickets.pauses_by_duration')
+  %tr
+    %td{colspan: 4, style: 'vertical-align: top;'}
+      %table.table.table-condensed.table-bordered
+        %thead
+          %tr
+            %th= User.human_attribute_name(:name)
+            %th= t('reports.elqueue_tickets.pause_count')
+            %th= t('reports.elqueue_tickets.pauses_list')
+        %tbody
+          - pause_data[:by_count].each do |data|
+            %tr
+              %td= data[:user_name]
+              %td.text-center= data[:pause_count]
+              %td
+                - data[:pauses].each do |p|
+                  = "#{p[:paused_at]} - #{p[:resumed_at]}"
+                  %br
+    %td{colspan: 5, style: 'vertical-align: top;'}
+      %table.table.table-condensed.table-bordered
+        %thead
+          %tr
+            %th= User.human_attribute_name(:name)
+            %th= t('reports.elqueue_tickets.total_duration_minutes')
+            %th= t('reports.elqueue_tickets.pauses_list')
+        %tbody
+          - pause_data[:by_duration].each do |data|
+            %tr
+              %td= data[:user_name]
+              %td.text-center= data[:total_duration_minutes]
+              %td
+                - data[:pauses].each do |p|
+                  = "#{p[:paused_at]} - #{p[:resumed_at]}"
+                  %br
+- else
+  %tr
+    %td{colspan: 9}
+      %p.text-center= t('reports.elqueue_tickets.no_pauses_data') 

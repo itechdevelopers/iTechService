@@ -23,7 +23,11 @@ class ElqueueWindowsController < ApplicationController
   def take_a_break
     authorize ElqueueWindow
     @elqueue_window.set_inactive!
-    current_user.set_remember_pause if current_user.serving_client?
+    if current_user.serving_client?
+      current_user.set_remember_pause
+    else
+      current_user.pause!
+    end
     respond_to do |format|
       format.js { render 'renew_elqueue_navbar' }
     end
@@ -32,6 +36,7 @@ class ElqueueWindowsController < ApplicationController
   def return_from_break
     authorize ElqueueWindow
     @elqueue_window.set_active!
+    current_user.resume! if current_user.paused?
     respond_to do |format|
       format.js { render 'renew_elqueue_navbar' }
     end

@@ -68,6 +68,7 @@
           %strong= t '.median_waiting_time'
         %td{colspan: 3}
           %pre.pre-unformatted= report.result[:resume][:median_waiting_time]
+      = render 'pause_data', pause_data: report.result[:pause_data]
 
 %table.table.table-bordered.table-hover
   %caption= t('.title_name_morning')
@@ -133,6 +134,7 @@
           %strong= t '.median_waiting_time'
         %td{colspan: 3}
           %pre.pre-unformatted= report.result[:morning_time][:resume][:median_waiting_time]
+      = render 'pause_data', pause_data: report.result[:morning_time][:pause_data]
 
 %table.table.table-bordered.table-hover
   %caption= t('.title_name_daytime')
@@ -198,6 +200,7 @@
           %strong= t '.median_waiting_time'
         %td{colspan: 3}
           %pre.pre-unformatted= report.result[:day_time][:resume][:median_waiting_time]
+      = render 'pause_data', pause_data: report.result[:day_time][:pause_data]
 
 %table.table.table-bordered.table-hover
   %caption= t('.title_name_evening')
@@ -263,6 +266,7 @@
           %strong= t '.median_waiting_time'
         %td{colspan: 3}
           %pre.pre-unformatted= report.result[:evening_time][:resume][:median_waiting_time]
+      = render 'pause_data', pause_data: report.result[:evening_time][:pause_data]
 
 :coffee
   $ ->
