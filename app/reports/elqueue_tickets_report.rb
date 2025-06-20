@@ -34,12 +34,51 @@ class ElqueueTicketsReport < BaseReport
 
   def call
     @result = { name: 'Талоны в очереди', data: waiting_clients(period), resume: resume(period) }
+    @result[:pause_data] = pause_data(period)
     @result[:morning_time] = { data: waiting_clients(morning_period), resume: resume(morning_period) }
+    @result[:morning_time][:pause_data] = pause_data(morning_period)
     @result[:day_time] = { data: waiting_clients(daytime_period), resume: resume(daytime_period) }
+    @result[:day_time][:pause_data] = pause_data(daytime_period)
     @result[:evening_time] = { data: waiting_clients(evening_period), resume: resume(evening_period) }
+    @result[:evening_time][:pause_data] = pause_data(evening_period)
   end
 
   private
+
+  def pause_data(period)
+    user_pauses = UserPause.joins(:user)
+                           .where(users: { department_id: department.id })
+                           .where('user_pauses.paused_at <= ? AND (user_pauses.resumed_at >= ? OR user_pauses.resumed_at IS NULL)', period.end, period.begin)
+                           .order('users.username ASC, user_pauses.paused_at ASC')
+
+    pauses_by_user = user_pauses.group_by(&:user)
+
+    user_metrics = pauses_by_user.map do |user, pauses|
+      total_duration = pauses.sum do |p|
+        start_time = [p.paused_at, period.begin].max
+        end_time = p.resumed_at.nil? ? period.end : [p.resumed_at, period.end].min
+        duration = end_time - start_time
+        duration.positive? ? duration : 0
+      end
+
+      {
+        user_name: user.short_name,
+        pause_count: pauses.count,
+        total_duration_minutes: (total_duration / 60).round(2),
+        pauses: pauses.map do |p|
+          {
+            paused_at: p.paused_at.in_time_zone(user.time_zone || 'UTC').strftime('%d.%m %H:%M'),
+            resumed_at: p.resumed_at ? p.resumed_at.in_time_zone(user.time_zone || 'UTC').strftime('%d.%m %H:%M') : 'активна'
+          }
+        end
+      }
+    end
+
+    by_count = user_metrics.sort_by { |h| -h[:pause_count] }
+    by_duration = user_metrics.sort_by { |h| -h[:total_duration_minutes] }
+
+    { by_count: by_count, by_duration: by_duration }
+  end
 
   def waiting_clients(period)
     result = {}

@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20250604081422) do
+ActiveRecord::Schema.define(version: 20250618221101) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -1709,6 +1709,17 @@ ActiveRecord::Schema.define(version: 20250604081422) do
     t.index ["user_id"], name: "index_user_achievements_on_user_id"
   end
 
+  create_table "user_pauses", force: :cascade do |t|
+    t.bigint "user_id", null: false
+    t.datetime "paused_at", null: false
+    t.datetime "resumed_at"
+    t.string "reason"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["paused_at"], name: "index_user_pauses_on_paused_at"
+    t.index ["user_id"], name: "index_user_pauses_on_user_id"
+  end
+
   create_table "user_settings", force: :cascade do |t|
     t.bigint "user_id", null: false
     t.boolean "fixed_main_menu", default: false, null: false
@@ -1772,6 +1783,7 @@ ActiveRecord::Schema.define(version: 20250604081422) do
     t.boolean "need_to_select_window", default: false
     t.bigint "elqueue_window_id"
     t.boolean "remember_pause", default: false, null: false
+    t.boolean "paused"
     t.index ["authentication_token"], name: "index_users_on_authentication_token", unique: true
     t.index ["card_number"], name: "index_users_on_card_number"
     t.index ["department_id"], name: "index_users_on_department_id"
@@ -1940,6 +1952,7 @@ ActiveRecord::Schema.define(version: 20250604081422) do
   add_foreign_key "user_abilities", "users"
   add_foreign_key "user_achievements", "achievements"
   add_foreign_key "user_achievements", "users"
+  add_foreign_key "user_pauses", "users"
   add_foreign_key "user_settings", "users"
   add_foreign_key "users", "dismissal_reasons"
   add_foreign_key "users", "elqueue_windows"

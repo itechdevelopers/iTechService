@@ -239,6 +239,7 @@ class UsersController < ApplicationController
     @user = find_record User
     respond_to do |format|
       if @user.update!(elqueue_window_params)
+        @user.pause!
         current_user.reload
         format.js
       else

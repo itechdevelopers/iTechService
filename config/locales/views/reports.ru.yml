@@ -111,6 +111,13 @@ ru:
       queue_name: "Название задачи"
       user_called: "Сотрудник"
       status: "Завершён или клиент не пришёл"
+      pauses_title: 'Сводка по паузам сотрудников'
+      pauses_by_count: 'По количеству пауз'
+      pauses_by_duration: 'По длительности пауз'
+      pause_count: 'Кол-во пауз'
+      total_duration_minutes: 'Длительность (мин)'
+      pauses_list: 'Список пауз (Начало - Конец)'
+      no_pauses_data: 'Данные по паузам отсутствуют за данный период'
     phone_substitutions:
       title: 'Отчёт по подменкам'
       substitute_phone: 'Телефон'
