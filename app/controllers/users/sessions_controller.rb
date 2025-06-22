@@ -17,7 +17,7 @@ class Users::SessionsController < Devise::SessionsController
         user.save
       end
 
-      user.resume! if user.paused?
+      user.resume!
       user.unset_remember_pause
 
       if (location = after_sign_in_path_for(user))
@@ -71,7 +71,7 @@ class Users::SessionsController < Devise::SessionsController
     current_user.need_to_select_window = false if current_user.need_to_select_window
 
     current_user.deactivate_elqueue_window
-    current_user.resume! if current_user.paused?
+    current_user.resume!
     current_user.unset_remember_pause
     current_user.save
 
