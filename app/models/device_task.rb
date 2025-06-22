@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 class DeviceTask < ApplicationRecord
+  include Checkable
   include Auditable
 
   scope :in_department, ->(department) { where(service_job_id: ServiceJob.in_department(department)) }

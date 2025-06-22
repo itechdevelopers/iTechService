@@ -26,7 +26,7 @@ class DeviceTasksController < ApplicationController
 
   def device_task_params
     params.require(:device_task)
-          .permit(:comment, :cost, :done, :done_at, :performer_id, :service_job_id, :task_id, :user_comment)
+          .permit(:comment, :cost, :done, :done_at, :performer_id, :service_job_id, :task_id, :user_comment, check_list_responses_attributes: [:id, :check_list_id, responses: {}])
           .tap do |p|
       p[:service_job_attributes] = params[:device_task][:service_job_attributes].permit! if params[:device_task][:service_job_attributes]
       p[:repair_tasks_attributes] = params[:device_task][:repair_tasks_attributes].permit! if params[:device_task][:repair_tasks_attributes]

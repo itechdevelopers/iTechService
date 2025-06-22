@@ -704,6 +704,8 @@ class User < ApplicationRecord
   end
 
   def unset_remember_pause
+    return unless remember_pause?
+
     update!(remember_pause: false)
     pause!
   end
