@@ -11,24 +11,6 @@
   - f.object.repairer ||= current_user
   = f.association :repairer, collection: repairer_options, label_method: :presentation, input_html: {class: 'input-xlarge'}
   = f.input :price, input_html: {class: 'input-small'}
-  - f.object.available_check_lists.each_with_index do |check_list, index|
-    - response = check_list_response_for(f.object, check_list) || f.object.check_list_responses.build(check_list: check_list)
-    .control-group
-      %label.control-label= check_list.name
-      .controls
-        = hidden_field_tag "device_task[repair_tasks_attributes][#{f.index}][check_list_responses_attributes][#{index}][check_list_id]", check_list.id
-        - if response.persisted?
-          = hidden_field_tag "device_task[repair_tasks_attributes][#{f.index}][check_list_responses_attributes][#{index}][id]", response.id
-        - check_list_items_for(check_list).each do |item|
-          .checkbox
-            %label
-              = check_box_tag "device_task[repair_tasks_attributes][#{f.index}][check_list_responses_attributes][#{index}][responses][#{item.id}]",
-                              "true",
-                              response_for_item(response, item),
-                              id: "device_task_repair_tasks_attributes_#{f.index}_check_list_responses_attributes_#{index}_responses_#{item.id}"
-              = item.question
-              - if item.required?
-                %span.required *
 
   #repair_parts
     .row-fluid
