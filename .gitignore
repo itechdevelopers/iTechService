@@ -69,6 +69,7 @@ node_modules/
 *.sw?
 # OS specific
 .cursor/
+.claude/
 .roo/
 .roomodes
 .taskmaster/
