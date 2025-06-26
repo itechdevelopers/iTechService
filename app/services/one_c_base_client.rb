@@ -6,13 +6,25 @@ class OneCBaseClient
   include HTTParty
 
   def initialize
-    @auth = { username: ENV['ONE_C_API_USERNAME'], password: ENV['ONE_C_API_PASSWORD'] }
-    @base_url = 'http://89.108.120.99:8899'
+    @use_mock = should_use_mock?
+    
+    if @use_mock
+      @mock_service = ::MockOneCService.new
+    else
+      @auth = { username: ENV['ONE_C_API_USERNAME'], password: ENV['ONE_C_API_PASSWORD'] }
+      @base_url = 'http://89.108.120.99:8899'
+      Rails.logger.info '[1C] Using real 1C service'
+    end
   end
 
   protected
 
   def make_request(path, method: :post, body: nil)
+    if @use_mock
+      return @mock_service.make_request(path, method: method, body: body)
+    end
+
+    # Original real 1C service implementation
     options = {
       basic_auth: @auth,
       headers: {
@@ -37,5 +49,12 @@ class OneCBaseClient
     rescue StandardError => e
       { success: false, error: "Ошибка при обращении к серверу 1С: #{e.message}" }
     end
+  end
+
+  private
+
+  def should_use_mock?
+    # Use mock in development environment by default, unless explicitly disabled
+    Rails.env.development? && ENV['ONE_C_MOCK_MODE'] != 'false'
   end
 end

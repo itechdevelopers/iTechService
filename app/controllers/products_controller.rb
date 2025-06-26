@@ -183,8 +183,9 @@ class ProductsController < ApplicationController
   def product_by_article
     authorize Product
     article = params[:article]
+    department_id = params[:department_id].presence
 
-    service = ProductFinderService.new(article)
+    service = ProductFinderService.new(article, department_id)
     result = service.call
     render json: result
   end
