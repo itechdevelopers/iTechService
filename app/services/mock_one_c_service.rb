@@ -17,6 +17,8 @@ class MockOneCService
       mock_order_creation_response(body)
     when '/UT/hs/ice_int/v1/StatusID/'
       mock_device_status_response(body)
+    when '/UT/hs/ice_int/v1/info/'
+      mock_product_info_response(body)
     else
       { success: false, error: "Unknown mock endpoint: #{path}" }
     end
@@ -104,6 +106,91 @@ class MockOneCService
   def mock_device_not_found_response
     {
       'status' => 'Не найден'
+    }
+  end
+
+  def mock_product_info_response(body)
+    return mock_product_not_found_response unless body&.dig('Code')
+
+    code = body['Code']
+    department_code = body['DepartmentCode'] || 'default'
+    
+    Rails.logger.info "[Mock1C] Product lookup for code: #{code}, department: #{department_code}"
+
+    # Generate different mock responses based on article pattern
+    case code.to_s.downcase
+    when /iphone/
+      mock_iphone_product_response(code)
+    when /macbook/
+      mock_macbook_product_response(code)
+    when /ipad/
+      mock_ipad_product_response(code)
+    else
+      mock_generic_product_response(code)
+    end
+  end
+
+  def mock_iphone_product_response(code)
+    {
+      success: true,
+      data: {
+        'name' => "iPhone #{rand(12..15)} Pro (MOCK)",
+        'kind' => 'phone',
+        'price' => "#{rand(80000..150000)}",
+        'stores' => [
+          { 'id' => rand(1..5), 'quantity' => rand(0..10) },
+          { 'id' => rand(6..10), 'quantity' => rand(0..5) }
+        ]
+      }
+    }
+  end
+
+  def mock_macbook_product_response(code)
+    {
+      success: true,
+      data: {
+        'name' => "MacBook #{['Air', 'Pro'].sample} (MOCK)",
+        'kind' => 'laptop',
+        'price' => "#{rand(120000..300000)}",
+        'stores' => [
+          { 'id' => rand(1..3), 'quantity' => rand(1..3) }
+        ]
+      }
+    }
+  end
+
+  def mock_ipad_product_response(code)
+    {
+      success: true,
+      data: {
+        'name' => "iPad #{rand(9..11)} (MOCK)",
+        'kind' => 'tablet',
+        'price' => "#{rand(50000..100000)}",
+        'stores' => [
+          { 'id' => rand(1..5), 'quantity' => rand(2..8) }
+        ]
+      }
+    }
+  end
+
+  def mock_generic_product_response(code)
+    {
+      success: true,
+      data: {
+        'name' => "Product #{code} (MOCK)",
+        'kind' => 'accessory',
+        'price' => "#{rand(1000..50000)}",
+        'stores' => [
+          { 'id' => rand(1..3), 'quantity' => rand(0..15) }
+        ]
+      }
+    }
+  end
+
+  def mock_product_not_found_response
+    {
+      success: false,
+      error: 'Product not found in 1C (MOCK)'
     }
   end
 end

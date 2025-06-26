@@ -34,10 +34,11 @@ jQuery ->
     article = $(this).val().trim()
     if article != ''
       $('#order_object_url').val("http://itechstore.ru/api/v1/redirects/product-by-sku/#{article}/")
+      department_id = $('#order_department_id').val()
       $.ajax
         url: '/products/product_by_article'
         method: 'GET'
-        data: { article: article }
+        data: { article: article, department_id: department_id }
         dataType: 'json'
         success: (response) ->
           if response.status == 'found'
