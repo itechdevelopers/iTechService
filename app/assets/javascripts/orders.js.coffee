@@ -43,33 +43,33 @@ jQuery ->
         success: (response) ->
           if response.status == 'found'
             $('#order_object').val(response.name)
-            $('#article_not_found').text('')
             if response.kind != ''
               kind_text = $('#object_kinds_list a[object_kind="' + response.kind + '"]').text()
               $('#object_kind_value').text(kind_text)
               $('#order_object_kind').val(response.kind)
             if response.price != ''
               $('#order_approximate_price').val(response.price)
+            
+            # Display stock information
             if response.stores && response.stores.length > 0
-              $('#order_source_store_id option').each ->
-                store_id = $(this).val()
-                store_name = $(this).text().split(' - ')[0]
-                if store_id != '' && store_id != null
-                  $(this).text("#{store_name} - нет информации о количестве на складе")
-
+              stockInfo = '<strong>Наличие на складах:</strong><br>'
               for store in response.stores
-                option = $("#order_source_store_id option[value='#{store.id}']")
-                if option.length > 0
-                  store_name = option.text().split(' - ')[0]
-                  option.text("#{store_name} - #{store.quantity} шт.")
+                stockInfo += "#{store.name} (#{store.department_code}) - В наличии: #{store.quantity} шт., В резерве: #{store.reserve} шт.<br>"
+              $('#article_not_found').html(stockInfo)
+            else
+              $('#article_not_found').html('<em>Нет информации о наличии на складах</em>')
           else if response.status == 'not_found'
             $('#order_object').val('')
             $('#article_not_found').text('Ошибка при поиске по артикулу в 1С')
 
-            $('#order_source_store_id option').each ->
-              store_id = $(this).val()
-              if store_id != '' && store_id != null
-                store_name = $(this).text().split(' - ')[0]
-                $(this).text("#{store_name} - нет информации о количестве на складе")
         error: ->
+          $('#article_not_found').text('')
           console.log('Произошла ошибка при выполнении запроса')
+    else
+      # Clear all fields when article is emptied
+      $('#order_object').val('')
+      $('#order_object_url').val('')
+      $('#article_not_found').text('')
+      $('#object_kind_value').text('')
+      $('#order_object_kind').val('')
+      $('#order_approximate_price').val('')

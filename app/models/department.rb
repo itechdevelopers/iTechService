@@ -16,6 +16,7 @@ class Department < ApplicationRecord
   scope :main_branches, -> { where(role: [0, 1]) }
   scope :in_city, ->(city) { where(city: city) }
   scope :active, -> { where(archive: [false, nil]) }
+  scope :with_one_c_code, -> { where.not(code_one_c: nil) }
 
   belongs_to :city
   belongs_to :brand
