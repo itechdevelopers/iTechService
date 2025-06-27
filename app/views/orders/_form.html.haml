@@ -8,7 +8,6 @@
           .controls= text_field_tag 'order_user', @order.user.short_name, class: 'input-xlarge', disabled: true
 
       = f.input :number, disabled: true, input_html: { class: 'input-xlarge' }
-      = f.association :department, prompt: true
       - if @order.new_record?
         = f.input :customer, as: :client, wrapper_html: {id: 'client_fields'}, no_devices: true
       - else
@@ -18,13 +17,17 @@
       .control-group.optional
         = f.input :article
         #article_not_found
-      .control-group.select.optional
-        %label.control-label.select.optional= Order.human_attribute_name :source_store
-        .controls
-          = f.select :source_store_id,
-                    Store.visible.map { |s| ["#{s.name} - нет информации о количестве на складе", s.id] } + [["Нет на складе", nil]],
-                    { include_blank: false },
-                    { class: 'input-xlarge' }
+      .row-fluid
+        .span6
+          = f.association :department, prompt: true, label: 'Подразделение (куда)'
+        .span6
+          .control-group.select.optional
+            %label.control-label.select.optional Подразделение (откуда)
+            .controls
+              = f.select :source_department_id,
+                        Department.with_one_c_code.map { |d| [d.name, d.id] } + [["Не указано", nil]],
+                        { include_blank: false },
+                        { class: 'input-xlarge' }
       = f.input :object_kind, as: :object_kind
       = f.input :object, as: :object
       = f.input :object_url, input_html: {rows: 3, class: 'input-xlarge'}

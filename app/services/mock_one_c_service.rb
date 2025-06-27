@@ -131,6 +131,9 @@ class MockOneCService
   end
 
   def mock_iphone_product_response(code)
+    department_codes = ['00-000001', '00-000002', '00-000003']
+    store_names = ['Океанский', 'Транзит Сахалин', 'Уссурийск', 'Хабаровск', 'Центральный']
+    
     {
       success: true,
       data: {
@@ -138,14 +141,29 @@ class MockOneCService
         'kind' => 'phone',
         'price' => "#{rand(80000..150000)}",
         'stores' => [
-          { 'id' => rand(1..5), 'quantity' => rand(0..10) },
-          { 'id' => rand(6..10), 'quantity' => rand(0..5) }
+          { 
+            'id' => rand(1..5), 
+            'quantity' => rand(0..10),
+            'department_code' => department_codes.sample,
+            'name' => store_names.sample,
+            'reserve' => rand(0..3)
+          },
+          { 
+            'id' => rand(6..10), 
+            'quantity' => rand(0..5),
+            'department_code' => department_codes.sample,
+            'name' => store_names.sample,
+            'reserve' => rand(0..3)
+          }
         ]
       }
     }
   end
 
   def mock_macbook_product_response(code)
+    department_codes = ['00-000001', '00-000002', '00-000003']
+    store_names = ['Океанский', 'Транзит Сахалин', 'Уссурийск', 'Хабаровск', 'Центральный']
+    
     {
       success: true,
       data: {
@@ -153,13 +171,22 @@ class MockOneCService
         'kind' => 'laptop',
         'price' => "#{rand(120000..300000)}",
         'stores' => [
-          { 'id' => rand(1..3), 'quantity' => rand(1..3) }
+          { 
+            'id' => rand(1..3), 
+            'quantity' => rand(1..3),
+            'department_code' => department_codes.sample,
+            'name' => store_names.sample,
+            'reserve' => rand(0..3)
+          }
         ]
       }
     }
   end
 
   def mock_ipad_product_response(code)
+    department_codes = ['00-000001', '00-000002', '00-000003']
+    store_names = ['Океанский', 'Транзит Сахалин', 'Уссурийск', 'Хабаровск', 'Центральный']
+    
     {
       success: true,
       data: {
@@ -167,13 +194,22 @@ class MockOneCService
         'kind' => 'tablet',
         'price' => "#{rand(50000..100000)}",
         'stores' => [
-          { 'id' => rand(1..5), 'quantity' => rand(2..8) }
+          { 
+            'id' => rand(1..5), 
+            'quantity' => rand(2..8),
+            'department_code' => department_codes.sample,
+            'name' => store_names.sample,
+            'reserve' => rand(0..3)
+          }
         ]
       }
     }
   end
 
   def mock_generic_product_response(code)
+    department_codes = ['00-000001', '00-000002', '00-000003']
+    store_names = ['Океанский', 'Транзит Сахалин', 'Уссурийск', 'Хабаровск', 'Центральный']
+    
     {
       success: true,
       data: {
@@ -181,7 +217,13 @@ class MockOneCService
         'kind' => 'accessory',
         'price' => "#{rand(1000..50000)}",
         'stores' => [
-          { 'id' => rand(1..3), 'quantity' => rand(0..15) }
+          { 
+            'id' => rand(1..3), 
+            'quantity' => rand(0..15),
+            'department_code' => department_codes.sample,
+            'name' => store_names.sample,
+            'reserve' => rand(0..3)
+          }
         ]
       }
     }
