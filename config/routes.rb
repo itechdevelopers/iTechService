@@ -275,6 +275,7 @@ Rails.application.routes.draw do
     get :show_remains, on: :member, defaults: {format: :js}
     get :remains_in_store, on: :member, defaults: {format: :json}
     get :product_by_article, on: :collection, defaults: {format: :json}
+    get :department_colors, on: :collection, defaults: {format: :json}
     get :related, on: :member, defaults: {format: :js}
     post :select, on: :collection, defaults: {format: :js}
     get :find, on: :collection
