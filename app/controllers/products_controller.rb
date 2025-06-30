@@ -190,6 +190,15 @@ class ProductsController < ApplicationController
     render json: result
   end
 
+  def department_colors
+    # Get departments with 1C codes and their colors for stock display
+    departments = Department.with_one_c_code.includes(:city)
+    colors_mapping = departments.each_with_object({}) do |dept, hash|
+      hash[dept.code_one_c] = dept.color if dept.code_one_c.present?
+    end
+    render json: colors_mapping
+  end
+
   def remains_in_store
     product = find_record Product
     store = Store.find params[:store_id]
