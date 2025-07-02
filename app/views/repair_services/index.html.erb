@@ -1,20 +1,26 @@
 <div class="page-header">
   <h1>
-    <%= auto_title %>
+    <%= local_assigns[:archived_view] ? t('repair_services.archived.title') : auto_title %>
     <small>
-      <% case params[:mode] %>
-      <% when "prices" %>
-        <%= link_to 'Обычный вид', repair_services_path %>
-        |
-        <%= link_to 'Цены на разных филиалах', repair_services_path(mode: 'prices-all-branches') %>
-      <% when "prices-all-branches" %>
-        <%= link_to 'Обычный вид', repair_services_path %>
-        |
-        <%= link_to 'Цены', repair_services_path(mode: 'prices') %>
+      <% if local_assigns[:archived_view] %>
+        <%= link_to 'Вернуться к активным видам ремонта', repair_services_path %>
       <% else %>
-        <%= link_to 'Цены', repair_services_path(mode: 'prices') %>
+        <% case params[:mode] %>
+        <% when "prices" %>
+          <%= link_to 'Обычный вид', repair_services_path %>
+          |
+          <%= link_to 'Цены на разных филиалах', repair_services_path(mode: 'prices-all-branches') %>
+        <% when "prices-all-branches" %>
+          <%= link_to 'Обычный вид', repair_services_path %>
+          |
+          <%= link_to 'Цены', repair_services_path(mode: 'prices') %>
+        <% else %>
+          <%= link_to 'Цены', repair_services_path(mode: 'prices') %>
+          |
+          <%= link_to 'Цены на разных филиалах', repair_services_path(mode: 'prices-all-branches') %>
+        <% end %>
         |
-        <%= link_to 'Цены на разных филиалах', repair_services_path(mode: 'prices-all-branches') %>
+        <%= link_to 'Архив', archived_repair_services_path, class: 'text-muted' %>
       <% end %>
     </small>
   </h1>
