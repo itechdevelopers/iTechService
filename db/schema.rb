@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20250702164450) do
+ActiveRecord::Schema.define(version: 20250702090523) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -1919,7 +1919,6 @@ ActiveRecord::Schema.define(version: 20250702164450) do
   add_foreign_key "quick_orders", "clients"
   add_foreign_key "repair_prices", "departments"
   add_foreign_key "repair_prices", "repair_services"
-  add_foreign_key "repair_services", "repair_groups"
   add_foreign_key "repair_tasks", "users", column: "repairer_id"
   add_foreign_key "report_cards", "report_columns"
   add_foreign_key "report_columns", "reports_boards"

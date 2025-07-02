@@ -19,6 +19,29 @@ window.repair_groups_tree = (container)->
     $.ajax
       type: "DELETE"
       url: "/repair_groups/#{data.rslt.obj[0].id.replace("repair_group_", "")}"
+      success: (response)->
+        # Tree node removal is handled by jstree automatically on successful AJAX
+      error: (xhr, status, error)->
+        # Parse error response and show user-friendly message
+        errorMessage = "An error occurred while deleting the repair group."
+        if xhr.responseJSON && xhr.responseJSON.errors
+          errorMessage = xhr.responseJSON.errors.join("; ")
+        
+        # Display error message using the same pattern as destroy.js.erb
+        $('#repair_groups_messages').html(
+          '<div class="row">' +
+          '<div class="span6 alert_place">' +
+          '<div class="alert alert-error">' +
+          '<a class="close" data-dismiss="alert" onclick="$(this).parents(\'.row:first\').remove()">&times;</a>' +
+          '<i class="icon-exclamation-sign"></i> ' +
+          '<span class="text">' + errorMessage + '</span>' +
+          '</div>' +
+          '</div>' +
+          '</div>'
+        )
+        
+        # Refresh the tree to restore the node that was optimistically removed
+        $(e.currentTarget).jstree("refresh")
   ).bind("rename.jstree",(e, data)->
     $.ajax
       type: "PUT"
