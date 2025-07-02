@@ -1,0 +1,37 @@
+// Clear previous messages
+$('#repair_groups_messages').empty();
+
+<% if @repair_group.errors.any? %>
+  // Show error messages
+  $('#repair_groups_messages').html('<%=
+    content_tag(:div, class: "row") do
+      content_tag(:div, class: "span6 alert_place") do
+        content_tag(:div, class: "alert alert-error") do
+          content_tag(:a, "&times;".html_safe, class: "close", "data-dismiss" => "alert", onclick: "$(this).parents('.row:first').remove()") +
+          content_tag(:i, "", class: "icon-exclamation-sign") + " " +
+          content_tag(:span, @repair_group.errors.full_messages.join("; "), class: "text")
+        end
+      end
+    end
+  %>');
+<% else %>
+  // Show success message and remove from tree
+  $('#repair_groups_messages').html('<%=
+    content_tag(:div, class: "row") do
+      content_tag(:div, class: "span6 alert_place") do
+        content_tag(:div, class: "alert alert-success") do
+          content_tag(:a, "&times;".html_safe, class: "close", "data-dismiss" => "alert", onclick: "$(this).parents('.row:first').remove()") +
+          content_tag(:i, "", class: "icon-info-sign") + " " +
+          content_tag(:span, "Repair group was successfully deleted.", class: "text")
+        end
+      end
+    end
+  %>');
+  
+  // Auto-dismiss success message after 3 seconds
+  setTimeout(function() {
+    $('#repair_groups_messages .alert-success').fadeOut(500, function() {
+      $(this).parents('.row:first').remove();
+    });
+  }, 3000);
+<% end %>
