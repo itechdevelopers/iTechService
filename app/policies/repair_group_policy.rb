@@ -3,6 +3,10 @@ class RepairGroupPolicy < CommonPolicy
     any_admin?
   end
 
+  def destroy?
+    any_admin?
+  end
+
   def manage?
     any_admin?
   end

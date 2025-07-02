@@ -28,7 +28,7 @@ class RepairService < ApplicationRecord
 
   accepts_nested_attributes_for :spare_parts, allow_destroy: true
   accepts_nested_attributes_for :prices
-  validates_presence_of :name, :repair_group
+  validates_presence_of :name
   validates_associated :spare_parts
 
   def find_price(department)
