@@ -12,7 +12,7 @@
           %ul.dropdown-menu
             %li= link_to t('everywhere'), actual_tasks_path, remote: true
             %li.divider
-            - current_department.locations.each do |location|
+            - current_department.locations.visible.each do |location|
               %li= link_to location.name, actual_tasks_path(location: location.id), remote: true
       - else
         %li.actual_tasks_nav.active= link_to t('dashboard.actual_tasks'), actual_tasks_path, remote: true

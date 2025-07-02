@@ -67,9 +67,22 @@ class RepairGroupsController < ApplicationController
 
   def destroy
     @repair_group = find_record RepairGroup
-    @repair_group.destroy
+    @repair_groups = RepairGroup.roots.order('id asc')
+    
     respond_to do |format|
-      format.js { head :no_content }
+      if @repair_group.safe_destroy
+        format.js { head :no_content }
+      else
+        format.js { render json: { errors: @repair_group.errors.full_messages }, status: :unprocessable_entity }
+      end
+    end
+  rescue ActiveRecord::InvalidForeignKey => e
+    respond_to do |format|
+      format.js { render json: { errors: ["Cannot delete repair group due to database constraints"] }, status: :unprocessable_entity }
+    end
+  rescue StandardError => e
+    respond_to do |format|
+      format.js { render json: { errors: ["An error occurred while deleting the repair group"] }, status: :internal_server_error }
     end
   end
 
