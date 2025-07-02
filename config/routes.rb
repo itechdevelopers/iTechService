@@ -357,6 +357,9 @@ Rails.application.routes.draw do
     get :choose, on: :collection, defaults: {format: :js}
     get :select, on: :member, defaults: {format: :js}
     put :mass_update, on: :collection
+    patch :archive, on: :member
+    patch :unarchive, on: :member
+    get :archived, on: :collection
   end
 
   resources :imported_sales, only: :index

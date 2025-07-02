@@ -15,6 +15,8 @@ class RepairService < ApplicationRecord
     distinct :
     all
   }
+  scope :archived, -> { where(archived: true) }
+  scope :not_archived, -> { where(archived: false) }
 
   belongs_to :repair_group, optional: true
   has_many :spare_parts, dependent: :destroy
@@ -50,5 +52,13 @@ class RepairService < ApplicationRecord
 
   def remnants_qty(department)
     store_items.in_store(Store.in_department(department).spare_parts).sum(:quantity)
+  end
+
+  def archive!
+    update!(archived: true)
+  end
+
+  def unarchive!
+    update!(archived: false)
   end
 end

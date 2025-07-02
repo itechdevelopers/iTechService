@@ -12,4 +12,16 @@ class RepairServicePolicy < CommonPolicy
   def see_quantity?
     superadmin? || able_to?(:show_spare_parts_qty)
   end
+
+  def archive?
+    manage?
+  end
+
+  def unarchive?
+    manage?
+  end
+
+  def archived?
+    read?
+  end
 end

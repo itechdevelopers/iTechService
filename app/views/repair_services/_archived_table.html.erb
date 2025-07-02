@@ -11,22 +11,21 @@
     </thead>
 
     <tbody>
-    <% show_qty = current_user.able_to?(:show_spare_parts_qty) || current_user.superadmin? # Setting.show_spare_parts_qty %>
+    <% show_qty = current_user.able_to?(:show_spare_parts_qty) || current_user.superadmin? %>
     <% @repair_services.find_each do |repair_service| %>
       <% parts_qty = repair_service.spare_parts.count %>
       <tr>
         <td rowspan="<%= parts_qty+1 %>"><%= repair_service.id %></td>
         <td class="name">
-          <span class="label label-info"><%= repair_service.name %></span>
+          <span class="label label-default"><%= repair_service.name %> (архив)</span>
         </td>
         <td class="price"><%= human_currency repair_service.price(params[:department_id])&.shown_price, false %></td>
         <td class="client_info text-info" rowspan="<%= parts_qty+1 %>"><%= repair_service.client_info %></td>
         <% if can? :manage, RepairService %>
           <td class="btn-group" rowspan="<%= parts_qty+1 %>">
-            <%= link_to_edit_small repair_service %>
-            <%= link_to 'Архив', archive_repair_service_path(repair_service), method: :patch, 
-                        class: 'btn btn-small btn-warning', 
-                        data: { confirm: 'Вы уверены, что хотите перенести услугу в архив?' } %>
+            <%= link_to 'Восстановить', unarchive_repair_service_path(repair_service), method: :patch, 
+                        class: 'btn btn-small btn-info', 
+                        data: { confirm: 'Вы уверены, что хотите восстановить услугу из архива?' } %>
             <%= link_to_destroy_small repair_service %>
           </td>
         <% end %>

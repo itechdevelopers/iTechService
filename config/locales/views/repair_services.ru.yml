@@ -2,10 +2,14 @@ ru:
   repair_services:
     created: 'Вид ремонта создан'
     udpated: 'Вид ремонта изменён'
+    archived: 'Услуга перенесена в архив'
+    unarchived: 'Услуга восстановлена из архива'
     index:
       title: 'Виды ремонта'
       edit: "Редактировать"
       has_range_prices: 'Ориентировочные цены'
+    archived:
+      title: 'Архив видов ремонта'
     new:
       title: 'Новый Вид ремонта'
     edit:

@@ -6,9 +6,9 @@ class RepairServicesController < ApplicationController
     @repair_groups = RepairGroup.roots.order('name asc')
 
     if params[:group].blank?
-      @repair_services = RepairService.search(search_params[:query])
+      @repair_services = RepairService.not_archived.search(search_params[:query])
     else
-      @repair_services = RepairService.includes(spare_parts: :product).in_group(params[:group])
+      @repair_services = RepairService.not_archived.includes(spare_parts: :product).in_group(params[:group])
       @repair_services = @repair_services.search(search_params[:query])
     end
 
@@ -105,6 +105,44 @@ class RepairServicesController < ApplicationController
   def select
     @repair_service = find_record RepairService
     respond_to do |format|
+      format.js
+    end
+  end
+
+  def archive
+    @repair_service = find_record RepairService
+    @repair_service.archive!
+    respond_to do |format|
+      format.html { redirect_to repair_services_path, notice: t('repair_services.archived') }
+      format.js
+    end
+  end
+
+  def archived
+    authorize RepairService
+    @repair_groups = RepairGroup.roots.order('name asc')
+
+    if params[:group].blank?
+      @repair_services = RepairService.archived.search(search_params[:query])
+    else
+      @repair_services = RepairService.archived.includes(spare_parts: :product).in_group(params[:group])
+      @repair_services = @repair_services.search(search_params[:query])
+    end
+
+    params[:table_name] = 'archived_table'
+    params[:department_id] ||= current_department.id
+
+    respond_to do |format|
+      format.html { render 'index', locals: { archived_view: true } }
+      format.js { render 'index', locals: { archived_view: true } }
+    end
+  end
+
+  def unarchive
+    @repair_service = find_record RepairService
+    @repair_service.unarchive!
+    respond_to do |format|
+      format.html { redirect_to archived_repair_services_path, notice: t('repair_services.unarchived') }
       format.js
     end
   end

@@ -20,7 +20,12 @@ module RepairGroupsHelper
       nested_list = content_tag(:ul, nested_repair_groups_list(sub_repair_groups, current_id, options))
       options[:group] = repair_group.id
 
-      content_tag :li, link_to(repair_group.name, repair_services_path(options), remote: true) + nested_list,
+      path = if params[:action] == 'archived'
+               archived_repair_services_path(options)
+             else
+               repair_services_path(options)
+             end
+      content_tag :li, link_to(repair_group.name, path, remote: true) + nested_list,
                   class: "repair_group #{li_class}", id: "repair_group_#{repair_group.id}", title: repair_group.name,
                   data: {repair_group_id: repair_group.id, depth: repair_group.depth}
 
