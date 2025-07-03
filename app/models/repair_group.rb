@@ -10,15 +10,15 @@ class RepairGroup < ApplicationRecord
     errors = []
     
     if has_children?
-      errors << "Cannot delete repair group with child groups"
+      errors << "Невозможно удалить группу ремонта с дочерними группами"
     end
     
     if product_groups.exists?
-      errors << "Cannot delete repair group with associated product groups"
+      errors << "Невозможно удалить группу ремонта с привязанными группами товаров"
     end
     
     if repair_services.joins(:repair_tasks).exists?
-      errors << "Cannot delete repair group with repair services that have associated repair tasks"
+      errors << "Невозможно удалить группу ремонта с услугами ремонта, имеющими связанные задачи"
     end
     
     errors
@@ -28,7 +28,21 @@ class RepairGroup < ApplicationRecord
     deletion_errors = can_be_deleted?
     
     if deletion_errors.empty?
-      destroy
+      begin
+        destroy
+      rescue ActiveRecord::DeleteRestrictionError => e
+        errors.add(:base, "Невозможно удалить группу ремонта с привязанными записями")
+        false
+      rescue Ancestry::AncestryException => e
+        errors.add(:base, "Невозможно удалить группу ремонта с дочерними группами")
+        false
+      rescue ActiveRecord::InvalidForeignKey => e
+        errors.add(:base, "Невозможно удалить группу ремонта из-за ограничений базы данных")
+        false
+      rescue StandardError => e
+        errors.add(:base, "Произошла ошибка при удалении группы ремонта")
+        false
+      end
     else
       errors.add(:base, deletion_errors.join("; "))
       false

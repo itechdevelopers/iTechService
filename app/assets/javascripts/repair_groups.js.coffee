@@ -19,11 +19,12 @@ window.repair_groups_tree = (container)->
     $.ajax
       type: "DELETE"
       url: "/repair_groups/#{data.rslt.obj[0].id.replace("repair_group_", "")}"
+      dataType: "json"
       success: (response)->
         # Tree node removal is handled by jstree automatically on successful AJAX
       error: (xhr, status, error)->
         # Parse error response and show user-friendly message
-        errorMessage = "An error occurred while deleting the repair group."
+        errorMessage = "Произошла ошибка при удалении группы ремонта."
         if xhr.responseJSON && xhr.responseJSON.errors
           errorMessage = xhr.responseJSON.errors.join("; ")
         
