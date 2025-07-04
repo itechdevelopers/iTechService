@@ -3,7 +3,7 @@
 class RepairGroupsController < ApplicationController
   def index
     authorize RepairGroup
-    @repair_groups = RepairGroup.roots.order('id asc')
+    @repair_groups = RepairGroup.not_archived.roots.order('id asc')
     respond_to do |format|
       format.js
     end
@@ -34,7 +34,7 @@ class RepairGroupsController < ApplicationController
 
   def create
     @repair_group = authorize RepairGroup.new(repair_group_params)
-    @repair_groups = RepairGroup.roots.order('id asc')
+    @repair_groups = RepairGroup.not_archived.roots.order('id asc')
     respond_to do |format|
       if @repair_group.save
         format.js
@@ -46,7 +46,7 @@ class RepairGroupsController < ApplicationController
 
   def update
     @repair_group = find_record RepairGroup
-    @repair_groups = RepairGroup.roots.order('id asc')
+    @repair_groups = RepairGroup.not_archived.roots.order('id asc')
 
     parent_id_param = repair_group_params[:parent_id]
     if parent_id_param == 'nil'
@@ -67,24 +67,74 @@ class RepairGroupsController < ApplicationController
 
   def destroy
     @repair_group = find_record RepairGroup
-    @repair_groups = RepairGroup.roots.order('id asc')
+    @repair_groups = RepairGroup.not_archived.roots.order('id asc')
     
     respond_to do |format|
       if @repair_group.safe_destroy
         format.js { render 'destroy' }
+        format.json { head :no_content }
       else
         format.js { render 'destroy', status: :unprocessable_entity }
+        format.json { render json: { errors: @repair_group.errors.full_messages }, status: :unprocessable_entity }
       end
     end
-  rescue ActiveRecord::InvalidForeignKey => e
-    @repair_group.errors.add(:base, "Cannot delete repair group due to database constraints")
-    respond_to do |format|
-      format.js { render 'destroy', status: :unprocessable_entity }
-    end
   rescue StandardError => e
-    @repair_group.errors.add(:base, "An error occurred while deleting the repair group")
+    @repair_group.errors.add(:base, "Произошла непредвиденная ошибка при удалении группы ремонта")
     respond_to do |format|
       format.js { render 'destroy', status: :internal_server_error }
+      format.json { render json: { errors: @repair_group.errors.full_messages }, status: :internal_server_error }
+    end
+  end
+
+  def archive
+    @repair_group = find_record RepairGroup
+    archive_errors = @repair_group.can_be_archived?
+    
+    respond_to do |format|
+      if archive_errors.empty?
+        @repair_group.archive_with_descendants!
+        @repair_groups = RepairGroup.not_archived.roots.order('id asc')
+        @archived_repair_groups = RepairGroup.archived_for_display.sort_by(&:id)
+        format.js
+      else
+        @repair_group.errors.add(:base, archive_errors.join("; "))
+        format.js { render 'archive', status: :unprocessable_entity }
+      end
+    end
+  rescue StandardError => e
+    @repair_group.errors.add(:base, "Произошла ошибка при архивировании группы ремонта")
+    respond_to do |format|
+      format.js { render 'archive', status: :internal_server_error }
+    end
+  end
+
+  def unarchive
+    @repair_group = find_record RepairGroup
+    unarchive_errors = @repair_group.can_be_unarchived?
+    
+    respond_to do |format|
+      if unarchive_errors.empty?
+        @repair_group.unarchive_with_ancestors!
+        @repair_groups = RepairGroup.not_archived.roots.order('id asc')
+        @archived_repair_groups = RepairGroup.archived_for_display.sort_by(&:id)
+        format.js
+      else
+        @repair_group.errors.add(:base, unarchive_errors.join("; "))
+        format.js { render 'unarchive', status: :unprocessable_entity }
+      end
+    end
+  rescue StandardError => e
+    @repair_group.errors.add(:base, "Произошла ошибка при восстановлении группы ремонта")
+    respond_to do |format|
+      format.js { render 'unarchive', status: :internal_server_error }
+    end
+  end
+
+  def archived
+    authorize RepairGroup
+    @archived_repair_groups = RepairGroup.archived_for_display.sort_by(&:id)
+    respond_to do |format|
+      format.js
     end
   end
 

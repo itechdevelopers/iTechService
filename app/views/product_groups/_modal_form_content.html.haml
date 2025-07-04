@@ -15,7 +15,7 @@
     = f.input :trademark
     = f.input :product_line
     = f.association :repair_group,
-        collection: RepairGroup.all.map { |g| [g.name, g.id] },
+        collection: RepairGroup.not_archived.map { |g| [g.name, g.id] },
         prompt: 'Выбрать группу видов ремонта',
         label: 'Вид ремонта',
         include_blank: false

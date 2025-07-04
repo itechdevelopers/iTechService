@@ -309,7 +309,15 @@ Rails.application.routes.draw do
   resources :installment_plans
   resources :cash_operations, only: [:index, :new, :create]
   resources :cash_drawers
-  resources :repair_groups
+  resources :repair_groups do
+    member do
+      patch :archive
+      patch :unarchive
+    end
+    collection do
+      get :archived
+    end
+  end
   resources :case_colors, except: :show
   resources :quick_tasks, except: :show
   resources :product_imports, only: [:new, :create]

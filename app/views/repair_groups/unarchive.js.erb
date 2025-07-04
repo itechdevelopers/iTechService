@@ -1,0 +1,40 @@
+<% if @repair_group.errors.any? %>
+  $('#repair_groups_messages').html(
+    '<div class="row">' +
+    '<div class="span6 alert_place">' +
+    '<div class="alert alert-error">' +
+    '<a class="close" data-dismiss="alert" onclick="$(this).parents(\'.row:first\').remove()">&times;</a>' +
+    '<i class="icon-exclamation-sign"></i> ' +
+    '<span class="text"><%= j @repair_group.errors.full_messages.join("; ") %></span>' +
+    '</div>' +
+    '</div>' +
+    '</div>'
+  );
+<% else %>
+  $('#repair_groups').html("<%= j repair_groups_trees_tag(@repair_groups, params[:group]) %>");
+  repair_groups_tree('#repair_groups');
+  
+  <% if @archived_repair_groups.present? %>
+    if ($('#archived_repair_groups').length == 0) {
+      $('#repair_groups').after('<h3>Архивированные группы</h3><div id="archived_repair_groups"></div>');
+    }
+    $('#archived_repair_groups').html("<%= j repair_groups_trees_tag(@archived_repair_groups, nil, archived: true) %>");
+    repair_groups_tree_archived('#archived_repair_groups');
+  <% else %>
+    // Remove archived section when no archived groups remain
+    $('#archived_repair_groups').prev('h3').remove();
+    $('#archived_repair_groups').remove();
+  <% end %>
+  
+  $('#repair_groups_messages').html(
+    '<div class="row">' +
+    '<div class="span6 alert_place">' +
+    '<div class="alert alert-success">' +
+    '<a class="close" data-dismiss="alert" onclick="$(this).parents(\'.row:first\').remove()">&times;</a>' +
+    '<i class="icon-ok-sign"></i> ' +
+    '<span class="text">Группа ремонта успешно восстановлена</span>' +
+    '</div>' +
+    '</div>' +
+    '</div>'
+  );
+<% end %>

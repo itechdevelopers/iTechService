@@ -10,4 +10,12 @@ class RepairGroupPolicy < CommonPolicy
   def manage?
     any_admin?
   end
+
+  def archive?
+    any_admin?
+  end
+
+  def unarchive?
+    any_admin?
+  end
 end

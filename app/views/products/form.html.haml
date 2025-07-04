@@ -34,7 +34,7 @@
           = f.input :barcode_num
           = f.input :article
           = f.input :repair_service_ids,
-            collection: RepairGroup.all,
+            collection: RepairGroup.not_archived,
             as: :grouped_select,
             group_method: :repair_services, 
             input_html: { multiple: true, class: 'multiselect-rep-services' }
