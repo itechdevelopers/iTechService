@@ -6,6 +6,12 @@ class RepairGroup < ApplicationRecord
   has_many :product_groups, dependent: :restrict_with_error
   validates_presence_of :name
 
+  scope :archived, -> { where(archived: true) }
+  scope :not_archived, -> { where(archived: false) }
+  scope :archived_for_display, -> { 
+    archived.select { |group| group.ancestry.blank? || !group.ancestors.any?(&:archived?) }
+  }
+
   def can_be_deleted?
     errors = []
     
@@ -46,6 +52,48 @@ class RepairGroup < ApplicationRecord
     else
       errors.add(:base, deletion_errors.join("; "))
       false
+    end
+  end
+
+  def archive!
+    update!(archived: true)
+  end
+
+  def unarchive!
+    update!(archived: false)
+  end
+
+  def can_be_archived?
+    errors = []
+    
+    if repair_services.not_archived.exists?
+      errors << "Невозможно архивировать группу ремонта с активными услугами ремонта"
+    end
+    
+    errors
+  end
+
+  def can_be_unarchived?
+    errors = []
+    
+    if parent.present? && parent.archived?
+      errors << "Невозможно восстановить группу ремонта, родительская группа которой архивирована"
+    end
+    
+    errors
+  end
+
+  def archive_with_descendants!
+    ActiveRecord::Base.transaction do
+      archive!
+      descendants.each(&:archive!)
+    end
+  end
+
+  def unarchive_with_ancestors!
+    ActiveRecord::Base.transaction do
+      unarchive!
+      ancestors.each(&:unarchive!)
     end
   end
 end

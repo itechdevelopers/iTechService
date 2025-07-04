@@ -38,6 +38,13 @@
     <div id="repair_groups" class="<%= can?(:manage, RepairGroup) ? 'editable' : 'readonly' %>">
       <%= repair_groups_trees_tag @repair_groups, params[:group], additional_params %>
     </div>
+    
+    <% if @archived_repair_groups.present? %>
+      <h3>Архивированные группы</h3>
+      <div id="archived_repair_groups">
+        <%= repair_groups_trees_tag @archived_repair_groups, params[:group], additional_params.merge(archived: true) %>
+      </div>
+    <% end %>
   </div>
   <div class="span8">
     <div class="navbar-inner repair-services-navbar">

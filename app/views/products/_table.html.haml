@@ -2,7 +2,7 @@
   .row-fluid
     .span6
       = f.input :repair_service_ids,
-        collection: RepairGroup.all,
+        collection: RepairGroup.not_archived,
         as: :grouped_select,
         group_method: :repair_services,
         label: 'Прикрепить виды ремонта',

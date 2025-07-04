@@ -3,7 +3,8 @@
 class RepairServicesController < ApplicationController
   def index
     authorize RepairService
-    @repair_groups = RepairGroup.roots.order('name asc')
+    @repair_groups = RepairGroup.not_archived.roots.order('name asc')
+    @archived_repair_groups = RepairGroup.archived_for_display.sort_by(&:name)
 
     if params[:group].blank?
       @repair_services = RepairService.not_archived.search(search_params[:query])
@@ -120,7 +121,8 @@ class RepairServicesController < ApplicationController
 
   def archived
     authorize RepairService
-    @repair_groups = RepairGroup.roots.order('name asc')
+    @repair_groups = RepairGroup.not_archived.roots.order('name asc')
+    @archived_repair_groups = RepairGroup.archived_for_display.sort_by(&:name)
 
     if params[:group].blank?
       @repair_services = RepairService.archived.search(search_params[:query])

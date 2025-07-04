@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20250702090523) do
+ActiveRecord::Schema.define(version: 20250703121409) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -1124,7 +1124,9 @@ ActiveRecord::Schema.define(version: 20250702090523) do
     t.integer "ancestry_depth", default: 0
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.boolean "archived", default: false, null: false
     t.index ["ancestry"], name: "index_repair_groups_on_ancestry"
+    t.index ["archived"], name: "index_repair_groups_on_archived"
   end
 
   create_table "repair_parts", id: :serial, force: :cascade do |t|

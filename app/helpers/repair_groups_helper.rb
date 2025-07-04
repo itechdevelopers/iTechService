@@ -7,9 +7,18 @@ module RepairGroupsHelper
   end
 
   def repair_groups_tree_tag(repair_group, current_id=nil, options={})
-    content_tag :ul, nested_repair_groups_list(repair_group.subtree.arrange(order: :name), current_id, options),
-                class: 'repair_groups_tree unstyled', id: "repair_groups_tree_#{repair_group.id}",
-                data: {root_id: repair_group.id, repair_group_id: current_id, opened: [current_id]}
+    tree_class = options[:archived] ? 'repair_groups_tree unstyled archived' : 'repair_groups_tree unstyled'
+    
+    # Filter out archived groups from subtree when not in archived mode
+    subtree = if options[:archived]
+                repair_group.subtree
+              else
+                repair_group.subtree.not_archived
+              end
+    
+    content_tag :ul, nested_repair_groups_list(subtree.arrange(order: :name), current_id, options),
+                class: tree_class, id: "repair_groups_tree_#{repair_group.id}",
+                data: {root_id: repair_group.id, repair_group_id: current_id, opened: [current_id], archived: options[:archived]}
   end
 
   def nested_repair_groups_list(repair_groups, current_id=nil, options={})

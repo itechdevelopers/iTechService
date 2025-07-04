@@ -2,6 +2,7 @@ jQuery ->
 
   repair_groups_tree('#repair_groups') if $('#repair_groups.editable').length > 0
   repair_groups_tree_readonly('#repair_groups') if $('#repair_groups.readonly').length > 0
+  repair_groups_tree_archived('#archived_repair_groups') if $('#archived_repair_groups').length > 0
 
 window.repair_groups_tree = (container)->
   $.jstree._themes = "/assets/jstree/"
@@ -113,6 +114,16 @@ window.repair_groups_tree = (container)->
                 @remove()
               else
                 @remove obj
+          separator_after: true
+        archive:
+          label: "Архивировать"
+          action: (obj)->
+            group_id = obj[0].id.replace("repair_group_", "")
+            if confirm("Вы уверены? Все дочерние группы также будут архивированы.")
+              $.ajax
+                type: "PATCH"
+                url: "/repair_groups/#{group_id}/archive"
+                dataType: "script"
     plugins: ["themes", "html_data", "ui", "contextmenu", "crrm", "dnd"]
   ).show()
 
@@ -136,4 +147,42 @@ window.repair_groups_tree_readonly = (container)->
     ui:
       select_limit: 1
     plugins: ["themes", "html_data", "ui"]
+  ).show()
+
+window.repair_groups_tree_archived = (container)->
+  $.jstree._themes = "/assets/jstree/"
+  $container = $(container)
+  root_id = $container.data('root_id')
+  group_id = $container.data('repair_group_id')
+  opened = $container.data('opened')
+  $container.bind('select_node.jstree', (e, data)->
+    $container.jstree('open_node', data.rslt.obj[0])
+  ).jstree(
+    core:
+      strings:
+        loading: "Загружаю..."
+        new_node: "Новая Группа"
+      initially_open: opened
+      load_open: true
+      open_parents: true
+      animation: 10
+    themes:
+      theme: "apple"
+      dots: false
+      icons: false
+    ui:
+      select_limit: 1
+    contextmenu:
+      select_node: true
+      items:
+        unarchive:
+          label: "Восстановить"
+          action: (obj)->
+            group_id = obj[0].id.replace("repair_group_", "")
+            if confirm("Вы уверены? Все родительские группы также будут восстановлены.")
+              $.ajax
+                type: "PATCH"
+                url: "/repair_groups/#{group_id}/unarchive"
+                dataType: "script"
+    plugins: ["themes", "html_data", "ui", "contextmenu"]
   ).show()
