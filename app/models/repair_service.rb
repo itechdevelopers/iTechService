@@ -8,10 +8,10 @@ class RepairService < ApplicationRecord
     where('products.name ilike :q', q: "%#{query}%")
   }
   scope :search, ->(query) { query.present? ?
-    with_spare_part_name(query).
-    or(RepairService.
-        joins(spare_parts: :product).
-        where('repair_services.name ilike :q', q: "%#{query}%")).
+    # left_joins(spare_parts: :product).
+    # where('repair_services.name ilike :q COLLATE "ru_RU.UTF-8" OR products.name ilike :q COLLATE "ru_RU.UTF-8"', q: "%#{query}%").
+    left_joins(spare_parts: :product).
+    where('repair_services.name ilike :q COLLATE "ru_RU.utf8" OR products.name ilike :q COLLATE "ru_RU.utf8"', q: "%#{query}%").
     distinct :
     all
   }
