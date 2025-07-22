@@ -7,14 +7,14 @@ class OneCFailureNotificationJob < ApplicationJob
     
     return unless sync_record&.permanently_failed?
     
-    # Get all active admins in the same department as the order
-    admins = User.any_admin.active.where(department: order.department)
+    # Get all active users with merchandiser notification ability in the same department as the order
+    recipients = User.active.with_ability('receive_merchandiser_notifications').in_department(order.department_id)
     
-    Rails.logger.info "[OneCFailureNotification] Notifying #{admins.count} admins about permanent sync failure for order #{order.id}"
+    Rails.logger.info "[OneCFailureNotification] Notifying #{recipients.count} users with merchandiser notifications about permanent sync failure for order #{order.id}"
     
-    admins.each do |admin|
+    recipients.each do |recipient|
       Notification.create!(
-        user: admin,
+        user: recipient,
         referenceable: order,
         message: "Ошибка синхронизации заказа с 1С, <a href=\"/orders/#{order.id}/edit\">требуется вмешательство</a>",
         url: Rails.application.routes.url_helpers.edit_order_path(order)

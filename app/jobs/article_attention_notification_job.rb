@@ -4,12 +4,12 @@ class ArticleAttentionNotificationJob < ApplicationJob
   def perform(order_id)
     order = Order.find(order_id)
     
-    # Get all active admins in the same department as the order
-    admins = User.any_admin.active.where(department: order.department)
+    # Get all active users with merchandiser notification ability in the same department as the order
+    recipients = User.active.with_ability('receive_merchandiser_notifications').in_department(order.department_id)
     
-    admins.each do |admin|
+    recipients.each do |recipient|
       Notification.create!(
-        user: admin,
+        user: recipient,
         referenceable: order,
         message: "Создан заказ без артикула, <a href=\"/orders/#{order.id}/edit\">обратите внимание</a>",
         url: Rails.application.routes.url_helpers.edit_order_path(order)

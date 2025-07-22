@@ -63,7 +63,7 @@ class Order < ApplicationRecord
     end
   end
 
-  after_update :make_announcement, :clear_attention_if_article_added
+  after_update :make_announcement, :clear_attention_if_article_added, :check_for_sync_update
 
   audited
   has_associated_audits
@@ -212,6 +212,15 @@ class Order < ApplicationRecord
     object_kind == 'device'
   end
 
+  # Helper method to create or update 1C sync record
+  def ensure_one_c_sync_record!
+    one_c_sync || external_syncs.create!(
+      external_system: :one_c,
+      sync_status: :pending,
+      attention_required: device_order? && (article.blank? || article.strip.blank?)
+    )
+  end
+
   private
 
   def make_announcement
@@ -247,6 +256,19 @@ class Order < ApplicationRecord
     # If sync failed, attention is still needed for sync failure
     if article.present? && !article_requires_attention? && one_c_sync.synced?
       one_c_sync.update!(attention_required: false)
+    end
+  end
+
+  def check_for_sync_update
+    return unless one_c_synced?
+    
+    # Define fields that require 1C update when changed
+    significant_changes = %w[article object quantity approximate_price comment]
+    
+    # Check if any significant fields were changed
+    if (changed & significant_changes).any?
+      Rails.logger.info "[OrderUpdate] Order #{id} has significant changes, triggering 1C update"
+      OneCOrderUpdateJob.perform_later(id, User.current&.id)
     end
   end
 
@@ -286,14 +308,5 @@ class Order < ApplicationRecord
 
   def requires_article_attention?
     one_c_sync&.requires_article_attention? || false
-  end
-
-  # Helper method to create or update 1C sync record
-  def ensure_one_c_sync_record!
-    one_c_sync || external_syncs.create!(
-      external_system: :one_c,
-      sync_status: :pending,
-      attention_required: device_order? && (article.blank? || article.strip.blank?)
-    )
   end
 end

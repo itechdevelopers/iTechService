@@ -105,6 +105,14 @@ class User < ApplicationRecord
                           }
 
   scope :helps_in_mac_service, -> { active.where(can_help_in_mac_service: true) }
+  scope :with_ability, ->(ability_name) { joins(:abilities).where(abilities: { name: ability_name }) }
+  scope :with_any_abilities, ->(ability_names) { joins(:abilities).where(abilities: { name: ability_names }).distinct }
+  scope :with_all_abilities, ->(ability_names) {
+    joins(:abilities)
+      .where(abilities: { name: ability_names })
+      .group('users.id')
+      .having('COUNT(abilities.id) = ?', ability_names.length)
+  }
 
   belongs_to :location, optional: true
   belongs_to :department, optional: true

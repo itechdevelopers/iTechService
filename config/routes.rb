@@ -186,6 +186,7 @@ Rails.application.routes.draw do
     get :edit_archive_reason, on: :member
     patch :update_archive_reason, on: :member
     get :history, on: :member, defaults: { format: 'js' }
+    post :manual_sync, on: :member
     get :device_type_select, on: :collection, defaults: {format: 'js'}
     resources :order_notes, only: %i[index create update], shallow: true, defaults: { format: :js }
   end
