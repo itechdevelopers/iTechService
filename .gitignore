@@ -74,3 +74,6 @@ node_modules/
 .roomodes
 .taskmaster/
 .windsurfrules
+
+# Documentation files
+NOTIFICATIONS_IMPLEMENTATION_GUIDE.md
