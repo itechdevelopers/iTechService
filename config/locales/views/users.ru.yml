@@ -15,6 +15,7 @@ ru:
       manage_trade_in: 'Заниматься Trade-in'
       move_transfers: 'Перенос трансферов'
       print_receipt: "Печатать чеки"
+      receive_merchandiser_notifications: 'Получать уведомления товароведа'
       see_all_users: 'Видеть всех пользователей'
       see_stale_service_jobs: 'Видеть залежалые устройства'
       view_feedback_notifications: 'Просматривать уведомления обратной связи'

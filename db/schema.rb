@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20250703121409) do
+ActiveRecord::Schema.define(version: 20250721104535) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -790,6 +790,25 @@ ActiveRecord::Schema.define(version: 20250703121409) do
     t.index ["option_type_id"], name: "index_option_values_on_option_type_id"
   end
 
+  create_table "order_external_syncs", force: :cascade do |t|
+    t.bigint "order_id", null: false
+    t.integer "external_system", default: 0, null: false
+    t.integer "sync_status", default: 0, null: false
+    t.string "external_id"
+    t.integer "sync_attempts", default: 0, null: false
+    t.datetime "last_attempt_at"
+    t.text "last_error"
+    t.boolean "attention_required", default: false, null: false
+    t.text "sync_notes"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["attention_required"], name: "index_order_external_syncs_on_attention_required"
+    t.index ["last_attempt_at"], name: "index_order_external_syncs_on_last_attempt_at"
+    t.index ["order_id", "external_system"], name: "index_order_external_syncs_on_order_and_system", unique: true
+    t.index ["order_id"], name: "index_order_external_syncs_on_order_id"
+    t.index ["sync_status"], name: "index_order_external_syncs_on_sync_status"
+  end
+
   create_table "order_notes", id: :serial, force: :cascade do |t|
     t.integer "order_id", null: false
     t.integer "author_id", null: false
@@ -824,7 +843,6 @@ ActiveRecord::Schema.define(version: 20250703121409) do
     t.string "picture"
     t.string "article"
     t.bigint "source_store_id"
-    t.boolean "one_c_synced", default: false
     t.string "archive_reason"
     t.text "archive_comment"
     t.bigint "source_department_id"
@@ -1904,6 +1922,7 @@ ActiveRecord::Schema.define(version: 20250703121409) do
   add_foreign_key "messages", "departments"
   add_foreign_key "notifications", "users"
   add_foreign_key "option_values", "option_types"
+  add_foreign_key "order_external_syncs", "orders"
   add_foreign_key "order_notes", "orders"
   add_foreign_key "order_notes", "users", column: "author_id"
   add_foreign_key "orders", "departments", column: "source_department_id"

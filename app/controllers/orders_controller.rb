@@ -171,6 +171,28 @@ class OrdersController < ApplicationController
     end
   end
 
+  def manual_sync
+    @order = find_record(Order)
+    
+    # Rate limiting check (5 minutes)
+    if @order.one_c_sync&.last_attempt_at&.> 5.minutes.ago
+      render json: { 
+        success: false, 
+        message: 'Попробуйте позже (ограничение: раз в 5 минут)',
+        next_available_at: (@order.one_c_sync.last_attempt_at + 5.minutes).to_i
+      }
+      return
+    end
+    
+    # Enqueue manual sync job
+    OneCOrderSyncJob.perform_later(@order.id, manual_trigger: true, user_id: current_user.id)
+    
+    render json: { 
+      success: true, 
+      message: 'Синхронизация запущена...' 
+    }
+  end
+
   private
 
   def sort_column

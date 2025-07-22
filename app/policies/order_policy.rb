@@ -24,4 +24,8 @@ class OrderPolicy < CommonPolicy
   def history?
     manage?
   end
+
+  def manual_sync?
+    change_status?
+  end
 end

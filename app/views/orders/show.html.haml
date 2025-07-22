@@ -94,6 +94,46 @@
         %td= Order.human_attribute_name(:payment_method)
         %td= @order.payment_method.present? ? Order.human_attribute_name("payment_method.#{@order.payment_method}") : '-'
 
+      %tr
+        %td 1C Синхронизация
+        %td
+          #sync_status_container
+            - sync_record = @order.one_c_sync
+            - if sync_record.present?
+              - case sync_record.sync_status
+              - when 'synced'
+                %span.label.label-success
+                  %i.fa.fa-check
+                  Синхронизировано
+              - when 'pending', 'syncing'
+                %span.label.label-warning
+                  %i.fa.fa-clock-o
+                  = sync_record.syncing? ? 'Синхронизация...' : 'Ожидание'
+              - when 'failed', 'permanently_failed'
+                %span.label.label-important
+                  %i.fa.fa-exclamation-triangle
+                  Ошибка синхронизации
+              - if sync_record.external_id.present?
+                %br
+                %small Номер в 1С: #{sync_record.external_id}
+              - if sync_record.last_error.present?
+                %br
+                %small.text-error= sync_record.last_error
+              - if sync_record.attention_required?
+                %br
+                %span.label.label-warning
+                  %i.fa.fa-warning
+                  Требует внимания
+            - else
+              %span.label.label-default Не синхронизировано
+
+          - if can? :edit, @order
+            %br
+            %button#manual_sync_btn.btn.btn-small.btn-primary{type: 'button', data: {order_id: @order.id}}
+              %i.fa.fa-refresh
+              Синхронизировать вручную
+            #sync_feedback{style: 'margin-top: 5px;'}
+
     - if can? :manage, Order
       .form-actions
         = link_to_edit @order if can? :edit, @order
@@ -106,3 +146,64 @@
 :javascript
   $order_notes = $('.order_notes');
   $order_notes.scrollTop($order_notes[0].scrollHeight);
+
+  // Manual sync functionality
+  $('#manual_sync_btn').on('click', function() {
+    var $btn = $(this);
+    var $feedback = $('#sync_feedback');
+    var orderId = $btn.data('order-id');
+    
+    // Disable button and show loading state
+    $btn.prop('disabled', true).html('<i class="fa fa-spinner fa-spin"></i> Синхронизация...');
+    $feedback.empty();
+    
+    $.ajax({
+      url: '/orders/' + orderId + '/manual_sync',
+      type: 'POST',
+      headers: {
+        'X-CSRF-Token': $('meta[name="csrf-token"]').attr('content')
+      },
+      success: function(response) {
+        if (response.success) {
+          $feedback.html('<div class="alert alert-success"><i class="fa fa-check"></i> ' + response.message + '</div>');
+          // Reload page after 2 seconds to show updated sync status
+          setTimeout(function() {
+            location.reload();
+          }, 2000);
+        } else {
+          $feedback.html('<div class="alert alert-error"><i class="fa fa-exclamation-triangle"></i> ' + response.message + '</div>');
+          enableSyncButton($btn, response.next_available_at);
+        }
+      },
+      error: function() {
+        $feedback.html('<div class="alert alert-error"><i class="fa fa-exclamation-triangle"></i> Произошла ошибка при синхронизации</div>');
+        enableSyncButton($btn);
+      }
+    });
+  });
+
+  function enableSyncButton($btn, nextAvailableAt) {
+    if (nextAvailableAt) {
+      // Calculate remaining time and show countdown
+      var now = Math.floor(Date.now() / 1000);
+      var remainingSeconds = nextAvailableAt - now;
+      
+      if (remainingSeconds > 0) {
+        var countdown = setInterval(function() {
+          remainingSeconds--;
+          if (remainingSeconds <= 0) {
+            clearInterval(countdown);
+            $btn.prop('disabled', false).html('<i class="fa fa-refresh"></i> Синхронизировать вручную');
+          } else {
+            var minutes = Math.floor(remainingSeconds / 60);
+            var seconds = remainingSeconds % 60;
+            $btn.html('<i class="fa fa-clock-o"></i> Доступно через ' + minutes + ':' + (seconds < 10 ? '0' : '') + seconds);
+          }
+        }, 1000);
+        return;
+      }
+    }
+    
+    // Re-enable button immediately
+    $btn.prop('disabled', false).html('<i class="fa fa-refresh"></i> Синхронизировать вручную');
+  }

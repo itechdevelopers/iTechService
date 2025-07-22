@@ -13,14 +13,48 @@ module Orders
       ActiveRecord::Base.transaction do 
         order = build_order
         order.generate_number
-        one_c_response = send_to_one_c(order)
-
-        if one_c_response[:success] && one_c_response[:data]['external_number'].present?
-          order.number = one_c_response[:data]['external_number']
-          order.one_c_synced = true
-        end
 
         return { order: order, success: false, message: order.errors.full_messages.join(', ') } unless order.save
+
+        # Create sync record
+        sync_record = order.external_syncs.create!(
+          external_system: :one_c,
+          sync_status: :pending,
+          attention_required: order.article_requires_attention?
+        )
+
+        # Handle article attention immediately if needed
+        if order.article_requires_attention?
+          ArticleAttentionNotificationJob.perform_later(order.id)
+        end
+
+        # Attempt immediate 1C sync for fast success path
+        sync_record.update!(
+          sync_attempts: sync_record.sync_attempts + 1,
+          last_attempt_at: Time.current,
+          sync_status: :syncing
+        )
+        one_c_response = send_to_one_c(order)
+        
+        if one_c_response[:success] && one_c_response[:data]['external_number'].present?
+          # Success: update order and sync record immediately
+          order.update!(number: one_c_response[:data]['external_number'])
+          sync_record.mark_sync_success!(one_c_response[:data]['external_number'])
+          Rails.logger.info "[OrderService] Order #{order.id} synced successfully on creation"
+        else
+          # Failure: reset sync status and enqueue background retry job
+          error_message = one_c_response[:error] || 'Unknown 1C sync error'
+          Rails.logger.warn "[OrderService] Immediate sync failed for order #{order.id}: #{error_message}"
+          
+          sync_record.update!(
+            sync_status: :pending,
+            sync_attempts: 0,  # Reset attempts for background job to handle
+            last_error: error_message
+          )
+          
+          # Enqueue background retry job
+          OneCOrderSyncJob.perform_later(order.id)
+        end
 
         OrdersMailer.notice(order.id).deliver_later
         message = create_status_message(one_c_response)

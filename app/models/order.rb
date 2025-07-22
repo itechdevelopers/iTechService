@@ -37,6 +37,8 @@ class Order < ApplicationRecord
   belongs_to :user, optional: true
   has_many :history_records, as: :object
   has_many :notes, class_name: 'OrderNote', dependent: :destroy
+  has_many :external_syncs, class_name: 'OrderExternalSync', dependent: :destroy
+  has_one :one_c_sync, -> { where(external_system: :one_c) }, class_name: 'OrderExternalSync'
 
   enum payment_method: %i[card cash credit gift_certificate]
 
@@ -45,10 +47,9 @@ class Order < ApplicationRecord
   delegate :name, to: :department, prefix: true, allow_nil: true
   validates :customer, :department, :quantity, :object, :object_kind, presence: true
   validates :priority, numericality: { greater_than_or_equal_to: 0, less_than_or_equal_to: 10 }
-  validates :article, presence: true, on: :create, if: :device_order?
   validates :archive_reason, inclusion: { in: ARCHIVE_REASONS }, allow_nil: true
   after_initialize :set_department
-  before_validation :generate_number
+  before_validation :generate_number, :preprocess_article
 
   before_validation do |order|
     if order.new_record?
@@ -62,7 +63,7 @@ class Order < ApplicationRecord
     end
   end
 
-  after_update :make_announcement
+  after_update :make_announcement, :clear_attention_if_article_added, :check_for_sync_update
 
   audited
   has_associated_audits
@@ -203,6 +204,23 @@ class Order < ApplicationRecord
     end
   end
 
+  def article_requires_attention?
+    device_order? && (article.blank? || article.strip.blank?)
+  end
+
+  def device_order?
+    object_kind == 'device'
+  end
+
+  # Helper method to create or update 1C sync record
+  def ensure_one_c_sync_record!
+    one_c_sync || external_syncs.create!(
+      external_system: :one_c,
+      sync_status: :pending,
+      attention_required: device_order? && (article.blank? || article.strip.blank?)
+    )
+  end
+
   private
 
   def make_announcement
@@ -225,7 +243,70 @@ class Order < ApplicationRecord
     end
   end
 
-  def device_order?
-    object_kind == 'device'
+  def preprocess_article
+    return unless article.present?
+    self.article = article.strip.squish
+  end
+
+  def clear_attention_if_article_added
+    return unless saved_change_to_article?
+    return unless one_c_sync&.attention_required?
+    
+    # Clear attention flag only if article is present AND sync is successful
+    # If sync failed, attention is still needed for sync failure
+    if article.present? && !article_requires_attention? && one_c_sync.synced?
+      one_c_sync.update!(attention_required: false)
+    end
+  end
+
+  def check_for_sync_update
+    return unless one_c_synced?
+    
+    # Define fields that require 1C update when changed
+    significant_changes = %w[article object quantity approximate_price comment]
+    
+    # Check if any significant fields were changed
+    if (changed & significant_changes).any?
+      Rails.logger.info "[OrderUpdate] Order #{id} has significant changes, triggering 1C update"
+      OneCOrderUpdateJob.perform_later(id, User.current&.id)
+    end
+  end
+
+  # 1C sync convenience methods (replacing one_c_synced methods)
+  def one_c_synced?
+    one_c_sync&.synced? || false
+  end
+
+  def one_c_sync_status
+    one_c_sync&.sync_status || 'not_synced'
+  end
+
+  def one_c_external_id
+    one_c_sync&.external_id
+  end
+
+  def one_c_last_error
+    one_c_sync&.last_error
+  end
+
+  def one_c_sync_attempts
+    one_c_sync&.sync_attempts || 0
+  end
+
+  def one_c_last_attempt_at
+    one_c_sync&.last_attempt_at
+  end
+
+  def requires_one_c_sync?
+    one_c_sync.nil? || one_c_sync.failed? || one_c_sync.pending?
+  end
+
+  def can_retry_one_c_sync?
+    # Note: Retry logic now handled by ActiveJob, this method kept for compatibility
+    one_c_sync&.pending? || one_c_sync&.failed?
+  end
+
+  def requires_article_attention?
+    one_c_sync&.requires_article_attention? || false
   end
 end
