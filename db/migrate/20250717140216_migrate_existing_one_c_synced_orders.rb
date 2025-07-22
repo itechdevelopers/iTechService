@@ -15,26 +15,13 @@ class MigrateExistingOneCSyncedOrders < ActiveRecord::Migration[5.1]
       )
     end
     
-    # Handle orders that were not synced (one_c_synced: false)
-    Order.where(one_c_synced: false).find_each(batch_size: 1000) do |order|
-      OrderExternalSync.create!(
-        order: order,
-        external_system: :one_c,
-        sync_status: :failed,
-        external_id: nil,
-        sync_attempts: 1,
-        last_attempt_at: order.updated_at,
-        last_error: "Failed to sync during order creation",
-        attention_required: requires_article_attention?(order),
-        sync_notes: "Migrated from one_c_synced field - originally failed"
-      )
-    end
+    # NOTE: Orders with one_c_synced = false are intentionally ignored
+    # They will get OrderExternalSync records created when they actually need sync
   end
   
   def down
-    # Remove all migrated records
+    # Remove all migrated records (only synced records since we don't create failed ones)
     OrderExternalSync.where(sync_notes: "Migrated from one_c_synced field").destroy_all
-    OrderExternalSync.where(sync_notes: "Migrated from one_c_synced field - originally failed").destroy_all
   end
   
   private
