@@ -32,6 +32,7 @@ ru:
       change_client_department: 'Смена подразделения клиента'
       view_god_eye: 'Включить глаз Бога'
       view_bad_review_announcements: 'Видеть уведомления о плохих отзывах'
+      view_exact_department_stock: 'Видеть точные остатки в подразделениях при заказе'
       test_new_features: 'Тестировать новые фичи'
       track_elqueue_work: 'Учитывать работу с электронной очередью'
       work_with_electronic_queues: 'Может работать с электронными очередями'

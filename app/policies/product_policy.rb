@@ -31,6 +31,10 @@ class ProductPolicy < CommonPolicy
     superadmin?
   end
 
+  def view_exact_department_stock?
+    able_to?(:view_exact_department_stock) || superadmin?
+  end
+
   def sync?
     has_role?(:api)
   end

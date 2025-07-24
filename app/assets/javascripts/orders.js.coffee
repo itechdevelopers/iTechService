@@ -52,26 +52,23 @@ jQuery ->
             
             # Display stock information with colors
             if response.stores && response.stores.length > 0
-              # Fetch department colors first
-              $.get '/products/department_colors', (colorMapping) ->
-                stockInfo = '<strong>Наличие на складах:</strong><br><br>'
-                
-                # Group stores by department for spacing
-                departmentGroups = {}
-                for store in response.stores
-                  dept_code = store.department_code
-                  departmentGroups[dept_code] ||= []
-                  departmentGroups[dept_code].push(store)
-                
-                # Display each department group with spacing
-                for dept_code, stores of departmentGroups
-                  for store in stores
-                    color = colorMapping[store.department_code] || '#f0f0f0'
-                    textColor = if window.App?.utils?.getContrastColor then App.utils.getContrastColor(color) else '#000000'
-                    stockInfo += "<span class='stock-line' style='background-color: #{color}; color: #{textColor}; padding: 2px 6px; border-radius: 3px; display: inline-block; margin: 2px 0;'>#{store.name} (#{store.department_code}) - В наличии: #{store.quantity} шт., В резерве: #{store.reserve} шт.</span><br>"
-                  stockInfo += '<br>' # Add space between departments
-                
-                $('#article_not_found').html(stockInfo)
+              stockInfo = '<strong>Наличие на складах:</strong><br><br>'
+              
+              # Group stores by department for spacing
+              departmentGroups = {}
+              for store in response.stores
+                dept_code = store.department_code
+                departmentGroups[dept_code] ||= []
+                departmentGroups[dept_code].push(store)
+              
+              # Display each department group with spacing
+              for dept_code, stores of departmentGroups
+                for store in stores
+                  # Use display_text directly from server (contains complete HTML with styling)
+                  stockInfo += "#{store.display_text}<br>"
+                stockInfo += '<br>' # Add space between departments
+              
+              $('#article_not_found').html(stockInfo)
             else
               $('#article_not_found').html('<em>Нет информации о наличии на складах</em>')
           else if response.status == 'not_found'
