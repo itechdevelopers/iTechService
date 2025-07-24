@@ -26,8 +26,10 @@ class BaseCell < Trailblazer::Cell
     comment_form_for model
   end
 
-  def icon_tag(name)
-    "<i class='fa fa-#{name.to_s}'></i>".html_safe
+  def icon_tag(name, type = nil)
+    white_class = type.to_s == 'white' ? 'icon-white' : ''
+    color_class = type.to_s unless type.to_s == 'white'
+    "<i class='fa fa-#{name.to_s} #{white_class} #{color_class}'></i>".html_safe
   end
 
   def edited_by_tag(editable)

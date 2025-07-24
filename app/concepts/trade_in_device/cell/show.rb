@@ -37,9 +37,9 @@ module TradeInDevice::Cell
 
     def check_for_item(response, question)
       if response&.answer_for_item(question.id)
-        "#{glyph(:check)} "
+        "#{icon_tag('check', 'checklist-success')} "
       else
-        "#{glyph(:times)} "
+        "#{icon_tag('times', 'checklist-danger')} "
       end
     end
 
