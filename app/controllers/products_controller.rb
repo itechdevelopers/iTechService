@@ -187,7 +187,11 @@ class ProductsController < ApplicationController
 
     service = ProductFinderService.new(article, department_id)
     result = service.call
-    render json: result
+    
+    # Filter stock information based on user permissions
+    filtered_result = StockResponseFilterService.new(result, current_user).call
+    
+    render json: filtered_result
   end
 
   def department_colors

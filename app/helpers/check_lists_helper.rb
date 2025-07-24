@@ -52,9 +52,9 @@ module CheckListsHelper
 
   def check_mark_for_item(response, question)
     if response&.answer_for_item(question.id)
-      "#{icon_tag('check')} ".html_safe
+      "#{icon_tag('check', 'checklist-success')} ".html_safe
     else
-      "#{icon_tag('times')} ".html_safe
+      "#{icon_tag('times', 'checklist-danger')} ".html_safe
     end
   end
 end

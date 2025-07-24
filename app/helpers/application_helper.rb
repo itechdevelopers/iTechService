@@ -183,7 +183,8 @@ module ApplicationHelper
 
   def icon_tag(name, type = nil)
     white_class = type.to_s == 'white' ? 'icon-white' : ''
-    "<i class='fa fa-#{name.to_s} #{white_class}'></i>".html_safe
+    color_class = type.to_s unless type.to_s == 'white'
+    "<i class='fa fa-#{name.to_s} #{white_class} #{color_class}'></i>".html_safe
   end
 
   def title_for(model_class)
