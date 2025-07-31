@@ -36,14 +36,19 @@ module Orders
         )
         one_c_response = send_to_one_c(order)
         
-        if one_c_response[:success] && one_c_response[:data]['external_number'].present?
-          # Success: update order and sync record immediately
-          order.update!(number: one_c_response[:data]['external_number'])
-          sync_record.mark_sync_success!(one_c_response[:data]['external_number'])
+        if one_c_response[:success] && one_c_response[:data]['Executed'] == true
+          # Success: update sync record immediately
+          # TODO: Commented out external_number functionality as 1C no longer provides it
+          # order.update!(number: one_c_response[:data]['external_number'])
+          sync_record.mark_sync_success!
           Rails.logger.info "[OrderService] Order #{order.id} synced successfully on creation"
         else
           # Failure: reset sync status and enqueue background retry job
-          error_message = one_c_response[:error] || 'Unknown 1C sync error'
+          error_message = if one_c_response[:success] && one_c_response[:data]['Executed'] == false
+                            one_c_response[:data]['Error'] || 'Unknown 1C sync error'
+                          else
+                            one_c_response[:error] || 'Unknown 1C sync error'
+                          end
           Rails.logger.warn "[OrderService] Immediate sync failed for order #{order.id}: #{error_message}"
           
           sync_record.update!(
@@ -88,10 +93,15 @@ module Orders
     end
 
     def create_status_message(one_c_response)
-      if one_c_response[:success]
-        I18n.t('orders.created_with_one_c', number: one_c_response[:data]['external_number'])
+      if one_c_response[:success] && one_c_response[:data]['Executed'] == true
+        # TODO: Updated for new 1C response format - no longer provides external_number
+        I18n.t('orders.created_with_one_c', number: 'система 1С')
       else
-        error_message = one_c_response[:error] || I18n.t('orders.one_c_error_default')
+        error_message = if one_c_response[:success] && one_c_response[:data]['Executed'] == false
+                          one_c_response[:data]['Error'] || I18n.t('orders.one_c_error_default')
+                        else
+                          one_c_response[:error] || I18n.t('orders.one_c_error_default')
+                        end
         I18n.t('orders.created_without_one_c', error: error_message)
       end
     end

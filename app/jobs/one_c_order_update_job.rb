@@ -22,18 +22,19 @@ class OneCOrderUpdateJob < ApplicationJob
       return
     end
     
-    Rails.logger.info "[OneCUpdate] Starting update for order #{order.id} with external_id: #{sync_record.external_id}"
+    # Note: Using order.number as identifier since 1C expects the original order number, not external_id
+    Rails.logger.info "[OneCUpdate] Starting update for order #{order.id} with identifier: #{order.number}"
     
     begin
       # First, check if the order still exists in 1C
       client = OrderClient.new
-      status_result = client.check_order_status(sync_record.external_id)
+      status_result = client.check_order_status(order.number)
       
-      if status_result[:success]
+      if status_result[:success] && status_result[:data]['status'] == 'found'
         # Order exists, perform update
         perform_order_update(order, sync_record, user)
       else
-        # Order doesn't exist in 1C, treat as new order creation
+        # Order doesn't exist in 1C (status: 'not_found') or other error, treat as new order creation
         Rails.logger.warn "[OneCUpdate] Order #{order.id} not found in 1C, performing creation instead"
         perform_order_creation(order, sync_record, user)
       end
@@ -52,13 +53,19 @@ class OneCOrderUpdateJob < ApplicationJob
     order_data = data_service.prepare_data
     
     client = OrderClient.new
-    result = client.update_order(sync_record.external_id, order_data)
+    result = client.update_order(order.number, order_data)
     
-    if result[:success]
+    if result[:success] && result[:data]['status'] == 'success'
       Rails.logger.info "[OneCUpdate] Order #{order.id} updated successfully in 1C"
+      # TODO: 1C provides external_number in update responses but we keep it commented out
+      # order.update!(number: result[:data]['external_number']) if result[:data]['external_number'].present?
       notify_user_update_result(user, order, success: true, message: 'Заказ успешно обновлен в 1С') if user
     else
-      error_message = result[:error] || 'Unknown update error'
+      error_message = if result[:success] && result[:data]['status'] == 'error'
+                        result[:data]['message'] || 'Unknown update error from 1C'
+                      else
+                        result[:error] || 'Unknown update error'
+                      end
       categorize_and_handle_error(error_message, order, user)
     end
   end
@@ -118,7 +125,14 @@ class OneCOrderUpdateJob < ApplicationJob
     return true if error_message.include?('invalid')
     return true if error_message.include?('not found')  # Order not found is permanent for updates
     
-    # All other errors (5xx, timeouts, network issues) are considered transient
+    # Business logic errors from 1C (these come via 500 + JSON body, now parsed as success: true)
+    return true if error_message.include?('не удалось')  # "failed to..." type messages
+    return true if error_message.include?('не найден в базе')  # "not found in database"
+    return true if error_message.include?('неверный формат')  # "invalid format"
+    return true if error_message.include?('недостаточно данных')  # "insufficient data"
+    return true if error_message.include?('дублирование')  # "duplication"
+    
+    # All other errors (network, timeouts) are considered transient
     false
   end
 end

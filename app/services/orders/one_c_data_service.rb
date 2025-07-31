@@ -12,7 +12,7 @@ module Orders
       {
         order: {
           phone: order.customer&.phone_number,
-          department_id: order.department_id.to_s,
+          department_id: order.department&.code_one_c.to_s,
           department_name: order.department&.name,
           article: order.article,
           price: order.approximate_price&.to_s,

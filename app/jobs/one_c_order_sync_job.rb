@@ -62,12 +62,13 @@ class OneCOrderSyncJob < ApplicationJob
       # Perform the actual sync
       result = perform_sync(order)
       
-      if result[:success] && result[:data]['external_number'].present?
+      if result[:success] && result[:data]['Executed'] == true
         # Success case
-        Rails.logger.info "[OneCSync] Order #{order.id} synced successfully with external_id: #{result[:data]['external_number']}"
+        Rails.logger.info "[OneCSync] Order #{order.id} synced successfully"
         
-        order.update!(number: result[:data]['external_number']) if result[:data]['external_number'].present?
-        sync_record.mark_sync_success!(result[:data]['external_number'])
+        # TODO: Commented out external_number functionality as 1C no longer provides it
+        # order.update!(number: result[:data]['external_number']) if result[:data]['external_number'].present?
+        sync_record.mark_sync_success!
         
         # Notify user for manual sync
         if !automatic && user
@@ -75,7 +76,11 @@ class OneCOrderSyncJob < ApplicationJob
         end
       else
         # Failure case - categorize the error
-        error_message = result[:error] || 'Unknown sync error'
+        error_message = if result[:success] && result[:data]['Executed'] == false
+                          result[:data]['Error'] || 'Unknown sync error from 1C'
+                        else
+                          result[:error] || 'Unknown sync error'
+                        end
         categorize_and_handle_error(error_message, sync_record, automatic: automatic, user: user)
       end
       
@@ -158,7 +163,14 @@ class OneCOrderSyncJob < ApplicationJob
     return true if error_message.include?('validation')
     return true if error_message.include?('invalid')
     
-    # All other errors (5xx, timeouts, network issues) are considered transient
+    # Business logic errors from 1C (these come via 500 + JSON body, now parsed as success: true)
+    return true if error_message.include?('не удалось')  # "failed to..." type messages
+    return true if error_message.include?('не найден в базе')  # "not found in database"
+    return true if error_message.include?('неверный формат')  # "invalid format"
+    return true if error_message.include?('недостаточно данных')  # "insufficient data"
+    return true if error_message.include?('дублирование')  # "duplication"
+    
+    # All other errors (network, timeouts) are considered transient
     false
   end
 end
