@@ -38,13 +38,17 @@ class OrderExternalSync < ApplicationRecord
   # Note: Retry logic is now handled by ActiveJob in OneCOrderSyncJob
   # sync_attempts field is kept for monitoring and reporting purposes
   
-  def mark_sync_success!(external_id)
+  def mark_sync_success!(external_id = nil)
     # Only clear attention if article doesn't require attention anymore
     clear_attention = !requires_article_attention?
     
+    # TODO: external_id is now optional as 1C doesn't provide external_number anymore
+    # Setting to order number as placeholder until we decide on final approach
+    sync_external_id = external_id || order.number
+    
     update!(
       sync_status: :synced,
-      external_id: external_id,
+      external_id: sync_external_id,
       last_error: nil,
       attention_required: clear_attention ? false : attention_required
     )

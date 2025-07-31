@@ -15,6 +15,10 @@ class MockOneCService
     case path
     when '/UT/hs/ice_int/v1/UploadOrder/'
       mock_order_creation_response(body)
+    when %r{/UT/hs/ice_int/v1/UpdateOrder/.*}
+      mock_order_update_response(body)
+    when %r{/UT/hs/ice_int/v1/OrderStatus/.*}
+      mock_order_status_response
     when '/UT/hs/ice_int/v1/StatusID/'
       mock_device_status_response(body)
     when '/UT/hs/ice_int/v1/info/'
@@ -31,22 +35,57 @@ class MockOneCService
     if body && body['order']
       order_data = body['order']
       Rails.logger.info "[Mock1C] Order phone: #{order_data['phone']}"
+      Rails.logger.info "[Mock1C] Order department_id: #{order_data['department_id']}"
       Rails.logger.info "[Mock1C] Order price: #{order_data['price']}"
       Rails.logger.info "[Mock1C] Order preorder: #{order_data['preorder']}"
       Rails.logger.info "[Mock1C] Order date: #{order_data['order_date']}"
     end
     
-    # Generate a fake external order number
-    external_number = "DEV-#{Time.current.strftime('%Y%m%d')}-#{rand(1000..9999)}"
+    Rails.logger.info "[Mock1C] Order created successfully (new format)"
     
-    Rails.logger.info "[Mock1C] Generated fake external order number: #{external_number}"
-    
+    # New response format: {"Executed": true, "Error": ""}
     {
       success: true,
       data: {
+        'Executed' => true,
+        'Error' => ''
+      }
+    }
+  end
+
+  def mock_order_update_response(body)
+    Rails.logger.info "[Mock1C] Order updated successfully (update format)"
+    
+    # Generate a fake external number for update response
+    external_number = "OK00-#{rand(100000..999999)}"
+    
+    # Update response format: {"status": "success", "message": "успешно обновлен", "external_number": "OK00-002522"}
+    {
+      success: true,
+      data: {
+        'status' => 'success',
+        'message' => 'успешно обновлен',
+        'external_number' => external_number
+      }
+    }
+  end
+
+  def mock_order_status_response
+    Rails.logger.info "[Mock1C] Order status check (returns 'found' status for mock)"
+    
+    # Generate mock data that matches real 1C status response format
+    external_number = "ORD-2025-#{rand(100000..999999)}"
+    order_statuses = ['Активен', 'Обработан', 'Удален', 'Отменен']
+    
+    # Status check response format matches real 1C API
+    {
+      success: true,
+      data: {
+        'status' => 'found',
         'external_number' => external_number,
-        'status' => 'created',
-        'message' => 'Заказ успешно создан в 1С (MOCK)'
+        'order_status' => order_statuses.sample,
+        'created_at' => (Time.current - rand(1..30).days).iso8601,
+        'message' => "Заказ клиента вх. номер #{external_number} найден"
       }
     }
   end
