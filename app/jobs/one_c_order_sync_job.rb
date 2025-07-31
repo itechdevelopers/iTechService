@@ -47,6 +47,10 @@ class OneCOrderSyncJob < ApplicationJob
       return
     end
     
+    # Reset sync attempts for manual sync to allow fresh retry cycle
+    sync_record.update!(sync_attempts: 0, sync_status: :pending)
+    Rails.logger.info "[OneCSync] Reset sync attempts to 0 for manual sync of order #{order.id}"
+    
     perform_sync_operation(order, sync_record, automatic: false, user: user)
   end
 
