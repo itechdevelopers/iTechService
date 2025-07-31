@@ -41,6 +41,9 @@ class OneCBaseClient
       
       if response.code == 200
         { success: true, data: JSON.parse(response.body) }
+      elsif response.code == 500 && (path.include?('/UploadOrder/') || path.include?('/UpdateOrder/'))
+        # 500 from creation/update endpoints still contains JSON with business logic errors
+        { success: true, data: JSON.parse(response.body) }
       else
         { success: false, error: "Ошибка при получении данных от 1С. Код ответа: #{response.code}" }
       end

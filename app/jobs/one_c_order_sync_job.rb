@@ -163,7 +163,14 @@ class OneCOrderSyncJob < ApplicationJob
     return true if error_message.include?('validation')
     return true if error_message.include?('invalid')
     
-    # All other errors (5xx, timeouts, network issues) are considered transient
+    # Business logic errors from 1C (these come via 500 + JSON body, now parsed as success: true)
+    return true if error_message.include?('не удалось')  # "failed to..." type messages
+    return true if error_message.include?('не найден в базе')  # "not found in database"
+    return true if error_message.include?('неверный формат')  # "invalid format"
+    return true if error_message.include?('недостаточно данных')  # "insufficient data"
+    return true if error_message.include?('дублирование')  # "duplication"
+    
+    # All other errors (network, timeouts) are considered transient
     false
   end
 end
