@@ -58,4 +58,8 @@ class ProductPolicy < CommonPolicy
   def product_by_article?
     read?
   end
+
+  def show_qr?
+    read?
+  end
 end

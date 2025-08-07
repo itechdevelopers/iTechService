@@ -1,0 +1,140 @@
+.product-photo-attachments {
+  margin-bottom: 20px;
+  max-width: 500px;
+  
+  h5 {
+    margin-bottom: 10px;
+    font-weight: bold;
+  }
+  
+  .mini-gallery {
+    position: relative;
+    min-height: 80px;
+    margin-bottom: 10px;
+    
+    .no-photos {
+      display: block;
+      padding: 20px;
+      text-align: center;
+      color: #999;
+      font-style: italic;
+    }
+  }
+  
+  .photo-gallery-mini {
+    display: flex;
+    align-items: center;
+    position: relative;
+    
+    .btn-gallery-left,
+    .btn-gallery-right {
+      position: absolute;
+      width: 30px;
+      height: 100%;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 2;
+      
+      &:hover:before {
+        border-color: transparent #333 transparent transparent;
+      }
+      
+      &:before {
+        content: '';
+        display: block;
+        width: 0;
+        height: 0;
+        border-style: solid;
+      }
+    }
+    
+    .btn-gallery-left {
+      left: 0;
+      
+      &:before {
+        border-width: 8px 0 8px 12px;
+        border-color: transparent transparent transparent #999;
+      }
+      
+      &:hover:before {
+        border-color: transparent transparent transparent #333;
+      }
+    }
+    
+    .btn-gallery-right {
+      right: 0;
+      
+      &:before {
+        border-width: 8px 12px 8px 0;
+        border-color: transparent #999 transparent transparent;
+      }
+      
+      &:hover:before {
+        border-color: transparent #333 transparent transparent;
+      }
+    }
+    
+    .mini-photo {
+      display: none;
+      position: relative;
+      margin: 0 5px;
+      padding: 6px;
+      border: 1px solid #ddd;
+      background: #fff;
+      
+      &.mini-chosen-one {
+        display: block;
+      }
+      
+      &.mini-chosen-two {
+        display: block;
+      }
+      
+      img {
+        max-width: 120px;
+        max-height: 160px;
+        display: block;
+      }
+      
+      .delete-photo {
+        position: absolute;
+        top: 5px;
+        right: 5px;
+        background: rgba(255, 255, 255, 0.9);
+        border-radius: 3px;
+        padding: 5px;
+        color: #d9534f;
+        
+        &:hover {
+          background: #fff;
+          color: #c9302c;
+        }
+      }
+    }
+  }
+  
+  .add-photo-btn {
+    position: relative;
+    margin-top: 10px;
+    
+    .qr_code {
+      display: inline-block;
+      max-width: 200px;
+      padding: 10px;
+      background: white;
+      border: 1px solid #ddd;
+      cursor: pointer;
+      
+      &.hidden {
+        display: none;
+      }
+      
+      svg {
+        width: 100%;
+        height: auto;
+      }
+    }
+  }
+}

@@ -1,0 +1,11 @@
+.modal-header
+  = button_to_close_modal
+  %h3= t(".title")
+.modal-body
+  #gallery-container
+    = product_photo_gallery(@photos, @chosen_photo_id, @photos_data)
+
+:scss
+  .modal-body {
+    max-height: 75vh;
+  }

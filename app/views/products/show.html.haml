@@ -71,6 +71,10 @@
         = render item
 
 %hr
+%h4= t('attributes.photos')
+= render 'photos'
+
+%hr
 %h4= link_to t('attributes.prices'), show_prices_product_path(@product), remote: true
 #product_prices
 

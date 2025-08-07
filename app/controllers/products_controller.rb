@@ -28,6 +28,12 @@ class ProductsController < ApplicationController
     end
   end
 
+  def show_qr
+    @product = find_record Product
+    @qr_link = generate_svg_qr(new_product_photo_url(@product))
+    respond_to(&:js)
+  end
+
   def show
     # TODO: optimize query
     @product = find_record Product
@@ -239,6 +245,10 @@ class ProductsController < ApplicationController
   end
 
   private
+
+  def generate_svg_qr(link)
+    RQRCode::QRCode.new(link).as_svg(viewbox: true)
+  end
 
   def update_barcode_num
     if (item_params = params.dig(:product, :item))

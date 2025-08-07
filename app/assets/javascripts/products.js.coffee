@@ -184,3 +184,39 @@ $(document).on 'ajax:success', '.pagination a', ->
     window.handleCheckboxes()
   , 100
 
+# Product Photos QR code handlers
+$(document).on 'click', '.change-to-qr-product', (event) ->
+  event.preventDefault()
+  linkElement = $(this)
+  idValue = linkElement.attr('id')
+  productId = idValue.match(/add-photo-btn-product-(\d+)/)[1]
+  $.getScript("/products/" + productId + "/show_qr")
+
+$(document).on 'click', '.product-photo-attachments .qr_code', (event) ->
+  event.preventDefault()
+  $(this).addClass('hidden')
+  parentElement = $(this).parent()
+  linkElement = parentElement.find('a')
+  linkElement.removeClass('hidden')
+
+# Product photo gallery navigation
+$(document).on 'click', '.product-photo-attachments .btn-gallery-left', (event) ->
+  event.preventDefault()
+  container = $(this).parent()
+  chosen = container.find('.mini-chosen-one')
+  photos = container.find('.mini-photo')
+  currentIndex = photos.index(chosen)
+  if currentIndex > 0
+    chosen.removeClass('mini-chosen-one')
+    $(photos[currentIndex - 1]).addClass('mini-chosen-one')
+
+$(document).on 'click', '.product-photo-attachments .btn-gallery-right', (event) ->
+  event.preventDefault()
+  container = $(this).parent()
+  chosen = container.find('.mini-chosen-one')
+  photos = container.find('.mini-photo')
+  currentIndex = photos.index(chosen)
+  if currentIndex < photos.length - 1
+    chosen.removeClass('mini-chosen-one')
+    $(photos[currentIndex + 1]).addClass('mini-chosen-one')
+
