@@ -39,6 +39,7 @@
  *= require payments
  *= require product_groups
  *= require products
+ *= require products_photos
  *= require purchases
  *= require repair_groups
  *= require repair_services

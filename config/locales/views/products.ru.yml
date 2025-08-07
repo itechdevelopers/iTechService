@@ -22,3 +22,11 @@ ru:
     errors:
       not_found: 'Продукт не найден.'
     related_list_title: "Сопутствующие товары"
+    photos:
+      title: "Фотографии товара"
+      add_photo: "Добавить фото"
+      new:
+        title: "Загрузка фотографий"
+        submit-photos: "Загрузить фото"
+      modal_form_content:
+        title: "Фотографии товара"

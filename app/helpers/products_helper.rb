@@ -57,4 +57,49 @@ module ProductsHelper
     link_to product.name, choose_products_path(product_id: product.id, form: 'sale', association: 'sale_items'), remote: true, title: product.name, class: 'product_quick_select_link'
   end
 
+  def product_photo_gallery_mini(product)
+    default_res = content_tag(:span, "Нет фотографий", class: "no-photos")
+    return default_res unless product.photos.present?
+    
+    content_tag(:div, class: "photo-gallery-mini", data: { product_id: product.id }) do
+      div_html = ""
+      product.photos.each_with_index do |photo, index|
+        one = index == 0 ? true : false
+        two = index == 1 ? true : false
+        div_html += content_tag(:div, class: "mini-photo #{'mini-chosen-one' if one} #{'mini-chosen-two' if two}", data: { product_id: product.id }) do
+          res = ""
+          res += link_to image_tag(photo.thumb.file.authenticated_url(expires_in: 600)), product_photo_path(product, index), data: { remote: true }, title: "#{index + 1}/#{product.photos.count}"
+          res += link_to product_photo_path(product, index), method: :delete, data: { confirm: 'Вы уверены?' }, class: "delete-photo" do "#{glyph(:trash)}".html_safe; end
+          res.html_safe
+        end
+      end
+      div_html.html_safe
+    end
+  end
+
+  def product_photo_gallery(photos, chosen_photo_id, photos_data)
+    gallery_html = []
+    gallery_html << content_tag(:div, "", class: "btn-gallery-left")
+    gallery_html << content_tag(:div, class: "gallery") do
+      div_html = ""
+      photos.each_with_index do |photo, index|
+        div_html += content_tag(:div, class: "photo #{'chosen' if index == chosen_photo_id}") do
+          content_tag(:span, class: "photo-index") do
+            if photos_data.present? && photos_data[index].present?
+              user_name = JSON.parse(photos_data[index].gsub(/:([a-zA-z]+)/,'"\\1"').gsub('=>', ': '))["user"]
+              date = JSON.parse(photos_data[index].gsub(/:([a-zA-z]+)/,'"\\1"').gsub('=>', ': '))["date"]
+              "Добавлено #{user_name}<br>#{date}".html_safe
+            else
+              "".html_safe
+            end
+          end +
+          content_tag(:img, "", src: photo.file.authenticated_url(expires_in: 600)).html_safe
+        end
+      end
+      div_html.html_safe
+    end
+    gallery_html << content_tag(:div, "", class: "btn-gallery-right")
+    gallery_html.join.html_safe
+  end
+
 end

@@ -2,6 +2,9 @@
 
 class Product < ApplicationRecord
   BARCODE_PREFIX = '243'
+  MAX_PHOTOS = 7
+
+  mount_uploaders :photos, ProductPhotoUploader
 
   scope :name_asc, -> { order('name asc') }
   scope :available, -> { includes(:store_items).where('store_items.quantity > ?', 0).references(:store_items) }
@@ -63,6 +66,13 @@ class Product < ApplicationRecord
   validates_uniqueness_of :code, unless: :undefined?
   validates :barcode_num, length: {is: 13}, uniqueness: true, allow_nil: true, allow_blank: true
   validates :article, uniqueness: true, allow_blank: true
+  validate :photos_limit
+
+  def photos_limit
+    if photos.size > MAX_PHOTOS
+      errors.add(:photos, "не может быть больше #{MAX_PHOTOS}")
+    end
+  end
 
   before_validation :normalize_article
 

@@ -278,10 +278,14 @@ Rails.application.routes.draw do
     get :product_by_article, on: :collection, defaults: {format: :json}
     get :department_colors, on: :collection, defaults: {format: :json}
     get :related, on: :member, defaults: {format: :js}
+    get :show_qr, on: :member, defaults: {format: :js}
     post :select, on: :collection, defaults: {format: :js}
     get :find, on: :collection
     patch :update_repair_services, on: :collection, defaults: {format: :js}
     resources :items, except: [:show]
+    scope module: :products do
+      resources :photos, format: :js, only: [:show, :new, :create, :destroy]
+    end
   end
 
   resources :items do

@@ -1,0 +1,9 @@
+.product-photo-attachments
+  .mini-gallery
+    = product_photo_gallery_mini(@product)
+  .add-photo-btn
+    = link_to t(".add_photo"),
+      "#",
+      id: "add-photo-btn-product-#{@product.id}",
+      class: "btn btn-success change-to-qr-product"
+    .qr_code.hidden{data: {product_id: @product.id}}

@@ -1,0 +1,5 @@
+targetQR = $(".qr_code[data-product-id='<%= @product.id %>']");
+targetQR.html("<%= j @qr_link.html_safe %>");
+targetQR.removeClass('hidden');
+linkElement = targetQR.parent().find('a');
+$(linkElement).addClass('hidden');
