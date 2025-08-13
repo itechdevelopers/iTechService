@@ -143,6 +143,10 @@ class User < ApplicationRecord
   has_many :timesheet_days, inverse_of: :user, dependent: :destroy
   has_and_belongs_to_many :addressed_announcements, class_name: 'Announcement', join_table: 'announcements_users',
                                                     uniq: true
+  has_and_belongs_to_many :subscribed_service_jobs,
+                          join_table: :service_job_subscriptions,
+                          foreign_key: :subscriber_id,
+                          class_name: 'ServiceJob'
   has_many :installment_plans, inverse_of: :user, dependent: :destroy
   has_many :sales, inverse_of: :user, dependent: :nullify
   has_many :movement_acts, dependent: :nullify
@@ -193,6 +197,7 @@ class User < ApplicationRecord
   validates :password, presence: true, confirmation: true, if: :password_required?
   validates :role, inclusion: { in: ROLES }
   validates_numericality_of :session_duration, only_integer: true, greater_than: 0, allow_nil: true
+  validate :validate_subscription_limit, on: :validate_subscription_limit
   before_validation :validate_rights_changing
   before_update :update_schedule_column, if: :is_fired_changed?
   before_save :update_elqueue_window_status, if: :elqueue_window_id_changed?
@@ -767,6 +772,12 @@ class User < ApplicationRecord
   def validate_rights_changing
     if (changed_attributes[:role].present? || changed_attributes[:abilities].present?) && !User.current.superadmin?
       errors[:base] << 'Rights changing denied!'
+    end
+  end
+
+  def validate_subscription_limit
+    if subscribed_service_jobs.count >= 10
+      errors.add(:base, :subscription_limit_reached)
     end
   end
 

@@ -47,6 +47,7 @@
  *= require revaluation_acts
  *= require sales
  *= require service_jobs
+ *= require service_job_subscriptions
  *= require service_jobs_photos
  *= require stores
  *= require supply_categories
