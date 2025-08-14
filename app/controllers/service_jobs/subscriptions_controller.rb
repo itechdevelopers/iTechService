@@ -4,9 +4,27 @@ module ServiceJobs
 
     def create
       @service_job = find_service_job
-      @service_job.subscribers.push(current_user)
+      
+      # Check if user can subscribe (validate subscription limit)
+      if current_user.subscribed_service_jobs.count >= 10
+        respond_to do |format|
+          format.js { render_error I18n.t('activerecord.errors.models.user.subscription_limit_reached') }
+        end
+      elsif @service_job.subscribers.include?(current_user)
+        # Already subscribed, just refresh
+        respond_to do |format|
+          format.js { render :refresh }
+        end
+      else
+        # Add subscription
+        @service_job.subscribers << current_user
+        respond_to do |format|
+          format.js { render :refresh }
+        end
+      end
+    rescue ActiveRecord::RecordInvalid => e
       respond_to do |format|
-        format.js { render :refresh }
+        format.js { render_error e.message }
       end
     end
 

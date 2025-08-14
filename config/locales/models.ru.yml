@@ -715,6 +715,8 @@ ru:
           attributes:
             case_color:
               required: 'не может быть пустым'
+        user:
+          subscription_limit_reached: 'Вы можете подписаться максимум на 10 сервисных работ'
         wiki_document:
           attributes:
             page:

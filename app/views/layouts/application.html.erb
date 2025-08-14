@@ -20,6 +20,7 @@
   <% if user_signed_in? %>
     <%= render 'shared/topbar' %>
     <%= render 'shared/navbar' %>
+    <%= render 'shared/user_subscriptions' %>
     <%= render 'shared/flash_messages' %>
     <%= spinner_tag %>
     <%= render 'shared/notifications' %>

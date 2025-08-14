@@ -370,4 +370,8 @@ module ApplicationHelper
       ["+#{country.country_code} (#{country.alpha2})", country.alpha2]
     end
   end
+
+  def user_has_subscriptions?
+    user_signed_in? && current_user.subscribed_service_jobs.any?
+  end
 end
