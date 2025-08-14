@@ -121,6 +121,7 @@ class ServiceJob < ApplicationRecord
   after_create :create_alert
   after_update :service_job_update_announce
   after_update :deduct_spare_parts
+  after_update :clear_subscriptions_if_done_or_archived
 
   audited
   has_associated_audits
@@ -370,7 +371,12 @@ kind: 'device_return', content: id.to_s)
   end
 
   def archive
-    update location_id: department.locations.archive.first.id
+    if update(location_id: department.locations.archive.first.id)
+      # Callback will handle clearing subscriptions
+      true
+    else
+      false
+    end
   end
 
   def contact_phone_none?
@@ -428,6 +434,12 @@ kind: 'device_return', content: id.to_s)
   end
 
   private
+
+  def clear_subscriptions_if_done_or_archived
+    if location_id_changed? && location.present? && (location.is_done? || location.is_archive?)
+      subscribers.clear
+    end
+  end
 
   def generate_ticket_number
     if ticket_number.blank?
