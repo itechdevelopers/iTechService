@@ -88,7 +88,7 @@ ru:
     sales_info: "Информация о продаже"
     search_placeholder: 'Талон или серийный номер'
     seach_sales_btn: 'Искать продажи'
-    send_sms: 'Отправить СМС о готовности'
+    send_sms: 'Отправить сообщение Whatsapp о готовности'
     service_duration_placeholder: "м | ч.м | д.ч.м"
     subscribe: 'Подписаться'
     unsubscribe: 'Отписаться'

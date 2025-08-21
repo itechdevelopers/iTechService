@@ -14,7 +14,7 @@ module Service
     def create
       run SMSNotification::Create do |r|
         r.success do
-          @message = t('service.sms_notification.message_sent')
+          @message = t('service.sms_notification.whatsapp_sent')
           render 'success'
         end
 

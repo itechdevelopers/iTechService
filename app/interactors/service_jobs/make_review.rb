@@ -19,7 +19,7 @@ module ServiceJobs
         token: token,
         status: :draft
       )
-      SendSmsWithReviewUrlJob.set(wait: time_out).perform_later(review.id)
+      SendMessageWithReviewUrlJob.set(wait: time_out).perform_later(review.id)
     rescue StandardError => e
       Rails.logger.debug(e.message)
     end
