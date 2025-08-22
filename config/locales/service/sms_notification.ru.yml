@@ -3,9 +3,14 @@ ru:
     sms_notification:
       default_message: 'Здравствуйте. Это iTech. Ваше устройство %{ticket_number} ждёт вас. Подробности можете узнать по телефону: %{contact_phone}.'
       message_sent: 'Сообщение отправлено.'
+      whatsapp_sent: 'WhatsApp сообщение отправлено.'
       message_not_sent: 'Сообщение не отправлено!!! %{error}'
+      whatsapp_not_enabled: 'WhatsApp не настроен.'
+      client_no_whatsapp: 'У клиента отсутствует WhatsApp на этом номере'
+      whatsapp_send_failed: 'Ошибка отправки WhatsApp: %{error}'
+      whatsapp_not_configured: 'WhatsApp сервис не настроен (отсутствуют учетные данные)'
 
       view:
         form:
-          title: 'Отправка СМС-уведомления'
+          title: 'Отправка уведомления'
           dispatch: 'Отправить'

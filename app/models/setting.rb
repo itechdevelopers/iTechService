@@ -28,6 +28,7 @@ class Setting < ApplicationRecord
     sms_notification_template: 'text',
     sms_gateway_uri: 'string',
     sms_gateway_lines: 'string',
+    whatsapp_enabled: 'boolean',
     ticket_notice: 'text',
     ticket_prefix: 'string',
     request_review_text: 'string',

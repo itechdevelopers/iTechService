@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20250814074823) do
+ActiveRecord::Schema.define(version: 20250819092758) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -1476,6 +1476,11 @@ ActiveRecord::Schema.define(version: 20250814074823) do
     t.string "phone_number", null: false
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.string "message_type", default: "sms", null: false
+    t.string "whatsapp_status"
+    t.string "message_id"
+    t.index ["message_id"], name: "index_service_sms_notifications_on_message_id"
+    t.index ["message_type"], name: "index_service_sms_notifications_on_message_type"
     t.index ["sender_id"], name: "index_service_sms_notifications_on_sender_id"
   end
 

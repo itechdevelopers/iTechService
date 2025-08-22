@@ -9,15 +9,19 @@ module Service
     def prepare(service_job_id:, **params)
       service_job = ServiceJob.find(service_job_id)
       phone_number = get_phone_number(service_job)
-      SMSNotification.new params[:service_sms_notification].merge(phone_number: phone_number,
-                                                                  sent_at: DateTime.current,
-                                                                  sender: params[:current_user])
+      
+      SMSNotification.new params[:service_sms_notification].merge(
+        phone_number: phone_number,
+        sent_at: DateTime.current,
+        sender: params[:current_user],
+        message_type: 'whatsapp'
+      )
     end
 
     def get_phone_number(service_job)
       phone_number = service_job.contact_phone
-      phone_number = service_job.client.full_phone_number if phone_number.nil? || phone_number == '-'
-      phone_number.gsub(/^7/, '8')
+      phone_number = service_job.client.full_phone_number if phone_number.blank? || phone_number == '-'
+      phone_number
     end
 
     def create(sms_notification)
@@ -29,12 +33,13 @@ module Service
     end
 
     def dispatch(sms_notification)
-      send_sms = SendSMS.(number: sms_notification.phone_number, message: sms_notification.message)
+      result = SendWhatsapp.call(number: sms_notification.phone_number, message: sms_notification.message)
 
-      if send_sms.success?
-        Success send_sms.result
+      if result.success?
+        sms_notification.update(message_id: result.message_id) if result.message_id
+        Success sms_notification
       else
-        Failure send_sms.result
+        Failure result.result
       end
     end
   end
