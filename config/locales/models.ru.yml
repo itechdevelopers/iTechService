@@ -440,6 +440,9 @@ ru:
         is_positive_price: 'Ненулевая стоимость'
         prices: 'Цены'
         spare_parts: 'Запчасти'
+        time_standard: 'Стандарт времени (в минутах)'
+        time_standard_from: 'Стандарт времени от (в минутах)'
+        time_standard_to: 'Стандарт времени до (в минутах)'
 
       repair_task:
         repair_parts: 'Запчасти'

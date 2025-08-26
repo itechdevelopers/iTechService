@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20250819092758) do
+ActiveRecord::Schema.define(version: 20250826145402) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -1187,6 +1187,9 @@ ActiveRecord::Schema.define(version: 20250819092758) do
     t.integer "repair_time"
     t.text "special_marks"
     t.boolean "archived", default: false, null: false
+    t.integer "time_standard"
+    t.integer "time_standard_from"
+    t.integer "time_standard_to"
     t.index ["repair_group_id"], name: "index_repair_services_on_repair_group_id"
   end
 
