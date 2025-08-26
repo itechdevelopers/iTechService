@@ -5,25 +5,20 @@ class SendMessageWithReviewUrlJob < ApplicationJob
   def perform(review_id)
     review = Review.find review_id
     service_job = review.service_job
-    message = Setting.request_review_text(service_job.department)
+    message_text = Setting.request_review_text(service_job.department)
     review_url = "#{root_url}review/#{review.token}"
     
-    # Send via WhatsApp
-    result1 = SendWhatsapp.call(number: review.phone, message: message)
+    # Merge message text with review URL for a single WhatsApp message
+    merged_message = "#{message_text}: #{review_url}"
     
-    if result1.success?
-      sleep(1)
-      result2 = SendWhatsapp.call(number: review.phone, message: review_url)
-      
-      if result2.success?
-        review.update(sent_at: DateTime.now, status: :sent)
-      else
-        review.update(status: :error)
-        Rails.logger.error("[SendMessageWithReviewUrlJob] URL send failed for review #{review_id}: #{result2.result}")
-      end
+    # Send via WhatsApp
+    result = SendWhatsapp.call(number: review.phone, message: merged_message)
+    
+    if result.success?
+      review.update(sent_at: DateTime.now, status: :sent)
     else
       review.update(status: :error)
-      Rails.logger.error("[SendMessageWithReviewUrlJob] Message send failed for review #{review_id}: #{result1.result}")
+      Rails.logger.error("[SendMessageWithReviewUrlJob] Message send failed for review #{review_id}: #{result.result}")
     end
     
     review.status
