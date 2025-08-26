@@ -31,6 +31,7 @@ ru:
     sms_notification_template: 'Шаблон СМС-уведомления'
     sms_gateway_uri: 'Адрес СМС-шлюза'
     sms_gateway_lines: 'Используемые линии СМС-шлюза'
+    whatsapp_enabled: 'WhatsApp включен'
     ticket_notice: 'Примечание на талоне'
     ticket_prefix: 'Префикс талона'
     request_review_text: Текст смс запроса оценки работы сотрудника
