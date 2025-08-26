@@ -81,5 +81,6 @@ NOTIFICATIONS_IMPLEMENTATION_GUIDE.md
 # Claude Code workflow files
 CONTEXT.md
 docs/01-scope.md
+docs/02-decisions.md
 docs/03-tasks.md
 workflow-tasks-playbook-guide.md

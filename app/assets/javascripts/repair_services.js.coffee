@@ -84,3 +84,25 @@ $ ->
       displayRangePricesTd(repairServiceId)
     else
       displayAccuratePricesTd(repairServiceId)
+
+  window.displayTimeStandardSingle = ->
+    $('.time-standard-single').css('display', 'block')
+    $('.time-standard-range').css('display', 'none')
+    $('#repair_service_time_standard_from').val('')
+    $('#repair_service_time_standard_to').val('')
+
+  window.displayTimeStandardRange = ->
+    $('.time-standard-single').css('display', 'none')
+    $('.time-standard-range').css('display', 'block')
+    $('#repair_service_time_standard').val('')
+
+  if $('#repair_service_difficult').is(':checked')
+    displayTimeStandardRange()
+  else
+    displayTimeStandardSingle()
+
+  $(document).on 'change', '#repair_service_difficult', ->
+    if $(this).is(':checked')
+      displayTimeStandardRange()
+    else
+      displayTimeStandardSingle()

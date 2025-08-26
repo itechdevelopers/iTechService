@@ -21,6 +21,13 @@
   %br
   = f.input :difficult
   = f.input :repair_time
+  %br
+  %b= RepairService.human_attribute_name :time_standard
+  .time-standard-single
+    = f.input :time_standard, label: 'Стандарт времени (минуты)'
+  .time-standard-range
+    = f.input :time_standard_from, label: 'Стандарт времени от (минуты)'
+    = f.input :time_standard_to, label: 'Стандарт времени до (минуты)'
   = f.input :is_positive_price
   = f.input :is_body_repair
   = f.input :special_marks
