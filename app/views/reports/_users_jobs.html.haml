@@ -6,6 +6,7 @@
       %th.center{rowspan: 2} Быстрые
       %th.center{rowspan: 2} Длинные
       %th.center{colspan: 2} Бесплатный сервис
+      %th.center{rowspan: 2} Обновление или восстановление MacOS устройств
   %tbody
     - report.result[:users].each do |user|
       %tr.task_row.detailable
@@ -13,12 +14,14 @@
         %td= user[:counts][:fast]
         %td= user[:counts][:long]
         %td= user[:counts][:free]
+        %td= user[:counts][:mac_service]
       - user[:dates].each do |date, jobs|
         %tr.service_job_row.details
           %td= date
           %td= jobs[:fast].size
           %td= jobs[:long].size
           %td= jobs[:free].size
+          %td= jobs[:mac_service].size
         %tr.service_job_row.details
           %td
           %td
@@ -43,4 +46,12 @@
               %p
                 = link_to job[:time], service_free_job_path(service_free_job), target: "_blank"
                 = link_to service_free_job.client.presentation, service_free_job.client, target: "_blank"
+                = "; "
+          %td
+            - jobs[:mac_service].each do |job|
+              - device_task = job[:item]
+              %p
+                = link_to job[:time], service_job_path(device_task.service_job), target: "_blank"
+                = link_to device_task.service_job.presentation, service_job_path(device_task.service_job), target: "_blank"
+                = link_to device_task.service_job.client.presentation, device_task.service_job.client, target: "_blank"
                 = "; "

@@ -14,7 +14,7 @@ class UsersJobsReport < BaseReport
       item = {
         user_name: user.full_name,
         dates: {},
-        counts: { fast: 0, long: 0, free: 0, total: 0 }
+        counts: { fast: 0, long: 0, free: 0, mac_service: 0, total: 0 }
       }
       settings = {
         fast: :quick_orders,
@@ -28,11 +28,21 @@ class UsersJobsReport < BaseReport
           add_job(item, job, type)
         end
       end
+      
+      # Add mac service tasks for this user
+      mac_tasks = DeviceTask.includes(:task)
+                    .where(done_at: period, performer_id: user.id, task: Task.mac_service)
+                    .in_department(department_ids.present? ? department_ids : [Department.current.id])
+      mac_tasks.each do |device_task|
+        add_mac_service_job(item, device_task)
+      end
+      
       item[:dates] = item[:dates].sort.to_h
       item[:dates].each do |date, jobs|
         item[:counts][:fast] += jobs[:fast].size
         item[:counts][:long] += jobs[:long].size
         item[:counts][:free] += jobs[:free].size
+        item[:counts][:mac_service] += jobs[:mac_service].size
       end
       item[:counts][:total] = item[:counts].values.sum
       item[:counts][:total].zero? ? nil : item
@@ -44,8 +54,15 @@ class UsersJobsReport < BaseReport
   def add_job(item, job, type)
     date = job.created_at.strftime('%d.%m.%Y')
     time = job.created_at.strftime('%H:%M')
-    item[:dates][date] ||= { fast: [], long: [], free: [] }
+    item[:dates][date] ||= { fast: [], long: [], free: [], mac_service: [] }
     item[:dates][date][type] << { time: time, item: job }
+  end
+
+  def add_mac_service_job(item, device_task)
+    date = device_task.done_at.strftime('%d.%m.%Y')
+    time = device_task.done_at.strftime('%H:%M')
+    item[:dates][date] ||= { fast: [], long: [], free: [], mac_service: [] }
+    item[:dates][date][:mac_service] << { time: time, item: device_task }
   end
 
   def to_xlsx(workbook)
@@ -60,14 +77,15 @@ class UsersJobsReport < BaseReport
         bg_color: 'F5F5F5',
         border: { style: :thin, color: '000000' }
       )
-      sheet.add_row ['', 'Быстрые', 'Длинные', 'Бесплатный сервис'], style: header_style
+      sheet.add_row ['', 'Быстрые', 'Длинные', 'Бесплатный сервис', 'Обновление или восстановление MacOS устройств'], style: header_style
 
       result[:users].each do |user|
         sheet.add_row [
           user[:user_name],
           user[:counts][:fast],
           user[:counts][:long],
-          user[:counts][:free]
+          user[:counts][:free],
+          user[:counts][:mac_service]
         ], style: detail_style
 
         user[:dates].each do |date, jobs|
@@ -75,7 +93,8 @@ class UsersJobsReport < BaseReport
             date,
             jobs[:fast].size,
             jobs[:long].size,
-            jobs[:free].size
+            jobs[:free].size,
+            jobs[:mac_service].size
           ]
           sheet.add_row [
             '',
@@ -90,6 +109,10 @@ class UsersJobsReport < BaseReport
             jobs[:free].map do |job|
               service_free_job = job[:item]
               "#{job[:time]} #{service_free_job.client.presentation}"
+            end.join(";\r\n "),
+            jobs[:mac_service].map do |job|
+              device_task = job[:item]
+              "#{job[:time]} #{device_task.service_job.presentation} #{device_task.service_job.client.presentation}"
             end.join(";\r\n ")
           ]
         end

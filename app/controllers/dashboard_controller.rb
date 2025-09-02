@@ -81,6 +81,8 @@ class DashboardController < ApplicationController
       elsif current_user.technician?
         locations = Location.repair_mac_or_ios.in_department(current_department)
         @service_jobs = @service_jobs.located_at(locations)
+      elsif current_user.able_to?(:perform_engraving_tasks)
+        @service_jobs = load_engraving_user_jobs(@service_jobs)
       elsif current_user.location.present?
         @service_jobs = @service_jobs.located_at(current_user.location)
       else
@@ -168,5 +170,28 @@ class DashboardController < ApplicationController
     else
       @service_jobs = @service_jobs.return_in_future.order_return_at_asc
     end
+  end
+
+  def load_engraving_user_jobs(base_scope)
+    # Collect IDs from three different sources
+    job_ids = []
+    
+    # Jobs at user's location (if any)
+    if current_user.location.present?
+      job_ids += base_scope.located_at(current_user.location).pluck(:id)
+    end
+    
+    # Jobs at laser location
+    laser_locations = Location.where(code: 'laser').in_department(current_department)
+    job_ids += base_scope.located_at(laser_locations).pluck(:id)
+    
+    # Jobs with laser tasks
+    job_ids += base_scope.joins(device_tasks: :task)
+                        .where(tasks: { code: 'laser' })
+                        .pluck('DISTINCT service_jobs.id')
+    
+    # Return service jobs matching any of the collected IDs
+    job_ids.uniq!
+    base_scope.where(id: job_ids)
   end
 end

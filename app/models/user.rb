@@ -159,7 +159,7 @@ class User < ApplicationRecord
   has_many :quick_orders
   has_many :service_free_jobs, -> { includes(:client) }, class_name: 'Service::FreeJob', foreign_key: :receiver_id
   has_many :notifications, dependent: :destroy
-  has_many :user_achievements
+  has_many :user_achievements, -> { order(achieved_at: :desc, created_at: :desc) }
   has_many :achievements, through: :user_achievements
   has_and_belongs_to_many :managed_cards,
                           class_name: 'Kanban::Card',
