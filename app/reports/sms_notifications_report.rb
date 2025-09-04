@@ -1,14 +1,24 @@
 class SmsNotificationsReport < BaseReport
   def call
-    sms_notifications = Service::SMSNotification.includes(:sender).where(sent_at: period)
+    sms_notifications = Service::SMSNotification.includes(:sender, service_job: :review).where(sent_at: period)
     sms_notifications.find_each do |sms_notification|
       sender_id = sms_notification.sender_id
       sender_name = sms_notification.sender.short_name
 
+      review = sms_notification.service_job&.review
+      rating = if review && review.status == 'reviewed'
+                 review.value
+               else
+                 nil
+               end
+
       sms_notification_data = {
         phone_number: sms_notification.phone_number,
         message: sms_notification.message,
-        sent_at: sms_notification.sent_at
+        sent_at: sms_notification.sent_at,
+        service_job_id: sms_notification.service_job_id,
+        service_job_ticket_number: sms_notification.service_job&.ticket_number,
+        rating: rating
       }
 
       if result.key? sender_id

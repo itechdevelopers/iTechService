@@ -154,7 +154,11 @@ ru:
     sms_notifications:
       title: 'Отчёт о посланных сообщениях'
       sender: 'Отправитель / Сообщение'
-      quantity: 'Количество сообщений / Время отправки'
+      sent_at: 'Когда отправлено'
+      phone_number: 'Номер клиента'
+      service_job_link: 'Ссылка на работу'
+      rating: 'Рейтинг'
+      quantity: 'Количество сообщений'
     tasks_undone:
       title: 'Отчёт по невыполненным задачам'
       tasks_devices: "Задача / Девайс"

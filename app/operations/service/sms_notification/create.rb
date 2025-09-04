@@ -14,7 +14,8 @@ module Service
         phone_number: phone_number,
         sent_at: DateTime.current,
         sender: params[:current_user],
-        message_type: 'whatsapp'
+        message_type: 'whatsapp',
+        service_job_id: service_job_id
       )
     end
 
