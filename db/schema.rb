@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20250826145402) do
+ActiveRecord::Schema.define(version: 20250904103659) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -1482,9 +1482,11 @@ ActiveRecord::Schema.define(version: 20250826145402) do
     t.string "message_type", default: "sms", null: false
     t.string "whatsapp_status"
     t.string "message_id"
+    t.integer "service_job_id"
     t.index ["message_id"], name: "index_service_sms_notifications_on_message_id"
     t.index ["message_type"], name: "index_service_sms_notifications_on_message_type"
     t.index ["sender_id"], name: "index_service_sms_notifications_on_sender_id"
+    t.index ["service_job_id"], name: "index_service_sms_notifications_on_service_job_id"
   end
 
   create_table "settings", id: :serial, force: :cascade do |t|
@@ -1970,6 +1972,7 @@ ActiveRecord::Schema.define(version: 20250826145402) do
   add_foreign_key "service_jobs", "photo_containers"
   add_foreign_key "service_repair_returns", "service_jobs"
   add_foreign_key "service_repair_returns", "users", column: "performer_id"
+  add_foreign_key "service_sms_notifications", "service_jobs"
   add_foreign_key "service_sms_notifications", "users", column: "sender_id"
   add_foreign_key "spare_part_defects", "contractors"
   add_foreign_key "spare_part_defects", "items"

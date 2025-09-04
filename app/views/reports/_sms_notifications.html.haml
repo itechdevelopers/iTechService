@@ -3,15 +3,27 @@
   %thead
     %tr
       %th.center= t('.sender')
-      %th.center= t('.quantity')
+      %th.center= t('.sent_at')
+      %th.center= t('.phone_number')
+      %th.center= t('.service_job_link')
+      %th.center= t('.rating')
   %tbody
     - report.result.each_pair do |_, value|
       %tr.detailable
         %td.name= value[:sender_name]
-        %td.number= value[:qty]
+        %td{colspan: 4}= "#{t('.quantity')}: #{value[:qty]}"
       - value[:sms_notifications].each do |sms_notification|
         %tr.details
-          %td
-            %dt= sms_notification[:phone_number]
-            %dd= sms_notification[:message]
+          %td= sms_notification[:message]
           %td= l sms_notification[:sent_at], format: :date_time
+          %td= sms_notification[:phone_number]
+          %td
+            - if sms_notification[:service_job_id] && sms_notification[:service_job_ticket_number]
+              = link_to sms_notification[:service_job_ticket_number], service_job_path(sms_notification[:service_job_id]), target: '_blank'
+            - else
+              None
+          %td
+            - if sms_notification[:rating]
+              = "#{sms_notification[:rating]} ★"
+            - else
+              Не оценено
