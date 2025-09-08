@@ -13,11 +13,11 @@ class MockOneCService
     sleep(rand(0.1..0.5))
 
     case path
-    when '/UT/hs/ice_int/v1/UploadOrder/'
+    when '/UT/hs/ice_int/v2/UploadOrder/'
       mock_order_creation_response(body)
-    when %r{/UT/hs/ice_int/v1/UpdateOrder/.*}
+    when %r{/UT/hs/ice_int/v2/UpdateOrder/.*}
       mock_order_update_response(body)
-    when %r{/UT/hs/ice_int/v1/OrderStatus/.*}
+    when %r{/UT/hs/ice_int/v2/OrderStatus/.*}
       mock_order_status_response
     when '/UT/hs/ice_int/v1/StatusID/'
       mock_device_status_response(body)
@@ -36,6 +36,7 @@ class MockOneCService
       order_data = body['order']
       Rails.logger.info "[Mock1C] Order phone: #{order_data['phone']}"
       Rails.logger.info "[Mock1C] Order department_id: #{order_data['department_id']}"
+      Rails.logger.info "[Mock1C] Order department_from_id: #{order_data['department_from_id']}"
       Rails.logger.info "[Mock1C] Order price: #{order_data['price']}"
       Rails.logger.info "[Mock1C] Order preorder: #{order_data['preorder']}"
       Rails.logger.info "[Mock1C] Order date: #{order_data['order_date']}"
