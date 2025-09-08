@@ -29,21 +29,21 @@ module Orders
         }
       }
     end
-  end
 
-  private
+    private
 
-  def build_comment_with_user_info
-    user_info = if order.user.present?
-      "Создал заказ сотрудник: #{order.user.short_name}, id сотрудника: #{order.user.id}"
-    else
-      "Создал заказ сотрудник: Не указан"
-    end
-    
-    if order.comment.present?
-      "#{order.comment}\n\n#{user_info}"
-    else
-      user_info
+    def build_comment_with_user_info
+      user_info = if order.user.present?
+        "Создал заказ сотрудник: #{order.user.short_name}, id сотрудника: #{order.user.id}"
+      else
+        "Создал заказ сотрудник: Не указан"
+      end
+      
+      if order.comment.present?
+        "#{order.comment}\n\n#{user_info}"
+      else
+        user_info
+      end
     end
   end
 end
