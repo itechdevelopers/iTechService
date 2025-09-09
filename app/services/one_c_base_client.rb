@@ -37,20 +37,40 @@ class OneCBaseClient
     options[:body] = body.to_json if body
 
     begin
+      # Log request details
+      Rails.logger.info "[1C Debug] Request: #{method.upcase} #{@base_url}#{path}"
+      Rails.logger.info "[1C Debug] Request body: #{body&.to_json}"
+      
       response = self.class.send(method, "#{@base_url}#{path}", options)
       
+      # Log response details
+      Rails.logger.info "[1C Debug] Response code: #{response.code}"
+      Rails.logger.info "[1C Debug] Response headers: #{response.headers.inspect}"
+      Rails.logger.info "[1C Debug] Raw response body: #{response.body}"
+      
+      parsed_response = nil
       if response.code == 200
-        { success: true, data: JSON.parse(response.body) }
+        parsed_response = { success: true, data: JSON.parse(response.body) }
       elsif response.code == 500 && (path.include?('/UploadOrder/') || path.include?('/UpdateOrder/'))
         # 500 from creation/update endpoints still contains JSON with business logic errors
-        { success: true, data: JSON.parse(response.body) }
+        parsed_response = { success: true, data: JSON.parse(response.body) }
       else
-        { success: false, error: "Ошибка при получении данных от 1С. Код ответа: #{response.code}" }
+        parsed_response = { success: false, error: "Ошибка при получении данных от 1С. Код ответа: #{response.code}" }
       end
-    rescue Timeout::Error
-      { success: false, error: 'Сервер 1С не отвечает. Превышено время ожидания.' }
+      
+      Rails.logger.info "[1C Debug] Parsed response: #{parsed_response.inspect}"
+      parsed_response
+    rescue Timeout::Error => e
+      error_response = { success: false, error: 'Сервер 1С не отвечает. Превышено время ожидания.' }
+      Rails.logger.error "[1C Debug] Timeout error: #{e.message}"
+      Rails.logger.info "[1C Debug] Error response: #{error_response.inspect}"
+      error_response
     rescue StandardError => e
-      { success: false, error: "Ошибка при обращении к серверу 1С: #{e.message}" }
+      error_response = { success: false, error: "Ошибка при обращении к серверу 1С: #{e.message}" }
+      Rails.logger.error "[1C Debug] Standard error: #{e.class.name} - #{e.message}"
+      Rails.logger.error "[1C Debug] Error backtrace: #{e.backtrace.first(5).join(', ')}"
+      Rails.logger.info "[1C Debug] Error response: #{error_response.inspect}"
+      error_response
     end
   end
 
