@@ -9,25 +9,29 @@ module Orders
     end
 
     def prepare_data
-      {
-        order: {
-          phone: order.customer&.phone_number,
-          department_id: order.department&.code_one_c.to_s,
-          department_name: order.department&.name,
-          article: order.article,
-          price: order.approximate_price&.to_s,
-          preorder: !order.source_store.present?,
-          department_from_id: order.source_department&.code_one_c.to_s,
-          source_store_name: order.source_store&.name,
-          is_available_in_stock: order.source_store.present?,
-          quantity: order.quantity,
-          comment: build_comment_with_user_info,
-          desired_date: order.desired_date&.strftime('%Y-%m-%d') || '',
-          app_order_url: "https://ise.itech.pw/orders/#{order.id}",
-          order_number: order.number,
-          order_date: Time.current.strftime('%Y-%m-%d')
-        }
+      order_data = {
+        phone: order.customer&.phone_number,
+        department_id: order.department&.code_one_c.to_s,
+        department_name: order.department&.name,
+        article: order.article,
+        price: order.approximate_price&.to_s,
+        preorder: !order.source_store.present?,
+        department_from_id: order.source_department&.code_one_c.to_s,
+        source_store_name: order.source_store&.name,
+        is_available_in_stock: order.source_store.present?,
+        quantity: order.quantity,
+        comment: build_comment_with_user_info,
+        app_order_url: "https://ise.itech.pw/orders/#{order.id}",
+        order_number: order.number,
+        order_date: Time.current.strftime('%Y-%m-%d')
       }
+      
+      # Only add desired_date if it's present
+      if order.desired_date.present?
+        order_data[:desired_date] = order.desired_date.strftime('%Y-%m-%d')
+      end
+      
+      { order: order_data }
     end
 
     private
