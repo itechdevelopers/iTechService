@@ -40,6 +40,7 @@ class OneCBaseClient
       # Log request details including auth
       Rails.logger.info "[1C Debug] Request: #{method.upcase} #{@base_url}#{path}"
       Rails.logger.info "[1C Debug] Auth username: #{@auth&.dig(:username)}"
+      Rails.logger.info "[1C Debug] Auth password: #{@auth&.dig(:password)}"
       Rails.logger.info "[1C Debug] Auth configured: #{@auth.present?}"
       Rails.logger.info "[1C Debug] Request body: #{body&.to_json}"
       
