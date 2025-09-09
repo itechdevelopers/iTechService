@@ -22,7 +22,7 @@ module Orders
           is_available_in_stock: order.source_store.present?,
           quantity: order.quantity,
           comment: build_comment_with_user_info,
-          desired_date: order.desired_date&.strftime('%Y-%m-%d'),
+          desired_date: order.desired_date&.strftime('%Y-%m-%d') || '',
           app_order_url: "https://ise.itech.pw/orders/#{order.id}",
           order_number: order.number,
           order_date: Time.current.strftime('%Y-%m-%d')
