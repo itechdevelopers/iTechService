@@ -37,8 +37,10 @@ class OneCBaseClient
     options[:body] = body.to_json if body
 
     begin
-      # Log request details
+      # Log request details including auth
       Rails.logger.info "[1C Debug] Request: #{method.upcase} #{@base_url}#{path}"
+      Rails.logger.info "[1C Debug] Auth username: #{@auth&.dig(:username)}"
+      Rails.logger.info "[1C Debug] Auth configured: #{@auth.present?}"
       Rails.logger.info "[1C Debug] Request body: #{body&.to_json}"
       
       response = self.class.send(method, "#{@base_url}#{path}", options)
