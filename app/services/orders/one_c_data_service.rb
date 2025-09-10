@@ -16,7 +16,6 @@ module Orders
         article: order.article,
         price: order.approximate_price&.to_s,
         preorder: !order.source_store.present?,
-        department_from_id: order.source_department&.code_one_c.to_s,
         source_store_name: order.source_store&.name,
         is_available_in_stock: order.source_store.present?,
         quantity: order.quantity,
@@ -25,6 +24,11 @@ module Orders
         order_number: order.number,
         order_date: Time.current.strftime('%Y-%m-%d')
       }
+      
+      # Only add department_from_id if source_department exists and has code_one_c
+      if order.source_department&.code_one_c.present?
+        order_data[:department_from_id] = order.source_department.code_one_c.to_s
+      end
       
       # Only add desired_date if it's present
       if order.desired_date.present?
