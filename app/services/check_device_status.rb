@@ -51,12 +51,14 @@ class CheckDeviceStatus
         response = self.class.post("#{@base_url}/UT/hs/ice_int/v1/StatusID/", options)
 
         if response.code == 200
-          parse_status(JSON.parse(response.body))
+          parse_status(safe_json_parse(response.body))
         else
           "Ошибка при получении данных от 1С. Код ответа: #{response.code}"
         end
       rescue Timeout::Error
         'Сервер 1С не отвечает. Превышено время ожидания.'
+      rescue JSON::ParserError => e
+        "Ошибка парсинга JSON от 1С: #{e.message}"
       rescue StandardError => e
         "Ошибка при обращении к серверу 1С: #{e.message}"
       end
@@ -64,6 +66,22 @@ class CheckDeviceStatus
   end
 
   private
+
+  def safe_json_parse(response_body)
+    # Handle Windows line endings and extra whitespace from 1C server
+    cleaned_body = response_body.to_s.strip
+    
+    begin
+      JSON.parse(cleaned_body)
+    rescue JSON::ParserError => e
+      Rails.logger.error "[CheckDeviceStatus] JSON parsing failed: #{e.message}"
+      Rails.logger.error "[CheckDeviceStatus] Raw body: #{response_body.inspect}"
+      Rails.logger.error "[CheckDeviceStatus] Cleaned body: #{cleaned_body.inspect}"
+      
+      # Re-raise the exception to be caught by the outer rescue block
+      raise e
+    end
+  end
 
   def should_use_mock?
     # Use mock in development environment by default, unless explicitly disabled
