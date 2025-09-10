@@ -10,7 +10,7 @@ module Orders
 
     def prepare_data
       order_data = {
-        phone: order.customer&.phone_number,
+        phone: order.customer&.full_phone_number,
         department_id: order.department&.code_one_c.to_s,
         department_name: order.department&.name,
         article: order.article,
