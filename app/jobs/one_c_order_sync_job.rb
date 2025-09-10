@@ -66,7 +66,10 @@ class OneCOrderSyncJob < ApplicationJob
       # Perform the actual sync
       result = perform_sync(order)
       
-      if result[:success] && result[:data]['Executed'] == true
+      # Handle both parsed hash and unparsed string responses
+      data = get_parsed_data(result[:data])
+      
+      if result[:success] && data['Executed'] == true
         # Success case
         Rails.logger.info "[OneCSync] Order #{order.id} synced successfully"
         
@@ -80,8 +83,8 @@ class OneCOrderSyncJob < ApplicationJob
         end
       else
         # Failure case - categorize the error
-        error_message = if result[:success] && result[:data]['Executed'] == false
-                          result[:data]['Error'] || 'Unknown sync error from 1C'
+        error_message = if result[:success] && data['Executed'] == false
+                          data['Error'] || 'Unknown sync error from 1C'
                         else
                           result[:error] || 'Unknown sync error'
                         end
@@ -157,6 +160,30 @@ class OneCOrderSyncJob < ApplicationJob
       end
       
       raise TransientSyncError, error_message if automatic
+    end
+  end
+
+  def get_parsed_data(data)
+    # Handle both parsed hash and unparsed string responses
+    if data.is_a?(String)
+      Rails.logger.warn "[OneCSync] Received unparsed JSON data, attempting to parse: #{data.inspect}"
+      begin
+        parsed_data = JSON.parse(data.strip)
+        Rails.logger.info "[OneCSync] Successfully parsed string data"
+        parsed_data
+      rescue JSON::ParserError => e
+        Rails.logger.error "[OneCSync] Failed to parse string data: #{e.message}"
+        Rails.logger.error "[OneCSync] Raw string data: #{data.inspect}"
+        # Return an empty hash to prevent method errors, this will trigger failure path
+        {}
+      end
+    elsif data.is_a?(Hash)
+      Rails.logger.debug "[OneCSync] Received properly parsed hash data"
+      data
+    else
+      Rails.logger.error "[OneCSync] Unexpected data type: #{data.class.name}, data: #{data.inspect}"
+      # Return an empty hash to prevent method errors, this will trigger failure path
+      {}
     end
   end
 

@@ -53,10 +53,10 @@ class OneCBaseClient
       
       parsed_response = nil
       if response.code == 200
-        parsed_response = { success: true, data: JSON.parse(response.body) }
+        parsed_response = { success: true, data: safe_json_parse(response.body) }
       elsif response.code == 500 && (path.include?('/UploadOrder/') || path.include?('/UpdateOrder/'))
         # 500 from creation/update endpoints still contains JSON with business logic errors
-        parsed_response = { success: true, data: JSON.parse(response.body) }
+        parsed_response = { success: true, data: safe_json_parse(response.body) }
       else
         parsed_response = { success: false, error: "Ошибка при получении данных от 1С. Код ответа: #{response.code}" }
       end
@@ -66,6 +66,12 @@ class OneCBaseClient
     rescue Timeout::Error => e
       error_response = { success: false, error: 'Сервер 1С не отвечает. Превышено время ожидания.' }
       Rails.logger.error "[1C Debug] Timeout error: #{e.message}"
+      Rails.logger.info "[1C Debug] Error response: #{error_response.inspect}"
+      error_response
+    rescue JSON::ParserError => e
+      error_response = { success: false, error: "Ошибка парсинга JSON от 1С: #{e.message}" }
+      Rails.logger.error "[1C Debug] JSON parsing error: #{e.message}"
+      Rails.logger.error "[1C Debug] Raw response body that failed to parse: #{response&.body&.inspect}"
       Rails.logger.info "[1C Debug] Error response: #{error_response.inspect}"
       error_response
     rescue StandardError => e
@@ -78,6 +84,26 @@ class OneCBaseClient
   end
 
   private
+
+  def safe_json_parse(response_body)
+    # Handle Windows line endings and extra whitespace from 1C server
+    cleaned_body = response_body.to_s.strip
+    
+    Rails.logger.debug "[1C Debug] Attempting to parse JSON: #{cleaned_body.inspect}"
+    
+    begin
+      parsed = JSON.parse(cleaned_body)
+      Rails.logger.debug "[1C Debug] JSON parsing successful"
+      parsed
+    rescue JSON::ParserError => e
+      Rails.logger.error "[1C Debug] JSON parsing failed: #{e.message}"
+      Rails.logger.error "[1C Debug] Raw body: #{response_body.inspect}"
+      Rails.logger.error "[1C Debug] Cleaned body: #{cleaned_body.inspect}"
+      
+      # Re-raise the exception to be caught by the outer rescue block
+      raise e
+    end
+  end
 
   def should_use_mock?
     # Use mock in development environment by default, unless explicitly disabled
