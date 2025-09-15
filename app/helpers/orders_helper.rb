@@ -121,4 +121,17 @@ module OrdersHelper
            text[0, max_length] + "..." :
            text
   end
+
+  def order_number_with_external_id(order)
+    result = link_to(order.number, order_path(order))
+    
+    # If order is synced with 1C and has external ID, show it below in green
+    sync_record = order.one_c_sync
+    if sync_record&.synced? && sync_record.external_id.present?
+      result += tag(:br) + 
+                content_tag(:small, sync_record.external_id, class: 'text-success')
+    end
+    
+    result.html_safe
+  end
 end
