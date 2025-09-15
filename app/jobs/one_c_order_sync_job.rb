@@ -73,9 +73,10 @@ class OneCOrderSyncJob < ApplicationJob
         # Success case
         Rails.logger.info "[OneCSync] Order #{order.id} synced successfully"
         
-        # TODO: Commented out external_number functionality as 1C no longer provides it
-        # order.update!(number: result[:data]['external_number']) if result[:data]['external_number'].present?
-        sync_record.mark_sync_success!
+        # Extract external_number from 1C response
+        external_number = data['external_number']
+        sync_record.mark_sync_success!(external_number)
+        Rails.logger.info "[OneCSync] Order #{order.id} synced with 1C number: #{external_number}" if external_number.present?
         
         # Notify user for manual sync
         if !automatic && user

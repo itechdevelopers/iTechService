@@ -6,7 +6,6 @@
   %table#orders-table.table
     %thead
       %tr
-        %th= sortable 'id', model_class.human_attribute_name(:id)
         %th= sortable 'number', model_class.human_attribute_name(:number)
         %th= sortable 'department_id', model_class.human_attribute_name(:department)
         %th= model_class.human_attribute_name(:customer)
@@ -24,8 +23,7 @@
       - @orders.each do |order|
         - row_class = order.status
         %tr{class: row_class, id: "edit_order_#{ order.id }_info"}
-          %td= link_to order.id, order_path(order)
-          %td= link_to order.number, order_path(order)
+          %td= order_number_with_external_id(order)
           %td= order.department_name
           %td= order.customer_presentation
           %td= t("orders.object_kinds.#{order.object_kind}")
@@ -52,14 +50,14 @@
               = link_to glyph("file-o"), order_order_notes_path(order), class: "btn btn-small", remote: true
             = button_to_change_order_status(order) unless order.canceled?
         %tr{class: row_class, id: "edit_order_#{ order.id }_comment"}
-          %td{colspan: 6}
+          %td{colspan: 5}
             %strong Комментарий: 
             = order.comment
 
           = last_note(order)
 
         %tr
-          %td{colspan: 13}
+          %td{colspan: 12}
 
   = paginate @orders
 
