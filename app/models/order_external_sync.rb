@@ -26,7 +26,6 @@ class OrderExternalSync < ApplicationRecord
   
   # Custom validations based on status
   validates :external_id, presence: true, if: :synced?
-  validate :external_id_format_validation, if: :synced?
   
   # Scopes for common queries
   scope :requires_attention, -> { where(attention_required: true) }
@@ -75,15 +74,4 @@ class OrderExternalSync < ApplicationRecord
   end
   
   private
-  
-  def external_id_format_validation
-    return unless external_id.present?
-    
-    case external_system
-    when 'one_c'
-      unless external_id.match?(/\A[A-Za-z0-9\-_]+\z/)
-        errors.add(:external_id, 'must contain only letters, numbers, hyphens, and underscores')
-      end
-    end
-  end
 end
