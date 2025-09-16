@@ -25,8 +25,8 @@
             %label.control-label.select.optional Подразделение (откуда)
             .controls
               = f.select :source_department_id,
-                        Department.with_one_c_code.map { |d| [d.name, d.id] } + [["Не указано", nil]],
-                        { include_blank: false },
+                        [["Не указано", nil]] + Department.with_one_c_code.map { |d| [d.name, d.id] },
+                        { selected: @order.source_department_id || nil, include_blank: false },
                         { class: 'input-xlarge' }
       = f.input :object_kind, as: :object_kind
       = f.input :object, as: :object
