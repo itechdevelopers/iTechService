@@ -31,14 +31,17 @@ class OneCBaseClient
         'Content-Type' => 'application/json',
         'Accept' => 'application/json'
       },
-      verify: false
+      verify: false,
+      timeout: 120,      # Read timeout: 2 minutes for slow 1C operations
+      open_timeout: 30   # Connection timeout: 30 seconds
     }
 
     options[:body] = body.to_json if body
 
     begin
-      # Log request details including auth
+      # Log request details including auth and timeout config
       Rails.logger.info "[1C Debug] Request: #{method.upcase} #{@base_url}#{path}"
+      Rails.logger.info "[1C Debug] Timeout config: read=#{options[:timeout]}s, open=#{options[:open_timeout]}s"
       Rails.logger.info "[1C Debug] Auth username: #{@auth&.dig(:username)}"
       Rails.logger.info "[1C Debug] Auth password: #{@auth&.dig(:password)}"
       Rails.logger.info "[1C Debug] Auth configured: #{@auth.present?}"
