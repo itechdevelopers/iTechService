@@ -22,7 +22,8 @@ module Orders
         comment: build_comment_with_user_info,
         app_order_url: "https://ise.itech.pw/orders/#{order.id}",
         order_number: order.number,
-        order_date: Time.current.strftime('%Y-%m-%d')
+        order_date: Time.current.strftime('%Y-%m-%d'),
+        order_status: format_status_for_one_c
       }
       
       # Only add department_from_id if source_department exists and has code_one_c
@@ -52,6 +53,18 @@ module Orders
       else
         user_info
       end
+    end
+
+    def format_status_for_one_c
+      # Special case for 'notified' status to use "Уведомлен" instead of "Уведомлён"
+      status_text = if order.status == 'notified'
+                      'Уведомлен'
+                    else
+                      I18n.t("orders.statuses.#{order.status}")
+                    end
+      
+      # Convert to camelCase: split by spaces, capitalize each word, join without spaces
+      status_text.split(' ').map(&:capitalize).join
     end
   end
 end
