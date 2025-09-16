@@ -71,7 +71,11 @@ class OneCOrderSyncJob < ApplicationJob
       
       if result[:success] && data['Executed'] == true
         # Success case
-        Rails.logger.info "[OneCSync] Order #{order.id} synced successfully"
+        if data['already_existed']
+          Rails.logger.info "[OneCSync] Order #{order.id} was already in 1C, marking as synced"
+        else
+          Rails.logger.info "[OneCSync] Order #{order.id} synced successfully"
+        end
         
         # Extract external_number from 1C response
         external_number = data['external_number']
@@ -111,10 +115,37 @@ class OneCOrderSyncJob < ApplicationJob
   end
 
   def perform_sync(order)
+    client = OrderClient.new
+    
+    # First, check if order already exists in 1C
+    Rails.logger.info "[OneCSync] Checking if order #{order.number} already exists in 1C..."
+    status_result = client.check_order_status(order.number)
+    
+    if status_result[:success]
+      status_data = get_parsed_data(status_result[:data])
+      
+      # Check if order exists and is valid
+      if order_exists_in_one_c?(status_data)
+        Rails.logger.info "[OneCSync] Order #{order.number} already exists in 1C with external_number: #{status_data['external_number']}"
+        return {
+          success: true,
+          data: {
+            'Executed' => true,
+            'Error' => '',
+            'external_number' => status_data['external_number'],
+            'already_existed' => true
+          }
+        }
+      else
+        Rails.logger.info "[OneCSync] Order #{order.number} not found in 1C, proceeding with creation"
+      end
+    else
+      Rails.logger.warn "[OneCSync] Could not check order status (#{status_result[:error]}), proceeding with creation"
+    end
+    
+    # Order doesn't exist or check failed, proceed with creation
     data_service = Orders::OneCDataService.new(order)
     order_data = data_service.prepare_data
-    
-    client = OrderClient.new
     client.create_order(order_data)
   end
 
@@ -204,5 +235,12 @@ class OneCOrderSyncJob < ApplicationJob
     
     # All other errors (network, timeouts) are considered transient
     false
+  end
+
+  def order_exists_in_one_c?(status_data)
+    status_data.is_a?(Hash) &&
+      status_data['status'] == 'found' &&
+      status_data['deleted'] == false &&
+      status_data['external_number'].present?
   end
 end
