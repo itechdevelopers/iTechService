@@ -28,4 +28,8 @@ class OrderPolicy < CommonPolicy
   def manual_sync?
     change_status?
   end
+
+  def delete_from_one_c?
+    change_status?
+  end
 end

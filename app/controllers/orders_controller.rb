@@ -193,6 +193,28 @@ class OrdersController < ApplicationController
     }
   end
 
+  def delete_from_one_c
+    @order = find_record(Order)
+    sync_record = @order.one_c_sync
+    
+    # Check if order is synced
+    unless sync_record&.synced? && sync_record.external_id.present?
+      render json: { 
+        success: false, 
+        message: 'Заказ не синхронизирован с 1С'
+      }
+      return
+    end
+    
+    # Enqueue deletion job
+    OneCOrderDeleteJob.perform_later(@order.id, current_user.id)
+    
+    render json: { 
+      success: true, 
+      message: 'Удаление запущено...' 
+    }
+  end
+
   private
 
   def sort_column

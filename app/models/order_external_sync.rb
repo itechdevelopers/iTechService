@@ -1,7 +1,7 @@
 class OrderExternalSync < ApplicationRecord
   # Constants following existing codebase patterns
   EXTERNAL_SYSTEMS = %w[one_c].freeze
-  SYNC_STATUSES = %w[pending syncing synced failed permanently_failed].freeze
+  SYNC_STATUSES = %w[pending syncing synced failed permanently_failed deleted].freeze
   
   # Maximum retry attempts before marking as permanently failed
   MAX_RETRY_ATTEMPTS = 5
@@ -16,7 +16,8 @@ class OrderExternalSync < ApplicationRecord
     syncing: 1, 
     synced: 2, 
     failed: 3, 
-    permanently_failed: 4 
+    permanently_failed: 4,
+    deleted: 5
   }
   
   # Validations
@@ -58,6 +59,14 @@ class OrderExternalSync < ApplicationRecord
       sync_status: new_status,
       last_error: error_message,
       attention_required: true  # Sync failures always require attention
+    )
+  end
+  
+  def mark_deletion_success!
+    update!(
+      sync_status: :deleted,
+      last_error: nil,
+      attention_required: false
     )
   end
   

@@ -113,6 +113,10 @@
                 %span.label.label-important
                   %i.fa.fa-exclamation-triangle
                   Ошибка синхронизации
+              - when 'deleted'
+                %span.label.label-info
+                  %i.fa.fa-trash
+                  Удален в 1С
               - if sync_record.external_id.present?
                 %br
                 %small Номер в 1С: #{sync_record.external_id}
@@ -132,7 +136,12 @@
             %button#manual_sync_btn.btn.btn-small.btn-primary{type: 'button', data: {order_id: @order.id}}
               %i.fa.fa-refresh
               Синхронизировать вручную
+            - if sync_record&.synced? && can?(:manual_sync, @order)
+              %button#delete_from_one_c_btn.btn.btn-small.btn-danger{type: 'button', data: {order_id: @order.id}, style: 'margin-left: 5px;'}
+                %i.fa.fa-trash
+                Удалить из 1С
             #sync_feedback{style: 'margin-top: 5px;'}
+            #delete_feedback{style: 'margin-top: 5px;'}
 
     - if can? :manage, Order
       .form-actions
@@ -207,3 +216,43 @@
     // Re-enable button immediately
     $btn.prop('disabled', false).html('<i class="fa fa-refresh"></i> Синхронизировать вручную');
   }
+
+  // Delete from 1C functionality
+  $('#delete_from_one_c_btn').on('click', function() {
+    var $btn = $(this);
+    var $feedback = $('#delete_feedback');
+    var orderId = $btn.data('order-id');
+    
+    // Show confirmation dialog
+    if (!confirm('Вы уверены, что хотите удалить заказ из 1С? Это действие нельзя отменить.')) {
+      return;
+    }
+    
+    // Disable button and show loading state
+    $btn.prop('disabled', true).html('<i class="fa fa-spinner fa-spin"></i> Удаление...');
+    $feedback.empty();
+    
+    $.ajax({
+      url: '/orders/' + orderId + '/delete_from_one_c',
+      type: 'POST',
+      headers: {
+        'X-CSRF-Token': $('meta[name="csrf-token"]').attr('content')
+      },
+      success: function(response) {
+        if (response.success) {
+          $feedback.html('<div class="alert alert-success"><i class="fa fa-check"></i> ' + response.message + '</div>');
+          // Reload page after 2 seconds to show updated status
+          setTimeout(function() {
+            location.reload();
+          }, 2000);
+        } else {
+          $feedback.html('<div class="alert alert-error"><i class="fa fa-exclamation-triangle"></i> ' + response.message + '</div>');
+          $btn.prop('disabled', false).html('<i class="fa fa-trash"></i> Удалить из 1С');
+        }
+      },
+      error: function() {
+        $feedback.html('<div class="alert alert-error"><i class="fa fa-exclamation-triangle"></i> Произошла ошибка при удалении</div>');
+        $btn.prop('disabled', false).html('<i class="fa fa-trash"></i> Удалить из 1С');
+      }
+    });
+  });
