@@ -15,5 +15,10 @@ class OrderClient < OneCBaseClient
     path = "/UT/hs/ice_int/v2/OrderStatus/#{order_number}"
     make_request(path, method: :get)
   end
+
+  def delete_order(order_number)
+    path = "/UT/hs/ice_int/v2/DeleteOrder/#{order_number}"
+    make_request(path, method: :post)
+  end
 end
 

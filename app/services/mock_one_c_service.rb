@@ -19,6 +19,8 @@ class MockOneCService
       mock_order_update_response(body)
     when %r{/UT/hs/ice_int/v2/OrderStatus/.*}
       mock_order_status_response
+    when %r{/UT/hs/ice_int/v2/DeleteOrder/.*}
+      mock_order_deletion_response(path)
     when '/UT/hs/ice_int/v1/StatusID/'
       mock_device_status_response(body)
     when '/UT/hs/ice_int/v1/info/'
@@ -44,12 +46,13 @@ class MockOneCService
     
     Rails.logger.info "[Mock1C] Order created successfully (new format)"
     
-    # New response format: {"Executed": true, "Error": ""}
+    # New response format: {"Executed": true, "Error": "", "external_number": "..."}
     {
       success: true,
       data: {
         'Executed' => true,
-        'Error' => ''
+        'Error' => '',
+        'external_number' => "MOCK-#{rand(100000..999999)}"
       }
     }
   end
@@ -84,10 +87,43 @@ class MockOneCService
       data: {
         'status' => 'found',
         'external_number' => external_number,
+        'deleted' => false,
         'order_status' => order_statuses.sample,
         'created_at' => (Time.current - rand(1..30).days).iso8601,
         'message' => "Заказ клиента вх. номер #{external_number} найден"
       }
+    }
+  end
+
+  def mock_order_deletion_response(path)
+    # Extract order number from path
+    order_number = path.split('/').last
+    Rails.logger.info "[Mock1C] Order deletion for: #{order_number}"
+    
+    # Generate different mock responses based on order number pattern
+    # Even numbers (0,2,4,6,8) = success, odd ending with 9 = error, others = success
+    mock_result = case order_number.to_s.last
+                  when '9'
+                    # Error case - order not found
+                    {
+                      'status' => 'error',
+                      'message' => "Заказ клиента вх. номер #{order_number} не удалось обновить по причине: не найден в базе"
+                    }
+                  else
+                    # Success case
+                    external_number = "OK00-#{rand(100000..999999)}"
+                    {
+                      'status' => 'success',
+                      'message' => 'успешно удален',
+                      'external_number' => external_number
+                    }
+                  end
+    
+    Rails.logger.info "[Mock1C] Order deletion result: #{mock_result['status']}"
+    
+    {
+      success: true,
+      data: mock_result
     }
   end
 
