@@ -21,6 +21,8 @@ class MockOneCService
       mock_order_status_response
     when %r{/UT/hs/ice_int/v2/DeleteOrder/.*}
       mock_order_deletion_response(path)
+    when %r{/UT/hs/ice_int/v2/UploadStatusOrder/.*}
+      mock_order_status_update_response(path, body)
     when '/UT/hs/ice_int/v1/StatusID/'
       mock_device_status_response(body)
     when '/UT/hs/ice_int/v1/info/'
@@ -120,6 +122,45 @@ class MockOneCService
                   end
     
     Rails.logger.info "[Mock1C] Order deletion result: #{mock_result['status']}"
+    
+    {
+      success: true,
+      data: mock_result
+    }
+  end
+
+  def mock_order_status_update_response(path, body)
+    # Extract order number from path
+    order_number = path.split('/').last
+    Rails.logger.info "[Mock1C] Status update for order: #{order_number}"
+    
+    # Log the status update details
+    if body
+      Rails.logger.info "[Mock1C] Status to update: #{body['status']}"
+      Rails.logger.info "[Mock1C] Status comment: #{body['status_comment']}" if body['status_comment'].present?
+    end
+    
+    # Generate different mock responses based on order number pattern
+    # Odd ending with 9 = not found, others = success
+    mock_result = case order_number.to_s.last
+                  when '9'
+                    # Error case - order not found
+                    {
+                      'status' => 'not_found',
+                      'message' => "Заказ клиента вх. номер #{order_number} не найден"
+                    }
+                  else
+                    # Success case
+                    external_number = "OK00-#{rand(100000..999999)}"
+                    {
+                      'status' => 'found',
+                      'external_number' => external_number,
+                      'created_at' => Time.current.iso8601,
+                      'message' => "Заказ клиента вх. номер #{order_number} обновлен"
+                    }
+                  end
+    
+    Rails.logger.info "[Mock1C] Status update result: #{mock_result['status']}"
     
     {
       success: true,

@@ -39,6 +39,13 @@ module Orders
       { order: order_data }
     end
 
+    def prepare_status_data
+      {
+        status: format_status_for_one_c,
+        status_comment: format_archive_reason_for_one_c
+      }
+    end
+
     private
 
     def build_comment_with_user_info
@@ -65,6 +72,16 @@ module Orders
       
       # Convert to camelCase: split by spaces, capitalize each word, join without spaces
       status_text.split(' ').map(&:capitalize).join
+    end
+
+    def format_archive_reason_for_one_c
+      return '' unless order.status == 'archive' && order.archive_reason.present?
+      
+      # Translate archive reason to Russian, then format as camelCase
+      reason_text = I18n.t("orders.archive_reasons.#{order.archive_reason}")
+      
+      # Convert to camelCase: split by spaces, capitalize each word, join without spaces
+      reason_text.split(' ').map(&:capitalize).join
     end
   end
 end

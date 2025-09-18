@@ -136,10 +136,11 @@
             %button#manual_sync_btn.btn.btn-small.btn-primary{type: 'button', data: {order_id: @order.id}}
               %i.fa.fa-refresh
               Синхронизировать вручную
-            - if sync_record&.synced? && can?(:manual_sync, @order)
-              %button#delete_from_one_c_btn.btn.btn-small.btn-danger{type: 'button', data: {order_id: @order.id}, style: 'margin-left: 5px;'}
-                %i.fa.fa-trash
-                Удалить из 1С
+            -# Hidden: Delete from 1C button (automatic deletion now happens on archive)
+            -# - if sync_record&.synced? && can?(:manual_sync, @order)
+            -#   %button#delete_from_one_c_btn.btn.btn-small.btn-danger{type: 'button', data: {order_id: @order.id}, style: 'margin-left: 5px;'}
+            -#     %i.fa.fa-trash
+            -#     Удалить из 1С
             #sync_feedback{style: 'margin-top: 5px;'}
             #delete_feedback{style: 'margin-top: 5px;'}
 

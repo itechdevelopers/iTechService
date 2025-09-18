@@ -63,7 +63,9 @@ class Order < ApplicationRecord
     end
   end
 
-  after_update :make_announcement, :clear_attention_if_article_added, :check_for_sync_update
+  after_update :make_announcement, :clear_attention_if_article_added, :trigger_one_c_deletion_on_archive, :trigger_one_c_status_update
+  # Note: :check_for_sync_update removed to disable automatic 1C sync on order updates
+  # Manual sync is still available via the UI button
 
   audited
   has_associated_audits
@@ -308,5 +310,26 @@ class Order < ApplicationRecord
 
   def requires_article_attention?
     one_c_sync&.requires_article_attention? || false
+  end
+
+  def trigger_one_c_deletion_on_archive
+    # Only trigger if status changed to archive
+    if saved_change_to_status? && status == 'archive'
+      # Only delete if order was synced to 1C
+      if one_c_sync&.synced? && one_c_sync.external_id.present?
+        Rails.logger.info "[Order] Automatically triggering 1C deletion for archived order #{id}"
+        OneCOrderDeleteJob.perform_later(id, nil) # nil user_id = no notifications
+      else
+        Rails.logger.info "[Order] Order #{id} archived but not synced to 1C, skipping deletion"
+      end
+    end
+  end
+
+  def trigger_one_c_status_update
+    # Only trigger if status changed and order is synced
+    if saved_change_to_status? && one_c_synced?
+      Rails.logger.info "[Order] Triggering 1C status update for order #{id}"
+      OneCOrderStatusUpdateJob.perform_later(id, nil)
+    end
   end
 end
