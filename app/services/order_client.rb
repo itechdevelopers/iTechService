@@ -20,5 +20,10 @@ class OrderClient < OneCBaseClient
     path = "/UT/hs/ice_int/v2/DeleteOrder/#{order_number}"
     make_request(path, method: :post)
   end
+
+  def update_order_status(order_number, status_data)
+    path = "/UT/hs/ice_int/v2/UploadStatusOrder/#{order_number}"
+    make_request(path, method: :post, body: status_data)
+  end
 end
 
