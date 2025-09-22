@@ -193,6 +193,37 @@ class OrdersController < ApplicationController
     }
   end
 
+  def sync_status
+    @order = find_record(Order)
+    sync_record = @order.one_c_sync
+    
+    if sync_record.nil?
+      render json: { 
+        synced: false, 
+        status: 'not_initiated' 
+      }
+    elsif sync_record.synced?
+      render json: { 
+        synced: true, 
+        external_id: sync_record.external_id,
+        status: 'synced'
+      }
+    elsif sync_record.failed? || sync_record.permanently_failed?
+      render json: { 
+        synced: false, 
+        failed: true,
+        error: sync_record.last_error,
+        status: sync_record.sync_status
+      }
+    else
+      # Status is 'pending' or 'syncing'
+      render json: { 
+        synced: false, 
+        status: sync_record.sync_status
+      }
+    end
+  end
+
   def delete_from_one_c
     @order = find_record(Order)
     sync_record = @order.one_c_sync
