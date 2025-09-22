@@ -29,6 +29,11 @@ class OrderPolicy < CommonPolicy
     change_status?
   end
 
+  def sync_status?
+    # Same permission as manual_sync - if you can sync, you can check status
+    manual_sync?
+  end
+
   def delete_from_one_c?
     change_status?
   end

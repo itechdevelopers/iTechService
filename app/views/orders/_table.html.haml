@@ -23,7 +23,7 @@
       - @orders.each do |order|
         - row_class = order.status
         %tr{class: row_class, id: "edit_order_#{ order.id }_info"}
-          %td= order_number_with_external_id(order)
+          %td.order_number_column= order_number_with_external_id(order)
           %td= order.department_name
           %td= order.customer_presentation
           %td= t("orders.object_kinds.#{order.object_kind}")
@@ -48,6 +48,9 @@
             .btn-group
               = link_to_edit_small order if can? :edit, order
               = link_to glyph("file-o"), order_order_notes_path(order), class: "btn btn-small", remote: true
+              - if can? :edit, order
+                %button.btn.btn-small.btn-primary.manual-sync-btn{type: 'button', data: {order_id: order.id}, title: 'Синхронизировать с 1С'}
+                  = glyph("refresh")
             = button_to_change_order_status(order) unless order.canceled?
         %tr{class: row_class, id: "edit_order_#{ order.id }_comment"}
           %td{colspan: 5}
@@ -63,3 +66,171 @@
 
 - else
   = render 'shared/empty'
+
+:javascript
+  $(document).ready(function() {
+    // Store active polling intervals to prevent duplicates
+    var activePolls = {};
+    
+    // Manual sync functionality for orders table
+    $('.manual-sync-btn').on('click', function() {
+      var $btn = $(this);
+      var orderId = $btn.data('order-id');
+      var $icon = $btn.find('.glyphicon, .fa, i');
+      
+      // Prevent duplicate clicks
+      if (activePolls[orderId]) {
+        return;
+      }
+      
+      // Disable button and show loading
+      $btn.prop('disabled', true);
+      $icon.addClass('fa-spin');
+      
+      $.ajax({
+        url: '/orders/' + orderId + '/manual_sync',
+        type: 'POST',
+        headers: {
+          'X-CSRF-Token': $('meta[name="csrf-token"]').attr('content')
+        },
+        success: function(data) {
+          if (data.success) {
+            // Show initial success feedback
+            $btn.removeClass('btn-primary').addClass('btn-success');
+            
+            // Start polling for sync completion
+            pollForSyncCompletion(orderId, $btn);
+            
+            setTimeout(function() {
+              $btn.removeClass('btn-success').addClass('btn-primary');
+            }, 2000);
+          } else {
+            // Show error feedback
+            alert('Ошибка синхронизации: ' + data.message);
+            $btn.removeClass('btn-primary').addClass('btn-danger');
+            setTimeout(function() {
+              $btn.removeClass('btn-danger').addClass('btn-primary');
+              $btn.prop('disabled', false);
+              $icon.removeClass('fa-spin');
+            }, 2000);
+          }
+        },
+        error: function(xhr) {
+          alert('Ошибка при отправке запроса');
+          $btn.removeClass('btn-primary').addClass('btn-danger');
+          setTimeout(function() {
+            $btn.removeClass('btn-danger').addClass('btn-primary');
+            $btn.prop('disabled', false);
+            $icon.removeClass('fa-spin');
+          }, 2000);
+        }
+      });
+    });
+    
+    function pollForSyncCompletion(orderId, $btn) {
+      var attempts = 0;
+      var maxAttempts = 15; // 30 seconds total (15 * 2 seconds)
+      var pollInterval = 2000; // Check every 2 seconds
+      var $icon = $btn.find('.glyphicon, .fa, i');
+      
+      // Store the interval ID to prevent duplicates
+      activePolls[orderId] = setInterval(function() {
+        attempts++;
+        
+        $.ajax({
+          url: '/orders/' + orderId + '/sync_status',
+          type: 'GET',
+          headers: {
+            'X-CSRF-Token': $('meta[name="csrf-token"]').attr('content')
+          },
+          success: function(data) {
+            if (data.synced && data.external_id) {
+              // Success! Update the display
+              clearInterval(activePolls[orderId]);
+              delete activePolls[orderId];
+              updateExternalIdDisplay(orderId, data.external_id, $btn);
+              
+              // Show final success state
+              $btn.removeClass('btn-primary btn-success').addClass('btn-success');
+              $icon.removeClass('fa-spin');
+              $btn.prop('disabled', false);
+              
+              // Flash green success
+              setTimeout(function() {
+                $btn.removeClass('btn-success').addClass('btn-primary');
+              }, 3000);
+              
+            } else if (data.failed) {
+              // Sync failed
+              clearInterval(activePolls[orderId]);
+              delete activePolls[orderId];
+              
+              alert('Ошибка синхронизации: ' + (data.error || 'Неизвестная ошибка'));
+              $btn.removeClass('btn-primary btn-success').addClass('btn-danger');
+              $icon.removeClass('fa-spin');
+              $btn.prop('disabled', false);
+              
+              setTimeout(function() {
+                $btn.removeClass('btn-danger').addClass('btn-primary');
+              }, 3000);
+              
+            } else if (attempts >= maxAttempts) {
+              // Timeout - stop polling
+              clearInterval(activePolls[orderId]);
+              delete activePolls[orderId];
+              
+              alert('Превышено время ожидания синхронизации');
+              $btn.removeClass('btn-primary btn-success').addClass('btn-warning');
+              $icon.removeClass('fa-spin');
+              $btn.prop('disabled', false);
+              
+              setTimeout(function() {
+                $btn.removeClass('btn-warning').addClass('btn-primary');
+              }, 3000);
+            }
+            // Otherwise continue polling (status is 'pending' or 'syncing')
+          },
+          error: function() {
+            // Stop polling on network error
+            clearInterval(activePolls[orderId]);
+            delete activePolls[orderId];
+            
+            console.error('Error checking sync status');
+            $icon.removeClass('fa-spin');
+            $btn.prop('disabled', false);
+          }
+        });
+      }, pollInterval);
+    }
+    
+    function updateExternalIdDisplay(orderId, externalId, $btn) {
+      var $orderRow = $btn.closest('tr');
+      var $orderNumberCell = $orderRow.find('.order_number_column');
+      var $existingExternalId = $orderNumberCell.find('small.text-success');
+      
+      if ($existingExternalId.length === 0) {
+        // Add external_id with fade-in effect
+        var $br = $('<br>');
+        var $newExternalId = $('<small class="text-success" style="display:none">' + externalId + '</small>');
+        $orderNumberCell.append($br).append($newExternalId);
+        $newExternalId.fadeIn(500);
+        
+        // Add a subtle highlight
+        $newExternalId.css('background-color', '#d4edda');
+        setTimeout(function() {
+          $newExternalId.animate({ backgroundColor: 'transparent' }, 1000);
+        }, 500);
+      } else {
+        // Update existing with highlight effect
+        var originalBg = $existingExternalId.css('background-color');
+        $existingExternalId
+          .text(externalId)
+          .css('background-color', '#d4edda')
+          .hide()
+          .fadeIn(500, function() {
+            // Fade out the highlight
+            $(this).animate({ backgroundColor: originalBg || 'transparent' }, 1000);
+          });
+      }
+    }
+  });
