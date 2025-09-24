@@ -63,7 +63,8 @@ class Order < ApplicationRecord
     end
   end
 
-  after_update :make_announcement, :clear_attention_if_article_added, :trigger_one_c_deletion_on_archive, :trigger_one_c_status_update
+  after_update :make_announcement, :clear_attention_if_article_added
+  after_update_commit :trigger_one_c_deletion_on_archive, :trigger_one_c_status_update
   # Note: :check_for_sync_update removed to disable automatic 1C sync on order updates
   # Manual sync is still available via the UI button
 
