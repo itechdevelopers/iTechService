@@ -16,6 +16,7 @@ class Setting < ApplicationRecord
     emails_for_orders: 'string',
     emails_for_sales_report: 'string',
     emails_for_sales_import: 'string',
+    emails_for_queue_anomalies: 'string',
     legal_address: 'string',
     meda_menu_database: 'string',
     ogrn_inn: 'string',

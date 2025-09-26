@@ -21,3 +21,18 @@ ru:
     orders:
       new: 'Новый заказ'
       presentation: 'Заказ № %{number} от %{time}'
+    queue_anomaly:
+      subject: 'Аномалии электронных очередей за %{date}'
+      title: 'Обнаружены аномалии в работе электронных очередей'
+      detection_date: 'Дата анализа: %{date}'
+      anomalies_found:
+        one: 'Обнаружена %{count} аномалия'
+        few: 'Обнаружены %{count} аномалии'
+        many: 'Обнаружено %{count} аномалий'
+        other: 'Обнаружено %{count} аномалий'
+      type:
+        zero_activity: 'Отсутствие активности'
+        low_activity: 'Низкая активность'
+      yesterday_count: 'Вчера: %{count} талонов'
+      average_count: 'Среднее за 30 дней: %{count} талонов'
+      threshold: 'Минимальный порог: %{threshold} талонов'

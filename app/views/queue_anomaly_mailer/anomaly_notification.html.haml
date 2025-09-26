@@ -1,0 +1,30 @@
+!!!
+%html{style: "font-family:'Helvetica-Neue', 'Helvetica', sans-serif;"}
+  %head
+    %meta(http-equiv="Content-Type" content="text/html;charset=utf-8")
+
+  %body
+    %h2= t('mail.queue_anomaly.title')
+    %p= t('mail.queue_anomaly.detection_date', date: l(@detection_date, format: :long))
+
+    %h3= t('mail.queue_anomaly.anomalies_found', count: @anomalies.count)
+
+    - @anomalies.each do |anomaly|
+      .anomaly-block{style: "margin: 20px 0; padding: 15px; border-left: 4px solid #{anomaly[:type] == 'zero_activity' ? '#e74c3c' : '#f39c12'}; background-color: #f9f9f9;"}
+        %h4
+          = anomaly[:queue].queue_name
+          %small{style: "color: #666;"} (#{anomaly[:queue].department.name})
+
+        %p
+          %strong= t("mail.queue_anomaly.type.#{anomaly[:type]}")
+
+        %p= anomaly[:message]
+
+        - if anomaly[:type] == 'low_activity'
+          %ul{style: "margin: 10px 0; padding-left: 20px;"}
+            %li= t('mail.queue_anomaly.yesterday_count', count: anomaly[:yesterday_count])
+            %li= t('mail.queue_anomaly.average_count', count: anomaly[:average_count])
+            %li= t('mail.queue_anomaly.threshold', threshold: anomaly[:threshold])
+
+    %hr{style: "margin: 30px 0; border: none; border-top: 1px solid #ddd;"}
+

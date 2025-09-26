@@ -45,3 +45,9 @@ schedule_automatic_completion:
   class: 'ScheduleAutomaticCompletionJob'
   queue: 'default'
   active_job: true
+
+queue_anomaly_detection:
+  cron: '00 7 * * * Asia/Vladivostok'
+  class: 'QueueAnomalyDetectionJob'
+  queue: 'reports'
+  active_job: true
