@@ -19,6 +19,7 @@ ru:
     emails_for_orders: 'Адреса для заказов'
     emails_for_sales_report: 'Отчёты по продажам'
     emails_for_sales_import: 'Почта для логов импорта'
+    emails_for_queue_anomalies: 'Почта для аномальных показателей электронной очереди'
     legal_address: 'Юридический адрес'
     meda_menu_database: 'База Медиа меню'
     ogrn_inn: 'ОГРН/ИНН'

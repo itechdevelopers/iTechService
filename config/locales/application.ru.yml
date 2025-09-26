@@ -1,5 +1,9 @@
 ru:
 
+  queue_anomaly:
+    zero_activity: 'В очереди "%{queue_name}" (%{department}) вчера не было создано ни одного талона'
+    low_activity: 'В очереди "%{queue_name}" (%{department}) зафиксирована низкая активность: %{yesterday_count} талонов (среднее: %{average_count})'
+
   items:
     tag:
       with_price: 'С ценой'
