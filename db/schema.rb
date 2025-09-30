@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20250930151022) do
+ActiveRecord::Schema.define(version: 20250930190845) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -1483,10 +1483,12 @@ ActiveRecord::Schema.define(version: 20250930151022) do
     t.string "whatsapp_status"
     t.string "message_id"
     t.integer "service_job_id"
+    t.text "whatsapp_status_description"
     t.index ["message_id"], name: "index_service_sms_notifications_on_message_id"
     t.index ["message_type"], name: "index_service_sms_notifications_on_message_type"
     t.index ["sender_id"], name: "index_service_sms_notifications_on_sender_id"
     t.index ["service_job_id"], name: "index_service_sms_notifications_on_service_job_id"
+    t.index ["whatsapp_status"], name: "index_service_sms_notifications_on_whatsapp_status"
   end
 
   create_table "settings", id: :serial, force: :cascade do |t|
