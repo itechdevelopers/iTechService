@@ -472,6 +472,13 @@ Rails.application.routes.draw do
 
   resources :repair_causes, only: %i[index destroy new create]
 
+  # Webhook endpoints (no authentication required)
+  namespace :webhooks do
+    resource :green_api, controller: 'green_api', only: [] do
+      post :status
+    end
+  end
+
   authenticate :user do
     mount Sidekiq::Web => '/sidekiq'
   end
