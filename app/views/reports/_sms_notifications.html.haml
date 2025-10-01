@@ -5,18 +5,35 @@
       %th.center= t('.sender')
       %th.center= t('.sent_at')
       %th.center= t('.phone_number')
+      %th.center= t('.status')
       %th.center= t('.service_job_link')
       %th.center= t('.rating')
   %tbody
     - report.result.each_pair do |_, value|
       %tr.detailable
         %td.name= value[:sender_name]
-        %td{colspan: 4}= "#{t('.quantity')}: #{value[:qty]}"
+        %td{colspan: 5}= "#{t('.quantity')}: #{value[:qty]}"
       - value[:sms_notifications].each do |sms_notification|
         %tr.details
           %td= sms_notification[:message]
           %td= l sms_notification[:sent_at], format: :date_time
           %td= sms_notification[:phone_number]
+          %td.center
+            - if sms_notification[:whatsapp_status].present?
+              - status_class = case sms_notification[:whatsapp_status]
+                - when 'read' then 'text-primary'
+                - when 'delivered' then 'text-success'
+                - when 'sent' then 'text-muted'
+                - when 'failed', 'noAccount', 'notInGroup' then 'text-danger'
+                - else ''
+              %span{class: status_class}
+                = sms_notification[:status_icon]
+                = t("sms_notification.status.#{sms_notification[:whatsapp_status]}", default: sms_notification[:whatsapp_status])
+              - if sms_notification[:whatsapp_status_description].present?
+                %br
+                %small.text-muted= sms_notification[:whatsapp_status_description]
+            - else
+              %span.text-muted= t('.status_pending')
           %td
             - if sms_notification[:service_job_id] && sms_notification[:service_job_ticket_number]
               = link_to sms_notification[:service_job_ticket_number], service_job_path(sms_notification[:service_job_id]), target: '_blank'

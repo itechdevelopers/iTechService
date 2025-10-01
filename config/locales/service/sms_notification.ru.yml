@@ -10,6 +10,14 @@ ru:
       whatsapp_send_failed: 'Ошибка отправки WhatsApp: %{error}'
       whatsapp_not_configured: 'WhatsApp сервис не настроен (отсутствуют учетные данные)'
 
+      status:
+        sent: 'Отправлено'
+        delivered: 'Доставлено'
+        read: 'Прочитано'
+        failed: 'Ошибка'
+        noAccount: 'Нет WhatsApp'
+        notInGroup: 'Не в группе'
+
       view:
         form:
           title: 'Отправка уведомления'
