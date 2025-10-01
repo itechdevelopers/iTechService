@@ -156,9 +156,11 @@ ru:
       sender: 'Отправитель / Сообщение'
       sent_at: 'Когда отправлено'
       phone_number: 'Номер клиента'
+      status: 'Статус доставки'
       service_job_link: 'Ссылка на работу'
       rating: 'Рейтинг'
       quantity: 'Количество сообщений'
+      status_pending: 'Ожидание'
     tasks_undone:
       title: 'Отчёт по невыполненным задачам'
       tasks_devices: "Задача / Девайс"

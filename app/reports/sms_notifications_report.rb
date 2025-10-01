@@ -18,7 +18,10 @@ class SmsNotificationsReport < BaseReport
         sent_at: sms_notification.sent_at,
         service_job_id: sms_notification.service_job_id,
         service_job_ticket_number: sms_notification.service_job&.ticket_number,
-        rating: rating
+        rating: rating,
+        whatsapp_status: sms_notification.whatsapp_status,
+        whatsapp_status_description: sms_notification.whatsapp_status_description,
+        status_icon: sms_notification.status_icon
       }
 
       if result.key? sender_id
