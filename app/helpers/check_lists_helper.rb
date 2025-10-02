@@ -31,7 +31,7 @@ module CheckListsHelper
 
     result = ''
     available_lists.each do |check_list|
-      result << content_tag(:h4, check_list.name)
+      result << content_tag(:h4, check_list.name, class: 'text-center')
       result << content_tag(:p) do
         p_result = ''
         check_list.check_list_items.ordered.each do |question|
