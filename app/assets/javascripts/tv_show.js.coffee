@@ -21,7 +21,7 @@ $ ->
       window.waitingTicketsDisplay?.addTicket(ticketNumber)
 
     startService: (ticketNumber, windowNumber) ->
-      $card = $('<div>').addClass('elqueue-tv-card').data('ticket-number', ticketNumber)
+      $card = $('<div>').addClass('elqueue-tv-card').data('ticket-number', ticketNumber).data('window-number', windowNumber)
 
       $ticketNumber = window.createColorizedTicketNumber(ticketNumber)
       $ticketNumber.append($('<span>').addClass('label-tv').text(''))
@@ -38,12 +38,25 @@ $ ->
       $card.fadeIn(500).fadeOut(500).fadeIn(500).fadeOut(500).fadeIn(500, ->
         $card.show()
         window.waitingTicketsDisplay?.removeTicket(ticketNumber)
+
+        # Clean up any stale cards for this window after animation completes
+        # We wait a bit to ensure any ongoing completeService animations finish
+        setTimeout(->
+          $('.elqueue-tv-card').each (index, element) ->
+            $element = $(element)
+            # Remove cards for same window but different ticket
+            if $element.data('window-number') == windowNumber && $element.data('ticket-number') != ticketNumber
+              $element.stop(true, true).fadeOut(500, ->
+                $element.remove()
+              )
+        , 1000)  # Wait 1 second after animation to avoid conflicts
       )
 
     completeService: (ticketNumber) ->
       $('.elqueue-tv-card').each (index, element) ->
         if $(element).data('ticket-number') == ticketNumber
-          $(element).fadeOut(1000, ->
+          # Stop any ongoing animations and immediately fade out
+          $(element).stop(true, true).fadeOut(1000, ->
             $(element).remove()
           )
           return false
