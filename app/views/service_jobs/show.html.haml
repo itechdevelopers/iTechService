@@ -150,6 +150,12 @@
               %td= repair_part.quantity
               %td= repair_part.defect_qty
 
+    - device_tasks_with_checklists = @service_job.device_tasks.select { |dt| dt.is_repair? && dt.check_list_responses.any? }
+    - if device_tasks_with_checklists.any?
+      - device_tasks_with_checklists.each do |device_task|
+        = render_check_lists_answers_for(device_task, 'DeviceTask')
+        %hr
+
   .span4
     %table.attributes_table
       - %i[client_address trademark device_group completeness claimed_defect device_condition client_comment type_of_work estimated_cost_of_repair].each do |attr|
@@ -168,7 +174,6 @@
     - if @available_check_lists.any?
       %hr
       .service-job-checklist-responses
-        %h4 Чек-листы
         = render_check_lists_answers_for(@service_job, 'ServiceJob')
 
   .span4
