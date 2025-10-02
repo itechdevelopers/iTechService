@@ -3,7 +3,7 @@
     %button.btn.btn-primary Нажмите для активации аудио оповещений
 .elqueue-tv
   - @clients_in_service.each do |client|
-    .elqueue-tv-card{data: {ticket_number: client.ticket_number}}
+    .elqueue-tv-card{data: {ticket_number: client.ticket_number, window_number: client.elqueue_window.window_number}}
       %span.ticket-info
         = colorize_ticket_number(client.ticket_number)
       %span.arrow-tv &#x279C;
