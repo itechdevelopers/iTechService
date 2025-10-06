@@ -42,5 +42,7 @@
           %td
             - if sms_notification[:rating]
               = "#{sms_notification[:rating]} ★"
+            - elsif sms_notification[:review_status] == 'viewed'
+              Просмотрено, но не оценено
             - else
-              Не оценено
+              Не просмотрено
