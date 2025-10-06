@@ -62,6 +62,7 @@ class QueueAnomalyDetectionJob < ApplicationJob
     daily_counts = WaitingClient.joins(queue_item: :electronic_queue)
                                .where(electronic_queues: { id: queue.id })
                                .where(ticket_issued_at: period_range)
+                               .reorder(nil)
                                .group('DATE(ticket_issued_at)')
                                .count
 
