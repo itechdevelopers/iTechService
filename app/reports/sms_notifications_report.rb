@@ -19,6 +19,7 @@ class SmsNotificationsReport < BaseReport
         service_job_id: sms_notification.service_job_id,
         service_job_ticket_number: sms_notification.service_job&.ticket_number,
         rating: rating,
+        review_status: review&.status,
         whatsapp_status: sms_notification.whatsapp_status,
         whatsapp_status_description: sms_notification.whatsapp_status_description,
         status_icon: sms_notification.status_icon
