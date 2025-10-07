@@ -4,6 +4,7 @@
     <tr>
       <th><%= RepairService.human_attribute_name(:id) %></th>
       <th><%= RepairService.human_attribute_name(:name) %></th>
+      <th>Гарантия</th>
       <th><%= RepairService.human_attribute_name(:price) %></th>
       <th><%= RepairService.human_attribute_name(:client_info) %></th>
       <%= tag(:th) if(can? :manage, RepairService) %>
@@ -19,6 +20,7 @@
         <td class="name">
           <span class="label label-info"><%= repair_service.name %></span>
         </td>
+        <td class="warranty"><%= repair_service_warranty_display(repair_service) %></td>
         <td class="price"><%= human_currency repair_service.price(params[:department_id])&.shown_price, false %></td>
         <td class="client_info text-info" rowspan="<%= parts_qty+1 %>"><%= repair_service.client_info %></td>
         <% if can? :manage, RepairService %>
@@ -42,6 +44,7 @@
               <%= "#{spare_part.quantity_in_store(current_user.spare_parts_store)} шт." if show_qty %>
             </span>
           </td>
+          <td></td>
           <td><%= spare_part.comment %></td>
         </tr>
       <% end %>

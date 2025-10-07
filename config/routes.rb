@@ -115,6 +115,7 @@ Rails.application.routes.draw do
     get :find, on: :member
     get :show_caller, on: :member
     get :export, on: :collection
+    get :history, on: :member, defaults: { format: 'js' }
   end
 
   resources :client_categories

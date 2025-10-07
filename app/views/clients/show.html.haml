@@ -5,6 +5,7 @@
   %small
     = city_tag @client.city
     = timestamp_string_for @client
+    = history_link_to history_client_path(@client)
     - if @client.creator.present?
       = "#{t('attributes.user')}: "
       = link_to(@client.creator.short_name, user_path(@client.creator))
