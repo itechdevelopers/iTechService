@@ -7,14 +7,16 @@
       %tr
         %th= t '.date'
         %th= HistoryRecord.human_attribute_name :column_name
-        -#%th= HistoryRecord.human_attribute_name :old_value
-        %th= HistoryRecord.human_attribute_name :new_value
+        %th= t '.change'
         %th= HistoryRecord.human_attribute_name :user
     %tbody
       - @records.each do |rec|
         %tr
           %td= human_datetime rec.created_at
-          %td= rec.object.class.human_attribute_name rec.column_name.to_s
-          -#%td= human_history_value rec.old_value, rec.column_type
-          %td= human_history_value rec#.new_value, rec.column_type
+          %td
+            - if rec.object.is_a?(ClientCharacteristic)
+              = "#{Client.human_attribute_name(:client_characteristic)}: #{ClientCharacteristic.human_attribute_name(rec.column_name)}"
+            - else
+              = rec.object.class.human_attribute_name rec.column_name.to_s
+          %td= human_history_change rec
           %td= "#{rec.user.try(:short_name)} [#{rec.user.try(:username)}]"

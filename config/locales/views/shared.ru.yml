@@ -81,3 +81,7 @@ ru:
       trade: 'Торговля'
       trade_in: 'Trade-in'
       trade_in_evaluation: 'Оценка устройств в Trade-in'
+
+    history:
+      date: 'Дата'
+      change: 'Изменение'

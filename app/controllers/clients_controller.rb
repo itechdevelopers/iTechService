@@ -43,6 +43,21 @@ class ClientsController < ApplicationController
     end
   end
 
+  def history
+    @client = find_record Client
+
+    # Fetch client's own history
+    client_records = @client.history_records
+
+    # Fetch associated characteristic's history (if exists)
+    characteristic_records = @client.client_characteristic&.history_records || HistoryRecord.none
+
+    # Merge and sort by newest first
+    @records = (client_records + characteristic_records).sort_by(&:created_at).reverse
+
+    render 'shared/show_history'
+  end
+
   def new
     @client = authorize Client.new
     @client.build_client_characteristic

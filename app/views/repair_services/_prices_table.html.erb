@@ -21,6 +21,7 @@
             <% if can? :see_quantity, RepairService %>
               <th><%= t('attributes.quantity') %></th>
             <% end %>
+            <th>Гарантия</th>
             <th><%= RepairService.human_attribute_name(:price) %></th>
             <th></th>
           </tr>
@@ -38,6 +39,7 @@
             <% if can? :see_quantity, RepairService %>
               <td class="align_center"><%= repair_service.remnants_qty(params[:department_id]) %></td>
             <% end %>
+            <td class="warranty"><%= repair_service_warranty_display(repair_service) %></td>
             <td class="price">
               <span class="accurate-prices-td">
                 <%= number_field_tag "repair_services[#{repair_service.id}][value]", repair_service.price(params[:department_id])&.value %>
@@ -74,6 +76,7 @@
         <% if can? :see_quantity, RepairService %>
           <th><%= t('attributes.quantity') %></th>
         <% end %>
+        <th>Гарантия</th>
         <th><%= RepairService.human_attribute_name(:price) %></th>
       </tr>
       </thead>
@@ -85,6 +88,7 @@
           <% if can? :see_quantity, RepairService %>
             <td class="align_center"><%= repair_service.remnants_qty(params[:department_id]) %></td>
           <% end %>
+          <td class="warranty"><%= repair_service_warranty_display(repair_service) %></td>
           <td class="price number"><%= human_currency repair_service.price(params[:department_id])&.shown_price %></td>
         </tr>
       <% end %>

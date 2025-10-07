@@ -132,6 +132,8 @@ module ApplicationHelper
       when 'boolean'
         icon_class = rec.new_value == 't' ? 'check' : 'square-o'
         val = icon_tag icon_class
+      when 'date'
+        val = human_date(rec.new_value)
       when 'integer'
         case rec.column_name
         when 'client_id'
@@ -142,6 +144,10 @@ module ApplicationHelper
           val = ServiceJob.find(rec.new_value).try(:presentation)
         when 'task_id'
           val = Task.find(rec.new_value).try(:name)
+        when 'category'
+          val = rec.object.is_a?(Client) ? Client::CATEGORIES[rec.new_value.to_i] : rec.new_value
+        when 'client_characteristic_id'
+          val = ClientCharacteristic.find_by(id: rec.new_value).try(:name) || rec.new_value
         when 'nominal'
           val = rec.object.is_a?(GiftCertificate) ? human_gift_certificate_nominal(rec.object) : rec.new_value
         when 'status'
@@ -156,6 +162,53 @@ module ApplicationHelper
       val = '-'
     end
     val
+  end
+
+  def format_history_value(value, column_name, column_type, object)
+    return nil if value.blank?
+
+    case column_type
+    when 'boolean'
+      icon_class = value == 't' ? 'check' : 'square-o'
+      icon_tag icon_class
+    when 'date'
+      human_date(value)
+    when 'integer'
+      case column_name
+      when 'client_id'
+        Client.find_by(id: value).try(:full_name) || value
+      when 'location_id'
+        Location.find_by(id: value).try(:name) || value
+      when 'service_jobs_id'
+        ServiceJob.find_by(id: value).try(:presentation) || value
+      when 'task_id'
+        Task.find_by(id: value).try(:name) || value
+      when 'category'
+        object.is_a?(Client) ? Client::CATEGORIES[value.to_i] : value
+      when 'client_characteristic_id'
+        ClientCharacteristic.find_by(id: value).try(:name) || value
+      when 'client_category_id'
+        ClientCategory.find_by(id: value).try(:name) || value
+      when 'nominal'
+        object.is_a?(GiftCertificate) ? human_gift_certificate_nominal(object) : value
+      when 'status'
+        object.is_a?(GiftCertificate) ? object.status_h : value
+      else
+        value
+      end
+    else
+      value
+    end
+  end
+
+  def human_history_change(rec)
+    old_val = format_history_value(rec.old_value, rec.column_name, rec.column_type, rec.object)
+    new_val = format_history_value(rec.new_value, rec.column_name, rec.column_type, rec.object)
+
+    old_display = old_val.present? ? old_val : '-'
+    new_display = new_val.present? ? new_val : '-'
+
+    "#{old_display} → #{new_display}".html_safe
   end
 
   def attribute_changed_by(object, attribute)
