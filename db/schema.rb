@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20250930190846) do
+ActiveRecord::Schema.define(version: 20251009223846) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -189,8 +189,10 @@ ActiveRecord::Schema.define(version: 20250930190846) do
     t.boolean "active", default: true
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.bigint "main_question_id"
     t.index ["active"], name: "index_check_lists_on_active"
     t.index ["entity_type"], name: "index_check_lists_on_entity_type"
+    t.index ["main_question_id"], name: "index_check_lists_on_main_question_id"
   end
 
   create_table "cities", id: :serial, force: :cascade do |t|
@@ -1917,6 +1919,7 @@ ActiveRecord::Schema.define(version: 20250930190846) do
 
   add_foreign_key "check_list_items", "check_lists"
   add_foreign_key "check_list_responses", "check_lists"
+  add_foreign_key "check_lists", "check_list_items", column: "main_question_id"
   add_foreign_key "departments", "brands"
   add_foreign_key "departments", "cities"
   add_foreign_key "electronic_queues", "departments"

@@ -30,6 +30,7 @@
 //= require announcements
 //= require bonuses
 //= require bootstrap
+//= require check_lists
 //= require clients
 //= require comments
 //= require dashboard

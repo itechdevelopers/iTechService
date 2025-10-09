@@ -34,11 +34,36 @@ module CheckListsHelper
       result << content_tag(:h4, check_list.name, class: 'text-center')
       result << content_tag(:p) do
         p_result = ''
-        check_list.check_list_items.ordered.each do |question|
-          response = check_list_response_for(model, check_list)
-          p_result << check_mark_for_item(response, question)
-          p_result << question.question
+        response = check_list_response_for(model, check_list)
+
+        if check_list.has_main_question?
+          # Render main question first with special styling
+          main_item = check_list.main_question
+          main_checked = response&.answer_for_item(main_item.id)
+          p_result << content_tag(:strong) do
+            check_mark_for_item(response, main_item) + main_item.question
+          end
           p_result << tag(:br)
+
+          # Only show subordinate questions if main question was checked
+          if main_checked
+            check_list.subordinate_items.each do |question|
+              p_result << '&nbsp;&nbsp;&nbsp;&nbsp;'.html_safe
+              p_result << check_mark_for_item(response, question)
+              p_result << question.question
+              p_result << tag(:br)
+            end
+          else
+            p_result << content_tag(:em, '&nbsp;&nbsp;&nbsp;&nbsp;(остальные вопросы не показаны)'.html_safe)
+            p_result << tag(:br)
+          end
+        else
+          # No main question, render all normally
+          check_list.check_list_items.ordered.each do |question|
+            p_result << check_mark_for_item(response, question)
+            p_result << question.question
+            p_result << tag(:br)
+          end
         end
         p_result.html_safe
       end
