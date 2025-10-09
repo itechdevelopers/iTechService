@@ -8,6 +8,14 @@
             label: 'Тип сущности'
   = f.input :active, label: 'Активен'
 
+  - if @check_list.persisted? && @check_list.check_list_items.any?
+    = f.association :main_question,
+                    collection: @check_list.check_list_items.ordered,
+                    label_method: :question,
+                    label: 'Основной вопрос (остальные вопросы будут показаны только после его выбора)',
+                    hint: 'Оставьте пустым, если не нужен основной вопрос',
+                    include_blank: true
+
   .control-group
     %label.control-label Вопросы
     .controls
