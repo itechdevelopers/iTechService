@@ -31,7 +31,11 @@ class DeviceTask < ApplicationRecord
 
   # attr_accessible :done, :done_at, :comment, :user_comment, :cost, :task, :service_job, :service_job_id, :task_id, :performer_id, :performer, :task, :service_job_attributes, :repair_tasks_attributes
 
-  accepts_nested_attributes_for :service_job, reject_if: proc { |attr| attr['tech_notice'].blank? }
+  accepts_nested_attributes_for :service_job, reject_if: proc { |attr|
+    # Reject if ALL important fields are blank
+    # Return true to reject, false to accept
+    attr['tech_notice'].blank? && attr['location_id'].blank? && attr['client_notified'].blank?
+  }
   accepts_nested_attributes_for :repair_tasks, allow_destroy: true
 
   validates :task, :cost, presence: true

@@ -72,6 +72,15 @@
             = f.association :performer, label: 'Кто выполнил задачу?', collection: mac_service_helper_options,
                             label_method: :presentation
 
+          - # Service Job fields for streamlined completion
+          - if policy(@device_task.service_job).update? || policy(@device_task.service_job).move_transfers?
+            = f.simple_fields_for :service_job do |sj_form|
+              - if @device_task.service_job.notify_client?
+                = sj_form.input :client_notified, as: :radio_buttons,
+                                collection: [[true, t('yep')], [false, t('not_accessible')]],
+                                required: true, value_method: :first, label_method: :last
+              = sj_form.association :location, as: :location
+
         .span6
           %b Заметки
           .device_notes{id: "device_notes_#{service_job.id}"}= render service_job.device_notes.oldest_first, editable: false
