@@ -9,6 +9,10 @@ module Service
       private
 
       def validate(params, device_task)
+        # Extract service_job_attributes for later processing
+        @service_job_attributes = params.delete(:service_job_attributes)
+
+        # First, update only the device task attributes (without service job)
         device_task.attributes = params
 
         device_task.valid? ? Success(device_task) : Failure(device_task)
@@ -58,6 +62,15 @@ module Service
             end
 
             device_task.save!
+
+            # Now update the service job AFTER the device task is saved
+            if @service_job_attributes.present?
+              service_job = device_task.service_job
+              # Reload to get fresh associations after device task save
+              service_job.reload
+              service_job.attributes = @service_job_attributes
+              service_job.save!
+            end
           rescue ActiveRecord::Rollback, ActiveRecord::RecordInvalid
             return Failure(device_task)
           end
