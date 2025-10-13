@@ -56,6 +56,12 @@ module CheckListsHelper
           else
             p_result << content_tag(:em, '&nbsp;&nbsp;&nbsp;&nbsp;(остальные вопросы не показаны)'.html_safe)
             p_result << tag(:br)
+
+            # Add warning message for DeviceTask checklists when main question is not checked
+            if entity_type == 'DeviceTask'
+              p_result << content_tag(:strong, '&nbsp;&nbsp;&nbsp;&nbsp;Работоспособность устройства специалисту проверить не удалось'.html_safe, class: 'text-warning')
+              p_result << tag(:br)
+            end
           end
         else
           # No main question, render all normally

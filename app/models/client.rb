@@ -23,7 +23,7 @@ class Client < ApplicationRecord
   has_many :devices, -> { distinct }, through: :service_jobs, source: :item, class_name: 'Item'
   has_many :orders, as: :customer, dependent: :destroy
   has_many :purchases, class_name: 'Sale', inverse_of: :client, dependent: :nullify
-  has_many :history_records, as: :object
+  has_many :history_records, as: :object, dependent: :nullify
   has_many :comments, as: :commentable, dependent: :destroy
   has_many :sale_items, through: :purchases
   has_many :sales, inverse_of: :client, dependent: :nullify

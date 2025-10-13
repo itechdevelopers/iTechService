@@ -46,14 +46,41 @@ class ClientsController < ApplicationController
   def history
     @client = find_record Client
 
-    # Fetch client's own history
-    client_records = @client.history_records
+    # Fetch ALL client's history first to find characteristic IDs
+    all_client_records = @client.history_records
 
-    # Fetch associated characteristic's history (if exists)
-    characteristic_records = @client.client_characteristic&.history_records || HistoryRecord.none
+    # Fetch current characteristic's history (if exists)
+    current_characteristic_records = @client.client_characteristic&.history_records || []
 
-    # Merge and sort by newest first
-    @records = (client_records + characteristic_records).sort_by(&:created_at).reverse
+    # Find all client_characteristic_ids this client has ever had
+    # by looking at the history of client_characteristic_id changes
+    characteristic_id_changes = all_client_records.where(column_name: 'client_characteristic_id')
+    all_characteristic_ids = characteristic_id_changes.map { |r| [r.old_value, r.new_value] }.flatten.compact.uniq
+
+    # Add the current characteristic id if it exists
+    all_characteristic_ids << @client.client_characteristic_id if @client.client_characteristic_id
+
+    # Fetch ALL history records for any ClientCharacteristic this client has ever had
+    # Include both records with matching IDs and orphaned records (object_id: nil)
+    # Also filter out empty value records
+    all_characteristic_records = if all_characteristic_ids.any?
+      HistoryRecord.where(object_type: 'ClientCharacteristic')
+                   .where('object_id IN (?) OR object_id IS NULL', all_characteristic_ids.map(&:to_i))
+                   .where.not("(old_value IS NULL OR old_value = '') AND (new_value IS NULL OR new_value = '')")
+    else
+      # Even if no IDs found, still get orphaned ClientCharacteristic records
+      HistoryRecord.where(object_type: 'ClientCharacteristic', object_id: nil)
+                   .where.not("(old_value IS NULL OR old_value = '') AND (new_value IS NULL OR new_value = '')")
+    end
+
+    # Filter out client_characteristic_id changes and empty value records from client records
+    # Empty records are where both old and new values are blank (nil or empty string)
+    client_records_filtered = all_client_records
+      .where.not(column_name: 'client_characteristic_id')
+      .where.not("(old_value IS NULL OR old_value = '') AND (new_value IS NULL OR new_value = '')")
+
+    # Merge all records and sort by newest first
+    @records = (client_records_filtered + all_characteristic_records.to_a).uniq.sort_by(&:created_at).reverse
 
     render 'shared/show_history'
   end
