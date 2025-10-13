@@ -184,15 +184,15 @@ module ApplicationHelper
       when 'task_id'
         Task.find_by(id: value).try(:name) || value
       when 'category'
-        object.is_a?(Client) ? Client::CATEGORIES[value.to_i] : value
+        object&.is_a?(Client) ? Client::CATEGORIES[value.to_i] : value
       when 'client_characteristic_id'
         ClientCharacteristic.find_by(id: value).try(:name) || value
       when 'client_category_id'
         ClientCategory.find_by(id: value).try(:name) || value
       when 'nominal'
-        object.is_a?(GiftCertificate) ? human_gift_certificate_nominal(object) : value
+        object&.is_a?(GiftCertificate) ? human_gift_certificate_nominal(object) : value
       when 'status'
-        object.is_a?(GiftCertificate) ? object.status_h : value
+        object&.is_a?(GiftCertificate) ? object.status_h : value
       else
         value
       end

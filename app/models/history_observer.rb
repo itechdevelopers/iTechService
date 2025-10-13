@@ -33,6 +33,12 @@ class HistoryObserver < ActiveRecord::Observer
         new_value = model.attributes[key]
         history_record = HistoryRecord.new column_name: key, column_type: column_type, new_value: new_value,
             old_value: old_value, object: model, user: User.current
+
+        # Ensure object_id is set for nested models that might not have ID yet
+        if history_record.object_id.nil? && model.id.present?
+          history_record.object_id = model.id
+        end
+
         history_record.save
       end
     end

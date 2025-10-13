@@ -14,7 +14,10 @@
         %tr
           %td= human_datetime rec.created_at
           %td
-            - if rec.object.is_a?(ClientCharacteristic)
+            - if rec.object.nil?
+              - # Handle orphaned records where the parent was deleted
+              = "#{rec.object_type}: #{rec.column_name} (запись удалена)"
+            - elsif rec.object.is_a?(ClientCharacteristic)
               = "#{Client.human_attribute_name(:client_characteristic)}: #{ClientCharacteristic.human_attribute_name(rec.column_name)}"
             - else
               = rec.object.class.human_attribute_name rec.column_name.to_s
