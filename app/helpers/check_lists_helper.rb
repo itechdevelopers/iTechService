@@ -21,8 +21,8 @@ module CheckListsHelper
   end
 
   def response_for_item(response, item)
-    return false unless response.persisted?
-    response.answer_for_item(item.id) || false
+    return nil unless response.persisted?
+    response.answer_for_item(item.id)
   end
 
   def render_check_lists_answers_for(model, entity_type)
@@ -45,8 +45,8 @@ module CheckListsHelper
           end
           p_result << tag(:br)
 
-          # Only show subordinate questions if main question was checked
-          if main_checked
+          # Only show subordinate questions if main question was answered "yes"
+          if main_checked == "yes" || main_checked == "true"
             check_list.subordinate_items.each do |question|
               p_result << '&nbsp;&nbsp;&nbsp;&nbsp;'.html_safe
               p_result << check_mark_for_item(response, question)
@@ -82,9 +82,15 @@ module CheckListsHelper
   end
 
   def check_mark_for_item(response, question)
-    if response&.answer_for_item(question.id)
+    answer = response&.answer_for_item(question.id)
+
+    case answer
+    when "yes", "true"
       "#{icon_tag('check', 'checklist-success')} ".html_safe
+    when "no"
+      "#{icon_tag('times', 'checklist-danger')} ".html_safe
     else
+      # Unanswered question (both required and optional show cross)
       "#{icon_tag('times', 'checklist-danger')} ".html_safe
     end
   end

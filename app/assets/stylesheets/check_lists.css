@@ -1,0 +1,74 @@
+/* CheckList Styles */
+
+/* Make question text and radio group display inline */
+.check-list-question-group .question-text {
+  display: inline-block;
+  vertical-align: middle;
+  margin-right: 15px;
+}
+
+.check-list-question-group .radio-group {
+  display: inline-block;
+  vertical-align: middle;
+}
+
+/* Keep radio buttons inline */
+.radio-group label.radio.inline {
+  display: inline-block;
+  margin-right: 15px;
+  margin-bottom: 0;
+}
+
+/* Style required asterisk */
+.question-text .required {
+  color: #d9534f;
+  font-weight: bold;
+  margin-left: 3px;
+}
+
+/* Ensure proper spacing between radio options */
+.radio-group label.radio input[type="radio"] {
+  margin-right: 5px;
+}
+
+/* For subordinate questions */
+.subordinate-questions {
+  margin-top: 10px;
+  padding-left: 30px;
+  border-left: 3px solid #e0e0e0;
+}
+
+/* Subordinate question indentation */
+.subordinate-indent {
+  margin-left: 25px;
+}
+
+/* Style checklist names to stand out */
+.check-list-container .control-label {
+  font-size: 16px;
+  font-style: italic;
+  color: #333;
+  margin-bottom: 10px;
+  display: block;
+}
+
+/* Error state styles following Bootstrap 2.x conventions */
+.check-list-container.error .control-label {
+  color: #b94a48;
+}
+
+.check-list-question-group.error .question-text {
+  color: #b94a48;
+}
+
+.check-list-question-group.error .radio-group label {
+  color: #b94a48;
+}
+
+/* Error message styling */
+.help-inline.text-error {
+  display: inline-block;
+  margin-left: 10px;
+  color: #b94a48;
+  font-weight: bold;
+}

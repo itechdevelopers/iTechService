@@ -9,12 +9,14 @@ class CheckListResponsesProcessor
     return true unless check_list_responses_params
 
     @model.check_list_responses.clear
-    
+
     check_list_responses_params.each do |_, response_attrs|
       next unless response_attrs[:check_list_id].present?
 
       response = find_or_initialize_response(response_attrs)
-      response.responses = response_attrs[:responses] || {}
+      # Filter responses to only include valid yes/no values
+      filtered_responses = filter_valid_responses(response_attrs[:responses])
+      response.responses = filtered_responses
 
       response.save! if response.changed?
     end
@@ -37,7 +39,8 @@ class CheckListResponsesProcessor
         check_list_id: response_attrs[:check_list_id]
       )
 
-      responses_data = response_attrs[:responses] || {}
+      # Filter responses to only include valid yes/no values
+      responses_data = filter_valid_responses(response_attrs[:responses])
 
       if existing_response
         existing_response.update!(responses: responses_data)
@@ -75,6 +78,15 @@ class CheckListResponsesProcessor
       check_list_id: response_attrs[:check_list_id]
     ) do |new_response|
       new_response.checkable = @model
+    end
+  end
+
+  def filter_valid_responses(responses_hash)
+    return {} unless responses_hash.is_a?(Hash)
+
+    # Only keep responses that are "yes", "no", or "true" (for backward compatibility)
+    responses_hash.select do |_, value|
+      ["yes", "no", "true"].include?(value)
     end
   end
 end

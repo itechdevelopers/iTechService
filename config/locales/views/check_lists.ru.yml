@@ -22,3 +22,11 @@ ru:
       service_job: "Сервисная работа"
       repair_task: "Ремонтная работа"
       device_task: "Ремонтная задача устройства"
+    errors:
+      required_question_not_answered: "Обязательный вопрос не отвечен: %{question}"
+      all_required_must_be_answered: "Все обязательные вопросы должны быть отвечены"
+      checklist_incomplete: "Чек-лист не заполнен полностью"
+    validation:
+      incomplete_checklist_alert: "Пожалуйста, заполните все обязательные вопросы чек-листов"
+      unanswered_required_question: "не отвечен обязательный вопрос"
+      unanswered_subordinate_question: "не отвечен обязательный вопрос в подвопросах"
