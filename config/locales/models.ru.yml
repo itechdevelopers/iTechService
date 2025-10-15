@@ -15,6 +15,7 @@ ru:
       cash_drawer: 'Касса'
       cash_shift: 'Кассовая смена'
       category: 'Категория'
+      check_list_response: 'Ответ чек-листа'
       city: 'Город'
       client: 'Клиент'
       client_category: 'Категория клиента'
