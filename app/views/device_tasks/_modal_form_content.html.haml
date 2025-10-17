@@ -43,25 +43,25 @@
                     %td= repair_part.warranty_term
 
 - else
-  = simple_form_for @device_task, html: { class: 'form-horizontal', remote: true } do |f|
-    .modal-header
-      %a.close{'data-dismiss' => 'modal', href: '#'}
-        %i.fa.fa-times-circle
-      %h3
-        = @device_task.service_job.type_name
+  .modal-header
+    %a.close{'data-dismiss' => 'modal', href: '#'}
+      %i.fa.fa-times-circle
+    %h3
+      = @device_task.service_job.type_name
 
-    .modal-body
-      .alert.alert-info
-        %strong= @device_task.task_name
-        %br
-        = @device_task.comment
+  .modal-body
+    .alert.alert-info
+      %strong= @device_task.task_name
+      %br
+      = @device_task.comment
 
-      - if f.object.errors.any?
-        .alert.alert-error
-          = f.object.errors.full_messages.join('. ')
+    - if @device_task.errors.any?
+      .alert.alert-error
+        = @device_task.errors.full_messages.join('. ')
 
-      .row-fluid
-        .span6
+    .row-fluid
+      .span6
+        = simple_form_for @device_task, html: { id: 'device_task_form', class: 'form-horizontal', remote: true } do |f|
           .control-group
             .controls= link_to t('.task_templates'), task_templates_path, remote: true, class: 'btn btn-link'
             #task_templates_container
@@ -85,24 +85,26 @@
                                 required: true, value_method: :first, label_method: :last
               = sj_form.association :location, as: :location
 
-        .span6
-          %b Заметки
-          .device_notes{id: "device_notes_#{service_job.id}"}= render service_job.device_notes.oldest_first, editable: false
+          - if can? :write_tech_notice, @device_task.service_job || ServiceJob
+            = f.simple_fields_for :service_job do |ff|
+              = ff.input :tech_notice, input_html: {rows: 3}
 
-      - if can? :write_tech_notice, @device_task.service_job || ServiceJob
-        = f.simple_fields_for :service_job do |ff|
-          = ff.input :tech_notice, input_html: {rows: 3}
+      .span6
+        %b Заметки
+        .device_notes{id: "device_notes_#{service_job.id}"}= render service_job.device_notes.oldest_first, editable: false
+        = render 'device_notes/form'
 
-      - if @device_task.is_repair? && can?(:repair, @device_task.service_job || ServiceJob)
-        %h4
-          = DeviceTask.human_attribute_name :repair_tasks
-          = link_to glyph(:plus) + t('device_tasks.add_repair_task').html_safe,
-                    choose_repair_services_path(device_task_id: @device_task.id),
-                    remote: true, id: 'choose_repair_service_link', class: 'btn btn-success btn-small'
-        - if f.object.errors.any?
-          - f.object.errors[:base].each do |error|
-            %p.text-error= error
-        #repair_services_choose_form_container.well.well-small
+    - if @device_task.is_repair? && can?(:repair, @device_task.service_job || ServiceJob)
+      %h4
+        = DeviceTask.human_attribute_name :repair_tasks
+        = link_to glyph(:plus) + t('device_tasks.add_repair_task').html_safe,
+                  choose_repair_services_path(device_task_id: @device_task.id),
+                  remote: true, id: 'choose_repair_service_link', class: 'btn btn-success btn-small'
+      - if @device_task.errors.any?
+        - @device_task.errors[:base].each do |error|
+          %p.text-error= error
+      #repair_services_choose_form_container.well.well-small
+      = simple_fields_for :device_task, @device_task, html: { form: 'device_task_form' } do |f|
         #repair_tasks= f.simple_fields_for(:repair_tasks) { |ff| render 'repair_task_fields', f: ff }
 
         - if @device_task.available_check_lists.any?
@@ -113,9 +115,9 @@
               .check-list-container.control-group
                 %label.control-label= check_list.name
                 .controls
-                  = hidden_field_tag "device_task[check_list_responses_attributes][#{index}][check_list_id]", check_list.id
+                  = hidden_field_tag "device_task[check_list_responses_attributes][#{index}][check_list_id]", check_list.id, form: 'device_task_form'
                   - if response.persisted?
-                    = hidden_field_tag "device_task[check_list_responses_attributes][#{index}][id]", response.id
+                    = hidden_field_tag "device_task[check_list_responses_attributes][#{index}][id]", response.id, form: 'device_task_form'
 
                   - if check_list.has_main_question?
                     - # Render main question separately with radio buttons
@@ -133,7 +135,8 @@
                                             current_answer == "yes" || current_answer == "true",
                                             id: "device_task_check_list_responses_attributes_#{index}_responses_#{main_item.id}_yes",
                                             class: 'main-question-radio',
-                                            required: main_item.required?
+                                            required: main_item.required?,
+                                            form: 'device_task_form'
                           = t('yep')
                         %label.radio.inline
                           = radio_button_tag "device_task[check_list_responses_attributes][#{index}][responses][#{main_item.id}]",
@@ -141,7 +144,8 @@
                                             current_answer == "no",
                                             id: "device_task_check_list_responses_attributes_#{index}_responses_#{main_item.id}_no",
                                             class: 'main-question-radio',
-                                            required: main_item.required?
+                                            required: main_item.required?,
+                                            form: 'device_task_form'
                           = t('simple_form.no')
 
                     - # Render subordinate questions in a container
@@ -160,14 +164,16 @@
                                                 "yes",
                                                 item_answer == "yes" || item_answer == "true",
                                                 id: "device_task_check_list_responses_attributes_#{index}_responses_#{item.id}_yes",
-                                                required: item.required?
+                                                required: item.required?,
+                                                form: 'device_task_form'
                               = t('yep')
                             %label.radio.inline
                               = radio_button_tag "device_task[check_list_responses_attributes][#{index}][responses][#{item.id}]",
                                                 "no",
                                                 item_answer == "no",
                                                 id: "device_task_check_list_responses_attributes_#{index}_responses_#{item.id}_no",
-                                                required: item.required?
+                                                required: item.required?,
+                                                form: 'device_task_form'
                               = t('simple_form.no')
                   - else
                     - # No main question, render all items normally with radio buttons
@@ -184,14 +190,18 @@
                                               "yes",
                                               item_answer == "yes" || item_answer == "true",
                                               id: "device_task_check_list_responses_attributes_#{index}_responses_#{item.id}_yes",
-                                              required: item.required?
+                                              required: item.required?,
+                                              form: 'device_task_form'
                             = t('yep')
                           %label.radio.inline
                             = radio_button_tag "device_task[check_list_responses_attributes][#{index}][responses][#{item.id}]",
                                               "no",
                                               item_answer == "no",
                                               id: "device_task_check_list_responses_attributes_#{index}_responses_#{item.id}_no",
-                                              required: item.required?
+                                              required: item.required?,
+                                              form: 'device_task_form'
                             = t('simple_form.no')
-    .modal-footer
-      = submit_button f
+
+  .modal-footer
+    %button.btn.btn-primary{type: 'submit', form: 'device_task_form'}
+      = t('helpers.submit.save')
