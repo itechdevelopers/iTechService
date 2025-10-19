@@ -12,6 +12,7 @@ class DeviceTasksController < ApplicationController
 
   def update
     @device_task = find_record DeviceTask
+    build_device_note
 
     # Filter service job attributes based on permissions
     filtered_params = device_task_params.to_h
