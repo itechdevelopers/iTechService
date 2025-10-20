@@ -22,6 +22,9 @@ class DeviceTasksController < ApplicationController
       end
     end
 
+    # Capture original location_id to track changes
+    original_location_id = @device_task.service_job.location_id
+
     operation = Service::DeviceTasks::Update.new.with_step_args(
       validate: [@device_task],
       save: [current_user],
@@ -29,7 +32,14 @@ class DeviceTasksController < ApplicationController
     )
 
     operation.call(filtered_params) do |m|
-      m.success { |_| render('update') }
+      m.success do |_|
+        # Check if location changed (excluding nil values)
+        current_location_id = @device_task.service_job.reload.location_id
+        @service_job_location_changed = original_location_id.present? &&
+                                         current_location_id.present? &&
+                                         original_location_id != current_location_id
+        render('update')
+      end
       m.failure { |_| render('shared/show_modal_form') }
     end
   end
