@@ -41,7 +41,7 @@ class API < Grape::API
     def authorize(action, record)
       query = "#{action}?"
       policy = Pundit.policy(current_user, record)
-      raise NotAuthorizedError, query: query, record: record, policy: policy unless policy.public_send(query)
+      raise Pundit::NotAuthorizedError, query: query, record: record, policy: policy unless policy.public_send(query)
       record
     end
 
@@ -87,5 +87,6 @@ class API < Grape::API
   mount QuickOrderApi
   mount RepairApi
   mount OrderApi
+  mount OneCOrderApi
   mount TradeInApi
 end

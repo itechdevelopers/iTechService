@@ -63,25 +63,15 @@ module Orders
     end
 
     def format_status_for_one_c
-      # Special case for 'notified' status to use "Уведомлен" instead of "Уведомлён"
-      status_text = if order.status == 'notified'
-                      'Уведомлен'
-                    else
-                      I18n.t("orders.statuses.#{order.status}")
-                    end
-      
-      # Convert to camelCase: split by spaces, capitalize each word, join without spaces
-      status_text.split(' ').map(&:capitalize).join
+      # Use OrderStatusTranslator for consistent translation
+      OrderStatusTranslator.to_cyrillic(order.status, type: :status) || order.status
     end
 
     def format_archive_reason_for_one_c
       return '' unless order.status == 'archive' && order.archive_reason.present?
-      
-      # Translate archive reason to Russian, then format as camelCase
-      reason_text = I18n.t("orders.archive_reasons.#{order.archive_reason}")
-      
-      # Convert to camelCase: split by spaces, capitalize each word, join without spaces
-      reason_text.split(' ').map(&:capitalize).join
+
+      # Use OrderStatusTranslator for consistent translation
+      OrderStatusTranslator.to_cyrillic(order.archive_reason, type: :archive_reason) || order.archive_reason
     end
   end
 end

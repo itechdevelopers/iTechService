@@ -44,6 +44,9 @@ class Order < ApplicationRecord
 
   mount_uploader :picture, OrderPictureUploader
 
+  # Flag to skip 1C sync callbacks when updating from 1C API
+  attr_accessor :skip_one_c_sync
+
   delegate :name, to: :department, prefix: true, allow_nil: true
   validates :customer, :department, :quantity, :object, :object_kind, presence: true
   validates :priority, numericality: { greater_than_or_equal_to: 0, less_than_or_equal_to: 10 }
@@ -314,6 +317,9 @@ class Order < ApplicationRecord
   end
 
   def trigger_one_c_deletion_on_archive
+    # Skip if updating from 1C API
+    return if skip_one_c_sync
+
     # Only trigger if status changed to archive
     if saved_change_to_status? && status == 'archive'
       # Only delete if order was synced to 1C
@@ -327,6 +333,9 @@ class Order < ApplicationRecord
   end
 
   def trigger_one_c_status_update
+    # Skip if updating from 1C API
+    return if skip_one_c_sync
+
     # Only trigger if status changed and order is synced
     if saved_change_to_status? && one_c_synced?
       Rails.logger.info "[Order] Triggering 1C status update for order #{id}"

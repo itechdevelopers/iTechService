@@ -37,4 +37,15 @@ class OrderPolicy < CommonPolicy
   def delete_from_one_c?
     change_status?
   end
+
+  # Authorization for 1C API endpoints
+  def update_status_from_one_c?
+    # Only allow API role users (machine tokens for 1C integration)
+    has_role?(:api)
+  end
+
+  def read_from_one_c?
+    # Allow API role to read order status
+    has_role?(:api) || read?
+  end
 end
