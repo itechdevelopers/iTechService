@@ -6,7 +6,6 @@ class DeviceTasksController < ApplicationController
   def edit
     @device_task = find_record DeviceTask
     @modal = "device-task-#{@device_task.id}"
-    build_device_note
     render 'shared/show_modal_form'
   end
 
@@ -42,11 +41,6 @@ class DeviceTasksController < ApplicationController
       end
       m.failure { |_| render('shared/show_modal_form') }
     end
-  end
-
-  def build_device_note
-    @service_job = @device_task.service_job
-    @device_note = DeviceNote.new user_id: current_user.id, service_job_id: @service_job.id
   end
 
   def device_task_params
