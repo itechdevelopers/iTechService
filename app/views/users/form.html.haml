@@ -80,8 +80,8 @@
 
       = f.input :role, collection: accessible_roles, value_method: :to_s, label_method: lambda{|role|t("users.roles.#{role}")}
       = f.input :is_senior, as: :boolean, checked_value: :true, unchecked_value: :false
-      - if can? :manage_rights, User
-        .row-fluid
+      .row-fluid
+        - if can? :manage_rights, User
           .control-group.span6
             %label.control-label= User.human_attribute_name :abilities
             .controls
@@ -91,6 +91,7 @@
                   = t("users.abilities.#{ability.name}")
               = hidden_field_tag 'user[ability_ids][]', ''
 
+        - if can? :manage_activities, User
           .control-group.span6
             %label.control-label= User.human_attribute_name :activities
             .controls

@@ -770,7 +770,18 @@ class User < ApplicationRecord
   end
 
   def validate_rights_changing
-    if (changed_attributes[:role].present? || changed_attributes[:abilities].present?) && !User.current.superadmin?
+    return if User.current&.superadmin?
+
+    role_changing = changed_attributes[:role].present?
+
+    # Check if ability_ids have changed by comparing with database
+    ability_ids_changing = if new_record?
+      ability_ids.present?
+    else
+      ability_ids.sort != abilities.pluck(:id).sort
+    end
+
+    if role_changing || ability_ids_changing
       errors[:base] << 'Rights changing denied!'
     end
   end

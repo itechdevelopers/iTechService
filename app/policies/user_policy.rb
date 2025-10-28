@@ -24,6 +24,10 @@ class UserPolicy < BasePolicy
     superadmin?
   end
 
+  def manage_activities?
+    any_admin?
+  end
+
   def profile?; true; end
 
   def update_wish?
