@@ -4,15 +4,21 @@ class ItemsController < ApplicationController
   def index
     authorize Item
 
-    if params[:product_id].blank?
-      @items = policy_scope(Item).search(search_params)
+    if params[:product_id].present?
+      @product = Product.find(params[:product_id])
+      @items = policy_scope(@product.items).search(search_params)
+      @feature_types = @product.feature_types
+    elsif params[:product_group_id].present?
+      # Filter by product group (without descendants)
+      @items = policy_scope(Item).joins(:product).where(products: { product_group_id: params[:product_group_id] }).search(search_params)
       @feature_types = []
       @items.each { |item| @feature_types + item.feature_types.to_a }
       @feature_types.uniq!
     else
-      @product = Product.find(params[:product_id])
-      @items = policy_scope(@product.items).search(search_params)
-      @feature_types = @product.feature_types
+      @items = policy_scope(Item).search(search_params)
+      @feature_types = []
+      @items.each { |item| @feature_types + item.feature_types.to_a }
+      @feature_types.uniq!
     end
 
     # if (@form = params[:form]) == 'sale'

@@ -22,6 +22,7 @@ $(document).on 'keyup', '#product_choose_form #item_search_field', ->
     $.get '/items.js',
       q: q,
       product_id: $('#selected_product').val(),
+      product_group_id: $('#selected_product_group').val(),
       choose: true,
       form: $('#modal_form #form').val(),
       association: $('#modal_form #association').val()
