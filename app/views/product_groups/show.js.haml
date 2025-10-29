@@ -6,6 +6,7 @@
   :plain
     $("#resource_table").html("#{j(render(params[:table_name] || 'products/table'))}");
     $('#product_choose_form  #product_items').hide();
+    $('#product_choose_form #selected_product_group').val("#{@product_group.id}");
     $('#new_product_link').removeAttr('disabled');
     $('#new_product_link').attr('href', "#{new_product_path(product: {product_group_id: @product_group.id})}");
     window.initRepairServicesMultiselect();
