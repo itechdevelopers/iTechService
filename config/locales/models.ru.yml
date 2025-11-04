@@ -687,6 +687,7 @@ ru:
       user_settings:
         fixed_main_menu: Зафиксировать основное меню
         auto_department_detection: Автоматическое определение подразделения в заказах
+        receive_location_task_notifications: Получать уведомления о новых задачах на локации
 
     errors:
       models:

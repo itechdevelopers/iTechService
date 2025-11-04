@@ -378,7 +378,7 @@ class User < ApplicationRecord
   end
 
   def dismissed_info
-    if dismissed_date
+    if is_fired && dismissed_date
       "#{dismissed_date&.strftime('%d.%m.%Y')} #{dismissal_reason&.name}. Комментарий: #{dismissal_comment}"
     else
       '-'
