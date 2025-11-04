@@ -253,6 +253,7 @@
           = simple_form_for @user.user_settings, url: update_user_settings_user_path(@user), method: :patch do |f|
             = f.input :fixed_main_menu
             = f.input :auto_department_detection
+            = f.input :receive_location_task_notifications
             = submit_button f
 
       #notifications_tab.tab-pane
