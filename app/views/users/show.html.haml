@@ -99,8 +99,9 @@
           %dt= User.human_attribute_name :hiring_date
           %dd= @user.hiring_date.present? ? human_date(@user.hiring_date) : '-'
 
-          %dt= User.human_attribute_name :dismissed_date
-          %dd= @user.dismissed_info
+          - if @user.is_fired
+            %dt= User.human_attribute_name :dismissed_date
+            %dd= @user.dismissed_info
 
           %dt= User.human_attribute_name :prepayment
           %dd= @user.prepayment.present? ? @user.prepayment : '-'
