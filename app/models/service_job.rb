@@ -119,6 +119,7 @@ class ServiceJob < ApplicationRecord
   after_save :update_tasks_cost
   after_create :new_service_job_announce
   after_create :create_alert
+  after_create :schedule_location_notifications
   after_update :service_job_update_announce
   after_update :deduct_spare_parts
   after_update :clear_subscriptions_if_done_or_archived
@@ -582,5 +583,9 @@ kind: 'device_return', content: id.to_s)
 
   def security_code_predefined?
     I18n.t("service_jobs.security_codes").keys.include?(security_code.to_sym)
+  end
+
+  def schedule_location_notifications
+    ServiceJobNotificationJob.perform_later(id)
   end
 end
