@@ -43,7 +43,6 @@ class DeviceTask < ApplicationRecord
   validate :valid_repair if :is_repair?
   validates_associated :repair_tasks
   after_commit :update_service_job_done_attribute
-  after_create :schedule_location_notifications
   # after_save :deduct_spare_parts if :is_repair?
   after_initialize :set_performer
 
@@ -161,9 +160,5 @@ class DeviceTask < ApplicationRecord
     if performer_id.nil? && done && (user = history_records.task_completions.order_by_newest.where(new_value: true).first.try(:user)).present?
       update_attribute :performer_id, user.id
     end
-  end
-
-  def schedule_location_notifications
-    DeviceTaskNotificationJob.perform_later(id)
   end
 end
