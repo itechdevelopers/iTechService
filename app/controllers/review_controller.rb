@@ -4,9 +4,19 @@ class ReviewController < ActionController::Base
   # GET /review/<token>
   def edit
     if @review && (@review.reviewed_at.nil? || @review.reviewed_at > 10.minutes.ago)
-      MarkReviewViewedJob.perform_later(@review.id)
+      # Client-side JavaScript will call mark_viewed after 2 seconds
     else
       redirect_to '/review'
+    end
+  end
+
+  # POST /review/<token>/mark_viewed
+  def mark_viewed
+    if @review&.sent?
+      @review.viewed!
+      render json: { success: true }
+    else
+      render json: { success: false }, status: :unprocessable_entity
     end
   end
 

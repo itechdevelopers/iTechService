@@ -58,6 +58,7 @@ Rails.application.routes.draw do
   resources :reports, only: [:index, :new, :create]
   resources :reviews
   get   'review/:token', to: 'review#edit'
+  post  'review/:token/mark_viewed', to: 'review#mark_viewed'
   patch 'review/:token', to: 'review#update'
   get :review, to: 'review#welcome'
 
