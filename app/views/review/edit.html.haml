@@ -1,6 +1,6 @@
 = stylesheet_link_tag 'review.css'
 
-.card.feedback
+.card.feedback{ data: { review_token: @review.token, csrf_token: form_authenticity_token } }
   .card-body
     .card-title
       - if (service_job = @review.service_job)
