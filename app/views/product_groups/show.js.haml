@@ -5,6 +5,16 @@
 - else
   :plain
     $("#resource_table").html("#{j(render(params[:table_name] || 'products/table'))}");
+
+    // Update search form's hidden group field
+    var $searchForm = $('#search_form');
+    var $groupField = $searchForm.find('input[name="group"]');
+    if ($groupField.length > 0) {
+      $groupField.val("#{@product_group.id}");
+    } else {
+      $searchForm.prepend('<input type="hidden" name="group" value="#{@product_group.id}">');
+    }
+
     $('#product_choose_form  #product_items').hide();
     $('#product_choose_form #selected_product_group').val("#{@product_group.id}");
     $('#new_product_link').removeAttr('disabled');

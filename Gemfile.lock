@@ -44,7 +44,6 @@ GEM
     active_interaction (4.1.0)
       activemodel (>= 5, < 8)
       activesupport (>= 5, < 8)
-    active_record_query_trace (1.8.1)
     activejob (5.1.7)
       activesupport (= 5.1.7)
       globalid (>= 0.3.6)
@@ -720,7 +719,6 @@ PLATFORMS
 DEPENDENCIES
   RedCloth (~> 4.3.1)
   active_interaction (~> 4.1.0)
-  active_record_query_trace
   acts_as_list (~> 1.0.4)
   ancestry (~> 3.2.1)
   audited (~> 5.4.3)
