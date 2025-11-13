@@ -55,6 +55,18 @@
         $(this).siblings('.show_item_btn').attr('href', "/devices/" + ui.item.value + ".js").attr('data-remote', true)
         App.Inputs.Device.check_imei()
         App.Inputs.Device.check_1c_status()
+
+        // Auto-populate trademark and device_group from product_group (v2 only)
+        var $form = $(this).closest('form.service_job_form')
+        if ($form.data('form-version') === 'v2') {
+          if (ui.item.trademark !== undefined && ui.item.trademark !== null) {
+            $('#service_job_trademark').val(ui.item.trademark)
+          }
+          if (ui.item.product_line !== undefined && ui.item.product_line !== null) {
+            $('#service_job_device_group').val(ui.item.product_line)
+          }
+        }
+
         return false
       },
       search: function( event, ui ) {
