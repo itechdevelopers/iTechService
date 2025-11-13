@@ -1,11 +1,9 @@
 - service_job = @service_job.decorate
 = auto_header_tag @service_job
-- is_v2 = action_name == 'new_v2' || action_name == 'create_v2'
-- form_url = is_v2 && @service_job.new_record? ? create_v2_service_jobs_path : nil
 
 .row-fluid
   .span6
-    = simple_form_for @service_job, url: form_url, html: { class: 'form-horizontal service_job_form' } do |f|
+    = simple_form_for @service_job, url: create_v2_service_jobs_path, html: { class: 'form-horizontal service_job_form', data: { form_version: 'v2' } } do |f|
 
       - if @service_job.errors.any?
         .alert.alert-danger= @service_job.errors.full_messages.join '. '
@@ -61,12 +59,6 @@
 
       = f.association :case_color, as: :dropdown, collection: CaseColor.ordered_by_name, label_method: lambda{|c|case_color_presentation(c)}
 
-      = f.input :data_storages, as: :data_storage
-
-      = f.input :comment, input_html: {rows: 5}, disabled: !can?(:update, @service_job)
-
-      = f.input :tech_notice, input_html: {rows: 5} if can? :write_tech_notice, @service_job
-
       #additional-fields
         -# TODO: make input for fields with templates
         = f.input :client_address, label_html: {class: 'important'}, input_html: {class: 'input-xlarge'}
@@ -80,9 +72,6 @@
         = f.input :estimated_cost_of_repair, label_html: {class: 'important'}, input_html: {class: 'input-xlarge has-templates', data: service_job_template_field_data('estimated_cost_of_repair', @job_templates)}
 
         #service-job_templates
-
-      = f.input :notify_client if @service_job.new_record? or current_user.any_admin?
-      = f.input :client_notified, as: :radio_buttons, collection: [[true, t('yep')], [false, t('not_accessible')]], required: true, value_method: :first, label_method: :last if @service_job.notify_client?
 
       = f.input :email, hint: t('.email_hint')
 
@@ -186,8 +175,6 @@
                         = t('simple_form.no')
 
       -# = f.input :photo_container, as: :photo_container
-      %hr
-      = render 'task_templates'
 
       -if f.error(:device_tasks).present?
         .control-group.required.error

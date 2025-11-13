@@ -127,6 +127,18 @@ class ServiceJobsController < ApplicationController
     end
   end
 
+  def new_v2
+    new_params = service_job_params rescue {}
+    @service_job = authorize ServiceJob.new(new_params), :new_v2?
+    @service_job.department_id = current_user.department_id
+    prepare_check_list_data
+
+    respond_to do |format|
+      format.html { render_form }
+      format.json { render json: @service_job }
+    end
+  end
+
   def edit
     @service_job = find_record ServiceJob.includes(:device_notes)
     prepare_check_list_data
@@ -141,6 +153,28 @@ class ServiceJobsController < ApplicationController
 
   def create
     @service_job = authorize ServiceJob.new(service_job_params)
+    @service_job.initial_department = current_user.department
+
+    respond_to do |format|
+      if @service_job.save
+        create_phone_substitution if @service_job.phone_substituted?
+        Service::Feedback::Create.call(service_job: @service_job)
+
+        processor = CheckListResponsesProcessor.new(@service_job, 'service_job')
+        processor.process(params, strategy: :create)
+
+        format.html { redirect_to @service_job, notice: t('service_jobs.created') }
+        format.json { render json: @service_job, status: :created, location: @service_job }
+      else
+        prepare_check_list_data
+        format.html { render_form }
+        format.json { render json: @service_job.errors, status: :unprocessable_entity }
+      end
+    end
+  end
+
+  def create_v2
+    @service_job = authorize ServiceJob.new(service_job_params), :create_v2?
     @service_job.initial_department = current_user.department
 
     respond_to do |format|
@@ -413,7 +447,8 @@ class ServiceJobsController < ApplicationController
 
   def render_form
     set_job_templates
-    render 'form'
+    template = action_name.include?('v2') ? 'form_v2' : 'form'
+    render template
   end
 
   def set_job_templates

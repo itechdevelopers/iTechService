@@ -789,7 +789,7 @@ ru:
     managers: 'Ответственные'
     allowed_user_ids: 'Доска доступна для пользователей'
     trademark: 'Торговая марка'
-    product_line: 'Группа девайсов'
+    product_line: 'Группа изделий'
 
   activerecord:
     <<: *activemodel

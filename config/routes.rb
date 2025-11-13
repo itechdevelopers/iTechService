@@ -156,6 +156,8 @@ Rails.application.routes.draw do
     post :create_sale, on: :member
     patch :set_keeper, on: :member, defaults: { format: 'js' }
     put :archive, on: :member, defaults: { format: 'js' }
+    get :new_v2, on: :collection
+    post :create_v2, on: :collection
     resources :device_notes, only: %i[index new create update], shallow: true
     scope module: :service_jobs do
       resource :subscription, only: %i[create destroy], format: :js

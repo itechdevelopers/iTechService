@@ -54,6 +54,15 @@ jQuery ->
       button = $(this).closest('.btn-group').find('.dropdown-toggle')
       button.text($(this).text())
 
+      # Auto-populate client_comment when any "no password" option selected (v2 only)
+      if value in ['none', 'not_provided', 'not_known']
+        $form = $(this).closest('form.service_job_form')
+        if $form.data('form-version') == 'v2'
+          $clientComment = $form.find('#service_job_client_comment')
+          if $clientComment.length > 0
+            commentText = 'Ввиду отсутствия пароля проверить работоспособность всех функций не предоставляется возможным'
+            $clientComment.val(commentText)
+
     $('#service_job_contact_phone_none').click (event)->
       $('#service_job_contact_phone').val '-'
       event.preventDefault()
