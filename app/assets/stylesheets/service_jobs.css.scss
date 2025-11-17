@@ -35,6 +35,60 @@ form.service_job_form{
       width: 30px;
     }
     width: 625px;
+
+    // Extended row for task-specific behavior (e.g., repair selection)
+    .task-extended-row {
+      .task-extended-content {
+        background-color: #f9f9f9;
+        padding: 15px;
+        margin: 5px 0;
+
+        h5 {
+          margin-top: 0;
+          margin-bottom: 15px;
+          color: #3a87ad;
+          font-weight: bold;
+
+          i {
+            margin-right: 5px;
+          }
+        }
+
+        .control-group {
+          margin-bottom: 15px;
+
+          label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: bold;
+          }
+
+          select {
+            width: 100%;
+            max-width: 400px;
+          }
+        }
+
+        .repair-info {
+          margin-top: 15px;
+          padding: 10px;
+
+          p {
+            margin: 5px 0;
+
+            strong {
+              display: inline-block;
+              width: 80px;
+            }
+
+            .repair-price,
+            .repair-time {
+              font-weight: normal;
+            }
+          }
+        }
+      }
+    }
   }
 
   #service_job_contact_phone{

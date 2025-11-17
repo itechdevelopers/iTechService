@@ -1,4 +1,4 @@
-<tr class="device_task fields">
+<tr class="device_task fields" data-task-id="<%= f.object.task_id %>">
   <td class="task_type">
     <%= f.input :task_id,
                 as: :custom_select,
@@ -16,5 +16,17 @@
   </td>
   <td class="task_actions">
     <%= link_to_remove_fields f %>
+  </td>
+</tr>
+
+<!-- Extended row for task-specific behavior (e.g., repair selection) -->
+<tr class="task-extended-row" style="display:none;">
+  <td colspan="4">
+    <div class="task-extended-content well well-small">
+      <%= render 'service_jobs/repair_selection_form',
+                 f: f,
+                 product_id: defined?(@service_job) ? @service_job.item&.product_id : nil,
+                 department_id: defined?(@service_job) ? @service_job.department_id : nil %>
+    </div>
   </td>
 </tr>

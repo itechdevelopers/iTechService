@@ -244,6 +244,15 @@ class ProductsController < ApplicationController
     redirect_to products_path
   end
 
+  def repair_services
+    @product = Product.find(params[:id])
+    @repair_services = @product.repair_services.not_archived
+
+    render json: @repair_services.map { |rs|
+      { id: rs.id, name: rs.name }
+    }
+  end
+
   private
 
   def generate_svg_qr(link)

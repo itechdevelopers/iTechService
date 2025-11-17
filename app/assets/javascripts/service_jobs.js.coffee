@@ -13,11 +13,17 @@ jQuery ->
 
     $(document).on 'click', '.device_task_task .custom-option', () ->
       task_id = $(this).data('value')
+      task_code = $(this).data('code')
+      task_name = $(this).text().trim()
       $row = $(this).parents('.device_task')
+      $extendedRow = $row.next('.task-extended-row')
       task_cost = $row.find('.device_task_cost')
       is_change_location = $row.is(':first-child')
       item_id = $('#service_job_item_id').val()
       department_id = $('[name="service_job[department_id]"]:checked').val()
+
+      # Update data attribute on row
+      $row.attr('data-task-code', task_code)
 
       $.getJSON "/tasks/#{task_id}.json", {department_id: department_id}, (data)->
         task_cost.val data.cost
@@ -27,7 +33,14 @@ jQuery ->
           $('#location_value').text(data.location_name)
 
         if data['is_repair?']
-          document.getElementById('service_job_notify_client').checked = true
+          notifyCheckbox = document.getElementById('service_job_notify_client')
+          notifyCheckbox.checked = true if notifyCheckbox
+
+        # Show extended block for "Ремонт" task
+        if task_code == 'repair' || task_name == 'Ремонт'
+          showRepairSelection($extendedRow)
+        else
+          hideRepairSelection($extendedRow)
 
       $.getJSON "/tasks/#{task_id}/device_validation", {item_id: item_id}, (data)->
         alert(data['message']) if data['message']
@@ -214,3 +227,120 @@ $(document).on 'click', '#completion_act_link', ->
 #TODO implement via cable
 #PrivatePub.subscribe '/service_jobs/returning_alert', (data, channel)->
 #  $.getScript '/announcements/'+data.announcement_id
+
+# ========== Repair Selection Functions ==========
+
+window.showRepairSelection = ($extendedRow) ->
+  $content = $extendedRow.find('.repair-selection')
+
+  # Dynamically get item_id from form
+  item_id = $('#service_job_item_id').val()
+
+  unless item_id
+    alert('Сначала выберите устройство')
+    return
+
+  # Get product_id via AJAX
+  $.getJSON "/items/#{item_id}.json", (item_data) ->
+    product_id = item_data.product_id
+    department_id = $('[name="service_job[department_id]"]:checked').val()
+
+    unless product_id
+      alert('У выбранного устройства не указан продукт')
+      return
+
+    # Load repair services for product
+    $.getJSON "/products/#{product_id}/repair_services.json", {department_id: department_id}, (repair_services) ->
+      $select = $content.find('.repair-service-select')
+      $select.html('<option value="">Выберите вид ремонта</option>')
+
+      $.each repair_services, (i, service) ->
+        $select.append("<option value='#{service.id}'>#{service.name}</option>")
+
+      # Show extended row
+      $extendedRow.fadeIn()
+
+      # Clear previous selections
+      resetRepairCauseSelection($content)
+      hideRepairInfo($content)
+
+window.hideRepairSelection = ($extendedRow) ->
+  $extendedRow.fadeOut()
+  resetRepairSelection($extendedRow.find('.repair-selection'))
+
+# When repair service selected → load causes
+$(document).on 'change', '.repair-service-select', ->
+  $select = $(this)
+  service_id = $select.val()
+  $container = $select.closest('.repair-selection')
+  department_id = $container.data('department-id')
+
+  if service_id
+    # Load repair causes + price/time data
+    $.getJSON "/repair_services/#{service_id}.json", {department_id: department_id}, (data) ->
+      # Populate repair causes
+      populateRepairCauses($container, data.repair_causes)
+
+      # Display price and time info
+      displayRepairInfo($container, data)
+  else
+    resetRepairCauseSelection($container)
+    hideRepairInfo($container)
+
+# Populate repair causes dropdown
+populateRepairCauses = ($container, repair_causes) ->
+  $select = $container.find('.repair-cause-select')
+  $group = $container.find('.repair-cause-group')
+
+  if repair_causes && repair_causes.length > 0
+    $select.html('<option value="">Выберите причину</option>')
+
+    $.each repair_causes, (i, cause) ->
+      $select.append("<option value='#{cause.id}'>#{cause.name}</option>")
+
+    $group.fadeIn()
+  else
+    $select.html('')
+    $group.hide()
+
+# Display repair info (price and time)
+displayRepairInfo = ($container, data) ->
+  $info = $container.find('.repair-info')
+
+  # Price (with range support)
+  if data.price
+    if data.price.is_range_price
+      price_text = "#{data.price.value_from} - #{data.price.value_to} ₽"
+    else
+      price_text = "#{data.price.value} ₽"
+    $info.find('.repair-price').text(price_text)
+  else
+    $info.find('.repair-price').text('Не указана')
+
+  # Time (with range support)
+  if data.time_standard_from && data.time_standard_to
+    time_text = "#{data.time_standard_from} - #{data.time_standard_to} мин"
+  else if data.time_standard
+    time_text = "#{data.time_standard} мин"
+  else if data.repair_time
+    time_text = "#{data.repair_time} мин"
+  else
+    time_text = 'Не указано'
+  $info.find('.repair-time').text(time_text)
+
+  $info.fadeIn()
+
+# Reset repair cause selection
+resetRepairCauseSelection = ($container) ->
+  $container.find('.repair-cause-select').html('')
+  $container.find('.repair-cause-group').hide()
+
+# Hide repair info
+hideRepairInfo = ($container) ->
+  $container.find('.repair-info').hide()
+
+# Full reset of repair selection
+resetRepairSelection = ($container) ->
+  $container.find('.repair-service-select').html('<option value="">Выберите вид ремонта</option>')
+  resetRepairCauseSelection($container)
+  hideRepairInfo($container)
