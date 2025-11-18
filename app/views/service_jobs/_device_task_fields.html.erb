@@ -19,14 +19,17 @@
   </td>
 </tr>
 
-<!-- Extended row for task-specific behavior (e.g., repair selection) -->
-<tr class="task-extended-row" style="display:none;">
-  <td colspan="4">
-    <div class="task-extended-content well well-small">
-      <%= render 'service_jobs/repair_selection_form',
-                 f: f,
-                 product_id: defined?(@service_job) ? @service_job.item&.product_id : nil,
-                 department_id: defined?(@service_job) ? @service_job.department_id : nil %>
-    </div>
-  </td>
-</tr>
+<% # Extended row for task-specific behavior (only for form_v2) %>
+<% if defined?(@service_job) && @service_job.new_record? && request.path.include?('new_v2') %>
+  <!-- Extended row for task-specific behavior (e.g., repair selection) -->
+  <tr class="task-extended-row" style="display:none;">
+    <td colspan="4">
+      <div class="task-extended-content well well-small">
+        <%= render 'service_jobs/repair_selection_form',
+                   f: f,
+                   product_id: @service_job.item&.product_id,
+                   department_id: @service_job.department_id %>
+      </div>
+    </td>
+  </tr>
+<% end %>
