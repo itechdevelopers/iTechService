@@ -62,20 +62,22 @@ class ItemsController < ApplicationController
   def show
     @item = find_record Item
 
-    # respond_to do |format|
-    #   format.pdf do
-    #     filename = "product_tag_#{@item.barcode_num}.pdf"
-    #     if params[:print]
-    #       pdf = ProductTagPdf.new @item, view_context, params
-    #       filepath = "#{Rails.root}/tmp/pdf/#{filename}"
-    #       pdf.render_file filepath
-    #       PrinterTools.print_file filepath, type: :tags, printer: current_department.printer
-    #     else
-    #       pdf = ProductTagPdf.new @item, view_context, params
-    #     end
-    #     send_data pdf.render, filename: filename, type: 'application/pdf', disposition: 'inline'
-    #   end
-    # end
+    respond_to do |format|
+      format.html
+      format.json { render json: @item }
+      # format.pdf do
+      #   filename = "product_tag_#{@item.barcode_num}.pdf"
+      #   if params[:print]
+      #     pdf = ProductTagPdf.new @item, view_context, params
+      #     filepath = "#{Rails.root}/tmp/pdf/#{filename}"
+      #     pdf.render_file filepath
+      #     PrinterTools.print_file filepath, type: :tags, printer: current_department.printer
+      #   else
+      #     pdf = ProductTagPdf.new @item, view_context, params
+      #   end
+      #   send_data pdf.render, filename: filename, type: 'application/pdf', disposition: 'inline'
+      # end
+    end
   end
 
   def new

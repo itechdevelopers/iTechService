@@ -285,6 +285,7 @@ Rails.application.routes.draw do
     get :department_colors, on: :collection, defaults: {format: :json}
     get :related, on: :member, defaults: {format: :js}
     get :show_qr, on: :member, defaults: {format: :js}
+    get :repair_services, on: :member, defaults: {format: :json}
     post :select, on: :collection, defaults: {format: :js}
     get :find, on: :collection
     patch :update_repair_services, on: :collection, defaults: {format: :js}

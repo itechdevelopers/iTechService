@@ -31,6 +31,23 @@ class RepairServicesController < ApplicationController
     @repair_service = find_record RepairService
     respond_to do |format|
       format.html
+      format.json do
+        department_id = params[:department_id] || current_department&.id
+        department = Department.find(department_id) if department_id
+
+        render json: {
+          id: @repair_service.id,
+          name: @repair_service.name,
+          repair_causes: @repair_service.repair_causes.map { |rc|
+            { id: rc.id, name: rc.title }
+          },
+          price: price_json(@repair_service, department),
+          time_standard: @repair_service.time_standard,
+          time_standard_from: @repair_service.time_standard_from,
+          time_standard_to: @repair_service.time_standard_to,
+          repair_time: @repair_service.repair_time
+        }
+      end
     end
   end
 
@@ -150,6 +167,20 @@ class RepairServicesController < ApplicationController
   end
 
   private
+
+  def price_json(repair_service, department)
+    return nil unless department
+
+    price = repair_service.price(department)
+    return nil unless price
+
+    {
+      value: price.value,
+      is_range_price: price.is_range_price,
+      value_from: price.value_from,
+      value_to: price.value_to
+    }
+  end
 
   def update_prices(repair_service_id, prices, has_range_prices)
     has_range_prices = has_range_prices || false

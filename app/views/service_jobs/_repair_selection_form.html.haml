@@ -1,0 +1,26 @@
+.repair-selection{data: {product_id: product_id, department_id: department_id}}
+  %h5
+    %i.icon-wrench
+
+  .control-group
+    %label Вид ремонта
+    = select_tag "#{f.object_name}[repair_service_id]",
+      options_for_select([]),
+      class: 'repair-service-select form-control',
+      prompt: 'Выберите вид ремонта',
+      data: { product_id: product_id }
+
+  .control-group.repair-cause-group{style: 'display:none;'}
+    %label Причина ремонта
+    = select_tag "#{f.object_name}[repair_cause_id]",
+      options_for_select([]),
+      class: 'repair-cause-select form-control',
+      prompt: 'Выберите причину'
+
+  .repair-info.alert.alert-info{style: 'display:none;'}
+    %p
+      %strong Цена:
+      %span.repair-price
+    %p
+      %strong Время:
+      %span.repair-time
