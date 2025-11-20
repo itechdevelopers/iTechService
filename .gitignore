@@ -76,6 +76,7 @@ node_modules/
 .windsurfrules
 
 # Documentation files
+docs/
 NOTIFICATIONS_IMPLEMENTATION_GUIDE.md
 
 # Claude Code workflow files
