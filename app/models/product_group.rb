@@ -46,6 +46,7 @@ class ProductGroup < ApplicationRecord
   before_save :unset_available_for_trade_in_to_children, unless: :available_for_trade_in?
   after_save :update_descendants_trademark, if: :saved_change_to_trademark?
   after_save :update_descendants_product_line, if: :saved_change_to_product_line?
+  after_save :schedule_repair_services_sync, if: :saved_change_to_repair_group_id?
   has_ancestry orphan_strategy: :restrict, cache_depth: true
   acts_as_list scope: [:ancestry]
 
@@ -121,5 +122,12 @@ class ProductGroup < ApplicationRecord
 
   def update_descendants_product_line
     descendants.update_all(product_line: product_line)
+  end
+
+  def schedule_repair_services_sync
+    return unless repair_group_id.present?
+
+    # Запускаем синхронизацию в фоне через Sidekiq
+    SyncProductRepairServicesJob.perform_later(id)
   end
 end
