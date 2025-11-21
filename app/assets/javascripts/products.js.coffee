@@ -99,6 +99,43 @@ $ ->
           current.addClass('hidden')
         current = current.next()
 
+  window.openGroupsWithSelectedItems = ->
+    # Получаем массив выбранных repair_service_ids
+    selectedValues = $('.multiselect-rep-services').val() || []
+    return if selectedValues.length == 0
+
+    # Проверяем что DOM готов
+    $container = $('.multiselect-container')
+    return if $container.length == 0
+
+    # Для каждой optgroup проверяем наличие выбранных опций
+    $('.multiselect-rep-services optgroup').each (index, optgroup) ->
+      $optgroup = $(optgroup)
+
+      # Проверяем есть ли выбранные опции в этой группе
+      hasSelected = false
+      $optgroup.find('option').each ->
+        if $.inArray($(this).val(), selectedValues) != -1
+          hasSelected = true
+          return false  # break
+
+      # Если есть выбранные, раскрываем соответствующую группу в dropdown
+      if hasSelected
+        # Находим элемент .multiselect-group по ИНДЕКСУ (более надёжно чем по тексту)
+        $group = $container.find('.multiselect-group').eq(index)
+
+        if $group.length && $group.attr('id')
+          groupId = $group.attr('id')
+          groupClass = "belongs-to-" + groupId
+
+          # Убираем класс hidden у всех опций в этой группе
+          $("." + groupClass).removeClass('hidden')
+
+          # Меняем иконку стрелки на "открыто"
+          $group.find('.collapse-indicator')
+            .removeClass('fa-caret-right')
+            .addClass('fa-caret-down')
+
   window.handleCheckboxes = ->
     $('.select-all-checkbox').on 'change', ->
       $('.product-checkbox').prop('checked', $(this).prop('checked'))
@@ -178,6 +215,10 @@ $(document).on 'ready turbolinks:load', ->
 
 $(document).on 'multiselect:created', ->
   window.setupMultiselectGroups()
+  # Добавляем задержку для гарантии готовности DOM
+  setTimeout ->
+    window.openGroupsWithSelectedItems()
+  , 50
 
 $(document).on 'ajax:success', '.pagination a', ->
   window.initRepairServicesMultiselect()
