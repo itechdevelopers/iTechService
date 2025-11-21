@@ -83,6 +83,7 @@ class Product < ApplicationRecord
   end
 
   after_create :generate_barcode_num
+  after_create :sync_repair_services_from_product_group
 
   def self.search(params)
     products = Product.all
@@ -230,5 +231,17 @@ class Product < ApplicationRecord
 
   def normalize_article
     self.article = nil if article.blank?
+  end
+
+  def sync_repair_services_from_product_group
+    return unless product_group&.repair_group_id.present?
+
+    # Получаем все repair_services из repair_group и его потомков
+    repair_service_ids = product_group.repair_group.subtree.flat_map do |rg|
+      rg.repair_services.pluck(:id)
+    end.uniq
+
+    # Добавляем repair_services к новому продукту (если они есть)
+    self.repair_service_ids = repair_service_ids if repair_service_ids.any?
   end
 end

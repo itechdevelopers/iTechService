@@ -192,14 +192,39 @@ span.multiselect-native-select {
 .multiselect-group.collapsible-group {
   position: relative;
   font-weight: bold;
-  padding-left: 20px;
+  padding-left: 45px;  /* Увеличиваем для чекбокса и иконки */
+  cursor: default !important;  /* Отключаем pointer cursor */
 }
 
-.multiselect-group .collapse-indicator {
+/* Чекбокс для выбора всех опций в группе */
+.group-select-all-checkbox {
   position: absolute;
-  left: 5px;
+  left: 8px;
   top: 50%;
   transform: translateY(-50%);
+  cursor: pointer;
+  width: 16px;
+  height: 16px;
+  margin: 0;
+}
+
+/* Иконка collapse/expand */
+.multiselect-group .collapse-indicator {
+  position: absolute;
+  left: 28px;
+  top: 50%;
+  transform: translateY(-50%);
+  cursor: pointer;
+  font-size: 14px;
+
+  &:hover {
+    color: #0088cc;
+  }
+}
+
+/* Indeterminate state для чекбокса группы */
+input[type="checkbox"].group-select-all-checkbox:indeterminate {
+  opacity: 0.7;
 }
 
 .multiselect-container {
