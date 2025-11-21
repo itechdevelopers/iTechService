@@ -79,25 +79,104 @@ $(document).on 'click', '.add_fields', ->
 
 
 $ ->
+  # Функция для выбора/снятия выбора всех опций в группе
+  window.selectAllInGroup = (groupId, shouldSelect) ->
+    groupClass = "belongs-to-" + groupId
+
+    # Находим все чекбоксы опций в этой группе
+    $("." + groupClass).find('input[type="checkbox"]').each ->
+      $checkbox = $(this)
+      currentState = $checkbox.prop('checked')
+
+      # Изменяем состояние только если оно отличается
+      if currentState != shouldSelect
+        $checkbox.prop('checked', shouldSelect)
+        $checkbox.trigger('change')  # Триггерим событие для обновления multiselect
+
+  # Функция для обновления состояния чекбокса группы
+  window.updateGroupCheckboxState = (groupId) ->
+    groupClass = "belongs-to-" + groupId
+    $groupCheckbox = $("#" + groupId).find('.group-select-all-checkbox')
+
+    return unless $groupCheckbox.length
+
+    # Считаем выбранные опции
+    $options = $("." + groupClass).find('input[type="checkbox"]')
+    totalOptions = $options.length
+    selectedOptions = $options.filter(':checked').length
+
+    if selectedOptions == 0
+      # Ни одна не выбрана
+      $groupCheckbox.prop('checked', false)
+      $groupCheckbox.prop('indeterminate', false)
+    else if selectedOptions == totalOptions
+      # Все выбраны
+      $groupCheckbox.prop('checked', true)
+      $groupCheckbox.prop('indeterminate', false)
+    else
+      # Частично выбраны (indeterminate state)
+      $groupCheckbox.prop('checked', false)
+      $groupCheckbox.prop('indeterminate', true)
+
+  # Функция для toggle collapse/expand группы
+  window.toggleCollapsibleGroup = (groupId) ->
+    groupClass = "belongs-to-" + groupId
+    $("." + groupClass).toggleClass('hidden')
+
+    # Переключаем иконку стрелки
+    $group = $("#" + groupId)
+    $icon = $group.find('.collapse-indicator')
+    if $("." + groupClass).first().hasClass('hidden')
+      $icon.removeClass('fa-caret-down').addClass('fa-caret-right')
+    else
+      $icon.removeClass('fa-caret-right').addClass('fa-caret-down')
+
   window.setupMultiselectGroups = ->
     $('.multiselect-group').each (i, group) ->
       $group = $(group)
-      
+
+      # Пропускаем если уже обработана
+      return if $group.data('setup-complete')
+
       $group.addClass('collapsible-group')
-      $group.css('cursor', 'pointer')
-      
-      $group.prepend('<i class="fa fa-caret-down collapse-indicator" style="margin-right: 5px;"></i>')
-      
+      $group.css('cursor', 'default')  # Отключаем pointer, т.к. будут отдельные элементы
+
+      # Создаём чекбокс для группы
+      groupCheckbox = $('<input type="checkbox" class="group-select-all-checkbox">')
+
+      # Добавляем иконку collapse
+      collapseIcon = $('<i class="fa fa-caret-down collapse-indicator"></i>')
+
+      # Вставляем чекбокс и иконку в начало группы
+      $group.prepend(collapseIcon)
+      $group.prepend(groupCheckbox)
+
       groupId = 'multiselect-group-' + i
       $group.attr('id', groupId)
-      
+
+      # Связываем опции с группой
       current = $group.next()
-      
       while current.length && !current.hasClass('multiselect-group')
         if current.hasClass('multiselect-option')
           current.addClass('belongs-to-' + groupId)
           current.addClass('hidden')
         current = current.next()
+
+      # ОБРАБОТЧИК: Клик на чекбокс = select all в группе
+      groupCheckbox.on 'click', (e) ->
+        e.stopPropagation()
+        isChecked = $(this).prop('checked')
+        selectAllInGroup(groupId, isChecked)
+
+      # ОБРАБОТЧИК: Клик на иконку = toggle collapse
+      collapseIcon.on 'click', (e) ->
+        e.stopPropagation()
+        toggleCollapsibleGroup(groupId)
+
+      # Инициализируем состояние чекбокса группы
+      updateGroupCheckboxState(groupId)
+
+      $group.data('setup-complete', true)
 
   window.openGroupsWithSelectedItems = ->
     # Получаем массив выбранных repair_service_ids
@@ -154,12 +233,7 @@ $ ->
     $('.multiselect-option').on 'click', ->
       updateSubmitButton()
 
-    $('.multiselect-group').on 'click', ->
-      toggleCollapsibleGroup(this.id)
-
-  toggleCollapsibleGroup = (groupId) ->
-    groupClass = "belongs-to-multiselect-group-#{groupId.split('-').pop()}"
-    $(".#{groupClass}").toggleClass('hidden')
+    # Обработчик клика на группу больше не нужен - обработчики добавляются в setupMultiselectGroups
 
   updateSubmitButton = ->
     if $('.product-checkbox:checked').length > 0 && $('.multiselect-rep-services').val()?.length > 0
@@ -205,6 +279,12 @@ $ ->
           $(brands).each (index, brand) ->
             selected.push [ $(this).val() ]
             return
+
+          # Обновляем состояние чекбоксов групп
+          $('.multiselect-group').each ->
+            groupId = $(this).attr('id')
+            updateGroupCheckboxState(groupId) if groupId
+
           return
 
   window.initRepairServicesMultiselect()
