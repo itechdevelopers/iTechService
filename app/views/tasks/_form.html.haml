@@ -10,5 +10,16 @@
   = f.input :cost
   = f.input :color, as: :color
   = f.input :hidden
+
+  %fieldset
+    %legend Пункты условий для заказ-наряда
+    .service-conditions-checkboxes
+      - ServiceCondition.all.each do |sc|
+        %label.checkbox.service-condition-item
+          = check_box_tag 'task[service_condition_ids][]', sc.id, @task.service_condition_ids.include?(sc.id)
+          %span.condition-number= sc.number
+          %span.condition-content= sc.content
+      = hidden_field_tag 'task[service_condition_ids][]', ''
+
   .form-actions
     = submit_button f

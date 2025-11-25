@@ -51,10 +51,15 @@
       - if @service_job.new_record? or @service_job.user_id == current_user.id
         = f.input :app_store_pass, required: @service_job.new_record?
 
-      = f.input :is_tray_present, as: :radio_buttons, required: true,
+      - tray_options = [OpenStruct.new(id: true, name: t('yep')), OpenStruct.new(id: false, name: t('simple_form.no'))]
+      - tray_label = ->(item) { item.is_a?(OpenStruct) ? item.name : (item == true ? t('yep') : (item == false ? t('simple_form.no') : '-')) }
+      = f.input :is_tray_present, as: :dropdown, required: true,
+        collection: tray_options,
+        label_method: tray_label,
         wrapper_html: {class: "tray_input#{' hidden' unless @service_job.has_imei?}"}
 
-      = f.association :carrier, as: :radio_buttons, collection: Carrier.all, required: true,
+      = f.association :carrier, as: :dropdown, collection: Carrier.all, required: true,
+        label_method: ->(item) { item&.name || '-' },
         wrapper_html: {class: "carrier_input#{' hidden' unless @service_job.has_imei?}"}
 
       = f.association :case_color, as: :dropdown, collection: CaseColor.ordered_by_name, label_method: lambda{|c|case_color_presentation(c)}
