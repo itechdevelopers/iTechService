@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20251120222334) do
+ActiveRecord::Schema.define(version: 20251125201348) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -1333,6 +1333,21 @@ ActiveRecord::Schema.define(version: 20251120222334) do
     t.datetime "updated_at", null: false
     t.index ["day"], name: "index_schedule_days_on_day"
     t.index ["user_id"], name: "index_schedule_days_on_user_id"
+  end
+
+  create_table "service_conditions", force: :cascade do |t|
+    t.string "number"
+    t.text "content"
+    t.integer "position"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+  end
+
+  create_table "service_conditions_tasks", id: false, force: :cascade do |t|
+    t.bigint "service_condition_id", null: false
+    t.bigint "task_id", null: false
+    t.index ["service_condition_id", "task_id"], name: "idx_svc_cond_tasks_on_condition_and_task"
+    t.index ["task_id", "service_condition_id"], name: "idx_svc_cond_tasks_on_task_and_condition"
   end
 
   create_table "service_feedbacks", id: :serial, force: :cascade do |t|
