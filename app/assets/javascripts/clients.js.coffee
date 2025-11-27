@@ -60,9 +60,11 @@ jQuery ->
         ), 500
 
     if $('#clients_autocomplete_list').length
-      $('#clients_autocomplete_list').css
-        left: $('#client_input').offset().left
-        top: $('#client_input').offset().top + $('#client_input').outerHeight()
+      # Не ставим инлайн-стили для v2 формы — CSS позиционирует
+      unless $('.v2-form-container').length
+        $('#clients_autocomplete_list').css
+          left: $('#client_input').offset().left
+          top: $('#client_input').offset().top + $('#client_input').outerHeight()
 
     $('#client_devices_resize_button').click ->
       $('.client_devices_list,#device_tasks_list').slideToggle(100)
@@ -72,9 +74,11 @@ jQuery ->
 placeClientDevices = ()->
   $devices = $('#client_devices')
   $input = $('#client_input')
-  $('#client_devices').css
-    top: $input.offset().top - 6
-    left: $input.offset().left + $input.outerWidth()
+  # Не ставим инлайн-стили для v2 формы — CSS позиционирует
+  unless $('.v2-form-container').length
+    $('#client_devices').css
+      top: $input.offset().top - 6
+      left: $input.offset().left + $input.outerWidth()
   if $('.client_devices_list', $devices).length > 0
     $devices.show()
   else
