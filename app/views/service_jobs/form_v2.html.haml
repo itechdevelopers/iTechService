@@ -26,7 +26,7 @@
 
       - if can? :update, @service_job
         - if @service_job.new_record? || @service_job.item.present?
-          = f.input :item, as: :device, required: true
+          = f.input :item, as: :device, required: true, multiline: true
         - else
           = f.input :device_type, as: :device_type
           = f.input :serial_number, as: :serial_number, input_html: {autocomplete: 'off'}, required: true

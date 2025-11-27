@@ -4,7 +4,11 @@ $input.find('.edit_item_btn').attr('href', "<%= edit_device_path(@device.id) %>"
 $input.find('.show_item_btn').attr('href', "<%= device_path(@device.id) %>").attr('data-remote', true);
 
 $search_input = $input.find('.item_search');
-$search_input.val("<%= @device.presentation %>");
+if ($search_input.is('textarea')) {
+  $search_input.val("<%= @device.presentation.gsub(' / ', '\n') %>");
+} else {
+  $search_input.val("<%= @device.presentation %>");
+}
 $search_input.attr('data-status', '<%= @device.status %>')
 $search_input.attr('title', '<%= @device.status_info %>');
 $search_input.tooltip('destroy').tooltip();

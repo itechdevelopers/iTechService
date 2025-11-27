@@ -329,3 +329,40 @@ form.service_job_form{
 .device-input-container input#item_search {
   width: 600px;
 }
+
+.device-input-container textarea#item_search {
+  width: 200px;
+  height: 54px;
+  resize: none;
+  line-height: 1.3;
+}
+
+.device-input-container:has(textarea#item_search) {
+  display: flex;
+  align-items: stretch;
+
+  .input-group-addon {
+    display: flex;
+    align-items: center;
+    padding: 0 10px;
+    height: auto;
+  }
+
+  .btn {
+    display: flex;
+    align-items: center;
+  }
+}
+
+/* v2 форма — уменьшенные дропдауны */
+form.service_job_form[data-form-version="v2"] {
+  .tray_input,
+  .carrier_input,
+  .service_job_case_color {
+    .controls {
+      .btn-group {
+        width: 250px;
+      }
+    }
+  }
+}
