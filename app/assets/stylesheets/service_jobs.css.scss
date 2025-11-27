@@ -329,3 +329,115 @@ form.service_job_form{
 .device-input-container input#item_search {
   width: 600px;
 }
+
+.device-input-container textarea#item_search {
+  width: 200px;
+  height: 54px;
+  resize: none;
+  line-height: 1.3;
+}
+
+.device-input-container:has(textarea#item_search) {
+  display: flex;
+  align-items: stretch;
+
+  .input-group-addon {
+    display: flex;
+    align-items: center;
+    padding: 0 10px;
+    height: auto;
+  }
+
+  .btn {
+    display: flex;
+    align-items: center;
+  }
+}
+
+/* v2 форма — контейнер с абсолютно позиционированным sidebar */
+.v2-form-container {
+  position: relative;
+
+  /* Позиционирование элементов клиента для v2 (JS не ставит инлайн-стили) */
+  #client_fields {
+    position: relative;
+
+    #clients_autocomplete_list {
+      position: absolute;
+      top: 100%;
+      left: 178px;
+    }
+
+    #client_devices {
+      position: absolute;
+      top: 0;
+      left: 510px;
+      margin-left: 10px;
+    }
+  }
+
+  form.service_job_form[data-form-version="v2"] {
+    .form-columns {
+      display: flex;
+      gap: 20px;
+    }
+
+    .form-column-left,
+    .form-column-right {
+      flex: 1;
+      min-width: 0;
+    }
+
+    /* Уменьшенные дропдауны */
+    .tray_input,
+    .carrier_input,
+    .service_job_case_color {
+      .controls {
+        .btn-group {
+          width: 250px;
+        }
+      }
+    }
+
+    /* Компактные поля в первой колонке */
+    .v2-compact-field {
+      .controls {
+        .btn-group,
+        select,
+        input[type="text"] {
+          width: 250px;
+        }
+      }
+
+      /* Для location dropdown */
+      #locations_select_button {
+        width: 250px;
+      }
+
+      #locations_list {
+        min-width: 250px;
+      }
+
+      /* Для datetime_quick_select */
+      .datetimepicker {
+        input {
+          width: 150px;
+        }
+      }
+
+      /* Для substitute_phone */
+      .substitute_phone-input {
+        input {
+          width: 200px;
+        }
+      }
+    }
+  }
+
+  .v2-sidebar {
+    position: absolute;
+    right: 0;
+    top: 0;
+    width: 33%;
+  }
+}

@@ -6,7 +6,17 @@ class DeviceInput < SimpleForm::Inputs::Base
       input_content = ''
       input_content << template.content_tag(:span, template.glyph(:search), class: 'input-group-addon add-on')
       input_content << @builder.hidden_field("#{attribute_name}_id", class: 'item_id') unless disabled?
-      input_content << template.text_field_tag(:item_search, presentation, class: "item_search form-control has-tooltip", placeholder: I18n.t('helpers.placeholders.item'), autocomplete: 'off', title: status_info, data: {html: true, container: 'body', status: status})
+      if multiline?
+        input_content << template.text_area_tag(:item_search, multiline_presentation,
+          class: "item_search form-control has-tooltip",
+          placeholder: I18n.t('helpers.placeholders.item'),
+          autocomplete: 'off',
+          title: status_info,
+          data: {html: true, container: 'body', status: status},
+          rows: 3)
+      else
+        input_content << template.text_field_tag(:item_search, presentation, class: "item_search form-control has-tooltip", placeholder: I18n.t('helpers.placeholders.item'), autocomplete: 'off', title: status_info, data: {html: true, container: 'body', status: status})
+      end
       input_content << template.link_to(template.glyph(:plus), template.new_device_path, class: 'new_item_btn btn btn-default', remote: true) unless disabled?
       input_content << template.link_to(template.glyph(:edit), device.present? ? template.edit_device_path(device) : '#', class: 'edit_item_btn btn btn-default', remote: device.present?) unless disabled?
       input_content << template.link_to(template.glyph('eye'), device.present? ? template.device_path(device) : '#', class: 'show_item_btn btn btn-default', remote: device.present?)
@@ -45,5 +55,14 @@ class DeviceInput < SimpleForm::Inputs::Base
 
   def disabled?
     options[:disabled] == true
+  end
+
+  def multiline?
+    options[:multiline] == true
+  end
+
+  def multiline_presentation
+    return nil unless device_presenter
+    [device_presenter.name, device_presenter.serial_number, device_presenter.imei].join("\n")
   end
 end

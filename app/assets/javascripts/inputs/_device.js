@@ -45,11 +45,23 @@
     $('.device-input-container>.item_search').autocomplete({
       source: '/devices/autocomplete.json',
       focus: function(event, ui) {
-        $(this).val(ui.item.label)
+        var isTextarea = $(this).is('textarea')
+        if (isTextarea) {
+          var parts = ui.item.label.split(' / ')
+          $(this).val(parts.join('\n'))
+        } else {
+          $(this).val(ui.item.label)
+        }
         return false
       },
       select: function(event, ui) {
-        $(this).val(ui.item.label)
+        var isTextarea = $(this).is('textarea')
+        if (isTextarea) {
+          var parts = ui.item.label.split(' / ')
+          $(this).val(parts.join('\n'))
+        } else {
+          $(this).val(ui.item.label)
+        }
         $(this).siblings('.item_id').val(ui.item.value)
         $(this).siblings('.edit_item_btn').attr('href', "/devices/" + ui.item.value + "/edit.js").attr('data-remote', true)
         $(this).siblings('.show_item_btn').attr('href', "/devices/" + ui.item.value + ".js").attr('data-remote', true)

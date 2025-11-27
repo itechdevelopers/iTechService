@@ -1,169 +1,147 @@
 - service_job = @service_job.decorate
 = auto_header_tag @service_job
 
-.row-fluid
-  .span6
-    = simple_form_for @service_job, url: create_v2_service_jobs_path, html: { class: 'form-horizontal service_job_form', data: { form_version: 'v2' } } do |f|
+.v2-form-container
+  = simple_form_for @service_job, url: create_v2_service_jobs_path, html: { class: 'form-horizontal service_job_form', data: { form_version: 'v2' } } do |f|
 
-      - if @service_job.errors.any?
-        .alert.alert-danger= @service_job.errors.full_messages.join '. '
+    - if @service_job.errors.any?
+      .alert.alert-danger= @service_job.errors.full_messages.join '. '
 
-      = f.full_error :ticket_number
+    = f.full_error :ticket_number
 
-      - if can? :update, @service_job
-        = f.input :client, as: :client, wrapper_html: {id: 'client_fields'}
-      - else
-        = f.input :client, as: :string, disabled: true, input_html: {class: 'input-xlarge'}
-
-      = f.input :contact_phone, as: :contact_phone
-      - if @service_job.persisted? and @service_job.client.contact_phone.present?
-        .control-group
-          = label_tag 'contact_phone', Client.human_attribute_name(:contact_phone), class: 'control-label'
-          .controls
-            = text_field_tag 'contact_phone', human_phone(@service_job.client.contact_phone), class: 'input-medium', disabled: true
-
-      = f.input :security_code, as: :security_code
-
-      - if can? :update, @service_job
-        - if @service_job.new_record? || @service_job.item.present?
-          = f.input :item, as: :device, required: true
+    .form-columns
+      .form-column-left
+        - if can? :update, @service_job
+          = f.input :client, as: :client, wrapper_html: {id: 'client_fields'}
         - else
-          = f.input :device_type, as: :device_type
-          = f.input :serial_number, as: :serial_number, input_html: {autocomplete: 'off'}, required: true
-          = f.input :imei, as: :imei, wrapper_html: {class: @service_job.has_imei? ? 'imei_input' : 'imei_input hidden'}
-          = f.hidden_field :item_id
-      - else
-        - if @service_job.item.present?
-          = service_job.device
-        - else
+          = f.input :client, as: :string, disabled: true, input_html: {class: 'input-xlarge'}
+
+        = f.input :contact_phone, as: :contact_phone
+        - if @service_job.persisted? and @service_job.client.contact_phone.present?
           .control-group
-            %label.control-label= ServiceJob.human_attribute_name(:device_type)
-            .controls= service_job.device_name
-
-          .control-group
-            %label.control-label= ServiceJob.human_attribute_name(:serial_number)
-            .controls= service_job.serial_number
-
-          .control-group
-            %label.control-label= ServiceJob.human_attribute_name(:imei)
-            .controls= service_job.imei
-
-      - if @service_job.new_record? or @service_job.user_id == current_user.id
-        = f.input :app_store_pass, required: @service_job.new_record?
-
-      - tray_options = [OpenStruct.new(id: true, name: t('yep')), OpenStruct.new(id: false, name: t('simple_form.no'))]
-      - tray_label = ->(item) { item.is_a?(OpenStruct) ? item.name : (item == true ? t('yep') : (item == false ? t('simple_form.no') : '-')) }
-      = f.input :is_tray_present, as: :dropdown, required: true,
-        collection: tray_options,
-        label_method: tray_label,
-        wrapper_html: {class: "tray_input#{' hidden' unless @service_job.has_imei?}"}
-
-      = f.association :carrier, as: :dropdown, collection: Carrier.all, required: true,
-        label_method: ->(item) { item&.name || '-' },
-        wrapper_html: {class: "carrier_input#{' hidden' unless @service_job.has_imei?}"}
-
-      = f.association :case_color, as: :dropdown, collection: CaseColor.ordered_by_name, label_method: lambda{|c|case_color_presentation(c)}
-
-      #additional-fields
-        -# TODO: make input for fields with templates
-        = f.input :client_address, label_html: {class: 'important'}, input_html: {class: 'input-xlarge'}
-        = f.input :trademark, label_html: {class: 'important'}, input_html: {class: 'input-xlarge has-templates', data: service_job_template_field_data('trademark', @job_templates)}
-        = f.input :device_group, label_html: {class: 'important'}, input_html: {class: 'input-xlarge has-templates', data: service_job_template_field_data('device_group', @job_templates)}
-        = f.input :completeness, label_html: {class: 'important'}, input_html: {class: 'input-xlarge has-templates', data: service_job_template_field_data('completeness', @job_templates)}
-        = f.input :claimed_defect, label_html: {class: 'important'}, input_html: {class: 'input-xlarge has-templates', data: service_job_template_field_data('claimed_defect', @job_templates)}
-        = f.input :device_condition, label_html: {class: 'important'}, input_html: {class: 'input-xlarge has-templates', data: service_job_template_field_data('device_condition', @job_templates)}
-        = f.input :client_comment, label_html: {class: 'important'}, input_html: {class: 'input-xlarge has-templates', data: service_job_template_field_data('client_comment', @job_templates)}
-        = f.input :type_of_work, label_html: {class: 'important'}, input_html: {class: 'input-xlarge has-templates', data: service_job_template_field_data('type_of_work', @job_templates)}
-        = f.input :estimated_cost_of_repair, label_html: {class: 'important'}, input_html: {class: 'input-xlarge has-templates', data: service_job_template_field_data('estimated_cost_of_repair', @job_templates)}
-
-        #service-job_templates
-
-      = f.input :email, hint: t('.email_hint')
-
-      - if can?(:update, @service_job) || current_user.able_to_move_transfers?
-        = f.input :location_id, as: :location
-      - else
-        = f.input :location, as: :string, disabled: true, input_html: {class: 'input-xlarge'}
-
-      = f.input :return_at, as: :datetime_quick_select
-
-      = f.input :substitute_phone, as: :substitute_phone
-
-      - if @available_check_lists.any?
-        %hr
-        %h4 Чек-листы
-
-        - @available_check_lists.each_with_index do |check_list, index|
-          - response = @check_list_responses_hash[check_list.id]
-          .check-list-container.control-group
-            %label.control-label= check_list.name
+            = label_tag 'contact_phone', Client.human_attribute_name(:contact_phone), class: 'control-label'
             .controls
-              = hidden_field_tag "service_job[check_list_responses_attributes][#{index}][check_list_id]", check_list.id
-              - if response.persisted?
-                = hidden_field_tag "service_job[check_list_responses_attributes][#{index}][id]", response.id
+              = text_field_tag 'contact_phone', human_phone(@service_job.client.contact_phone), class: 'input-medium', disabled: true
 
-              - if check_list.has_main_question?
-                - # Render main question separately with radio buttons
-                - main_item = check_list.main_question
-                - current_answer = response.answer_for_item(main_item.id)
-                .check-list-question-group
-                  .question-text
-                    = main_item.question
-                    - if main_item.required?
-                      %span.required *
-                  .radio-group
-                    %label.radio.inline
-                      = radio_button_tag "service_job[check_list_responses_attributes][#{index}][responses][#{main_item.id}]",
-                                        "yes",
-                                        current_answer == "yes" || current_answer == "true",
-                                        id: "service_job_check_list_responses_attributes_#{index}_responses_#{main_item.id}_yes",
-                                        class: 'main-question-radio',
-                                        required: main_item.required?
-                      = t('yep')
-                    %label.radio.inline
-                      = radio_button_tag "service_job[check_list_responses_attributes][#{index}][responses][#{main_item.id}]",
-                                        "no",
-                                        current_answer == "no",
-                                        id: "service_job_check_list_responses_attributes_#{index}_responses_#{main_item.id}_no",
-                                        class: 'main-question-radio',
-                                        required: main_item.required?
-                      = t('simple_form.no')
+        = f.input :security_code, as: :security_code
 
-                - # Render subordinate questions in a container
-                - main_answer_yes = (current_answer == "yes" || current_answer == "true")
-                .subordinate-questions{style: main_answer_yes ? '' : 'display: none;'}
-                  - check_list.subordinate_items.each do |item|
-                    - item_answer = response.answer_for_item(item.id)
-                    .check-list-question-group
-                      .question-text.subordinate-indent
-                        = item.question
-                        - if item.required?
-                          %span.required *
-                      .radio-group.subordinate-indent
-                        %label.radio.inline
-                          = radio_button_tag "service_job[check_list_responses_attributes][#{index}][responses][#{item.id}]",
-                                            "yes",
-                                            item_answer == "yes" || item_answer == "true",
-                                            id: "service_job_check_list_responses_attributes_#{index}_responses_#{item.id}_yes",
-                                            required: item.required?
-                          = t('yep')
-                        %label.radio.inline
-                          = radio_button_tag "service_job[check_list_responses_attributes][#{index}][responses][#{item.id}]",
-                                            "no",
-                                            item_answer == "no",
-                                            id: "service_job_check_list_responses_attributes_#{index}_responses_#{item.id}_no",
-                                            required: item.required?
-                          = t('simple_form.no')
-              - else
-                - # No main question, render all items normally with radio buttons
-                - check_list_items_for(check_list).each do |item|
+        - if can? :update, @service_job
+          - if @service_job.new_record? || @service_job.item.present?
+            = f.input :item, as: :device, required: true, multiline: true
+          - else
+            = f.input :device_type, as: :device_type
+            = f.input :serial_number, as: :serial_number, input_html: {autocomplete: 'off'}, required: true
+            = f.input :imei, as: :imei, wrapper_html: {class: @service_job.has_imei? ? 'imei_input' : 'imei_input hidden'}
+            = f.hidden_field :item_id
+        - else
+          - if @service_job.item.present?
+            = service_job.device
+          - else
+            .control-group
+              %label.control-label= ServiceJob.human_attribute_name(:device_type)
+              .controls= service_job.device_name
+
+            .control-group
+              %label.control-label= ServiceJob.human_attribute_name(:serial_number)
+              .controls= service_job.serial_number
+
+            .control-group
+              %label.control-label= ServiceJob.human_attribute_name(:imei)
+              .controls= service_job.imei
+
+        - if @service_job.new_record? or @service_job.user_id == current_user.id
+          = f.input :app_store_pass, required: @service_job.new_record?
+
+        - tray_options = [OpenStruct.new(id: true, name: t('yep')), OpenStruct.new(id: false, name: t('simple_form.no'))]
+        - tray_label = ->(item) { item.is_a?(OpenStruct) ? item.name : (item == true ? t('yep') : (item == false ? t('simple_form.no') : '-')) }
+        = f.input :is_tray_present, as: :dropdown, required: true,
+          collection: tray_options,
+          label_method: tray_label,
+          wrapper_html: {class: "tray_input#{' hidden' unless @service_job.has_imei?}"}
+
+        = f.association :carrier, as: :dropdown, collection: Carrier.all, required: true,
+          label_method: ->(item) { item&.name || '-' },
+          wrapper_html: {class: "carrier_input#{' hidden' unless @service_job.has_imei?}"}
+
+        - if can?(:update, @service_job) || current_user.able_to_move_transfers?
+          = f.input :location_id, as: :location, wrapper_html: {class: 'v2-compact-field'}
+        - else
+          = f.input :location, as: :string, disabled: true, input_html: {class: 'input-medium'}, wrapper_html: {class: 'v2-compact-field'}
+
+        = f.input :return_at, as: :datetime_quick_select, wrapper_html: {class: 'v2-compact-field'}
+
+        = f.input :substitute_phone, as: :substitute_phone, wrapper_html: {class: 'v2-compact-field'}
+
+      .form-column-right
+        = f.association :case_color, as: :dropdown, collection: CaseColor.ordered_by_name, label_method: lambda{|c|case_color_presentation(c)}
+
+        #additional-fields
+          -# TODO: make input for fields with templates
+          = f.input :client_address, label_html: {class: 'important'}, input_html: {class: 'input-xlarge'}
+          = f.input :trademark, label_html: {class: 'important'}, input_html: {class: 'input-xlarge has-templates', data: service_job_template_field_data('trademark', @job_templates)}
+          = f.input :device_group, label_html: {class: 'important'}, input_html: {class: 'input-xlarge has-templates', data: service_job_template_field_data('device_group', @job_templates)}
+          = f.input :completeness, label_html: {class: 'important'}, input_html: {class: 'input-xlarge has-templates', data: service_job_template_field_data('completeness', @job_templates)}
+          = f.input :claimed_defect, label_html: {class: 'important'}, input_html: {class: 'input-xlarge has-templates', data: service_job_template_field_data('claimed_defect', @job_templates)}
+          = f.input :device_condition, label_html: {class: 'important'}, input_html: {class: 'input-xlarge has-templates', data: service_job_template_field_data('device_condition', @job_templates)}
+          = f.input :client_comment, label_html: {class: 'important'}, input_html: {class: 'input-xlarge has-templates', data: service_job_template_field_data('client_comment', @job_templates)}
+          = f.input :type_of_work, label_html: {class: 'important'}, input_html: {class: 'input-xlarge has-templates', data: service_job_template_field_data('type_of_work', @job_templates)}
+          = f.input :estimated_cost_of_repair, label_html: {class: 'important'}, input_html: {class: 'input-xlarge has-templates', data: service_job_template_field_data('estimated_cost_of_repair', @job_templates)}
+
+          #service-job_templates
+
+        = f.input :email, hint: t('.email_hint')
+
+    - if @available_check_lists.any?
+      %hr
+      %h4 Чек-листы
+
+      - @available_check_lists.each_with_index do |check_list, index|
+        - response = @check_list_responses_hash[check_list.id]
+        .check-list-container.control-group
+          %label.control-label= check_list.name
+          .controls
+            = hidden_field_tag "service_job[check_list_responses_attributes][#{index}][check_list_id]", check_list.id
+            - if response.persisted?
+              = hidden_field_tag "service_job[check_list_responses_attributes][#{index}][id]", response.id
+
+            - if check_list.has_main_question?
+              - # Render main question separately with radio buttons
+              - main_item = check_list.main_question
+              - current_answer = response.answer_for_item(main_item.id)
+              .check-list-question-group
+                .question-text
+                  = main_item.question
+                  - if main_item.required?
+                    %span.required *
+                .radio-group
+                  %label.radio.inline
+                    = radio_button_tag "service_job[check_list_responses_attributes][#{index}][responses][#{main_item.id}]",
+                                      "yes",
+                                      current_answer == "yes" || current_answer == "true",
+                                      id: "service_job_check_list_responses_attributes_#{index}_responses_#{main_item.id}_yes",
+                                      class: 'main-question-radio',
+                                      required: main_item.required?
+                    = t('yep')
+                  %label.radio.inline
+                    = radio_button_tag "service_job[check_list_responses_attributes][#{index}][responses][#{main_item.id}]",
+                                      "no",
+                                      current_answer == "no",
+                                      id: "service_job_check_list_responses_attributes_#{index}_responses_#{main_item.id}_no",
+                                      class: 'main-question-radio',
+                                      required: main_item.required?
+                    = t('simple_form.no')
+
+              - # Render subordinate questions in a container
+              - main_answer_yes = (current_answer == "yes" || current_answer == "true")
+              .subordinate-questions{style: main_answer_yes ? '' : 'display: none;'}
+                - check_list.subordinate_items.each do |item|
                   - item_answer = response.answer_for_item(item.id)
                   .check-list-question-group
-                    .question-text
+                    .question-text.subordinate-indent
                       = item.question
                       - if item.required?
                         %span.required *
-                    .radio-group
+                    .radio-group.subordinate-indent
                       %label.radio.inline
                         = radio_button_tag "service_job[check_list_responses_attributes][#{index}][responses][#{item.id}]",
                                           "yes",
@@ -178,21 +156,45 @@
                                           id: "service_job_check_list_responses_attributes_#{index}_responses_#{item.id}_no",
                                           required: item.required?
                         = t('simple_form.no')
+            - else
+              - # No main question, render all items normally with radio buttons
+              - check_list_items_for(check_list).each do |item|
+                - item_answer = response.answer_for_item(item.id)
+                .check-list-question-group
+                  .question-text
+                    = item.question
+                    - if item.required?
+                      %span.required *
+                  .radio-group
+                    %label.radio.inline
+                      = radio_button_tag "service_job[check_list_responses_attributes][#{index}][responses][#{item.id}]",
+                                        "yes",
+                                        item_answer == "yes" || item_answer == "true",
+                                        id: "service_job_check_list_responses_attributes_#{index}_responses_#{item.id}_yes",
+                                        required: item.required?
+                      = t('yep')
+                    %label.radio.inline
+                      = radio_button_tag "service_job[check_list_responses_attributes][#{index}][responses][#{item.id}]",
+                                        "no",
+                                        item_answer == "no",
+                                        id: "service_job_check_list_responses_attributes_#{index}_responses_#{item.id}_no",
+                                        required: item.required?
+                      = t('simple_form.no')
 
-      -# = f.input :photo_container, as: :photo_container
+    -# = f.input :photo_container, as: :photo_container
 
-      -if f.error(:device_tasks).present?
-        .control-group.required.error
-          .controls
-            %p= f.full_error :device_tasks, class: 'text-error'
-            %p
-              %span.help-inline.text-error= f.object.device_tasks.map{|dt|dt.errors.full_messages}.join ', '
+    -if f.error(:device_tasks).present?
+      .control-group.required.error
+        .controls
+          %p= f.full_error :device_tasks, class: 'text-error'
+          %p
+            %span.help-inline.text-error= f.object.device_tasks.map{|dt|dt.errors.full_messages}.join ', '
 
-      = render @service_job.new_record? ? 'device_tasks_fields' : 'device_tasks', f: f
+    = render @service_job.new_record? ? 'device_tasks_fields' : 'device_tasks', f: f
 
-      .form-actions
-        = submit_button f
+    .form-actions
+      = submit_button f
 
-  .span6
+  .v2-sidebar
     = secondary_form_container
     #device_notes_container= render 'device_notes', editable: true if @service_job.persisted?
