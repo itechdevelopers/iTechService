@@ -1,22 +1,33 @@
 .repair-selection{data: {product_id: product_id, department_id: department_id}}
   %h5
     %i.icon-wrench
+    Выбор ремонта
 
-  .control-group
-    %label Вид ремонта
-    = select_tag "#{f.object_name}[repair_service_id]",
+  -# 1. Выбор группы причин
+  .control-group.repair-cause-group-select-group
+    %label Выбор причины ремонта
+    = select_tag nil,
       options_for_select([]),
-      class: 'repair-service-select form-control',
-      prompt: 'Выберите вид ремонта',
-      data: { product_id: product_id }
+      class: 'repair-cause-group-select form-control',
+      prompt: 'Выберите категорию'
 
-  .control-group.repair-cause-group{style: 'display:none;'}
-    %label Причина ремонта
-    = select_tag "#{f.object_name}[repair_cause_id]",
+  -# 2. Выбор причины (скрыто по умолчанию)
+  .control-group.repair-cause-select-group{style: 'display:none;'}
+    %label Уточнение причины ремонта
+    = select_tag "#{f.object_name}[expected_repair_cause_id]",
       options_for_select([]),
       class: 'repair-cause-select form-control',
       prompt: 'Выберите причину'
 
+  -# 3. Выбор вида ремонта (скрыто по умолчанию)
+  .control-group.repair-service-select-group{style: 'display:none;'}
+    %label Вид ремонта
+    = select_tag "#{f.object_name}[expected_repair_service_id]",
+      options_for_select([]),
+      class: 'repair-service-select form-control',
+      prompt: 'Выберите вид ремонта'
+
+  -# 4. Информация о цене и времени (скрыто по умолчанию)
   .repair-info.alert.alert-info{style: 'display:none;'}
     %p
       %strong Цена:

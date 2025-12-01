@@ -388,6 +388,26 @@ form.service_job_form{
       min-width: 0;
     }
 
+    .form-column-left {
+      /* Flex-контейнер устройства - переносим статус на новую строку */
+      .device_input {
+        flex-wrap: wrap;
+      }
+
+      /* Textarea устройства - шире для v2 */
+      .device-input-container textarea#item_search {
+        width: 270px;
+      }
+
+      /* Статус устройства из 1С - укороченный для v2 */
+      .device_1c_status {
+        width: 200px;
+        height: auto;
+        word-wrap: break-word;
+        flex-basis: 100%;
+      }
+    }
+
     /* Уменьшенные дропдауны */
     .tray_input,
     .carrier_input,
@@ -430,6 +450,11 @@ form.service_job_form{
         input {
           width: 200px;
         }
+      }
+
+      /* Ширина параграфа с подсказкой для substitute_phone */
+      .controls > p {
+        max-width: 300px;
       }
     }
   }

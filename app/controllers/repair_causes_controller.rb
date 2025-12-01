@@ -47,6 +47,78 @@ class RepairCausesController < ApplicationController
     respond_to(&:js)
   end
 
+  # GET /repair_causes/for_product/:product_id
+  # Возвращает RepairCauseGroup'ы, у которых есть причины, связанные с repair_services данного продукта
+  def for_product
+    authorize ServiceJob, :create?
+    product = Product.find(params[:product_id])
+
+    repair_service_ids = product.repair_service_ids
+    repair_cause_ids = RepairCause.joins(:repair_services)
+                                  .where(repair_services: { id: repair_service_ids })
+                                  .distinct.pluck(:id)
+
+    groups = RepairCauseGroup.joins(:repair_causes)
+                             .where(repair_causes: { id: repair_cause_ids })
+                             .distinct
+                             .map { |g| { id: g.id, title: g.title } }
+
+    render json: groups
+  end
+
+  # GET /repair_causes/for_group/:group_id
+  # Возвращает RepairCause для группы, отфильтрованные по product_id
+  def for_group
+    authorize ServiceJob, :create?
+    group = RepairCauseGroup.find(params[:group_id])
+    product_id = params[:product_id]
+
+    if product_id.present?
+      product = Product.find(product_id)
+      repair_service_ids = product.repair_service_ids
+
+      causes = group.repair_causes
+                    .joins(:repair_services)
+                    .where(repair_services: { id: repair_service_ids })
+                    .distinct
+                    .map { |c| { id: c.id, title: c.title } }
+    else
+      causes = group.repair_causes.map { |c| { id: c.id, title: c.title } }
+    end
+
+    render json: causes
+  end
+
+  # GET /repair_causes/:id/repair_services
+  # Возвращает RepairServices для причины, отфильтрованные по product_id
+  def repair_services
+    authorize ServiceJob, :create?
+    cause = RepairCause.find(params[:id])
+    product_id = params[:product_id]
+    department_id = params[:department_id]
+
+    services = cause.repair_services.not_archived
+
+    if product_id.present?
+      product = Product.find(product_id)
+      services = services.where(id: product.repair_service_ids)
+    end
+
+    result = services.map do |s|
+      price = s.price(Department.find_by(id: department_id))
+      {
+        id: s.id,
+        name: s.name,
+        price: price&.shown_price,
+        time_standard: s.time_standard,
+        time_standard_from: s.time_standard_from,
+        time_standard_to: s.time_standard_to
+      }
+    end
+
+    render json: result
+  end
+
   private
 
   def new_rcg_params

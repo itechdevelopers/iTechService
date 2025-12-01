@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20251125201348) do
+ActiveRecord::Schema.define(version: 20251201161555) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -365,8 +365,12 @@ ActiveRecord::Schema.define(version: 20251125201348) do
     t.datetime "done_at"
     t.text "user_comment"
     t.integer "performer_id"
+    t.bigint "expected_repair_cause_id"
+    t.bigint "expected_repair_service_id"
     t.index ["done"], name: "index_device_tasks_on_done"
     t.index ["done_at"], name: "index_device_tasks_on_done_at"
+    t.index ["expected_repair_cause_id"], name: "index_device_tasks_on_expected_repair_cause_id"
+    t.index ["expected_repair_service_id"], name: "index_device_tasks_on_expected_repair_service_id"
     t.index ["performer_id"], name: "index_device_tasks_on_performer_id"
     t.index ["service_job_id"], name: "index_device_tasks_on_service_job_id"
     t.index ["task_id"], name: "index_device_tasks_on_task_id"
@@ -1938,6 +1942,8 @@ ActiveRecord::Schema.define(version: 20251125201348) do
   add_foreign_key "check_lists", "check_list_items", column: "main_question_id"
   add_foreign_key "departments", "brands"
   add_foreign_key "departments", "cities"
+  add_foreign_key "device_tasks", "repair_causes", column: "expected_repair_cause_id"
+  add_foreign_key "device_tasks", "repair_services", column: "expected_repair_service_id"
   add_foreign_key "electronic_queues", "departments"
   add_foreign_key "elqueue_ticket_movements", "waiting_clients"
   add_foreign_key "elqueue_windows", "electronic_queues"
