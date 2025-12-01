@@ -475,7 +475,15 @@ Rails.application.routes.draw do
     get :icon_url, on: :member, format: :json
   end
 
-  resources :repair_causes, only: %i[index destroy new create]
+  resources :repair_causes, only: %i[index destroy new create] do
+    collection do
+      get 'for_product/:product_id', action: :for_product, as: :for_product
+      get 'for_group/:group_id', action: :for_group, as: :for_group
+    end
+    member do
+      get :repair_services
+    end
+  end
 
   # Webhook endpoints (no authentication required)
   namespace :webhooks do

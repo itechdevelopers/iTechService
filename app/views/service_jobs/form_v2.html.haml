@@ -72,9 +72,20 @@
 
         = f.input :substitute_phone, as: :substitute_phone, wrapper_html: {class: 'v2-compact-field'}
 
-      .form-column-right
-        = f.association :case_color, as: :dropdown, collection: CaseColor.ordered_by_name, label_method: lambda{|c|case_color_presentation(c)}
+        = f.association :case_color, as: :dropdown, collection: CaseColor.ordered_by_name, label_method: lambda{|c|case_color_presentation(c)}, wrapper_html: {class: 'v2-compact-field'}
 
+        = f.input :email, hint: t('.email_hint'), wrapper_html: {class: 'v2-compact-field'}
+
+        -if f.error(:device_tasks).present?
+          .control-group.required.error
+            .controls
+              %p= f.full_error :device_tasks, class: 'text-error'
+              %p
+                %span.help-inline.text-error= f.object.device_tasks.map{|dt|dt.errors.full_messages}.join ', '
+
+        = render @service_job.new_record? ? 'device_tasks_fields' : 'device_tasks', f: f
+
+      .form-column-right
         #additional-fields
           -# TODO: make input for fields with templates
           = f.input :client_address, label_html: {class: 'important'}, input_html: {class: 'input-xlarge'}
@@ -88,8 +99,6 @@
           = f.input :estimated_cost_of_repair, label_html: {class: 'important'}, input_html: {class: 'input-xlarge has-templates', data: service_job_template_field_data('estimated_cost_of_repair', @job_templates)}
 
           #service-job_templates
-
-        = f.input :email, hint: t('.email_hint')
 
     - if @available_check_lists.any?
       %hr
@@ -182,15 +191,6 @@
                       = t('simple_form.no')
 
     -# = f.input :photo_container, as: :photo_container
-
-    -if f.error(:device_tasks).present?
-      .control-group.required.error
-        .controls
-          %p= f.full_error :device_tasks, class: 'text-error'
-          %p
-            %span.help-inline.text-error= f.object.device_tasks.map{|dt|dt.errors.full_messages}.join ', '
-
-    = render @service_job.new_record? ? 'device_tasks_fields' : 'device_tasks', f: f
 
     .form-actions
       = submit_button f
