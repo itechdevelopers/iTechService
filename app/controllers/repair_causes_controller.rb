@@ -89,6 +89,40 @@ class RepairCausesController < ApplicationController
     render json: causes
   end
 
+  # GET /repair_causes/repair_services_for_causes?cause_ids[]=1&cause_ids[]=2&product_id=X&department_id=Y
+  # Возвращает объединённый список RepairServices от нескольких причин
+  def repair_services_for_causes
+    authorize ServiceJob, :create?
+    cause_ids = params[:cause_ids] || []
+    product_id = params[:product_id]
+    department_id = params[:department_id]
+
+    return render json: [] if cause_ids.empty?
+
+    causes = RepairCause.where(id: cause_ids)
+    service_ids = causes.flat_map(&:repair_service_ids).uniq
+    services = RepairService.where(id: service_ids).not_archived
+
+    if product_id.present?
+      product = Product.find(product_id)
+      services = services.where(id: product.repair_service_ids)
+    end
+
+    result = services.map do |s|
+      price = s.price(Department.find_by(id: department_id))
+      {
+        id: s.id,
+        name: s.name,
+        price: price&.shown_price,
+        time_standard: s.time_standard,
+        time_standard_from: s.time_standard_from,
+        time_standard_to: s.time_standard_to
+      }
+    end
+
+    render json: result
+  end
+
   # GET /repair_causes/:id/repair_services
   # Возвращает RepairServices для причины, отфильтрованные по product_id
   def repair_services

@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20251201161555) do
+ActiveRecord::Schema.define(version: 20251203114725) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -374,6 +374,13 @@ ActiveRecord::Schema.define(version: 20251201161555) do
     t.index ["performer_id"], name: "index_device_tasks_on_performer_id"
     t.index ["service_job_id"], name: "index_device_tasks_on_service_job_id"
     t.index ["task_id"], name: "index_device_tasks_on_task_id"
+  end
+
+  create_table "device_tasks_repair_causes", id: false, force: :cascade do |t|
+    t.bigint "device_task_id", null: false
+    t.bigint "repair_cause_id", null: false
+    t.index ["device_task_id", "repair_cause_id"], name: "idx_dt_rc_on_device_task_and_cause"
+    t.index ["repair_cause_id", "device_task_id"], name: "idx_dt_rc_on_cause_and_device_task"
   end
 
   create_table "device_types", id: :serial, force: :cascade do |t|

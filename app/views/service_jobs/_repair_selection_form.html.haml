@@ -11,13 +11,14 @@
       class: 'repair-cause-group-select form-control',
       prompt: 'Выберите категорию'
 
-  -# 2. Выбор причины (скрыто по умолчанию)
+  -# 2. Выбор причин (скрыто по умолчанию, multi-select)
   .control-group.repair-cause-select-group{style: 'display:none;'}
-    %label Уточнение причины ремонта
-    = select_tag "#{f.object_name}[expected_repair_cause_id]",
+    %label Уточнение причин ремонта
+    = select_tag "#{f.object_name}[expected_repair_cause_ids][]",
       options_for_select([]),
       class: 'repair-cause-select form-control',
-      prompt: 'Выберите причину'
+      multiple: true,
+      data: { placeholder: 'Выберите причины' }
 
   -# 3. Выбор вида ремонта (скрыто по умолчанию)
   .control-group.repair-service-select-group{style: 'display:none;'}

@@ -230,6 +230,52 @@ $(document).on 'click', '#completion_act_link', ->
 
 # ========== Repair Selection Functions (Cascading) ==========
 
+# Load services for multiple selected causes (must be defined before initRepairCauseMultiselect)
+loadServicesForSelectedCauses = ($container) ->
+  $select = $container.find('.repair-cause-select')
+  cause_ids = $select.val() || []
+  product_id = $container.data('product-id')
+  department_id = $container.data('department-id')
+
+  resetRepairServiceSelection($container)
+  hideRepairInfo($container)
+
+  if cause_ids.length > 0
+    $.getJSON "/repair_causes/repair_services_for_causes",
+      { cause_ids: cause_ids, product_id: product_id, department_id: department_id },
+      (services) ->
+        $serviceSelect = $container.find('.repair-service-select')
+        $serviceSelect.html('<option value="">Выберите вид ремонта</option>')
+        $.each services, (i, service) ->
+          $serviceSelect.append("<option value='#{service.id}' data-price='#{service.price}' data-time='#{service.time_standard}' data-time-from='#{service.time_standard_from}' data-time-to='#{service.time_standard_to}'>#{service.name}</option>")
+        $container.find('.repair-service-select-group').fadeIn()
+
+# Initialize multiselect for repair causes (Вариант A — простой стиль)
+initRepairCauseMultiselect = ($container) ->
+  $select = $container.find('.repair-cause-select')
+  return if $select.data('multiselect-initialized')
+
+  # Save container reference for callbacks
+  container = $container
+
+  $select.multiselect
+    enableClickableOptGroups: true
+    nonSelectedText: 'Выберите причины'
+    nSelectedText: ' выбрано'
+    allSelectedText: 'Все выбраны'
+    includeSelectAllOption: true
+    selectAllText: 'Выбрать все'
+    buttonWidth: '100%'
+    maxHeight: 300
+    onInitialized: ->
+      $select.closest('.repair-cause-select-group').find('.multiselect-group, .multiselect-option, .multiselect-all').each ->
+        $(this).attr('type', 'button')
+    onChange: (option, checked) ->
+      # Load services when selection changes
+      loadServicesForSelectedCauses(container)
+
+  $select.data('multiselect-initialized', true)
+
 # Show repair selection form and load cause groups
 window.showRepairSelection = ($extendedRow) ->
   $content = $extendedRow.find('.repair-selection')
@@ -274,7 +320,7 @@ window.hideRepairSelection = ($extendedRow) ->
   $extendedRow.fadeOut()
   resetRepairSelection($extendedRow.find('.repair-selection'))
 
-# Step 1: When cause GROUP selected → load causes
+# Step 1: When cause GROUP selected → load causes into multiselect
 $(document).on 'change', '.repair-cause-group-select', ->
   $select = $(this)
   group_id = $select.val()
@@ -289,34 +335,18 @@ $(document).on 'change', '.repair-cause-group-select', ->
   if group_id
     $.getJSON "/repair_causes/for_group/#{group_id}", {product_id: product_id}, (causes) ->
       $causeSelect = $container.find('.repair-cause-select')
-      $causeSelect.html('<option value="">Выберите причину</option>')
+      $causeSelect.html('')
 
       $.each causes, (i, cause) ->
         $causeSelect.append("<option value='#{cause.id}'>#{cause.title}</option>")
 
+      # Initialize or rebuild multiselect with new options
+      if $causeSelect.data('multiselect-initialized')
+        $causeSelect.multiselect('rebuild')
+      else
+        initRepairCauseMultiselect($container)
+
       $container.find('.repair-cause-select-group').fadeIn()
-
-# Step 2: When CAUSE selected → load repair services
-$(document).on 'change', '.repair-cause-select', ->
-  $select = $(this)
-  cause_id = $select.val()
-  $container = $select.closest('.repair-selection')
-  product_id = $container.data('product-id')
-  department_id = $container.data('department-id')
-
-  # Reset dependent fields
-  resetRepairServiceSelection($container)
-  hideRepairInfo($container)
-
-  if cause_id
-    $.getJSON "/repair_causes/#{cause_id}/repair_services", {product_id: product_id, department_id: department_id}, (services) ->
-      $serviceSelect = $container.find('.repair-service-select')
-      $serviceSelect.html('<option value="">Выберите вид ремонта</option>')
-
-      $.each services, (i, service) ->
-        $serviceSelect.append("<option value='#{service.id}' data-price='#{service.price}' data-time='#{service.time_standard}' data-time-from='#{service.time_standard_from}' data-time-to='#{service.time_standard_to}'>#{service.name}</option>")
-
-      $container.find('.repair-service-select-group').fadeIn()
 
 # Step 3: When REPAIR SERVICE selected → show info
 $(document).on 'change', '.repair-service-select', ->
@@ -355,9 +385,12 @@ displayRepairInfo = ($container, data) ->
 
   $info.fadeIn()
 
-# Reset cause selection (step 2)
+# Reset cause selection (step 2) - with multiselect support
 resetRepairCauseSelection = ($container) ->
-  $container.find('.repair-cause-select').html('<option value="">Выберите причину</option>')
+  $causeSelect = $container.find('.repair-cause-select')
+  $causeSelect.html('')
+  if $causeSelect.data('multiselect-initialized')
+    $causeSelect.multiselect('rebuild')
   $container.find('.repair-cause-select-group').hide()
 
 # Reset service selection (step 3)

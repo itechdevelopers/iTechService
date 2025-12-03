@@ -480,6 +480,7 @@ Rails.application.routes.draw do
     collection do
       get 'for_product/:product_id', action: :for_product, as: :for_product
       get 'for_group/:group_id', action: :for_group, as: :for_group
+      get :repair_services_for_causes
     end
     member do
       get :repair_services

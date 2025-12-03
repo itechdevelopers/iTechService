@@ -67,6 +67,11 @@ form.service_job_form{
             width: 100%;
             max-width: 400px;
           }
+
+          // Hide native multi-select, Bootstrap Multiselect creates its own button
+          select.repair-cause-select {
+            display: none;
+          }
         }
 
         .repair-info {
