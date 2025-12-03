@@ -39,9 +39,7 @@ form.service_job_form{
     // Extended row for task-specific behavior (e.g., repair selection)
     .task-extended-row {
       .task-extended-content {
-        background-color: #f9f9f9;
-        padding: 15px;
-        margin: 5px 0;
+        padding: 10px 0;
 
         h5 {
           margin-top: 0;
@@ -51,6 +49,23 @@ form.service_job_form{
 
           i {
             margin-right: 5px;
+          }
+
+          .add-repair-block-btn {
+            vertical-align: middle;
+
+            i {
+              margin: 0;
+            }
+          }
+        }
+
+        // Each repair block has its own well
+        .repair-selection-block {
+          margin-bottom: 10px;
+
+          &:last-child {
+            margin-bottom: 0;
           }
         }
 
