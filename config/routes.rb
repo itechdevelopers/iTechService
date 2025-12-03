@@ -158,6 +158,7 @@ Rails.application.routes.draw do
     put :archive, on: :member, defaults: { format: 'js' }
     get :new_v2, on: :collection
     post :create_v2, on: :collection
+    post :preview_work_order, on: :collection
     resources :device_notes, only: %i[index new create update], shallow: true
     scope module: :service_jobs do
       resource :subscription, only: %i[create destroy], format: :js
@@ -479,6 +480,7 @@ Rails.application.routes.draw do
     collection do
       get 'for_product/:product_id', action: :for_product, as: :for_product
       get 'for_group/:group_id', action: :for_group, as: :for_group
+      get :repair_services_for_causes
     end
     member do
       get :repair_services

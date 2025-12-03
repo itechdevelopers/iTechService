@@ -20,6 +20,12 @@ class DeviceTask < ApplicationRecord
   belongs_to :performer, class_name: 'User', optional: true
   belongs_to :expected_repair_cause, class_name: 'RepairCause', optional: true
   belongs_to :expected_repair_service, class_name: 'RepairService', optional: true
+  has_and_belongs_to_many :expected_repair_causes,
+                          class_name: 'RepairCause',
+                          join_table: 'device_tasks_repair_causes'
+  has_and_belongs_to_many :expected_repair_services,
+                          class_name: 'RepairService',
+                          join_table: 'device_tasks_repair_services'
   has_many :history_records, as: :object
   has_many :repair_tasks, inverse_of: :device_task
   has_many :repair_parts, through: :repair_tasks

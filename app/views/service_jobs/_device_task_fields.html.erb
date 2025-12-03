@@ -24,7 +24,7 @@
   <!-- Extended row for task-specific behavior (e.g., repair selection) -->
   <tr class="task-extended-row" style="display:none;">
     <td colspan="4">
-      <div class="task-extended-content well well-small">
+      <div class="task-extended-content">
         <%= render 'service_jobs/repair_selection_form',
                    f: f,
                    product_id: @service_job.item&.product_id,

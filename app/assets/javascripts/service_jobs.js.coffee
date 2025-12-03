@@ -230,9 +230,65 @@ $(document).on 'click', '#completion_act_link', ->
 
 # ========== Repair Selection Functions (Cascading) ==========
 
+# Get product_id and department_id from parent container
+getRepairContainerData = ($block) ->
+  $container = $block.closest('.repair-selection-container')
+  {
+    product_id: $container.data('product-id')
+    department_id: $container.data('department-id')
+    field_name: $container.data('field-name')
+  }
+
+# Load services for multiple selected causes (must be defined before initRepairCauseMultiselect)
+loadServicesForSelectedCauses = ($block) ->
+  $select = $block.find('.repair-cause-select')
+  cause_ids = $select.val() || []
+  data = getRepairContainerData($block)
+  product_id = data.product_id
+  department_id = data.department_id
+
+  resetRepairServiceSelection($block)
+  hideRepairInfo($block)
+
+  if cause_ids.length > 0
+    $.getJSON "/repair_causes/repair_services_for_causes",
+      { cause_ids: cause_ids, product_id: product_id, department_id: department_id },
+      (services) ->
+        $serviceSelect = $block.find('.repair-service-select')
+        $serviceSelect.html('<option value="">Выберите вид ремонта</option>')
+        $.each services, (i, service) ->
+          $serviceSelect.append("<option value='#{service.id}' data-price='#{service.price}' data-time='#{service.time_standard}' data-time-from='#{service.time_standard_from}' data-time-to='#{service.time_standard_to}'>#{service.name}</option>")
+        $block.find('.repair-service-select-group').fadeIn()
+
+# Initialize multiselect for repair causes (Вариант A — простой стиль)
+initRepairCauseMultiselect = ($container) ->
+  $select = $container.find('.repair-cause-select')
+  return if $select.data('multiselect-initialized')
+
+  # Save container reference for callbacks
+  container = $container
+
+  $select.multiselect
+    enableClickableOptGroups: true
+    nonSelectedText: 'Выберите причины'
+    nSelectedText: ' выбрано'
+    allSelectedText: 'Все выбраны'
+    includeSelectAllOption: true
+    selectAllText: 'Выбрать все'
+    buttonWidth: '100%'
+    maxHeight: 300
+    onInitialized: ->
+      $select.closest('.repair-cause-select-group').find('.multiselect-group, .multiselect-option, .multiselect-all').each ->
+        $(this).attr('type', 'button')
+    onChange: (option, checked) ->
+      # Load services when selection changes
+      loadServicesForSelectedCauses(container)
+
+  $select.data('multiselect-initialized', true)
+
 # Show repair selection form and load cause groups
 window.showRepairSelection = ($extendedRow) ->
-  $content = $extendedRow.find('.repair-selection')
+  $container = $extendedRow.find('.repair-selection-container')
 
   # Dynamically get item_id from form
   item_id = $('#service_job_item_id').val()
@@ -250,89 +306,81 @@ window.showRepairSelection = ($extendedRow) ->
       alert('У выбранного устройства не указан продукт')
       return
 
-    # Store product_id and department_id for subsequent requests
-    $content.data('product-id', product_id)
-    $content.data('department-id', department_id)
+    # Store product_id and department_id in container for all blocks
+    $container.data('product-id', product_id)
+    $container.data('department-id', department_id)
 
-    # Load repair cause groups for product
+    # Load repair cause groups for product (for the first block)
     $.getJSON "/repair_causes/for_product/#{product_id}", (groups) ->
-      $select = $content.find('.repair-cause-group-select')
-      $select.html('<option value="">Выберите категорию</option>')
+      $container.find('.repair-selection-block').each ->
+        $block = $(this)
+        $select = $block.find('.repair-cause-group-select')
+        $select.html('<option value="">Выберите категорию</option>')
 
-      $.each groups, (i, group) ->
-        $select.append("<option value='#{group.id}'>#{group.title}</option>")
+        $.each groups, (i, group) ->
+          $select.append("<option value='#{group.id}'>#{group.title}</option>")
 
-      # Reset dependent fields
-      resetRepairCauseSelection($content)
-      resetRepairServiceSelection($content)
-      hideRepairInfo($content)
+        # Reset dependent fields
+        resetRepairCauseSelection($block)
+        resetRepairServiceSelection($block)
+        hideRepairInfo($block)
+
+      # Store groups data for cloning new blocks
+      $container.data('repair-groups', groups)
 
       # Show extended row
       $extendedRow.fadeIn()
 
 window.hideRepairSelection = ($extendedRow) ->
   $extendedRow.fadeOut()
-  resetRepairSelection($extendedRow.find('.repair-selection'))
+  $container = $extendedRow.find('.repair-selection-container')
+  $container.find('.repair-selection-block').each ->
+    resetRepairBlock($(this))
 
-# Step 1: When cause GROUP selected → load causes
+# Step 1: When cause GROUP selected → load causes into multiselect
 $(document).on 'change', '.repair-cause-group-select', ->
   $select = $(this)
   group_id = $select.val()
-  $container = $select.closest('.repair-selection')
-  product_id = $container.data('product-id')
+  $block = $select.closest('.repair-selection-block')
+  data = getRepairContainerData($block)
+  product_id = data.product_id
 
   # Reset dependent fields
-  resetRepairCauseSelection($container)
-  resetRepairServiceSelection($container)
-  hideRepairInfo($container)
+  resetRepairCauseSelection($block)
+  resetRepairServiceSelection($block)
+  hideRepairInfo($block)
 
   if group_id
     $.getJSON "/repair_causes/for_group/#{group_id}", {product_id: product_id}, (causes) ->
-      $causeSelect = $container.find('.repair-cause-select')
-      $causeSelect.html('<option value="">Выберите причину</option>')
+      $causeSelect = $block.find('.repair-cause-select')
+      $causeSelect.html('')
 
       $.each causes, (i, cause) ->
         $causeSelect.append("<option value='#{cause.id}'>#{cause.title}</option>")
 
-      $container.find('.repair-cause-select-group').fadeIn()
+      # Initialize or rebuild multiselect with new options
+      if $causeSelect.data('multiselect-initialized')
+        $causeSelect.multiselect('rebuild')
+      else
+        initRepairCauseMultiselect($block)
 
-# Step 2: When CAUSE selected → load repair services
-$(document).on 'change', '.repair-cause-select', ->
-  $select = $(this)
-  cause_id = $select.val()
-  $container = $select.closest('.repair-selection')
-  product_id = $container.data('product-id')
-  department_id = $container.data('department-id')
-
-  # Reset dependent fields
-  resetRepairServiceSelection($container)
-  hideRepairInfo($container)
-
-  if cause_id
-    $.getJSON "/repair_causes/#{cause_id}/repair_services", {product_id: product_id, department_id: department_id}, (services) ->
-      $serviceSelect = $container.find('.repair-service-select')
-      $serviceSelect.html('<option value="">Выберите вид ремонта</option>')
-
-      $.each services, (i, service) ->
-        $serviceSelect.append("<option value='#{service.id}' data-price='#{service.price}' data-time='#{service.time_standard}' data-time-from='#{service.time_standard_from}' data-time-to='#{service.time_standard_to}'>#{service.name}</option>")
-
-      $container.find('.repair-service-select-group').fadeIn()
+      $block.find('.repair-cause-select-group').fadeIn()
 
 # Step 3: When REPAIR SERVICE selected → show info
 $(document).on 'change', '.repair-service-select', ->
   $select = $(this)
-  $container = $select.closest('.repair-selection')
+  $block = $select.closest('.repair-selection-block')
   $option = $select.find('option:selected')
 
   if $select.val()
-    displayRepairInfo($container, {
+    displayRepairInfo($block, {
       price: $option.data('price')
       time_standard: $option.data('time')
       time_standard_from: $option.data('time-from')
       time_standard_to: $option.data('time-to')
     })
   else
-    hideRepairInfo($container)
+    hideRepairInfo($block)
 
 # Display repair info (price and time)
 displayRepairInfo = ($container, data) ->
@@ -355,9 +403,12 @@ displayRepairInfo = ($container, data) ->
 
   $info.fadeIn()
 
-# Reset cause selection (step 2)
+# Reset cause selection (step 2) - with multiselect support
 resetRepairCauseSelection = ($container) ->
-  $container.find('.repair-cause-select').html('<option value="">Выберите причину</option>')
+  $causeSelect = $container.find('.repair-cause-select')
+  $causeSelect.html('')
+  if $causeSelect.data('multiselect-initialized')
+    $causeSelect.multiselect('rebuild')
   $container.find('.repair-cause-select-group').hide()
 
 # Reset service selection (step 3)
@@ -375,3 +426,85 @@ resetRepairSelection = ($container) ->
   resetRepairCauseSelection($container)
   resetRepairServiceSelection($container)
   hideRepairInfo($container)
+
+# Reset a single repair block (for cloning)
+resetRepairBlock = ($block) ->
+  # Reset group select
+  $block.find('.repair-cause-group-select').val('')
+
+  # Destroy multiselect if exists
+  $causeSelect = $block.find('.repair-cause-select')
+  if $causeSelect.data('multiselect-initialized')
+    $causeSelect.multiselect('destroy')
+    $causeSelect.removeData('multiselect-initialized')
+  $causeSelect.html('')
+
+  # Hide and reset dependent fields
+  $block.find('.repair-cause-select-group').hide()
+  $block.find('.repair-service-select').html('<option value="">Выберите вид ремонта</option>')
+  $block.find('.repair-service-select-group').hide()
+  $block.find('.repair-info').hide()
+
+# Add new repair block
+$(document).on 'click', '.add-repair-block-btn', (e) ->
+  e.preventDefault()
+  $container = $(this).closest('.repair-selection-container')
+  $blocks = $container.find('.repair-selection-blocks')
+  $firstBlock = $blocks.find('.repair-selection-block').first()
+  groups = $container.data('repair-groups')
+
+  # Clone the first block
+  $newBlock = $firstBlock.clone()
+
+  # Reset the cloned block
+  resetRepairBlock($newBlock)
+
+  # Populate groups dropdown
+  $groupSelect = $newBlock.find('.repair-cause-group-select')
+  $groupSelect.html('<option value="">Выберите категорию</option>')
+  if groups
+    $.each groups, (i, group) ->
+      $groupSelect.append("<option value='#{group.id}'>#{group.title}</option>")
+
+  # Remove any cloned multiselect UI elements
+  $newBlock.find('.btn-group').remove()
+
+  # Append new block
+  $blocks.append($newBlock)
+
+# ========== Preview Work Order PDF ==========
+
+$(document).on 'click', '.preview-work-order-btn', (e) ->
+  e.preventDefault()
+
+  $btn = $(this)
+  previewUrl = $btn.data('url')
+  $form = $btn.closest('form')
+
+  # Create a temporary form for POST to new tab
+  previewForm = document.createElement('form')
+  previewForm.method = 'POST'
+  previewForm.action = previewUrl
+  previewForm.target = '_blank'
+
+  # Copy all form fields
+  formData = new FormData($form[0])
+  for [key, value] from formData.entries()
+    input = document.createElement('input')
+    input.type = 'hidden'
+    input.name = key
+    input.value = value
+    previewForm.appendChild(input)
+
+  # Add CSRF token
+  csrfToken = document.querySelector('meta[name="csrf-token"]')?.content
+  if csrfToken
+    csrfInput = document.createElement('input')
+    csrfInput.type = 'hidden'
+    csrfInput.name = 'authenticity_token'
+    csrfInput.value = csrfToken
+    previewForm.appendChild(csrfInput)
+
+  document.body.appendChild(previewForm)
+  previewForm.submit()
+  document.body.removeChild(previewForm)
