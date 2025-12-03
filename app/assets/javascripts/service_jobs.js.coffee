@@ -375,3 +375,40 @@ resetRepairSelection = ($container) ->
   resetRepairCauseSelection($container)
   resetRepairServiceSelection($container)
   hideRepairInfo($container)
+
+# ========== Preview Work Order PDF ==========
+
+$(document).on 'click', '.preview-work-order-btn', (e) ->
+  e.preventDefault()
+
+  $btn = $(this)
+  previewUrl = $btn.data('url')
+  $form = $btn.closest('form')
+
+  # Create a temporary form for POST to new tab
+  previewForm = document.createElement('form')
+  previewForm.method = 'POST'
+  previewForm.action = previewUrl
+  previewForm.target = '_blank'
+
+  # Copy all form fields
+  formData = new FormData($form[0])
+  for [key, value] from formData.entries()
+    input = document.createElement('input')
+    input.type = 'hidden'
+    input.name = key
+    input.value = value
+    previewForm.appendChild(input)
+
+  # Add CSRF token
+  csrfToken = document.querySelector('meta[name="csrf-token"]')?.content
+  if csrfToken
+    csrfInput = document.createElement('input')
+    csrfInput.type = 'hidden'
+    csrfInput.name = 'authenticity_token'
+    csrfInput.value = csrfToken
+    previewForm.appendChild(csrfInput)
+
+  document.body.appendChild(previewForm)
+  previewForm.submit()
+  document.body.removeChild(previewForm)

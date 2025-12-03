@@ -95,6 +95,7 @@ ru:
     updated: 'Работа изменена'
     viewings: 'Просмотры'
     work_job: 'Заказ-наряд'
+    preview_work_order: 'Предпросмотр заказ-наряда'
 
   service_jobs_mailer:
     staff_notice:

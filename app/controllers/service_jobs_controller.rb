@@ -279,6 +279,17 @@ class ServiceJobsController < ApplicationController
     end
   end
 
+  def preview_work_order
+    authorize ServiceJob, :new_v2?
+    data = build_preview_data(service_job_params)
+    pdf = PreviewWorkOrderPdf.new(data, view_context)
+
+    send_data pdf.render,
+              filename: "work_order_preview.pdf",
+              type: 'application/pdf',
+              disposition: 'inline'
+  end
+
   def completion_act
     respond_to do |format|
       service_job = find_record ServiceJob
@@ -513,5 +524,55 @@ class ServiceJobsController < ApplicationController
     #               device_task: [:id, :cost, :user_comment],
     #               device_note: [:content],
     #               service_job: [:location_id])
+  end
+
+  # Preview work order helpers
+  def build_preview_data(sj_params)
+    item = sj_params[:item_id].present? ? Item.find_by(id: sj_params[:item_id]) : nil
+    client = sj_params[:client_id].present? ? Client.find_by(id: sj_params[:client_id]) : nil
+
+    {
+      ticket_number: 'PREVIEW',
+      received_at: Time.current,
+      client: client,
+      client_full_name: client&.full_name,
+      contact_phone: sj_params[:contact_phone],
+      department: Department.current,
+      user: current_user,
+      task_ids: extract_task_ids(sj_params),
+      client_address: sj_params[:client_address],
+      trademark: sj_params[:trademark],
+      device_group: sj_params[:device_group],
+      imei: sj_params[:imei].presence || item&.imei,
+      serial_number: sj_params[:serial_number].presence || item&.serial_number,
+      type_name: extract_type_name(sj_params, item),
+      completeness: sj_params[:completeness],
+      claimed_defect: sj_params[:claimed_defect],
+      device_condition: sj_params[:device_condition],
+      client_comment: sj_params[:client_comment],
+      type_of_work: sj_params[:type_of_work],
+      estimated_cost_of_repair: sj_params[:estimated_cost_of_repair]
+    }
+  end
+
+  def extract_task_ids(sj_params)
+    return [] unless sj_params[:device_tasks_attributes]
+
+    sj_params[:device_tasks_attributes].values
+      .reject { |dt| dt[:_destroy] == '1' || dt[:_destroy] == true }
+      .map { |dt| dt[:task_id] }
+      .compact
+      .map(&:to_i)
+      .reject(&:zero?)
+  end
+
+  def extract_type_name(sj_params, item)
+    return item.name if item.present?
+
+    if sj_params[:device_type_id].present?
+      DeviceType.find_by(id: sj_params[:device_type_id])&.full_name
+    else
+      '-'
+    end
   end
 end

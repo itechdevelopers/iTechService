@@ -194,6 +194,9 @@
 
     .form-actions
       = submit_button f
+      = link_to t('service_jobs.preview_work_order'), '#',
+                class: 'btn btn-info preview-work-order-btn',
+                data: { url: preview_work_order_service_jobs_path }
 
   .v2-sidebar
     = secondary_form_container
