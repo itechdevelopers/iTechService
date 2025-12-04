@@ -384,6 +384,8 @@ $(document).on 'change', '.repair-service-select', ->
 
   # Update "Вид работы" field (v2 only)
   updateTypeOfWorkField()
+  # Update "Ориентировочная стоимость ремонта" field (v2 only)
+  updateEstimatedCostField()
 
 # Format minutes to hours and minutes
 formatDuration = (minutes) ->
@@ -474,6 +476,62 @@ updateTypeOfWorkField = ->
   names = collectRepairServiceNames()
   $field.val(names.join(', '))
   autoResizeField($field)
+
+# ========== Estimated Cost Auto-fill (v2 only) ==========
+
+# Parse price string - returns {min, max} or null
+# Handles: "1500", "1000 - 2000", null, undefined, ""
+parsePriceString = (priceStr) ->
+  return null unless priceStr
+  priceStr = String(priceStr).trim()
+  return null if priceStr == ''
+
+  if priceStr.indexOf(' - ') > -1
+    parts = priceStr.split(' - ')
+    min = parseInt(parts[0], 10)
+    max = parseInt(parts[1], 10)
+    return null if isNaN(min) || isNaN(max)
+    { min: min, max: max }
+  else
+    val = parseInt(priceStr, 10)
+    return null if isNaN(val)
+    { min: val, max: val }
+
+# Collect all prices from selected repair services
+collectRepairPrices = ->
+  prices = []
+  $('.v2-form-container .repair-selection-block').each ->
+    $select = $(this).find('.repair-service-select')
+    if $select.val()
+      priceStr = $select.find('option:selected').data('price')
+      parsed = parsePriceString(priceStr)
+      prices.push(parsed) if parsed
+  prices
+
+# Sum prices and format result
+sumAndFormatPrices = (prices) ->
+  return '' if prices.length == 0
+
+  totalMin = 0
+  totalMax = 0
+  for p in prices
+    totalMin += p.min
+    totalMax += p.max
+
+  if totalMin == totalMax
+    "#{totalMin} руб."
+  else
+    "от #{totalMin} до #{totalMax} руб."
+
+# Update "Ориентировочная стоимость ремонта" field
+updateEstimatedCostField = ->
+  return unless $('.v2-form-container').length > 0
+
+  $field = $('#service_job_estimated_cost_of_repair')
+  return unless $field.length > 0
+
+  prices = collectRepairPrices()
+  $field.val(sumAndFormatPrices(prices))
 
 # Reset a single repair block (for cloning)
 resetRepairBlock = ($block) ->
