@@ -477,6 +477,14 @@ form.service_job_form{
         max-width: 300px;
       }
     }
+
+    /* Auto-resize textarea for type_of_work */
+    .auto-resize-textarea {
+      resize: none;
+      overflow: hidden;
+      min-height: 34px;
+      transition: height 0.1s ease;
+    }
   }
 
   .v2-sidebar {
