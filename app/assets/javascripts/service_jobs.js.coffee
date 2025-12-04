@@ -382,6 +382,27 @@ $(document).on 'change', '.repair-service-select', ->
   else
     hideRepairInfo($block)
 
+  # Update "Вид работы" field (v2 only)
+  updateTypeOfWorkField()
+  # Update "Ориентировочная стоимость ремонта" field (v2 only)
+  updateEstimatedCostField()
+
+# Format minutes to hours and minutes
+formatDuration = (minutes) ->
+  return null unless minutes
+  minutes = parseInt(minutes)
+  return null if isNaN(minutes)
+
+  hours = Math.floor(minutes / 60)
+  mins = minutes % 60
+
+  if hours > 0 && mins > 0
+    "#{hours} ч #{mins} мин"
+  else if hours > 0
+    "#{hours} ч"
+  else
+    "#{mins} мин"
+
 # Display repair info (price and time)
 displayRepairInfo = ($container, data) ->
   $info = $container.find('.repair-info')
@@ -394,9 +415,9 @@ displayRepairInfo = ($container, data) ->
 
   # Time (with range support)
   if data.time_standard_from && data.time_standard_to
-    time_text = "#{data.time_standard_from} - #{data.time_standard_to} мин"
+    time_text = "#{formatDuration(data.time_standard_from)} - #{formatDuration(data.time_standard_to)}"
   else if data.time_standard
-    time_text = "#{data.time_standard} мин"
+    time_text = formatDuration(data.time_standard)
   else
     time_text = 'Не указано'
   $info.find('.repair-time').text(time_text)
@@ -426,6 +447,91 @@ resetRepairSelection = ($container) ->
   resetRepairCauseSelection($container)
   resetRepairServiceSelection($container)
   hideRepairInfo($container)
+
+# ========== Type of Work Auto-fill (v2 only) ==========
+
+# Collect all selected repair service names from all blocks
+collectRepairServiceNames = ->
+  names = []
+  $('.v2-form-container .repair-selection-block').each ->
+    $select = $(this).find('.repair-service-select')
+    if $select.val()
+      name = $select.find('option:selected').text().trim()
+      names.push(name) if name
+  names
+
+# Auto-resize textarea to fit content
+autoResizeField = ($field) ->
+  return unless $field.is('textarea')
+  $field.css('height', 'auto')
+  $field.css('height', $field[0].scrollHeight + 'px')
+
+# Update "Вид работы" field with collected repair service names
+updateTypeOfWorkField = ->
+  return unless $('.v2-form-container').length > 0
+
+  $field = $('#service_job_type_of_work')
+  return unless $field.length > 0
+
+  names = collectRepairServiceNames()
+  $field.val(names.join(', '))
+  autoResizeField($field)
+
+# ========== Estimated Cost Auto-fill (v2 only) ==========
+
+# Parse price string - returns {min, max} or null
+# Handles: "1500", "1000 - 2000", null, undefined, ""
+parsePriceString = (priceStr) ->
+  return null unless priceStr
+  priceStr = String(priceStr).trim()
+  return null if priceStr == ''
+
+  if priceStr.indexOf(' - ') > -1
+    parts = priceStr.split(' - ')
+    min = parseInt(parts[0], 10)
+    max = parseInt(parts[1], 10)
+    return null if isNaN(min) || isNaN(max)
+    { min: min, max: max }
+  else
+    val = parseInt(priceStr, 10)
+    return null if isNaN(val)
+    { min: val, max: val }
+
+# Collect all prices from selected repair services
+collectRepairPrices = ->
+  prices = []
+  $('.v2-form-container .repair-selection-block').each ->
+    $select = $(this).find('.repair-service-select')
+    if $select.val()
+      priceStr = $select.find('option:selected').data('price')
+      parsed = parsePriceString(priceStr)
+      prices.push(parsed) if parsed
+  prices
+
+# Sum prices and format result
+sumAndFormatPrices = (prices) ->
+  return '' if prices.length == 0
+
+  totalMin = 0
+  totalMax = 0
+  for p in prices
+    totalMin += p.min
+    totalMax += p.max
+
+  if totalMin == totalMax
+    "#{totalMin} руб."
+  else
+    "от #{totalMin} до #{totalMax} руб."
+
+# Update "Ориентировочная стоимость ремонта" field
+updateEstimatedCostField = ->
+  return unless $('.v2-form-container').length > 0
+
+  $field = $('#service_job_estimated_cost_of_repair')
+  return unless $field.length > 0
+
+  prices = collectRepairPrices()
+  $field.val(sumAndFormatPrices(prices))
 
 # Reset a single repair block (for cloning)
 resetRepairBlock = ($block) ->
