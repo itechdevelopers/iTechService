@@ -283,6 +283,8 @@ initRepairCauseMultiselect = ($container) ->
     onChange: (option, checked) ->
       # Load services when selection changes
       loadServicesForSelectedCauses(container)
+      # Update "Заявленный дефект" field with selected cause names
+      updateClaimedDefectField()
 
   $select.data('multiselect-initialized', true)
 
@@ -474,6 +476,27 @@ updateTypeOfWorkField = ->
   return unless $field.length > 0
 
   names = collectRepairServiceNames()
+  $field.val(names.join(', '))
+  autoResizeField($field)
+
+# Collect all selected repair cause names from all blocks
+collectRepairCauseNames = ->
+  names = []
+  $('.v2-form-container .repair-selection-block').each ->
+    $select = $(this).find('.repair-cause-select')
+    $select.find('option:selected').each ->
+      name = $(this).text().trim()
+      names.push(name) if name
+  names
+
+# Update "Заявленный дефект" field with collected repair cause names
+updateClaimedDefectField = ->
+  return unless $('.v2-form-container').length > 0
+
+  $field = $('#service_job_claimed_defect')
+  return unless $field.length > 0
+
+  names = collectRepairCauseNames()
   $field.val(names.join(', '))
   autoResizeField($field)
 

@@ -92,7 +92,7 @@
           = f.input :trademark, label_html: {class: 'important'}, input_html: {class: 'input-xlarge has-templates', data: service_job_template_field_data('trademark', @job_templates)}
           = f.input :device_group, label_html: {class: 'important'}, input_html: {class: 'input-xlarge has-templates', data: service_job_template_field_data('device_group', @job_templates)}
           = f.input :completeness, label_html: {class: 'important'}, input_html: {class: 'input-xlarge has-templates', data: service_job_template_field_data('completeness', @job_templates)}
-          = f.input :claimed_defect, label_html: {class: 'important'}, input_html: {class: 'input-xlarge has-templates', data: service_job_template_field_data('claimed_defect', @job_templates)}
+          = f.input :claimed_defect, as: :text, label_html: {class: 'important'}, input_html: {class: 'input-xlarge has-templates auto-resize-textarea', rows: 2, data: service_job_template_field_data('claimed_defect', @job_templates)}
           = f.input :device_condition, label_html: {class: 'important'}, input_html: {class: 'input-xlarge has-templates', data: service_job_template_field_data('device_condition', @job_templates)}
           = f.input :client_comment, label_html: {class: 'important'}, input_html: {class: 'input-xlarge has-templates', data: service_job_template_field_data('client_comment', @job_templates)}
           = f.input :type_of_work, as: :text, label_html: {class: 'important'}, input_html: {class: 'input-xlarge has-templates auto-resize-textarea', rows: 1, data: service_job_template_field_data('type_of_work', @job_templates)}
