@@ -89,4 +89,5 @@ class API < Grape::API
   mount OrderApi
   mount OneCOrderApi
   mount TradeInApi
+  mount TranscriptionApi
 end
