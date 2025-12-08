@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20251203202833) do
+ActiveRecord::Schema.define(version: 20251208211343) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -113,6 +113,21 @@ ActiveRecord::Schema.define(version: 20251203202833) do
     t.string "logo"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+  end
+
+  create_table "call_transcriptions", force: :cascade do |t|
+    t.string "call_unique_id", null: false
+    t.text "transcript_text", null: false
+    t.string "caller_number", null: false
+    t.datetime "call_date", null: false
+    t.string "recording_url"
+    t.bigint "client_id"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["call_date"], name: "index_call_transcriptions_on_call_date"
+    t.index ["call_unique_id"], name: "index_call_transcriptions_on_call_unique_id", unique: true
+    t.index ["caller_number"], name: "index_call_transcriptions_on_caller_number"
+    t.index ["client_id"], name: "index_call_transcriptions_on_client_id"
   end
 
   create_table "carriers", id: :serial, force: :cascade do |t|
@@ -1951,6 +1966,7 @@ ActiveRecord::Schema.define(version: 20251203202833) do
     t.index ["path"], name: "index_wiki_pages_on_path", unique: true
   end
 
+  add_foreign_key "call_transcriptions", "clients"
   add_foreign_key "check_list_items", "check_lists"
   add_foreign_key "check_list_responses", "check_lists"
   add_foreign_key "check_lists", "check_list_items", column: "main_question_id"
