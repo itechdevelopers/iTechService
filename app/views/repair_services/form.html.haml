@@ -8,6 +8,7 @@
   %b= RepairService.human_attribute_name :prices
   %br
   = f.simple_fields_for :prices do |pf|
+    - next unless pf.object.department&.participates_in_repair_services?
     = pf.hidden_field :department_id
     .one-liner.range-prices
       %br

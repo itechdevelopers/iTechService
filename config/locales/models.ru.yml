@@ -159,6 +159,7 @@ ru:
         short_name: 'Сокращенное название'
         url: 'URL'
         archive: Архивный
+        participates_in_repair_services: Участвует в видах ремонта
 
       device:
         app_store_pass: 'Пароль на учетную запись в App Store'

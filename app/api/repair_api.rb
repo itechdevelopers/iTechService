@@ -9,7 +9,7 @@ class RepairApi < Grape::API
   end
   get 'repair_services' do
     authorize :read, RepairService
-    departments = Department.real
+    departments = Department.real.participating_in_repair_services
 
     if params[:group_id].present?
       repair_group = RepairGroup.find(params[:group_id])
