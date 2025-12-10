@@ -24,6 +24,7 @@ ru:
       view_repair_parts: 'Смотреть запчасти устройства'
       view_reports: 'Смотреть отчёты'
       show_spare_parts_qty: 'Показывать количество запчастей в видах ремонта'
+      show_spare_parts_qty_on_reception: 'Видеть количество запчастей при приёмке'
       request_review: Запрашивать оценку у клиента
       show_reviews: Просматривать оценки
       perform_service_center_tasks: 'Закрывать задачу «сервисный центр»'

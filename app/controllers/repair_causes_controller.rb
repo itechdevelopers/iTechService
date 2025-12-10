@@ -101,22 +101,28 @@ class RepairCausesController < ApplicationController
 
     causes = RepairCause.where(id: cause_ids)
     service_ids = causes.flat_map(&:repair_service_ids).uniq
-    services = RepairService.where(id: service_ids).not_archived
+    services = RepairService.where(id: service_ids).not_archived.includes(:spare_parts)
 
     if product_id.present?
       product = Product.find(product_id)
       services = services.where(id: product.repair_service_ids)
     end
 
+    department = Department.find_by(id: department_id)
+    store = department&.spare_parts_store
+    show_qty = current_user.superadmin? || current_user.able_to?(:show_spare_parts_qty_on_reception)
+
     result = services.map do |s|
-      price = s.price(Department.find_by(id: department_id))
+      price = s.price(department)
       {
         id: s.id,
         name: s.name,
         price: price&.shown_price,
         time_standard: s.time_standard,
         time_standard_from: s.time_standard_from,
-        time_standard_to: s.time_standard_to
+        time_standard_to: s.time_standard_to,
+        spare_parts_status: s.remnants_s(store),
+        spare_parts_qty: show_qty ? s.remnants_qty(department) : nil
       }
     end
 

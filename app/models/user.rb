@@ -56,6 +56,7 @@ class User < ApplicationRecord
     see_all_users
     access_all_departments
     show_spare_parts_qty
+    show_spare_parts_qty_on_reception
     request_review
     show_reviews
     perform_service_center_tasks
