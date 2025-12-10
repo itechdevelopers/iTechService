@@ -67,6 +67,6 @@ class DepartmentsController < ApplicationController
 
   def department_params
     params.require(:department)
-          .permit(:address, :brand_id, :city_id, :code, :contact_phone, :ip_network, :name, :printer, :role, :schedule, :short_name, :url, :archive, :code_one_c)
+          .permit(:address, :brand_id, :city_id, :code, :contact_phone, :ip_network, :name, :printer, :role, :schedule, :short_name, :url, :archive, :code_one_c, :participates_in_repair_services)
   end
 end

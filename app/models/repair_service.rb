@@ -28,7 +28,9 @@ class RepairService < ApplicationRecord
   has_and_belongs_to_many :device_tasks, join_table: 'device_tasks_repair_services'
 
   accepts_nested_attributes_for :spare_parts, allow_destroy: true
-  accepts_nested_attributes_for :prices
+  accepts_nested_attributes_for :prices, reject_if: proc { |attrs|
+    attrs[:value].blank? && attrs[:value_from].blank? && attrs[:value_to].blank?
+  }
   validates_presence_of :name
   validates_associated :spare_parts
 

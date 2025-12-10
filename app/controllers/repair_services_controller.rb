@@ -200,7 +200,7 @@ class RepairServicesController < ApplicationController
   end
 
   def build_prices
-    Department.real.each do |department|
+    Department.real.participating_in_repair_services.each do |department|
       @repair_service.prices.find_or_initialize_by(department_id: department.id)
     end
   end

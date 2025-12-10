@@ -27,6 +27,6 @@ module DepartmentsHelper
   end
 
   def real_departments
-    Department.real
+    Department.real.participating_in_repair_services
   end
 end

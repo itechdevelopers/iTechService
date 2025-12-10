@@ -17,6 +17,7 @@ class Department < ApplicationRecord
   scope :in_city, ->(city) { where(city: city) }
   scope :active, -> { where(archive: [false, nil]) }
   scope :with_one_c_code, -> { where.not(code_one_c: nil) }
+  scope :participating_in_repair_services, -> { where(participates_in_repair_services: true) }
 
   belongs_to :city
   belongs_to :brand
