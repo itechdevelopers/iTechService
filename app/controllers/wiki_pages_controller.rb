@@ -64,7 +64,9 @@ class WikiPagesController < ApplicationController
   end
 
   def set_category
-    @category = WikiPageCategory.find_or_create_by(title: params[:category_title])
+    @category = if params[:category_title].present?
+                  WikiPageCategory.find_or_create_by(title: params[:category_title])
+                end
   end
 
   def wiki_page_params
