@@ -24,13 +24,11 @@
           multiple: true,
           data: { placeholder: 'Выберите причины' }
 
-      -# 3. Выбор вида ремонта (скрыто по умолчанию)
-      .control-group.repair-service-select-group{style: 'display:none;'}
+      -# 3. Выбор вида ремонта (скрыто по умолчанию, radio buttons)
+      .control-group.repair-service-select-group{style: 'display:none;', data: { 'field-name': "#{f.object_name}[expected_repair_service_ids][]" }}
         %label Вид ремонта
-        = select_tag "#{f.object_name}[expected_repair_service_ids][]",
-          options_for_select([]),
-          class: 'repair-service-select form-control',
-          prompt: 'Выберите вид ремонта'
+        .repair-service-radio-list
+          -# Radio buttons будут добавлены через JavaScript
 
       -# 4. Информация о цене и времени (скрыто по умолчанию)
       .repair-info.alert.alert-info{style: 'display:none;'}

@@ -254,10 +254,35 @@ loadServicesForSelectedCauses = ($block) ->
     $.getJSON "/repair_causes/repair_services_for_causes",
       { cause_ids: cause_ids, product_id: product_id, department_id: department_id },
       (services) ->
-        $serviceSelect = $block.find('.repair-service-select')
-        $serviceSelect.html('<option value="">Выберите вид ремонта</option>')
+        $radioList = $block.find('.repair-service-radio-list')
+        $radioList.empty()
+
+        # Get field name from data attribute
+        fieldName = $block.find('.repair-service-select-group').data('field-name')
+
         $.each services, (i, service) ->
-          $serviceSelect.append("<option value='#{service.id}' data-price='#{service.price}' data-time='#{service.time_standard}' data-time-from='#{service.time_standard_from}' data-time-to='#{service.time_standard_to}'>#{service.name}</option>")
+          # Build status indicator class
+          statusClass = if service.spare_parts_status then "status-#{service.spare_parts_status}" else ''
+
+          # Build quantity text (only shown if spare_parts_qty is present)
+          qtyText = if service.spare_parts_qty? then "#{service.spare_parts_qty} шт." else ''
+
+          $item = $("""
+            <label class="repair-service-radio-item">
+              <input type="radio"
+                     name="#{fieldName}"
+                     value="#{service.id}"
+                     data-price="#{service.price || ''}"
+                     data-time="#{service.time_standard || ''}"
+                     data-time-from="#{service.time_standard_from || ''}"
+                     data-time-to="#{service.time_standard_to || ''}">
+              <span class="service-name">#{service.name}</span>
+              <span class="spare-parts-indicator #{statusClass}"></span>
+              <span class="spare-parts-qty">#{qtyText}</span>
+            </label>
+          """)
+          $radioList.append($item)
+
         $block.find('.repair-service-select-group').fadeIn()
 
 # Initialize multiselect for repair causes (Вариант A — простой стиль)
@@ -368,21 +393,17 @@ $(document).on 'change', '.repair-cause-group-select', ->
 
       $block.find('.repair-cause-select-group').fadeIn()
 
-# Step 3: When REPAIR SERVICE selected → show info
-$(document).on 'change', '.repair-service-select', ->
-  $select = $(this)
-  $block = $select.closest('.repair-selection-block')
-  $option = $select.find('option:selected')
+# Step 3: When REPAIR SERVICE radio button selected → show info
+$(document).on 'change', '.repair-service-radio-item input[type="radio"]', ->
+  $radio = $(this)
+  $block = $radio.closest('.repair-selection-block')
 
-  if $select.val()
-    displayRepairInfo($block, {
-      price: $option.data('price')
-      time_standard: $option.data('time')
-      time_standard_from: $option.data('time-from')
-      time_standard_to: $option.data('time-to')
-    })
-  else
-    hideRepairInfo($block)
+  displayRepairInfo($block, {
+    price: $radio.data('price')
+    time_standard: $radio.data('time')
+    time_standard_from: $radio.data('time-from')
+    time_standard_to: $radio.data('time-to')
+  })
 
   # Update "Вид работы" field (v2 only)
   updateTypeOfWorkField()
@@ -434,9 +455,9 @@ resetRepairCauseSelection = ($container) ->
     $causeSelect.multiselect('rebuild')
   $container.find('.repair-cause-select-group').hide()
 
-# Reset service selection (step 3)
+# Reset service selection (step 3) - now uses radio buttons
 resetRepairServiceSelection = ($container) ->
-  $container.find('.repair-service-select').html('<option value="">Выберите вид ремонта</option>')
+  $container.find('.repair-service-radio-list').empty()
   $container.find('.repair-service-select-group').hide()
 
 # Hide repair info
@@ -452,13 +473,13 @@ resetRepairSelection = ($container) ->
 
 # ========== Type of Work Auto-fill (v2 only) ==========
 
-# Collect all selected repair service names from all blocks
+# Collect all selected repair service names from all blocks (now uses radio buttons)
 collectRepairServiceNames = ->
   names = []
   $('.v2-form-container .repair-selection-block').each ->
-    $select = $(this).find('.repair-service-select')
-    if $select.val()
-      name = $select.find('option:selected').text().trim()
+    $radio = $(this).find('.repair-service-radio-item input[type="radio"]:checked')
+    if $radio.length
+      name = $radio.closest('.repair-service-radio-item').find('.service-name').text().trim()
       names.push(name) if name
   names
 
@@ -520,13 +541,13 @@ parsePriceString = (priceStr) ->
     return null if isNaN(val)
     { min: val, max: val }
 
-# Collect all prices from selected repair services
+# Collect all prices from selected repair services (now uses radio buttons)
 collectRepairPrices = ->
   prices = []
   $('.v2-form-container .repair-selection-block').each ->
-    $select = $(this).find('.repair-service-select')
-    if $select.val()
-      priceStr = $select.find('option:selected').data('price')
+    $radio = $(this).find('.repair-service-radio-item input[type="radio"]:checked')
+    if $radio.length
+      priceStr = $radio.data('price')
       parsed = parsePriceString(priceStr)
       prices.push(parsed) if parsed
   prices
@@ -570,7 +591,7 @@ resetRepairBlock = ($block) ->
 
   # Hide and reset dependent fields
   $block.find('.repair-cause-select-group').hide()
-  $block.find('.repair-service-select').html('<option value="">Выберите вид ремонта</option>')
+  $block.find('.repair-service-radio-list').empty()
   $block.find('.repair-service-select-group').hide()
   $block.find('.repair-info').hide()
 
