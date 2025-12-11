@@ -300,7 +300,6 @@ initRepairCauseMultiselect = ($container) ->
     allSelectedText: 'Все выбраны'
     includeSelectAllOption: true
     selectAllText: 'Выбрать все'
-    buttonWidth: '100%'
     maxHeight: 300
     onInitialized: ->
       $select.closest('.repair-cause-select-group').find('.multiselect-group, .multiselect-option, .multiselect-all').each ->
