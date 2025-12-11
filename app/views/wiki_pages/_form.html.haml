@@ -15,7 +15,7 @@
     = document.label :file, t(".document")
     = document.file_field :file
 
-  = text_field_tag :category_title, '', placeholder: t('.select_category'), class: "category-chosen-value", autocomplete: "off"
+  = text_field_tag :category_title, @page.wiki_page_category&.title, placeholder: t('.select_category'), class: "category-chosen-value", autocomplete: "off"
   %ul.categories-value-list
     - if policy(WikiPage).wiki_superadmin?
       - WikiPageCategory.all.each do |category|
