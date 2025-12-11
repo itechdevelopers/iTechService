@@ -31,9 +31,13 @@
 - @page.documents.each do |document|
   %p
     - if document.file.present?
-      = link_to document.file.file.filename, document.file.file.authenticated_url(expires_in: 600), target: "_blank"
+      - if document.file.image?
+        = image_tag(document.file.thumb.file.authenticated_url(expires_in: 600))
+      - else
+        = link_to document.file.file.filename, document.file.file.authenticated_url(expires_in: 600), target: "_blank"
       = link_to t(".remove_document"), wiki_page_document_path(wiki_page_id: @page.id, id: document.id), method: :delete, data: { confirm: 'Вы уверены?' }, class: 'danger-link'
 
+-# Legacy images (will be removed after migration)
 - @page.images.each_with_index do |image, index|
   %p
     = image_tag(image.url)
