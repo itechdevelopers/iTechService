@@ -21,8 +21,13 @@
 
   - @page.documents.each do |document|
     %p
-      = link_to document.file.file.filename, document.file.file.authenticated_url(expires_in: 600), target: "_blank"
+      - if document.file.image?
+        = link_to document.file.file.authenticated_url(expires_in: 600), target: "_blank" do
+          = image_tag(document.file.thumb.file.authenticated_url(expires_in: 600))
+      - else
+        = link_to document.file.file.filename, document.file.file.authenticated_url(expires_in: 600), target: "_blank"
 
+  -# Legacy images (will be removed after migration)
   - @page.images.each do |image|
     %p
       = image_tag(image.url)

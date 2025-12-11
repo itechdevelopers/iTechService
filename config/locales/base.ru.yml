@@ -231,6 +231,8 @@ ru:
         one: неверной длины (может быть длиной ровно %{count} символ)
         other: неверной длины (может быть длиной ровно %{count} символа)
       other_than: "должно отличаться от %{count}"
+      extension_whitelist_error: "недопустимый тип файла. Разрешены: %{allowed_types}"
+      extension_allowlist_error: "недопустимый тип файла. Разрешены: %{allowed_types}"
     template:
       body: ! 'Проблемы возникли со следующими полями:'
       header:
