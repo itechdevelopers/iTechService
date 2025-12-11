@@ -33,6 +33,11 @@ class ElqueueTicketsReport < BaseReport
   end
 
   def call
+    unless electronic_queue
+      @result = { error: 'Электронная очередь не настроена для данного подразделения' }
+      return
+    end
+
     @result = { name: 'Талоны в очереди', data: waiting_clients(period), resume: resume(period) }
     @result[:pause_data] = pause_data(period)
     @result[:morning_time] = { data: waiting_clients(morning_period), resume: resume(morning_period) }
@@ -83,7 +88,6 @@ class ElqueueTicketsReport < BaseReport
   def waiting_clients(period)
     result = {}
     short_working_time = []
-    electronic_queue = ElectronicQueue.where(department_id: department.id).last
     waiting_clients = WaitingClient.where(status: ['completed', 'did_not_come'])
                                    .where(ticket_issued_at: period)
                                    .joins(queue_item: :electronic_queue)
@@ -145,7 +149,6 @@ class ElqueueTicketsReport < BaseReport
 
   def resume(period)
     result = {}
-    electronic_queue = ElectronicQueue.where(department_id: department.id).last
     result[:elqueue_name] = electronic_queue.queue_name
 
     waiting_clients = WaitingClient.unscoped
@@ -260,5 +263,9 @@ class ElqueueTicketsReport < BaseReport
     return 0 if size.zero?
 
     durations.sum / size.to_f
+  end
+
+  def electronic_queue
+    @electronic_queue ||= ElectronicQueue.where(department_id: department.id).last
   end
 end

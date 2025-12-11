@@ -1,3 +1,8 @@
+- if report.result[:error]
+  .alert.alert-warning
+    = report.result[:error]
+  - return
+
 = label_tag 'accuracy_checkbox' do
   = check_box_tag 'accuracy_checkbox', '1', false, id: 'accuracy_checkbox', class: 'accuracy_checkbox'
   Не учитывать время работы меньше 3 минут
