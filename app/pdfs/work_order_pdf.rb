@@ -86,7 +86,7 @@ class WorkOrderPdf < Prawn::Document
     # Service conditions (dynamic from database)
     conditions = collect_service_conditions(service_job)
     text "Клиент ознакомлен и согласен с условиями проведения ремонта:"
-    conditions_table_data = conditions.map { |c| [c.number, '', { content: c.content }] }
+    conditions_table_data = conditions.each_with_index.map { |c, i| ["#{i + 1}.", '', { content: c.content }] }
     table conditions_table_data, cell_style: { borders: [], padding: 1 } do
       column(0).style width: 12
       column(1).style width: 0
