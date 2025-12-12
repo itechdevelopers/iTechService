@@ -122,7 +122,8 @@ class RepairCausesController < ApplicationController
         time_standard_from: s.time_standard_from,
         time_standard_to: s.time_standard_to,
         spare_parts_status: s.remnants_s(store),
-        spare_parts_qty: show_qty ? s.remnants_qty(department) : nil
+        spare_parts_qty: show_qty ? s.remnants_qty(department) : nil,
+        special_marks: s.special_marks
       }
     end
 
