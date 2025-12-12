@@ -202,6 +202,7 @@ class User < ApplicationRecord
   before_validation :validate_rights_changing
   before_update :update_schedule_column, if: :is_fired_changed?
   before_save :update_elqueue_window_status, if: :elqueue_window_id_changed?
+  before_save :ensure_pause_record_consistency, if: :paused_changed?
   after_create :create_default_settings
   after_create :add_to_auto_add_boards
 
@@ -768,6 +769,12 @@ class User < ApplicationRecord
 
   def update_schedule_column
     self.schedule = false if is_fired
+  end
+
+  def ensure_pause_record_consistency
+    return unless paused_was == true && paused == false
+
+    current_pause&.update!(resumed_at: Time.current)
   end
 
   def validate_rights_changing
