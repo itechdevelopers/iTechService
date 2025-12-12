@@ -267,6 +267,9 @@ loadServicesForSelectedCauses = ($block) ->
           # Build quantity text (only shown if spare_parts_qty is present)
           qtyText = if service.spare_parts_qty? then "#{service.spare_parts_qty} шт." else ''
 
+          # Escape special marks for HTML attribute (replace quotes)
+          escapedMarks = if service.special_marks then String(service.special_marks).replace(/"/g, '&quot;') else ''
+
           $item = $("""
             <label class="repair-service-radio-item">
               <input type="radio"
@@ -275,7 +278,8 @@ loadServicesForSelectedCauses = ($block) ->
                      data-price="#{service.price || ''}"
                      data-time="#{service.time_standard || ''}"
                      data-time-from="#{service.time_standard_from || ''}"
-                     data-time-to="#{service.time_standard_to || ''}">
+                     data-time-to="#{service.time_standard_to || ''}"
+                     data-special-marks="#{escapedMarks}">
               <span class="service-name">#{service.name}</span>
               <span class="spare-parts-indicator #{statusClass}"></span>
               <span class="spare-parts-qty">#{qtyText}</span>
@@ -408,6 +412,10 @@ $(document).on 'change', '.repair-service-radio-item input[type="radio"]', ->
   updateTypeOfWorkField()
   # Update "Ориентировочная стоимость ремонта" field (v2 only)
   updateEstimatedCostField()
+  # Update "Ориентировочный срок ремонта / Комментарии / Особые отметки" field (v2 only)
+  updateClientCommentField()
+  # Update device task cost in table (v2 only)
+  updateDeviceTaskCost($block)
 
 # Format minutes to hours and minutes
 formatDuration = (minutes) ->
@@ -575,6 +583,57 @@ updateEstimatedCostField = ->
 
   prices = collectRepairPrices()
   $field.val(sumAndFormatPrices(prices))
+
+# ========== Client Comment (Special Marks) Auto-fill (v2 only) ==========
+
+# Collect all special marks from selected repair services
+collectSpecialMarks = ->
+  marks = []
+  $('.v2-form-container .repair-selection-block').each ->
+    $radio = $(this).find('.repair-service-radio-item input[type="radio"]:checked')
+    if $radio.length
+      specialMarks = $radio.data('special-marks')
+      if specialMarks && String(specialMarks).trim() != ''
+        marks.push(String(specialMarks).trim())
+  marks
+
+# Update "Ориентировочный срок ремонта / Комментарии / Особые отметки" field
+updateClientCommentField = ->
+  return unless $('.v2-form-container').length > 0
+
+  $field = $('#service_job_client_comment')
+  return unless $field.length > 0
+
+  marks = collectSpecialMarks()
+  if marks.length > 0
+    $field.val(marks.join('; '))
+    autoResizeField($field)
+
+# ========== Device Task Cost Update (v2 only) ==========
+
+# Update device task cost in the tasks table when repair service is selected
+updateDeviceTaskCost = ($block) ->
+  return unless $('.v2-form-container').length > 0
+
+  # Find the parent task row (device_task)
+  $extendedRow = $block.closest('.task-extended-row')
+  $taskRow = $extendedRow.prev('.device_task')
+
+  return unless $taskRow.length > 0
+
+  # Get selected radio and its price
+  $radio = $block.find('.repair-service-radio-item input[type="radio"]:checked')
+  return unless $radio.length > 0
+
+  priceStr = $radio.data('price')
+
+  # Parse price - extract numeric value from string like "1500 руб." or "1000 - 2000"
+  if priceStr
+    # If it's a range, take the first number
+    numericPrice = String(priceStr).replace(/[^\d\-]/g, ' ').trim().split(/\s+/)[0]
+    if numericPrice
+      $costField = $taskRow.find('.device_task_cost')
+      $costField.val(numericPrice)
 
 # Reset a single repair block (for cloning)
 resetRepairBlock = ($block) ->
