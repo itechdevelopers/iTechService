@@ -1,0 +1,23 @@
+ru:
+  activerecord:
+    models:
+      service_condition:
+        one: "Пункт условий обслуживания"
+        few: "Пункта условий обслуживания"
+        many: "Пунктов условий обслуживания"
+        other: "Пунктов условий обслуживания"
+    attributes:
+      service_condition:
+        content: "Текст пункта"
+        position: "Позиция"
+  service_conditions:
+    title: "Пункты заказ-наряда"
+    new:
+      title: "Новый пункт"
+    edit:
+      title: "Редактирование пункта"
+    index:
+      title: "Пункты заказ-наряда"
+    created: "Пункт успешно создан"
+    updated: "Пункт успешно обновлён"
+    deleted: "Пункт успешно удалён"
