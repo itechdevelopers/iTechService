@@ -1,0 +1,6 @@
+= simple_form_for @service_condition, html: { class: 'form-horizontal' } do |f|
+  = f.input :position, label: t('activerecord.attributes.service_condition.position')
+  = f.input :content, as: :text, label: t('activerecord.attributes.service_condition.content'), input_html: { rows: 5 }
+
+  .form-actions
+    = submit_button f

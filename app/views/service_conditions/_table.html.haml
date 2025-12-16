@@ -1,0 +1,17 @@
+- if @service_conditions.any?
+  %table.table.table-striped.table-hover
+    %thead
+      %tr
+        %th= ServiceCondition.human_attribute_name(:position)
+        %th= ServiceCondition.human_attribute_name(:content)
+        %th
+    %tbody
+      - @service_conditions.each do |sc|
+        %tr
+          %td= sc.position
+          %td= truncate(sc.content, length: 100)
+          %td.btn-group
+            = link_to_edit_small sc
+            = link_to_destroy_small sc
+- else
+  = render 'shared/empty'

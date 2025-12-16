@@ -133,6 +133,7 @@ Rails.application.routes.draw do
   end
 
   resources :check_lists
+  resources :service_conditions
 
   resources :locations, except: :show
 
