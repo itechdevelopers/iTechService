@@ -1,0 +1,4 @@
+- # Refresh the entire tab content after removing
+$('#repair_capabilities_tab').html("#{j render 'users/repair_capabilities_tab', user: @user}");
+if ($('.user-capabilities-multiselect').length) { window.initRepairServicesMultiselect(); }
+toastr.success("#{t('users.repair_capabilities.removed_successfully')}");

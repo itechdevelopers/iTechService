@@ -1,0 +1,75 @@
+- capabilities_by_group = user.user_repair_capabilities.includes(repair_service: :repair_group).ordered_by_group.group_by(&:repair_group)
+- capabilities_history = user.user_repair_capabilities.includes(repair_service: :repair_group).ordered_by_date
+- existing_repair_service_ids = user.user_repair_capabilities.pluck(:repair_service_id)
+- repair_service_options = RepairGroup.not_archived.includes(:repair_services).map { |g| [g.name, g.repair_services.not_archived.reject { |rs| existing_repair_service_ids.include?(rs.id) }.map { |rs| [rs.name, rs.id] }] }.reject { |g| g[1].empty? }
+
+.row-fluid
+  .span12
+    %h4= t('users.repair_capabilities.by_groups')
+
+    - if can?(:create, UserRepairCapability)
+      #add_capability_form.well.well-small
+        = form_tag user_repair_capabilities_path(user), remote: true, method: :post, id: 'new_capability_form' do
+          .control-group
+            %label.control-label= t('users.repair_capabilities.select_repair_service')
+            .controls
+              = select_tag 'user_repair_capability[repair_service_ids][]', grouped_options_for_select(repair_service_options, nil), multiple: true, class: 'multiselect-rep-services user-capabilities-multiselect'
+          .control-group
+            %label.control-label= t('users.repair_capabilities.comment')
+            .controls
+              = text_field_tag 'user_repair_capability[comment]', nil, class: 'span8', placeholder: t('users.repair_capabilities.comment_placeholder')
+          .form-actions
+            = submit_tag t('users.repair_capabilities.add'), class: 'btn btn-primary', id: 'add_capability_btn'
+
+    #capabilities_by_group
+      - if capabilities_by_group.any?
+        - capabilities_by_group.each do |repair_group, capabilities|
+          .capability-group.well.well-small{ data: { group_id: repair_group&.id } }
+            .capability-group-header{ style: 'cursor: pointer;' }
+              %i.fa.fa-caret-right.collapse-indicator
+              %strong= repair_group&.name || t('users.repair_capabilities.no_group')
+              %span.badge.badge-info= capabilities.size
+            .capability-group-items.hidden
+              %table.table.table-condensed.table-hover
+                %thead
+                  %tr
+                    %th= RepairService.model_name.human
+                    %th= t('users.repair_capabilities.added_at')
+                    %th= t('users.repair_capabilities.comment')
+                    - if can?(:destroy, UserRepairCapability)
+                      %th
+                %tbody
+                  - capabilities.each do |capability|
+                    %tr.capability-row{ id: "capability_#{capability.id}" }
+                      %td= capability.name
+                      %td= l(capability.created_at, format: :short)
+                      %td= capability.comment.presence || '-'
+                      - if can?(:destroy, UserRepairCapability)
+                        %td
+                          = link_to user_repair_capability_path(user, capability), method: :delete, remote: true, class: 'btn btn-mini btn-danger', data: { confirm: t('users.repair_capabilities.confirm_delete') } do
+                            %i.icon-trash.icon-white
+      - else
+        %p.text-muted= t('users.repair_capabilities.no_capabilities')
+
+    %hr
+
+    %h4= t('users.repair_capabilities.history')
+
+    #capabilities_history
+      - if capabilities_history.any?
+        %table.table.table-condensed.table-striped
+          %thead
+            %tr
+              %th= t('users.repair_capabilities.added_at')
+              %th= RepairGroup.model_name.human
+              %th= RepairService.model_name.human
+              %th= t('users.repair_capabilities.comment')
+          %tbody
+            - capabilities_history.each do |capability|
+              %tr.history-row{ id: "history_#{capability.id}" }
+                %td= l(capability.created_at, format: :date_time)
+                %td= capability.repair_group&.name || '-'
+                %td= capability.name
+                %td= capability.comment.presence || '-'
+      - else
+        %p.text-muted= t('users.repair_capabilities.no_history')

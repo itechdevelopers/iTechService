@@ -94,3 +94,23 @@ ru:
     actual_orders: "Актуальные заказы"
     tabs:
       quick_orders: :quick_orders.index.title
+    repair_capabilities:
+      tab_title: 'Виды работ'
+      by_groups: 'Навыки по группам'
+      history: 'История'
+      select_repair_service: 'Выберите вид ремонта'
+      select_placeholder: 'Выберите вид ремонта...'
+      comment: 'Комментарий'
+      comment_placeholder: 'Комментарий при добавлении (необязательно)'
+      add: 'Добавить'
+      added_at: 'Добавлено'
+      no_group: 'Без группы'
+      no_capabilities: 'Виды работ не назначены'
+      no_history: 'История пуста'
+      confirm_delete: 'Удалить этот вид работы у сотрудника?'
+      added_successfully: 'Вид работы успешно добавлен'
+      added_multiple: 'Добавлено видов работ: %{count}'
+      removed_successfully: 'Вид работы успешно удалён'
+      error_occurred: 'Произошла ошибка'
+      errors:
+        already_assigned: 'уже назначен этому сотруднику'

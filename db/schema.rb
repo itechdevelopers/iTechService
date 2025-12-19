@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20251210121805) do
+ActiveRecord::Schema.define(version: 20251219190417) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -1808,6 +1808,17 @@ ActiveRecord::Schema.define(version: 20251210121805) do
     t.index ["user_id"], name: "index_user_pauses_on_user_id"
   end
 
+  create_table "user_repair_capabilities", force: :cascade do |t|
+    t.bigint "user_id", null: false
+    t.bigint "repair_service_id", null: false
+    t.text "comment"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["repair_service_id"], name: "index_user_repair_capabilities_on_repair_service_id"
+    t.index ["user_id", "repair_service_id"], name: "index_user_repair_capabilities_unique", unique: true
+    t.index ["user_id"], name: "index_user_repair_capabilities_on_user_id"
+  end
+
   create_table "user_settings", force: :cascade do |t|
     t.bigint "user_id", null: false
     t.boolean "fixed_main_menu", default: false, null: false
@@ -2049,6 +2060,8 @@ ActiveRecord::Schema.define(version: 20251210121805) do
   add_foreign_key "user_achievements", "achievements"
   add_foreign_key "user_achievements", "users"
   add_foreign_key "user_pauses", "users"
+  add_foreign_key "user_repair_capabilities", "repair_services"
+  add_foreign_key "user_repair_capabilities", "users"
   add_foreign_key "user_settings", "users"
   add_foreign_key "users", "dismissal_reasons"
   add_foreign_key "users", "elqueue_windows"

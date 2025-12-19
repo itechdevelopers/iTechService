@@ -172,6 +172,8 @@ class User < ApplicationRecord
                           join_table: :kanban_boards_users,
                           association_foreign_key: :kanban_board_id,
                           foreign_key: :user_id
+  has_many :user_repair_capabilities, dependent: :destroy
+  has_many :capable_repair_services, through: :user_repair_capabilities, source: :repair_service
 
   attr_accessor :login, :auth_token
 
