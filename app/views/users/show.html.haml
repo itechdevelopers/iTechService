@@ -33,6 +33,7 @@
       %li= link_to t("users.user_settings"), "#user_settings", "data-toggle" => "tab"
       %li= link_to t("users.notifications"), "#notifications_tab", "data-toggle" => "tab"
       %li= link_to 'Отчёты', '#reports_tab', 'data-toggle' => 'tab'
+      %li= link_to t("users.repair_capabilities.tab_title"), '#repair_capabilities_tab', 'data-toggle' => 'tab'
 
     .tab-content
 
@@ -275,6 +276,9 @@
                       = link_to "Перейти", notification.url if notification.url.present?
                     %td= notification.closed? ? l(notification.closed_at, format: :date_time) : '-'
 
+      #repair_capabilities_tab.tab-pane
+        = render 'users/repair_capabilities_tab', user: @user
+
     - if can? :manage, User
       .form-actions
         - if can? :manage, Salary
@@ -291,3 +295,21 @@
     - if current_user.superadmin? || able_to?(:comment_users)
       #comments.comments_list= comments_list_for @user
       = comment_form_for @user
+
+:javascript
+  $(document).ready(function() {
+    // Toggle capability group items visibility (delegated event for AJAX updates)
+    $(document).on('click', '.capability-group-header', function() {
+      var $group = $(this).closest('.capability-group');
+      var $items = $group.find('.capability-group-items');
+      var $icon = $(this).find('.collapse-indicator');
+
+      $items.toggleClass('hidden');
+      $icon.toggleClass('fa-caret-right fa-caret-down');
+    });
+
+    // Initialize multiselect on page load
+    if ($('.user-capabilities-multiselect').length) {
+      window.initRepairServicesMultiselect();
+    }
+  });

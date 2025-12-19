@@ -1,0 +1,5 @@
+- # Refresh the entire tab content after adding
+$('#repair_capabilities_tab').html("#{j render 'users/repair_capabilities_tab', user: @user}");
+if ($('.user-capabilities-multiselect').length) { window.initRepairServicesMultiselect(); }
+- message = @created_count == 1 ? t('users.repair_capabilities.added_successfully') : t('users.repair_capabilities.added_multiple', count: @created_count)
+toastr.success("#{j message}");

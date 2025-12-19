@@ -60,6 +60,7 @@ ru:
       repair_service: 'Вид ремонта'
       repair_task: 'Ремонтная работа'
       repair_part: 'Запчасть'
+      user_repair_capability: 'Навык ремонта'
       revaluation: 'Переоценка'
       revaluation_act: 'Акт переоценки'
       salary: 'Зарплата'
@@ -449,6 +450,10 @@ ru:
       repair_task:
         repair_parts: 'Запчасти'
         repairer: 'Кто произвёл ремонт?'
+      user_repair_capability:
+        user: 'Сотрудник'
+        repair_service: 'Вид ремонта'
+        comment: 'Комментарий'
       review:
         value: Оценка
         content: Отзыв
@@ -723,6 +728,10 @@ ru:
               required: 'не может быть пустым'
         user:
           subscription_limit_reached: 'Вы можете подписаться максимум на 10 сервисных работ'
+        user_repair_capability:
+          attributes:
+            user_id:
+              already_assigned: 'Этот вид ремонта уже назначен сотруднику'
         wiki_document:
           attributes:
             page:

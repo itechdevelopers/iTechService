@@ -23,6 +23,8 @@ class RepairService < ApplicationRecord
   has_many :store_items, through: :spare_parts
   has_many :prices, class_name: 'RepairPrice', inverse_of: :repair_service, dependent: :destroy
   has_many :repair_tasks, dependent: :restrict_with_error
+  has_many :user_repair_capabilities, dependent: :destroy
+  has_many :capable_users, through: :user_repair_capabilities, source: :user
   has_and_belongs_to_many :repair_causes
   has_and_belongs_to_many :products
   has_and_belongs_to_many :device_tasks, join_table: 'device_tasks_repair_services'

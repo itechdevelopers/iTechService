@@ -1,0 +1,2 @@
+- error_message = @error_message || @capability&.errors&.full_messages&.join(', ') || t('users.repair_capabilities.error_occurred')
+toastr.error("#{j error_message}");
