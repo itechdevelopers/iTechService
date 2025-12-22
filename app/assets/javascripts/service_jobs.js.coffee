@@ -61,11 +61,12 @@ jQuery ->
     $(document).on 'click', '.security-code-option', (e) ->
       e.preventDefault()
       value = $(this).data('value')
+      displayText = $(this).text()
       inputField = $(this).closest('.input-append').find('input')
-      inputField.val(value)
+      inputField.val(displayText)
 
       button = $(this).closest('.btn-group').find('.dropdown-toggle')
-      button.text($(this).text())
+      button.text(displayText)
 
       # Auto-populate client_comment when any "no password" option selected (v2 only)
       if value in ['none', 'not_provided', 'not_known']
@@ -75,6 +76,7 @@ jQuery ->
           if $clientComment.length > 0
             commentText = 'Ввиду отсутствия пароля проверить работоспособность всех функций не предоставляется возможным'
             $clientComment.val(commentText)
+            autoResizeField($clientComment)
 
     $('#service_job_contact_phone_none').click (event)->
       $('#service_job_contact_phone').val '-'
