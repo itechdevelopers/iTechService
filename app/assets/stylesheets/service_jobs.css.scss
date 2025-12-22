@@ -472,6 +472,12 @@ form.service_job_form{
       min-width: 0;
     }
 
+    .form-column-right {
+      position: sticky;
+      top: 10px;
+      align-self: flex-start;
+    }
+
     .form-column-left {
       /* Flex-контейнер устройства - переносим статус на новую строку */
       .device_input {
@@ -548,6 +554,17 @@ form.service_job_form{
       overflow: hidden;
       min-height: 34px;
       transition: height 0.1s ease;
+    }
+
+    /* Highlight animation for auto-filled fields */
+    .highlight-autofill {
+      background-color: #fff9c4 !important; /* Soft pastel yellow */
+      transition: background-color 0.3s ease-in;
+    }
+
+    .highlight-autofill-fade {
+      background-color: #fff !important;
+      transition: background-color 1s ease-out;
     }
   }
 

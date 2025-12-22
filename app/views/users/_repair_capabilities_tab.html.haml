@@ -1,5 +1,5 @@
 - capabilities_by_group = user.user_repair_capabilities.includes(repair_service: :repair_group).ordered_by_group.group_by(&:repair_group)
-- capabilities_history = user.user_repair_capabilities.includes(repair_service: :repair_group).ordered_by_date
+- capabilities_history = user.user_repair_capabilities.includes(repair_service: :repair_group).ordered_by_date.page(1).per(5)
 - existing_repair_service_ids = user.user_repair_capabilities.pluck(:repair_service_id)
 - repair_service_options = RepairGroup.not_archived.includes(:repair_services).map { |g| [g.name, g.repair_services.not_archived.reject { |rs| existing_repair_service_ids.include?(rs.id) }.map { |rs| [rs.name, rs.id] }] }.reject { |g| g[1].empty? }
 
@@ -56,20 +56,4 @@
     %h4= t('users.repair_capabilities.history')
 
     #capabilities_history
-      - if capabilities_history.any?
-        %table.table.table-condensed.table-striped
-          %thead
-            %tr
-              %th= t('users.repair_capabilities.added_at')
-              %th= RepairGroup.model_name.human
-              %th= RepairService.model_name.human
-              %th= t('users.repair_capabilities.comment')
-          %tbody
-            - capabilities_history.each do |capability|
-              %tr.history-row{ id: "history_#{capability.id}" }
-                %td= l(capability.created_at, format: :date_time)
-                %td= capability.repair_group&.name || '-'
-                %td= capability.name
-                %td= capability.comment.presence || '-'
-      - else
-        %p.text-muted= t('users.repair_capabilities.no_history')
+      = render 'user_repair_capabilities/history_table', capabilities_history: capabilities_history, user: user

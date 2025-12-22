@@ -61,11 +61,12 @@ jQuery ->
     $(document).on 'click', '.security-code-option', (e) ->
       e.preventDefault()
       value = $(this).data('value')
+      displayText = $(this).text()
       inputField = $(this).closest('.input-append').find('input')
-      inputField.val(value)
+      inputField.val(displayText)
 
       button = $(this).closest('.btn-group').find('.dropdown-toggle')
-      button.text($(this).text())
+      button.text(displayText)
 
       # Auto-populate client_comment when any "no password" option selected (v2 only)
       if value in ['none', 'not_provided', 'not_known']
@@ -75,6 +76,8 @@ jQuery ->
           if $clientComment.length > 0
             commentText = 'Ввиду отсутствия пароля проверить работоспособность всех функций не предоставляется возможным'
             $clientComment.val(commentText)
+            autoResizeField($clientComment)
+            highlightField($clientComment)
 
     $('#service_job_contact_phone_none').click (event)->
       $('#service_job_contact_phone').val '-'
@@ -496,6 +499,24 @@ autoResizeField = ($field) ->
   $field.css('height', 'auto')
   $field.css('height', $field[0].scrollHeight + 'px')
 
+# Highlight field with yellow background that fades out after 3 seconds
+highlightField = ($field) ->
+  return unless $field.length > 0
+  # Remove any existing highlight classes
+  $field.removeClass('highlight-autofill highlight-autofill-fade')
+  # Force reflow to restart animation
+  $field[0].offsetHeight
+  # Add highlight
+  $field.addClass('highlight-autofill')
+  # After 2 seconds, start fade out (1 second fade transition)
+  setTimeout ->
+    $field.removeClass('highlight-autofill').addClass('highlight-autofill-fade')
+    # Remove fade class after transition completes
+    setTimeout ->
+      $field.removeClass('highlight-autofill-fade')
+    , 1000
+  , 2000
+
 # Update "Вид работы" field with collected repair service names
 updateTypeOfWorkField = ->
   return unless $('.v2-form-container').length > 0
@@ -506,6 +527,7 @@ updateTypeOfWorkField = ->
   names = collectRepairServiceNames()
   $field.val(names.join(', '))
   autoResizeField($field)
+  highlightField($field)
 
 # Collect all selected repair cause names from all blocks
 collectRepairCauseNames = ->
@@ -527,6 +549,7 @@ updateClaimedDefectField = ->
   names = collectRepairCauseNames()
   $field.val(names.join(', '))
   autoResizeField($field)
+  highlightField($field)
 
 # ========== Estimated Cost Auto-fill (v2 only) ==========
 
@@ -583,6 +606,7 @@ updateEstimatedCostField = ->
 
   prices = collectRepairPrices()
   $field.val(sumAndFormatPrices(prices))
+  highlightField($field)
 
 # ========== Client Comment (Special Marks) Auto-fill (v2 only) ==========
 
@@ -608,6 +632,7 @@ updateClientCommentField = ->
   if marks.length > 0
     $field.val(marks.join('; '))
     autoResizeField($field)
+    highlightField($field)
 
 # ========== Device Task Cost Update (v2 only) ==========
 
