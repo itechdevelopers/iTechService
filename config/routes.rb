@@ -83,7 +83,7 @@ Rails.application.routes.draw do
     patch :update_self, on: :member
     patch :update_elqueue_window, on: :member
     resources :achievements, controller: 'user_achievements', defaults: { format: :js }
-    resources :repair_capabilities, controller: 'user_repair_capabilities', only: %i[create destroy], defaults: { format: :js }
+    resources :repair_capabilities, controller: 'user_repair_capabilities', only: %i[index create destroy], defaults: { format: :js }
     get :remember_pause, on: :collection
     patch :unset_remember_pause, on: :member
   end

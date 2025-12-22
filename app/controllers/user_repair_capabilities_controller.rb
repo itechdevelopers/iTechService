@@ -4,6 +4,20 @@ class UserRepairCapabilitiesController < ApplicationController
   before_action :set_user
   before_action :set_capability, only: :destroy
 
+  def index
+    authorize UserRepairCapability
+
+    @capabilities_history = @user.user_repair_capabilities
+                                 .includes(repair_service: :repair_group)
+                                 .ordered_by_date
+                                 .page(params[:page])
+                                 .per(5)
+
+    respond_to do |format|
+      format.js
+    end
+  end
+
   def create
     authorize UserRepairCapability
 

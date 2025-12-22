@@ -1,0 +1,18 @@
+- if capabilities_history.any?
+  %table.table.table-condensed.table-striped
+    %thead
+      %tr
+        %th= t('users.repair_capabilities.added_at')
+        %th= RepairGroup.model_name.human
+        %th= RepairService.model_name.human
+        %th= t('users.repair_capabilities.comment')
+    %tbody
+      - capabilities_history.each do |capability|
+        %tr.history-row{ id: "history_#{capability.id}" }
+          %td= l(capability.created_at, format: :date_time)
+          %td= capability.repair_group&.name || '-'
+          %td= capability.name
+          %td= capability.comment.presence || '-'
+  = paginate capabilities_history, remote: true, params: { controller: 'user_repair_capabilities', action: 'index', user_id: user.id }
+- else
+  %p.text-muted= t('users.repair_capabilities.no_history')
