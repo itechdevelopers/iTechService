@@ -472,6 +472,12 @@ form.service_job_form{
       min-width: 0;
     }
 
+    .form-column-right {
+      position: sticky;
+      top: 10px;
+      align-self: flex-start;
+    }
+
     .form-column-left {
       /* Flex-контейнер устройства - переносим статус на новую строку */
       .device_input {
