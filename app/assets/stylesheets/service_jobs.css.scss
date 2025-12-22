@@ -555,6 +555,17 @@ form.service_job_form{
       min-height: 34px;
       transition: height 0.1s ease;
     }
+
+    /* Highlight animation for auto-filled fields */
+    .highlight-autofill {
+      background-color: #fff9c4 !important; /* Soft pastel yellow */
+      transition: background-color 0.3s ease-in;
+    }
+
+    .highlight-autofill-fade {
+      background-color: #fff !important;
+      transition: background-color 1s ease-out;
+    }
   }
 
   .v2-sidebar {
