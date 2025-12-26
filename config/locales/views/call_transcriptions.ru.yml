@@ -1,0 +1,7 @@
+ru:
+  call_transcriptions:
+    index:
+      title: 'Транскрибированные диалоги'
+    show:
+      title: 'Транскрипция #%{id}'
+    link: 'Транскрибированные диалоги'

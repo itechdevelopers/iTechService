@@ -1,0 +1,33 @@
+.page-header
+  %h1
+    = link_back_to_index
+    = t('.title', id: @call_transcription.id)
+
+.row-fluid
+  .span4
+    %dl.dl-horizontal
+      %dt= CallTranscription.human_attribute_name(:call_date)
+      %dd= l @call_transcription.call_date, format: :date_time
+
+      %dt= CallTranscription.human_attribute_name(:caller_number)
+      %dd= @call_transcription.caller_number
+
+      %dt= CallTranscription.human_attribute_name(:client)
+      %dd
+        - if @call_transcription.client.present?
+          = link_to @call_transcription.client.presentation, client_path(@call_transcription.client)
+        - else
+          \-
+
+      %dt= CallTranscription.human_attribute_name(:recording_url)
+      %dd
+        - if @call_transcription.recording_url.present?
+          = link_to @call_transcription.recording_url, @call_transcription.recording_url, target: '_blank'
+        - else
+          \-
+
+.row-fluid
+  .span12
+    %h3= CallTranscription.human_attribute_name(:transcript_text)
+    .well
+      = simple_format @call_transcription.transcript_text

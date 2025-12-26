@@ -1,0 +1,31 @@
+- if @call_transcriptions.any?
+  %table.table.table-striped.table-hover
+    %thead
+      %tr
+        %th= CallTranscription.human_attribute_name(:id)
+        %th= CallTranscription.human_attribute_name(:call_date)
+        %th= CallTranscription.human_attribute_name(:caller_number)
+        %th= CallTranscription.human_attribute_name(:client)
+        %th= CallTranscription.human_attribute_name(:transcript_text)
+        %th= CallTranscription.human_attribute_name(:recording_url)
+        %th
+    %tbody
+      - @call_transcriptions.each do |transcription|
+        %tr
+          %td= transcription.id
+          %td= l transcription.call_date, format: :date_time
+          %td= transcription.caller_number
+          %td
+            - if transcription.client.present?
+              = link_to transcription.client.presentation, client_path(transcription.client)
+            - else
+              \-
+          %td= truncate(transcription.transcript_text, length: 80)
+          %td= transcription.recording_url.presence || '-'
+          %td.btn-group
+            = link_to_show_small transcription
+
+  = paginate @call_transcriptions
+
+- else
+  = render 'shared/empty'

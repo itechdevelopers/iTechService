@@ -16,6 +16,7 @@ ru:
       cash_shift: 'Кассовая смена'
       category: 'Категория'
       check_list_response: 'Ответ чек-листа'
+      call_transcription: 'Транскрипция звонка'
       city: 'Город'
       client: 'Клиент'
       client_category: 'Категория клиента'
@@ -124,6 +125,14 @@ ru:
         data_file_size: 'data_file_size'  #g
         height: 'height'  #g
         width: 'width'  #g
+
+      call_transcription:
+        call_unique_id: 'Уникальный ID звонка'
+        transcript_text: 'Текст транскрипции'
+        caller_number: 'Номер звонящего'
+        call_date: 'Дата звонка'
+        recording_url: 'Ссылка на запись'
+        client: 'Клиент'
 
       client:
         admin_info: 'Информация админа'
