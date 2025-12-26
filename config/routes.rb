@@ -56,6 +56,7 @@ Rails.application.routes.draw do
   resources :departments
   resources :brands, except: :show
   resources :reports, only: [:index, :new, :create]
+  resources :call_transcriptions, only: %i[index show]
   resources :reviews
   get   'review/:token', to: 'review#edit'
   post  'review/:token/mark_viewed', to: 'review#mark_viewed'
