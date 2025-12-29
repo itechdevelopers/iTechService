@@ -36,6 +36,8 @@ class ElectronicQueue < ApplicationRecord
     shuffled_window_ids = shuffle_windows(elqueue_windows.active_free.pluck(:id))
     shuffled_window_ids.each do |window_id|
       window = ElqueueWindow.find(window_id)
+      next unless window.is_active?
+
       window.next_waiting_client&.start_service(window)
     end
   end
