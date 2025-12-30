@@ -2,6 +2,11 @@ ru:
   call_transcriptions:
     index:
       title: 'Транскрибированные диалоги'
+      date_from: 'Дата от'
+      date_to: 'Дата до'
+      filter: 'Фильтр'
+      clear: 'Сбросить'
+      search_placeholder: 'Поиск по тексту'
     show:
       title: 'Транскрипция #%{id}'
     link: 'Транскрибированные диалоги'

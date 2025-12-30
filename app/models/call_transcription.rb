@@ -9,6 +9,12 @@ class CallTranscription < ApplicationRecord
   before_validation :normalize_caller_number
   before_validation :find_and_link_client, on: :create
 
+  # TODO: Replace with Full-Text Search when needed:
+  # scope :search_text, ->(query) { where("searchable @@ plainto_tsquery('russian', ?)", query) }
+  scope :search_text, ->(query) {
+    where('transcript_text ILIKE ?', "%#{sanitize_sql_like(query)}%")
+  }
+
   private
 
   def normalize_caller_number
