@@ -8,6 +8,13 @@ class CallTranscription < ApplicationRecord
 
   before_validation :normalize_caller_number
   before_validation :find_and_link_client, on: :create
+  after_create_commit :check_marker_words
+
+  # TODO: Replace with Full-Text Search when needed:
+  # scope :search_text, ->(query) { where("searchable @@ plainto_tsquery('russian', ?)", query) }
+  scope :search_text, ->(query) {
+    where('transcript_text ILIKE ?', "%#{sanitize_sql_like(query)}%")
+  }
 
   private
 
@@ -22,5 +29,9 @@ class CallTranscription < ApplicationRecord
       'full_phone_number = :phone OR phone_number = :phone OR contact_phone = :phone',
       phone: caller_number
     ).first
+  end
+
+  def check_marker_words
+    MarkerWordNotificationJob.perform_later(id)
   end
 end

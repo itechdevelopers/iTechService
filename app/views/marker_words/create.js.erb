@@ -1,0 +1,6 @@
+<% if @marker_word.persisted? %>
+  $("#marker_words_list").html("<%= j(render('list')) %>");
+  $("#marker_word_word").val('').focus();
+<% else %>
+  alert("<%= j(@marker_word.errors.full_messages.join(', ')) %>");
+<% end %>

@@ -1,2 +1,16 @@
 = auto_header_tag
-#resource_table= render 'table'
+
+.well.well-small
+  .pull-right
+    = link_to t('.marker_words'), marker_words_path, remote: true, class: 'btn'
+  = form_tag call_transcriptions_path, method: :get, class: 'form-inline' do
+    = text_field_tag :date_from, params[:date_from], class: 'bootstrap-datepicker input-small', placeholder: t('.date_from')
+    %span.separator —
+    = text_field_tag :date_to, params[:date_to], class: 'bootstrap-datepicker input-small', placeholder: t('.date_to')
+    = text_field_tag :query, params[:query], class: 'input-medium', placeholder: t('.search_placeholder')
+    = submit_tag t('.filter'), class: 'btn btn-info'
+    - if params[:date_from].present? || params[:date_to].present? || params[:query].present?
+      = link_to t('.clear'), call_transcriptions_path, class: 'btn'
+
+#resource_table
+  = render 'table'

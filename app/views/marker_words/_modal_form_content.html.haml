@@ -1,0 +1,16 @@
+.modal-header
+  = button_to_close_modal
+  %h3= t('.title')
+
+.modal-body
+  = form_with model: @marker_word, local: false, class: 'form-inline', id: 'marker_word_form' do |f|
+    = f.text_field :word, class: 'input-medium', placeholder: t('.placeholder'), autofocus: true
+    = f.submit t('.add'), class: 'btn btn-success'
+
+  %hr
+
+  #marker_words_list
+    = render 'list'
+
+.modal-footer
+  = link_to t('helpers.links.close'), '#', 'data-dismiss' => 'modal', class: 'btn'
