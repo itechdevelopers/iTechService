@@ -6,3 +6,5 @@ ru:
       add: 'Добавить'
     list:
       empty: 'Нет добавленных слов-маркеров'
+    notification:
+      message: 'В диалоге #%{transcription_id} найдены слова-маркеры: %{words}'
