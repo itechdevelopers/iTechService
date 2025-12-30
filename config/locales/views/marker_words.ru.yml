@@ -1,0 +1,8 @@
+ru:
+  marker_words:
+    modal_form_content:
+      title: 'Слова-маркеры'
+      placeholder: 'Введите слово или фразу'
+      add: 'Добавить'
+    list:
+      empty: 'Нет добавленных слов-маркеров'

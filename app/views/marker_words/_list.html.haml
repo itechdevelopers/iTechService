@@ -1,0 +1,8 @@
+- if @marker_words.any?
+  %ul.unstyled.marker-words-list
+    - @marker_words.each do |marker_word|
+      %li.marker-word-item
+        %span.marker-word-text= marker_word.word
+        = link_to glyph(:remove), marker_word_path(marker_word), method: :delete, remote: true, class: 'btn btn-mini btn-danger', title: t('helpers.links.destroy')
+- else
+  %p.muted= t('.empty')

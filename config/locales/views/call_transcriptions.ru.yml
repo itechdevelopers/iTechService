@@ -7,6 +7,7 @@ ru:
       filter: 'Фильтр'
       clear: 'Сбросить'
       search_placeholder: 'Поиск по тексту'
+      marker_words: 'Слова-маркеры'
     show:
       title: 'Транскрипция #%{id}'
     link: 'Транскрибированные диалоги'
