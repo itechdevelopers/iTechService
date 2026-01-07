@@ -10,10 +10,18 @@ class CallTranscription < ApplicationRecord
   before_validation :find_and_link_client, on: :create
   after_create_commit :check_marker_words
 
-  # TODO: Replace with Full-Text Search when needed:
-  # scope :search_text, ->(query) { where("searchable @@ plainto_tsquery('russian', ?)", query) }
-  scope :search_text, ->(query) {
-    where('transcript_text ILIKE ?', "%#{sanitize_sql_like(query)}%")
+  # TODO: Replace with Full-Text Search when needed
+  scope :search, ->(query) {
+    sanitized = sanitize_sql_like(query)
+    phone_query = query.gsub(/\D/, '')
+
+    if phone_query.present?
+      where('transcript_text ILIKE :text OR caller_number LIKE :phone',
+            text: "%#{sanitized}%",
+            phone: "%#{phone_query}%")
+    else
+      where('transcript_text ILIKE ?', "%#{sanitized}%")
+    end
   }
 
   private
