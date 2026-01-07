@@ -4,4 +4,6 @@ class Achievement < ApplicationRecord
 
   mount_uploader :icon, IconUploader
   mount_uploader :icon_mini, IconUploader
+
+  validates :icon_mini, presence: true
 end

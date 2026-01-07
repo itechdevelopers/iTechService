@@ -6,7 +6,7 @@ ru:
       date_to: 'Дата до'
       filter: 'Фильтр'
       clear: 'Сбросить'
-      search_placeholder: 'Поиск по тексту'
+      search_placeholder: 'Поиск по тексту или номеру'
       marker_words: 'Слова-маркеры'
     show:
       title: 'Транскрипция #%{id}'
