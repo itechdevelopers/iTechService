@@ -12,8 +12,9 @@
           %td= achievement.id
           %td= achievement.name
           %td
-            = image_tag achievement.icon_mini.url,
-                        class: 'achievement-img-icon-mini'
+            - if achievement.icon_mini.present?
+              = image_tag achievement.icon_mini.url,
+                          class: 'achievement-img-icon-mini'
           %td
             - if can? :manage, Achievement
               .btn-group
