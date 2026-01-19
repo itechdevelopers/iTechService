@@ -1,0 +1,6 @@
+ru:
+  schedules:
+    index:
+      title: 'Расписание'
+      placeholder: 'Раздел в разработке'
+    link: 'Расписание'
