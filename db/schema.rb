@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20260119150322) do
+ActiveRecord::Schema.define(version: 20260119165330) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -343,6 +343,18 @@ ActiveRecord::Schema.define(version: 20260119150322) do
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.index ["department_id"], name: "index_department_schedule_configs_on_department_id", unique: true
+  end
+
+  create_table "department_working_hours", force: :cascade do |t|
+    t.bigint "department_id", null: false
+    t.integer "day_of_week", null: false
+    t.time "opens_at"
+    t.time "closes_at"
+    t.boolean "is_closed", default: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["department_id", "day_of_week"], name: "index_dept_working_hours_on_dept_and_day", unique: true
+    t.index ["department_id"], name: "index_department_working_hours_on_department_id"
   end
 
   create_table "departments", id: :serial, force: :cascade do |t|
@@ -2024,6 +2036,7 @@ ActiveRecord::Schema.define(version: 20260119150322) do
   add_foreign_key "check_list_responses", "check_lists"
   add_foreign_key "check_lists", "check_list_items", column: "main_question_id"
   add_foreign_key "department_schedule_configs", "departments"
+  add_foreign_key "department_working_hours", "departments"
   add_foreign_key "departments", "brands"
   add_foreign_key "departments", "cities"
   add_foreign_key "device_tasks", "repair_causes", column: "expected_repair_cause_id"

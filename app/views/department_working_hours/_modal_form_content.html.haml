@@ -1,0 +1,46 @@
+.modal-header
+  = button_to_close_modal
+  %h3= t('.title', department: @department.name)
+
+.modal-body
+  = form_tag department_working_hours_path(@department), method: :patch, remote: true, id: 'working_hours_form' do
+    %table.table.table-condensed
+      %thead
+        %tr
+          %th= t('.day')
+          %th= t('.opens_at')
+          %th= t('.closes_at')
+          %th= t('.is_closed')
+      %tbody
+        - @working_hours.each do |wh|
+          %tr
+            %td= t('date.day_names')[(wh.day_of_week + 1) % 7]
+            %td
+              = time_field_tag "working_hours[#{wh.day_of_week}][opens_at]", wh.opens_at&.strftime('%H:%M'), class: 'input-small working-hours-time'
+            %td
+              = time_field_tag "working_hours[#{wh.day_of_week}][closes_at]", wh.closes_at&.strftime('%H:%M'), class: 'input-small working-hours-time'
+            %td
+              = check_box_tag "working_hours[#{wh.day_of_week}][is_closed]", '1', wh.is_closed?, class: 'is-closed-checkbox'
+
+    .form-actions
+      = submit_tag t('helpers.links.save'), class: 'btn btn-primary'
+
+.modal-footer
+  = link_to t('helpers.links.close'), '#', 'data-dismiss' => 'modal', class: 'btn'
+
+:javascript
+  $(document).ready(function() {
+    $('.is-closed-checkbox').on('change', function() {
+      var row = $(this).closest('tr');
+      var timeInputs = row.find('.working-hours-time');
+      if ($(this).is(':checked')) {
+        timeInputs.prop('disabled', true).val('');
+      } else {
+        timeInputs.prop('disabled', false);
+      }
+    });
+    // Initialize on load
+    $('.is-closed-checkbox:checked').each(function() {
+      $(this).closest('tr').find('.working-hours-time').prop('disabled', true);
+    });
+  });

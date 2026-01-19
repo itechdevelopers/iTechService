@@ -4,7 +4,8 @@ ru:
       title: 'Расписание'
       city: 'Город'
       working_hours: 'Время работы магазина:'
-      working_hours_placeholder: '(будет настроено в следующем цикле)'
+      working_hours_not_set: 'время работы не настроено'
+      closed: 'выходной'
       departments_settings: 'Настройка подразделений'
       shifts_settings: 'Настройка смен'
       occupation_types_settings: 'Настройка занятости'
@@ -17,6 +18,16 @@ ru:
       department: 'Подразделение'
       short_name: 'Сокращение'
       color: 'Цвет'
+      working_hours: 'Время работы'
+      edit_working_hours: 'Настроить время работы'
+
+  department_working_hours:
+    modal_form_content:
+      title: 'Время работы: %{department}'
+      day: 'День'
+      opens_at: 'Открытие'
+      closes_at: 'Закрытие'
+      is_closed: 'Выходной'
 
   shifts:
     modal_form_content:

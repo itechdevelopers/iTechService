@@ -64,6 +64,9 @@ Rails.application.routes.draw do
   end
   resources :shifts, only: %i[index create destroy]
   resources :occupation_types, only: %i[index create destroy]
+  resources :departments do
+    resource :working_hours, only: %i[edit update], controller: 'department_working_hours'
+  end
   resources :reviews
   get   'review/:token', to: 'review#edit'
   post  'review/:token/mark_viewed', to: 'review#mark_viewed'
