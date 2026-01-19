@@ -2,5 +2,46 @@ ru:
   schedules:
     index:
       title: 'Расписание'
-      placeholder: 'Раздел в разработке'
+      city: 'Город'
+      working_hours: 'Время работы магазина:'
+      working_hours_placeholder: '(будет настроено в следующем цикле)'
+      departments_settings: 'Настройка подразделений'
+      shifts_settings: 'Настройка смен'
+      occupation_types_settings: 'Настройка занятости'
+      groups_placeholder: 'Наборы сотрудников будут добавлены далее'
     link: 'Расписание'
+
+  department_schedule_configs:
+    modal_form_content:
+      title: 'Настройка подразделений'
+      department: 'Подразделение'
+      short_name: 'Сокращение'
+      color: 'Цвет'
+
+  shifts:
+    modal_form_content:
+      title: 'Настройка смен'
+      name_placeholder: 'Название смены'
+      short_name_placeholder: 'Сокр.'
+      add: 'Добавить'
+    list:
+      name: 'Название'
+      short_name: 'Сокращение'
+      time: 'Время'
+      empty: 'Смены не добавлены'
+
+  occupation_types:
+    modal_form_content:
+      title: 'Настройка занятости'
+      name_placeholder: 'Название'
+      counts_as_working: 'Учитывать в работе'
+      add: 'Добавить'
+    list:
+      name: 'Название'
+      color: 'Цвет'
+      counts_as_working: 'Учитывать'
+      empty: 'Типы занятости не добавлены'
+
+  helpers:
+    links:
+      save: 'Сохранить'

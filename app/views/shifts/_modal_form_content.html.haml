@@ -1,0 +1,19 @@
+.modal-header
+  = button_to_close_modal
+  %h3= t('.title')
+
+.modal-body
+  = form_with model: @shift, url: shifts_path(city_id: @city.id), local: false, class: 'form-inline', id: 'shift_form' do |f|
+    = f.text_field :name, class: 'input-medium', placeholder: t('.name_placeholder')
+    = f.text_field :short_name, class: 'input-mini', placeholder: t('.short_name_placeholder'), maxlength: 10
+    = f.time_field :start_time, class: 'input-small'
+    = f.time_field :end_time, class: 'input-small'
+    = f.submit t('.add'), class: 'btn btn-success'
+
+  %hr
+
+  #shifts_list
+    = render 'list'
+
+.modal-footer
+  = link_to t('helpers.links.close'), '#', 'data-dismiss' => 'modal', class: 'btn'

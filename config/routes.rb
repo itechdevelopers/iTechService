@@ -59,6 +59,11 @@ Rails.application.routes.draw do
   resources :call_transcriptions, only: %i[index show]
   resources :marker_words, only: %i[index create destroy]
   resources :schedules, only: %i[index]
+  resources :department_schedule_configs, only: %i[index update] do
+    post :batch_update, on: :collection
+  end
+  resources :shifts, only: %i[index create destroy]
+  resources :occupation_types, only: %i[index create destroy]
   resources :reviews
   get   'review/:token', to: 'review#edit'
   post  'review/:token/mark_viewed', to: 'review#mark_viewed'

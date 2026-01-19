@@ -1,0 +1,7 @@
+<% if @occupation_type.persisted? %>
+  $("#occupation_types_list").html("<%= j(render('list')) %>");
+  $("#occupation_type_form")[0].reset();
+  $("#occupation_type_name").focus();
+<% else %>
+  alert("<%= j(@occupation_type.errors.full_messages.join(', ')) %>");
+<% end %>

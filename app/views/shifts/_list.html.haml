@@ -1,0 +1,20 @@
+- if @shifts.any?
+  %table.table.table-condensed.table-striped
+    %thead
+      %tr
+        %th= t('.name')
+        %th= t('.short_name')
+        %th= t('.time')
+        %th
+    %tbody
+      - @shifts.each do |shift|
+        %tr
+          %td= shift.name
+          %td= shift.short_name
+          %td
+            - if shift.start_time && shift.end_time
+              = "#{shift.start_time.strftime('%H:%M')} - #{shift.end_time.strftime('%H:%M')}"
+          %td.text-right
+            = link_to glyph(:remove), shift_path(shift), method: :delete, remote: true, class: 'btn btn-mini btn-danger', title: t('helpers.links.destroy'), data: { confirm: t('helpers.links.confirm') }
+- else
+  %p.muted= t('.empty')

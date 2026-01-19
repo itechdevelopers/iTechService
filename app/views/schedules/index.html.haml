@@ -2,4 +2,26 @@
   %h1= t('.title')
 
 .well.well-small
-  %p= t('.placeholder')
+  = form_tag schedules_path, method: :get, class: 'form-inline' do
+    = label_tag :city_id, t('.city'), class: 'control-label'
+    = select_tag :city_id, options_from_collection_for_select(City.all, :id, :name, @city.id), class: 'input-medium', onchange: 'this.form.submit()'
+
+.well.well-small
+  %p
+    %strong= t('.working_hours')
+    %span.muted= t('.working_hours_placeholder')
+
+.btn-toolbar
+  = link_to department_schedule_configs_path(city_id: @city.id), remote: true, class: 'btn' do
+    = glyph(:building)
+    = t('.departments_settings')
+  = link_to shifts_path(city_id: @city.id), remote: true, class: 'btn' do
+    = glyph(:time)
+    = t('.shifts_settings')
+  = link_to occupation_types_path(city_id: @city.id), remote: true, class: 'btn' do
+    = glyph(:briefcase)
+    = t('.occupation_types_settings')
+
+%hr
+
+%p.muted= t('.groups_placeholder')
