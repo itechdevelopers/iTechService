@@ -1,0 +1,58 @@
+ru:
+  schedules:
+    index:
+      title: 'Расписание'
+      city: 'Город'
+      working_hours: 'Время работы магазина:'
+      working_hours_not_set: 'время работы не настроено'
+      closed: 'выходной'
+      departments_settings: 'Настройка подразделений'
+      shifts_settings: 'Настройка смен'
+      occupation_types_settings: 'Настройка занятости'
+      groups_placeholder: 'Наборы сотрудников будут добавлены далее'
+    link: 'Расписание'
+
+  department_schedule_configs:
+    modal_form_content:
+      title: 'Настройка подразделений'
+      department: 'Подразделение'
+      short_name: 'Сокращение'
+      color: 'Цвет'
+      working_hours: 'Время работы'
+      edit_working_hours: 'Настроить время работы'
+
+  department_working_hours:
+    modal_form_content:
+      title: 'Время работы: %{department}'
+      day: 'День'
+      opens_at: 'Открытие'
+      closes_at: 'Закрытие'
+      is_closed: 'Выходной'
+
+  shifts:
+    modal_form_content:
+      title: 'Настройка смен'
+      name_placeholder: 'Название смены'
+      short_name_placeholder: 'Сокр.'
+      add: 'Добавить'
+    list:
+      name: 'Название'
+      short_name: 'Сокращение'
+      time: 'Время'
+      empty: 'Смены не добавлены'
+
+  occupation_types:
+    modal_form_content:
+      title: 'Настройка занятости'
+      name_placeholder: 'Название'
+      counts_as_working: 'Учитывать в работе'
+      add: 'Добавить'
+    list:
+      name: 'Название'
+      color: 'Цвет'
+      counts_as_working: 'Учитывать'
+      empty: 'Типы занятости не добавлены'
+
+  helpers:
+    links:
+      save: 'Сохранить'

@@ -1,0 +1,22 @@
+- if @occupation_types.any?
+  %table.table.table-condensed.table-striped
+    %thead
+      %tr
+        %th= t('.name')
+        %th= t('.color')
+        %th= t('.counts_as_working')
+        %th
+    %tbody
+      - @occupation_types.each do |occupation_type|
+        %tr
+          %td= occupation_type.name
+          %td
+            - if occupation_type.color.present?
+              %span.label{style: "background-color: #{occupation_type.color}"}= occupation_type.color
+          %td
+            - if occupation_type.counts_as_working?
+              = glyph(:check)
+          %td.text-right
+            = link_to glyph(:remove), occupation_type_path(occupation_type), method: :delete, remote: true, class: 'btn btn-mini btn-danger', title: t('helpers.links.destroy'), data: { confirm: t('helpers.links.confirm') }
+- else
+  %p.muted= t('.empty')

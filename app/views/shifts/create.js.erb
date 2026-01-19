@@ -1,0 +1,7 @@
+<% if @shift.persisted? %>
+  $("#shifts_list").html("<%= j(render('list')) %>");
+  $("#shift_form")[0].reset();
+  $("#shift_name").focus();
+<% else %>
+  alert("<%= j(@shift.errors.full_messages.join(', ')) %>");
+<% end %>

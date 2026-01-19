@@ -1,0 +1,28 @@
+.modal-header
+  = button_to_close_modal
+  %h3= t('.title')
+
+.modal-body
+  = form_with model: @occupation_type, url: occupation_types_path(city_id: @city.id), local: false, class: 'form-inline', id: 'occupation_type_form' do |f|
+    = f.text_field :name, class: 'input-medium', placeholder: t('.name_placeholder')
+    %span.color-preview{style: "display: inline-block; width: 24px; height: 24px; border: 1px solid #ccc; vertical-align: middle; margin-right: 5px; background-color: #CCCCCC;"}
+    = f.color_field :color, class: 'input-mini color-picker', style: 'vertical-align: middle;'
+    = f.label :counts_as_working, class: 'checkbox' do
+      = f.check_box :counts_as_working
+      = t('.counts_as_working')
+    = f.submit t('.add'), class: 'btn btn-success'
+
+  %hr
+
+  #occupation_types_list
+    = render 'list'
+
+.modal-footer
+  = link_to t('helpers.links.close'), '#', 'data-dismiss' => 'modal', class: 'btn'
+
+:javascript
+  $(document).ready(function() {
+    $('.color-picker').on('input change', function() {
+      $(this).prev('.color-preview').css('background-color', $(this).val());
+    });
+  });

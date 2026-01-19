@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20251230184340) do
+ActiveRecord::Schema.define(version: 20260119165330) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -334,6 +334,27 @@ ActiveRecord::Schema.define(version: 20251230184340) do
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.index ["priority", "run_at"], name: "delayed_jobs_priority"
+  end
+
+  create_table "department_schedule_configs", force: :cascade do |t|
+    t.bigint "department_id", null: false
+    t.string "short_name", limit: 10
+    t.string "color", limit: 7, default: "#CCCCCC"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["department_id"], name: "index_department_schedule_configs_on_department_id", unique: true
+  end
+
+  create_table "department_working_hours", force: :cascade do |t|
+    t.bigint "department_id", null: false
+    t.integer "day_of_week", null: false
+    t.time "opens_at"
+    t.time "closes_at"
+    t.boolean "is_closed", default: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["department_id", "day_of_week"], name: "index_dept_working_hours_on_dept_and_day", unique: true
+    t.index ["department_id"], name: "index_department_working_hours_on_department_id"
   end
 
   create_table "departments", id: :serial, force: :cascade do |t|
@@ -809,6 +830,18 @@ ActiveRecord::Schema.define(version: 20251230184340) do
     t.datetime "updated_at", null: false
     t.index ["referenceable_type", "referenceable_id"], name: "index_notifications_on_referenceable_type_and_referenceable_id"
     t.index ["user_id"], name: "index_notifications_on_user_id"
+  end
+
+  create_table "occupation_types", force: :cascade do |t|
+    t.bigint "city_id", null: false
+    t.string "name", null: false
+    t.string "color", limit: 7
+    t.boolean "counts_as_working", default: false
+    t.integer "position", default: 0
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["city_id", "position"], name: "index_occupation_types_on_city_id_and_position"
+    t.index ["city_id"], name: "index_occupation_types_on_city_id"
   end
 
   create_table "option_types", id: :serial, force: :cascade do |t|
@@ -1561,6 +1594,19 @@ ActiveRecord::Schema.define(version: 20251230184340) do
     t.index ["name"], name: "index_settings_on_name"
   end
 
+  create_table "shifts", force: :cascade do |t|
+    t.bigint "city_id", null: false
+    t.string "name", null: false
+    t.string "short_name", limit: 10
+    t.time "start_time"
+    t.time "end_time"
+    t.integer "position", default: 0
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["city_id", "position"], name: "index_shifts_on_city_id_and_position"
+    t.index ["city_id"], name: "index_shifts_on_city_id"
+  end
+
   create_table "spare_part_defects", id: :serial, force: :cascade do |t|
     t.integer "item_id"
     t.integer "contractor_id"
@@ -1989,6 +2035,8 @@ ActiveRecord::Schema.define(version: 20251230184340) do
   add_foreign_key "check_list_items", "check_lists"
   add_foreign_key "check_list_responses", "check_lists"
   add_foreign_key "check_lists", "check_list_items", column: "main_question_id"
+  add_foreign_key "department_schedule_configs", "departments"
+  add_foreign_key "department_working_hours", "departments"
   add_foreign_key "departments", "brands"
   add_foreign_key "departments", "cities"
   add_foreign_key "device_tasks", "repair_causes", column: "expected_repair_cause_id"
@@ -2009,6 +2057,7 @@ ActiveRecord::Schema.define(version: 20251230184340) do
   add_foreign_key "lost_devices", "service_jobs"
   add_foreign_key "messages", "departments"
   add_foreign_key "notifications", "users"
+  add_foreign_key "occupation_types", "cities"
   add_foreign_key "option_values", "option_types"
   add_foreign_key "order_external_syncs", "orders"
   add_foreign_key "order_notes", "orders"
@@ -2050,6 +2099,7 @@ ActiveRecord::Schema.define(version: 20251230184340) do
   add_foreign_key "service_repair_returns", "users", column: "performer_id"
   add_foreign_key "service_sms_notifications", "service_jobs"
   add_foreign_key "service_sms_notifications", "users", column: "sender_id"
+  add_foreign_key "shifts", "cities"
   add_foreign_key "spare_part_defects", "contractors"
   add_foreign_key "spare_part_defects", "items"
   add_foreign_key "spare_part_defects", "repair_parts"

@@ -1,0 +1,41 @@
+.modal-header
+  = button_to_close_modal
+  %h3= t('.title')
+
+.modal-body
+  = form_tag batch_update_department_schedule_configs_path(city_id: @city.id), remote: true, id: 'department_configs_form' do
+    %table.table.table-condensed
+      %thead
+        %tr
+          %th= t('.department')
+          %th= t('.short_name')
+          %th= t('.color')
+          - if current_user.superadmin?
+            %th= t('.working_hours')
+      %tbody
+        - @departments.each do |department|
+          - config = department.schedule_config || department.build_schedule_config
+          %tr
+            %td= department.name
+            %td
+              = text_field_tag "configs[#{department.id}][short_name]", config.short_name, class: 'input-mini', maxlength: 10
+            %td
+              - color_value = config.color.presence || '#CCCCCC'
+              %span.color-preview{style: "display: inline-block; width: 24px; height: 24px; border: 1px solid #ccc; vertical-align: middle; margin-right: 5px; background-color: #{color_value};"}
+              = color_field_tag "configs[#{department.id}][color]", color_value, class: 'input-mini color-picker', style: 'vertical-align: middle;', data: { preview: "color_preview_#{department.id}" }
+            - if current_user.superadmin?
+              %td
+                = link_to glyph(:"clock-o"), edit_department_working_hours_path(department), remote: true, class: 'btn btn-mini', title: t('.edit_working_hours')
+
+    .form-actions
+      = submit_tag t('helpers.links.save'), class: 'btn btn-primary'
+
+.modal-footer
+  = link_to t('helpers.links.close'), '#', 'data-dismiss' => 'modal', class: 'btn'
+
+:javascript
+  $(document).ready(function() {
+    $('.color-picker').on('input change', function() {
+      $(this).prev('.color-preview').css('background-color', $(this).val());
+    });
+  });
