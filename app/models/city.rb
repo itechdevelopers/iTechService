@@ -1,6 +1,6 @@
 class City < ApplicationRecord
   default_scope { order :name }
-  scope :main, -> { joins(:departments).where(departments: {id: Department.main_branches}).references(:departments) }
+  scope :main, -> { joins(:departments).where(departments: {id: Department.main_branches}).distinct }
 
   has_many :departments, inverse_of: :city
   has_many :selectable_departments, -> { Department.selectable }, class_name: 'Department'
