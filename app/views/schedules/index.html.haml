@@ -19,10 +19,10 @@
   = link_to department_schedule_configs_path(city_id: @city.id), remote: true, class: 'btn' do
     = glyph(:building)
     = t('.departments_settings')
-  = link_to shifts_path(city_id: @city.id), remote: true, class: 'btn' do
+  = link_to shifts_path, remote: true, class: 'btn' do
     = glyph(:time)
     = t('.shifts_settings')
-  = link_to occupation_types_path(city_id: @city.id), remote: true, class: 'btn' do
+  = link_to occupation_types_path, remote: true, class: 'btn' do
     = glyph(:briefcase)
     = t('.occupation_types_settings')
 

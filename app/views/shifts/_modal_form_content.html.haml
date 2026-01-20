@@ -3,7 +3,7 @@
   %h3= t('.title')
 
 .modal-body
-  = form_with model: @shift, url: shifts_path(city_id: @city.id), local: false, class: 'form-inline', id: 'shift_form' do |f|
+  = form_with model: @shift, url: shifts_path, local: false, class: 'form-inline', id: 'shift_form' do |f|
     = f.text_field :name, class: 'input-medium', placeholder: t('.name_placeholder')
     = f.text_field :short_name, class: 'input-mini', placeholder: t('.short_name_placeholder'), maxlength: 10
     = f.time_field :start_time, class: 'input-small'
