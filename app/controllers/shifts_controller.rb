@@ -3,16 +3,14 @@
 class ShiftsController < ApplicationController
   def index
     authorize :schedule
-    @city = City.find(params[:city_id])
     load_shifts
-    @shift = @city.shifts.build
+    @shift = Shift.new
     render 'shared/show_modal_form'
   end
 
   def create
     authorize :schedule
-    @city = City.find(params[:city_id])
-    @shift = @city.shifts.build(shift_params)
+    @shift = Shift.new(shift_params)
     @shift.save
     load_shifts
   end
@@ -20,7 +18,6 @@ class ShiftsController < ApplicationController
   def destroy
     authorize :schedule
     @shift = Shift.find(params[:id])
-    @city = @shift.city
     @shift.destroy
     load_shifts
   end
@@ -28,7 +25,7 @@ class ShiftsController < ApplicationController
   private
 
   def load_shifts
-    @shifts = @city.shifts.reorder(:position)
+    @shifts = Shift.reorder(:position)
   end
 
   def shift_params

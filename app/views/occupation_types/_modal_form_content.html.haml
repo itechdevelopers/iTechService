@@ -3,7 +3,7 @@
   %h3= t('.title')
 
 .modal-body
-  = form_with model: @occupation_type, url: occupation_types_path(city_id: @city.id), local: false, class: 'form-inline', id: 'occupation_type_form' do |f|
+  = form_with model: @occupation_type, url: occupation_types_path, local: false, class: 'form-inline', id: 'occupation_type_form' do |f|
     = f.text_field :name, class: 'input-medium', placeholder: t('.name_placeholder')
     %span.color-preview{style: "display: inline-block; width: 24px; height: 24px; border: 1px solid #ccc; vertical-align: middle; margin-right: 5px; background-color: #CCCCCC;"}
     = f.color_field :color, class: 'input-mini color-picker', style: 'vertical-align: middle;'

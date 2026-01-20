@@ -3,16 +3,14 @@
 class OccupationTypesController < ApplicationController
   def index
     authorize :schedule
-    @city = City.find(params[:city_id])
     load_occupation_types
-    @occupation_type = @city.occupation_types.build
+    @occupation_type = OccupationType.new
     render 'shared/show_modal_form'
   end
 
   def create
     authorize :schedule
-    @city = City.find(params[:city_id])
-    @occupation_type = @city.occupation_types.build(occupation_type_params)
+    @occupation_type = OccupationType.new(occupation_type_params)
     @occupation_type.save
     load_occupation_types
   end
@@ -20,7 +18,6 @@ class OccupationTypesController < ApplicationController
   def destroy
     authorize :schedule
     @occupation_type = OccupationType.find(params[:id])
-    @city = @occupation_type.city
     @occupation_type.destroy
     load_occupation_types
   end
@@ -28,7 +25,7 @@ class OccupationTypesController < ApplicationController
   private
 
   def load_occupation_types
-    @occupation_types = @city.occupation_types.reorder(:position)
+    @occupation_types = OccupationType.reorder(:position)
   end
 
   def occupation_type_params

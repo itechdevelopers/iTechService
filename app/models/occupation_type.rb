@@ -1,8 +1,6 @@
 # frozen_string_literal: true
 
 class OccupationType < ApplicationRecord
-  belongs_to :city
-
   validates :name, presence: true
   validates :color, format: { with: /\A#[0-9A-Fa-f]{6}\z/, message: :invalid_hex_color }, allow_blank: true
 
