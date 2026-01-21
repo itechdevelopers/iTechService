@@ -1,0 +1,6 @@
+<% if @schedule_group.errors.any? %>
+$('#modal_form').html('<%= j render "modal_form_content" %>');
+<% else %>
+$('#modal_form').modal('hide');
+$('#schedule_groups_list').html('<%= j render "schedules/groups_list", schedule_groups: @schedule_groups, city: @city %>');
+<% end %>

@@ -5,6 +5,7 @@ class SchedulesController < ApplicationController
     authorize :schedule
     @city = current_city
     @departments = @city.departments.main_branches
+    @schedule_groups = @city.schedule_groups.includes(:owner, :members)
   end
 
   private

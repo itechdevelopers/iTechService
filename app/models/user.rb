@@ -174,6 +174,9 @@ class User < ApplicationRecord
                           foreign_key: :user_id
   has_many :user_repair_capabilities, dependent: :destroy
   has_many :capable_repair_services, through: :user_repair_capabilities, source: :repair_service
+  has_many :owned_schedule_groups, class_name: 'ScheduleGroup', dependent: :destroy
+  has_one :schedule_group_membership, dependent: :destroy
+  has_one :schedule_group, through: :schedule_group_membership
 
   attr_accessor :login, :auth_token
 

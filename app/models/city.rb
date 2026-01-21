@@ -4,6 +4,7 @@ class City < ApplicationRecord
 
   has_many :departments, inverse_of: :city
   has_many :selectable_departments, -> { Department.selectable }, class_name: 'Department'
+  has_many :schedule_groups, dependent: :destroy
 
   # attr_accessible :name, :color, :time_zone
   validates_presence_of :name

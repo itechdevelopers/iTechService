@@ -1,0 +1,22 @@
+- if schedule_groups.any?
+  .row-fluid
+    - schedule_groups.each do |group|
+      .span4
+        .well.well-small
+          .pull-right
+            - if current_user.superadmin? || group.owned_by?(current_user)
+              = link_to glyph(:pencil), edit_schedule_group_path(group), remote: true, class: 'btn btn-mini', title: t('schedules.schedule_groups.edit')
+              = link_to glyph(:trash), schedule_group_path(group), method: :delete, remote: true, data: { confirm: t('schedules.schedule_groups.confirm_delete') }, class: 'btn btn-mini btn-danger', title: t('schedules.schedule_groups.delete')
+          %h5= group.name
+          %p.muted
+            = glyph(:user)
+            = t('schedules.schedule_groups.owner')
+            = group.owner.short_name
+          - if group.members.any?
+            %p
+              %small= group.members.map(&:short_name).join(', ')
+          - else
+            %p.muted
+              %small= t('schedules.schedule_groups.no_members')
+- else
+  %p.muted= t('schedules.schedule_groups.empty')
