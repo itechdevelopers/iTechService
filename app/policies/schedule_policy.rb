@@ -1,6 +1,6 @@
 class SchedulePolicy < ApplicationPolicy
   def index?
-    superadmin? || able_to?(:manage_schedule)
+    superadmin? || able_to?(:manage_schedules)
   end
 
   def manage?

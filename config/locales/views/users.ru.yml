@@ -37,6 +37,7 @@ ru:
       test_new_features: 'Тестировать новые фичи'
       track_elqueue_work: 'Учитывать работу с электронной очередью'
       work_with_electronic_queues: 'Может работать с электронными очередями'
+      manage_schedules: 'Редактировать расписание'
     activities:
       free: Бесплатные
       fast: Быстрые
