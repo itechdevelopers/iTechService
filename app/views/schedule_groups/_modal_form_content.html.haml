@@ -1,0 +1,22 @@
+.modal-header
+  = button_to_close_modal
+  %h3= @schedule_group&.persisted? ? t('.edit_title') : t('.title')
+
+.modal-body
+  = form_with model: @schedule_group, url: @schedule_group&.persisted? ? schedule_group_path(@schedule_group) : schedule_groups_path(city_id: @city.id), local: false, id: 'schedule_group_form' do |f|
+    .control-group
+      = f.label :name, t('.name'), class: 'control-label'
+      .controls
+        = f.text_field :name, class: 'input-xlarge', placeholder: t('.name_placeholder')
+
+    .control-group
+      = label_tag :member_ids, t('.members'), class: 'control-label'
+      .controls
+        = select_tag :member_ids, options_from_collection_for_select(@available_users, :id, :short_name, @schedule_group&.member_ids || []), multiple: true, class: 'input-xlarge', id: 'member_ids_select'
+        %p.help-block= t('.members_help')
+
+    .form-actions
+      = f.submit t('helpers.links.save'), class: 'btn btn-primary'
+
+.modal-footer
+  = link_to t('helpers.links.close'), '#', 'data-dismiss' => 'modal', class: 'btn'

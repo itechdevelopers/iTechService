@@ -9,8 +9,26 @@ ru:
       departments_settings: 'Настройка подразделений'
       shifts_settings: 'Настройка смен'
       occupation_types_settings: 'Настройка занятости'
-      groups_placeholder: 'Наборы сотрудников будут добавлены далее'
+      groups_title: 'Наборы сотрудников'
+      create_group: 'Создать набор'
     link: 'Расписание'
+
+    schedule_groups:
+      owner: 'Владелец:'
+      edit: 'Редактировать'
+      delete: 'Удалить'
+      confirm_delete: 'Вы уверены, что хотите удалить этот набор?'
+      no_members: 'Нет сотрудников'
+      empty: 'Наборы сотрудников ещё не созданы'
+
+  schedule_groups:
+    modal_form_content:
+      title: 'Создать набор сотрудников'
+      edit_title: 'Редактировать набор'
+      name: 'Название'
+      name_placeholder: 'Например: Технари Владивосток'
+      members: 'Сотрудники'
+      members_help: 'Выберите сотрудников, которые будут в этом наборе'
 
   department_schedule_configs:
     modal_form_content:
@@ -56,3 +74,11 @@ ru:
   helpers:
     links:
       save: 'Сохранить'
+
+  activerecord:
+    errors:
+      models:
+        schedule_group_membership:
+          attributes:
+            user_id:
+              already_in_group: 'уже состоит в другом наборе этого города'

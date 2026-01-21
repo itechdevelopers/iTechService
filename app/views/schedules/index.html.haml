@@ -28,4 +28,12 @@
 
 %hr
 
-%p.muted= t('.groups_placeholder')
+%h4= t('.groups_title')
+
+.btn-toolbar
+  = link_to new_schedule_group_path(city_id: @city.id), remote: true, class: 'btn btn-success' do
+    = glyph(:plus)
+    = t('.create_group')
+
+#schedule_groups_list
+  = render 'groups_list', schedule_groups: @schedule_groups, city: @city
