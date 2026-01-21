@@ -66,6 +66,7 @@ class User < ApplicationRecord
     view_god_eye
     view_bad_review_announcements
     work_with_electronic_queues
+    manage_schedules
   ].freeze
 
   ACTIVITIES = %w[free fast long mac].freeze
