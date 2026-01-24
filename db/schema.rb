@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20260121101511) do
+ActiveRecord::Schema.define(version: 20260122124757) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -1406,6 +1406,24 @@ ActiveRecord::Schema.define(version: 20260121101511) do
     t.index ["user_id"], name: "index_schedule_days_on_user_id"
   end
 
+  create_table "schedule_entries", force: :cascade do |t|
+    t.bigint "schedule_group_id", null: false
+    t.bigint "user_id", null: false
+    t.date "date", null: false
+    t.bigint "department_id"
+    t.bigint "shift_id"
+    t.bigint "occupation_type_id"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["date"], name: "index_schedule_entries_on_date"
+    t.index ["department_id"], name: "index_schedule_entries_on_department_id"
+    t.index ["occupation_type_id"], name: "index_schedule_entries_on_occupation_type_id"
+    t.index ["schedule_group_id", "user_id", "date"], name: "index_schedule_entries_uniqueness", unique: true
+    t.index ["schedule_group_id"], name: "index_schedule_entries_on_schedule_group_id"
+    t.index ["shift_id"], name: "index_schedule_entries_on_shift_id"
+    t.index ["user_id"], name: "index_schedule_entries_on_user_id"
+  end
+
   create_table "schedule_group_memberships", force: :cascade do |t|
     t.bigint "schedule_group_id", null: false
     t.bigint "user_id", null: false
@@ -2099,6 +2117,11 @@ ActiveRecord::Schema.define(version: 20260121101511) do
   add_foreign_key "reviews", "clients"
   add_foreign_key "reviews", "service_jobs"
   add_foreign_key "reviews", "users"
+  add_foreign_key "schedule_entries", "departments"
+  add_foreign_key "schedule_entries", "occupation_types"
+  add_foreign_key "schedule_entries", "schedule_groups"
+  add_foreign_key "schedule_entries", "shifts"
+  add_foreign_key "schedule_entries", "users"
   add_foreign_key "schedule_group_memberships", "schedule_groups"
   add_foreign_key "schedule_group_memberships", "users"
   add_foreign_key "schedule_groups", "cities"

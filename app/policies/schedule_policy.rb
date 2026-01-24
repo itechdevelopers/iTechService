@@ -22,4 +22,16 @@ class SchedulePolicy < ApplicationPolicy
   def batch_update?
     index?
   end
+
+  def upsert?
+    index?
+  end
+
+  def batch_upsert?
+    index?
+  end
+
+  def batch_destroy?
+    index?
+  end
 end

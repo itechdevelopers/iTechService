@@ -22,6 +22,16 @@ ru:
       empty: 'Наборы сотрудников ещё не созданы'
 
   schedule_groups:
+    show:
+      back_to_schedules: 'К расписанию'
+      prev_week: 'Пред. неделя'
+      next_week: 'След. неделя'
+      date: 'Дата'
+      day_of_week: 'День недели'
+      department: 'Подразделение'
+      shift: 'Смена'
+      occupation_type: 'Занятость'
+      clear_cell: 'Очистить ячейку'
     modal_form_content:
       title: 'Создать набор сотрудников'
       edit_title: 'Редактировать набор'
