@@ -2,7 +2,7 @@
 
 class ScheduleGroupsController < ApplicationController
   before_action :set_city, only: %i[index new create]
-  before_action :set_schedule_group, only: %i[edit update destroy]
+  before_action :set_schedule_group, only: %i[show edit update destroy]
 
   def index
     authorize :schedule
@@ -28,6 +28,24 @@ class ScheduleGroupsController < ApplicationController
     else
       @available_users = available_users_for_city(@city)
     end
+  end
+
+  def show
+    authorize :schedule
+    @city = @schedule_group.city
+    @week_start = parse_week_start(params[:week])
+    @week_dates = (@week_start..(@week_start + 6.days)).to_a
+    @members = @schedule_group.members.ordered
+    @entries = @schedule_group.schedule_entries
+                              .for_week(@week_start)
+                              .includes(:department, :shift, :occupation_type)
+                              .index_by { |e| [e.user_id, e.date] }
+
+    # Selection panel data
+    @departments = Department.in_city(@city).active.includes(:schedule_config).order(:name)
+    @shifts = Shift.all
+    @occupation_types = OccupationType.all
+    @can_edit = can_edit_week?(@week_start)
   end
 
   def edit
@@ -78,6 +96,15 @@ class ScheduleGroupsController < ApplicationController
     current_user.superadmin? || group.owned_by?(current_user)
   end
 
+  def can_edit_week?(week_start)
+    return true if current_user.superadmin?
+    return false unless @schedule_group.owned_by?(current_user)
+
+    # Owner can edit current and future weeks
+    current_week = Date.current.beginning_of_week(:monday)
+    week_start >= current_week
+  end
+
   def update_memberships
     return unless params[:member_ids]
 
@@ -93,6 +120,16 @@ class ScheduleGroupsController < ApplicationController
     new_member_ids.each_with_index do |user_id, index|
       @schedule_group.memberships.create(user_id: user_id, position: existing_member_ids.size + index)
     end
+  end
+
+  def parse_week_start(week_param)
+    if week_param.present?
+      Date.parse(week_param).beginning_of_week(:monday)
+    else
+      Date.current.beginning_of_week(:monday)
+    end
+  rescue ArgumentError
+    Date.current.beginning_of_week(:monday)
   end
 
   def available_users_for_city(city, current_group = nil)

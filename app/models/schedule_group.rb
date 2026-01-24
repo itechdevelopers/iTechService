@@ -6,6 +6,7 @@ class ScheduleGroup < ApplicationRecord
 
   has_many :memberships, class_name: 'ScheduleGroupMembership', dependent: :destroy
   has_many :members, through: :memberships, source: :user
+  has_many :schedule_entries, dependent: :destroy
 
   validates :name, presence: true
 

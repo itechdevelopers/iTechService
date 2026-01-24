@@ -64,7 +64,11 @@ Rails.application.routes.draw do
   end
   resources :shifts, only: %i[index create destroy]
   resources :occupation_types, only: %i[index create destroy]
-  resources :schedule_groups, only: %i[new create edit update destroy]
+  resources :schedule_groups, only: %i[show new create edit update destroy] do
+    resources :schedule_entries, only: :destroy do
+      post :upsert, on: :collection
+    end
+  end
   resources :departments do
     resource :working_hours, only: %i[edit update], controller: 'department_working_hours'
   end

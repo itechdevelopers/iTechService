@@ -1,0 +1,13 @@
+var $cell = $('.schedule-cell[data-user-id="<%= @entry.user_id %>"][data-date="<%= @entry.date %>"]');
+
+<% if @entry.display_text.present? %>
+  $cell.html('<%= j @entry.display_text %>');
+  $cell.css('background-color', '<%= @entry.background_color %>');
+  $cell.removeClass('empty-cell');
+<% else %>
+  $cell.html('');
+  $cell.css('background-color', '#ffffff');
+  $cell.addClass('empty-cell');
+<% end %>
+
+$cell.data('entry-id', <%= @entry.id %>);

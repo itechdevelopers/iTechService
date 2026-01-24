@@ -1,0 +1,264 @@
+- content_for :title, @schedule_group.name
+
+%h3= @schedule_group.name
+
+.row-fluid
+  .span12
+    %p
+      = link_to schedules_path(city_id: @city.id), class: 'btn' do
+        = glyph(:'arrow-left')
+        = t('.back_to_schedules')
+
+%hr
+
+-# Week navigation
+.row-fluid
+  .span12
+    .btn-toolbar
+      .btn-group
+        = link_to schedule_group_path(@schedule_group, week: @week_start - 7.days), class: 'btn' do
+          = glyph(:'chevron-left')
+          = t('.prev_week')
+        %span.btn.disabled
+          = l(@week_start, format: '%d.%m')
+          \-
+          = l(@week_start + 6.days, format: '%d.%m.%Y')
+        = link_to schedule_group_path(@schedule_group, week: @week_start + 7.days), class: 'btn' do
+          = t('.next_week')
+          = glyph(:'chevron-right')
+
+%hr
+
+-# Selection panel (only if can edit)
+- if @can_edit
+  #selection-panel.well.well-small
+    .row-fluid
+      .span3
+        %h5= t('.department')
+        .btn-group.selection-group{'data-selection' => 'department'}
+          - @departments.each do |dept|
+            - config = dept.schedule_config
+            - if config&.short_name.present?
+              %button.btn.btn-small.selection-btn{'data-id' => dept.id, 'data-short-name' => config.short_name, 'data-color' => config.color}
+                = dept.name
+      .span3
+        %h5= t('.shift')
+        .btn-group.selection-group{'data-selection' => 'shift'}
+          - @shifts.each do |shift|
+            %button.btn.btn-small.selection-btn{'data-id' => shift.id, 'data-short-name' => shift.short_name}
+              = shift.name
+      .span3
+        %h5= t('.occupation_type')
+        .btn-group.selection-group{'data-selection' => 'occupation_type'}
+          - @occupation_types.each do |ot|
+            %button.btn.btn-small.selection-btn{'data-id' => ot.id, 'data-color' => ot.color}
+              = ot.name
+      .span3
+        %h5 &nbsp;
+        %button#clear-selection-btn.btn.btn-warning.btn-small
+          = glyph(:remove)
+          = t('.clear_cell')
+
+%hr
+
+-# Schedule table
+.table-responsive
+  %table.table.table-bordered.schedule-table{'data-schedule-group-id' => @schedule_group.id, 'data-can-edit' => @can_edit.to_s}
+    %thead
+      %tr
+        %th= t('.date')
+        %th= t('.day_of_week')
+        - @members.each do |member|
+          %th.member-header
+            = member.short_name
+    %tbody
+      - @week_dates.each do |date|
+        %tr
+          %td.date-cell= l(date, format: '%d.%m.%Y')
+          %td.weekday-cell= l(date, format: '%A')
+          - @members.each do |member|
+            - entry = @entries[[member.id, date]]
+            - cell_data = {'data-user-id' => member.id, 'data-date' => date.to_s}
+            - cell_data['data-entry-id'] = entry.id if entry
+            - if entry && entry.display_text
+              %td.schedule-cell{cell_data.merge(style: "background-color: #{entry.background_color}")}
+                = entry.display_text
+            - else
+              %td.schedule-cell.empty-cell{cell_data}
+
+:css
+  /* Selection panel */
+  #selection-panel h5 {
+    margin-bottom: 8px;
+    font-weight: bold;
+  }
+  #selection-panel .btn-group {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 4px;
+  }
+  #selection-panel .selection-btn {
+    margin-bottom: 4px;
+  }
+  #selection-panel .selection-btn.active {
+    background-color: #0088cc;
+    color: white;
+    box-shadow: inset 0 3px 5px rgba(0,0,0,0.125);
+  }
+
+  /* Schedule table */
+  .schedule-table th, .schedule-table td {
+    text-align: center;
+    vertical-align: middle;
+  }
+  .schedule-table .date-cell {
+    width: 100px;
+    white-space: nowrap;
+  }
+  .schedule-table .weekday-cell {
+    width: 120px;
+  }
+  .schedule-table .member-header {
+    min-width: 80px;
+  }
+  .schedule-table .schedule-cell {
+    min-width: 60px;
+    height: 40px;
+  }
+  .schedule-table .empty-cell {
+    background-color: #ffffff;
+  }
+  .schedule-table[data-can-edit="true"] .schedule-cell {
+    cursor: pointer;
+  }
+  .schedule-table[data-can-edit="true"] .schedule-cell:hover {
+    opacity: 0.8;
+  }
+
+:javascript
+  $(document).ready(function() {
+    // Selection state
+    var selection = {
+      department: null,
+      shift: null,
+      occupation_type: null,
+      clear_mode: false
+    };
+
+    // Toggle selection on button click
+    $('#selection-panel .selection-btn').on('click', function() {
+      var $btn = $(this);
+      var $group = $btn.closest('.selection-group');
+      var selectionType = $group.data('selection');
+
+      // Disable clear mode when selecting
+      selection.clear_mode = false;
+      $('#clear-selection-btn').removeClass('active');
+
+      // Toggle: if already selected, deselect; otherwise select
+      if ($btn.hasClass('active')) {
+        $btn.removeClass('active');
+        selection[selectionType] = null;
+      } else {
+        $group.find('.selection-btn').removeClass('active');
+        $btn.addClass('active');
+        selection[selectionType] = {
+          id: $btn.data('id'),
+          short_name: $btn.data('short-name'),
+          color: $btn.data('color')
+        };
+      }
+
+      updateSelectionStatus();
+    });
+
+    // Clear mode toggle
+    $('#clear-selection-btn').on('click', function() {
+      var $btn = $(this);
+      selection.clear_mode = !selection.clear_mode;
+      $btn.toggleClass('active', selection.clear_mode);
+
+      // Deselect all when entering clear mode
+      if (selection.clear_mode) {
+        $('#selection-panel .selection-btn').removeClass('active');
+        selection.department = null;
+        selection.shift = null;
+        selection.occupation_type = null;
+      }
+
+      updateSelectionStatus();
+    });
+
+    function updateSelectionStatus() {
+      console.log('Selection:', selection);
+    }
+
+    // Cell click handler
+    var $table = $('.schedule-table');
+    var scheduleGroupId = $table.data('schedule-group-id');
+    var canEdit = $table.data('can-edit');
+
+    console.log('Table found:', $table.length > 0);
+    console.log('Schedule group ID:', scheduleGroupId);
+    console.log('Can edit (raw):', canEdit, typeof canEdit);
+
+    // data-can-edit returns string "true"/"false", need to compare
+    var canEditBool = (canEdit === true || canEdit === 'true');
+    console.log('Can edit (bool):', canEditBool);
+
+    if (canEditBool) {
+      console.log('Attaching click handler to .schedule-cell');
+      $table.on('click', '.schedule-cell', function() {
+        console.log('Cell clicked!');
+        var $cell = $(this);
+        var userId = $cell.data('user-id');
+        var date = $cell.data('date');
+        var entryId = $cell.data('entry-id');
+        console.log('Cell data:', { userId: userId, date: date, entryId: entryId });
+
+        // Clear mode: delete entry
+        if (selection.clear_mode) {
+          if (entryId) {
+            $.ajax({
+              url: '/schedule_groups/' + scheduleGroupId + '/schedule_entries/' + entryId,
+              method: 'DELETE',
+              dataType: 'script'
+            });
+          }
+          return;
+        }
+
+        // Need at least department and shift selected
+        if (!selection.department || !selection.shift) {
+          alert('Выберите подразделение и смену');
+          return;
+        }
+
+        // Upsert entry
+        console.log('Sending upsert request...');
+        $.ajax({
+          url: '/schedule_groups/' + scheduleGroupId + '/schedule_entries/upsert',
+          method: 'POST',
+          dataType: 'script',
+          data: {
+            user_id: userId,
+            date: date,
+            department_id: selection.department.id,
+            shift_id: selection.shift.id,
+            occupation_type_id: selection.occupation_type ? selection.occupation_type.id : null
+          },
+          success: function() {
+            console.log('Upsert success!');
+          },
+          error: function(xhr, status, error) {
+            console.error('Upsert error:', status, error, xhr.responseText);
+          }
+        });
+      });
+    } else {
+      console.log('Edit disabled, not attaching click handler');
+    }
+
+    // Expose selection
+    window.scheduleSelection = selection;
+  });
