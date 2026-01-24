@@ -20,6 +20,14 @@ class ScheduleEntry < ApplicationRecord
   end
 
   def background_color
-    occupation_type&.color || '#FFFFFF'
+    return '#FFFFFF' unless occupation_type
+
+    if occupation_type.counts_as_working?
+      # Working occupation → use department color
+      department&.schedule_config&.color || '#FFFFFF'
+    else
+      # Non-working occupation (vacation, sick leave, etc.) → use occupation color
+      occupation_type.color || '#FFFFFF'
+    end
   end
 end
