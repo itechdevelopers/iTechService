@@ -26,4 +26,12 @@ class SchedulePolicy < ApplicationPolicy
   def upsert?
     index?
   end
+
+  def batch_upsert?
+    index?
+  end
+
+  def batch_destroy?
+    index?
+  end
 end

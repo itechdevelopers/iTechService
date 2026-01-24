@@ -1,0 +1,7 @@
+<% @deleted_cells.each do |cell| %>
+var $cell = $('.schedule-cell[data-user-id="<%= cell[:user_id] %>"][data-date="<%= cell[:date] %>"]');
+$cell.html('');
+$cell.css('background-color', '#ffffff');
+$cell.addClass('empty-cell');
+$cell.removeData('entry-id');
+<% end %>

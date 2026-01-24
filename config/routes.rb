@@ -66,7 +66,11 @@ Rails.application.routes.draw do
   resources :occupation_types, only: %i[index create destroy]
   resources :schedule_groups, only: %i[show new create edit update destroy] do
     resources :schedule_entries, only: :destroy do
-      post :upsert, on: :collection
+      collection do
+        post :upsert
+        post :batch_upsert
+        delete :batch_destroy
+      end
     end
   end
   resources :departments do

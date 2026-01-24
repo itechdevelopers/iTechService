@@ -63,18 +63,18 @@
 
 -# Schedule table
 .table-responsive
-  %table.table.table-bordered.schedule-table{'data-schedule-group-id' => @schedule_group.id, 'data-can-edit' => @can_edit.to_s}
+  %table.table.table-bordered.schedule-table{'data-schedule-group-id' => @schedule_group.id, 'data-can-edit' => @can_edit.to_s, 'data-week-start' => @week_start.to_s}
     %thead
       %tr
         %th= t('.date')
         %th= t('.day_of_week')
         - @members.each do |member|
-          %th.member-header
+          %th.member-header{'data-user-id' => member.id}
             = member.short_name
     %tbody
       - @week_dates.each do |date|
         %tr
-          %td.date-cell= l(date, format: '%d.%m.%Y')
+          %td.date-cell{'data-date' => date.to_s}= l(date, format: '%d.%m.%Y')
           %td.weekday-cell= l(date, format: '%A')
           - @members.each do |member|
             - entry = @entries[[member.id, date]]
@@ -133,6 +133,14 @@
   }
   .schedule-table[data-can-edit="true"] .schedule-cell:hover {
     opacity: 0.8;
+  }
+  .schedule-table[data-can-edit="true"] .member-header,
+  .schedule-table[data-can-edit="true"] .date-cell {
+    cursor: pointer;
+  }
+  .schedule-table[data-can-edit="true"] .member-header:hover,
+  .schedule-table[data-can-edit="true"] .date-cell:hover {
+    background-color: #f5f5f5;
   }
 
 :javascript
@@ -197,9 +205,11 @@
     var $table = $('.schedule-table');
     var scheduleGroupId = $table.data('schedule-group-id');
     var canEdit = $table.data('can-edit');
+    var weekStart = $table.data('week-start');
 
     console.log('Table found:', $table.length > 0);
     console.log('Schedule group ID:', scheduleGroupId);
+    console.log('Week start:', weekStart);
     console.log('Can edit (raw):', canEdit, typeof canEdit);
 
     // data-can-edit returns string "true"/"false", need to compare
@@ -257,6 +267,78 @@
       });
     } else {
       console.log('Edit disabled, not attaching click handler');
+    }
+
+    // Batch fill: click on member header → fill entire row (all week for this user)
+    if (canEditBool) {
+      $table.on('click', '.member-header', function() {
+        var userId = $(this).data('user-id');
+        if (!userId) return;
+
+        if (selection.clear_mode) {
+          // Batch clear for user
+          $.ajax({
+            url: '/schedule_groups/' + scheduleGroupId + '/schedule_entries/batch_destroy',
+            method: 'DELETE',
+            dataType: 'script',
+            data: { user_id: userId, week: weekStart }
+          });
+          return;
+        }
+
+        if (!selection.department || !selection.shift) {
+          alert('Выберите подразделение и смену');
+          return;
+        }
+
+        $.ajax({
+          url: '/schedule_groups/' + scheduleGroupId + '/schedule_entries/batch_upsert',
+          method: 'POST',
+          dataType: 'script',
+          data: {
+            user_id: userId,
+            week: weekStart,
+            department_id: selection.department.id,
+            shift_id: selection.shift.id,
+            occupation_type_id: selection.occupation_type ? selection.occupation_type.id : null
+          }
+        });
+      });
+
+      // Batch fill: click on date cell → fill entire column (all users for this date)
+      $table.on('click', '.date-cell', function() {
+        var date = $(this).data('date');
+        if (!date) return;
+
+        if (selection.clear_mode) {
+          // Batch clear for date
+          $.ajax({
+            url: '/schedule_groups/' + scheduleGroupId + '/schedule_entries/batch_destroy',
+            method: 'DELETE',
+            dataType: 'script',
+            data: { date: date, week: weekStart }
+          });
+          return;
+        }
+
+        if (!selection.department || !selection.shift) {
+          alert('Выберите подразделение и смену');
+          return;
+        }
+
+        $.ajax({
+          url: '/schedule_groups/' + scheduleGroupId + '/schedule_entries/batch_upsert',
+          method: 'POST',
+          dataType: 'script',
+          data: {
+            date: date,
+            week: weekStart,
+            department_id: selection.department.id,
+            shift_id: selection.shift.id,
+            occupation_type_id: selection.occupation_type ? selection.occupation_type.id : null
+          }
+        });
+      });
     }
 
     // Expose selection
