@@ -26,6 +26,7 @@ ru:
       back_to_schedules: 'К расписанию'
       prev_week: 'Пред. неделя'
       next_week: 'След. неделя'
+      export_png: 'Скачать PNG'
       date: 'Дата'
       day_of_week: 'День недели'
       department: 'Подразделение'
