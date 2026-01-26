@@ -26,6 +26,13 @@
         = link_to schedule_group_path(@schedule_group, week: @week_start + 7.days), class: 'btn' do
           = t('.next_week')
           = glyph(:'chevron-right')
+      .btn-group.pull-right
+        = link_to history_schedule_group_path(@schedule_group, week: @week_start), remote: true, class: 'btn' do
+          = glyph(:time)
+          = t('.history')
+        %button#export-png-btn.btn{'data-group-name' => @schedule_group.name, 'data-week' => @week_start.to_s}
+          = glyph(:download)
+          = t('.export_png')
 
 %hr
 
@@ -343,4 +350,55 @@
 
     // Expose selection
     window.scheduleSelection = selection;
+
+    // Export to PNG
+    var $exportBtn = $('#export-png-btn');
+    var exportBtnOriginalHtml = $exportBtn.html();
+
+    $exportBtn.on('click', function() {
+      var $btn = $(this);
+      var groupName = $btn.data('group-name');
+      var week = $btn.data('week');
+      var $table = $('.schedule-table');
+
+      // Disable button during export
+      $btn.prop('disabled', true).html('<i class="icon-spinner icon-spin"></i> Экспорт...');
+
+      // Load html2canvas dynamically if not already loaded
+      if (typeof html2canvas === 'undefined') {
+        var script = document.createElement('script');
+        script.src = 'https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js';
+        script.onload = function() {
+          doExport($table, groupName, week, $btn);
+        };
+        script.onerror = function() {
+          alert('Не удалось загрузить библиотеку экспорта');
+          $btn.prop('disabled', false).html(exportBtnOriginalHtml);
+        };
+        document.head.appendChild(script);
+      } else {
+        doExport($table, groupName, week, $btn);
+      }
+    });
+
+    function doExport($table, groupName, week, $btn) {
+      html2canvas($table[0], {
+        backgroundColor: '#ffffff',
+        scale: 2
+      }).then(function(canvas) {
+        // Create download link
+        var link = document.createElement('a');
+        var filename = 'schedule_' + groupName.replace(/\s+/g, '_') + '_' + week + '.png';
+        link.download = filename;
+        link.href = canvas.toDataURL('image/png');
+        link.click();
+
+        // Restore button
+        $btn.prop('disabled', false).html(exportBtnOriginalHtml);
+      }).catch(function(error) {
+        console.error('Export error:', error);
+        alert('Ошибка при экспорте');
+        $btn.prop('disabled', false).html(exportBtnOriginalHtml);
+      });
+    }
   });

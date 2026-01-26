@@ -34,4 +34,8 @@ class SchedulePolicy < ApplicationPolicy
   def batch_destroy?
     index?
   end
+
+  def history?
+    index?
+  end
 end

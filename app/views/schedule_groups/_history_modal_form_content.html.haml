@@ -1,0 +1,44 @@
+.modal-header
+  = button_to_close_modal
+  %h3= t('.title')
+
+.modal-body
+  - if @audits.any?
+    %table.table.table-condensed.table-striped
+      %thead
+        %tr
+          %th= t('.when')
+          %th= t('.who')
+          %th= t('.action')
+          %th= t('.employee')
+          %th= t('.date')
+          %th= t('.details')
+      %tbody
+        - @audits.each do |audit|
+          - changes = audit.audited_changes
+          - user_id = changes['user_id'] || audit.auditable&.user_id
+          - entry_date = changes['date'] || audit.auditable&.date
+          - employee = User.find_by(id: user_id)
+          %tr
+            %td= l(audit.created_at, format: '%d.%m.%Y %H:%M')
+            %td= audit.user&.short_name || t('.system')
+            %td
+              - case audit.action
+              - when 'create'
+                %span.label.label-success= t('.action_create')
+              - when 'update'
+                %span.label.label-info= t('.action_update')
+              - when 'destroy'
+                %span.label.label-important= t('.action_destroy')
+            %td= employee&.short_name || '-'
+            %td= entry_date.is_a?(Array) ? entry_date.last : entry_date
+            %td
+              - format_audit_details(audit).each do |detail|
+                %small
+                  = detail
+                  %br
+  - else
+    %p.muted= t('.no_changes')
+
+.modal-footer
+  = link_to t('helpers.links.close'), '#', 'data-dismiss' => 'modal', class: 'btn'

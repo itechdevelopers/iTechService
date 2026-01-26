@@ -65,6 +65,7 @@ Rails.application.routes.draw do
   resources :shifts, only: %i[index create destroy]
   resources :occupation_types, only: %i[index create destroy]
   resources :schedule_groups, only: %i[show new create edit update destroy] do
+    get :history, on: :member
     resources :schedule_entries, only: :destroy do
       collection do
         post :upsert
