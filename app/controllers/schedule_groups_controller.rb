@@ -2,7 +2,7 @@
 
 class ScheduleGroupsController < ApplicationController
   before_action :set_city, only: %i[index new create]
-  before_action :set_schedule_group, only: %i[show edit update destroy]
+  before_action :set_schedule_group, only: %i[show edit update destroy history]
 
   def index
     authorize :schedule
@@ -76,6 +76,30 @@ class ScheduleGroupsController < ApplicationController
     end
 
     @schedule_groups = @city.schedule_groups.includes(:owner, :members)
+  end
+
+  def history
+    authorize :schedule
+    @week_start = parse_week_start(params[:week])
+    week_end = @week_start + 6.days
+
+    # Get entry IDs for this week (including deleted ones from audits)
+    entry_ids = @schedule_group.schedule_entries.for_week(@week_start).pluck(:id)
+
+    # Get audits for entries of this group where the entry date falls within the week
+    @audits = Audited::Audit
+              .where(auditable_type: 'ScheduleEntry')
+              .where(associated_type: 'ScheduleGroup', associated_id: @schedule_group.id)
+              .where(
+                "audited_changes->>'date' BETWEEN ? AND ? OR auditable_id IN (?)",
+                @week_start.to_s, week_end.to_s, entry_ids
+              )
+              .includes(:user)
+              .order(created_at: :desc)
+              .limit(100)
+
+    params[:form_name] = 'schedule_groups/history_modal_form_content'
+    render 'shared/show_modal_form'
   end
 
   private

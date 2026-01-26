@@ -1,6 +1,8 @@
 # frozen_string_literal: true
 
 class ScheduleEntry < ApplicationRecord
+  audited associated_with: :schedule_group
+
   belongs_to :schedule_group
   belongs_to :user
   belongs_to :department, optional: true

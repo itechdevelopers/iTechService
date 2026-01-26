@@ -51,4 +51,72 @@ module SchedulesHelper
       "#{day_range} #{first_day.opens_at&.strftime('%H:%M')}-#{first_day.closes_at&.strftime('%H:%M')}"
     end
   end
+
+  # Format audit details for schedule entry changes
+  # Handles create/update/destroy actions and resolves IDs to names
+  def format_audit_details(audit)
+    changes = audit.audited_changes
+    skip_attrs = %w[id created_at updated_at schedule_group_id user_id date]
+    relevant_attrs = %w[department_id shift_id occupation_type_id]
+
+    details = []
+
+    case audit.action
+    when 'create'
+      relevant_attrs.each do |attr|
+        next unless changes.key?(attr)
+
+        value = changes[attr]
+        next unless value
+
+        name = resolve_audit_value(attr, value)
+        details << "#{audit_attr_label(attr)}: #{name}"
+      end
+    when 'update'
+      changes.each do |attr, values|
+        next if skip_attrs.include?(attr)
+        next unless relevant_attrs.include?(attr)
+
+        old_val, new_val = values
+        old_name = resolve_audit_value(attr, old_val)
+        new_name = resolve_audit_value(attr, new_val)
+        details << "#{audit_attr_label(attr)}: #{old_name} → #{new_name}"
+      end
+    when 'destroy'
+      relevant_attrs.each do |attr|
+        next unless changes.key?(attr)
+
+        value = changes[attr]
+        next unless value
+
+        name = resolve_audit_value(attr, value)
+        details << "#{audit_attr_label(attr)}: #{name}"
+      end
+    end
+
+    details
+  end
+
+  def audit_attr_label(attr)
+    I18n.t("schedule_groups.history_modal_form_content.attr_#{attr}", default: attr.humanize)
+  end
+
+  def resolve_audit_value(attr, value)
+    return '-' if value.nil?
+
+    case attr
+    when 'department_id'
+      Department.find_by(id: value)&.schedule_config&.short_name ||
+        Department.find_by(id: value)&.name ||
+        value.to_s
+    when 'shift_id'
+      Shift.find_by(id: value)&.short_name ||
+        Shift.find_by(id: value)&.name ||
+        value.to_s
+    when 'occupation_type_id'
+      OccupationType.find_by(id: value)&.name || value.to_s
+    else
+      value.to_s
+    end
+  end
 end
