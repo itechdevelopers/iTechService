@@ -44,10 +44,8 @@
         %h5= t('.department')
         .btn-group.selection-group{'data-selection' => 'department'}
           - @departments.each do |dept|
-            - config = dept.schedule_config
-            - if config&.short_name.present?
-              %button.btn.btn-small.selection-btn{'data-id' => dept.id, 'data-short-name' => config.short_name, 'data-color' => config.color}
-                = dept.name
+            %button.btn.btn-small.selection-btn{'data-id' => dept.id, 'data-short-name' => dept.schedule_config.short_name, 'data-color' => dept.schedule_config.color}
+              = dept.name
       .span3
         %h5= t('.shift')
         .btn-group.selection-group{'data-selection' => 'shift'}
