@@ -4,7 +4,7 @@ class SchedulesController < ApplicationController
   def index
     authorize :schedule
     @city = current_city
-    @departments = @city.departments.main_branches
+    @departments = @city.departments.includes(:working_hours)
     @schedule_groups = @city.schedule_groups.includes(:owner, :members)
   end
 

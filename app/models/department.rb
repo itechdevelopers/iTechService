@@ -18,6 +18,9 @@ class Department < ApplicationRecord
   scope :active, -> { where(archive: [false, nil]) }
   scope :with_one_c_code, -> { where.not(code_one_c: nil) }
   scope :participating_in_repair_services, -> { where(participates_in_repair_services: true) }
+  scope :with_schedule_config, -> {
+    joins(:schedule_config).where.not(department_schedule_configs: { short_name: [nil, ''] })
+  }
 
   belongs_to :city
   belongs_to :brand

@@ -41,8 +41,8 @@ class ScheduleGroupsController < ApplicationController
                               .includes(:department, :shift, :occupation_type)
                               .index_by { |e| [e.user_id, e.date] }
 
-    # Selection panel data
-    @departments = Department.in_city(@city).active.includes(:schedule_config).order(:name)
+    # Selection panel data — only departments with configured schedule_config
+    @departments = Department.in_city(@city).with_schedule_config.includes(:schedule_config).order(:name)
     @shifts = Shift.all
     @occupation_types = OccupationType.all
     @can_edit = can_edit_week?(@week_start)

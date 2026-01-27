@@ -12,7 +12,7 @@
     .control-group
       = label_tag :member_ids, t('.members'), class: 'control-label'
       .controls
-        = select_tag :member_ids, options_from_collection_for_select(@available_users, :id, :short_name, @schedule_group&.member_ids || []), multiple: true, class: 'input-xlarge', id: 'member_ids_select'
+        = select_tag :member_ids, options_from_collection_for_select(@available_users, :id, :short_name, @schedule_group&.member_ids || []), multiple: true, class: 'input-xlarge multiselect-members', id: 'member_ids_select', style: 'display: none;'
         %p.help-block= t('.members_help')
 
     .form-actions
@@ -20,3 +20,29 @@
 
 .modal-footer
   = link_to t('helpers.links.close'), '#', 'data-dismiss' => 'modal', class: 'btn'
+
+:javascript
+  $(function() {
+    if ($('.multiselect-members').length && !$('.multiselect-members').data('multiselect')) {
+      $('.multiselect-members').multiselect({
+        enableCaseInsensitiveFiltering: true,
+        filterPlaceholder: 'Поиск...',
+        nonSelectedText: 'Выберите сотрудников',
+        nSelectedText: 'выбрано',
+        allSelectedText: 'Все сотрудники',
+        selectAllText: 'Выбрать всех',
+        includeSelectAllOption: true,
+        buttonWidth: '100%',
+        maxHeight: 300,
+        templates: {
+          filter: '<div class="multiselect-filter"><div class="input-prepend"><span class="add-on"><i class="icon-search"></i></span><input class="multiselect-search" type="text" /></div></div>',
+          filterClearBtn: ''
+        },
+        onInitialized: function() {
+          $('.multiselect-members').closest('.controls').find('.multiselect-group, .multiselect-option, .multiselect-all').each(function() {
+            $(this).attr('type', 'button');
+          });
+        }
+      });
+    }
+  });
