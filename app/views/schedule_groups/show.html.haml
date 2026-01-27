@@ -245,9 +245,9 @@
           return;
         }
 
-        // Need at least department and shift selected
-        if (!selection.department || !selection.shift) {
-          alert('Выберите подразделение и смену');
+        // Need department, shift and occupation_type selected
+        if (!selection.department || !selection.shift || !selection.occupation_type) {
+          alert('Выберите подразделение, смену и занятость');
           return;
         }
 
@@ -262,7 +262,7 @@
             date: date,
             department_id: selection.department.id,
             shift_id: selection.shift.id,
-            occupation_type_id: selection.occupation_type ? selection.occupation_type.id : null
+            occupation_type_id: selection.occupation_type.id
           },
           success: function() {
             console.log('Upsert success!');
@@ -293,8 +293,8 @@
           return;
         }
 
-        if (!selection.department || !selection.shift) {
-          alert('Выберите подразделение и смену');
+        if (!selection.department || !selection.shift || !selection.occupation_type) {
+          alert('Выберите подразделение, смену и занятость');
           return;
         }
 
@@ -307,7 +307,7 @@
             week: weekStart,
             department_id: selection.department.id,
             shift_id: selection.shift.id,
-            occupation_type_id: selection.occupation_type ? selection.occupation_type.id : null
+            occupation_type_id: selection.occupation_type.id
           }
         });
       });
@@ -328,8 +328,8 @@
           return;
         }
 
-        if (!selection.department || !selection.shift) {
-          alert('Выберите подразделение и смену');
+        if (!selection.department || !selection.shift || !selection.occupation_type) {
+          alert('Выберите подразделение, смену и занятость');
           return;
         }
 
@@ -342,7 +342,7 @@
             week: weekStart,
             department_id: selection.department.id,
             shift_id: selection.shift.id,
-            occupation_type_id: selection.occupation_type ? selection.occupation_type.id : null
+            occupation_type_id: selection.occupation_type.id
           }
         });
       });

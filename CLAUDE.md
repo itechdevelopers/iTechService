@@ -1,6 +1,6 @@
 # CLAUDE.md - Project Configuration for Claude Code
 
-This project follows the Chris Dunlop Claude Code Workflow for rapid, high-quality development.
+This project follows the Special Claude Code Workflow for rapid, high-quality development.
 Reference: @CONTEXT.md for project architecture, @docs/01-scope.md for current objectives, @PLAYBOOK.md for project-specific patterns.
 
 ## Core Workflow: The 35-Minute Build Loop
@@ -42,11 +42,19 @@ Example: feat: add invoice CSV export
 - **After each loop:** Update CONTEXT.md deltas, append to 02-decisions.md if decisions made. Add only one line of decision made after the loop (if any)
 - **35 minutes means 35 minutes** - Don't stretch it. Quality through constraint.
 
+## Project TODO List
+
+When user says **"Добавь в todo-list"** or **"Add to todo-list"**:
+1. Open `TODO.md` in project root
+2. Add new entry under appropriate category (or create new category)
+3. Use the format with Status, За/Против (or Pros/Cons), and empty Решение field
+4. Status markers: 💭 На обдумывании | ✅ Решено делать | ❌ Отклонено | ⏳ В работе
+
 ## Default Behavior
 
 When starting work:
 1. Check @docs/01-scope.md for current objectives
-2. Read @CONTEXT.md for architecture constraints  
+2. Read @CONTEXT.md for architecture constraints
 3. Work in atomic, testable increments
 4. Return patch diffs with clear commit messages
 
