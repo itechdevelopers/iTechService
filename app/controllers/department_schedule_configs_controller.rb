@@ -4,7 +4,7 @@ class DepartmentScheduleConfigsController < ApplicationController
   def index
     authorize :schedule
     @city = City.find(params[:city_id])
-    @departments = @city.departments.main_branches.includes(:schedule_config)
+    @departments = @city.departments.includes(:schedule_config)
     render 'shared/show_modal_form'
   end
 
@@ -13,7 +13,7 @@ class DepartmentScheduleConfigsController < ApplicationController
     @config = DepartmentScheduleConfig.find(params[:id])
     @config.update(config_params)
     @city = @config.department.city
-    @departments = @city.departments.main_branches.includes(:schedule_config)
+    @departments = @city.departments.includes(:schedule_config)
   end
 
   def batch_update
@@ -26,7 +26,7 @@ class DepartmentScheduleConfigsController < ApplicationController
       config.update(short_name: config_attrs[:short_name], color: config_attrs[:color])
     end
 
-    @departments = @city.departments.main_branches.includes(:schedule_config)
+    @departments = @city.departments.includes(:schedule_config)
     render :update
   end
 

@@ -11,6 +11,11 @@
 
 %hr
 
+-# PNG export hint (shown when disabled, above navigation)
+- png_disabled = @can_edit && (@snapshot.nil? || @has_unsaved_changes)
+- if png_disabled
+  %p#export-hint.export-hint.text-warning.text-right= t('.save_to_export_hint')
+
 -# Week navigation
 .row-fluid
   .span12
@@ -30,7 +35,7 @@
         = link_to history_schedule_group_path(@schedule_group, week: @week_start), remote: true, class: 'btn' do
           = glyph(:time)
           = t('.history')
-        %button#export-png-btn.btn{'data-group-name' => @schedule_group.name, 'data-week' => @week_start.to_s}
+        %button#export-png-btn.btn{'data-group-name' => @schedule_group.name, 'data-week-start' => l(@week_start, format: '%d.%m.%Y'), 'data-week-end' => l(@week_start + 6.days, format: '%d.%m.%Y'), disabled: png_disabled}
           = glyph(:download)
           = t('.export_png')
 
@@ -45,19 +50,22 @@
         .btn-group.selection-group{'data-selection' => 'department'}
           - @departments.each do |dept|
             %button.btn.btn-small.selection-btn{'data-id' => dept.id, 'data-short-name' => dept.schedule_config.short_name, 'data-color' => dept.schedule_config.color}
-              = dept.name
+              .btn-label= dept.name
+              %span.btn-hint-badge{style: "background-color: #{dept.schedule_config.color}"}= dept.schedule_config.short_name
       .span3
         %h5= t('.shift')
         .btn-group.selection-group{'data-selection' => 'shift'}
           - @shifts.each do |shift|
             %button.btn.btn-small.selection-btn{'data-id' => shift.id, 'data-short-name' => shift.short_name}
-              = shift.name
+              .btn-label= shift.name
+              .btn-hint= shift.short_name
       .span3
         %h5= t('.occupation_type')
         .btn-group.selection-group{'data-selection' => 'occupation_type'}
           - @occupation_types.each do |ot|
             %button.btn.btn-small.selection-btn{'data-id' => ot.id, 'data-color' => ot.color}
-              = ot.name
+              .btn-label= ot.name
+              %span.btn-hint-color{style: "background-color: #{ot.color}"}
       .span3
         %h5 &nbsp;
         %button#clear-selection-btn.btn.btn-warning.btn-small
@@ -90,6 +98,28 @@
                 = entry.display_text
             - else
               %td.schedule-cell.empty-cell{cell_data}
+
+-# Save button and status (under table)
+- if @can_edit
+  .save-section
+    %button#save-schedule-btn.btn.btn-primary{'data-url' => save_week_schedule_group_path(@schedule_group, week: @week_start), 'data-has-unsaved' => (@snapshot.nil? || @has_unsaved_changes).to_s}
+      = glyph(:ok)
+      %span.btn-text= (@snapshot.nil? || @has_unsaved_changes) ? t('.save_schedule_unsaved') : t('.save_schedule')
+    #save-status.save-status
+      - if @snapshot
+        - city_tz = @city.time_zone || 'Vladivostok'
+        - saved_at_local = @snapshot.saved_at.in_time_zone(city_tz)
+        - if @has_unsaved_changes
+          %span.text-warning
+            = glyph(:'exclamation-sign')
+            = t('.updated_at', date: l(saved_at_local, format: :short))
+        - else
+          %span.text-success
+            = glyph(:ok)
+            - if @snapshot.created_at == @snapshot.updated_at
+              = t('.saved_at', date: l(saved_at_local, format: :short))
+            - else
+              = t('.updated_at', date: l(saved_at_local, format: :short))
 
 :css
   /* Selection panel */
@@ -146,6 +176,23 @@
   .schedule-table[data-can-edit="true"] .member-header:hover,
   .schedule-table[data-can-edit="true"] .date-cell:hover {
     background-color: #f5f5f5;
+  }
+
+  /* Export hint (above navigation, right-aligned) */
+  .export-hint {
+    font-size: 12px;
+    margin-bottom: 5px;
+  }
+
+  /* Save section (button + status) */
+  .save-section {
+    margin-top: 16px;
+    display: flex;
+    align-items: center;
+    gap: 16px;
+  }
+  .save-status {
+    font-size: 13px;
   }
 
 :javascript
@@ -237,7 +284,8 @@
             $.ajax({
               url: '/schedule_groups/' + scheduleGroupId + '/schedule_entries/' + entryId,
               method: 'DELETE',
-              dataType: 'script'
+              dataType: 'script',
+              success: function() { window.markScheduleUnsaved && window.markScheduleUnsaved(); }
             });
           }
           return;
@@ -264,6 +312,7 @@
           },
           success: function() {
             console.log('Upsert success!');
+            window.markScheduleUnsaved && window.markScheduleUnsaved();
           },
           error: function(xhr, status, error) {
             console.error('Upsert error:', status, error, xhr.responseText);
@@ -286,7 +335,8 @@
             url: '/schedule_groups/' + scheduleGroupId + '/schedule_entries/batch_destroy',
             method: 'DELETE',
             dataType: 'script',
-            data: { user_id: userId, week: weekStart }
+            data: { user_id: userId, week: weekStart },
+            success: function() { window.markScheduleUnsaved && window.markScheduleUnsaved(); }
           });
           return;
         }
@@ -306,7 +356,8 @@
             department_id: selection.department.id,
             shift_id: selection.shift.id,
             occupation_type_id: selection.occupation_type.id
-          }
+          },
+          success: function() { window.markScheduleUnsaved && window.markScheduleUnsaved(); }
         });
       });
 
@@ -321,7 +372,8 @@
             url: '/schedule_groups/' + scheduleGroupId + '/schedule_entries/batch_destroy',
             method: 'DELETE',
             dataType: 'script',
-            data: { date: date, week: weekStart }
+            data: { date: date, week: weekStart },
+            success: function() { window.markScheduleUnsaved && window.markScheduleUnsaved(); }
           });
           return;
         }
@@ -341,7 +393,8 @@
             department_id: selection.department.id,
             shift_id: selection.shift.id,
             occupation_type_id: selection.occupation_type.id
-          }
+          },
+          success: function() { window.markScheduleUnsaved && window.markScheduleUnsaved(); }
         });
       });
     }
@@ -349,14 +402,87 @@
     // Expose selection
     window.scheduleSelection = selection;
 
-    // Export to PNG
+    // === Save Schedule functionality ===
+    var $saveBtn = $('#save-schedule-btn');
     var $exportBtn = $('#export-png-btn');
+    var hasUnsavedChanges = $saveBtn.data('has-unsaved') === true || $saveBtn.data('has-unsaved') === 'true';
+
+    // Translations (embedded from Rails)
+    var i18n = {
+      save_schedule: '#{j t('.save_schedule')}',
+      save_schedule_unsaved: '#{j t('.save_schedule_unsaved')}',
+      saving: '#{j t('.saving')}',
+      saved_at: '#{j t('.saved_at', date: '__DATE__')}',
+      updated_at: '#{j t('.updated_at', date: '__DATE__')}',
+      save_to_export_hint: '#{j t('.save_to_export_hint')}'
+    };
+
+    // Mark as having unsaved changes (called after cell modifications)
+    window.markScheduleUnsaved = function() {
+      hasUnsavedChanges = true;
+      updateSaveButtonState();
+    };
+
+    function updateSaveButtonState() {
+      var $hint = $('#export-hint');
+      if (hasUnsavedChanges) {
+        $saveBtn.find('.btn-text').text(i18n.save_schedule_unsaved);
+        $exportBtn.prop('disabled', true);
+        // Show or create hint (above navigation row)
+        if ($hint.length === 0) {
+          $('.btn-toolbar').first().before('<p id="export-hint" class="export-hint text-warning text-right">' + i18n.save_to_export_hint + '</p>');
+        } else {
+          $hint.show();
+        }
+      } else {
+        $saveBtn.find('.btn-text').text(i18n.save_schedule);
+        $exportBtn.prop('disabled', false);
+        $hint.hide();
+      }
+    }
+
+    // Save schedule button click
+    $saveBtn.on('click', function() {
+      var $btn = $(this);
+      var url = $btn.data('url');
+      var originalHtml = $btn.html();
+
+      $btn.prop('disabled', true).html('<i class="icon-spinner icon-spin"></i> ' + i18n.saving);
+
+      $.ajax({
+        url: url,
+        method: 'POST',
+        dataType: 'json',
+        success: function(response) {
+          if (response.success) {
+            hasUnsavedChanges = false;
+            updateSaveButtonState();
+
+            // Update status text
+            var statusText = response.first_save
+              ? i18n.saved_at.replace('__DATE__', response.saved_at)
+              : i18n.updated_at.replace('__DATE__', response.saved_at);
+
+            $('#save-status').html('<span class="text-success"><i class="icon-ok"></i> ' + statusText + '</span>');
+          }
+          $btn.prop('disabled', false).html(originalHtml);
+          updateSaveButtonState();
+        },
+        error: function(xhr) {
+          alert('Ошибка сохранения');
+          $btn.prop('disabled', false).html(originalHtml);
+        }
+      });
+    });
+
+    // Export to PNG
     var exportBtnOriginalHtml = $exportBtn.html();
 
     $exportBtn.on('click', function() {
       var $btn = $(this);
       var groupName = $btn.data('group-name');
-      var week = $btn.data('week');
+      var weekStart = $btn.data('week-start');
+      var weekEnd = $btn.data('week-end');
       var $table = $('.schedule-table');
 
       // Disable button during export
@@ -367,7 +493,7 @@
         var script = document.createElement('script');
         script.src = 'https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js';
         script.onload = function() {
-          doExport($table, groupName, week, $btn);
+          doExport($table, groupName, weekStart, weekEnd, $btn);
         };
         script.onerror = function() {
           alert('Не удалось загрузить библиотеку экспорта');
@@ -375,18 +501,18 @@
         };
         document.head.appendChild(script);
       } else {
-        doExport($table, groupName, week, $btn);
+        doExport($table, groupName, weekStart, weekEnd, $btn);
       }
     });
 
-    function doExport($table, groupName, week, $btn) {
+    function doExport($table, groupName, weekStart, weekEnd, $btn) {
       html2canvas($table[0], {
         backgroundColor: '#ffffff',
         scale: 2
       }).then(function(canvas) {
         // Create download link
         var link = document.createElement('a');
-        var filename = 'schedule_' + groupName.replace(/\s+/g, '_') + '_' + week + '.png';
+        var filename = groupName.replace(/\s+/g, '_') + '_' + weekStart.replace(/\./g, '-') + '_' + weekEnd.replace(/\./g, '-') + '.png';
         link.download = filename;
         link.href = canvas.toDataURL('image/png');
         link.click();

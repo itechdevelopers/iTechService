@@ -458,6 +458,60 @@ tr.fields {
   padding-left: 40px;
 }
 
+// Fix multiselect dropdown inside modals - allow it to overflow modal-body
+.modal .modal-body {
+  overflow: visible;
+}
+
+.modal .multiselect-container {
+  position: absolute;
+  z-index: 1060;
+}
+
+// Schedule selection panel - button hints
+#selection-panel .selection-btn {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 4px 8px;
+  min-width: 60px;
+
+  .btn-label {
+    font-size: 12px;
+    line-height: 1.2;
+  }
+
+  .btn-hint {
+    font-size: 10px;
+    color: #999;
+    margin-top: 2px;
+  }
+
+  .btn-hint-color {
+    display: inline-block;
+    width: 14px;
+    height: 14px;
+    border-radius: 50%;
+    margin-top: 4px;
+    border: 1px solid rgba(0, 0, 0, 0.1);
+  }
+
+  .btn-hint-badge {
+    display: inline-block;
+    min-width: 18px;
+    height: 18px;
+    line-height: 18px;
+    padding: 0 4px;
+    border-radius: 9px;
+    margin-top: 4px;
+    font-size: 10px;
+    font-weight: bold;
+    color: #fff;
+    text-shadow: 0 0 2px rgba(0, 0, 0, 0.3);
+    border: 1px solid rgba(0, 0, 0, 0.1);
+  }
+}
+
 .checklist-success {
   color: #5cb85c !important;
 }
