@@ -12,7 +12,7 @@
     .control-group
       = label_tag :member_ids, t('.members'), class: 'control-label'
       .controls
-        = select_tag :member_ids, options_from_collection_for_select(@available_users, :id, :short_name, @schedule_group&.member_ids || []), multiple: true, class: 'input-xlarge multiselect-members', id: 'member_ids_select', style: 'display: none;'
+        = select_tag :member_ids, options_from_collection_for_select(@available_users, :id, :short_name_with_role, @schedule_group&.member_ids || []), multiple: true, class: 'input-xlarge multiselect-members', id: 'member_ids_select', style: 'display: none;'
         %p.help-block= t('.members_help')
 
     .form-actions
