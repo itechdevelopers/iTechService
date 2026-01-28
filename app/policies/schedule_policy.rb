@@ -38,4 +38,8 @@ class SchedulePolicy < ApplicationPolicy
   def history?
     index?
   end
+
+  def save_week?
+    index?
+  end
 end

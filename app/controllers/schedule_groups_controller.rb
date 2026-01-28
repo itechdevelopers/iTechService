@@ -2,7 +2,7 @@
 
 class ScheduleGroupsController < ApplicationController
   before_action :set_city, only: %i[index new create]
-  before_action :set_schedule_group, only: %i[show edit update destroy history]
+  before_action :set_schedule_group, only: %i[show edit update destroy history save_week]
 
   def index
     authorize :schedule
@@ -46,6 +46,10 @@ class ScheduleGroupsController < ApplicationController
     @shifts = Shift.all
     @occupation_types = OccupationType.all
     @can_edit = can_edit_week?(@week_start)
+
+    # Snapshot data for save button state
+    @snapshot = @schedule_group.snapshot_for_week(@week_start)
+    @has_unsaved_changes = @schedule_group.has_unsaved_changes_for_week?(@week_start)
   end
 
   def edit
@@ -100,6 +104,27 @@ class ScheduleGroupsController < ApplicationController
 
     params[:form_name] = 'schedule_groups/history_modal_form_content'
     render 'shared/show_modal_form'
+  end
+
+  def save_week
+    authorize :schedule
+    @week_start = parse_week_start(params[:week])
+
+    snapshot = @schedule_group.schedule_week_snapshots
+                              .find_or_initialize_by(week_start: @week_start)
+    snapshot.saved_at = Time.current
+
+    if snapshot.save
+      snapshot.reload
+      city_tz = @schedule_group.city.time_zone || 'Vladivostok'
+      render json: {
+        success: true,
+        saved_at: I18n.l(snapshot.saved_at.in_time_zone(city_tz), format: :short),
+        first_save: snapshot.created_at == snapshot.updated_at
+      }
+    else
+      render json: { success: false, errors: snapshot.errors.full_messages }, status: :unprocessable_entity
+    end
   end
 
   private
