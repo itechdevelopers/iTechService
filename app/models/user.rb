@@ -372,6 +372,11 @@ class User < ApplicationRecord
     res
   end
 
+  def short_name_with_role
+    role_name = I18n.t("users.roles.#{role}")
+    "#{short_name} (#{role_name})"
+  end
+
   def at_short_name
     "@#{short_name}"
   end

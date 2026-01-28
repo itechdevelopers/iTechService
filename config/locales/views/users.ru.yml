@@ -51,6 +51,7 @@ ru:
       title: 'Новый пользователь'
     roles:
       admin: 'Админ'
+      api: 'API'
       driver: 'Водитель'
       manager: 'Менеджер'
       marketing: 'Маркетолог'
