@@ -45,19 +45,22 @@
         .btn-group.selection-group{'data-selection' => 'department'}
           - @departments.each do |dept|
             %button.btn.btn-small.selection-btn{'data-id' => dept.id, 'data-short-name' => dept.schedule_config.short_name, 'data-color' => dept.schedule_config.color}
-              = dept.name
+              .btn-label= dept.name
+              %span.btn-hint-badge{style: "background-color: #{dept.schedule_config.color}"}= dept.schedule_config.short_name
       .span3
         %h5= t('.shift')
         .btn-group.selection-group{'data-selection' => 'shift'}
           - @shifts.each do |shift|
             %button.btn.btn-small.selection-btn{'data-id' => shift.id, 'data-short-name' => shift.short_name}
-              = shift.name
+              .btn-label= shift.name
+              .btn-hint= shift.short_name
       .span3
         %h5= t('.occupation_type')
         .btn-group.selection-group{'data-selection' => 'occupation_type'}
           - @occupation_types.each do |ot|
             %button.btn.btn-small.selection-btn{'data-id' => ot.id, 'data-color' => ot.color}
-              = ot.name
+              .btn-label= ot.name
+              %span.btn-hint-color{style: "background-color: #{ot.color}"}
       .span3
         %h5 &nbsp;
         %button#clear-selection-btn.btn.btn-warning.btn-small
