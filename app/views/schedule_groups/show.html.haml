@@ -78,6 +78,10 @@
 -# Schedule table
 .table-responsive
   %table.table.table-bordered.schedule-table{'data-schedule-group-id' => @schedule_group.id, 'data-can-edit' => @can_edit.to_s, 'data-week-start' => @week_start.to_s}
+    %caption.schedule-table-caption
+      = @schedule_group.name
+      %span.schedule-table-week
+        = "(#{l(@week_start, format: '%d.%m')} - #{l(@week_start + 6.days, format: '%d.%m.%Y')})"
     %thead
       %tr
         %th= t('.date')
@@ -143,6 +147,19 @@
   }
 
   /* Schedule table */
+  .schedule-table-caption {
+    caption-side: top;
+    text-align: center;
+    font-size: 18px;
+    font-weight: bold;
+    padding: 10px;
+    color: #333;
+    background-color: #fff;
+  }
+  .schedule-table-caption .schedule-table-week {
+    font-weight: normal;
+    color: #666;
+  }
   .schedule-table th, .schedule-table td {
     text-align: center;
     vertical-align: middle;
