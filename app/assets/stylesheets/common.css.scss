@@ -458,16 +458,6 @@ tr.fields {
   padding-left: 40px;
 }
 
-// Fix multiselect dropdown inside modals - allow it to overflow modal-body
-.modal .modal-body {
-  overflow: visible;
-}
-
-.modal .multiselect-container {
-  position: absolute;
-  z-index: 1060;
-}
-
 // Schedule selection panel - button hints
 #selection-panel .selection-btn {
   display: flex;
