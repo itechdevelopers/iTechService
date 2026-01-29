@@ -94,8 +94,11 @@ class ScheduleEntriesController < ApplicationController
 
     week_start = date.beginning_of_week(:monday)
 
+    # Superadmin can edit any week (including past)
     return true if current_user.superadmin?
-    return false unless @schedule_group.owned_by?(current_user)
+
+    # Users with manage_schedules ability can edit current and future weeks
+    return false unless able_to?(:manage_schedules)
 
     current_week = Date.current.beginning_of_week(:monday)
     week_start >= current_week

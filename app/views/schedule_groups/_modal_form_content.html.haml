@@ -2,7 +2,7 @@
   = button_to_close_modal
   %h3= @schedule_group&.persisted? ? t('.edit_title') : t('.title')
 
-.modal-body
+.modal-body.schedule-group-modal-body
   = form_with model: @schedule_group, url: @schedule_group&.persisted? ? schedule_group_path(@schedule_group) : schedule_groups_path(city_id: @city.id), local: false, id: 'schedule_group_form' do |f|
     .control-group
       = f.label :name, t('.name'), class: 'control-label'
@@ -11,7 +11,7 @@
 
     .control-group
       = label_tag :member_ids, t('.members'), class: 'control-label'
-      .controls
+      .controls.schedule-group-multiselect-wrapper
         = select_tag :member_ids, options_from_collection_for_select(@available_users, :id, :short_name_with_role, @schedule_group&.member_ids || []), multiple: true, class: 'input-xlarge multiselect-members', id: 'member_ids_select', style: 'display: none;'
         %p.help-block= t('.members_help')
 
@@ -20,6 +20,16 @@
 
 .modal-footer
   = link_to t('helpers.links.close'), '#', 'data-dismiss' => 'modal', class: 'btn'
+
+:css
+  /* Isolated styles for schedule group modal multiselect */
+  .schedule-group-modal-body {
+    overflow: visible;
+  }
+  .schedule-group-multiselect-wrapper .multiselect-container {
+    position: absolute;
+    z-index: 1060;
+  }
 
 :javascript
   $(function() {

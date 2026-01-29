@@ -32,9 +32,10 @@
           = t('.next_week')
           = glyph(:'chevron-right')
       .btn-group.pull-right
-        = link_to history_schedule_group_path(@schedule_group, week: @week_start), remote: true, class: 'btn' do
-          = glyph(:time)
-          = t('.history')
+        - if can?(:manage, :schedule)
+          = link_to history_schedule_group_path(@schedule_group, week: @week_start), remote: true, class: 'btn' do
+            = glyph(:time)
+            = t('.history')
         %button#export-png-btn.btn{'data-group-name' => @schedule_group.name, 'data-week-start' => l(@week_start, format: '%d.%m.%Y'), 'data-week-end' => l(@week_start + 6.days, format: '%d.%m.%Y'), disabled: png_disabled}
           = glyph(:download)
           = t('.export_png')
