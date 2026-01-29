@@ -15,25 +15,27 @@
       - else
         %span.muted= t('.working_hours_not_set')
 
-.btn-toolbar
-  = link_to department_schedule_configs_path(city_id: @city.id), remote: true, class: 'btn' do
-    = glyph(:building)
-    = t('.departments_settings')
-  = link_to shifts_path, remote: true, class: 'btn' do
-    = glyph(:time)
-    = t('.shifts_settings')
-  = link_to occupation_types_path, remote: true, class: 'btn' do
-    = glyph(:briefcase)
-    = t('.occupation_types_settings')
+- if can?(:manage, :schedule)
+  .btn-toolbar
+    = link_to department_schedule_configs_path(city_id: @city.id), remote: true, class: 'btn' do
+      = glyph(:building)
+      = t('.departments_settings')
+    = link_to shifts_path, remote: true, class: 'btn' do
+      = glyph(:time)
+      = t('.shifts_settings')
+    = link_to occupation_types_path, remote: true, class: 'btn' do
+      = glyph(:briefcase)
+      = t('.occupation_types_settings')
 
 %hr
 
 %h4= t('.groups_title')
 
-.btn-toolbar
-  = link_to new_schedule_group_path(city_id: @city.id), remote: true, class: 'btn btn-success' do
-    = glyph(:plus)
-    = t('.create_group')
+- if can?(:manage, :schedule)
+  .btn-toolbar
+    = link_to new_schedule_group_path(city_id: @city.id), remote: true, class: 'btn btn-success' do
+      = glyph(:plus)
+      = t('.create_group')
 
 #schedule_groups_list
   = render 'groups_list', schedule_groups: @schedule_groups, city: @city

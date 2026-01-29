@@ -32,9 +32,10 @@
           = t('.next_week')
           = glyph(:'chevron-right')
       .btn-group.pull-right
-        = link_to history_schedule_group_path(@schedule_group, week: @week_start), remote: true, class: 'btn' do
-          = glyph(:time)
-          = t('.history')
+        - if can?(:manage, :schedule)
+          = link_to history_schedule_group_path(@schedule_group, week: @week_start), remote: true, class: 'btn' do
+            = glyph(:time)
+            = t('.history')
         %button#export-png-btn.btn{'data-group-name' => @schedule_group.name, 'data-week-start' => l(@week_start, format: '%d.%m.%Y'), 'data-week-end' => l(@week_start + 6.days, format: '%d.%m.%Y'), disabled: png_disabled}
           = glyph(:download)
           = t('.export_png')
@@ -63,7 +64,7 @@
         %h5= t('.occupation_type')
         .btn-group.selection-group{'data-selection' => 'occupation_type'}
           - @occupation_types.each do |ot|
-            %button.btn.btn-small.selection-btn{'data-id' => ot.id, 'data-color' => ot.color}
+            %button.btn.btn-small.selection-btn{'data-id' => ot.id, 'data-color' => ot.color, 'data-counts-as-working' => ot.counts_as_working.to_s}
               .btn-label= ot.name
               %span.btn-hint-color{style: "background-color: #{ot.color}"}
       .span3
@@ -77,6 +78,10 @@
 -# Schedule table
 .table-responsive
   %table.table.table-bordered.schedule-table{'data-schedule-group-id' => @schedule_group.id, 'data-can-edit' => @can_edit.to_s, 'data-week-start' => @week_start.to_s}
+    %caption.schedule-table-caption
+      = @schedule_group.name
+      %span.schedule-table-week
+        = "(#{l(@week_start, format: '%d.%m')} - #{l(@week_start + 6.days, format: '%d.%m.%Y')})"
     %thead
       %tr
         %th= t('.date')
@@ -142,6 +147,19 @@
   }
 
   /* Schedule table */
+  .schedule-table-caption {
+    caption-side: top;
+    text-align: center;
+    font-size: 18px;
+    font-weight: bold;
+    padding: 10px;
+    color: #333;
+    background-color: #fff;
+  }
+  .schedule-table-caption .schedule-table-week {
+    font-weight: normal;
+    color: #666;
+  }
   .schedule-table th, .schedule-table td {
     text-align: center;
     vertical-align: middle;
@@ -222,11 +240,16 @@
       } else {
         $group.find('.selection-btn').removeClass('active');
         $btn.addClass('active');
-        selection[selectionType] = {
+        var selectionData = {
           id: $btn.data('id'),
           short_name: $btn.data('short-name'),
           color: $btn.data('color')
         };
+        // Add counts_as_working for occupation_type
+        if (selectionType === 'occupation_type') {
+          selectionData.counts_as_working = $btn.data('counts-as-working') === true || $btn.data('counts-as-working') === 'true';
+        }
+        selection[selectionType] = selectionData;
       }
 
       updateSelectionStatus();
@@ -291,9 +314,14 @@
           return;
         }
 
-        // Need department, shift and occupation_type selected
-        if (!selection.department || !selection.shift || !selection.occupation_type) {
-          alert('Выберите подразделение, смену и занятость');
+        // Validate selection: occupation_type always required
+        // department and shift required only if counts_as_working
+        if (!selection.occupation_type) {
+          alert('Выберите занятость');
+          return;
+        }
+        if (selection.occupation_type.counts_as_working && (!selection.department || !selection.shift)) {
+          alert('Для рабочей занятости выберите подразделение и смену');
           return;
         }
 
@@ -306,8 +334,8 @@
           data: {
             user_id: userId,
             date: date,
-            department_id: selection.department.id,
-            shift_id: selection.shift.id,
+            department_id: selection.department ? selection.department.id : null,
+            shift_id: selection.shift ? selection.shift.id : null,
             occupation_type_id: selection.occupation_type.id
           },
           success: function() {
@@ -341,8 +369,13 @@
           return;
         }
 
-        if (!selection.department || !selection.shift || !selection.occupation_type) {
-          alert('Выберите подразделение, смену и занятость');
+        // Validate selection for batch upsert
+        if (!selection.occupation_type) {
+          alert('Выберите занятость');
+          return;
+        }
+        if (selection.occupation_type.counts_as_working && (!selection.department || !selection.shift)) {
+          alert('Для рабочей занятости выберите подразделение и смену');
           return;
         }
 
@@ -353,8 +386,8 @@
           data: {
             user_id: userId,
             week: weekStart,
-            department_id: selection.department.id,
-            shift_id: selection.shift.id,
+            department_id: selection.department ? selection.department.id : null,
+            shift_id: selection.shift ? selection.shift.id : null,
             occupation_type_id: selection.occupation_type.id
           },
           success: function() { window.markScheduleUnsaved && window.markScheduleUnsaved(); }
@@ -378,8 +411,13 @@
           return;
         }
 
-        if (!selection.department || !selection.shift || !selection.occupation_type) {
-          alert('Выберите подразделение, смену и занятость');
+        // Validate selection for batch upsert
+        if (!selection.occupation_type) {
+          alert('Выберите занятость');
+          return;
+        }
+        if (selection.occupation_type.counts_as_working && (!selection.department || !selection.shift)) {
+          alert('Для рабочей занятости выберите подразделение и смену');
           return;
         }
 
@@ -390,8 +428,8 @@
           data: {
             date: date,
             week: weekStart,
-            department_id: selection.department.id,
-            shift_id: selection.shift.id,
+            department_id: selection.department ? selection.department.id : null,
+            shift_id: selection.shift ? selection.shift.id : null,
             occupation_type_id: selection.occupation_type.id
           },
           success: function() { window.markScheduleUnsaved && window.markScheduleUnsaved(); }

@@ -5,21 +5,30 @@ class ScheduleEntry < ApplicationRecord
 
   belongs_to :schedule_group
   belongs_to :user
-  belongs_to :department
-  belongs_to :shift
+  belongs_to :department, optional: true
+  belongs_to :shift, optional: true
   belongs_to :occupation_type
 
   validates :date, presence: true
-  validates :department, :shift, :occupation_type, presence: true
+  validates :occupation_type, presence: true
+  validates :department, :shift, presence: true, if: :requires_department_and_shift?
   validates :user_id, uniqueness: { scope: %i[schedule_group_id date] }
+
+  def requires_department_and_shift?
+    occupation_type&.counts_as_working?
+  end
 
   scope :for_week, ->(start_date) { where(date: start_date..(start_date + 6.days)) }
   scope :for_group, ->(group) { where(schedule_group: group) }
 
   def display_text
-    return nil unless department&.schedule_config&.short_name && shift&.short_name
+    if occupation_type&.counts_as_working?
+      return nil unless department&.schedule_config&.short_name && shift&.short_name
 
-    "#{department.schedule_config.short_name}/#{shift.short_name}"
+      "#{department.schedule_config.short_name}/#{shift.short_name}"
+    else
+      occupation_type&.name
+    end
   end
 
   def background_color
