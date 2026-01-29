@@ -64,7 +64,7 @@
         %h5= t('.occupation_type')
         .btn-group.selection-group{'data-selection' => 'occupation_type'}
           - @occupation_types.each do |ot|
-            %button.btn.btn-small.selection-btn{'data-id' => ot.id, 'data-color' => ot.color}
+            %button.btn.btn-small.selection-btn{'data-id' => ot.id, 'data-color' => ot.color, 'data-counts-as-working' => ot.counts_as_working.to_s}
               .btn-label= ot.name
               %span.btn-hint-color{style: "background-color: #{ot.color}"}
       .span3
@@ -240,11 +240,16 @@
       } else {
         $group.find('.selection-btn').removeClass('active');
         $btn.addClass('active');
-        selection[selectionType] = {
+        var selectionData = {
           id: $btn.data('id'),
           short_name: $btn.data('short-name'),
           color: $btn.data('color')
         };
+        // Add counts_as_working for occupation_type
+        if (selectionType === 'occupation_type') {
+          selectionData.counts_as_working = $btn.data('counts-as-working') === true || $btn.data('counts-as-working') === 'true';
+        }
+        selection[selectionType] = selectionData;
       }
 
       updateSelectionStatus();
@@ -309,9 +314,14 @@
           return;
         }
 
-        // Need department, shift and occupation_type selected
-        if (!selection.department || !selection.shift || !selection.occupation_type) {
-          alert('Выберите подразделение, смену и занятость');
+        // Validate selection: occupation_type always required
+        // department and shift required only if counts_as_working
+        if (!selection.occupation_type) {
+          alert('Выберите занятость');
+          return;
+        }
+        if (selection.occupation_type.counts_as_working && (!selection.department || !selection.shift)) {
+          alert('Для рабочей занятости выберите подразделение и смену');
           return;
         }
 
@@ -324,8 +334,8 @@
           data: {
             user_id: userId,
             date: date,
-            department_id: selection.department.id,
-            shift_id: selection.shift.id,
+            department_id: selection.department ? selection.department.id : null,
+            shift_id: selection.shift ? selection.shift.id : null,
             occupation_type_id: selection.occupation_type.id
           },
           success: function() {
@@ -359,8 +369,13 @@
           return;
         }
 
-        if (!selection.department || !selection.shift || !selection.occupation_type) {
-          alert('Выберите подразделение, смену и занятость');
+        // Validate selection for batch upsert
+        if (!selection.occupation_type) {
+          alert('Выберите занятость');
+          return;
+        }
+        if (selection.occupation_type.counts_as_working && (!selection.department || !selection.shift)) {
+          alert('Для рабочей занятости выберите подразделение и смену');
           return;
         }
 
@@ -371,8 +386,8 @@
           data: {
             user_id: userId,
             week: weekStart,
-            department_id: selection.department.id,
-            shift_id: selection.shift.id,
+            department_id: selection.department ? selection.department.id : null,
+            shift_id: selection.shift ? selection.shift.id : null,
             occupation_type_id: selection.occupation_type.id
           },
           success: function() { window.markScheduleUnsaved && window.markScheduleUnsaved(); }
@@ -396,8 +411,13 @@
           return;
         }
 
-        if (!selection.department || !selection.shift || !selection.occupation_type) {
-          alert('Выберите подразделение, смену и занятость');
+        // Validate selection for batch upsert
+        if (!selection.occupation_type) {
+          alert('Выберите занятость');
+          return;
+        }
+        if (selection.occupation_type.counts_as_working && (!selection.department || !selection.shift)) {
+          alert('Для рабочей занятости выберите подразделение и смену');
           return;
         }
 
@@ -408,8 +428,8 @@
           data: {
             date: date,
             week: weekStart,
-            department_id: selection.department.id,
-            shift_id: selection.shift.id,
+            department_id: selection.department ? selection.department.id : null,
+            shift_id: selection.shift ? selection.shift.id : null,
             occupation_type_id: selection.occupation_type.id
           },
           success: function() { window.markScheduleUnsaved && window.markScheduleUnsaved(); }
