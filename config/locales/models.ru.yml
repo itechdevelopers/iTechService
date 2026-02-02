@@ -591,6 +591,7 @@ ru:
         location_code: 'Код локации'
         name: 'Название'
         role: 'Роль'
+        roles: 'Роли'
 
       timesheet_day:
         date: "Дата"

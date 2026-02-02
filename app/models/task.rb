@@ -4,7 +4,7 @@ class Task < ApplicationRecord
   IMPORTANCE_BOUND = 5
 
   scope :important, -> { where('priority > ?', IMPORTANCE_BOUND) }
-  scope :tasks_for, ->(user) { where(task: { role: user.role }) }
+  scope :tasks_for, ->(user) { where('? = ANY(roles)', user.role) }
   scope :visible, -> { where hidden: [false, nil] }
   scope :mac_service, -> { where code: 'mac' }
   scope :positioned, -> { order(position: :asc) }
@@ -19,6 +19,7 @@ class Task < ApplicationRecord
   validates :position, presence: true, numericality: { greater_than: 0 }
 
   before_validation :set_position, on: :create
+  before_validation :sanitize_roles
 
   # attr_accessible :cost, :duration, :name, :code, :priority, :role, :location_code, :product_id, :hidden
 
@@ -55,16 +56,26 @@ class Task < ApplicationRecord
     priority > IMPORTANCE_BOUND
   end
 
-  def has_role?(role)
-    if role.is_a? Array
-      role.include? self.role
+  def has_role?(check_role)
+    if check_role.is_a?(Array)
+      (roles & check_role).any?
     else
-      self.role == role
+      roles.include?(check_role)
     end
   end
 
+  # Backward compatibility: returns first role
+  def role
+    roles&.first
+  end
+
+  # Backward compatibility: allows setting single role
+  def role=(value)
+    self.roles = [value].compact
+  end
+
   def role_name
-    role.blank? ? '-' : I18n.t("users.roles.#{role}")
+    roles.blank? ? '-' : roles.map { |r| I18n.t("users.roles.#{r}") }.join(', ')
   end
 
   def mac_service?
@@ -83,5 +94,9 @@ class Task < ApplicationRecord
 
   def set_position
     self.position ||= Task.maximum(:position).to_i + 1
+  end
+
+  def sanitize_roles
+    self.roles = roles.reject(&:blank?) if roles.present?
   end
 end
