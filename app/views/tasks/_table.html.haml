@@ -15,7 +15,7 @@
       %tr
         %th= Task.human_attribute_name(:id)
         %th= Task.human_attribute_name(:name)
-        %th= Task.human_attribute_name(:role)
+        %th= Task.human_attribute_name(:roles)
         %th= Task.human_attribute_name(:archive)
         %th= Task.human_attribute_name :location
         -#%th= Task.human_attribute_name(:priority)
@@ -29,7 +29,7 @@
         %tr
           %td= task.id
           %td= task.name
-          %td= t "users.roles.#{task.role}"
+          %td= task.role_name
           %td= task.hidden ? 'В архиве' : ''
           %td= task.location_code
           -#%td= task.priority

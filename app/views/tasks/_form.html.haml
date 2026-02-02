@@ -5,7 +5,7 @@
       .controls= link_to @task.product.name, @task.product, target: '_blank'
   = f.input :name
   = f.input :code
-  = f.input :role, collection: User::ROLES, value_method: :to_s, label_method: lambda{|role|t("users.roles.#{role}")}
+  = f.input :roles, collection: User::ROLES, input_html: { multiple: true }, label_method: lambda{|role|t("users.roles.#{role}")}
   = f.input :location_code, collection: Location::CODES
   = f.input :cost
   = f.input :color, as: :color

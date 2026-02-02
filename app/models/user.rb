@@ -344,9 +344,10 @@ class User < ApplicationRecord
     end
   end
 
-  def role_match?(other_role)
-    (role == other_role) ||
-      (universal? && other_role.in?(%w[media software]))
+  def role_match?(other_roles)
+    other_roles = Array(other_roles)
+    other_roles.include?(role) ||
+      (universal? && (other_roles & %w[media software]).any?)
   end
 
   def code_match?(code)

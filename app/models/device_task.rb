@@ -11,7 +11,7 @@ class DeviceTask < ApplicationRecord
   scope :undone, -> { where(done: 2) }
   scope :processed, -> { where(done: [1, 2]) }
   scope :tasks_for, lambda { |user|
-                      joins(:service_job, :task).where(service_jobs: { location_id: user.location_id }, tasks: { role: user.role })
+                      joins(:service_job, :task).where(service_jobs: { location_id: user.location_id }).where('? = ANY(tasks.roles)', user.role)
                     }
   scope :paid, -> { where('device_tasks.cost > 0') }
 
