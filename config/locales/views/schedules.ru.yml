@@ -104,6 +104,9 @@ ru:
       color: 'Цвет'
       counts_as_working: 'Учитывать'
       empty: 'Типы занятости не добавлены'
+      edit: 'Редактировать'
+      save: 'Сохранить'
+      cancel: 'Отмена'
 
   helpers:
     links:

@@ -15,6 +15,13 @@ class OccupationTypesController < ApplicationController
     load_occupation_types
   end
 
+  def update
+    authorize :schedule
+    @occupation_type = OccupationType.find(params[:id])
+    @occupation_type.update(occupation_type_params)
+    load_occupation_types
+  end
+
   def destroy
     authorize :schedule
     @occupation_type = OccupationType.find(params[:id])
