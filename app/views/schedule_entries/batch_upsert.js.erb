@@ -13,3 +13,8 @@ var $cell = $('.schedule-cell[data-user-id="<%= entry.user_id %>"][data-date="<%
 
 $cell.data('entry-id', <%= entry.id %>);
 <% end %>
+
+// Update weekly hours
+<% @weekly_hours.each do |user_id, hours| %>
+$('.weekly-hours-cell[data-user-id="<%= user_id %>"]').text('<%= hours %>');
+<% end %>

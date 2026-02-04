@@ -3,3 +3,8 @@ $cell.html('');
 $cell.css('background-color', '#ffffff');
 $cell.addClass('empty-cell');
 $cell.removeData('entry-id');
+
+// Update weekly hours
+<% @weekly_hours.each do |user_id, hours| %>
+$('.weekly-hours-cell[data-user-id="<%= user_id %>"]').text('<%= hours %>');
+<% end %>
