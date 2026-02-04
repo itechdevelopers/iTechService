@@ -50,6 +50,15 @@ class ScheduleGroupsController < ApplicationController
     # Snapshot data for save button state
     @snapshot = @schedule_group.snapshot_for_week(@week_start)
     @has_unsaved_changes = @schedule_group.has_unsaved_changes_for_week?(@week_start)
+
+    # Calculate weekly hours for each member
+    @weekly_hours = @members.each_with_object({}) do |member, hash|
+      hours = @week_dates.sum do |date|
+        entry = @entries[[member.id, date]]
+        entry&.shift&.duration_hours || 0
+      end
+      hash[member.id] = hours
+    end
   end
 
   def edit

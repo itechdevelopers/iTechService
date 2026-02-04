@@ -103,6 +103,12 @@
                 = entry.display_text
             - else
               %td.schedule-cell.empty-cell{cell_data}
+    %tfoot.weekly-hours-footer
+      %tr
+        %td{colspan: 2}= t('.weekly_hours')
+        - @members.each do |member|
+          %td.weekly-hours-cell{'data-user-id' => member.id}
+            = @weekly_hours[member.id]
 
 -# Save button and status (under table)
 - if @can_edit
@@ -194,6 +200,16 @@
   .schedule-table[data-can-edit="true"] .member-header:hover,
   .schedule-table[data-can-edit="true"] .date-cell:hover {
     background-color: #f5f5f5;
+  }
+
+  /* Weekly hours footer */
+  .schedule-table .weekly-hours-footer td {
+    background-color: #f9f9f9;
+    font-weight: bold;
+    border-top: 2px solid #ddd;
+  }
+  .schedule-table .weekly-hours-cell {
+    text-align: center;
   }
 
   /* Export hint (above navigation, right-aligned) */
@@ -544,10 +560,17 @@
     });
 
     function doExport($table, groupName, weekStart, weekEnd, $btn) {
+      // Hide weekly hours footer for export
+      var $footer = $table.find('.weekly-hours-footer');
+      $footer.hide();
+
       html2canvas($table[0], {
         backgroundColor: '#ffffff',
         scale: 2
       }).then(function(canvas) {
+        // Show footer again
+        $footer.show();
+
         // Create download link
         var link = document.createElement('a');
         var filename = groupName.replace(/\s+/g, '_') + '_' + weekStart.replace(/\./g, '-') + '_' + weekEnd.replace(/\./g, '-') + '.png';
@@ -558,6 +581,8 @@
         // Restore button
         $btn.prop('disabled', false).html(exportBtnOriginalHtml);
       }).catch(function(error) {
+        // Show footer again even on error
+        $footer.show();
         console.error('Export error:', error);
         alert('Ошибка при экспорте');
         $btn.prop('disabled', false).html(exportBtnOriginalHtml);

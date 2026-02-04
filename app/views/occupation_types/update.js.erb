@@ -1,0 +1,5 @@
+<% if @occupation_type.errors.empty? %>
+  $("#occupation_types_list").html("<%= j(render('list')) %>");
+<% else %>
+  alert("<%= j(@occupation_type.errors.full_messages.join(', ')) %>");
+<% end %>

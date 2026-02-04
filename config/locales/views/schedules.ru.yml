@@ -40,6 +40,7 @@ ru:
       saved_at: 'Сохранено %{date}'
       updated_at: 'Изменено %{date}'
       save_to_export_hint: 'Сохраните расписание для скачивания PNG'
+      weekly_hours: 'Часов в неделю'
     history_modal_form_content:
       title: 'История изменений'
       when: 'Когда'
@@ -104,6 +105,9 @@ ru:
       color: 'Цвет'
       counts_as_working: 'Учитывать'
       empty: 'Типы занятости не добавлены'
+      edit: 'Редактировать'
+      save: 'Сохранить'
+      cancel: 'Отмена'
 
   helpers:
     links:

@@ -63,7 +63,7 @@ Rails.application.routes.draw do
     post :batch_update, on: :collection
   end
   resources :shifts, only: %i[index create destroy]
-  resources :occupation_types, only: %i[index create destroy]
+  resources :occupation_types, only: %i[index create update destroy]
   resources :schedule_groups, only: %i[show new create edit update destroy] do
     get :history, on: :member
     post :save_week, on: :member

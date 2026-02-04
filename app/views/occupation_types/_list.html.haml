@@ -8,15 +8,54 @@
         %th
     %tbody
       - @occupation_types.each do |occupation_type|
-        %tr
-          %td= occupation_type.name
-          %td
+        %tr{id: "occupation_type_#{occupation_type.id}"}
+          -# Display mode
+          %td.occupation-type-name= occupation_type.name
+          %td.occupation-type-color
             - if occupation_type.color.present?
               %span.label{style: "background-color: #{occupation_type.color}"}= occupation_type.color
-          %td
+          %td.occupation-type-working
             - if occupation_type.counts_as_working?
               = glyph(:check)
-          %td.text-right
-            = link_to glyph(:remove), occupation_type_path(occupation_type), method: :delete, remote: true, class: 'btn btn-mini btn-danger', title: t('helpers.links.destroy'), data: { confirm: t('helpers.links.confirm') }
+          %td.text-right.occupation-type-actions
+            = link_to glyph(:pencil), '#', class: 'btn btn-mini btn-edit-occupation-type', title: t('.edit'), data: { id: occupation_type.id }
+            = link_to glyph(:remove), occupation_type_path(occupation_type), method: :delete, remote: true, class: 'btn btn-mini btn-danger btn-delete-occupation-type', title: t('helpers.links.destroy'), data: { confirm: t('helpers.links.confirm') }
+
+          -# Edit mode (hidden by default)
+          %td.occupation-type-edit.hide{colspan: 4}
+            = form_with model: occupation_type, url: occupation_type_path(occupation_type), method: :patch, local: false, html: { class: 'form-inline occupation-type-edit-form' } do |f|
+              = f.text_field :name, class: 'input-medium', placeholder: t('occupation_types.modal_form_content.name_placeholder')
+              .color-input-wrapper{style: 'display: inline-block; vertical-align: middle;'}
+                .color-preview-edit{style: "width: 24px; height: 24px; display: inline-block; vertical-align: middle; border: 1px solid #ccc; background-color: #{occupation_type.color || '#ffffff'}"}
+                = f.color_field :color, class: 'input-small', style: 'width: 60px; vertical-align: middle;'
+              = f.check_box :counts_as_working, style: 'vertical-align: middle; margin-left: 10px;'
+              %span{style: 'vertical-align: middle;'}= t('occupation_types.modal_form_content.counts_as_working')
+              = f.submit t('.save'), class: 'btn btn-mini btn-primary', style: 'margin-left: 10px;'
+              = link_to t('.cancel'), '#', class: 'btn btn-mini btn-cancel-edit-occupation-type'
 - else
   %p.muted= t('.empty')
+
+:javascript
+  $(function() {
+    // Edit button click
+    $('#occupation_types_list').on('click', '.btn-edit-occupation-type', function(e) {
+      e.preventDefault();
+      var $row = $(this).closest('tr');
+      $row.find('.occupation-type-name, .occupation-type-color, .occupation-type-working, .occupation-type-actions').addClass('hide');
+      $row.find('.occupation-type-edit').removeClass('hide');
+      $row.find('.occupation-type-edit input[type="text"]').focus();
+    });
+
+    // Cancel button click
+    $('#occupation_types_list').on('click', '.btn-cancel-edit-occupation-type', function(e) {
+      e.preventDefault();
+      var $row = $(this).closest('tr');
+      $row.find('.occupation-type-name, .occupation-type-color, .occupation-type-working, .occupation-type-actions').removeClass('hide');
+      $row.find('.occupation-type-edit').addClass('hide');
+    });
+
+    // Color field change - update preview
+    $('#occupation_types_list').on('input', '.occupation-type-edit input[type="color"]', function() {
+      $(this).siblings('.color-preview-edit').css('background-color', $(this).val());
+    });
+  });

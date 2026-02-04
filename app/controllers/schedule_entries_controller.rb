@@ -17,6 +17,7 @@ class ScheduleEntriesController < ApplicationController
 
     if @entry.save
       @entry.reload # Reload to get associations
+      @weekly_hours = calculate_weekly_hours_for_users([@entry.user_id])
     else
       render json: { errors: @entry.errors.full_messages }, status: :unprocessable_entity
     end
@@ -29,6 +30,7 @@ class ScheduleEntriesController < ApplicationController
     @user_id = @entry.user_id
     @date = @entry.date
     @entry.destroy
+    @weekly_hours = calculate_weekly_hours_for_users([@user_id])
   end
 
   def batch_upsert
@@ -52,6 +54,7 @@ class ScheduleEntriesController < ApplicationController
     end
 
     @entries.each(&:reload)
+    @weekly_hours = calculate_weekly_hours_for_users(user_ids)
   end
 
   def batch_destroy
@@ -71,6 +74,8 @@ class ScheduleEntriesController < ApplicationController
     @schedule_group.schedule_entries
                    .where(user_id: user_ids, date: dates)
                    .destroy_all
+
+    @weekly_hours = calculate_weekly_hours_for_users(user_ids)
   end
 
   private
@@ -124,6 +129,20 @@ class ScheduleEntriesController < ApplicationController
       [params[:user_id].to_i]
     else
       @schedule_group.members.pluck(:id)
+    end
+  end
+
+  def calculate_weekly_hours_for_users(user_ids)
+    week_start = week_start_from_params
+    week_dates_range = (week_start..(week_start + 6.days)).to_a
+
+    entries = @schedule_group.schedule_entries
+                             .where(user_id: user_ids, date: week_dates_range)
+                             .includes(:shift)
+
+    user_ids.each_with_object({}) do |user_id, hash|
+      user_entries = entries.select { |e| e.user_id == user_id }
+      hash[user_id] = user_entries.sum { |e| e.shift&.duration_hours || 0 }
     end
   end
 end

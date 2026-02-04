@@ -9,6 +9,8 @@ class ScheduleEntry < ApplicationRecord
   belongs_to :shift, optional: true
   belongs_to :occupation_type
 
+  before_validation :clear_work_fields_for_non_working_occupation
+
   validates :date, presence: true
   validates :occupation_type, presence: true
   validates :department, :shift, presence: true, if: :requires_department_and_shift?
@@ -41,5 +43,14 @@ class ScheduleEntry < ApplicationRecord
       # Non-working occupation (vacation, sick leave, etc.) → use occupation color
       occupation_type.color || '#FFFFFF'
     end
+  end
+
+  private
+
+  def clear_work_fields_for_non_working_occupation
+    return if occupation_type.nil? || occupation_type.counts_as_working?
+
+    self.department_id = nil
+    self.shift_id = nil
   end
 end
