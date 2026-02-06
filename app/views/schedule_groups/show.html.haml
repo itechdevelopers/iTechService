@@ -267,6 +267,13 @@
 
 :javascript
   $(document).ready(function() {
+    // Initialize tooltips for department summary cells
+    $('#department-summaries').tooltip({
+      selector: '.summary-count-cell[data-users]:not([data-users=""])',
+      placement: 'top',
+      container: 'body'
+    });
+
     // Selection state
     var selection = {
       department: null,

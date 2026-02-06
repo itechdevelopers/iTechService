@@ -234,11 +234,21 @@ class ScheduleGroupsController < ApplicationController
         }
       end
 
-      # Count people per [shift_id, date]
+      # Collect all member names for "not assigned" calculation
+      all_member_names = @members.map(&:short_name)
+
+      # Count people and collect names per [shift_id, date]
       counts = {}
       dept_entries.each do |entry|
         key = [entry.shift_id, entry.date]
-        counts[key] = (counts[key] || 0) + 1
+        counts[key] ||= { count: 0, users: [] }
+        counts[key][:count] += 1
+        counts[key][:users] << entry.user.short_name
+      end
+
+      # Add not_assigned to each count
+      counts.each do |key, data|
+        data[:not_assigned] = all_member_names - data[:users]
       end
 
       result[dept.id] = {

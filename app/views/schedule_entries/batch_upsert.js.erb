@@ -46,15 +46,33 @@ $('.weekly-hours-cell[data-user-id="<%= user_id %>"]').text('<%= hours %>');
 
     // Add cells to each row by date
     <% @week_dates.each do |date| %>
-    <% count = col_data[:counts][[col_data[:shift_id], date]] || 0 %>
-    $table.find('tbody tr[data-date="<%= date.to_s %>"]').append('<td class="summary-count-cell" data-department-id="<%= col_data[:dept_id] %>" data-shift-id="<%= col_data[:shift_id] %>" data-date="<%= date.to_s %>"><%= count > 0 ? count : "" %></td>');
+    <% data = col_data[:counts][[col_data[:shift_id], date]] || { count: 0, users: [], not_assigned: [] } %>
+    <% count = data[:count] %>
+    <% users = data[:users] %>
+    <% not_assigned = data[:not_assigned] || [] %>
+    <% tooltip_parts = [] %>
+    <% tooltip_parts << "#{t('schedule_groups.show.assigned')}: #{users.join(', ')}" if users.any? %>
+    <% tooltip_parts << "#{t('schedule_groups.show.not_assigned')}: #{not_assigned.join(', ')}" if not_assigned.any? %>
+    $table.find('tbody tr[data-date="<%= date.to_s %>"]').append('<td class="summary-count-cell" data-department-id="<%= col_data[:dept_id] %>" data-shift-id="<%= col_data[:shift_id] %>" data-date="<%= date.to_s %>" data-users="<%= j users.join(',') %>" data-not-assigned="<%= j not_assigned.join(',') %>" data-original-title="<%= j tooltip_parts.join(' | ') %>" rel="tooltip"><%= count > 0 ? count : "" %></td>');
     <% end %>
   })();
   <% end %>
 })();
 <% end %>
 
-// Update department summary counts
-<% @department_counts.each do |(dept_id, shift_id, date), count| %>
-$('.summary-count-cell[data-department-id="<%= dept_id %>"][data-shift-id="<%= shift_id %>"][data-date="<%= date %>"]').text(<%= count > 0 ? count : "''".html_safe %>);
+// Update department summary counts and user lists
+<% @department_counts.each do |(dept_id, shift_id, date), data| %>
+(function() {
+  var $cell = $('.summary-count-cell[data-department-id="<%= dept_id %>"][data-shift-id="<%= shift_id %>"][data-date="<%= date %>"]');
+  var count = <%= data[:count] %>;
+  var users = '<%= j data[:users].join(",") %>';
+  var notAssigned = '<%= j data[:not_assigned].join(",") %>';
+  var tooltipParts = [];
+  if (users) tooltipParts.push('<%= j t("schedule_groups.show.assigned") %>: ' + users.split(',').join(', '));
+  if (notAssigned) tooltipParts.push('<%= j t("schedule_groups.show.not_assigned") %>: ' + notAssigned.split(',').join(', '));
+  $cell.text(count > 0 ? count : '');
+  $cell.attr('data-users', users);
+  $cell.attr('data-not-assigned', notAssigned);
+  $cell.attr('data-original-title', tooltipParts.join(' | '));
+})();
 <% end %>

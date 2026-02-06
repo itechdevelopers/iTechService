@@ -11,6 +11,13 @@
         %tr{'data-date' => date.to_s, 'data-row-index' => index}
           %td.weekday-cell= l(date, format: '%A')
           - columns.each do |col|
-            - count = counts[[col[:shift_id], date]] || 0
-            %td.summary-count-cell{'data-department-id' => dept_id, 'data-shift-id' => col[:shift_id], 'data-date' => date.to_s}
+            - data = counts[[col[:shift_id], date]] || { count: 0, users: [], not_assigned: [] }
+            - count = data.is_a?(Hash) ? data[:count] : data
+            - users = data.is_a?(Hash) ? data[:users] : []
+            - not_assigned = data.is_a?(Hash) ? (data[:not_assigned] || []) : []
+            - tooltip_parts = []
+            - tooltip_parts << "#{t('schedule_groups.show.assigned')}: #{users.join(', ')}" if users.any?
+            - tooltip_parts << "#{t('schedule_groups.show.not_assigned')}: #{not_assigned.join(', ')}" if not_assigned.any?
+            - tooltip_text = tooltip_parts.join(' | ')
+            %td.summary-count-cell{'data-department-id' => dept_id, 'data-shift-id' => col[:shift_id], 'data-date' => date.to_s, 'data-users' => users.join(','), 'data-not-assigned' => not_assigned.join(','), 'data-original-title' => tooltip_text, :rel => 'tooltip'}
               = count if count > 0
