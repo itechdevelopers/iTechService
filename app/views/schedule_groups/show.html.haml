@@ -110,6 +110,11 @@
           %td.weekly-hours-cell{'data-user-id' => member.id}
             = @weekly_hours[member.id]
 
+-# Department shift summary tables (always render container for dynamic updates)
+#department-summaries.department-summaries
+  - @department_summaries.each do |dept_id, summary|
+    = render partial: 'department_summary_table', locals: { dept_id: dept_id, department_name: summary[:department].name, columns: summary[:columns], counts: summary[:counts], week_dates: @week_dates }
+
 -# Save button and status (under table)
 - if @can_edit
   .save-section
@@ -210,6 +215,37 @@
   }
   .schedule-table .weekly-hours-cell {
     text-align: center;
+  }
+
+  /* Department summary tables */
+  .department-summaries {
+    margin-top: 24px;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 20px;
+  }
+  .department-summary {
+    flex: 0 0 auto;
+  }
+  .department-summary-title {
+    font-weight: bold;
+    margin-bottom: 6px;
+  }
+  .department-summary-table {
+    width: auto;
+  }
+  .department-summary-table th,
+  .department-summary-table td {
+    text-align: center;
+    vertical-align: middle;
+    padding: 4px 10px;
+  }
+  .department-summary-table .weekday-cell {
+    text-align: left;
+    font-weight: normal;
+  }
+  .summary-count-cell:empty {
+    background-color: #f9f9f9;
   }
 
   /* Export hint (above navigation, right-aligned) */
@@ -324,6 +360,7 @@
               url: '/schedule_groups/' + scheduleGroupId + '/schedule_entries/' + entryId,
               method: 'DELETE',
               dataType: 'script',
+              data: { week: weekStart },
               success: function() { window.markScheduleUnsaved && window.markScheduleUnsaved(); }
             });
           }
@@ -350,6 +387,7 @@
           data: {
             user_id: userId,
             date: date,
+            week: weekStart,
             department_id: selection.department ? selection.department.id : null,
             shift_id: selection.shift ? selection.shift.id : null,
             occupation_type_id: selection.occupation_type.id
