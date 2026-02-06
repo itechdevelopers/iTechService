@@ -110,26 +110,10 @@
           %td.weekly-hours-cell{'data-user-id' => member.id}
             = @weekly_hours[member.id]
 
--# Department shift summary tables
-- if @department_summaries.any?
-  #department-summaries.department-summaries
-    - @department_summaries.each do |dept_id, summary|
-      .department-summary{'data-department-id' => dept_id}
-        %h5.department-summary-title= summary[:department].name
-        %table.table.table-bordered.table-condensed.department-summary-table{'data-department-id' => dept_id}
-          %thead
-            %tr
-              %th= t('.shifts_label')
-              - summary[:columns].each do |col|
-                %th{'data-shift-id' => col[:shift_id]}= col[:display_text]
-          %tbody
-            - @week_dates.each do |date|
-              %tr
-                %td.weekday-cell= l(date, format: '%A')
-                - summary[:columns].each do |col|
-                  - count = summary[:counts][[col[:shift_id], date]] || 0
-                  %td.summary-count-cell{'data-department-id' => dept_id, 'data-shift-id' => col[:shift_id], 'data-date' => date.to_s}
-                    = count if count > 0
+-# Department shift summary tables (always render container for dynamic updates)
+#department-summaries.department-summaries
+  - @department_summaries.each do |dept_id, summary|
+    = render partial: 'department_summary_table', locals: { dept_id: dept_id, department_name: summary[:department].name, columns: summary[:columns], counts: summary[:counts], week_dates: @week_dates }
 
 -# Save button and status (under table)
 - if @can_edit

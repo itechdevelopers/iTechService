@@ -20,6 +20,7 @@ class ScheduleEntriesController < ApplicationController
       @entry.reload # Reload to get associations
       @weekly_hours = calculate_weekly_hours_for_users([@entry.user_id])
       @department_counts = calculate_department_counts_for_week
+      prepare_new_summary_elements
     else
       render json: { errors: @entry.errors.full_messages }, status: :unprocessable_entity
     end
@@ -59,6 +60,7 @@ class ScheduleEntriesController < ApplicationController
     @entries.each(&:reload)
     @weekly_hours = calculate_weekly_hours_for_users(user_ids)
     @department_counts = calculate_department_counts_for_week
+    prepare_new_summary_elements
   end
 
   def batch_destroy
@@ -193,5 +195,71 @@ class ScheduleEntriesController < ApplicationController
                              .select { |e| e.occupation_type&.counts_as_working? && e.department_id && e.shift_id }
 
     @existing_dept_shift_pairs = entries.map { |e| [e.department_id, e.shift_id] }.uniq
+  end
+
+  def prepare_new_summary_elements
+    week_start = week_start_from_params
+    @week_dates = (week_start..(week_start + 6.days)).to_a
+
+    # Get current working entries
+    entries = @schedule_group.schedule_entries
+                             .where(date: @week_dates)
+                             .includes(:occupation_type, :department, :shift)
+                             .select { |e| e.occupation_type&.counts_as_working? && e.department_id && e.shift_id }
+
+    current_pairs = entries.map { |e| [e.department_id, e.shift_id] }.uniq
+    new_pairs = current_pairs - (@existing_dept_shift_pairs || [])
+
+    return if new_pairs.empty?
+
+    # Group new pairs by department
+    new_by_dept = new_pairs.group_by(&:first)
+
+    # Determine which departments are completely new (no existing pairs)
+    existing_dept_ids = (@existing_dept_shift_pairs || []).map(&:first).uniq
+    new_dept_ids = new_by_dept.keys - existing_dept_ids
+
+    # Load required data
+    city = @schedule_group.city
+    departments = Department.in_city(city).with_schedule_config.includes(:schedule_config).where(id: new_by_dept.keys)
+    shifts = Shift.where(id: new_pairs.map(&:second).uniq)
+
+    # Build counts for new elements
+    counts = entries.each_with_object({}) do |entry, hash|
+      key = [entry.shift_id, entry.date]
+      hash[key] = (hash[key] || 0) + 1
+    end
+
+    @new_tables = []
+    @new_columns = []
+
+    departments.each do |dept|
+      dept_shift_ids = new_by_dept[dept.id].map(&:second)
+      dept_shifts = shifts.select { |s| dept_shift_ids.include?(s.id) }
+
+      if new_dept_ids.include?(dept.id)
+        # Entire table is new
+        columns = dept_shifts.map do |shift|
+          { shift_id: shift.id, display_text: "#{dept.schedule_config.short_name}/#{shift.short_name}" }
+        end
+
+        @new_tables << {
+          dept_id: dept.id,
+          department_name: dept.name,
+          columns: columns,
+          counts: counts
+        }
+      else
+        # Only new columns for existing table
+        dept_shifts.each do |shift|
+          @new_columns << {
+            dept_id: dept.id,
+            shift_id: shift.id,
+            display_text: "#{dept.schedule_config.short_name}/#{shift.short_name}",
+            counts: counts
+          }
+        end
+      end
+    end
   end
 end
