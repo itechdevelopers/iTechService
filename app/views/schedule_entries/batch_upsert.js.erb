@@ -18,3 +18,8 @@ $cell.data('entry-id', <%= entry.id %>);
 <% @weekly_hours.each do |user_id, hours| %>
 $('.weekly-hours-cell[data-user-id="<%= user_id %>"]').text('<%= hours %>');
 <% end %>
+
+// Update department summary counts
+<% @department_counts.each do |(dept_id, shift_id, date), count| %>
+$('.summary-count-cell[data-department-id="<%= dept_id %>"][data-shift-id="<%= shift_id %>"][data-date="<%= date %>"]').text(<%= count > 0 ? count : "''".html_safe %>);
+<% end %>

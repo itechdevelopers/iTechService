@@ -376,6 +376,7 @@
               url: '/schedule_groups/' + scheduleGroupId + '/schedule_entries/' + entryId,
               method: 'DELETE',
               dataType: 'script',
+              data: { week: weekStart },
               success: function() { window.markScheduleUnsaved && window.markScheduleUnsaved(); }
             });
           }
@@ -402,6 +403,7 @@
           data: {
             user_id: userId,
             date: date,
+            week: weekStart,
             department_id: selection.department ? selection.department.id : null,
             shift_id: selection.shift ? selection.shift.id : null,
             occupation_type_id: selection.occupation_type.id

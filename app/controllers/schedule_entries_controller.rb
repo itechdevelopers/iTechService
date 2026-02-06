@@ -3,6 +3,7 @@
 class ScheduleEntriesController < ApplicationController
   before_action :set_schedule_group
   before_action :set_entry, only: :destroy
+  before_action :capture_existing_dept_shift_pairs
 
   def upsert
     authorize :schedule
@@ -18,6 +19,7 @@ class ScheduleEntriesController < ApplicationController
     if @entry.save
       @entry.reload # Reload to get associations
       @weekly_hours = calculate_weekly_hours_for_users([@entry.user_id])
+      @department_counts = calculate_department_counts_for_week
     else
       render json: { errors: @entry.errors.full_messages }, status: :unprocessable_entity
     end
@@ -31,6 +33,7 @@ class ScheduleEntriesController < ApplicationController
     @date = @entry.date
     @entry.destroy
     @weekly_hours = calculate_weekly_hours_for_users([@user_id])
+    @department_counts = calculate_department_counts_for_week
   end
 
   def batch_upsert
@@ -55,6 +58,7 @@ class ScheduleEntriesController < ApplicationController
 
     @entries.each(&:reload)
     @weekly_hours = calculate_weekly_hours_for_users(user_ids)
+    @department_counts = calculate_department_counts_for_week
   end
 
   def batch_destroy
@@ -76,6 +80,7 @@ class ScheduleEntriesController < ApplicationController
                    .destroy_all
 
     @weekly_hours = calculate_weekly_hours_for_users(user_ids)
+    @department_counts = calculate_department_counts_for_week
   end
 
   private
@@ -144,5 +149,49 @@ class ScheduleEntriesController < ApplicationController
       user_entries = entries.select { |e| e.user_id == user_id }
       hash[user_id] = user_entries.sum { |e| e.shift&.duration_hours || 0 }
     end
+  end
+
+  def calculate_department_counts_for_week
+    week_start = week_start_from_params
+    week_dates_range = (week_start..(week_start + 6.days)).to_a
+
+    # Get all working entries for the week
+    entries = @schedule_group.schedule_entries
+                             .where(date: week_dates_range)
+                             .includes(:occupation_type)
+                             .select { |e| e.occupation_type&.counts_as_working? && e.department_id && e.shift_id }
+
+    # Count by [department_id, shift_id, date]
+    counts = entries.each_with_object({}) do |entry, hash|
+      key = [entry.department_id, entry.shift_id, entry.date.to_s]
+      hash[key] = (hash[key] || 0) + 1
+    end
+
+    # Combine dept+shift pairs from BEFORE the change (captured in before_action)
+    # with current pairs to ensure we update cells that became empty
+    current_pairs = entries.map { |e| [e.department_id, e.shift_id] }.uniq
+    all_pairs = ((@existing_dept_shift_pairs || []) + current_pairs).uniq
+
+    result = {}
+    all_pairs.each do |dept_id, shift_id|
+      week_dates_range.each do |date|
+        key = [dept_id, shift_id, date.to_s]
+        result[key] = counts[key] || 0
+      end
+    end
+
+    result
+  end
+
+  def capture_existing_dept_shift_pairs
+    week_start = week_start_from_params
+    week_dates_range = (week_start..(week_start + 6.days)).to_a
+
+    entries = @schedule_group.schedule_entries
+                             .where(date: week_dates_range)
+                             .includes(:occupation_type)
+                             .select { |e| e.occupation_type&.counts_as_working? && e.department_id && e.shift_id }
+
+    @existing_dept_shift_pairs = entries.map { |e| [e.department_id, e.shift_id] }.uniq
   end
 end
