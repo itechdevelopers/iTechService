@@ -42,6 +42,8 @@ ru:
       save_to_export_hint: 'Сохраните расписание для скачивания PNG'
       weekly_hours: 'Часов в неделю'
       shifts_label: 'Смены'
+      assigned: 'Задействованы'
+      not_assigned: 'Не задействованы'
     history_modal_form_content:
       title: 'История изменений'
       when: 'Когда'

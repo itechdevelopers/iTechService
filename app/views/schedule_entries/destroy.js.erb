@@ -9,7 +9,19 @@ $cell.removeData('entry-id');
 $('.weekly-hours-cell[data-user-id="<%= user_id %>"]').text('<%= hours %>');
 <% end %>
 
-// Update department summary counts
-<% @department_counts.each do |(dept_id, shift_id, date), count| %>
-$('.summary-count-cell[data-department-id="<%= dept_id %>"][data-shift-id="<%= shift_id %>"][data-date="<%= date %>"]').text(<%= count > 0 ? count : "''".html_safe %>);
+// Update department summary counts and user lists
+<% @department_counts.each do |(dept_id, shift_id, date), data| %>
+(function() {
+  var $cell = $('.summary-count-cell[data-department-id="<%= dept_id %>"][data-shift-id="<%= shift_id %>"][data-date="<%= date %>"]');
+  var count = <%= data[:count] %>;
+  var users = '<%= j data[:users].join(",") %>';
+  var notAssigned = '<%= j data[:not_assigned].join(",") %>';
+  var tooltipParts = [];
+  if (users) tooltipParts.push('<%= j t("schedule_groups.show.assigned") %>: ' + users.split(',').join(', '));
+  if (notAssigned) tooltipParts.push('<%= j t("schedule_groups.show.not_assigned") %>: ' + notAssigned.split(',').join(', '));
+  $cell.text(count > 0 ? count : '');
+  $cell.attr('data-users', users);
+  $cell.attr('data-not-assigned', notAssigned);
+  $cell.attr('data-original-title', tooltipParts.join(' | '));
+})();
 <% end %>

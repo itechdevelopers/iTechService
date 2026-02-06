@@ -157,16 +157,21 @@ class ScheduleEntriesController < ApplicationController
     week_start = week_start_from_params
     week_dates_range = (week_start..(week_start + 6.days)).to_a
 
+    # Get all member names for "not assigned" calculation
+    all_member_names = @schedule_group.members.map(&:short_name)
+
     # Get all working entries for the week
     entries = @schedule_group.schedule_entries
                              .where(date: week_dates_range)
-                             .includes(:occupation_type)
+                             .includes(:occupation_type, :user)
                              .select { |e| e.occupation_type&.counts_as_working? && e.department_id && e.shift_id }
 
-    # Count by [department_id, shift_id, date]
+    # Count and collect user names by [department_id, shift_id, date]
     counts = entries.each_with_object({}) do |entry, hash|
       key = [entry.department_id, entry.shift_id, entry.date.to_s]
-      hash[key] = (hash[key] || 0) + 1
+      hash[key] ||= { count: 0, users: [] }
+      hash[key][:count] += 1
+      hash[key][:users] << entry.user.short_name
     end
 
     # Combine dept+shift pairs from BEFORE the change (captured in before_action)
@@ -178,7 +183,9 @@ class ScheduleEntriesController < ApplicationController
     all_pairs.each do |dept_id, shift_id|
       week_dates_range.each do |date|
         key = [dept_id, shift_id, date.to_s]
-        result[key] = counts[key] || 0
+        data = counts[key] || { count: 0, users: [] }
+        data[:not_assigned] = all_member_names - data[:users]
+        result[key] = data
       end
     end
 
@@ -201,10 +208,13 @@ class ScheduleEntriesController < ApplicationController
     week_start = week_start_from_params
     @week_dates = (week_start..(week_start + 6.days)).to_a
 
+    # Get all member names for "not assigned" calculation
+    all_member_names = @schedule_group.members.map(&:short_name)
+
     # Get current working entries
     entries = @schedule_group.schedule_entries
                              .where(date: @week_dates)
-                             .includes(:occupation_type, :department, :shift)
+                             .includes(:occupation_type, :department, :shift, :user)
                              .select { |e| e.occupation_type&.counts_as_working? && e.department_id && e.shift_id }
 
     current_pairs = entries.map { |e| [e.department_id, e.shift_id] }.uniq
@@ -224,10 +234,17 @@ class ScheduleEntriesController < ApplicationController
     departments = Department.in_city(city).with_schedule_config.includes(:schedule_config).where(id: new_by_dept.keys)
     shifts = Shift.where(id: new_pairs.map(&:second).uniq)
 
-    # Build counts for new elements
+    # Build counts and user names for new elements
     counts = entries.each_with_object({}) do |entry, hash|
       key = [entry.shift_id, entry.date]
-      hash[key] = (hash[key] || 0) + 1
+      hash[key] ||= { count: 0, users: [] }
+      hash[key][:count] += 1
+      hash[key][:users] << entry.user.short_name
+    end
+
+    # Add not_assigned to each count
+    counts.each do |_key, data|
+      data[:not_assigned] = all_member_names - data[:users]
     end
 
     @new_tables = []
