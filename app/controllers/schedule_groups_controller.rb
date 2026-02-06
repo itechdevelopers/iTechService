@@ -59,6 +59,9 @@ class ScheduleGroupsController < ApplicationController
       end
       hash[member.id] = hours
     end
+
+    # Build department shift summary tables
+    @department_summaries = build_department_summaries
   end
 
   def edit
@@ -206,5 +209,43 @@ class ScheduleGroupsController < ApplicationController
 
     excluded_user_ids = users_in_other_groups.pluck(:user_id)
     users.where.not(id: excluded_user_ids)
+  end
+
+  def build_department_summaries
+    # Collect working entries grouped by department
+    working_entries = @entries.values.select { |e| e.occupation_type&.counts_as_working? && e.department_id && e.shift_id }
+
+    # Group by department_id
+    by_department = working_entries.group_by(&:department_id)
+
+    @departments.each_with_object({}) do |dept, result|
+      dept_entries = by_department[dept.id] || []
+      next if dept_entries.empty?
+
+      # Find unique shifts used in this department, ordered by shift position
+      shift_ids = dept_entries.map(&:shift_id).uniq
+      shifts = @shifts.select { |s| shift_ids.include?(s.id) }
+
+      # Build columns: display_text is "DEPT_SHORT/SHIFT_SHORT"
+      columns = shifts.map do |shift|
+        {
+          shift_id: shift.id,
+          display_text: "#{dept.schedule_config.short_name}/#{shift.short_name}"
+        }
+      end
+
+      # Count people per [shift_id, date]
+      counts = {}
+      dept_entries.each do |entry|
+        key = [entry.shift_id, entry.date]
+        counts[key] = (counts[key] || 0) + 1
+      end
+
+      result[dept.id] = {
+        department: dept,
+        columns: columns,
+        counts: counts
+      }
+    end
   end
 end
