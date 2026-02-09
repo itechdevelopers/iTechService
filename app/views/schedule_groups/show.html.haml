@@ -269,9 +269,10 @@
   $(document).ready(function() {
     // Initialize tooltips for department summary cells
     $('#department-summaries').tooltip({
-      selector: '.summary-count-cell[data-users]:not([data-users=""])',
+      selector: '.summary-count-cell[data-original-title]',
       placement: 'top',
-      container: 'body'
+      container: 'body',
+      html: true
     });
 
     // Selection state

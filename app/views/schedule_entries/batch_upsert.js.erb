@@ -53,7 +53,7 @@ $('.weekly-hours-cell[data-user-id="<%= user_id %>"]').text('<%= hours %>');
     <% tooltip_parts = [] %>
     <% tooltip_parts << "#{t('schedule_groups.show.assigned')}: #{users.join(', ')}" if users.any? %>
     <% tooltip_parts << "#{t('schedule_groups.show.not_assigned')}: #{not_assigned.join(', ')}" if not_assigned.any? %>
-    $table.find('tbody tr[data-date="<%= date.to_s %>"]').append('<td class="summary-count-cell" data-department-id="<%= col_data[:dept_id] %>" data-shift-id="<%= col_data[:shift_id] %>" data-date="<%= date.to_s %>" data-users="<%= j users.join(',') %>" data-not-assigned="<%= j not_assigned.join(',') %>" data-original-title="<%= j tooltip_parts.join(' | ') %>" rel="tooltip"><%= count > 0 ? count : "" %></td>');
+    $table.find('tbody tr[data-date="<%= date.to_s %>"]').append('<td class="summary-count-cell" data-department-id="<%= col_data[:dept_id] %>" data-shift-id="<%= col_data[:shift_id] %>" data-date="<%= date.to_s %>" data-users="<%= j users.join(',') %>" data-not-assigned="<%= j not_assigned.join(',') %>" data-original-title="<%= j tooltip_parts.join('<br>') %>" rel="tooltip"><%= count > 0 ? count : "" %></td>');
     <% end %>
   })();
   <% end %>
@@ -73,6 +73,6 @@ $('.weekly-hours-cell[data-user-id="<%= user_id %>"]').text('<%= hours %>');
   $cell.text(count > 0 ? count : '');
   $cell.attr('data-users', users);
   $cell.attr('data-not-assigned', notAssigned);
-  $cell.attr('data-original-title', tooltipParts.join(' | '));
+  $cell.attr('data-original-title', tooltipParts.join('<br>'));
 })();
 <% end %>

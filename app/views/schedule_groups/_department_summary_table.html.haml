@@ -18,6 +18,6 @@
             - tooltip_parts = []
             - tooltip_parts << "#{t('schedule_groups.show.assigned')}: #{users.join(', ')}" if users.any?
             - tooltip_parts << "#{t('schedule_groups.show.not_assigned')}: #{not_assigned.join(', ')}" if not_assigned.any?
-            - tooltip_text = tooltip_parts.join(' | ')
+            - tooltip_text = tooltip_parts.join('<br>')
             %td.summary-count-cell{'data-department-id' => dept_id, 'data-shift-id' => col[:shift_id], 'data-date' => date.to_s, 'data-users' => users.join(','), 'data-not-assigned' => not_assigned.join(','), 'data-original-title' => tooltip_text, :rel => 'tooltip'}
               = count if count > 0
