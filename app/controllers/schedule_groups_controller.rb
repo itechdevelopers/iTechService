@@ -51,6 +51,15 @@ class ScheduleGroupsController < ApplicationController
     @snapshot = @schedule_group.snapshot_for_week(@week_start)
     @has_unsaved_changes = @schedule_group.has_unsaved_changes_for_week?(@week_start)
 
+    # Calculate weekly days off for each member
+    @weekly_days_off = @members.each_with_object({}) do |member, hash|
+      count = @week_dates.count do |date|
+        entry = @entries[[member.id, date]]
+        entry && !entry.occupation_type&.counts_as_working?
+      end
+      hash[member.id] = count
+    end
+
     # Calculate weekly hours for each member
     @weekly_hours = @members.each_with_object({}) do |member, hash|
       hours = @week_dates.sum do |date|

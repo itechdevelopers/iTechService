@@ -14,6 +14,11 @@ var $cell = $('.schedule-cell[data-user-id="<%= entry.user_id %>"][data-date="<%
 $cell.data('entry-id', <%= entry.id %>);
 <% end %>
 
+// Update weekly days off
+<% @weekly_days_off.each do |user_id, count| %>
+$('.weekly-days-off-cell[data-user-id="<%= user_id %>"]').text(<%= count > 0 ? count : "''".html_safe %>);
+<% end %>
+
 // Update weekly hours
 <% @weekly_hours.each do |user_id, hours| %>
 $('.weekly-hours-cell[data-user-id="<%= user_id %>"]').text('<%= hours %>');
@@ -53,7 +58,7 @@ $('.weekly-hours-cell[data-user-id="<%= user_id %>"]').text('<%= hours %>');
     <% tooltip_parts = [] %>
     <% tooltip_parts << "#{t('schedule_groups.show.assigned')}: #{users.join(', ')}" if users.any? %>
     <% tooltip_parts << "#{t('schedule_groups.show.not_assigned')}: #{not_assigned.join(', ')}" if not_assigned.any? %>
-    $table.find('tbody tr[data-date="<%= date.to_s %>"]').append('<td class="summary-count-cell" data-department-id="<%= col_data[:dept_id] %>" data-shift-id="<%= col_data[:shift_id] %>" data-date="<%= date.to_s %>" data-users="<%= j users.join(',') %>" data-not-assigned="<%= j not_assigned.join(',') %>" data-original-title="<%= j tooltip_parts.join(' | ') %>" rel="tooltip"><%= count > 0 ? count : "" %></td>');
+    $table.find('tbody tr[data-date="<%= date.to_s %>"]').append('<td class="summary-count-cell" data-department-id="<%= col_data[:dept_id] %>" data-shift-id="<%= col_data[:shift_id] %>" data-date="<%= date.to_s %>" data-users="<%= j users.join(',') %>" data-not-assigned="<%= j not_assigned.join(',') %>" data-original-title="<%= j tooltip_parts.join('<br>') %>" rel="tooltip"><%= count > 0 ? count : "" %></td>');
     <% end %>
   })();
   <% end %>
@@ -73,6 +78,6 @@ $('.weekly-hours-cell[data-user-id="<%= user_id %>"]').text('<%= hours %>');
   $cell.text(count > 0 ? count : '');
   $cell.attr('data-users', users);
   $cell.attr('data-not-assigned', notAssigned);
-  $cell.attr('data-original-title', tooltipParts.join(' | '));
+  $cell.attr('data-original-title', tooltipParts.join('<br>'));
 })();
 <% end %>

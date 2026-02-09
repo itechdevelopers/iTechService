@@ -18,6 +18,7 @@ class ScheduleEntriesController < ApplicationController
 
     if @entry.save
       @entry.reload # Reload to get associations
+      @weekly_days_off = calculate_weekly_days_off_for_users([@entry.user_id])
       @weekly_hours = calculate_weekly_hours_for_users([@entry.user_id])
       @department_counts = calculate_department_counts_for_week
       prepare_new_summary_elements
@@ -33,6 +34,7 @@ class ScheduleEntriesController < ApplicationController
     @user_id = @entry.user_id
     @date = @entry.date
     @entry.destroy
+    @weekly_days_off = calculate_weekly_days_off_for_users([@user_id])
     @weekly_hours = calculate_weekly_hours_for_users([@user_id])
     @department_counts = calculate_department_counts_for_week
   end
@@ -58,6 +60,7 @@ class ScheduleEntriesController < ApplicationController
     end
 
     @entries.each(&:reload)
+    @weekly_days_off = calculate_weekly_days_off_for_users(user_ids)
     @weekly_hours = calculate_weekly_hours_for_users(user_ids)
     @department_counts = calculate_department_counts_for_week
     prepare_new_summary_elements
@@ -81,6 +84,7 @@ class ScheduleEntriesController < ApplicationController
                    .where(user_id: user_ids, date: dates)
                    .destroy_all
 
+    @weekly_days_off = calculate_weekly_days_off_for_users(user_ids)
     @weekly_hours = calculate_weekly_hours_for_users(user_ids)
     @department_counts = calculate_department_counts_for_week
   end
@@ -136,6 +140,20 @@ class ScheduleEntriesController < ApplicationController
       [params[:user_id].to_i]
     else
       @schedule_group.members.pluck(:id)
+    end
+  end
+
+  def calculate_weekly_days_off_for_users(user_ids)
+    week_start = week_start_from_params
+    week_dates_range = (week_start..(week_start + 6.days)).to_a
+
+    entries = @schedule_group.schedule_entries
+                             .where(user_id: user_ids, date: week_dates_range)
+                             .includes(:occupation_type)
+
+    user_ids.each_with_object({}) do |user_id, hash|
+      user_entries = entries.select { |e| e.user_id == user_id }
+      hash[user_id] = user_entries.count { |e| !e.occupation_type&.counts_as_working? }
     end
   end
 

@@ -6,6 +6,11 @@ $cell.addClass('empty-cell');
 $cell.removeData('entry-id');
 <% end %>
 
+// Update weekly days off
+<% @weekly_days_off.each do |user_id, count| %>
+$('.weekly-days-off-cell[data-user-id="<%= user_id %>"]').text(<%= count > 0 ? count : "''".html_safe %>);
+<% end %>
+
 // Update weekly hours
 <% @weekly_hours.each do |user_id, hours| %>
 $('.weekly-hours-cell[data-user-id="<%= user_id %>"]').text('<%= hours %>');
@@ -24,6 +29,6 @@ $('.weekly-hours-cell[data-user-id="<%= user_id %>"]').text('<%= hours %>');
   $cell.text(count > 0 ? count : '');
   $cell.attr('data-users', users);
   $cell.attr('data-not-assigned', notAssigned);
-  $cell.attr('data-original-title', tooltipParts.join(' | '));
+  $cell.attr('data-original-title', tooltipParts.join('<br>'));
 })();
 <% end %>
