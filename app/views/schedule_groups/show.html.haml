@@ -187,10 +187,14 @@
     vertical-align: middle;
   }
   .schedule-table .date-cell {
+    min-width: 100px;
+    max-width: 100px;
     width: 100px;
     white-space: nowrap;
   }
   .schedule-table .weekday-cell {
+    min-width: 120px;
+    max-width: 120px;
     width: 120px;
   }
 
@@ -203,6 +207,11 @@
     z-index: 2;
     background-color: #f9f9f9;
   }
+  .schedule-table thead th:nth-child(1) {
+    min-width: 100px;
+    max-width: 100px;
+    width: 100px;
+  }
   .schedule-table thead th:nth-child(2),
   .schedule-table tbody td:nth-child(2) {
     position: sticky;
@@ -210,6 +219,11 @@
     z-index: 2;
     background-color: #f9f9f9;
     box-shadow: 2px 0 4px rgba(0,0,0,0.1);
+  }
+  .schedule-table thead th:nth-child(2) {
+    min-width: 120px;
+    max-width: 120px;
+    width: 120px;
   }
   .schedule-table thead th:nth-child(1),
   .schedule-table thead th:nth-child(2) {
