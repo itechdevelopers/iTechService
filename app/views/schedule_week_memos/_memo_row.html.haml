@@ -1,0 +1,12 @@
+%tr.memo-row{'data-memo-id' => memo.id}
+  %td.memo-content-cell
+    %span.memo-text= memo.content
+    %input.memo-input.input-block-level{type: 'text', value: memo.content, style: 'display:none'}
+  - if can_edit
+    %td.memo-actions-cell
+      .btn-group.memo-display-actions
+        = link_to glyph(:pencil), '#', class: 'btn btn-mini memo-edit-btn', title: t('schedule_week_memos.edit')
+        = link_to glyph(:trash), schedule_group_schedule_week_memo_path(schedule_group, memo), method: :delete, remote: true, data: { confirm: t('schedule_week_memos.confirm_delete') }, class: 'btn btn-mini btn-danger', title: t('schedule_week_memos.delete')
+      .btn-group.memo-edit-actions{style: 'display:none'}
+        = link_to glyph(:check), '#', class: 'btn btn-mini btn-success memo-save-btn', title: t('schedule_week_memos.save')
+        = link_to glyph(:times), '#', class: 'btn btn-mini memo-cancel-btn', title: t('schedule_week_memos.cancel')

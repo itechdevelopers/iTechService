@@ -71,6 +71,9 @@ class ScheduleGroupsController < ApplicationController
 
     # Build department shift summary tables
     @department_summaries = build_department_summaries
+
+    # Load week memos
+    @memos = @schedule_group.schedule_week_memos.for_week(@week_start)
   end
 
   def edit

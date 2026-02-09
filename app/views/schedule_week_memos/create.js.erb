@@ -1,0 +1,12 @@
+<% if @memo.persisted? %>
+$('#memo-table-body').append('<%= j render(partial: "schedule_week_memos/memo_row", locals: { memo: @memo, can_edit: true, schedule_group: @schedule_group }) %>');
+$('#no-memos-row').remove();
+// Start editing the new row immediately
+var $newRow = $('#memo-table-body tr.memo-row:last');
+$newRow.find('.memo-text').hide();
+$newRow.find('.memo-input').show().focus().select();
+$newRow.find('.memo-display-actions').hide();
+$newRow.find('.memo-edit-actions').show();
+<% else %>
+alert('<%= j @memo.errors.full_messages.join(", ") %>');
+<% end %>

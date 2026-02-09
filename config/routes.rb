@@ -74,6 +74,7 @@ Rails.application.routes.draw do
         delete :batch_destroy
       end
     end
+    resources :schedule_week_memos, only: %i[create update destroy]
   end
   resources :departments do
     resource :working_hours, only: %i[edit update], controller: 'department_working_hours'

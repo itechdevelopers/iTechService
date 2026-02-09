@@ -113,6 +113,16 @@ ru:
       save: 'Сохранить'
       cancel: 'Отмена'
 
+  schedule_week_memos:
+    title: 'Памятка'
+    add: 'Добавить'
+    edit: 'Редактировать'
+    save: 'Сохранить'
+    cancel: 'Отмена'
+    delete: 'Удалить'
+    confirm_delete: 'Удалить эту запись?'
+    empty: 'Нет записей'
+
   helpers:
     links:
       save: 'Сохранить'

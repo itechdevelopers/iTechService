@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20260203175840) do
+ActiveRecord::Schema.define(version: 20260209114848) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -1445,6 +1445,17 @@ ActiveRecord::Schema.define(version: 20260203175840) do
     t.index ["user_id"], name: "index_schedule_groups_on_user_id"
   end
 
+  create_table "schedule_week_memos", force: :cascade do |t|
+    t.bigint "schedule_group_id"
+    t.date "week_start", null: false
+    t.text "content", default: "", null: false
+    t.integer "position", default: 0
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["schedule_group_id", "week_start"], name: "idx_memos_group_week"
+    t.index ["schedule_group_id"], name: "index_schedule_week_memos_on_schedule_group_id"
+  end
+
   create_table "schedule_week_snapshots", force: :cascade do |t|
     t.bigint "schedule_group_id"
     t.date "week_start", null: false
@@ -2137,6 +2148,7 @@ ActiveRecord::Schema.define(version: 20260203175840) do
   add_foreign_key "schedule_group_memberships", "users"
   add_foreign_key "schedule_groups", "cities"
   add_foreign_key "schedule_groups", "users"
+  add_foreign_key "schedule_week_memos", "schedule_groups"
   add_foreign_key "schedule_week_snapshots", "schedule_groups"
   add_foreign_key "service_feedbacks", "service_jobs"
   add_foreign_key "service_free_jobs", "clients"

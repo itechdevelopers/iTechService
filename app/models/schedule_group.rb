@@ -8,6 +8,7 @@ class ScheduleGroup < ApplicationRecord
   has_many :members, through: :memberships, source: :user
   has_many :schedule_entries, dependent: :destroy
   has_many :schedule_week_snapshots, dependent: :destroy
+  has_many :schedule_week_memos, dependent: :destroy
 
   validates :name, presence: true
 
