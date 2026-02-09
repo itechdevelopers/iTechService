@@ -105,6 +105,11 @@
               %td.schedule-cell.empty-cell{cell_data}
     %tfoot.weekly-hours-footer
       %tr
+        %td{colspan: 2}= t('.weekly_days_off')
+        - @members.each do |member|
+          %td.weekly-days-off-cell{'data-user-id' => member.id}
+            = @weekly_days_off[member.id] if @weekly_days_off[member.id] > 0
+      %tr
         %td{colspan: 2}= t('.weekly_hours')
         - @members.each do |member|
           %td.weekly-hours-cell{'data-user-id' => member.id}
@@ -213,7 +218,8 @@
     font-weight: bold;
     border-top: 2px solid #ddd;
   }
-  .schedule-table .weekly-hours-cell {
+  .schedule-table .weekly-hours-cell,
+  .schedule-table .weekly-days-off-cell {
     text-align: center;
   }
 

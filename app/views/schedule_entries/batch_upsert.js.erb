@@ -14,6 +14,11 @@ var $cell = $('.schedule-cell[data-user-id="<%= entry.user_id %>"][data-date="<%
 $cell.data('entry-id', <%= entry.id %>);
 <% end %>
 
+// Update weekly days off
+<% @weekly_days_off.each do |user_id, count| %>
+$('.weekly-days-off-cell[data-user-id="<%= user_id %>"]').text(<%= count > 0 ? count : "''".html_safe %>);
+<% end %>
+
 // Update weekly hours
 <% @weekly_hours.each do |user_id, hours| %>
 $('.weekly-hours-cell[data-user-id="<%= user_id %>"]').text('<%= hours %>');
