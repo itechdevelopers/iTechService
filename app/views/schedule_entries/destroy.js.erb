@@ -30,3 +30,13 @@ $('.weekly-hours-cell[data-user-id="<%= user_id %>"]').text('<%= hours %>');
   $cell.attr('data-original-title', tooltipParts.join('<br>'));
 })();
 <% end %>
+
+// Update total department headcount summary
+<% @total_dept_counts.each do |(dept_id, date), count| %>
+$('.total-dept-count-cell[data-department-id="<%= dept_id %>"][data-date="<%= date %>"]').text(<%= count > 0 ? count : "''".html_safe %>);
+<% end %>
+
+// Update non-working counts
+<% @non_working_counts.each do |date, count| %>
+$('.non-working-count-cell[data-date="<%= date %>"]').text(<%= count > 0 ? count : "''".html_safe %>);
+<% end %>

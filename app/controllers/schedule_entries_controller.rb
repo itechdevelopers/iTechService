@@ -21,6 +21,7 @@ class ScheduleEntriesController < ApplicationController
       @weekly_days_off = calculate_weekly_days_off_for_users([@entry.user_id])
       @weekly_hours = calculate_weekly_hours_for_users([@entry.user_id])
       @department_counts = calculate_department_counts_for_week
+      @total_dept_counts = calculate_total_dept_counts
       prepare_new_summary_elements
     else
       render json: { errors: @entry.errors.full_messages }, status: :unprocessable_entity
@@ -37,6 +38,7 @@ class ScheduleEntriesController < ApplicationController
     @weekly_days_off = calculate_weekly_days_off_for_users([@user_id])
     @weekly_hours = calculate_weekly_hours_for_users([@user_id])
     @department_counts = calculate_department_counts_for_week
+    @total_dept_counts = calculate_total_dept_counts
   end
 
   def batch_upsert
@@ -63,6 +65,7 @@ class ScheduleEntriesController < ApplicationController
     @weekly_days_off = calculate_weekly_days_off_for_users(user_ids)
     @weekly_hours = calculate_weekly_hours_for_users(user_ids)
     @department_counts = calculate_department_counts_for_week
+    @total_dept_counts = calculate_total_dept_counts
     prepare_new_summary_elements
   end
 
@@ -87,6 +90,7 @@ class ScheduleEntriesController < ApplicationController
     @weekly_days_off = calculate_weekly_days_off_for_users(user_ids)
     @weekly_hours = calculate_weekly_hours_for_users(user_ids)
     @department_counts = calculate_department_counts_for_week
+    @total_dept_counts = calculate_total_dept_counts
   end
 
   private
@@ -205,6 +209,45 @@ class ScheduleEntriesController < ApplicationController
         data[:not_assigned] = all_member_names - data[:users]
         result[key] = data
       end
+    end
+
+    result
+  end
+
+  def calculate_total_dept_counts
+    week_start = week_start_from_params
+    week_dates_range = (week_start..(week_start + 6.days)).to_a
+
+    all_entries = @schedule_group.schedule_entries
+                                 .where(date: week_dates_range)
+                                 .includes(:occupation_type)
+
+    working = all_entries.select { |e| e.occupation_type&.counts_as_working? && e.department_id }
+
+    result = {}
+    working.each do |entry|
+      key = [entry.department_id, entry.date.to_s]
+      result[key] ||= 0
+      result[key] += 1
+    end
+
+    # Ensure we cover departments that became empty (from existing pairs)
+    existing_dept_ids = (@existing_dept_shift_pairs || []).map(&:first).uniq
+    current_dept_ids = working.map(&:department_id).uniq
+    all_dept_ids = (existing_dept_ids + current_dept_ids).uniq
+
+    all_dept_ids.each do |dept_id|
+      week_dates_range.each do |date|
+        key = [dept_id, date.to_s]
+        result[key] ||= 0
+      end
+    end
+
+    # Also compute non-working counts per date
+    @non_working_counts = {}
+    week_dates_range.each { |d| @non_working_counts[d.to_s] = 0 }
+    all_entries.select { |e| e.occupation_type && !e.occupation_type.counts_as_working? }.each do |entry|
+      @non_working_counts[entry.date.to_s] += 1
     end
 
     result

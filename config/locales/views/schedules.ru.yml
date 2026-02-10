@@ -45,6 +45,8 @@ ru:
       shifts_label: 'Смены'
       assigned: 'Задействованы'
       not_assigned: 'Не задействованы'
+      total_dept_summary: 'Итого по подразделениям'
+      non_working_column: 'Выходные'
     history_modal_form_content:
       title: 'История изменений'
       when: 'Когда'

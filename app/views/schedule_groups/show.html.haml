@@ -120,6 +120,31 @@
   - @department_summaries.each do |dept_id, summary|
     = render partial: 'department_summary_table', locals: { dept_id: dept_id, department_name: summary[:department].name, columns: summary[:columns], counts: summary[:counts], week_dates: @week_dates }
 
+-# Total department headcount summary table
+- if @department_summaries.any?
+  .total-dept-summary-section
+    %h5.total-dept-summary-title= t('schedule_groups.show.total_dept_summary')
+    %table.table.table-bordered.table-condensed.total-dept-summary-table#total-department-summary
+      %thead
+        %tr
+          %th= t('schedule_groups.show.day_of_week')
+          - @departments.each do |dept|
+            - next unless @department_summaries.key?(dept.id)
+            %th{'data-department-id' => dept.id}= dept.schedule_config.short_name
+          %th.non-working-header= t('schedule_groups.show.non_working_column')
+      %tbody
+        - @week_dates.each do |date|
+          %tr{'data-date' => date.to_s}
+            %td.weekday-cell= l(date, format: '%A')
+            - @departments.each do |dept|
+              - next unless @department_summaries.key?(dept.id)
+              - count = @total_department_counts[[dept.id, date]] || 0
+              %td.total-dept-count-cell{'data-department-id' => dept.id, 'data-date' => date.to_s}
+                = count if count > 0
+            - nw_count = @non_working_counts[date] || 0
+            %td.non-working-count-cell{'data-date' => date.to_s}
+              = nw_count if nw_count > 0
+
 -# Week memos (ПАМЯТКА)
 .week-memos-section
   %h5.week-memos-title= t('schedule_week_memos.title')
@@ -314,6 +339,31 @@
     font-weight: normal;
   }
   .summary-count-cell:empty {
+    background-color: #f9f9f9;
+  }
+
+  /* Total department headcount summary */
+  .total-dept-summary-section {
+    margin-top: 24px;
+  }
+  .total-dept-summary-title {
+    font-weight: bold;
+    margin-bottom: 6px;
+  }
+  .total-dept-summary-table {
+    width: auto;
+  }
+  .total-dept-summary-table th,
+  .total-dept-summary-table td {
+    text-align: center;
+    vertical-align: middle;
+    padding: 4px 10px;
+  }
+  .total-dept-summary-table .weekday-cell {
+    text-align: left;
+    font-weight: normal;
+  }
+  .total-dept-count-cell:empty {
     background-color: #f9f9f9;
   }
 
