@@ -1,0 +1,9 @@
+<% if @memo.errors.empty? %>
+var $row = $('tr.memo-row[data-memo-id="<%= @memo.id %>"]');
+$row.find('.memo-text').text('<%= j @memo.content %>').show();
+$row.find('.memo-input').val('<%= j @memo.content %>').hide();
+$row.find('.memo-display-actions').show();
+$row.find('.memo-edit-actions').hide();
+<% else %>
+alert('<%= j @memo.errors.full_messages.join(", ") %>');
+<% end %>

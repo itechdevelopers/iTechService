@@ -119,6 +119,46 @@
 #department-summaries.department-summaries
   - @department_summaries.each do |dept_id, summary|
     = render partial: 'department_summary_table', locals: { dept_id: dept_id, department_name: summary[:department].name, columns: summary[:columns], counts: summary[:counts], week_dates: @week_dates }
+  -# Total department headcount summary table (inside flex container)
+  - if @department_summaries.any?
+    .total-dept-summary-section
+      %h5.total-dept-summary-title= t('schedule_groups.show.total_dept_summary')
+      %table.table.table-bordered.table-condensed.total-dept-summary-table#total-department-summary
+        %thead
+          %tr
+            %th= t('schedule_groups.show.day_of_week')
+            - @departments.each do |dept|
+              - next unless @department_summaries.key?(dept.id)
+              %th{'data-department-id' => dept.id}= dept.schedule_config.short_name
+            %th.non-working-header= t('schedule_groups.show.non_working_column')
+        %tbody
+          - @week_dates.each do |date|
+            %tr{'data-date' => date.to_s}
+              %td.weekday-cell= l(date, format: '%A')
+              - @departments.each do |dept|
+                - next unless @department_summaries.key?(dept.id)
+                - count = @total_department_counts[[dept.id, date]] || 0
+                %td.total-dept-count-cell{'data-department-id' => dept.id, 'data-date' => date.to_s}
+                  = count if count > 0
+              - nw_count = @non_working_counts[date] || 0
+              %td.non-working-count-cell{'data-date' => date.to_s}
+                = nw_count if nw_count > 0
+
+-# Week memos (ПАМЯТКА)
+.week-memos-section
+  %h5.week-memos-title= t('schedule_week_memos.title')
+  %table.table.table-bordered.table-condensed.week-memos-table
+    %tbody#memo-table-body
+      - if @memos.any?
+        - @memos.each do |memo|
+          = render partial: 'schedule_week_memos/memo_row', locals: { memo: memo, can_edit: @can_edit, schedule_group: @schedule_group }
+      - else
+        %tr#no-memos-row
+          %td.muted.text-center{colspan: @can_edit ? 2 : 1}= t('schedule_week_memos.empty')
+  - if @can_edit
+    = link_to '#', class: 'btn btn-small memo-add-btn', id: 'add-memo-btn', 'data-url' => schedule_group_schedule_week_memos_path(@schedule_group), 'data-week-start' => @week_start.to_s do
+      = glyph(:plus)
+      = t('schedule_week_memos.add')
 
 -# Save button and status (under table)
 - if @can_edit
@@ -301,6 +341,31 @@
     background-color: #f9f9f9;
   }
 
+  /* Total department headcount summary */
+  .total-dept-summary-section {
+    flex: 0 0 auto;
+  }
+  .total-dept-summary-title {
+    font-weight: bold;
+    margin-bottom: 6px;
+  }
+  .total-dept-summary-table {
+    width: auto;
+  }
+  .total-dept-summary-table th,
+  .total-dept-summary-table td {
+    text-align: center;
+    vertical-align: middle;
+    padding: 4px 10px;
+  }
+  .total-dept-summary-table .weekday-cell {
+    text-align: left;
+    font-weight: normal;
+  }
+  .total-dept-count-cell:empty {
+    background-color: #f9f9f9;
+  }
+
   /* Export hint (above navigation, right-aligned) */
   .export-hint {
     font-size: 12px;
@@ -316,6 +381,33 @@
   }
   .save-status {
     font-size: 13px;
+  }
+
+  /* Week memos (ПАМЯТКА) */
+  .week-memos-section {
+    margin-top: 24px;
+    max-width: 600px;
+  }
+  .week-memos-title {
+    font-weight: bold;
+    margin-bottom: 6px;
+  }
+  .week-memos-table {
+    width: 100%;
+  }
+  .week-memos-table .memo-content-cell {
+    width: 100%;
+  }
+  .week-memos-table .memo-actions-cell {
+    white-space: nowrap;
+    width: 1%;
+  }
+  .week-memos-table .memo-input {
+    margin-bottom: 0;
+    width: 95%;
+  }
+  .memo-add-btn {
+    margin-top: 8px;
   }
 
 :javascript
@@ -687,4 +779,67 @@
         $btn.prop('disabled', false).html(exportBtnOriginalHtml);
       });
     }
+
+    // === Week Memos (ПАМЯТКА) ===
+    // Add memo
+    $('#add-memo-btn').on('click', function(e) {
+      e.preventDefault();
+      var url = $(this).data('url');
+      var weekStart = $(this).data('week-start');
+      $.ajax({
+        url: url,
+        method: 'POST',
+        dataType: 'script',
+        data: {
+          schedule_week_memo: { content: '...', week_start: weekStart }
+        }
+      });
+    });
+
+    // Edit memo — switch to edit mode
+    $(document).on('click', '.memo-edit-btn', function(e) {
+      e.preventDefault();
+      var $row = $(this).closest('.memo-row');
+      $row.find('.memo-text').hide();
+      $row.find('.memo-input').show().focus().select();
+      $row.find('.memo-display-actions').hide();
+      $row.find('.memo-edit-actions').show();
+    });
+
+    // Cancel edit
+    $(document).on('click', '.memo-cancel-btn', function(e) {
+      e.preventDefault();
+      var $row = $(this).closest('.memo-row');
+      var originalText = $row.find('.memo-text').text();
+      $row.find('.memo-input').val(originalText).hide();
+      $row.find('.memo-text').show();
+      $row.find('.memo-edit-actions').hide();
+      $row.find('.memo-display-actions').show();
+    });
+
+    // Save memo edit
+    $(document).on('click', '.memo-save-btn', function(e) {
+      e.preventDefault();
+      var $row = $(this).closest('.memo-row');
+      var memoId = $row.data('memo-id');
+      var newContent = $row.find('.memo-input').val();
+      $.ajax({
+        url: '/schedule_groups/' + scheduleGroupId + '/schedule_week_memos/' + memoId,
+        method: 'PATCH',
+        dataType: 'script',
+        data: { schedule_week_memo: { content: newContent } }
+      });
+    });
+
+    // Save memo on Enter key
+    $(document).on('keydown', '.memo-input', function(e) {
+      if (e.key === 'Enter') {
+        e.preventDefault();
+        $(this).closest('.memo-row').find('.memo-save-btn').click();
+      }
+      if (e.key === 'Escape') {
+        e.preventDefault();
+        $(this).closest('.memo-row').find('.memo-cancel-btn').click();
+      }
+    });
   });

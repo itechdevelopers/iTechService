@@ -71,6 +71,15 @@ class ScheduleGroupsController < ApplicationController
 
     # Build department shift summary tables
     @department_summaries = build_department_summaries
+
+    # Build total department counts (aggregated across all shifts per dept/date)
+    @total_department_counts = build_total_department_counts
+
+    # Build non-working counts per date
+    @non_working_counts = build_non_working_counts
+
+    # Load week memos
+    @memos = @schedule_group.schedule_week_memos.for_week(@week_start)
   end
 
   def edit
@@ -218,6 +227,31 @@ class ScheduleGroupsController < ApplicationController
 
     excluded_user_ids = users_in_other_groups.pluck(:user_id)
     users.where.not(id: excluded_user_ids)
+  end
+
+  def build_non_working_counts
+    # Count entries with non-working occupation type per date
+    non_working = @entries.values.select { |e| e.occupation_type && !e.occupation_type.counts_as_working? }
+
+    result = {}
+    non_working.each do |entry|
+      result[entry.date] ||= 0
+      result[entry.date] += 1
+    end
+    result
+  end
+
+  def build_total_department_counts
+    # Aggregate working people count per [department_id, date] across all shifts
+    working_entries = @entries.values.select { |e| e.occupation_type&.counts_as_working? && e.department_id }
+
+    result = {}
+    working_entries.each do |entry|
+      key = [entry.department_id, entry.date]
+      result[key] ||= 0
+      result[key] += 1
+    end
+    result
   end
 
   def build_department_summaries

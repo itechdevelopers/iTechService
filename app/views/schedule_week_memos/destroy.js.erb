@@ -1,0 +1,5 @@
+$('tr.memo-row[data-memo-id="<%= @memo.id %>"]').remove();
+// Show "no memos" row if table is now empty
+if ($('#memo-table-body tr.memo-row').length === 0) {
+  $('#memo-table-body').append('<tr id="no-memos-row"><td colspan="2" class="muted text-center"><%= j t("schedule_week_memos.empty") %></td></tr>');
+}

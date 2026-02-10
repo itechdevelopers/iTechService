@@ -48,4 +48,16 @@ class SchedulePolicy < ApplicationPolicy
   def save_week?
     manage?
   end
+
+  def create_memo?
+    manage?
+  end
+
+  def update_memo?
+    manage?
+  end
+
+  def destroy_memo?
+    manage?
+  end
 end
