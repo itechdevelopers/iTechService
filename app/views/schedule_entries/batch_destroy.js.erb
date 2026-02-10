@@ -34,11 +34,31 @@ $('.weekly-hours-cell[data-user-id="<%= user_id %>"]').text('<%= hours %>');
 <% end %>
 
 // Update total department headcount summary
-<% @total_dept_counts.each do |(dept_id, date), count| %>
-$('.total-dept-count-cell[data-department-id="<%= dept_id %>"][data-date="<%= date %>"]').text(<%= count > 0 ? count : "''".html_safe %>);
+<% @total_dept_counts.each do |(dept_id, date), data| %>
+(function() {
+  var $cell = $('.total-dept-count-cell[data-department-id="<%= dept_id %>"][data-date="<%= date %>"]');
+  var count = <%= data[:count] %>;
+  var users = '<%= j data[:users].join(",") %>';
+  var notAssigned = '<%= j data[:not_assigned].join(",") %>';
+  var tooltipParts = [];
+  if (users) tooltipParts.push('<%= j t("schedule_groups.show.assigned") %>: ' + users.split(',').join(', '));
+  if (notAssigned) tooltipParts.push('<%= j t("schedule_groups.show.not_assigned") %>: ' + notAssigned.split(',').join(', '));
+  $cell.text(count > 0 ? count : '');
+  $cell.attr('data-users', users);
+  $cell.attr('data-not-assigned', notAssigned);
+  $cell.attr('data-original-title', tooltipParts.join('<br>'));
+})();
 <% end %>
 
 // Update non-working counts
-<% @non_working_counts.each do |date, count| %>
-$('.non-working-count-cell[data-date="<%= date %>"]').text(<%= count > 0 ? count : "''".html_safe %>);
+<% @non_working_counts.each do |date, data| %>
+(function() {
+  var $cell = $('.non-working-count-cell[data-date="<%= date %>"]');
+  var count = <%= data[:count] %>;
+  var users = '<%= j data[:users].join(",") %>';
+  var tooltip = users ? '<%= j t("schedule_groups.show.non_working_people") %>: ' + users.split(',').join(', ') : '';
+  $cell.text(count > 0 ? count : '');
+  $cell.attr('data-users', users);
+  $cell.attr('data-original-title', tooltip);
+})();
 <% end %>

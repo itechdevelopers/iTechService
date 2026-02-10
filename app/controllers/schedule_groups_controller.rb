@@ -235,22 +235,27 @@ class ScheduleGroupsController < ApplicationController
 
     result = {}
     non_working.each do |entry|
-      result[entry.date] ||= 0
-      result[entry.date] += 1
+      result[entry.date] ||= { count: 0, users: [] }
+      result[entry.date][:count] += 1
+      result[entry.date][:users] << entry.user.short_name
     end
     result
   end
 
   def build_total_department_counts
     # Aggregate working people count per [department_id, date] across all shifts
+    all_member_names = @members.map(&:short_name)
     working_entries = @entries.values.select { |e| e.occupation_type&.counts_as_working? && e.department_id }
 
     result = {}
     working_entries.each do |entry|
       key = [entry.department_id, entry.date]
-      result[key] ||= 0
-      result[key] += 1
+      result[key] ||= { count: 0, users: [] }
+      result[key][:count] += 1
+      result[key][:users] << entry.user.short_name
     end
+
+    result.each { |_key, data| data[:not_assigned] = all_member_names - data[:users] }
     result
   end
 
