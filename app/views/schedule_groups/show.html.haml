@@ -137,11 +137,20 @@
               %td.weekday-cell= l(date, format: '%A')
               - @departments.each do |dept|
                 - next unless @department_summaries.key?(dept.id)
-                - count = @total_department_counts[[dept.id, date]] || 0
-                %td.total-dept-count-cell{'data-department-id' => dept.id, 'data-date' => date.to_s}
+                - data = @total_department_counts[[dept.id, date]] || { count: 0, users: [], not_assigned: [] }
+                - count = data[:count]
+                - users = data[:users] || []
+                - not_assigned = data[:not_assigned] || []
+                - tooltip_parts = []
+                - tooltip_parts << "#{t('schedule_groups.show.assigned')}: #{users.join(', ')}" if users.any?
+                - tooltip_parts << "#{t('schedule_groups.show.not_assigned')}: #{not_assigned.join(', ')}" if not_assigned.any?
+                %td.total-dept-count-cell{'data-department-id' => dept.id, 'data-date' => date.to_s, 'data-users' => users.join(','), 'data-not-assigned' => not_assigned.join(','), 'data-original-title' => tooltip_parts.join('<br>'), :rel => 'tooltip'}
                   = count if count > 0
-              - nw_count = @non_working_counts[date] || 0
-              %td.non-working-count-cell{'data-date' => date.to_s}
+              - nw_data = @non_working_counts[date] || { count: 0, users: [] }
+              - nw_count = nw_data[:count]
+              - nw_users = nw_data[:users] || []
+              - nw_tooltip = nw_users.any? ? "#{t('schedule_groups.show.non_working_people')}: #{nw_users.join(', ')}" : ''
+              %td.non-working-count-cell{'data-date' => date.to_s, 'data-users' => nw_users.join(','), 'data-original-title' => nw_tooltip, :rel => 'tooltip'}
                 = nw_count if nw_count > 0
 
 -# Week memos (ПАМЯТКА)
@@ -414,7 +423,7 @@
   $(document).ready(function() {
     // Initialize tooltips for department summary cells
     $('#department-summaries').tooltip({
-      selector: '.summary-count-cell[data-original-title]',
+      selector: '.summary-count-cell[data-original-title], .total-dept-count-cell[data-original-title], .non-working-count-cell[data-original-title]',
       placement: 'top',
       container: 'body',
       html: true

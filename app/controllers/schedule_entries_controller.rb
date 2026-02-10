@@ -217,18 +217,20 @@ class ScheduleEntriesController < ApplicationController
   def calculate_total_dept_counts
     week_start = week_start_from_params
     week_dates_range = (week_start..(week_start + 6.days)).to_a
+    all_member_names = @schedule_group.members.map(&:short_name)
 
     all_entries = @schedule_group.schedule_entries
                                  .where(date: week_dates_range)
-                                 .includes(:occupation_type)
+                                 .includes(:occupation_type, :user)
 
     working = all_entries.select { |e| e.occupation_type&.counts_as_working? && e.department_id }
 
     result = {}
     working.each do |entry|
       key = [entry.department_id, entry.date.to_s]
-      result[key] ||= 0
-      result[key] += 1
+      result[key] ||= { count: 0, users: [] }
+      result[key][:count] += 1
+      result[key][:users] << entry.user.short_name
     end
 
     # Ensure we cover departments that became empty (from existing pairs)
@@ -239,15 +241,18 @@ class ScheduleEntriesController < ApplicationController
     all_dept_ids.each do |dept_id|
       week_dates_range.each do |date|
         key = [dept_id, date.to_s]
-        result[key] ||= 0
+        result[key] ||= { count: 0, users: [] }
       end
     end
 
+    result.each { |_key, data| data[:not_assigned] = all_member_names - data[:users] }
+
     # Also compute non-working counts per date
     @non_working_counts = {}
-    week_dates_range.each { |d| @non_working_counts[d.to_s] = 0 }
+    week_dates_range.each { |d| @non_working_counts[d.to_s] = { count: 0, users: [] } }
     all_entries.select { |e| e.occupation_type && !e.occupation_type.counts_as_working? }.each do |entry|
-      @non_working_counts[entry.date.to_s] += 1
+      @non_working_counts[entry.date.to_s][:count] += 1
+      @non_working_counts[entry.date.to_s][:users] << entry.user.short_name
     end
 
     result
