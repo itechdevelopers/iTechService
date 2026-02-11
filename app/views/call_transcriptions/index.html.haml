@@ -8,6 +8,9 @@
     %span.separator —
     = text_field_tag :date_to, params[:date_to], class: 'bootstrap-datepicker input-small', placeholder: t('.date_to')
     = text_field_tag :query, params[:query], class: 'input-medium', placeholder: t('.search_placeholder')
+    %label.checkbox.inline
+      = check_box_tag :whole_word, '1', params[:whole_word] == '1'
+      = t('.whole_word')
     = submit_tag t('.filter'), class: 'btn btn-info'
     - if params[:date_from].present? || params[:date_to].present? || params[:query].present?
       = link_to t('.clear'), call_transcriptions_path, class: 'btn'
