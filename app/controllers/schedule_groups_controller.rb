@@ -93,7 +93,7 @@ class ScheduleGroupsController < ApplicationController
     authorize :schedule
     @city = @schedule_group.city
 
-    if can_manage_group?(@schedule_group) && @schedule_group.update(schedule_group_params)
+    if @schedule_group.update(schedule_group_params)
       update_memberships
       @schedule_groups = @city.schedule_groups.includes(:owner, :members)
     else
@@ -105,9 +105,7 @@ class ScheduleGroupsController < ApplicationController
     authorize :schedule
     @city = @schedule_group.city
 
-    if can_manage_group?(@schedule_group)
-      @schedule_group.destroy
-    end
+    @schedule_group.destroy
 
     @schedule_groups = @city.schedule_groups.includes(:owner, :members)
   end
@@ -169,10 +167,6 @@ class ScheduleGroupsController < ApplicationController
 
   def schedule_group_params
     params.require(:schedule_group).permit(:name)
-  end
-
-  def can_manage_group?(group)
-    current_user.superadmin? || group.owned_by?(current_user)
   end
 
   def can_edit_week?(week_start)

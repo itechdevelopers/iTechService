@@ -3,7 +3,7 @@
     - schedule_groups.each do |group|
       .span4
         .well.well-small
-          - if can?(:manage, :schedule) && (current_user.superadmin? || group.owned_by?(current_user))
+          - if can?(:manage, :schedule)
             .pull-right
               = link_to glyph(:pencil), edit_schedule_group_path(group), remote: true, class: 'btn btn-mini', title: t('schedules.schedule_groups.edit')
               = link_to glyph(:trash), schedule_group_path(group), method: :delete, remote: true, data: { confirm: t('schedules.schedule_groups.confirm_delete') }, class: 'btn btn-mini btn-danger', title: t('schedules.schedule_groups.delete')

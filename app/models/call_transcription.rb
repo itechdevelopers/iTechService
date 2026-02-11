@@ -11,16 +11,22 @@ class CallTranscription < ApplicationRecord
   after_create_commit :check_marker_words
 
   # TODO: Replace with Full-Text Search when needed
-  scope :search, ->(query) {
-    sanitized = sanitize_sql_like(query)
+  scope :search, ->(query, whole_word: false) {
     phone_query = query.gsub(/\D/, '')
 
-    if phone_query.present?
-      where('transcript_text ILIKE :text OR caller_number LIKE :phone',
-            text: "%#{sanitized}%",
-            phone: "%#{phone_query}%")
+    if whole_word
+      escaped = query.gsub(/([.\\+*?\[\](){}|^$])/, '\\\\\1')
+      text_condition = ['transcript_text ~* ?', "(^|\\s|[[:punct:]])#{escaped}($|\\s|[[:punct:]])"]
     else
-      where('transcript_text ILIKE ?', "%#{sanitized}%")
+      sanitized = sanitize_sql_like(query)
+      text_condition = ['transcript_text ILIKE ?', "%#{sanitized}%"]
+    end
+
+    if phone_query.present?
+      where("#{text_condition[0]} OR caller_number LIKE :phone",
+            text_condition[1], phone: "%#{phone_query}%")
+    else
+      where(*text_condition)
     end
   }
 
