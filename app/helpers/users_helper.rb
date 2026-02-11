@@ -160,7 +160,7 @@ module UsersHelper
             end <<
               content_tag(:tr) do
                 tag(:th) <<
-                  t('date.abbr_day_names').map do |day|
+                  t('date.abbr_day_names').rotate(1).map do |day|
                     content_tag(:th, content_tag(:strong, day))
                   end.join.html_safe
               end
