@@ -26,6 +26,9 @@
         - else
           \-
 
+      %dt= CallTranscription.human_attribute_name(:sentiment)
+      %dd= sentiment_dots(@call_transcription)
+
 .row-fluid
   .span12
     %h3= CallTranscription.human_attribute_name(:transcript_text)

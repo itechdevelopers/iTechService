@@ -133,6 +133,7 @@ ru:
         call_date: 'Дата звонка'
         recording_url: 'Ссылка на запись'
         client: 'Клиент'
+        sentiment: 'Настроение'
 
       client:
         admin_info: 'Информация админа'
