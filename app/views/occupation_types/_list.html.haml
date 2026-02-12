@@ -5,6 +5,7 @@
         %th= t('.name')
         %th= t('.color')
         %th= t('.counts_as_working')
+        %th= t('.is_day_off')
         %th
     %tbody
       - @occupation_types.each do |occupation_type|
@@ -17,12 +18,15 @@
           %td.occupation-type-working
             - if occupation_type.counts_as_working?
               = glyph(:check)
+          %td.occupation-type-day-off
+            - if occupation_type.is_day_off?
+              = glyph(:check)
           %td.text-right.occupation-type-actions
             = link_to glyph(:pencil), '#', class: 'btn btn-mini btn-edit-occupation-type', title: t('.edit'), data: { id: occupation_type.id }
             = link_to glyph(:remove), occupation_type_path(occupation_type), method: :delete, remote: true, class: 'btn btn-mini btn-danger btn-delete-occupation-type', title: t('helpers.links.destroy'), data: { confirm: t('helpers.links.confirm') }
 
           -# Edit mode (hidden by default)
-          %td.occupation-type-edit.hide{colspan: 4}
+          %td.occupation-type-edit.hide{colspan: 5}
             = form_with model: occupation_type, url: occupation_type_path(occupation_type), method: :patch, local: false, html: { class: 'form-inline occupation-type-edit-form' } do |f|
               = f.text_field :name, class: 'input-medium', placeholder: t('occupation_types.modal_form_content.name_placeholder')
               .color-input-wrapper{style: 'display: inline-block; vertical-align: middle;'}
@@ -30,6 +34,8 @@
                 = f.color_field :color, class: 'input-small', style: 'width: 60px; vertical-align: middle;'
               = f.check_box :counts_as_working, style: 'vertical-align: middle; margin-left: 10px;'
               %span{style: 'vertical-align: middle;'}= t('occupation_types.modal_form_content.counts_as_working')
+              = f.check_box :is_day_off, style: 'vertical-align: middle; margin-left: 10px;'
+              %span{style: 'vertical-align: middle;'}= t('occupation_types.modal_form_content.is_day_off')
               = f.submit t('.save'), class: 'btn btn-mini btn-primary', style: 'margin-left: 10px;'
               = link_to t('.cancel'), '#', class: 'btn btn-mini btn-cancel-edit-occupation-type'
 - else
@@ -41,7 +47,7 @@
     $('#occupation_types_list').on('click', '.btn-edit-occupation-type', function(e) {
       e.preventDefault();
       var $row = $(this).closest('tr');
-      $row.find('.occupation-type-name, .occupation-type-color, .occupation-type-working, .occupation-type-actions').addClass('hide');
+      $row.find('.occupation-type-name, .occupation-type-color, .occupation-type-working, .occupation-type-day-off, .occupation-type-actions').addClass('hide');
       $row.find('.occupation-type-edit').removeClass('hide');
       $row.find('.occupation-type-edit input[type="text"]').focus();
     });
@@ -50,7 +56,7 @@
     $('#occupation_types_list').on('click', '.btn-cancel-edit-occupation-type', function(e) {
       e.preventDefault();
       var $row = $(this).closest('tr');
-      $row.find('.occupation-type-name, .occupation-type-color, .occupation-type-working, .occupation-type-actions').removeClass('hide');
+      $row.find('.occupation-type-name, .occupation-type-color, .occupation-type-working, .occupation-type-day-off, .occupation-type-actions').removeClass('hide');
       $row.find('.occupation-type-edit').addClass('hide');
     });
 

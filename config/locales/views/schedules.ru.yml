@@ -106,11 +106,13 @@ ru:
       title: 'Настройка занятости'
       name_placeholder: 'Название'
       counts_as_working: 'Учитывать в работе'
+      is_day_off: 'Выходной'
       add: 'Добавить'
     list:
       name: 'Название'
       color: 'Цвет'
       counts_as_working: 'Учитывать'
+      is_day_off: 'Выходной'
       empty: 'Типы занятости не добавлены'
       edit: 'Редактировать'
       save: 'Сохранить'

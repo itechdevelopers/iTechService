@@ -157,7 +157,7 @@ class ScheduleEntriesController < ApplicationController
 
     user_ids.each_with_object({}) do |user_id, hash|
       user_entries = entries.select { |e| e.user_id == user_id }
-      hash[user_id] = user_entries.count { |e| !e.occupation_type&.counts_as_working? }
+      hash[user_id] = user_entries.count { |e| e.occupation_type&.is_day_off? }
     end
   end
 
@@ -250,7 +250,7 @@ class ScheduleEntriesController < ApplicationController
     # Also compute non-working counts per date
     @non_working_counts = {}
     week_dates_range.each { |d| @non_working_counts[d.to_s] = { count: 0, users: [] } }
-    all_entries.select { |e| e.occupation_type && !e.occupation_type.counts_as_working? }.each do |entry|
+    all_entries.select { |e| e.occupation_type&.is_day_off? }.each do |entry|
       @non_working_counts[entry.date.to_s][:count] += 1
       @non_working_counts[entry.date.to_s][:users] << entry.user.short_name
     end
