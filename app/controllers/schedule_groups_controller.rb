@@ -55,7 +55,7 @@ class ScheduleGroupsController < ApplicationController
     @weekly_days_off = @members.each_with_object({}) do |member, hash|
       count = @week_dates.count do |date|
         entry = @entries[[member.id, date]]
-        entry && !entry.occupation_type&.counts_as_working?
+        entry && entry.occupation_type&.is_day_off?
       end
       hash[member.id] = count
     end
@@ -225,7 +225,7 @@ class ScheduleGroupsController < ApplicationController
 
   def build_non_working_counts
     # Count entries with non-working occupation type per date
-    non_working = @entries.values.select { |e| e.occupation_type && !e.occupation_type.counts_as_working? }
+    non_working = @entries.values.select { |e| e.occupation_type&.is_day_off? }
 
     result = {}
     non_working.each do |entry|
