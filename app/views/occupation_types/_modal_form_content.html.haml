@@ -10,6 +10,9 @@
     = f.label :counts_as_working, class: 'checkbox' do
       = f.check_box :counts_as_working
       = t('.counts_as_working')
+    = f.label :is_day_off, class: 'checkbox' do
+      = f.check_box :is_day_off
+      = t('.is_day_off')
     = f.submit t('.add'), class: 'btn btn-success'
 
   %hr

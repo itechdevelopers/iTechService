@@ -36,6 +36,6 @@ class OccupationTypesController < ApplicationController
   end
 
   def occupation_type_params
-    params.require(:occupation_type).permit(:name, :color, :counts_as_working, :position)
+    params.require(:occupation_type).permit(:name, :color, :counts_as_working, :is_day_off, :position)
   end
 end
