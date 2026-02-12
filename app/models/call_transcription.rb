@@ -6,8 +6,11 @@ class CallTranscription < ApplicationRecord
   validates :caller_number, presence: true
   validates :call_date, presence: true
 
+  VALID_SENTIMENTS = %w[positive negative neutral].freeze
+
   before_validation :normalize_caller_number
   before_validation :find_and_link_client, on: :create
+  before_validation :extract_sentiment, on: :create
   after_create_commit :check_marker_words
 
   # TODO: Replace with Full-Text Search when needed
@@ -43,6 +46,11 @@ class CallTranscription < ApplicationRecord
       'full_phone_number = :phone OR phone_number = :phone OR contact_phone = :phone',
       phone: caller_number
     ).first
+  end
+
+  def extract_sentiment
+    return if transcript_text.blank? || sentiment.present?
+    self.sentiment = transcript_text.scan(/\[.*?\s(positive|negative|neutral)\]/).flatten.uniq
   end
 
   def check_marker_words

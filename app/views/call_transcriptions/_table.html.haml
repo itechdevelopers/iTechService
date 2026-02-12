@@ -7,6 +7,7 @@
         %th= CallTranscription.human_attribute_name(:caller_number)
         %th= CallTranscription.human_attribute_name(:client)
         %th= CallTranscription.human_attribute_name(:transcript_text)
+        %th= CallTranscription.human_attribute_name(:sentiment)
         %th= CallTranscription.human_attribute_name(:recording_url)
         %th
     %tbody
@@ -21,6 +22,7 @@
             - else
               \-
           %td= truncate(transcription.transcript_text, length: 80)
+          %td= sentiment_dots(transcription)
           %td= transcription.recording_url.presence || '-'
           %td.btn-group
             = link_to_show_small transcription

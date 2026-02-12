@@ -14,6 +14,7 @@ class TranscriptionApi < Grape::API
       requires :caller_number, type: String
       requires :call_date, type: DateTime
       optional :recording_url, type: String
+      optional :sentiment, type: Array[String]
     end
     post do
       Rails.logger.info "[TranscriptionApi] Creating transcription with params: #{declared(params).to_json}"
