@@ -1,6 +1,9 @@
 module Service
   class FreeJobsController < ApplicationController
+    include ElectronicQueueStrictMode
+
     skip_after_action :verify_authorized
+    before_action :enforce_electronic_queue_strict_mode, only: %i[new create]
     respond_to :html
 
     def index

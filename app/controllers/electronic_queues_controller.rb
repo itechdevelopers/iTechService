@@ -140,6 +140,7 @@ class ElectronicQueuesController < ApplicationController
                                              :printer_address, :ipad_link, :tv_link, :enabled, :check_info,
                                              :header_boldness, :annotation_boldness, :header_font_size,
                                              :annotation_font_size, :ticket_ids, :background_color, :queue_item_color,
-                                             :back_button_color, :id_moved, :automatic_completion, :sounds_enabled)
+                                             :back_button_color, :id_moved, :automatic_completion, :sounds_enabled,
+                                             :strict_mode)
   end
 end
