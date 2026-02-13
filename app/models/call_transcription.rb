@@ -9,6 +9,7 @@ class CallTranscription < ApplicationRecord
   VALID_SENTIMENTS = %w[positive negative neutral].freeze
 
   before_validation :normalize_caller_number
+  before_validation :normalize_called_number
   before_validation :find_and_link_client, on: :create
   before_validation :extract_sentiment, on: :create
   after_create_commit :check_marker_words
@@ -38,6 +39,11 @@ class CallTranscription < ApplicationRecord
   def normalize_caller_number
     return if caller_number.blank?
     self.caller_number = caller_number.gsub(/\D/, '')
+  end
+
+  def normalize_called_number
+    return if called_number.blank?
+    self.called_number = called_number.gsub(/\D/, '')
   end
 
   def find_and_link_client

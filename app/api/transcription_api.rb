@@ -13,6 +13,7 @@ class TranscriptionApi < Grape::API
       requires :transcript_text, type: String
       requires :caller_number, type: String
       requires :call_date, type: DateTime
+      optional :called_number, type: String
       optional :recording_url, type: String
       optional :sentiment, type: Array[String]
     end
