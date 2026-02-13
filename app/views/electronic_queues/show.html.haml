@@ -42,6 +42,9 @@
       %dt= t('.sounds_enabled')
       %dd= @electronic_queue.sounds_enabled? ? 'Включено' : 'Выключено'
 
+      %dt= t('.strict_mode')
+      %dd= @electronic_queue.strict_mode? ? 'Включено' : 'Выключено'
+
       %dt= t('.enabled')
       %dd= @electronic_queue.enabled ? 'Да' : 'Нет'
 

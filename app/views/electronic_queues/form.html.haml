@@ -18,6 +18,12 @@
       = f.check_box :sounds_enabled
 
   .control-group
+    = f.label :strict_mode, t('.strict_mode'), class: 'control-label'
+    .controls
+      = f.check_box :strict_mode
+      .field-explanation= t('.strict_mode_hint')
+
+  .control-group
     = f.label :windows_count, t('.windows_count'), class: 'control-label'
     .controls
       = f.number_field :windows_count

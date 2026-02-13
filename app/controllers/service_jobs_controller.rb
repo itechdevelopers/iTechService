@@ -3,6 +3,9 @@
 class ServiceJobsController < ApplicationController
   include ServiceJobsHelper
   include CheckListsHelper
+  include ElectronicQueueStrictMode
+
+  before_action :enforce_electronic_queue_strict_mode, only: %i[new create]
 
   helper_method :sort_column, :sort_direction
 

@@ -1,6 +1,10 @@
 # frozen_string_literal: true
 
 class QuickOrdersController < ApplicationController
+  include ElectronicQueueStrictMode
+
+  before_action :enforce_electronic_queue_strict_mode, only: %i[new create]
+
   def index
     authorize QuickOrder
     @quick_orders = policy_scope(QuickOrder)
