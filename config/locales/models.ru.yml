@@ -130,6 +130,7 @@ ru:
         call_unique_id: 'Уникальный ID звонка'
         transcript_text: 'Текст транскрипции'
         caller_number: 'Номер звонящего'
+        called_number: 'Номер принимающего'
         call_date: 'Дата звонка'
         recording_url: 'Ссылка на запись'
         client: 'Клиент'
