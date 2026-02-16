@@ -30,6 +30,7 @@ class Client < ApplicationRecord
   has_many :free_jobs, class_name: 'Service::FreeJob', dependent: :restrict_with_error
   has_many :quick_orders, dependent: :restrict_with_error
   has_many :trade_in_devices, inverse_of: :client, dependent: :restrict_with_error
+  has_many :call_transcriptions, dependent: :nullify
 
   accepts_nested_attributes_for :comments, allow_destroy: true, reject_if: proc { |attr| attr['content'].blank? }
   accepts_nested_attributes_for :client_characteristic, allow_destroy: true

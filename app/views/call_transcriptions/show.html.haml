@@ -22,12 +22,13 @@
         - else
           \-
 
-      %dt= CallTranscription.human_attribute_name(:recording_url)
-      %dd
-        - if @call_transcription.recording_url.present?
-          = link_to @call_transcription.recording_url, @call_transcription.recording_url, target: '_blank'
-        - else
-          \-
+      - if current_user.any_admin?
+        %dt= CallTranscription.human_attribute_name(:recording_url)
+        %dd
+          - if @call_transcription.recording_url.present?
+            = link_to @call_transcription.recording_url, @call_transcription.recording_url, target: '_blank'
+          - else
+            \-
 
       %dt= CallTranscription.human_attribute_name(:sentiment)
       %dd= sentiment_dots(@call_transcription)

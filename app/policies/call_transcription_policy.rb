@@ -8,6 +8,6 @@ class CallTranscriptionPolicy < ApplicationPolicy
   end
 
   def show?
-    superadmin?
+    user.present?
   end
 end
