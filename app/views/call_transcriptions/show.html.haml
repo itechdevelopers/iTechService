@@ -12,6 +12,9 @@
       %dt= CallTranscription.human_attribute_name(:caller_number)
       %dd= @call_transcription.caller_number
 
+      %dt= CallTranscription.human_attribute_name(:called_number)
+      %dd= @call_transcription.called_number.presence || '-'
+
       %dt= CallTranscription.human_attribute_name(:client)
       %dd
         - if @call_transcription.client.present?

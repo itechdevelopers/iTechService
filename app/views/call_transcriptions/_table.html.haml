@@ -5,6 +5,7 @@
         %th= CallTranscription.human_attribute_name(:id)
         %th= CallTranscription.human_attribute_name(:call_date)
         %th= CallTranscription.human_attribute_name(:caller_number)
+        %th= CallTranscription.human_attribute_name(:called_number)
         %th= CallTranscription.human_attribute_name(:client)
         %th= CallTranscription.human_attribute_name(:transcript_text)
         %th= CallTranscription.human_attribute_name(:sentiment)
@@ -16,6 +17,7 @@
           %td= transcription.id
           %td= l transcription.call_date, format: :date_time
           %td= transcription.caller_number
+          %td= transcription.called_number.presence || '-'
           %td
             - if transcription.client.present?
               = link_to transcription.client.presentation, client_path(transcription.client)
