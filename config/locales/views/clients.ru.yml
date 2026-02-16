@@ -17,6 +17,7 @@ ru:
       date: "Дата"
       new_device: "Новый девайс"
       new_sale: "Новая продажа"
+      transcribed_dialogues: "Транскрибированные диалоги"
     search:
       title: 'Поиск клиента'
     created: 'Клиент создан'

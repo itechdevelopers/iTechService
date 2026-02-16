@@ -57,6 +57,34 @@
     #comments.comments_list= comments_list_for @client
     = comment_form_for @client
 
+- if @client.call_transcriptions.any?
+  .row-fluid
+    .span12
+      %h4= t('clients.show.transcribed_dialogues')
+      .client-transcriptions-list
+        - @client.call_transcriptions.order(call_date: :desc).each do |transcription|
+          .client-transcription-item
+            %small.text-muted= l transcription.call_date, format: :date_time
+            %br
+            = link_to truncate(transcription.transcript_text, length: 200), call_transcription_path(transcription)
+
+:css
+  .client-transcriptions-list {
+    max-height: 300px;
+    overflow-y: auto;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    padding: 10px;
+    margin-bottom: 20px;
+  }
+  .client-transcription-item {
+    padding: 8px 0;
+    border-bottom: 1px solid #eee;
+  }
+  .client-transcription-item:last-child {
+    border-bottom: none;
+  }
+
 #client_devices
   %table.table.table-bordered.table-hover.table-condensed
     %caption
