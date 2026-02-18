@@ -24,13 +24,41 @@ class CallTranscriptionsController < ApplicationController
     end
 
     remote_path = extract_sftp_path(recording_url)
-    data = download_from_sftp(remote_path)
-    send_data data, type: 'audio/wav', disposition: 'inline', filename: File.basename(remote_path)
-  rescue Net::SSH::ConnectionTimeout, Errno::ETIMEDOUT => e
+    local_path = cached_audio_path(remote_path)
+
+    unless File.exist?(local_path)
+      Rails.logger.info "[Audio] SFTP download: #{remote_path}"
+      data = download_from_sftp(remote_path)
+      FileUtils.mkdir_p(File.dirname(local_path))
+      File.open(local_path, 'wb') { |f| f.write(data) }
+      Rails.logger.info "[Audio] Cached to #{local_path} (#{data.bytesize} bytes)"
+    end
+
+    file_size = File.size(local_path)
+
+    response.headers['Accept-Ranges'] = 'bytes'
+    response.headers['Content-Type'] = 'audio/wav'
+
+    if request.headers['Range'].present?
+      ranges = request.headers['Range'].match(/bytes=(\d+)-(\d*)/)
+      range_start = ranges[1].to_i
+      range_end = ranges[2].present? ? ranges[2].to_i : file_size - 1
+      length = range_end - range_start + 1
+
+      response.headers['Content-Range'] = "bytes #{range_start}-#{range_end}/#{file_size}"
+      response.headers['Content-Length'] = length.to_s
+
+      send_data IO.binread(local_path, length, range_start),
+                type: 'audio/wav', status: 206, disposition: 'inline'
+    else
+      response.headers['Content-Length'] = file_size.to_s
+      send_file local_path, type: 'audio/wav', disposition: 'inline'
+    end
+  rescue Net::SSH::ConnectionTimeout, Errno::ETIMEDOUT
     redirect_to @call_transcription, alert: t('call_transcriptions.audio.connection_timeout')
-  rescue Net::SSH::AuthenticationFailed => e
+  rescue Net::SSH::AuthenticationFailed
     redirect_to @call_transcription, alert: t('call_transcriptions.audio.auth_failed')
-  rescue Net::SFTP::StatusException => e
+  rescue Net::SFTP::StatusException
     redirect_to @call_transcription, alert: t('call_transcriptions.audio.file_not_found')
   rescue StandardError => e
     Rails.logger.error "[CallTranscriptions#audio] SFTP error: #{e.class} - #{e.message}"
@@ -50,6 +78,12 @@ class CallTranscriptionsController < ApplicationController
     uri.path
   rescue URI::InvalidURIError
     url.sub(%r{sftp://[^/]+}, '')
+  end
+
+  def cached_audio_path(remote_path)
+    hash = Digest::MD5.hexdigest(remote_path)
+    ext = File.extname(remote_path).presence || '.wav'
+    Rails.root.join('tmp', 'audio_cache', "#{hash}#{ext}").to_s
   end
 
   def download_from_sftp(remote_path)
