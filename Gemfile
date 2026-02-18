@@ -70,6 +70,7 @@ gem 'draper', '~> 4.0.2'
 gem 'seedbank', '~> 0.5.0'
 gem 'daemons', '~> 1.4.1'
 gem 'dotenv-rails', '~> 2.7.6'
+gem 'net-sftp', '~> 4.0.0'
 gem 'tzinfo-data'
 
 gem 'sprockets', '~>3.7'

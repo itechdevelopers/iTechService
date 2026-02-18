@@ -10,4 +10,8 @@ class CallTranscriptionPolicy < ApplicationPolicy
   def show?
     user.present?
   end
+
+  def audio?
+    any_admin?
+  end
 end

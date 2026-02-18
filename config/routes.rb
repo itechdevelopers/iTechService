@@ -56,7 +56,9 @@ Rails.application.routes.draw do
   resources :departments
   resources :brands, except: :show
   resources :reports, only: [:index, :new, :create]
-  resources :call_transcriptions, only: %i[index show]
+  resources :call_transcriptions, only: %i[index show] do
+    get :audio, on: :member
+  end
   resources :marker_words, only: %i[index create destroy]
   resources :schedules, only: %i[index]
   resources :department_schedule_configs, only: %i[index update] do
