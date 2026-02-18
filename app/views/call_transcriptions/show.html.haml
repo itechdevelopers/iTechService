@@ -22,13 +22,11 @@
         - else
           \-
 
-      - if current_user.any_admin?
+      - if current_user.any_admin? && @call_transcription.recording_url.present?
         %dt= CallTranscription.human_attribute_name(:recording_url)
         %dd
-          - if @call_transcription.recording_url.present?
-            = link_to @call_transcription.recording_url, @call_transcription.recording_url, target: '_blank'
-          - else
-            \-
+          %audio{controls: true, preload: 'none'}
+            %source{src: audio_call_transcription_path(@call_transcription), type: 'audio/wav'}
 
       %dt= CallTranscription.human_attribute_name(:sentiment)
       %dd= sentiment_dots(@call_transcription)
