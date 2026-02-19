@@ -7,7 +7,8 @@ class QuickOrdersController < ApplicationController
 
   def index
     authorize QuickOrder
-    @quick_orders = policy_scope(QuickOrder)
+    scope_class = filter[:user_id].present? ? ApplicationPolicy::Scope : nil
+    @quick_orders = policy_scope(QuickOrder, policy_scope_class: scope_class)
 
     if params[:done].eql? 'true' # and current_user.any_admin?
       @quick_orders = @quick_orders.done
