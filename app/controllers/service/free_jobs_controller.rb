@@ -7,7 +7,8 @@ module Service
     respond_to :html
 
     def index
-      free_jobs = policy_scope(FreeJob).includes(:performer)
+      scope_class = filter[:user_id].present? ? ApplicationPolicy::Scope : nil
+      free_jobs = policy_scope(FreeJob, policy_scope_class: scope_class).includes(:performer)
 
       if params[:date].present?
         free_jobs = free_jobs.performed_on(params[:date].to_date)

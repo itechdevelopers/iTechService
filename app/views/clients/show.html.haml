@@ -100,7 +100,10 @@
         - service_job = service_job.decorate
         %tr
           %td= service_job.creation_date
-          %td= service_job.presentation_link
+          %td
+            = service_job.presentation_link
+            .pull-right
+              %small.muted= service_job.user_short_name
           %td
             %ul.unstyled
               - service_job.device_tasks.find_each do |device_task|
