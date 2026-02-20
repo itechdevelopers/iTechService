@@ -259,8 +259,10 @@ class WaitingClient < ApplicationRecord
 
   def broadcast_start_service
     waiting_client_data = {
+      id: id,
       ticket_number: ticket_number,
-      queue_item_ancestors: queue_item_ancestors
+      queue_item_ancestors: queue_item_ancestors,
+      ticket_called_at: ticket_called_at.iso8601
     }
     ElectronicQueueChannel.broadcast_to(electronic_queue,
                                         action: 'start_service',

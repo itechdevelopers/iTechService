@@ -61,6 +61,7 @@
  *= require wiki
  *= require_directory ./service
  *= require electronic_queues
+ *= require elqueue_service_widget
  *= require elqueue_ticket_movements
  *= require custom_select
  *= require achievements

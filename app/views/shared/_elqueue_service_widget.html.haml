@@ -1,0 +1,130 @@
+- serving = current_user.serving_client?
+- waiting_client = current_user.elqueue_window&.waiting_client
+- display_style = serving ? '' : 'display: none;'
+- wc_id = waiting_client&.id || ''
+- wc_called_at = waiting_client&.ticket_called_at&.iso8601 || ''
+- wc_ticket = waiting_client&.ticket_number || ''
+- wc_complete_url = waiting_client ? complete_waiting_client_path(waiting_client) : ''
+- wc_no_show_url = waiting_client ? complete_waiting_client_path(waiting_client, did_not_come: true) : ''
+
+.elqueue-service-widget{id: 'elqueue_service_widget',
+                        style: display_style,
+                        data: { waiting_client_id: wc_id,
+                                ticket_called_at: wc_called_at,
+                                ticket_number: wc_ticket }}
+  .elqueue-service-widget__header
+    %span.elqueue-service-widget__drag-icon ☰
+    %span.elqueue-service-widget__ticket
+      = serving ? "Талон #{wc_ticket}" : ''
+
+  .elqueue-service-widget__timer 00:00:00
+
+  .elqueue-service-widget__actions
+    %a.elqueue-service-widget__btn--complete{href: wc_complete_url,
+                                             data: { remote: true, method: :patch }}
+      Завершить
+    %a.elqueue-service-widget__btn--no-show{href: wc_no_show_url,
+                                            data: { remote: true, method: :patch }}
+      Клиент не пришел
+
+:javascript
+  (function() {
+    var widget = document.getElementById('elqueue_service_widget');
+    if (!widget) return;
+
+    var timerEl = widget.querySelector('.elqueue-service-widget__timer');
+    var calledAt = widget.dataset.ticketCalledAt ? new Date(widget.dataset.ticketCalledAt) : null;
+    var timerInterval = null;
+
+    function updateTimer() {
+      if (!calledAt) return;
+      var diff = Math.floor((Date.now() - calledAt.getTime()) / 1000);
+      if (diff < 0) diff = 0;
+      var h = Math.floor(diff / 3600);
+      var m = Math.floor((diff % 3600) / 60);
+      var s = diff % 60;
+      timerEl.textContent =
+        (h < 10 ? '0' + h : h) + ':' +
+        (m < 10 ? '0' + m : m) + ':' +
+        (s < 10 ? '0' + s : s);
+    }
+
+    function startTimer() {
+      updateTimer();
+      if (timerInterval) clearInterval(timerInterval);
+      timerInterval = setInterval(updateTimer, 1000);
+    }
+
+    // Start timer immediately if already serving
+    if (calledAt) startTimer();
+
+    // --- Drag ---
+    var header = widget.querySelector('.elqueue-service-widget__header');
+    var isDragging = false;
+    var offsetX, offsetY;
+
+    var savedPos = localStorage.getItem('elqueueWidgetPosition');
+    if (savedPos) {
+      try {
+        var pos = JSON.parse(savedPos);
+        widget.style.top = pos.top + 'px';
+        widget.style.left = pos.left + 'px';
+        widget.style.marginLeft = '0';
+      } catch(e) {}
+    }
+
+    header.addEventListener('mousedown', function(e) {
+      isDragging = true;
+      widget.style.marginLeft = '0';
+      var rect = widget.getBoundingClientRect();
+      widget.style.left = rect.left + 'px';
+      offsetX = e.clientX - rect.left;
+      offsetY = e.clientY - rect.top;
+      e.preventDefault();
+    });
+
+    document.addEventListener('mousemove', function(e) {
+      if (!isDragging) return;
+      var newLeft = e.clientX - offsetX;
+      var newTop = e.clientY - offsetY;
+      newLeft = Math.max(0, Math.min(newLeft, window.innerWidth - widget.offsetWidth));
+      newTop = Math.max(0, Math.min(newTop, window.innerHeight - widget.offsetHeight));
+      widget.style.left = newLeft + 'px';
+      widget.style.top = newTop + 'px';
+      widget.style.right = 'auto';
+    });
+
+    document.addEventListener('mouseup', function() {
+      if (isDragging) {
+        isDragging = false;
+        localStorage.setItem('elqueueWidgetPosition', JSON.stringify({
+          top: parseInt(widget.style.top),
+          left: parseInt(widget.style.left)
+        }));
+      }
+    });
+
+    // --- Global API for ActionCable and complete.js.erb ---
+    window.elqueueServiceWidget = {
+      show: function(data) {
+        widget.dataset.waitingClientId = data.id;
+        widget.dataset.ticketCalledAt = data.ticket_called_at;
+        widget.dataset.ticketNumber = data.ticket_number;
+        widget.querySelector('.elqueue-service-widget__ticket').textContent = 'Талон ' + data.ticket_number;
+
+        var completeUrl = '/waiting_clients/' + data.id + '/complete';
+        widget.querySelector('.elqueue-service-widget__btn--complete').href = completeUrl;
+        widget.querySelector('.elqueue-service-widget__btn--no-show').href = completeUrl + '?did_not_come=true';
+
+        calledAt = new Date(data.ticket_called_at);
+        startTimer();
+        widget.style.display = 'block';
+      },
+
+      hide: function() {
+        widget.style.display = 'none';
+        if (timerInterval) clearInterval(timerInterval);
+        timerEl.textContent = '00:00:00';
+      }
+    };
+  })();

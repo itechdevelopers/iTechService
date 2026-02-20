@@ -18,9 +18,15 @@
       App.cable.subscriptions.create { channel: 'ElectronicQueueChannel', id: electronicQueueId },
         received: (data) ->
           if data['action'] == 'start_service' && data['window']?.toString() == windowNumber
-            @startService(data['waiting_client']['ticket_number'], data['waiting_client']['queue_item_ancestors'])
+            @startService(data['waiting_client'])
+          if data['action'] == 'complete_service' && window.elqueueServiceWidget
+            widgetEl = document.getElementById('elqueue_service_widget')
+            if widgetEl && widgetEl.dataset.ticketNumber == data['waiting_client']?['ticket_number']
+              window.elqueueServiceWidget.hide()
 
-        startService: (ticketNumber, ticketInfo) ->
+        startService: (waitingClientData) ->
+          ticketNumber = waitingClientData['ticket_number']
+          ticketInfo = waitingClientData['queue_item_ancestors']
           $elqueueTitleElement = $('.elqueue_navbar_title')
           if $elqueueTitleElement.text().trim().startsWith('В ожидании')
             newHtml = ticketNumber + "<b class='caret' style='margin-left: 4px; margin-top: 8px; display: inline-block;'></b>"
@@ -37,3 +43,6 @@
           $elqueueTitleElement.attr('title', ticketInfo)
           $elqueueTitleElement.addClass('has-tooltip')
           $elqueueTitleElement.tooltip({placement: 'bottom'})
+          # Show the floating service widget
+          if window.elqueueServiceWidget
+            window.elqueueServiceWidget.show(waitingClientData)
