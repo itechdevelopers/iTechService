@@ -444,7 +444,7 @@ Rails.application.routes.draw do
     get :search, on: :collection, defaults: {format: :js}
   end
 
-  resources :wiki_page_categories, only: %i[update destroy], defaults: {format: :js}
+  resources :wiki_page_categories, only: %i[create update destroy], defaults: {format: :js}
 
   resources :record_edits, only: %i[index]
 

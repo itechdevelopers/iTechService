@@ -173,6 +173,21 @@ $wikiColors: #e0ecea,#060503,#b8aaaf,#281f0a,#5b6dd5,#299c6f,#d2ce2a,#db4216;
     border-radius: 10px;
   }
 
+  &__new-form {
+    display: block !important;
+    padding: 10px !important;
+
+    input[type='text'] {
+      width: 200px;
+      margin-right: 8px;
+      vertical-align: middle;
+    }
+
+    input[type='submit'] {
+      vertical-align: middle;
+    }
+  }
+
   li {
     position: relative;
     padding: 10px 5px;
