@@ -1,2 +1,3 @@
 $('.elqueue_navbar').html('<%= j render "shared/elqueue_navbar" %>');
+if (window.elqueueServiceWidget) { window.elqueueServiceWidget.hide(); }
 hideModal();
