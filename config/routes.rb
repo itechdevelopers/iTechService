@@ -60,6 +60,7 @@ Rails.application.routes.draw do
     get :audio, on: :member
   end
   resources :marker_words, only: %i[index create destroy]
+  resources :phone_labels, only: %i[index create destroy]
   resources :schedules, only: %i[index]
   resources :department_schedule_configs, only: %i[index update] do
     post :batch_update, on: :collection

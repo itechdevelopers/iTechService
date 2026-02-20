@@ -1,0 +1,15 @@
+- if @phone_labels.any?
+  %table.table.table-condensed
+    %thead
+      %tr
+        %th= PhoneLabel.human_attribute_name(:phone_number)
+        %th= PhoneLabel.human_attribute_name(:label)
+        %th
+    %tbody
+      - @phone_labels.each do |phone_label|
+        %tr
+          %td= phone_label.phone_number
+          %td= phone_label.label
+          %td= link_to glyph(:remove), phone_label_path(phone_label), method: :delete, remote: true, class: 'btn btn-mini btn-danger', title: t('helpers.links.destroy')
+- else
+  %p.muted= t('.empty')

@@ -2,6 +2,7 @@
 
 .well.well-small
   .pull-right
+    = link_to t('.address_book'), phone_labels_path, remote: true, class: 'btn btn-warning'
     = link_to t('.marker_words'), marker_words_path, remote: true, class: 'btn'
   = form_tag call_transcriptions_path, method: :get, class: 'form-inline' do
     = text_field_tag :date_from, params[:date_from], class: 'bootstrap-datepicker input-small', placeholder: t('.date_from')

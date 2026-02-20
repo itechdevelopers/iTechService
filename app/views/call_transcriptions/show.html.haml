@@ -13,7 +13,10 @@
       %dd= @call_transcription.caller_number
 
       %dt= CallTranscription.human_attribute_name(:called_number)
-      %dd= @call_transcription.called_number.presence || '-'
+      %dd
+        = @call_transcription.called_number.presence || '-'
+        - if @phone_label.present?
+          %small.muted= @phone_label
 
       %dt= CallTranscription.human_attribute_name(:client)
       %dd

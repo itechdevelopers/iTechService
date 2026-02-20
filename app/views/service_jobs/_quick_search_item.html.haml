@@ -1,5 +1,5 @@
 %li
-  = link_to edit_service_job_path(service_job), remote: true do
+  = link_to service_job_path(service_job) do
     = "#{service_job.ticket_number} | #{service_job.type_name}"
     %br
     = "#{service_job.client_short_name} #{contact_phones_for(service_job)}"
