@@ -1,7 +1,15 @@
 # frozen_string_literal: true
 
 class WikiPageCategoriesController < ApplicationController
-  before_action :set_category
+  before_action :set_category, except: [:create]
+
+  def create
+    @category = authorize WikiPageCategory.new(category_params)
+    @category.save
+    respond_to do |format|
+      format.js
+    end
+  end
 
   def destroy
     @category.wiki_pages.update_all(wiki_page_category_id: nil)

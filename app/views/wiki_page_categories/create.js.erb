@@ -1,0 +1,6 @@
+<% if @category.persisted? %>
+  $('.wiki_manage_categories').append('<%= j render @category %>');
+  $('.wiki_manage_categories__new-form input[type="text"]').val('');
+<% else %>
+  alert('<%= j @category.errors.full_messages.join(", ") %>');
+<% end %>

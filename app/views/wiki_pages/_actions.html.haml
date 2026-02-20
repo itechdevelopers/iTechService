@@ -16,4 +16,8 @@
     - if policy(WikiPage).wiki_senior?
       = link_to t('.manage_categories'), '#', class: 'btn', id: 'manage-categories'
       %ul.wiki_manage_categories
+        %li.wiki_manage_categories__new-form
+          = form_with url: wiki_page_categories_path, method: :post, local: false do |f|
+            = f.text_field :title, name: 'wiki_page_category[title]', placeholder: 'Название новой категории', class: 'input-medium'
+            = f.submit 'Создать', class: 'btn btn-small btn-success'
         = render WikiPageCategory.all
