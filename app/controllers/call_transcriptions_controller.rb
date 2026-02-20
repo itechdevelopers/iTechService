@@ -8,10 +8,12 @@ class CallTranscriptionsController < ApplicationController
     @call_transcriptions = @call_transcriptions.where('call_date <= ?', parse_date(params[:date_to]).end_of_day) if params[:date_to].present?
     @call_transcriptions = @call_transcriptions.search(params[:query], whole_word: params[:whole_word] == '1') if params[:query].present?
     @call_transcriptions = @call_transcriptions.page(params[:page])
+    @phone_labels_map = PhoneLabel.pluck(:phone_number, :label).to_h
   end
 
   def show
     @call_transcription = find_record CallTranscription
+    @phone_label = PhoneLabel.find_by(phone_number: @call_transcription.called_number)&.label
   end
 
   def audio

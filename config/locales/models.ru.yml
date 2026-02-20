@@ -17,6 +17,7 @@ ru:
       category: 'Категория'
       check_list_response: 'Ответ чек-листа'
       call_transcription: 'Транскрипция звонка'
+      phone_label: 'Подпись номера'
       city: 'Город'
       client: 'Клиент'
       client_category: 'Категория клиента'
@@ -135,6 +136,10 @@ ru:
         recording_url: 'Ссылка на запись'
         client: 'Клиент'
         sentiment: 'Настроение'
+
+      phone_label:
+        phone_number: 'Номер телефона'
+        label: 'Подпись'
 
       client:
         admin_info: 'Информация админа'

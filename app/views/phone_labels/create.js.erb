@@ -1,0 +1,7 @@
+<% if @phone_label.persisted? %>
+  $("#phone_labels_list").html("<%= j(render('list')) %>");
+  $("#phone_label_phone_number").val('').focus();
+  $("#phone_label_label").val('');
+<% else %>
+  alert("<%= j(@phone_label.errors.full_messages.join(', ')) %>");
+<% end %>

@@ -1,0 +1,17 @@
+.modal-header
+  = button_to_close_modal
+  %h3= t('.title')
+
+.modal-body
+  = form_with model: @phone_label, local: false, class: 'form-inline', id: 'phone_label_form' do |f|
+    = f.text_field :phone_number, class: 'input-medium', placeholder: t('.phone_placeholder'), autofocus: true
+    = f.text_field :label, class: 'input-medium', placeholder: t('.label_placeholder')
+    = f.submit t('.add'), class: 'btn btn-success'
+
+  %hr
+
+  #phone_labels_list
+    = render 'list'
+
+.modal-footer
+  = link_to t('helpers.links.close'), '#', 'data-dismiss' => 'modal', class: 'btn'

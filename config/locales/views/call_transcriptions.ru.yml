@@ -9,6 +9,7 @@ ru:
       search_placeholder: 'Поиск по тексту или номеру'
       whole_word: 'Целые слова'
       marker_words: 'Слова-маркеры'
+      address_book: 'Адресная книжка'
     show:
       title: 'Транскрипция #%{id}'
     audio:

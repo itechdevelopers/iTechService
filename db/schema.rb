@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20260213092719) do
+ActiveRecord::Schema.define(version: 20260220181841) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -958,6 +958,14 @@ ActiveRecord::Schema.define(version: 20260213092719) do
     t.index ["gift_certificate_id"], name: "index_payments_on_gift_certificate_id"
     t.index ["kind"], name: "index_payments_on_kind"
     t.index ["sale_id"], name: "index_payments_on_sale_id"
+  end
+
+  create_table "phone_labels", force: :cascade do |t|
+    t.string "phone_number", null: false
+    t.string "label", null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["phone_number"], name: "index_phone_labels_on_phone_number", unique: true
   end
 
   create_table "phone_substitutions", id: :serial, force: :cascade do |t|

@@ -1,0 +1,9 @@
+ru:
+  phone_labels:
+    modal_form_content:
+      title: 'Адресная книжка'
+      phone_placeholder: 'Номер телефона'
+      label_placeholder: 'Подпись'
+      add: 'Добавить'
+    list:
+      empty: 'Нет записей в адресной книжке'
