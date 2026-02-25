@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20260220181841) do
+ActiveRecord::Schema.define(version: 20260225153737) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -831,6 +831,7 @@ ActiveRecord::Schema.define(version: 20260220181841) do
     t.text "message"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.string "kind"
     t.index ["referenceable_type", "referenceable_id"], name: "index_notifications_on_referenceable_type_and_referenceable_id"
     t.index ["user_id"], name: "index_notifications_on_user_id"
   end
@@ -1606,6 +1607,7 @@ ActiveRecord::Schema.define(version: 20260220181841) do
     t.string "device_group"
     t.datetime "completion_act_printed_at"
     t.bigint "photo_container_id"
+    t.date "sold_by_us_at"
     t.index ["carrier_id"], name: "index_service_jobs_on_carrier_id"
     t.index ["case_color_id"], name: "index_service_jobs_on_case_color_id"
     t.index ["client_id"], name: "index_service_jobs_on_client_id"

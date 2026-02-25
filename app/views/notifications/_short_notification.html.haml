@@ -1,4 +1,4 @@
-%div{data: { notification_id: notification.id }, class: "single-notification"}
+%div{data: { notification_id: notification.id }, class: "single-notification#{' single-notification--warranty-overstay' if notification.kind == 'warranty_overstay'}"}
   %span
     = link_to notification.message,
         notification.url
