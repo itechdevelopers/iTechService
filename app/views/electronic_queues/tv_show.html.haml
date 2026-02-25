@@ -9,6 +9,13 @@
       %span.arrow-tv &#x279C;
       %span.ticket-info
         = client.elqueue_window.window_number
+.elqueue-tv-paused{style: "#{'display: none;' if @paused_windows.empty?}"}
+  .elqueue-tv-paused__icon ☕
+  .elqueue-tv-paused__title -
+  .elqueue-tv-paused__windows
+    - @paused_windows.each do |window|
+      %span.elqueue-tv-paused__window-number{data: {window_number: window.window_number}}
+        = window.window_number
 .elqueue-tv-waiting
   .elqueue-tv-waiting__title
     Ожидающие
@@ -120,6 +127,36 @@
     .label-tv {
       color: #a7a5a5;
       font-size: 28px;
+    }
+  }
+  .elqueue-tv-paused {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+    font-size: 22px;
+    padding: 4px 0 0 8px;
+    column-gap: 4px;
+  }
+  .elqueue-tv-paused__icon {
+    font-size: 28px;
+  }
+  .elqueue-tv-paused__title {
+    color: #524444;
+  }
+  .elqueue-tv-paused__windows {
+    display: flex;
+    flex-direction: row;
+    column-gap: 2px;
+  }
+  .elqueue-tv-paused__window-number {
+    color: #bd0000;
+    font-weight: bold;
+    &::after {
+      content: ',';
+    }
+    &:last-child::after {
+      content: '';
     }
   }
   .elqueue-tv-waiting {

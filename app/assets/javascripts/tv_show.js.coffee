@@ -13,6 +13,10 @@ $ ->
         @archive(data['waiting_client'].ticket_number)
       if data['action'] == 'repeat_audio'
         @repeatAudio(data['waiting_client'].ticket_number, data['window'])
+      if data['action'] == 'window_pause'
+        @windowPause(data['window_number'])
+      if data['action'] == 'window_resume'
+        @windowResume(data['window_number'])
 
     archive: (ticketNumber) ->
       window.waitingTicketsDisplay?.removeTicket(ticketNumber)
@@ -63,6 +67,34 @@ $ ->
 
     repeatAudio: (ticketNumber, windowNumber) ->
       window.audioPlayer?.playSound({ ticketNumber: ticketNumber, windowNumber: windowNumber })
+
+    windowPause: (windowNumber) ->
+      $container = $('.elqueue-tv-paused__windows')
+      exists = $container.find("[data-window-number='#{windowNumber}']").length > 0
+      unless exists
+        $span = $('<span>').addClass('elqueue-tv-paused__window-number')
+          .attr('data-window-number', windowNumber)
+          .text(windowNumber)
+        $container.append($span)
+        @sortPausedWindows()
+      @togglePausedVisibility()
+
+    windowResume: (windowNumber) ->
+      $('.elqueue-tv-paused__windows').find("[data-window-number='#{windowNumber}']").remove()
+      @togglePausedVisibility()
+
+    sortPausedWindows: ->
+      $container = $('.elqueue-tv-paused__windows')
+      $spans = $container.children().sort (a, b) ->
+        parseInt($(a).data('window-number')) - parseInt($(b).data('window-number'))
+      $container.append($spans)
+
+    togglePausedVisibility: ->
+      $paused = $('.elqueue-tv-paused')
+      if $('.elqueue-tv-paused__windows').children().length > 0
+        $paused.show()
+      else
+        $paused.hide()
 
 #  Показ ожидающих талонов
   class WaitingTicketsDisplay
