@@ -178,6 +178,10 @@ $(document).on 'keydown', '#quick_search', (e)->
     else
       $('#quick_search_result>.active').removeClass('active')
 
+$(document).on 'ajax:beforeSend', '#quick_search_result a[data-remote]', (e, xhr, settings) ->
+  ajaxUrl = $(this).data('ajax-url')
+  settings.url = ajaxUrl if ajaxUrl
+
 $(document).on 'keyup', 'input.capitalize', (event)->
   input = event.target;
   start = input.selectionStart;
