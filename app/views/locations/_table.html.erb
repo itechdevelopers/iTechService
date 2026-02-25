@@ -1,19 +1,34 @@
 <% if locations.any? %>
-  <table class="table table-striped table-hover">
+  <% departments = locations.map(&:department_name).compact.uniq.sort %>
+  <div class="locations-filter" style="margin-bottom: 15px;">
+    <label><%= Location.human_attribute_name :department %></label>
+    <select id="locations_department_filter" multiple="multiple" style="width: 400px; height: 60px;">
+      <% departments.each do |dept| %>
+        <option value="<%= dept %>"><%= dept %></option>
+      <% end %>
+    </select>
+    <button id="locations_filter_reset" class="btn btn-small" style="margin-left: 10px; vertical-align: top;">
+      Сбросить
+    </button>
+  </div>
+
+  <table class="table table-striped table-hover" id="locations_table">
     <thead>
       <tr>
         <th><%= Location.human_attribute_name :id %></th>
         <th><%= Location.human_attribute_name :name %></th>
         <th><%= Location.human_attribute_name :code %></th>
         <th><%= Location.human_attribute_name :position %></th>
-        <th><%= Location.human_attribute_name :department %></th>
+        <th class="locations-sortable" data-sort="department" style="cursor: pointer;">
+          <%= Location.human_attribute_name :department %> &#x25B2;&#x25BC;
+        </th>
         <th><%= Location.human_attribute_name :created_at %></th>
         <th></th>
       </tr>
     </thead>
     <tbody>
       <% locations.each do |location| %>
-        <tr>
+        <tr data-department="<%= location.department_name %>">
           <td><%= location.id %></td>
           <td><%= location.name %></td>
           <td><%= location.code %></td>

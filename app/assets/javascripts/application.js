@@ -40,6 +40,7 @@
 // require devices
 //= require gift_certificates
 //= require karmas
+//= require locations
 //= require media_orders
 //= require movement_acts
 //= require orders
