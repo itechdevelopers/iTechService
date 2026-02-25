@@ -28,6 +28,11 @@ class ElqueueWindowsController < ApplicationController
     else
       current_user.pause!
     end
+    ElectronicQueueChannel.broadcast_to(
+      @elqueue_window.electronic_queue,
+      action: 'window_pause',
+      window_number: @elqueue_window.window_number
+    )
     respond_to do |format|
       format.js { render 'renew_elqueue_navbar' }
     end
@@ -37,6 +42,11 @@ class ElqueueWindowsController < ApplicationController
     authorize ElqueueWindow
     @elqueue_window.set_active!
     current_user.resume! if current_user.paused?
+    ElectronicQueueChannel.broadcast_to(
+      @elqueue_window.electronic_queue,
+      action: 'window_resume',
+      window_number: @elqueue_window.window_number
+    )
     respond_to do |format|
       format.js { render 'renew_elqueue_navbar' }
     end

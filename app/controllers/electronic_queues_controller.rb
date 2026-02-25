@@ -18,6 +18,7 @@ class ElectronicQueuesController < ApplicationController
     @electronic_queue = ElectronicQueue.find_by(tv_link: params[:permalink])
     @clients_in_service = WaitingClient.in_queue(@electronic_queue).in_service
     @waiting_clients = WaitingClient.in_queue(@electronic_queue).waiting
+    @paused_windows = @electronic_queue.elqueue_windows.chosen.where(is_active: false).order(:window_number)
     render layout: 'electronic_queues'
   end
 
