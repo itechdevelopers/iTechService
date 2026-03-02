@@ -1,5 +1,5 @@
 class WaitingClientsController < ApplicationController
-  before_action :set_waiting_client, only: %i[complete show assign_window
+  before_action :set_waiting_client, only: %i[complete complete_and_pause show assign_window
                                               reassign_window archive repeat_audio]
 
   def create
@@ -45,6 +45,23 @@ class WaitingClientsController < ApplicationController
     did_not_come = params[:did_not_come].present? ? true : false
     @waiting_client.complete_service(did_not_come)
     current_user.unset_remember_pause if current_user.waiting_for_break?
+  end
+
+  def complete_and_pause
+    authorize @waiting_client
+    window = current_user.elqueue_window
+    window.set_inactive!
+    @waiting_client.complete_service
+    if current_user.remember_pause?
+      current_user.unset_remember_pause
+    else
+      current_user.pause!
+    end
+    ElectronicQueueChannel.broadcast_to(
+      window.electronic_queue,
+      action: 'window_pause',
+      window_number: window.window_number
+    )
   end
 
   def archive

@@ -11,6 +11,10 @@ class WaitingClientPolicy < ApplicationPolicy
     true
   end
 
+  def complete_and_pause?
+    true
+  end
+
   def archive?
     true
   end
