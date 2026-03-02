@@ -6,6 +6,7 @@
 - wc_ticket = waiting_client&.ticket_number || ''
 - wc_complete_url = waiting_client ? complete_waiting_client_path(waiting_client) : ''
 - wc_no_show_url = waiting_client ? complete_waiting_client_path(waiting_client, did_not_come: true) : ''
+- wc_complete_and_pause_url = waiting_client ? complete_and_pause_waiting_client_path(waiting_client) : ''
 
 .elqueue-service-widget{id: 'elqueue_service_widget',
                         style: display_style,
@@ -26,6 +27,9 @@
     %a.elqueue-service-widget__btn--no-show{href: wc_no_show_url,
                                             data: { remote: true, method: :patch }}
       Клиент не пришел
+    %a.elqueue-service-widget__btn--complete-and-pause{href: wc_complete_and_pause_url,
+                                                        data: { remote: true, method: :patch }}
+      На паузу и завершить
 
 :javascript
   (function() {
@@ -115,6 +119,7 @@
         var completeUrl = '/waiting_clients/' + data.id + '/complete';
         widget.querySelector('.elqueue-service-widget__btn--complete').href = completeUrl;
         widget.querySelector('.elqueue-service-widget__btn--no-show').href = completeUrl + '?did_not_come=true';
+        widget.querySelector('.elqueue-service-widget__btn--complete-and-pause').href = '/waiting_clients/' + data.id + '/complete_and_pause';
 
         calledAt = new Date(data.ticket_called_at);
         startTimer();

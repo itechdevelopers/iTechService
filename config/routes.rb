@@ -486,6 +486,7 @@ Rails.application.routes.draw do
   resources :waiting_clients, only: %i[create show] do
     get :repeat_audio, on: :member
     patch :complete, on: :member, defaults: {format: :js}
+    patch :complete_and_pause, on: :member, defaults: {format: :js}
     patch :assign_window, on: :member, defaults: {format: :js}
     patch :reassign_window, on: :member, defaults: {format: :js}
     patch :archive, on: :member, defaults: {format: :js}

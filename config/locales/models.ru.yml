@@ -150,7 +150,7 @@ ru:
         comments: 'Комментарии'
         contact_phone: 'Телефон для связи'
         device: 'Девайс'
-        disable_deadline_notifications: 'Отключить уведомления о сроках'
+        disable_deadline_notifications: 'Не отображать в уведомлениях обратной связи'
         email: 'E-mail'
         full_phone_number: 'Федеральный телефонный номер'
         name: 'Имя'
