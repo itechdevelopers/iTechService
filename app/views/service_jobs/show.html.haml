@@ -130,9 +130,21 @@
           %td= ServiceJob.human_attribute_name :substitute_phone
           %td= link_to @service_job.substitute_phone.presentation, @service_job.substitute_phone
 
-      %tr
-        %td= t 'service_jobs.sales_info'
-        %td= sales_info @service_job
+      - if @service_job.sold_by_us_at.present?
+        %tbody.service-job-sale-info
+          %tr
+            %td= t 'service_jobs.sales_info'
+            %td= sales_info @service_job
+          %tr
+            %td= t('service_jobs.sold_by_us_at')
+            %td
+              = l(@service_job.sold_by_us_at)
+              %span.muted
+                = "(#{distance_of_time_in_words_to_now(@service_job.sold_by_us_at)} назад)"
+      - else
+        %tr
+          %td= t 'service_jobs.sales_info'
+          %td= sales_info @service_job
 
     - if policy(@service_job).view_repair_parts?
       %table.table.table-bordered.table-condensed.table-hover

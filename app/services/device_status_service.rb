@@ -16,6 +16,23 @@ class DeviceStatusService < OneCBaseClient
     end
   end
 
+  def check_status_data(serial_number)
+    response = make_request('/UT/hs/ice_int/v1/StatusID/',
+                            body: { 'serialnumber' => serial_number })
+
+    return { success: false, error: response[:error] } unless response[:success]
+
+    data = response[:data]
+    {
+      success: true,
+      status: data['status'],
+      sold_at: data['data'].present? ? DateTime.parse(data['data']) : nil,
+      shop: data['shop'],
+      item_name: data['item'],
+      serial_number: data['serialnumber']
+    }
+  end
+
   private
 
   def parse_status(data)
