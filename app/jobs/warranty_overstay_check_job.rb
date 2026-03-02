@@ -5,6 +5,10 @@ class WarrantyOverstayCheckJob < ApplicationJob
     service_job = ServiceJob.find_by(id: service_job_id)
     return unless service_job
     return if service_job.location&.is_archive?
+    return unless service_job.sold_by_us_at.present?
+
+    kind = "warranty_overstay_#{days_threshold}"
+    return if Notification.exists?(referenceable: service_job, kind: kind)
 
     recipients = User.active.superadmins
 
@@ -23,7 +27,7 @@ class WarrantyOverstayCheckJob < ApplicationJob
         referenceable: service_job,
         message: message,
         url: url,
-        kind: 'warranty_overstay'
+        kind: kind
       )
       UserNotificationChannel.broadcast_to(notification.user, notification)
     end

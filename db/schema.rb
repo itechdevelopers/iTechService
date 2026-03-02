@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20260225153737) do
+ActiveRecord::Schema.define(version: 20260302080501) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -1608,6 +1608,9 @@ ActiveRecord::Schema.define(version: 20260225153737) do
     t.datetime "completion_act_printed_at"
     t.bigint "photo_container_id"
     t.date "sold_by_us_at"
+    t.integer "one_c_device_check_status"
+    t.datetime "one_c_device_checked_at"
+    t.string "one_c_device_check_error"
     t.index ["carrier_id"], name: "index_service_jobs_on_carrier_id"
     t.index ["case_color_id"], name: "index_service_jobs_on_case_color_id"
     t.index ["client_id"], name: "index_service_jobs_on_client_id"

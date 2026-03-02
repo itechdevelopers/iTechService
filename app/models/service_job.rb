@@ -54,6 +54,9 @@ class ServiceJob < ApplicationRecord
   scope :order_return_at_asc, -> { order('service_jobs.return_at asc') }
   scope :order_created_at_asc, -> { order('service_jobs.created_at asc') }
 
+  enum one_c_device_check_status: { pending: 0, checked: 1, failed: 2 },
+       _prefix: :one_c_device_check
+
   belongs_to :department, -> { includes(:city) }, inverse_of: :service_jobs
   belongs_to :initial_department, class_name: 'Department', optional: true
   belongs_to :user, inverse_of: :service_jobs, optional: true
@@ -120,7 +123,7 @@ class ServiceJob < ApplicationRecord
   after_create :new_service_job_announce
   after_create :create_alert
   after_create :schedule_location_notifications
-  after_create :detect_sold_by_us_and_schedule_checks
+  after_commit :schedule_one_c_device_check, on: :create
   after_update :service_job_update_announce
   after_update :deduct_spare_parts
   after_update :clear_subscriptions_if_done_or_archived
@@ -591,22 +594,18 @@ kind: 'device_return', content: id.to_s)
     ServiceJobNotificationJob.perform_later(id)
   end
 
-  def detect_sold_by_us_and_schedule_checks
-    return unless item_id.present?
+  def schedule_one_c_device_check
+    return if serial_number.blank?
 
-    sale = item.sales.posted.order(date: :desc).first
-    return unless sale
-    return unless sale.date >= 2.years.ago
-
-    update_column(:sold_by_us_at, sale.date.to_date)
-    WarrantyOverstayCheckJob.set(wait: 30.days).perform_later(id, 30)
-    WarrantyOverstayCheckJob.set(wait: 40.days).perform_later(id, 40)
+    update_column(:one_c_device_check_status, 0)
+    DetectSoldByUsJob.perform_later(id)
   end
 
   def close_warranty_overstay_notifications_if_archived
     return unless location_id_changed? && location&.is_archive?
 
-    Notification.where(referenceable: self, kind: 'warranty_overstay', closed_at: nil)
+    Notification.where(referenceable: self, closed_at: nil)
+                .where("kind LIKE ?", 'warranty_overstay_%')
                 .find_each(&:close)
   end
 end
