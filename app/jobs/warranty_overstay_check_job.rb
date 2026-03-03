@@ -12,7 +12,7 @@ class WarrantyOverstayCheckJob < ApplicationJob
 
     recipients = User.active.superadmins
 
-    sold_date = I18n.l(service_job.sold_by_us_at, format: :date)
+    sold_date = I18n.l(service_job.sold_by_us_at)
     url = Rails.application.routes.url_helpers.service_job_path(service_job)
     message = I18n.t(
       'notifications.warranty_overstay',
