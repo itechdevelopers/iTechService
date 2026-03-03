@@ -4,7 +4,7 @@ class CallTranscriptionPolicy < ApplicationPolicy
   end
 
   def index?
-    superadmin?
+    superadmin? || able_to?(:listen_all_transcriptions)
   end
 
   def show?
@@ -12,6 +12,6 @@ class CallTranscriptionPolicy < ApplicationPolicy
   end
 
   def audio?
-    any_admin?
+    any_admin? || able_to?(:listen_all_transcriptions)
   end
 end

@@ -25,7 +25,7 @@
         - else
           \-
 
-      - if current_user.any_admin? && @call_transcription.recording_url.present?
+      - if policy(@call_transcription).audio? && @call_transcription.recording_url.present?
         %dt= CallTranscription.human_attribute_name(:recording_url)
         %dd
           %audio{controls: true, preload: 'none'}
