@@ -217,6 +217,19 @@ module ServiceJobsHelper
     time_string_ru.join(' ')
   end
 
+  def warranty_days_badge(service_job)
+    return unless service_job.sold_by_us_at.present?
+
+    days = (Date.current - service_job.created_at.to_date).to_i
+    css_class = case days
+                when 0..15 then 'warranty-days-badge--green'
+                when 16..30 then 'warranty-days-badge--orange'
+                else 'warranty-days-badge--red'
+                end
+
+    content_tag(:span, "#{days} из 45", class: "warranty-days-badge #{css_class}")
+  end
+
   def table_highlighting(service_job)
     seconds = diff_seconds service_job
     return unless seconds

@@ -86,7 +86,7 @@ ru:
     received: 'Принят'
     returning_popover_title: "Напоминание о возврате девайсов"
     sales_info: "Информация о продаже"
-    sold_by_us_at: "Дата продажи нами"
+    sold_by_us_at: "Дата продажи"
     search_placeholder: 'Талон или серийный номер'
     seach_sales_btn: 'Искать продажи'
     send_sms: 'Отправить сообщение Whatsapp о готовности'
