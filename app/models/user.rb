@@ -794,14 +794,26 @@ class User < ApplicationRecord
 
     role_changing = changed_attributes[:role].present?
 
-    # Check if ability_ids have changed by comparing with database
-    ability_ids_changing = if new_record?
-      ability_ids.present?
-    else
-      ability_ids.sort != abilities.pluck(:id).sort
+    current_ids = new_record? ? [] : abilities.pluck(:id).sort
+    new_ids = ability_ids.sort
+    ability_ids_changing = new_ids != current_ids
+
+    if role_changing
+      errors[:base] << 'Rights changing denied!'
+      return
     end
 
-    if role_changing || ability_ids_changing
+    return unless ability_ids_changing
+
+    # Admins may only change admin_assignable abilities
+    if User.current&.role.in?(%w[admin])
+      admin_assignable_ids = Ability.admin_assignable.pluck(:id)
+      changed_ids = (new_ids - current_ids) + (current_ids - new_ids)
+
+      if (changed_ids - admin_assignable_ids).any?
+        errors[:base] << 'Rights changing denied!'
+      end
+    else
       errors[:base] << 'Rights changing denied!'
     end
   end

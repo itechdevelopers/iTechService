@@ -52,7 +52,8 @@ class UsersController < ApplicationController
   end
 
   def create
-    @user = authorize User.new(user_params)
+    filtered_params = user_params.tap { |p| filter_ability_ids_for_limited_rights(p) }
+    @user = authorize User.new(filtered_params)
 
     respond_to do |format|
       if @user.save
@@ -294,6 +295,28 @@ class UsersController < ApplicationController
       end
 
       p.delete :hiring_date
+
+      filter_ability_ids_for_limited_rights(p)
+    end
+  end
+
+  def filter_ability_ids_for_limited_rights(p)
+    return if current_user.superadmin?
+    return unless p.key?(:ability_ids)
+
+    if policy(User).manage_limited_rights?
+      admin_assignable_ids = Ability.admin_assignable.pluck(:id).map(&:to_s)
+      submitted_ids = Array(p[:ability_ids]).reject(&:blank?)
+
+      # Keep only admin_assignable from submitted
+      allowed_submitted = submitted_ids & admin_assignable_ids
+
+      # Preserve existing non-admin-assignable abilities
+      existing_protected = @user&.ability_ids&.map(&:to_s)&.reject { |id| admin_assignable_ids.include?(id) } || []
+
+      p[:ability_ids] = allowed_submitted + existing_protected
+    else
+      p.delete(:ability_ids)
     end
   end
 

@@ -90,6 +90,15 @@
                   = check_box_tag "user[ability_ids][]", ability.id, @user.abilities.include?(ability), id: "user_ability_ids_#{ability.id}"
                   = t("users.abilities.#{ability.name}")
               = hidden_field_tag 'user[ability_ids][]', ''
+        - elsif can? :manage_limited_rights, User
+          .control-group.span6
+            %label.control-label= User.human_attribute_name :abilities
+            .controls
+              - Ability.admin_assignable.each do |ability|
+                = label_tag "user_ability_ids_#{ability.id}", class: 'checkbox' do
+                  = check_box_tag "user[ability_ids][]", ability.id, @user.abilities.include?(ability), id: "user_ability_ids_#{ability.id}"
+                  = t("users.abilities.#{ability.name}")
+              = hidden_field_tag 'user[ability_ids][]', ''
 
         - if can? :manage_activities, User
           .control-group.span6
