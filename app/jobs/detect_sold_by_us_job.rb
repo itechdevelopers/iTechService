@@ -18,8 +18,7 @@ class DetectSoldByUsJob < ApplicationJob
         one_c_device_checked_at: Time.zone.now,
         one_c_device_check_error: nil
       )
-      WarrantyOverstayCheckJob.set(wait: 30.days).perform_later(service_job.id, 30)
-      WarrantyOverstayCheckJob.set(wait: 40.days).perform_later(service_job.id, 40)
+      schedule_warranty_overstay_checks(service_job)
     elsif result[:success]
       service_job.update!(
         one_c_device_check_status: :checked,
@@ -33,6 +32,25 @@ class DetectSoldByUsJob < ApplicationJob
         one_c_device_check_error: result[:error]
       )
       raise result[:error]
+    end
+  end
+
+  private
+
+  def schedule_warranty_overstay_checks(service_job)
+    thresholds = Setting.warranty_overstay_thresholds
+    thresholds = [30, 40] if thresholds.blank? || !thresholds.is_a?(Array)
+
+    days_in_service = (Date.current - service_job.created_at.to_date).to_i
+
+    thresholds.each do |days|
+      remaining = days - days_in_service
+
+      if remaining <= 0
+        WarrantyOverstayCheckJob.perform_later(service_job.id, days)
+      else
+        WarrantyOverstayCheckJob.set(wait: remaining.days).perform_later(service_job.id, days)
+      end
     end
   end
 end
