@@ -37,5 +37,6 @@ ru:
     ticket_prefix: 'Префикс талона'
     request_review_text: Текст смс запроса оценки работы сотрудника
     request_review_time_out: Таймаут отправки смс запроса оценки работы сотрудника, мин
+    warranty_overstay_thresholds: 'Пороги уведомлений о гарантийном сроке (дни, массив)'
     errors:
       not_found: 'Параметр "%{name}" не найден!'

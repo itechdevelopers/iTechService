@@ -1,7 +1,7 @@
 # CLAUDE.md - Project Configuration for Claude Code
 
 This project follows the Special Claude Code Workflow for rapid, high-quality development.
-Reference: @CONTEXT.md for project architecture, @docs/01-scope.md for current objectives, @PLAYBOOK.md for project-specific patterns.
+Reference: @CONTEXT.md for project architecture, @PLAYBOOK.md for project-specific patterns, docs/ for components' documentation.
 
 ## Core Workflow: The 35-Minute Build Loop
 
@@ -39,7 +39,7 @@ Example: feat: add invoice CSV export
 
 - **CONTEXT.md is the guardrail** - Read it, respect it, never violate it
 - **Keep CONTEXT.md tiny** (<200 lines) - It's compressed knowledge, not documentation
-- **After each loop:** Update CONTEXT.md deltas, append to 02-decisions.md if decisions made. Add only one line of decision made after the loop (if any)
+- **After each loop:** Update CONTEXT.md deltas, append to 02-decisions.md if decisions made. 
 - **35 minutes means 35 minutes** - Don't stretch it. Quality through constraint.
 
 ## Project TODO List
@@ -53,7 +53,7 @@ When user says **"Добавь в todo-list"** or **"Add to todo-list"**:
 ## Default Behavior
 
 When starting work:
-1. Check @docs/01-scope.md for current objectives
+1. Check docs/ for related documentation if any, otherwise suggest to create one
 2. Read @CONTEXT.md for architecture constraints
 3. Work in atomic, testable increments
 4. Return patch diffs with clear commit messages

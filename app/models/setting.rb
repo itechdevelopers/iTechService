@@ -33,7 +33,8 @@ class Setting < ApplicationRecord
     ticket_notice: 'text',
     ticket_prefix: 'string',
     request_review_text: 'string',
-    request_review_time_out: 'integer'
+    request_review_time_out: 'integer',
+    warranty_overstay_thresholds: 'json'
   }.freeze
 
   VALUE_TYPES = %w[boolean integer string text json].freeze
@@ -46,6 +47,8 @@ class Setting < ApplicationRecord
   validates :name, presence: true
   validates_uniqueness_of :name, scope: :department_id
   validate :json_value_correct
+
+  after_commit :apply_warranty_overstay_thresholds, if: :warranty_overstay_thresholds?
 
   before_validation do
     self.value_type ||= TYPES[name.to_sym]
@@ -97,6 +100,14 @@ class Setting < ApplicationRecord
   end
 
   private
+
+  def warranty_overstay_thresholds?
+    name == 'warranty_overstay_thresholds'
+  end
+
+  def apply_warranty_overstay_thresholds
+    ApplyWarrantyOverstayThresholdsJob.perform_later
+  end
 
   def json_value_correct
     return unless value_type == 'json' && !value.nil?
