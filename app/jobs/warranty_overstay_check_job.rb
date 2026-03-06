@@ -5,6 +5,7 @@ class WarrantyOverstayCheckJob < ApplicationJob
     service_job = ServiceJob.find_by(id: service_job_id)
     return unless service_job
     return if service_job.location&.is_archive?
+    return if service_job.location&.storage_term.to_i > 3
     return unless service_job.sold_by_us_at.present?
 
     kind = "warranty_overstay_#{days_threshold}"

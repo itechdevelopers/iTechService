@@ -32,6 +32,7 @@ class ServiceJob < ApplicationRecord
 
   scope :not_at_done, -> { where.not(location: Location.done) }
   scope :not_at_archive, -> { where.not(location_id: Location.archive) }
+  scope :not_at_storage, -> { where.not(location_id: Location.storage) }
 
   scope :for_returning, lambda {
     not_at_done.not_at_archive.where('((return_at - created_at) > ? and (return_at - created_at) < ? and return_at <= ?) or ((return_at - created_at) >= ? and return_at <= ?)', '30 min', '5 hour', DateTime.current.advance(minutes: 30), '5 hour', DateTime.current.advance(hours: 1))
