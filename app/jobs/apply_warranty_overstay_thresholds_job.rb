@@ -5,7 +5,7 @@ class ApplyWarrantyOverstayThresholdsJob < ApplicationJob
     thresholds = Setting.warranty_overstay_thresholds
     return if thresholds.blank? || !thresholds.is_a?(Array)
 
-    ServiceJob.not_at_archive.where.not(sold_by_us_at: nil).find_each do |service_job|
+    ServiceJob.not_at_archive.not_at_storage.where.not(sold_by_us_at: nil).find_each do |service_job|
       days_in_service = (Date.current - service_job.created_at.to_date).to_i
 
       thresholds.each do |days|

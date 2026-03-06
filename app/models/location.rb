@@ -32,6 +32,7 @@ class Location < ApplicationRecord
   scope :short_term, -> { where storage_term: 3 }
   scope :long_term, -> { where storage_term: 12 }
   scope :termless, -> { where storage_term: nil }
+  scope :storage, -> { where('storage_term > ?', 3) }
 
   belongs_to :department, inverse_of: :locations
   has_many :users

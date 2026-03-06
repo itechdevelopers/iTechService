@@ -5,6 +5,7 @@ class BackfillSoldByUsCheckJob < ApplicationJob
     enqueued = 0
 
     ServiceJob.not_at_archive
+              .not_at_storage
               .where(one_c_device_check_status: nil)
               .includes(item: { features: :feature_type })
               .find_each do |service_job|
