@@ -60,6 +60,14 @@
             %button.btn.btn-small.selection-btn{'data-id' => shift.id, 'data-short-name' => shift.short_name}
               .btn-label= shift.name
               .btn-hint= shift.short_name
+          %button.btn.btn-small#custom-shift-btn
+            .btn-label= t('.custom_shift')
+        #custom-shift-fields.custom-shift-fields{style: 'display:none'}
+          %label.custom-shift-label= t('.custom_shift_from')
+          %input#custom-shift-start.input-small{type: 'time'}
+          %label.custom-shift-label= t('.custom_shift_to')
+          %input#custom-shift-end.input-small{type: 'time'}
+          %button.btn.btn-small.btn-success#apply-custom-shift= t('.custom_shift_apply')
       .span3
         %h5= t('.occupation_type')
         .btn-group.selection-group{'data-selection' => 'occupation_type'}
@@ -290,6 +298,11 @@
     min-width: 60px;
     height: 40px;
   }
+  .schedule-table .schedule-cell {
+    white-space: pre-line;
+    font-size: 12px;
+    line-height: 1.3;
+  }
   .schedule-table .empty-cell {
     background-color: #ffffff;
   }
@@ -419,6 +432,32 @@
     margin-top: 8px;
   }
 
+  /* Custom shift fields */
+  .custom-shift-fields {
+    margin-top: 6px;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+  .custom-shift-fields .input-small {
+    width: 90px;
+    margin-bottom: 0;
+  }
+  .custom-shift-label {
+    margin-bottom: 0;
+    font-weight: normal;
+    font-size: 12px;
+  }
+  #custom-shift-btn {
+    border-style: dashed;
+  }
+  #custom-shift-btn.active {
+    background-color: #0088cc;
+    color: white;
+    border-style: solid;
+    box-shadow: inset 0 3px 5px rgba(0,0,0,0.125);
+  }
+
 :javascript
   $(document).ready(function() {
     // Initialize tooltips for department summary cells
@@ -434,7 +473,8 @@
       department: null,
       shift: null,
       occupation_type: null,
-      clear_mode: false
+      clear_mode: false,
+      custom_shift: null // { start_time: '10:00', end_time: '16:00' }
     };
 
     // Toggle selection on button click
@@ -464,6 +504,13 @@
           selectionData.counts_as_working = $btn.data('counts-as-working') === true || $btn.data('counts-as-working') === 'true';
         }
         selection[selectionType] = selectionData;
+
+        // Selecting a regular shift deselects custom shift
+        if (selectionType === 'shift') {
+          selection.custom_shift = null;
+          $('#custom-shift-btn').removeClass('active').find('.btn-label').text(customShiftLabel);
+          $('#custom-shift-fields').hide();
+        }
       }
 
       updateSelectionStatus();
@@ -478,9 +525,12 @@
       // Deselect all when entering clear mode
       if (selection.clear_mode) {
         $('#selection-panel .selection-btn').removeClass('active');
+        $('#custom-shift-btn').removeClass('active').find('.btn-label').text(customShiftLabel);
+        $('#custom-shift-fields').hide();
         selection.department = null;
         selection.shift = null;
         selection.occupation_type = null;
+        selection.custom_shift = null;
       }
 
       updateSelectionStatus();
@@ -489,6 +539,46 @@
     function updateSelectionStatus() {
       console.log('Selection:', selection);
     }
+
+    // Custom shift button
+    var customShiftLabel = '#{j t('.custom_shift')}';
+    $('#custom-shift-btn').on('click', function() {
+      var $btn = $(this);
+      selection.clear_mode = false;
+      $('#clear-selection-btn').removeClass('active');
+
+      if ($btn.hasClass('active')) {
+        // Deselect custom shift
+        $btn.removeClass('active').find('.btn-label').text(customShiftLabel);
+        $('#custom-shift-fields').hide();
+        selection.custom_shift = null;
+      } else {
+        // Deselect regular shifts, activate custom
+        $('.selection-group[data-selection="shift"] .selection-btn').removeClass('active');
+        selection.shift = null;
+        $btn.addClass('active');
+        $('#custom-shift-fields').show();
+      }
+      updateSelectionStatus();
+    });
+
+    // Apply custom shift time
+    $('#apply-custom-shift').on('click', function() {
+      var startVal = $('#custom-shift-start').val();
+      var endVal = $('#custom-shift-end').val();
+      if (!startVal || !endVal) {
+        alert('#{j t('.custom_shift_both_required')}');
+        return;
+      }
+      if (startVal >= endVal) {
+        alert('#{j t('.custom_shift_end_after_start')}');
+        return;
+      }
+      selection.custom_shift = { start_time: startVal, end_time: endVal };
+      selection.shift = null;
+      $('#custom-shift-btn').find('.btn-label').text(startVal + ' - ' + endVal);
+      updateSelectionStatus();
+    });
 
     // Cell click handler
     var $table = $('.schedule-table');
@@ -535,25 +625,34 @@
           alert('Выберите занятость');
           return;
         }
-        if (selection.occupation_type.counts_as_working && (!selection.department || !selection.shift)) {
-          alert('Для рабочей занятости выберите подразделение и смену');
-          return;
+        if (selection.occupation_type.counts_as_working) {
+          if (!selection.department) {
+            alert('#{j t('.custom_shift_select_department')}');
+            return;
+          }
+          if (!selection.shift && !selection.custom_shift) {
+            alert('#{j t('.custom_shift_select_shift_or_custom')}');
+            return;
+          }
         }
 
         // Upsert entry
         console.log('Sending upsert request...');
+        var upsertData = {
+          user_id: userId,
+          date: date,
+          week: weekStart,
+          department_id: selection.department ? selection.department.id : null,
+          shift_id: selection.shift ? selection.shift.id : null,
+          occupation_type_id: selection.occupation_type.id,
+          custom_start_time: selection.custom_shift ? selection.custom_shift.start_time : '',
+          custom_end_time: selection.custom_shift ? selection.custom_shift.end_time : ''
+        };
         $.ajax({
           url: '/schedule_groups/' + scheduleGroupId + '/schedule_entries/upsert',
           method: 'POST',
           dataType: 'script',
-          data: {
-            user_id: userId,
-            date: date,
-            week: weekStart,
-            department_id: selection.department ? selection.department.id : null,
-            shift_id: selection.shift ? selection.shift.id : null,
-            occupation_type_id: selection.occupation_type.id
-          },
+          data: upsertData,
           success: function() {
             console.log('Upsert success!');
             window.markScheduleUnsaved && window.markScheduleUnsaved();
@@ -590,9 +689,15 @@
           alert('Выберите занятость');
           return;
         }
-        if (selection.occupation_type.counts_as_working && (!selection.department || !selection.shift)) {
-          alert('Для рабочей занятости выберите подразделение и смену');
-          return;
+        if (selection.occupation_type.counts_as_working) {
+          if (!selection.department) {
+            alert('#{j t('.custom_shift_select_department')}');
+            return;
+          }
+          if (!selection.shift && !selection.custom_shift) {
+            alert('#{j t('.custom_shift_select_shift_or_custom')}');
+            return;
+          }
         }
 
         $.ajax({
@@ -604,7 +709,9 @@
             week: weekStart,
             department_id: selection.department ? selection.department.id : null,
             shift_id: selection.shift ? selection.shift.id : null,
-            occupation_type_id: selection.occupation_type.id
+            occupation_type_id: selection.occupation_type.id,
+            custom_start_time: selection.custom_shift ? selection.custom_shift.start_time : '',
+            custom_end_time: selection.custom_shift ? selection.custom_shift.end_time : ''
           },
           success: function() { window.markScheduleUnsaved && window.markScheduleUnsaved(); }
         });
@@ -632,9 +739,15 @@
           alert('Выберите занятость');
           return;
         }
-        if (selection.occupation_type.counts_as_working && (!selection.department || !selection.shift)) {
-          alert('Для рабочей занятости выберите подразделение и смену');
-          return;
+        if (selection.occupation_type.counts_as_working) {
+          if (!selection.department) {
+            alert('#{j t('.custom_shift_select_department')}');
+            return;
+          }
+          if (!selection.shift && !selection.custom_shift) {
+            alert('#{j t('.custom_shift_select_shift_or_custom')}');
+            return;
+          }
         }
 
         $.ajax({
@@ -646,7 +759,9 @@
             week: weekStart,
             department_id: selection.department ? selection.department.id : null,
             shift_id: selection.shift ? selection.shift.id : null,
-            occupation_type_id: selection.occupation_type.id
+            occupation_type_id: selection.occupation_type.id,
+            custom_start_time: selection.custom_shift ? selection.custom_shift.start_time : '',
+            custom_end_time: selection.custom_shift ? selection.custom_shift.end_time : ''
           },
           success: function() { window.markScheduleUnsaved && window.markScheduleUnsaved(); }
         });

@@ -64,7 +64,7 @@ class ScheduleGroupsController < ApplicationController
     @weekly_hours = @members.each_with_object({}) do |member, hash|
       hours = @week_dates.sum do |date|
         entry = @entries[[member.id, date]]
-        entry&.shift&.duration_hours || 0
+        entry&.effective_duration_hours || 0
       end
       hash[member.id] = hours
     end
