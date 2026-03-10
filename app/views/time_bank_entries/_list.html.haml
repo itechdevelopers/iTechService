@@ -8,6 +8,8 @@
         %th= t('.amount')
         %th= t('.note')
         %th= t('.created_by')
+        - if can?(:manage, :schedule)
+          %th
     %tbody
       - @time_bank_entries.each do |entry|
         %tr{id: "time_bank_entry_#{entry.id}"}
@@ -23,5 +25,11 @@
               = TimeBankEntry.format_balance(entry.minutes)
           %td= entry.note
           %td= entry.created_by&.short_name
+          - if can?(:manage, :schedule)
+            %td{style: 'white-space: nowrap;'}
+              = link_to edit_schedule_group_time_bank_entry_path(@schedule_group, entry), remote: true, class: 'btn btn-mini' do
+                = glyph(:pencil)
+              = link_to schedule_group_time_bank_entry_path(@schedule_group, entry), method: :delete, remote: true, data: { confirm: t('.confirm_delete') }, class: 'btn btn-mini btn-danger' do
+                = glyph(:trash)
 - else
   %p.muted= t('.empty')

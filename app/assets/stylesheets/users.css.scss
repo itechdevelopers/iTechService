@@ -356,3 +356,24 @@ form.user_form{
     margin-left: 5px;
   }
 }
+
+/* Time Bank in user profile */
+.time-bank-profile {
+  .time-bank-balance-toggle {
+    cursor: pointer;
+    text-decoration: none;
+
+    .tb-collapse-indicator {
+      margin-right: 4px;
+    }
+  }
+}
+
+.time-bank-profile-table {
+  margin-top: 8px;
+  font-size: 12px;
+
+  td {
+    padding: 3px 8px;
+  }
+}

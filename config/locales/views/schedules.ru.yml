@@ -165,6 +165,20 @@ ru:
       note: 'Примечание'
       note_placeholder: 'Необязательно'
       save: 'Сохранить'
+    edit_modal_form_content:
+      title: 'Редактировать операцию'
+      direction: 'Направление'
+      direction_credit: 'Начисление (+)'
+      direction_debit: 'Списание (-)'
+      event_type: 'Мероприятие'
+      amount: 'Количество'
+      hours_label: 'ч.'
+      mins_label: 'мин.'
+      occurred_on: 'Дата'
+      employee: 'Сотрудник'
+      note: 'Примечание'
+      note_placeholder: 'Необязательно'
+      save: 'Сохранить'
     list:
       date: 'Дата'
       employee: 'Сотрудник'
@@ -173,6 +187,7 @@ ru:
       note: 'Примечание'
       created_by: 'Кто добавил'
       empty: 'Нет записей в банке часов'
+      confirm_delete: 'Удалить эту запись?'
 
   schedule_week_memos:
     title: 'Памятка'

@@ -68,4 +68,16 @@ class SchedulePolicy < ApplicationPolicy
   def create_time_bank_entry?
     manage?
   end
+
+  def edit_time_bank_entry?
+    manage?
+  end
+
+  def update_time_bank_entry?
+    manage?
+  end
+
+  def destroy_time_bank_entry?
+    manage?
+  end
 end

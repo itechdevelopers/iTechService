@@ -1,0 +1,72 @@
+.modal-header
+  = button_to_close_modal
+  %h3= t('.title')
+
+.modal-body
+  %form#time-bank-entry-edit-form{action: schedule_group_time_bank_entry_path(@schedule_group, @entry), method: 'post', data: { remote: true }}
+    = hidden_field_tag :authenticity_token, form_authenticity_token
+    %input{type: 'hidden', name: '_method', value: 'patch'}
+
+    .control-group
+      %label.control-label= t('.direction')
+      .controls
+        %label.radio.inline
+          %input{type: 'radio', name: 'direction', value: 'credit', checked: @entry.credit?}
+          = t('.direction_credit')
+        %label.radio.inline
+          %input{type: 'radio', name: 'direction', value: 'debit', checked: @entry.debit?}
+          = t('.direction_debit')
+
+    .control-group
+      %label.control-label= t('.event_type')
+      .controls
+        %select#tb-edit-event-type{name: 'event_type_id', class: 'input-large'}
+          - @event_types.each do |et|
+            %option{value: et.id, data: { direction: et.direction }, selected: et.id == @entry.event_type_id}= et.name
+
+    .control-group
+      %label.control-label= t('.amount')
+      .controls
+        %input#tb-edit-hours{type: 'number', name: 'hours', min: 0, max: 999, value: @entry.minutes / 60, class: 'input-mini', style: 'width: 50px;'}
+        %span= t('.hours_label')
+        %select#tb-edit-mins{name: 'mins', class: 'input-mini', style: 'width: 60px;'}
+          - [0, 15, 30, 45].each do |m|
+            %option{value: m, selected: m == @entry.minutes % 60}= m
+        %span= t('.mins_label')
+
+    .control-group
+      %label.control-label= t('.occurred_on')
+      .controls
+        %input{type: 'date', name: 'occurred_on', value: @entry.occurred_on.to_s, class: 'input-medium'}
+
+    .control-group
+      %label.control-label= t('.employee')
+      .controls
+        %p.form-control-static= @entry.user.short_name
+
+    .control-group
+      %label.control-label= t('.note')
+      .controls
+        %input{type: 'text', name: 'note', value: @entry.note, class: 'input-xlarge', placeholder: t('.note_placeholder')}
+
+.modal-footer
+  = link_to t('helpers.links.close'), '#', 'data-dismiss' => 'modal', class: 'btn'
+  %button.btn.btn-success{type: 'submit', form: 'time-bank-entry-edit-form'}= t('.save')
+
+:javascript
+  $(function() {
+    // Filter event types by direction
+    $('#time-bank-entry-edit-form input[name="direction"]').on('change', function() {
+      var dir = $(this).val();
+      $('#tb-edit-event-type option').each(function() {
+        var etDir = $(this).data('direction');
+        $(this).toggle(etDir === dir || etDir === 'both');
+      });
+      var $visible = $('#tb-edit-event-type option:visible').first();
+      if ($visible.length && !$('#tb-edit-event-type option:selected').is(':visible')) {
+        $('#tb-edit-event-type').val($visible.val());
+      }
+    });
+    // Trigger initial filter
+    $('#time-bank-entry-edit-form input[name="direction"]:checked').trigger('change');
+  });

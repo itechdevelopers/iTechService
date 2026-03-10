@@ -47,6 +47,38 @@ class TimeBankEntriesController < ApplicationController
     end
   end
 
+  def edit
+    authorize :schedule, :edit_time_bank_entry?
+    @entry = @schedule_group.time_bank_entries.find(params[:id])
+    @event_types = TimeBankEventType.active.ordered
+    params[:form_name] = 'edit_modal_form_content'
+    render 'shared/show_modal_form'
+  end
+
+  def update
+    authorize :schedule, :update_time_bank_entry?
+    @entry = @schedule_group.time_bank_entries.find(params[:id])
+
+    minutes = compute_minutes
+    if minutes <= 0
+      render js: "alert('Укажите количество времени');"
+      return
+    end
+
+    if @entry.update(entry_params.merge(minutes: minutes))
+      load_time_bank_entries
+    else
+      render js: "alert(#{@entry.errors.full_messages.join('; ').to_json});"
+    end
+  end
+
+  def destroy
+    authorize :schedule, :destroy_time_bank_entry?
+    @entry = @schedule_group.time_bank_entries.find(params[:id])
+    @entry.destroy
+    load_time_bank_entries
+  end
+
   private
 
   def set_schedule_group
@@ -57,6 +89,10 @@ class TimeBankEntriesController < ApplicationController
     hours = params[:hours].to_i
     mins = params[:mins].to_i
     hours * 60 + mins
+  end
+
+  def entry_params
+    params.permit(:event_type_id, :direction, :occurred_on, :note)
   end
 
   def load_time_bank_entries

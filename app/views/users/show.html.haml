@@ -143,6 +143,33 @@
                           class: 'achievement-img-icon-mini has-tooltip',
                           data: { original_title: achievement.achievement.name }
 
+          - time_bank_balance = TimeBankEntry.balance_minutes_for(@user)
+          - time_bank_entries = @user.time_bank_entries.includes(:event_type, :schedule_group, :created_by).chronological.limit(50)
+          - if time_bank_balance != 0 || time_bank_entries.any?
+            %dt= t('users.time_bank.title')
+            %dd
+              .time-bank-profile
+                %a.time-bank-balance-toggle{href: '#'}
+                  %i.fa.fa-caret-right.tb-collapse-indicator
+                  %span{class: time_bank_balance >= 0 ? 'text-success' : 'text-error'}
+                    = TimeBankEntry.format_balance(time_bank_balance)
+                .time-bank-profile-log.hidden
+                  - if time_bank_entries.any?
+                    %table.table.table-condensed.table-striped.time-bank-profile-table
+                      %tbody
+                        - time_bank_entries.each do |entry|
+                          %tr
+                            %td
+                              %span{class: entry.credit? ? 'text-success' : 'text-error'}
+                                = entry.credit? ? '+' : '-'
+                                = TimeBankEntry.format_balance(entry.minutes)
+                            %td
+                              = t('users.time_bank.for_event')
+                              = entry.event_type.name
+                            %td= l(entry.occurred_on, format: :short)
+                            %td
+                              %small.muted= entry.created_by&.short_name
+
           %dt= link_to t('bonuses.index.title'), bonuses_user_path(@user), remote: true
           %dd
             #user_bonuses.well
@@ -305,6 +332,15 @@
       var $icon = $(this).find('.collapse-indicator');
 
       $items.toggleClass('hidden');
+      $icon.toggleClass('fa-caret-right fa-caret-down');
+    });
+
+    // Toggle time bank log visibility
+    $(document).on('click', '.time-bank-balance-toggle', function(e) {
+      e.preventDefault();
+      var $log = $(this).closest('.time-bank-profile').find('.time-bank-profile-log');
+      var $icon = $(this).find('.tb-collapse-indicator');
+      $log.toggleClass('hidden');
       $icon.toggleClass('fa-caret-right fa-caret-down');
     });
 

@@ -79,8 +79,9 @@ Rails.application.routes.draw do
       end
     end
     resources :schedule_week_memos, only: %i[create update destroy]
-    resources :time_bank_entries, only: %i[create] do
+    resources :time_bank_entries, only: %i[create update destroy] do
       get :new_entry, on: :collection
+      get :edit, on: :member
     end
   end
   resources :departments do
