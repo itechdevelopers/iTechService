@@ -80,6 +80,12 @@ class ScheduleGroupsController < ApplicationController
 
     # Load week memos
     @memos = @schedule_group.schedule_week_memos.for_week(@week_start)
+
+    # Load time bank entries for this group's members
+    @time_bank_entries = @schedule_group.time_bank_entries
+                                        .includes(:user, :event_type, :created_by)
+                                        .chronological
+                                        .limit(50)
   end
 
   def edit

@@ -60,4 +60,12 @@ class SchedulePolicy < ApplicationPolicy
   def destroy_memo?
     manage?
   end
+
+  def new_entry?
+    manage?
+  end
+
+  def create_time_bank_entry?
+    manage?
+  end
 end

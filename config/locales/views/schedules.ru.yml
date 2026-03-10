@@ -9,6 +9,7 @@ ru:
       departments_settings: 'Настройка подразделений'
       shifts_settings: 'Настройка смен'
       occupation_types_settings: 'Настройка занятости'
+      event_types_settings: 'Настройка мероприятий'
       groups_title: 'Наборы сотрудников'
       create_group: 'Создать набор'
     link: 'Расписание'
@@ -56,6 +57,8 @@ ru:
       total_dept_summary: 'Итого по подразделениям'
       non_working_column: 'Выходные'
       non_working_people: 'Выходные'
+      time_bank_title: 'Банк часов'
+      time_bank_add: 'Добавить операцию'
     history_modal_form_content:
       title: 'История изменений'
       when: 'Когда'
@@ -125,6 +128,51 @@ ru:
       edit: 'Редактировать'
       save: 'Сохранить'
       cancel: 'Отмена'
+
+  time_bank_event_types:
+    modal_form_content:
+      title: 'Настройка мероприятий'
+      name_placeholder: 'Название мероприятия'
+      direction_credit: 'Начисление (+)'
+      direction_debit: 'Списание (-)'
+      direction_both: 'Оба направления'
+      add: 'Добавить'
+    list:
+      name: 'Название'
+      direction: 'Направление'
+      direction_credit: 'Начисление'
+      direction_debit: 'Списание'
+      direction_both: 'Оба'
+      empty: 'Мероприятия не добавлены'
+      edit: 'Редактировать'
+      save: 'Сохранить'
+      cancel: 'Отмена'
+
+  time_bank_entries:
+    modal_form_content:
+      title: 'Добавить операцию'
+      direction: 'Направление'
+      direction_credit: 'Начисление (+)'
+      direction_debit: 'Списание (-)'
+      event_type: 'Мероприятие'
+      amount: 'Количество'
+      hours_label: 'ч.'
+      mins_label: 'мин.'
+      occurred_on: 'Дата'
+      members: 'Сотрудники'
+      select_all: 'Выбрать всех'
+      deselect_all: 'Снять выбор'
+      note: 'Примечание'
+      note_placeholder: 'Необязательно'
+      save: 'Сохранить'
+    list:
+      date: 'Дата'
+      employee: 'Сотрудник'
+      event_type: 'Мероприятие'
+      amount: 'Количество'
+      note: 'Примечание'
+      created_by: 'Кто добавил'
+      empty: 'Нет записей в банке часов'
 
   schedule_week_memos:
     title: 'Памятка'

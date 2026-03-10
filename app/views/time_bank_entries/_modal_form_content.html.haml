@@ -1,0 +1,85 @@
+.modal-header
+  = button_to_close_modal
+  %h3= t('.title')
+
+.modal-body
+  %form#time-bank-entry-form{action: schedule_group_time_bank_entries_path(@schedule_group), method: 'post', data: { remote: true }}
+    = hidden_field_tag :authenticity_token, form_authenticity_token
+
+    .control-group
+      %label.control-label= t('.direction')
+      .controls
+        %label.radio.inline
+          %input{type: 'radio', name: 'direction', value: 'credit', checked: true}
+          = t('.direction_credit')
+        %label.radio.inline
+          %input{type: 'radio', name: 'direction', value: 'debit'}
+          = t('.direction_debit')
+
+    .control-group
+      %label.control-label= t('.event_type')
+      .controls
+        %select#tb-event-type{name: 'event_type_id', class: 'input-large'}
+          - @event_types.each do |et|
+            %option{value: et.id, data: { direction: et.direction }}= et.name
+
+    .control-group
+      %label.control-label= t('.amount')
+      .controls
+        %input#tb-hours{type: 'number', name: 'hours', min: 0, max: 999, value: 0, class: 'input-mini', style: 'width: 50px;'}
+        %span= t('.hours_label')
+        %select#tb-mins{name: 'mins', class: 'input-mini', style: 'width: 60px;'}
+          %option{value: 0} 0
+          %option{value: 15} 15
+          %option{value: 30} 30
+          %option{value: 45} 45
+        %span= t('.mins_label')
+
+    .control-group
+      %label.control-label= t('.occurred_on')
+      .controls
+        %input{type: 'date', name: 'occurred_on', value: Date.current.to_s, class: 'input-medium'}
+
+    .control-group
+      %label.control-label= t('.members')
+      .controls
+        - @members.each do |member|
+          %label.checkbox
+            %input{type: 'checkbox', name: 'user_ids[]', value: member.id}
+            = member.short_name
+        %a#tb-select-all{href: '#'}= t('.select_all')
+
+    .control-group
+      %label.control-label= t('.note')
+      .controls
+        %input{type: 'text', name: 'note', class: 'input-xlarge', placeholder: t('.note_placeholder')}
+
+.modal-footer
+  = link_to t('helpers.links.close'), '#', 'data-dismiss' => 'modal', class: 'btn'
+  %button.btn.btn-success{type: 'submit', form: 'time-bank-entry-form'}= t('.save')
+
+:javascript
+  $(function() {
+    // Select all / deselect all
+    $('#tb-select-all').on('click', function(e) {
+      e.preventDefault();
+      var $checkboxes = $('#time-bank-entry-form input[name="user_ids[]"]');
+      var allChecked = $checkboxes.filter(':checked').length === $checkboxes.length;
+      $checkboxes.prop('checked', !allChecked);
+      $(this).text(allChecked ? '#{j t('.select_all')}' : '#{j t('.deselect_all')}');
+    });
+
+    // Filter event types by direction
+    $('input[name="direction"]').on('change', function() {
+      var dir = $(this).val();
+      $('#tb-event-type option').each(function() {
+        var etDir = $(this).data('direction');
+        $(this).toggle(etDir === dir || etDir === 'both');
+      });
+      // Select first visible option
+      var $visible = $('#tb-event-type option:visible').first();
+      if ($visible.length) $('#tb-event-type').val($visible.val());
+    });
+    // Trigger initial filter
+    $('input[name="direction"]:checked').trigger('change');
+  });

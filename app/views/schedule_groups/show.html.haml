@@ -199,6 +199,17 @@
             - else
               = t('.updated_at', date: l(saved_at_local, format: :short))
 
+-# Time Bank section
+.time-bank-section
+  %h5.time-bank-title
+    = t('.time_bank_title')
+    - if can?(:manage, :schedule)
+      = link_to new_entry_schedule_group_time_bank_entries_path(@schedule_group), remote: true, class: 'btn btn-small btn-success pull-right' do
+        = glyph(:plus)
+        = t('.time_bank_add')
+  #time_bank_entries_list
+    = render 'time_bank_entries/list'
+
 :css
   /* Selection panel */
   #selection-panel h5 {
@@ -456,6 +467,18 @@
     color: white;
     border-style: solid;
     box-shadow: inset 0 3px 5px rgba(0,0,0,0.125);
+  }
+
+  /* Time bank section */
+  .time-bank-section {
+    margin-top: 30px;
+  }
+  .time-bank-title {
+    margin-bottom: 10px;
+    font-weight: bold;
+  }
+  .time-bank-table {
+    font-size: 13px;
   }
 
 :javascript

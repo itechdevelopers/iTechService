@@ -1,0 +1,45 @@
+- if @event_types.any?
+  %table.table.table-condensed.table-striped
+    %thead
+      %tr
+        %th= t('.name')
+        %th= t('.direction')
+        %th
+    %tbody
+      - @event_types.each do |event_type|
+        %tr{id: "event_type_#{event_type.id}"}
+          -# Display mode
+          %td.et-name= event_type.name
+          %td.et-direction
+            %span.label= t(".direction_#{event_type.direction}")
+          %td.text-right.et-actions
+            = link_to glyph(:pencil), '#', class: 'btn btn-mini btn-edit-event-type', title: t('.edit'), data: { id: event_type.id }
+            = link_to glyph(:remove), time_bank_event_type_path(event_type), method: :delete, remote: true, class: 'btn btn-mini btn-danger', title: t('helpers.links.destroy'), data: { confirm: t('helpers.links.confirm') }
+
+          -# Edit mode (hidden by default)
+          %td.et-edit.hide{colspan: 3}
+            = form_with model: event_type, url: time_bank_event_type_path(event_type), method: :patch, local: false, html: { class: 'form-inline et-edit-form' } do |f|
+              = f.text_field :name, class: 'input-medium', placeholder: t('time_bank_event_types.modal_form_content.name_placeholder')
+              = f.select :direction, TimeBankEventType::DIRECTIONS.map { |d| [t("time_bank_event_types.modal_form_content.direction_#{d}"), d] }, {}, class: 'input-small'
+              = f.submit t('.save'), class: 'btn btn-mini btn-primary', style: 'margin-left: 10px;'
+              = link_to t('.cancel'), '#', class: 'btn btn-mini btn-cancel-edit-event-type'
+- else
+  %p.muted= t('.empty')
+
+:javascript
+  $(function() {
+    $('#event_types_list').on('click', '.btn-edit-event-type', function(e) {
+      e.preventDefault();
+      var $row = $(this).closest('tr');
+      $row.find('.et-name, .et-direction, .et-actions').addClass('hide');
+      $row.find('.et-edit').removeClass('hide');
+      $row.find('.et-edit input[type="text"]').focus();
+    });
+
+    $('#event_types_list').on('click', '.btn-cancel-edit-event-type', function(e) {
+      e.preventDefault();
+      var $row = $(this).closest('tr');
+      $row.find('.et-name, .et-direction, .et-actions').removeClass('hide');
+      $row.find('.et-edit').addClass('hide');
+    });
+  });

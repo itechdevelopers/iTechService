@@ -1,0 +1,27 @@
+- if @time_bank_entries.any?
+  %table.table.table-condensed.table-striped.time-bank-table
+    %thead
+      %tr
+        %th= t('.date')
+        %th= t('.employee')
+        %th= t('.event_type')
+        %th= t('.amount')
+        %th= t('.note')
+        %th= t('.created_by')
+    %tbody
+      - @time_bank_entries.each do |entry|
+        %tr{id: "time_bank_entry_#{entry.id}"}
+          %td= l(entry.occurred_on, format: :short)
+          %td= entry.user.short_name
+          %td
+            %span.label{class: entry.credit? ? 'label-success' : 'label-important'}
+              = entry.credit? ? '+' : '-'
+            = entry.event_type.name
+          %td
+            %span{class: entry.credit? ? 'text-success' : 'text-error'}
+              = entry.credit? ? '+' : '-'
+              = TimeBankEntry.format_balance(entry.minutes)
+          %td= entry.note
+          %td= entry.created_by&.short_name
+- else
+  %p.muted= t('.empty')

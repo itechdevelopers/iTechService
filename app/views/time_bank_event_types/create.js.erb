@@ -1,0 +1,7 @@
+<% if @event_type.persisted? %>
+  $("#event_types_list").html("<%= j(render('list')) %>");
+  $("#event_type_form")[0].reset();
+  $("#event_type_form input[type='text']").focus();
+<% else %>
+  alert("<%= j(@event_type.errors.full_messages.join(', ')) %>");
+<% end %>
