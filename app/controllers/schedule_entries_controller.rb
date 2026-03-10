@@ -104,7 +104,7 @@ class ScheduleEntriesController < ApplicationController
   end
 
   def entry_params
-    params.permit(:department_id, :shift_id, :occupation_type_id)
+    params.permit(:department_id, :shift_id, :occupation_type_id, :custom_start_time, :custom_end_time)
   end
 
   def can_edit_week?
@@ -171,7 +171,7 @@ class ScheduleEntriesController < ApplicationController
 
     user_ids.each_with_object({}) do |user_id, hash|
       user_entries = entries.select { |e| e.user_id == user_id }
-      hash[user_id] = user_entries.sum { |e| e.shift&.duration_hours || 0 }
+      hash[user_id] = user_entries.sum { |e| e.effective_duration_hours }
     end
   end
 

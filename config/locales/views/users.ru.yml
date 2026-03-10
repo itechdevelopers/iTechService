@@ -97,6 +97,9 @@ ru:
     actual_orders: "Актуальные заказы"
     tabs:
       quick_orders: :quick_orders.index.title
+    time_bank:
+      title: 'Банк часов'
+      for_event: 'за'
     repair_capabilities:
       tab_title: 'Виды работ'
       by_groups: 'Навыки по группам'

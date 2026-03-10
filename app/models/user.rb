@@ -178,6 +178,7 @@ class User < ApplicationRecord
   has_many :owned_schedule_groups, class_name: 'ScheduleGroup', dependent: :destroy
   has_one :schedule_group_membership, dependent: :destroy
   has_one :schedule_group, through: :schedule_group_membership
+  has_many :time_bank_entries, dependent: :destroy
 
   attr_accessor :login, :auth_token
 

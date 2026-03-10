@@ -64,7 +64,7 @@ class ScheduleGroupsController < ApplicationController
     @weekly_hours = @members.each_with_object({}) do |member, hash|
       hours = @week_dates.sum do |date|
         entry = @entries[[member.id, date]]
-        entry&.shift&.duration_hours || 0
+        entry&.effective_duration_hours || 0
       end
       hash[member.id] = hours
     end
@@ -80,6 +80,12 @@ class ScheduleGroupsController < ApplicationController
 
     # Load week memos
     @memos = @schedule_group.schedule_week_memos.for_week(@week_start)
+
+    # Load time bank entries for this group's members
+    @time_bank_entries = @schedule_group.time_bank_entries
+                                        .includes(:user, :event_type, :created_by)
+                                        .chronological
+                                        .limit(50)
   end
 
   def edit

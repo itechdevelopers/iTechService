@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20260305203217) do
+ActiveRecord::Schema.define(version: 20260310095141) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -1429,6 +1429,8 @@ ActiveRecord::Schema.define(version: 20260305203217) do
     t.bigint "occupation_type_id"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.time "custom_start_time"
+    t.time "custom_end_time"
     t.index ["date"], name: "index_schedule_entries_on_date"
     t.index ["department_id"], name: "index_schedule_entries_on_department_id"
     t.index ["occupation_type_id"], name: "index_schedule_entries_on_occupation_type_id"
@@ -1834,6 +1836,36 @@ ActiveRecord::Schema.define(version: 20260305203217) do
     t.index ["role"], name: "index_tasks_on_role"
   end
 
+  create_table "time_bank_entries", force: :cascade do |t|
+    t.bigint "user_id", null: false
+    t.bigint "schedule_group_id", null: false
+    t.bigint "event_type_id", null: false
+    t.string "direction", null: false
+    t.integer "minutes", null: false
+    t.date "occurred_on", null: false
+    t.time "debit_start_time"
+    t.time "debit_end_time"
+    t.text "note"
+    t.bigint "created_by_id"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["created_by_id"], name: "index_time_bank_entries_on_created_by_id"
+    t.index ["event_type_id"], name: "index_time_bank_entries_on_event_type_id"
+    t.index ["occurred_on"], name: "index_time_bank_entries_on_occurred_on"
+    t.index ["schedule_group_id"], name: "index_time_bank_entries_on_schedule_group_id"
+    t.index ["user_id", "direction"], name: "index_time_bank_entries_on_user_id_and_direction"
+    t.index ["user_id"], name: "index_time_bank_entries_on_user_id"
+  end
+
+  create_table "time_bank_event_types", force: :cascade do |t|
+    t.string "name", null: false
+    t.string "direction", default: "both", null: false
+    t.boolean "active", default: true, null: false
+    t.integer "position", default: 0, null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+  end
+
   create_table "timesheet_days", id: :serial, force: :cascade do |t|
     t.date "date"
     t.integer "user_id"
@@ -2189,6 +2221,10 @@ ActiveRecord::Schema.define(version: 20260305203217) do
   add_foreign_key "substitute_phones", "departments"
   add_foreign_key "substitute_phones", "items"
   add_foreign_key "substitute_phones", "service_jobs"
+  add_foreign_key "time_bank_entries", "schedule_groups"
+  add_foreign_key "time_bank_entries", "time_bank_event_types", column: "event_type_id"
+  add_foreign_key "time_bank_entries", "users"
+  add_foreign_key "time_bank_entries", "users", column: "created_by_id"
   add_foreign_key "trade_in_device_evaluations", "product_groups"
   add_foreign_key "trade_in_devices", "clients"
   add_foreign_key "trade_in_devices", "departments"

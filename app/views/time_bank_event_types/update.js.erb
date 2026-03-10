@@ -1,0 +1,5 @@
+<% if @event_type.errors.empty? %>
+  $("#event_types_list").html("<%= j(render('list')) %>");
+<% else %>
+  alert("<%= j(@event_type.errors.full_messages.join(', ')) %>");
+<% end %>
