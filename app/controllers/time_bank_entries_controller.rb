@@ -14,6 +14,7 @@ class TimeBankEntriesController < ApplicationController
     authorize :schedule, :create_time_bank_entry?
 
     user_ids = Array(params[:user_ids]).reject(&:blank?).map(&:to_i)
+    days = params[:days].to_i
     minutes = compute_minutes
 
     if user_ids.empty?
@@ -21,8 +22,8 @@ class TimeBankEntriesController < ApplicationController
       return
     end
 
-    if minutes <= 0
-      render js: "alert('Укажите количество времени');"
+    if days <= 0 && minutes <= 0
+      render js: "alert('Укажите количество дней или времени');"
       return
     end
 
@@ -32,6 +33,7 @@ class TimeBankEntriesController < ApplicationController
         user_id: user_id,
         event_type_id: params[:event_type_id],
         direction: params[:direction],
+        days: days,
         minutes: minutes,
         occurred_on: params[:occurred_on],
         note: params[:note].presence,
@@ -59,13 +61,15 @@ class TimeBankEntriesController < ApplicationController
     authorize :schedule, :update_time_bank_entry?
     @entry = @schedule_group.time_bank_entries.find(params[:id])
 
+    days = params[:days].to_i
     minutes = compute_minutes
-    if minutes <= 0
-      render js: "alert('Укажите количество времени');"
+
+    if days <= 0 && minutes <= 0
+      render js: "alert('Укажите количество дней или времени');"
       return
     end
 
-    if @entry.update(entry_params.merge(minutes: minutes))
+    if @entry.update(entry_params.merge(days: days, minutes: minutes))
       load_time_bank_entries
     else
       render js: "alert(#{@entry.errors.full_messages.join('; ').to_json});"

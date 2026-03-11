@@ -26,6 +26,8 @@
     .control-group
       %label.control-label= t('.amount')
       .controls
+        %input#tb-days{type: 'number', name: 'days', min: 0, max: 999, value: 0, class: 'input-mini', style: 'width: 50px;'}
+        %span= t('.days_label')
         %input#tb-hours{type: 'number', name: 'hours', min: 0, max: 999, value: 0, class: 'input-mini', style: 'width: 50px;'}
         %span= t('.hours_label')
         %select#tb-mins{name: 'mins', class: 'input-mini', style: 'width: 60px;'}
