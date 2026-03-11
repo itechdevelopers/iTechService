@@ -751,6 +751,13 @@ class User < ApplicationRecord
       elqueue_window.reload
       elqueue_window.is_active = false
       elqueue_window.save
+
+      ElectronicQueueChannel.broadcast_to(
+        elqueue_window.electronic_queue,
+        action: 'window_resume',
+        window_number: elqueue_window.window_number
+      )
+
       self.elqueue_window = nil
       save
     end
