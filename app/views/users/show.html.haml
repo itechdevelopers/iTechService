@@ -167,6 +167,8 @@
                             %td
                               = t('users.time_bank.for_event')
                               = entry.event_type.name
+                              - if entry.note.present?
+                                %small.muted= ", #{entry.note}"
                             %td= l(entry.occurred_on, format: :short)
                             %td
                               %small.muted= entry.created_by&.short_name
