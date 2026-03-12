@@ -22,7 +22,7 @@
           %td
             %span{class: entry.credit? ? 'text-success' : 'text-error'}
               = entry.credit? ? '+' : '-'
-              = TimeBankEntry.format_balance(entry.minutes)
+              = TimeBankEntry.format_amount(entry.days, entry.minutes)
           %td= entry.note
           %td= entry.created_by&.short_name
           - if can?(:manage, :schedule)

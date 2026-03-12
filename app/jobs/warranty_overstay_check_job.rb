@@ -11,7 +11,7 @@ class WarrantyOverstayCheckJob < ApplicationJob
     kind = "warranty_overstay_#{days_threshold}"
     return if Notification.exists?(referenceable: service_job, kind: kind)
 
-    recipients = User.active.superadmins
+    recipients = User.active.with_ability('receive_warranty_overstay_notifications')
 
     sold_date = I18n.l(service_job.sold_by_us_at)
     url = Rails.application.routes.url_helpers.service_job_path(service_job)
