@@ -32,7 +32,10 @@ class ScheduleEntry < ApplicationRecord
 
   def effective_duration_hours
     if custom_shift?
-      ((custom_end_time - custom_start_time) / 3600.0).round(1)
+      # Use seconds_since_midnight to avoid PostgreSQL time column timezone
+      # date-wrapping bug (e.g. 09:45+10 stored as 23:45 UTC → reads back as Jan 2)
+      diff = custom_end_time.seconds_since_midnight - custom_start_time.seconds_since_midnight
+      (diff / 3600.0).round(1)
     else
       shift&.duration_hours || 0
     end
@@ -85,7 +88,7 @@ class ScheduleEntry < ApplicationRecord
     if custom_start_time.present? != custom_end_time.present?
       errors.add(:base, 'Укажите оба времени для кастомной смены')
     end
-    if custom_shift? && custom_end_time <= custom_start_time
+    if custom_shift? && custom_end_time.seconds_since_midnight <= custom_start_time.seconds_since_midnight
       errors.add(:custom_end_time, 'должно быть позже начала')
     end
     if custom_shift? && shift_id.present?
