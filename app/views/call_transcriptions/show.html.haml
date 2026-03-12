@@ -38,4 +38,4 @@
   .span12
     %h3= CallTranscription.human_attribute_name(:transcript_text)
     .well
-      = simple_format @call_transcription.transcript_text
+      = format_transcript_with_sentiment @call_transcription.transcript_text
