@@ -39,6 +39,25 @@
         %button#export-png-btn.btn{'data-group-name' => @schedule_group.name, 'data-week-start' => l(@week_start, format: '%d.%m.%Y'), 'data-week-end' => l(@week_start + 6.days, format: '%d.%m.%Y'), disabled: png_disabled}
           = glyph(:download)
           = t('.export_png')
+        - if can?(:manage, :schedule) && TelegramChat.exists?
+          %button#send-telegram-btn.btn{'data-url' => send_to_telegram_schedule_group_path(@schedule_group), 'data-week' => @week_start, disabled: png_disabled}
+            = glyph(:'share-alt')
+            = t('.send_to_telegram')
+
+-# Telegram chat select modal
+- if can?(:manage, :schedule) && TelegramChat.exists?
+  #telegram-chat-modal.modal.hide.fade
+    .modal-header
+      %button.close{'data-dismiss' => 'modal'} &times;
+      %h3= t('.select_telegram_chat')
+    .modal-body
+      - TelegramChat.order(:name).each do |chat|
+        %label.radio
+          %input{type: 'radio', name: 'telegram_chat_id', value: chat.id}
+          = chat.name
+    .modal-footer
+      %button#confirm-telegram-send.btn.btn-primary{disabled: true}= t('.send')
+      = link_to t('helpers.links.close'), '#', 'data-dismiss' => 'modal', class: 'btn'
 
 %hr
 
@@ -797,6 +816,7 @@
     // === Save Schedule functionality ===
     var $saveBtn = $('#save-schedule-btn');
     var $exportBtn = $('#export-png-btn');
+    var $telegramBtn = $('#send-telegram-btn');
     var hasUnsavedChanges = $saveBtn.data('has-unsaved') === true || $saveBtn.data('has-unsaved') === 'true';
 
     // Translations (embedded from Rails)
@@ -820,6 +840,7 @@
       if (hasUnsavedChanges) {
         $saveBtn.find('.btn-text').text(i18n.save_schedule_unsaved);
         $exportBtn.prop('disabled', true);
+        if ($telegramBtn.length) $telegramBtn.prop('disabled', true);
         // Show or create hint (above navigation row)
         if ($hint.length === 0) {
           $('.btn-toolbar').first().before('<p id="export-hint" class="export-hint text-warning text-right">' + i18n.save_to_export_hint + '</p>');
@@ -829,6 +850,7 @@
       } else {
         $saveBtn.find('.btn-text').text(i18n.save_schedule);
         $exportBtn.prop('disabled', false);
+        if ($telegramBtn.length) $telegramBtn.prop('disabled', false);
         $hint.hide();
       }
     }
@@ -924,6 +946,96 @@
         console.error('Export error:', error);
         alert('Ошибка при экспорте');
         $btn.prop('disabled', false).html(exportBtnOriginalHtml);
+      });
+    }
+
+    // === Send to Telegram ===
+    if ($telegramBtn.length) {
+      var telegramBtnOriginalHtml = $telegramBtn.html();
+      var $telegramModal = $('#telegram-chat-modal');
+      var $confirmBtn = $('#confirm-telegram-send');
+
+      // Enable confirm button when a chat is selected
+      $telegramModal.on('change', 'input[name="telegram_chat_id"]', function() {
+        $confirmBtn.prop('disabled', false);
+      });
+
+      // Open modal on button click
+      $telegramBtn.on('click', function() {
+        $telegramModal.find('input[name="telegram_chat_id"]').prop('checked', false);
+        $confirmBtn.prop('disabled', true);
+        $telegramModal.modal('show');
+      });
+
+      // Confirm send
+      $confirmBtn.on('click', function() {
+        var chatId = $telegramModal.find('input[name="telegram_chat_id"]:checked').val();
+        if (!chatId) return;
+
+        $telegramModal.modal('hide');
+        var url = $telegramBtn.data('url');
+        var week = $telegramBtn.data('week');
+        var $table = $('.schedule-table');
+
+        $telegramBtn.prop('disabled', true).html('<i class="icon-spinner icon-spin"></i> #{j t('.sending_to_telegram')}');
+
+        // Ensure html2canvas is loaded
+        function doSendToTelegram() {
+          var $footer = $table.find('.weekly-hours-footer');
+          $footer.hide();
+
+          html2canvas($table[0], {
+            backgroundColor: '#ffffff',
+            scale: 2
+          }).then(function(canvas) {
+            $footer.show();
+            var imageData = canvas.toDataURL('image/png');
+
+            $.ajax({
+              url: url,
+              method: 'POST',
+              dataType: 'json',
+              data: { image_data: imageData, telegram_chat_id: chatId, week: week },
+              success: function(response) {
+                if (response.success) {
+                  $telegramBtn.addClass('btn-success');
+                  $telegramBtn.html('<i class="icon-ok"></i> #{j t('.telegram_sent')}');
+                  setTimeout(function() {
+                    $telegramBtn.removeClass('btn-success').html(telegramBtnOriginalHtml);
+                    $telegramBtn.prop('disabled', false);
+                  }, 3000);
+                }
+              },
+              error: function(xhr) {
+                var errorMsg = '#{j t('.telegram_send_error')}';
+                try {
+                  var resp = JSON.parse(xhr.responseText);
+                  if (resp.error) errorMsg += ': ' + resp.error;
+                } catch(e) {}
+                alert(errorMsg);
+                $telegramBtn.prop('disabled', false).html(telegramBtnOriginalHtml);
+              }
+            });
+          }).catch(function(error) {
+            $footer.show();
+            console.error('Telegram send error:', error);
+            alert('#{j t('.telegram_send_error')}');
+            $telegramBtn.prop('disabled', false).html(telegramBtnOriginalHtml);
+          });
+        }
+
+        if (typeof html2canvas === 'undefined') {
+          var script = document.createElement('script');
+          script.src = 'https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js';
+          script.onload = doSendToTelegram;
+          script.onerror = function() {
+            alert('Не удалось загрузить библиотеку экспорта');
+            $telegramBtn.prop('disabled', false).html(telegramBtnOriginalHtml);
+          };
+          document.head.appendChild(script);
+        } else {
+          doSendToTelegram();
+        }
       });
     }
 

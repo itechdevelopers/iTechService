@@ -1,0 +1,20 @@
+- if @telegram_chats.any?
+  %table.table.table-condensed.table-striped
+    %thead
+      %tr
+        %th= t('.name')
+        %th= t('.chat_id')
+        - if policy(:telegram_bot_setting).manage_chats?
+          %th
+    %tbody
+      - @telegram_chats.each do |chat|
+        %tr
+          %td= chat.name
+          %td
+            %code= chat.chat_id
+          - if policy(:telegram_bot_setting).manage_chats?
+            %td.text-right
+              = link_to glyph(:edit), edit_telegram_chat_path(chat), remote: true, class: 'btn btn-mini', title: t('helpers.links.edit')
+              = link_to glyph(:remove), telegram_chat_path(chat), method: :delete, remote: true, class: 'btn btn-mini btn-danger', title: t('helpers.links.destroy'), data: { confirm: t('helpers.links.confirm') }
+- else
+  %p.muted= t('.empty')

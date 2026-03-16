@@ -49,6 +49,10 @@ class SchedulePolicy < ApplicationPolicy
     manage?
   end
 
+  def send_to_telegram?
+    manage?
+  end
+
   def create_memo?
     manage?
   end

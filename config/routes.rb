@@ -61,6 +61,8 @@ Rails.application.routes.draw do
   end
   resources :marker_words, only: %i[index create destroy]
   resources :phone_labels, only: %i[index create destroy]
+  resources :telegram_bot_settings, only: %i[index]
+  resources :telegram_chats, only: %i[new create edit update destroy]
   resources :schedules, only: %i[index]
   resources :department_schedule_configs, only: %i[index update] do
     post :batch_update, on: :collection
@@ -71,6 +73,7 @@ Rails.application.routes.draw do
   resources :schedule_groups, only: %i[show new create edit update destroy] do
     get :history, on: :member
     post :save_week, on: :member
+    post :send_to_telegram, on: :member
     resources :schedule_entries, only: :destroy do
       collection do
         post :upsert

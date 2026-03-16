@@ -11,6 +11,7 @@ gem 'audited', '~> 5.4.3'
 
 gem 'rails-observers', '~> 0.1.5'
 gem 'httparty', '~> 0.20.0'
+gem 'telegram-bot'
 gem 'hamlit', '~> 2.16.0'
 gem 'jquery-rails', '~> 4.1.1'
 gem 'jquery-ui-rails', '~> 5.0.5'
