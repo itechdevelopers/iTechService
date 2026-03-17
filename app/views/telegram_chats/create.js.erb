@@ -1,0 +1,6 @@
+<% if @telegram_chat.persisted? %>
+  $('#modal_form').modal('hide');
+  $("#telegram_chats_list").html("<%= j(render('list')) %>");
+<% else %>
+  $('#modal_form').html('<%= j render("modal_form_content") %>');
+<% end %>

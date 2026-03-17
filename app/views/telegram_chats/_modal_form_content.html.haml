@@ -1,0 +1,21 @@
+.modal-header
+  = button_to_close_modal
+  %h3= @telegram_chat.persisted? ? t('.edit_title') : t('.title')
+
+.modal-body
+  = form_with model: @telegram_chat, url: @telegram_chat.persisted? ? telegram_chat_path(@telegram_chat) : telegram_chats_path, local: false, id: 'telegram_chat_form' do |f|
+    .control-group
+      = f.label :name, t('.name'), class: 'control-label'
+      .controls
+        = f.text_field :name, class: 'input-xlarge'
+
+    .control-group
+      = f.label :chat_id, t('.chat_id_label'), class: 'control-label'
+      .controls
+        = f.text_field :chat_id, class: 'input-xlarge', placeholder: t('.chat_id_placeholder')
+
+    .form-actions
+      = f.submit t('helpers.links.save'), class: 'btn btn-primary'
+
+.modal-footer
+  = link_to t('helpers.links.close'), '#', 'data-dismiss' => 'modal', class: 'btn'

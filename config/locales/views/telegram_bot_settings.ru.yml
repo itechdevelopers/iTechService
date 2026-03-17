@@ -1,0 +1,21 @@
+ru:
+  telegram_bot_settings:
+    link: 'Telegram бот'
+    index:
+      title: 'Настройки Telegram бота'
+      chats_title: 'Telegram чаты'
+      chats_description: 'Чаты, в которые бот может отправлять расписание и другие уведомления.'
+      add_chat: 'Добавить чат'
+
+  telegram_chats:
+    list:
+      name: 'Название'
+      chat_id: 'Chat ID'
+      empty: 'Нет добавленных чатов'
+
+    modal_form_content:
+      title: 'Добавить Telegram чат'
+      edit_title: 'Редактировать Telegram чат'
+      name: 'Название'
+      chat_id_label: 'Chat ID'
+      chat_id_placeholder: 'Например: -1001234567890'

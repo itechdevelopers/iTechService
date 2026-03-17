@@ -59,6 +59,13 @@ ru:
       non_working_people: 'Выходные'
       time_bank_title: 'Банк часов'
       time_bank_add: 'Добавить операцию'
+      send_to_telegram: 'Отправить в Telegram'
+      sending_to_telegram: 'Отправка...'
+      telegram_sent: 'Отправлено в Telegram'
+      telegram_send_error: 'Ошибка отправки в Telegram'
+      telegram_chat_not_found: 'Telegram чат не найден'
+      select_telegram_chat: 'Выберите чат'
+      send: 'Отправить'
     history_modal_form_content:
       title: 'История изменений'
       when: 'Когда'

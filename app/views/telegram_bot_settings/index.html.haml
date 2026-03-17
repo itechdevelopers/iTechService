@@ -1,0 +1,18 @@
+- content_for :title, t('.title')
+
+%h3= t('.title')
+
+.row-fluid
+  .span12
+    - if policy(:telegram_bot_setting).manage_chats?
+      %h4= t('.chats_title')
+      %p.muted= t('.chats_description')
+
+      = link_to new_telegram_chat_path, remote: true, class: 'btn btn-success' do
+        = glyph(:plus)
+        = t('.add_chat')
+
+      %hr
+
+    #telegram_chats_list
+      = render 'telegram_chats/list'

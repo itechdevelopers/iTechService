@@ -2,7 +2,7 @@
 
 class ScheduleGroupsController < ApplicationController
   before_action :set_city, only: %i[index new create]
-  before_action :set_schedule_group, only: %i[show edit update destroy history save_week]
+  before_action :set_schedule_group, only: %i[show edit update destroy history save_week send_to_telegram]
 
   def index
     authorize :schedule
@@ -158,6 +158,41 @@ class ScheduleGroupsController < ApplicationController
       }
     else
       render json: { success: false, errors: snapshot.errors.full_messages }, status: :unprocessable_entity
+    end
+  end
+
+  def send_to_telegram
+    authorize :schedule
+
+    telegram_chat = TelegramChat.find_by(id: params[:telegram_chat_id])
+    unless telegram_chat
+      render json: { success: false, error: I18n.t('schedule_groups.show.telegram_chat_not_found') }, status: :unprocessable_entity
+      return
+    end
+
+    image_data = params[:image_data]
+    unless image_data.present?
+      render json: { success: false, error: 'No image data provided' }, status: :unprocessable_entity
+      return
+    end
+
+    # Strip data URL prefix if present
+    image_data = image_data.sub(%r{\Adata:image/png;base64,}, '')
+
+    week_start = parse_week_start(params[:week])
+    week_end = week_start + 6.days
+    caption = "#{@schedule_group.name} (#{I18n.l(week_start, format: '%d.%m')} - #{I18n.l(week_end, format: '%d.%m.%Y')})\n#{current_user.short_name}"
+
+    sender = SendTelegramSchedule.call(
+      chat_id: telegram_chat.chat_id,
+      image_data: image_data,
+      caption: caption
+    )
+
+    if sender.success?
+      render json: { success: true }
+    else
+      render json: { success: false, error: sender.result }, status: :unprocessable_entity
     end
   end
 
