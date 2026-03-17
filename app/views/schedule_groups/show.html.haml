@@ -1,4 +1,5 @@
 - content_for :title, @schedule_group.name
+- ds = @schedule_group.effective_design_settings
 
 %h3= @schedule_group.name
 
@@ -69,9 +70,10 @@
         %h5= t('.department')
         .btn-group.selection-group{'data-selection' => 'department'}
           - @departments.each do |dept|
-            %button.btn.btn-small.selection-btn{'data-id' => dept.id, 'data-short-name' => dept.schedule_config.short_name, 'data-color' => dept.schedule_config.color}
+            - dept_color = @schedule_group.department_color_override(dept.id) || dept.schedule_config.color
+            %button.btn.btn-small.selection-btn{'data-id' => dept.id, 'data-short-name' => dept.schedule_config.short_name, 'data-color' => dept_color}
               .btn-label= dept.name
-              %span.btn-hint-badge{style: "background-color: #{dept.schedule_config.color}"}= dept.schedule_config.short_name
+              %span.btn-hint-badge{style: "background-color: #{dept_color}"}= dept.schedule_config.short_name
       .span3
         %h5= t('.shift')
         .btn-group.selection-group{'data-selection' => 'shift'}
@@ -126,7 +128,8 @@
             - cell_data = {'data-user-id' => member.id, 'data-date' => date.to_s}
             - cell_data['data-entry-id'] = entry.id if entry
             - if entry && entry.display_text
-              %td.schedule-cell{cell_data.merge(style: "background-color: #{entry.background_color}")}
+              - cell_bg = (entry.department_id && @schedule_group.department_color_override(entry.department_id)) || entry.background_color
+              %td.schedule-cell{cell_data.merge(style: "background-color: #{cell_bg}")}
                 = entry.display_text
             - else
               %td.schedule-cell.empty-cell{cell_data}
@@ -229,6 +232,33 @@
   #time_bank_entries_list
     = render 'time_bank_entries/list'
 
+-# Dynamic design settings (Ruby-interpolated)
+:plain
+  <style>
+    .schedule-table th,
+    .schedule-table td {
+      border-color: #{ds['table_border_color']} !important;
+      border-width: #{ds['table_border_width']}px !important;
+    }
+    .schedule-table .schedule-cell,
+    .schedule-table .member-header {
+      font-weight: #{ds['table_font_bold'] ? 'bold' : 'normal'};
+    }
+    .schedule-table thead th:nth-child(1),
+    .schedule-table tbody td:nth-child(1),
+    .schedule-table tfoot td:first-child,
+    .schedule-table thead th:nth-child(2),
+    .schedule-table tbody td:nth-child(2) {
+      background-color: #{ds['date_cell_bg_color']};
+      color: #{ds['date_cell_font_color']};
+    }
+    .schedule-table thead th:nth-child(1),
+    .schedule-table thead th:nth-child(2) {
+      background-color: #{ds['date_cell_bg_color']};
+      color: #{ds['date_cell_font_color']};
+    }
+  </style>
+
 :css
   /* Selection panel */
   #selection-panel h5 {
@@ -285,14 +315,13 @@
     width: 120px;
   }
 
-  /* Sticky first two columns */
+  /* Sticky first two columns (background-color set dynamically via design_settings) */
   .schedule-table thead th:nth-child(1),
   .schedule-table tbody td:nth-child(1),
   .schedule-table tfoot td:first-child {
     position: sticky;
     left: 0;
     z-index: 2;
-    background-color: #f9f9f9;
   }
   .schedule-table thead th:nth-child(1) {
     min-width: 100px;
@@ -304,7 +333,6 @@
     position: sticky;
     left: 100px;
     z-index: 2;
-    background-color: #f9f9f9;
     box-shadow: 2px 0 4px rgba(0,0,0,0.1);
   }
   .schedule-table thead th:nth-child(2) {
@@ -315,7 +343,6 @@
   .schedule-table thead th:nth-child(1),
   .schedule-table thead th:nth-child(2) {
     z-index: 3;
-    background-color: #f5f5f5;
   }
   .schedule-table tfoot td:first-child {
     left: 0;
@@ -353,9 +380,7 @@
 
   /* Weekly hours footer */
   .schedule-table .weekly-hours-footer td {
-    background-color: #f9f9f9;
     font-weight: bold;
-    border-top: 2px solid #ddd;
   }
   .schedule-table .weekly-hours-cell,
   .schedule-table .weekly-days-off-cell {

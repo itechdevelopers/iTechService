@@ -14,6 +14,7 @@ class ScheduleGroupsController < ApplicationController
     authorize :schedule
     @schedule_group = @city.schedule_groups.build(owner: current_user)
     @available_users = available_users_for_city(@city)
+    @design_departments = departments_for_design_settings(@city)
     render 'shared/show_modal_form'
   end
 
@@ -27,6 +28,7 @@ class ScheduleGroupsController < ApplicationController
       @schedule_groups = @city.schedule_groups.includes(:owner, :members)
     else
       @available_users = available_users_for_city(@city)
+      @design_departments = departments_for_design_settings(@city)
     end
   end
 
@@ -92,6 +94,7 @@ class ScheduleGroupsController < ApplicationController
     authorize :schedule
     @city = @schedule_group.city
     @available_users = available_users_for_city(@city, @schedule_group)
+    @design_departments = departments_for_design_settings(@city, @schedule_group)
     render 'shared/show_modal_form'
   end
 
@@ -104,6 +107,7 @@ class ScheduleGroupsController < ApplicationController
       @schedule_groups = @city.schedule_groups.includes(:owner, :members)
     else
       @available_users = available_users_for_city(@city, @schedule_group)
+      @design_departments = departments_for_design_settings(@city, @schedule_group)
     end
   end
 
@@ -207,7 +211,16 @@ class ScheduleGroupsController < ApplicationController
   end
 
   def schedule_group_params
-    params.require(:schedule_group).permit(:name)
+    permitted = params.require(:schedule_group).permit(:name, :design_settings_json)
+    if permitted[:design_settings_json].present?
+      permitted[:design_settings] = JSON.parse(permitted.delete(:design_settings_json))
+    else
+      permitted.delete(:design_settings_json)
+    end
+    permitted
+  rescue JSON::ParserError
+    permitted.delete(:design_settings_json)
+    permitted
   end
 
   def can_edit_week?(week_start)
@@ -236,6 +249,15 @@ class ScheduleGroupsController < ApplicationController
     new_member_ids.each_with_index do |user_id, index|
       @schedule_group.memberships.create(user_id: user_id, position: existing_member_ids.size + index)
     end
+  end
+
+  def departments_for_design_settings(city, group = nil)
+    depts = Department.in_city(city).with_schedule_config.includes(:schedule_config).order(:name)
+    return depts unless group&.persisted?
+
+    # For existing groups, show only departments that are actually used in entries
+    used_dept_ids = group.schedule_entries.where.not(department_id: nil).distinct.pluck(:department_id)
+    depts.where(id: used_dept_ids)
   end
 
   def parse_week_start(week_param)
