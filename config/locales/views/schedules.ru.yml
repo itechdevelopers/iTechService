@@ -89,6 +89,17 @@ ru:
       name_placeholder: 'Например: Технари Владивосток'
       members: 'Сотрудники'
       members_help: 'Выберите сотрудников, которые будут в этом наборе'
+      design_settings_title: 'Настройки дизайна'
+      date_cell_colors: 'Цвет ячеек даты'
+      bg_color: 'Фон'
+      font_color: 'Шрифт'
+      table_font: 'Шрифт таблицы'
+      font_bold: 'Жирный шрифт'
+      table_borders: 'Границы таблицы'
+      border_width: 'Толщина'
+      border_color: 'Цвет'
+      department_colors: 'Цвета подразделений'
+      reset_color: 'Сбросить'
 
   department_schedule_configs:
     modal_form_content:

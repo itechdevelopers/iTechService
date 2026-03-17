@@ -1,3 +1,5 @@
+- settings = @schedule_group&.effective_design_settings || ScheduleGroup::DEFAULT_DESIGN_SETTINGS
+
 .modal-header
   = button_to_close_modal
   %h3= @schedule_group&.persisted? ? t('.edit_title') : t('.title')
@@ -15,6 +17,62 @@
         = select_tag :member_ids, options_from_collection_for_select(@available_users, :id, :short_name_with_role, @schedule_group&.member_ids || []), multiple: true, class: 'input-xlarge multiselect-members', id: 'member_ids_select', style: 'display: none;'
         %p.help-block= t('.members_help')
 
+    -# Design settings section (collapsible)
+    %hr
+    %h4.sg-design__toggle
+      %a{'data-toggle' => 'collapse', href: '#design-settings-section'}
+        = glyph(:'chevron-down')
+        = t('.design_settings_title')
+
+    - defaults = ScheduleGroup::DEFAULT_DESIGN_SETTINGS
+    #design-settings-section.collapse
+      .control-group
+        = label_tag nil, t('.date_cell_colors'), class: 'control-label'
+        .controls.sg-design__color-row
+          %label.sg-design__color-label= t('.bg_color')
+          %span.sg-design__color-preview{style: "background-color: #{settings['date_cell_bg_color']}"}
+          %input.sg-design__color-input{type: 'color', id: 'ds-date-cell-bg', value: settings['date_cell_bg_color']}
+          %label.sg-design__color-label= t('.font_color')
+          %span.sg-design__color-preview{style: "background-color: #{settings['date_cell_font_color']}"}
+          %input.sg-design__color-input{type: 'color', id: 'ds-date-cell-font', value: settings['date_cell_font_color']}
+          %a.sg-design__reset-group{href: '#', 'data-targets' => 'ds-date-cell-bg,ds-date-cell-font', 'data-defaults' => "#{defaults['date_cell_bg_color']},#{defaults['date_cell_font_color']}"}= t('.reset_color')
+
+      .control-group
+        = label_tag nil, t('.table_font'), class: 'control-label'
+        .controls
+          %label.checkbox
+            %input{type: 'checkbox', id: 'ds-font-bold', checked: settings['table_font_bold']}
+            = t('.font_bold')
+
+      .control-group
+        = label_tag nil, t('.table_borders'), class: 'control-label'
+        .controls.sg-design__color-row
+          %label.sg-design__color-label= t('.border_width')
+          %input.sg-design__border-width-input{type: 'number', id: 'ds-border-width', value: settings['table_border_width'], min: 1, max: 5, step: 1}
+          %label.sg-design__color-label= t('.border_color')
+          %span.sg-design__color-preview{style: "background-color: #{settings['table_border_color']}"}
+          %input.sg-design__color-input{type: 'color', id: 'ds-border-color', value: settings['table_border_color']}
+          %a.sg-design__reset-group{href: '#', 'data-targets' => 'ds-border-width,ds-border-color', 'data-defaults' => "#{defaults['table_border_width']},#{defaults['table_border_color']}"}= t('.reset_color')
+
+      - if @design_departments.present? && @design_departments.any?
+        .control-group
+          = label_tag nil, t('.department_colors'), class: 'control-label'
+          .controls
+            %table.table.table-condensed.sg-design__dept-table
+              - @design_departments.each do |dept|
+                - original_color = dept.schedule_config.color
+                - override_color = settings.dig('department_colors', dept.id.to_s)
+                %tr
+                  %td= dept.schedule_config.short_name || dept.name
+                  %td
+                    %span.sg-design__color-preview{style: "background-color: #{override_color || original_color}"}
+                    %input.sg-design__color-input.sg-design__dept-color{type: 'color', 'data-dept-id' => dept.id, value: override_color || original_color, 'data-original' => original_color}
+                  %td
+                    - if override_color
+                      %a.sg-design__reset-dept-color{href: '#', 'data-dept-id' => dept.id, 'data-original' => original_color}= t('.reset_color')
+
+    = f.hidden_field :design_settings_json, id: 'design-settings-json', value: (settings).to_json
+
     .form-actions
       = f.submit t('helpers.links.save'), class: 'btn btn-primary'
 
@@ -22,13 +80,70 @@
   = link_to t('helpers.links.close'), '#', 'data-dismiss' => 'modal', class: 'btn'
 
 :css
-  /* Isolated styles for schedule group modal multiselect */
+  /* Isolated styles for schedule group modal */
   .schedule-group-modal-body {
-    overflow: visible;
+    max-height: 70vh;
+    overflow-y: auto;
+    overflow-x: hidden;
+  }
+  .schedule-group-multiselect-wrapper {
+    position: relative;
   }
   .schedule-group-multiselect-wrapper .multiselect-container {
     position: absolute;
     z-index: 1060;
+  }
+  /* Design settings styles */
+  .sg-design__toggle {
+    cursor: pointer;
+    margin-bottom: 10px;
+  }
+  .sg-design__toggle a {
+    text-decoration: none;
+    color: #333;
+  }
+  .sg-design__color-row {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    flex-wrap: wrap;
+  }
+  .sg-design__color-label {
+    margin-bottom: 0;
+    font-weight: normal;
+    font-size: 13px;
+  }
+  .sg-design__color-preview {
+    display: inline-block;
+    width: 24px;
+    height: 24px;
+    border: 1px solid #ccc;
+    vertical-align: middle;
+    border-radius: 2px;
+  }
+  .sg-design__color-input {
+    width: 40px;
+    height: 30px;
+    padding: 2px;
+    border: 1px solid #ccc;
+    cursor: pointer;
+  }
+  .sg-design__border-width-input {
+    width: 50px;
+    margin-bottom: 0;
+  }
+  .sg-design__dept-table {
+    width: auto;
+    margin-bottom: 0;
+  }
+  .sg-design__dept-table td {
+    vertical-align: middle;
+    padding: 4px 8px;
+  }
+  .sg-design__reset-dept-color,
+  .sg-design__reset-group {
+    font-size: 12px;
+    margin-left: 6px;
   }
 
 :javascript
@@ -55,4 +170,57 @@
         }
       });
     }
+
+    // Collect design settings into hidden field before form submit
+    $('#schedule_group_form').on('submit', function() {
+      var settings = {
+        date_cell_bg_color: $('#ds-date-cell-bg').val(),
+        date_cell_font_color: $('#ds-date-cell-font').val(),
+        table_font_bold: $('#ds-font-bold').is(':checked'),
+        table_border_width: parseInt($('#ds-border-width').val(), 10) || 1,
+        table_border_color: $('#ds-border-color').val(),
+        department_colors: {}
+      };
+
+      // Collect department color overrides (only if different from original)
+      $('.sg-design__dept-color').each(function() {
+        var $input = $(this);
+        var deptId = $input.data('dept-id').toString();
+        var currentColor = $input.val();
+        var originalColor = $input.data('original');
+        if (currentColor.toLowerCase() !== originalColor.toLowerCase()) {
+          settings.department_colors[deptId] = currentColor;
+        }
+      });
+
+      $('#design-settings-json').val(JSON.stringify(settings));
+    });
+
+    // Update color preview on color picker change
+    $('#design-settings-section').on('input change', '.sg-design__color-input', function() {
+      $(this).prev('.sg-design__color-preview').css('background-color', $(this).val());
+    });
+
+    // Reset a group of inputs to defaults (colors + number inputs)
+    $(document).on('click', '.sg-design__reset-group', function(e) {
+      e.preventDefault();
+      var targets = $(this).data('targets').split(',');
+      var defaults = $(this).data('defaults').split(',');
+      for (var i = 0; i < targets.length; i++) {
+        var $input = $('#' + targets[i]);
+        $input.val(defaults[i]);
+        $input.prev('.sg-design__color-preview').css('background-color', defaults[i]);
+      }
+    });
+
+    // Reset department color to original
+    $(document).on('click', '.sg-design__reset-dept-color', function(e) {
+      e.preventDefault();
+      var deptId = $(this).data('dept-id');
+      var original = $(this).data('original');
+      var $input = $('.sg-design__dept-color[data-dept-id="' + deptId + '"]');
+      $input.val(original);
+      $input.prev('.sg-design__color-preview').css('background-color', original);
+      $(this).closest('td').empty();
+    });
   });

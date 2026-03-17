@@ -1,6 +1,15 @@
 # frozen_string_literal: true
 
 class ScheduleGroup < ApplicationRecord
+  DEFAULT_DESIGN_SETTINGS = {
+    'date_cell_bg_color' => '#f9f9f9',
+    'date_cell_font_color' => '#333333',
+    'table_font_bold' => false,
+    'table_border_width' => 1,
+    'table_border_color' => '#dddddd',
+    'department_colors' => {}
+  }.freeze
+
   belongs_to :city
   belongs_to :owner, class_name: 'User', foreign_key: 'user_id'
 
@@ -15,6 +24,21 @@ class ScheduleGroup < ApplicationRecord
 
   def owned_by?(user)
     user_id == user.id
+  end
+
+  # Returns design settings merged with defaults, so new keys always have values
+  def effective_design_settings
+    DEFAULT_DESIGN_SETTINGS.merge(design_settings || {})
+  end
+
+  # Shortcut to get a specific design setting
+  def design_setting(key)
+    effective_design_settings[key.to_s]
+  end
+
+  # Returns department color override for this group, or nil if not overridden
+  def department_color_override(department_id)
+    (design_settings || {}).dig('department_colors', department_id.to_s)
   end
 
   # Find snapshot for a specific week
