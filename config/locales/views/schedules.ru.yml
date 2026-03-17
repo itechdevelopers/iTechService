@@ -91,6 +91,7 @@ ru:
       members_help: 'Выберите сотрудников, которые будут в этом наборе'
       design_settings_title: 'Настройки дизайна'
       date_cell_colors: 'Цвет ячеек даты'
+      member_cell_colors: 'Цвет ячеек сотрудников'
       bg_color: 'Фон'
       font_color: 'Шрифт'
       table_font: 'Шрифт таблицы'

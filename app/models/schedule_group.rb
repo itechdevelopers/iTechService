@@ -4,6 +4,8 @@ class ScheduleGroup < ApplicationRecord
   DEFAULT_DESIGN_SETTINGS = {
     'date_cell_bg_color' => '#f9f9f9',
     'date_cell_font_color' => '#333333',
+    'member_cell_bg_color' => '#ffffff',
+    'member_cell_font_color' => '#333333',
     'table_font_bold' => false,
     'table_border_width' => 1,
     'table_border_color' => '#dddddd',
