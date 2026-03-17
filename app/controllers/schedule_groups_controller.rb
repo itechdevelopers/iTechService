@@ -168,9 +168,9 @@ class ScheduleGroupsController < ApplicationController
   def send_to_telegram
     authorize :schedule
 
-    telegram_chat = TelegramChat.find_by(id: params[:telegram_chat_id])
-    unless telegram_chat
-      render json: { success: false, error: I18n.t('schedule_groups.show.telegram_chat_not_found') }, status: :unprocessable_entity
+    chat_id = ENV['TELEGRAM_SCHEDULE_CHAT_ID']
+    unless chat_id.present?
+      render json: { success: false, error: I18n.t('schedule_groups.show.telegram_chat_not_configured') }, status: :unprocessable_entity
       return
     end
 
@@ -188,7 +188,7 @@ class ScheduleGroupsController < ApplicationController
     caption = "#{@schedule_group.name} (#{I18n.l(week_start, format: '%d.%m')} - #{I18n.l(week_end, format: '%d.%m.%Y')})\n#{current_user.short_name}"
 
     sender = SendTelegramSchedule.call(
-      chat_id: telegram_chat.chat_id,
+      chat_id: chat_id,
       image_data: image_data,
       caption: caption
     )
