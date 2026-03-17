@@ -7,6 +7,8 @@
       %small= link_to t('users.schedule'), schedule_users_path
     - if can? :manage, TimesheetDay
       %small= link_to t('users.timesheet'), timesheet_days_path
+    - if policy(:schedule).index?
+      %small= link_to t('schedules.link'), schedules_path
     %br
     = link_to_new User
 #karma_popover_container

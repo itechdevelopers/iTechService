@@ -32,7 +32,6 @@
         = menu_item t('service/job_template.index.title'), service_job_templates_path
         = drop_down_divider
         = menu_item t('substitute_phones.index.title'), substitute_phones_path
-        = menu_item t('schedules.link'), schedules_path if policy(:schedule).index?
         = menu_item 'Инвентаризация', new_service_jobs_inventory_path if policy(ServiceJob).inventory?
         - if current_user.any_elqueues_on_department?
           = drop_down_divider
@@ -82,6 +81,7 @@
         = menu_item t('users.link', default: 'Users'), users_path if can? :read, User
         -#= menu_item t('users.rating'), rating_users_path
         = menu_item t('users.schedule'), schedule_users_path if can? :manage, ScheduleDay
+        = menu_item t('schedules.link'), schedules_path if policy(:schedule).index?
         = menu_item t('users.timesheet'), timesheet_days_path if can? :manage, TimesheetDay
         = drop_down_divider
         = menu_item t('supply_requests.index.title'), supply_requests_path if can? :read, SupplyRequest

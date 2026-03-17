@@ -38,6 +38,17 @@
           %a.sg-design__reset-group{href: '#', 'data-targets' => 'ds-date-cell-bg,ds-date-cell-font', 'data-defaults' => "#{defaults['date_cell_bg_color']},#{defaults['date_cell_font_color']}"}= t('.reset_color')
 
       .control-group
+        = label_tag nil, t('.member_cell_colors'), class: 'control-label'
+        .controls.sg-design__color-row
+          %label.sg-design__color-label= t('.bg_color')
+          %span.sg-design__color-preview{style: "background-color: #{settings['member_cell_bg_color']}"}
+          %input.sg-design__color-input{type: 'color', id: 'ds-member-cell-bg', value: settings['member_cell_bg_color']}
+          %label.sg-design__color-label= t('.font_color')
+          %span.sg-design__color-preview{style: "background-color: #{settings['member_cell_font_color']}"}
+          %input.sg-design__color-input{type: 'color', id: 'ds-member-cell-font', value: settings['member_cell_font_color']}
+          %a.sg-design__reset-group{href: '#', 'data-targets' => 'ds-member-cell-bg,ds-member-cell-font', 'data-defaults' => "#{defaults['member_cell_bg_color']},#{defaults['member_cell_font_color']}"}= t('.reset_color')
+
+      .control-group
         = label_tag nil, t('.table_font'), class: 'control-label'
         .controls
           %label.checkbox
@@ -176,6 +187,8 @@
       var settings = {
         date_cell_bg_color: $('#ds-date-cell-bg').val(),
         date_cell_font_color: $('#ds-date-cell-font').val(),
+        member_cell_bg_color: $('#ds-member-cell-bg').val(),
+        member_cell_font_color: $('#ds-member-cell-font').val(),
         table_font_bold: $('#ds-font-bold').is(':checked'),
         table_border_width: parseInt($('#ds-border-width').val(), 10) || 1,
         table_border_color: $('#ds-border-color').val(),

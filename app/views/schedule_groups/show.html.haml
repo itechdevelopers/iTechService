@@ -40,25 +40,10 @@
         %button#export-png-btn.btn{'data-group-name' => @schedule_group.name, 'data-week-start' => l(@week_start, format: '%d.%m.%Y'), 'data-week-end' => l(@week_start + 6.days, format: '%d.%m.%Y'), disabled: png_disabled}
           = glyph(:download)
           = t('.export_png')
-        - if can?(:manage, :schedule) && TelegramChat.exists?
+        - if can?(:manage, :schedule) && ENV['TELEGRAM_SCHEDULE_CHAT_ID'].present?
           %button#send-telegram-btn.btn{'data-url' => send_to_telegram_schedule_group_path(@schedule_group), 'data-week' => @week_start, disabled: png_disabled}
             = glyph(:'share-alt')
             = t('.send_to_telegram')
-
--# Telegram chat select modal
-- if can?(:manage, :schedule) && TelegramChat.exists?
-  #telegram-chat-modal.modal.hide.fade
-    .modal-header
-      %button.close{'data-dismiss' => 'modal'} &times;
-      %h3= t('.select_telegram_chat')
-    .modal-body
-      - TelegramChat.order(:name).each do |chat|
-        %label.radio
-          %input{type: 'radio', name: 'telegram_chat_id', value: chat.id}
-          = chat.name
-    .modal-footer
-      %button#confirm-telegram-send.btn.btn-primary{disabled: true}= t('.send')
-      = link_to t('helpers.links.close'), '#', 'data-dismiss' => 'modal', class: 'btn'
 
 %hr
 
@@ -256,6 +241,10 @@
     .schedule-table thead th:nth-child(2) {
       background-color: #{ds['date_cell_bg_color']};
       color: #{ds['date_cell_font_color']};
+    }
+    .schedule-table .member-header {
+      background-color: #{ds['member_cell_bg_color']};
+      color: #{ds['member_cell_font_color']};
     }
   </style>
 
@@ -977,34 +966,14 @@
     // === Send to Telegram ===
     if ($telegramBtn.length) {
       var telegramBtnOriginalHtml = $telegramBtn.html();
-      var $telegramModal = $('#telegram-chat-modal');
-      var $confirmBtn = $('#confirm-telegram-send');
 
-      // Enable confirm button when a chat is selected
-      $telegramModal.on('change', 'input[name="telegram_chat_id"]', function() {
-        $confirmBtn.prop('disabled', false);
-      });
-
-      // Open modal on button click
       $telegramBtn.on('click', function() {
-        $telegramModal.find('input[name="telegram_chat_id"]').prop('checked', false);
-        $confirmBtn.prop('disabled', true);
-        $telegramModal.modal('show');
-      });
-
-      // Confirm send
-      $confirmBtn.on('click', function() {
-        var chatId = $telegramModal.find('input[name="telegram_chat_id"]:checked').val();
-        if (!chatId) return;
-
-        $telegramModal.modal('hide');
         var url = $telegramBtn.data('url');
         var week = $telegramBtn.data('week');
         var $table = $('.schedule-table');
 
         $telegramBtn.prop('disabled', true).html('<i class="icon-spinner icon-spin"></i> #{j t('.sending_to_telegram')}');
 
-        // Ensure html2canvas is loaded
         function doSendToTelegram() {
           var $footer = $table.find('.weekly-hours-footer');
           $footer.hide();
@@ -1020,7 +989,7 @@
               url: url,
               method: 'POST',
               dataType: 'json',
-              data: { image_data: imageData, telegram_chat_id: chatId, week: week },
+              data: { image_data: imageData, week: week },
               success: function(response) {
                 if (response.success) {
                   $telegramBtn.addClass('btn-success');
