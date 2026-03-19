@@ -72,7 +72,7 @@ class DashboardController < ApplicationController
       if current_user.any_admin?
         if params[:location].present?
           location = Location.find(params[:location])
-          @service_jobs = @service_jobs.located_at(location)
+          @service_jobs = @service_jobs.pending.located_at(location)
           @location = location
           @location_name = location.name
         else
@@ -80,13 +80,13 @@ class DashboardController < ApplicationController
         end
       elsif current_user.technician?
         locations = Location.repair_mac_or_ios.in_department(current_department)
-        @service_jobs = @service_jobs.located_at(locations)
+        @service_jobs = @service_jobs.pending.located_at(locations)
       elsif current_user.able_to?(:perform_engraving_tasks)
-        @service_jobs = load_engraving_user_jobs(@service_jobs)
+        @service_jobs = load_engraving_user_jobs(@service_jobs).pending
       elsif current_user.location.present?
-        @service_jobs = @service_jobs.located_at(current_user.location)
+        @service_jobs = @service_jobs.pending.located_at(current_user.location)
       else
-        @service_jobs = @service_jobs.in_department(current_department)
+        @service_jobs = @service_jobs.in_department(current_department).pending
       end
 
       if params[:product_group_id].present?
