@@ -22,7 +22,7 @@ class SalesReport < BaseReport
 
         payment_type = sale.payment_kinds.map { |payment_kind| I18n.t("payments.kinds.#{payment_kind}") }.join(', ')
 
-        if sale_item.is_service?
+        if sale_item.is_service? && sale_item.device_task.present?
           data_key = sale_item.device_task.task_id
 
           if data.has_key?(data_key)
