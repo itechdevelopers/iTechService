@@ -25,6 +25,7 @@ module Kanban
         if @card.save
           update_notifications if @notifications&.any?
           send_mail_to_managers
+          send_telegram_to_chat
           format.html { redirect_to kanban_card_url(@card), notice: t('.created') }
           format.json { render :show, status: :created, location: @card }
         else
@@ -95,6 +96,10 @@ module Kanban
     def send_mail_to_managers
       manager_ids = @card.board.managers.pluck(:id)
       KanbanMailer.new_card_notification(manager_ids, @card.id).deliver_later if manager_ids.any?
+    end
+
+    def send_telegram_to_chat
+      SendKanbanTelegramNotificationJob.perform_later(@card.id) if @card.board.telegram_chat.present?
     end
   end
 end

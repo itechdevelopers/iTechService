@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20260317062817) do
+ActiveRecord::Schema.define(version: 20260320072803) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -688,8 +688,10 @@ ActiveRecord::Schema.define(version: 20260317062817) do
     t.text "outer_annotation"
     t.text "inner_annotation"
     t.integer "auto_add_department_ids", default: [], array: true
+    t.bigint "telegram_chat_id"
     t.index ["allowed_user_ids"], name: "index_kanban_boards_on_allowed_user_ids"
     t.index ["auto_add_department_ids"], name: "index_kanban_boards_on_auto_add_department_ids", using: :gin
+    t.index ["telegram_chat_id"], name: "index_kanban_boards_on_telegram_chat_id"
   end
 
   create_table "kanban_boards_users", id: false, force: :cascade do |t|
@@ -2162,6 +2164,7 @@ ActiveRecord::Schema.define(version: 20260317062817) do
   add_foreign_key "faults", "fault_kinds", column: "kind_id"
   add_foreign_key "faults", "users", column: "causer_id"
   add_foreign_key "faults", "users", column: "issued_by_id"
+  add_foreign_key "kanban_boards", "telegram_chats"
   add_foreign_key "kanban_boards_users", "kanban_boards"
   add_foreign_key "kanban_boards_users", "users"
   add_foreign_key "kanban_cards", "kanban_columns", column: "column_id"
