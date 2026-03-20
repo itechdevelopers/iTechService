@@ -17,17 +17,27 @@ class SendKanbanTelegramNotificationJob < ApplicationJob
     url = Rails.application.routes.url_helpers.kanban_card_url(card)
 
     <<~MSG.strip
-      <b>#{board.name}</b>
+      <b>#{esc(board.name)}</b>
 
-      <b>Тема:</b> #{card.name}
+      <b>Тема:</b> #{esc(card.name)}
 
       <b>Содержание:</b>
-      #{card.content}
+      #{esc(card.content)}
 
-      <b>Автор:</b> #{card.author.short_name}
-      <b>Дата:</b> #{card.created_at.strftime('%d.%m.%Y в %H:%M')}
+      <b>Автор:</b> #{esc(card.author.short_name)}
+      <b>Дата:</b> #{card.created_at.strftime('%d.%m.%Y в %H:%M')}#{deadline_line(card)}
 
       <a href="#{url}">Перейти на карточку</a>
     MSG
+  end
+
+  def deadline_line(card)
+    return unless card.deadline
+
+    "\n      <b>Дедлайн:</b> #{card.deadline.strftime('%d.%m.%Y')}"
+  end
+
+  def esc(text)
+    CGI.escapeHTML(text.to_s)
   end
 end
