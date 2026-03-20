@@ -1,5 +1,6 @@
 class Kanban::Board < ApplicationRecord
   has_many :columns, -> { ordered }, class_name: 'Kanban::Column', dependent: :destroy
+  belongs_to :telegram_chat, optional: true
   has_and_belongs_to_many :managers,
                           class_name: "User",
                           join_table: :kanban_boards_users,

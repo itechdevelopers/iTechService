@@ -7,6 +7,12 @@
   <%= form.input :open_card_font_size %>
   <%= form.input :outer_annotation %>
   <%= form.input :inner_annotation %>
+  <%= form.association :telegram_chat,
+        collection: TelegramChat.order(:name),
+        label_method: :name,
+        value_method: :id,
+        include_blank: "Не выбран",
+        label: "Telegram чат для уведомлений" %>
   <fieldset>
     <%= form.input :auto_add_department_ids, 
                        collection: Department.all,

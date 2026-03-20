@@ -13,7 +13,7 @@ class StoresController < ApplicationController
   def show
     @store = find_record Store
     product_group_search_params = params.permit(:form, :user_role).to_h.merge(roots: true, store_kind: @store.kind)
-    @product_groups = ProductGroup.search(product_group_search_params).ordered
+    @product_groups = ProductGroup.search(**product_group_search_params.symbolize_keys).ordered
     @products = @store.products
                       .includes(:product_group, :product_category, :prices, :batches, :items, :store_items)
                       .search(search_params)
