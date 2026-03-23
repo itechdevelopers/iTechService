@@ -185,7 +185,10 @@ class ScheduleGroupsController < ApplicationController
 
     week_start = parse_week_start(params[:week])
     week_end = week_start + 6.days
-    caption = "#{@schedule_group.name} (#{I18n.l(week_start, format: '%d.%m')} - #{I18n.l(week_end, format: '%d.%m.%Y')})\n#{current_user.short_name}"
+    snapshot = @schedule_group.snapshot_for_week(week_start)
+    modified = snapshot && snapshot.created_at != snapshot.updated_at
+    date_range = "#{I18n.l(week_start, format: '%d.%m')} - #{I18n.l(week_end, format: '%d.%m.%Y')}#{', Изменено' if modified}"
+    caption = "#{@schedule_group.name} (#{date_range})\n#{current_user.short_name}"
 
     sender = SendTelegramSchedule.call(
       chat_id: chat_id,

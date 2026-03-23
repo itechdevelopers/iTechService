@@ -94,7 +94,7 @@
   %table.table.table-bordered.schedule-table{'data-schedule-group-id' => @schedule_group.id, 'data-can-edit' => @can_edit.to_s, 'data-week-start' => @week_start.to_s}
     %caption.schedule-table-caption
       = @schedule_group.name
-      %span.schedule-table-week
+      %span.schedule-table-week{'data-modified' => (@snapshot && @snapshot.created_at != @snapshot.updated_at).to_s}
         = "(#{l(@week_start, format: '%d.%m')} - #{l(@week_start + 6.days, format: '%d.%m.%Y')})"
     %thead
       %tr
@@ -892,6 +892,7 @@
               : i18n.updated_at.replace('__DATE__', response.saved_at);
 
             $('#save-status').html('<span class="text-success"><i class="icon-ok"></i> ' + statusText + '</span>');
+            $('.schedule-table-week').data('modified', !response.first_save);
           }
           $btn.prop('disabled', false).html(originalHtml);
           updateSaveButtonState();
@@ -933,17 +934,36 @@
       }
     });
 
+    var weekOriginalHtml = null;
+
+    function addModifiedLabel() {
+      var $week = $('.schedule-table-week');
+      if ($week.data('modified') === true || $week.data('modified') === 'true') {
+        weekOriginalHtml = $week.html();
+        var text = $week.text();
+        $week.html(text.replace(')', ', Изменено)'));
+      }
+    }
+
+    function removeModifiedLabel() {
+      if (weekOriginalHtml !== null) {
+        $('.schedule-table-week').html(weekOriginalHtml);
+        weekOriginalHtml = null;
+      }
+    }
+
     function doExport($table, groupName, weekStart, weekEnd, $btn) {
       // Hide weekly hours footer for export
       var $footer = $table.find('.weekly-hours-footer');
       $footer.hide();
+      addModifiedLabel();
 
       html2canvas($table[0], {
         backgroundColor: '#ffffff',
         scale: 2
       }).then(function(canvas) {
-        // Show footer again
         $footer.show();
+        removeModifiedLabel();
 
         // Create download link
         var link = document.createElement('a');
@@ -955,8 +975,8 @@
         // Restore button
         $btn.prop('disabled', false).html(exportBtnOriginalHtml);
       }).catch(function(error) {
-        // Show footer again even on error
         $footer.show();
+        removeModifiedLabel();
         console.error('Export error:', error);
         alert('Ошибка при экспорте');
         $btn.prop('disabled', false).html(exportBtnOriginalHtml);
@@ -977,12 +997,14 @@
         function doSendToTelegram() {
           var $footer = $table.find('.weekly-hours-footer');
           $footer.hide();
+          addModifiedLabel();
 
           html2canvas($table[0], {
             backgroundColor: '#ffffff',
             scale: 2
           }).then(function(canvas) {
             $footer.show();
+            removeModifiedLabel();
             var imageData = canvas.toDataURL('image/png');
 
             $.ajax({
@@ -1012,6 +1034,7 @@
             });
           }).catch(function(error) {
             $footer.show();
+            removeModifiedLabel();
             console.error('Telegram send error:', error);
             alert('#{j t('.telegram_send_error')}');
             $telegramBtn.prop('disabled', false).html(telegramBtnOriginalHtml);

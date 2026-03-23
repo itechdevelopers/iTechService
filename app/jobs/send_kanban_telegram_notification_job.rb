@@ -8,7 +8,10 @@ class SendKanbanTelegramNotificationJob < ApplicationJob
     return unless telegram_chat
 
     text = build_message(card, board)
-    SendTelegramMessage.call(chat_id: telegram_chat.chat_id, text: text)
+    Rails.logger.info("[KanbanTelegram] Sending notification for card ##{card_id} to chat #{telegram_chat.chat_id}")
+    Rails.logger.info("[KanbanTelegram] Message text:\n#{text}")
+    result = SendTelegramMessage.call(chat_id: telegram_chat.chat_id, text: text)
+    Rails.logger.info("[KanbanTelegram] Result: #{result.result.inspect}")
   end
 
   private
@@ -34,7 +37,7 @@ class SendKanbanTelegramNotificationJob < ApplicationJob
   def deadline_line(card)
     return unless card.deadline
 
-    "\n      <b>Дедлайн:</b> #{card.deadline.strftime('%d.%m.%Y')}"
+    "\n<b>Дедлайн:</b> #{card.deadline.strftime('%d.%m.%Y')}"
   end
 
   def esc(text)
