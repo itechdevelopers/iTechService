@@ -11,6 +11,24 @@ jQuery ->
   if $service_job_form.length > 0
     $service_job_form.find('label.important').tooltip(title: 'Информация, которая заполняется здесь, отображается в заказ-наряде. Будьте внимательны.')
 
+    # Find My iPhone check — intercept form submit
+    $service_job_form.on 'submit', (e) ->
+      $form = $(this)
+      console.log '[FindMy] === Submit interceptor ==='
+      console.log '[FindMy] find-my-enabled:', $form.data('find-my-enabled')
+      console.log '[FindMy] hasWarrantyTask:', hasWarrantyTask()
+      console.log '[FindMy] isSoldByUs:', isSoldByUs($form)
+      console.log '[FindMy] IMEI sources: #service_job_imei =', $('#service_job_imei').val(), '| data-device-imei =', $('.device_input').attr('data-device-imei'), '| form data =', $form.data('device-imei')
+      imeiResolved = getDeviceImei($form)
+      console.log '[FindMy] Resolved IMEI:', imeiResolved
+      return true unless $form.data('find-my-enabled') == true
+      return true unless hasWarrantyTask()
+      return true unless isSoldByUs($form)
+      imei = getDeviceImei($form)
+      return true unless imei
+      e.preventDefault()
+      showFindMyModal($form, imei)
+
     $(document).on 'click', '.device_task_task .custom-option', () ->
       task_id = $(this).data('value')
       task_code = $(this).data('code')
@@ -28,6 +46,9 @@ jQuery ->
       $.getJSON "/tasks/#{task_id}.json", {department_id: department_id}, (data)->
         task_cost.val data.cost
 
+        # Save location_code for Find My iPhone check on submit
+        $row.attr('data-location-code', data.location_code || '')
+
         if is_change_location
           $('#location_id').val(data.location_id)
           $('#location_value').text(data.location_name)
@@ -41,12 +62,6 @@ jQuery ->
           showRepairSelection($extendedRow)
         else
           hideRepairSelection($extendedRow)
-
-        # Find My iPhone check for warranty tasks
-        if data.location_code == 'warranty'
-          checkFindMyForWarrantyTask($service_job_form)
-        else
-          dismissFindMyWarning($service_job_form)
 
       $.getJSON "/tasks/#{task_id}/device_validation", {item_id: item_id}, (data)->
         alert(data['message']) if data['message']
@@ -239,53 +254,78 @@ $(document).on 'click', '#completion_act_link', ->
 
 # ========== Find My iPhone Check (Warranty Tasks) ==========
 
-checkFindMyForWarrantyTask = ($form) ->
-  # Check if device was sold by us: dynamic attr (new job) or server-rendered (existing job)
-  soldByUs = $('.device_input').attr('data-1c-sold') == 'true' || $form.data('sold-by-us') == true
-  return unless soldByUs
+# Check if any selected task has warranty location
+hasWarrantyTask = ->
+  found = false
+  $('.device_task').each ->
+    if $(this).attr('data-location-code') == 'warranty'
+      found = true
+      return false # break
+  found
 
-  # IMEI: input field → device autocomplete attr → server-rendered form attr
+# Get IMEI from available sources (triple fallback)
+getDeviceImei = ($form) ->
   imei = $('#service_job_imei').val() || $('.device_input').attr('data-device-imei') || $form.data('device-imei')
-  return if !imei || String(imei).trim() == ''
+  if imei && String(imei).trim() != '' then String(imei).trim() else null
 
-  # Disable form submission
-  $form.find('[type="submit"]').prop('disabled', true)
+# Check if device was sold by us
+isSoldByUs = ($form) ->
+  $('.device_input').attr('data-1c-sold') == 'true' || $form.data('sold-by-us') == true
 
-  # Show warning message
-  isExistingJob = $form.data('sold-by-us') == true
-  entity = if isExistingJob then 'задачу' else 'работу'
+# Determine entity name for messages
+getEntityName = ($form) ->
+  if $form.data('sold-by-us') == true then 'задачу' else 'работу'
 
-  $warning = $('#find_my_warning')
-  if $warning.length == 0
-    warningHtml = """
-      <div id="find_my_warning" style="border: 2px solid #b94a48; padding: 15px; margin: 15px 0; text-align: center; background: #fff;">
-        <p style="color: #b94a48; font-weight: bold; font-size: 14px;">
-          Устройство приобреталось в компании Айтек.
-          При нажатии на кнопку "Продолжить" сервис проверит включена ли функция
-          "Найти iPhone/Mac/iPad" и даст создать #{entity} только при выключенной этой функции.
-        </p>
-        <p style="color: #b94a48; font-size: 14px;">
-          Если же функция включена, то следующую возможность
-          создать данную #{entity} будет у вас через 5 минут.
-        </p>
-        <p style="color: #b94a48; font-weight: bold; font-size: 14px;">
-          Поэтому убедительная просьба прежде чем нажать на "Продолжить"
-          проверьте, что функция "Найти iPhone/Mac/iPad" выключена.
-        </p>
-        <button type="button" class="btn btn-large" id="find_my_continue_btn"
-                style="border: 2px solid #b94a48; color: #b94a48; margin-top: 10px; font-size: 16px; padding: 8px 30px;">
-          Продолжить
-        </button>
+# Build and show Find My modal
+showFindMyModal = ($form, imei) ->
+  entity = getEntityName($form)
+
+  # Create modal if not exists
+  if $('#find_my_modal').length == 0
+    modalHtml = """
+      <div id="find_my_modal" class="modal fade hide">
+        <div class="modal-header">
+          <button type="button" class="close" data-dismiss="modal">&times;</button>
+          <h3>Проверка «Найти iPhone»</h3>
+        </div>
+        <div class="modal-body">
+          <div id="find_my_modal_message">
+            <p style="color: #b94a48; font-weight: bold; font-size: 14px;">
+              Устройство приобреталось в компании Айтек.
+              При нажатии на кнопку "Продолжить" сервис проверит включена ли функция
+              "Найти iPhone/Mac/iPad" и даст создать #{entity} только при выключенной этой функции.
+            </p>
+            <p style="color: #b94a48; font-size: 14px;">
+              Если же функция включена, то следующую возможность
+              создать данную #{entity} будет у вас через 5 минут.
+            </p>
+            <p style="color: #b94a48; font-weight: bold; font-size: 14px;">
+              Поэтому убедительная просьба прежде чем нажать на "Продолжить"
+              проверьте, что функция "Найти iPhone/Mac/iPad" выключена.
+            </p>
+          </div>
+          <div id="find_my_modal_error" style="display: none;"></div>
+        </div>
+        <div class="modal-footer">
+          <a href="#" class="btn" data-dismiss="modal">Отмена</a>
+          <button type="button" class="btn btn-primary" id="find_my_continue_btn">Продолжить</button>
+        </div>
       </div>
     """
-    $('#device_tasks').before(warningHtml)
-    $warning = $('#find_my_warning')
+    $('body').append(modalHtml)
 
-  $warning.show()
+  # Reset modal state
+  $modal = $('#find_my_modal')
+  $modal.find('#find_my_modal_error').hide().html('')
+  $modal.find('#find_my_modal_message').show()
+  $btn = $modal.find('#find_my_continue_btn')
+  $btn.prop('disabled', false).text('Продолжить').removeClass('btn-danger')
 
-  # Handle "Продолжить" button click
-  $('#find_my_continue_btn').off('click').on 'click', ->
-    $btn = $(this)
+  # Show modal
+  $modal.modal('show')
+
+  # Handle "Продолжить" click
+  $btn.off('click').on 'click', ->
     $btn.prop('disabled', true).text('Проверка...')
 
     $.ajax
@@ -295,43 +335,24 @@ checkFindMyForWarrantyTask = ($form) ->
       headers: { 'X-CSRF-Token': $('meta[name="csrf-token"]').attr('content') }
       success: (data) ->
         if data.success
-          if data.skip
-            # Check disabled in settings — allow submission
-            $warning.hide()
-            $form.find('[type="submit"]').prop('disabled', false)
-          else
-            # Find My is OFF — allow submission
-            $warning.html('<p style="color: #468847; font-weight: bold; padding: 15px;">✓ Проверка пройдена. Функция «Найти iPhone» выключена.</p>')
-            setTimeout ->
-              $warning.fadeOut()
-            , 3000
-            $form.find('[type="submit"]').prop('disabled', false)
+          # Find My is OFF (or check disabled on server) — submit the form
+          $modal.modal('hide')
+          $form[0].submit()
         else
           if data.blocked || data.locked
             $btn.text('Заблокировано').addClass('btn-danger')
-            $warning.find('p').first().html(
-              '<span style="color: #b94a48; font-weight: bold;">' + data.error + '</span>'
-            )
+            $modal.find('#find_my_modal_error')
+              .html('<p style="color: #b94a48; font-weight: bold;">' + data.error + '</p>')
+              .show()
+            $modal.find('#find_my_modal_message').hide()
           else
-            # API error — allow submission (graceful degradation)
-            $warning.html('<p style="color: #c09853; font-weight: bold; padding: 15px;">⚠ ' + data.error + ' Создание работы разрешено.</p>')
-            setTimeout ->
-              $warning.fadeOut()
-            , 5000
-            $form.find('[type="submit"]').prop('disabled', false)
+            # API error — graceful degradation, allow submission
+            $modal.modal('hide')
+            $form[0].submit()
       error: ->
-        # Network error — allow submission (graceful degradation)
-        $warning.html('<p style="color: #c09853; font-weight: bold; padding: 15px;">⚠ Сервис проверки недоступен. Создание работы разрешено.</p>')
-        setTimeout ->
-          $warning.fadeOut()
-        , 5000
-        $form.find('[type="submit"]').prop('disabled', false)
-
-dismissFindMyWarning = ($form) ->
-  $warning = $('#find_my_warning')
-  if $warning.length > 0
-    $warning.hide()
-  $form.find('[type="submit"]').prop('disabled', false)
+        # Network error — graceful degradation, allow submission
+        $modal.modal('hide')
+        $form[0].submit()
 
 # ========== Repair Selection Functions (Cascading) ==========
 

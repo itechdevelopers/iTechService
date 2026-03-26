@@ -5,7 +5,7 @@
 
 .row-fluid
   .span6
-    = simple_form_for @service_job, url: form_url, html: { class: 'form-horizontal service_job_form', data: { sold_by_us: @service_job.sold_by_us_at.present?, device_imei: @service_job.imei } } do |f|
+    = simple_form_for @service_job, url: form_url, html: { class: 'form-horizontal service_job_form', data: { sold_by_us: @service_job.sold_by_us_at.present?, device_imei: @service_job.imei, find_my_enabled: Setting.find_my_device_check_enabled? } } do |f|
 
       - if @service_job.errors.any?
         .alert.alert-danger= @service_job.errors.full_messages.join '. '
