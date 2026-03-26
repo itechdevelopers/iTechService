@@ -2,7 +2,7 @@
 = auto_header_tag @service_job
 
 .v2-form-container
-  = simple_form_for @service_job, url: create_v2_service_jobs_path, html: { class: 'form-horizontal service_job_form', data: { form_version: 'v2', sold_by_us: @service_job.sold_by_us_at.present?, device_imei: @service_job.imei } } do |f|
+  = simple_form_for @service_job, url: create_v2_service_jobs_path, html: { class: 'form-horizontal service_job_form', data: { form_version: 'v2', sold_by_us: @service_job.sold_by_us_at.present?, device_imei: @service_job.imei, find_my_enabled: Setting.find_my_device_check_enabled? } } do |f|
 
     - if @service_job.errors.any?
       .alert.alert-danger= @service_job.errors.full_messages.join '. '

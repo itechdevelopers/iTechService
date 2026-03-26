@@ -1,4 +1,4 @@
-%tr.device_task.fields{class: row_class_for_task(f.object)}
+%tr.device_task.fields{class: row_class_for_task(f.object), data: { location_code: f.object.task&.location_code }}
   - if can? :update, f.object
     %td= f.object.done ? tag(:i, class: 'fa fa-check-square-o') : tag(:i, class: 'fa fa-square-o')
     %td= f.input :task_id,
