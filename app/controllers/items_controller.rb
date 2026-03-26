@@ -144,8 +144,10 @@ class ItemsController < ApplicationController
   end
 
   def check_1c_status
-    item = find_record(Item).decorate
-    response = ::CheckDeviceStatus.call(serial_number: item.serial_number)
+    item = find_record(Item)
+    sn = item.serial_number
+    identifier = (sn.present? && sn != '?') ? sn : item.imei
+    response = ::CheckDeviceStatus.call(serial_number: identifier)
     render json: { status: response }.as_json
   end
 
