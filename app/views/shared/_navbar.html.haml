@@ -137,6 +137,7 @@
         = menu_item t('repair_services.index.title'), repair_services_path if can? :read, RepairService
         = drop_down_divider
         -#= navbar_item t('.data_migration'), data_migration_path
+        = menu_item t('find_my_device_checks.link'), find_my_device_checks_path if can? :index, FindMyDeviceCheck
         = menu_item t('settings.link'), settings_path if can? :manage, Setting
         = menu_item 'Логотип', app_logo_path if current_user.superadmin?
         = menu_item 'Носи Гордо!', forma_path, target: '_blank'

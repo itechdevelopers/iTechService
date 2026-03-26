@@ -42,6 +42,12 @@ jQuery ->
         else
           hideRepairSelection($extendedRow)
 
+        # Find My iPhone check for warranty tasks
+        if data.location_code == 'warranty'
+          checkFindMyForWarrantyTask($service_job_form)
+        else
+          dismissFindMyWarning($service_job_form)
+
       $.getJSON "/tasks/#{task_id}/device_validation", {item_id: item_id}, (data)->
         alert(data['message']) if data['message']
 
@@ -230,6 +236,102 @@ $(document).on 'click', '#completion_act_link', ->
 #TODO implement via cable
 #PrivatePub.subscribe '/service_jobs/returning_alert', (data, channel)->
 #  $.getScript '/announcements/'+data.announcement_id
+
+# ========== Find My iPhone Check (Warranty Tasks) ==========
+
+checkFindMyForWarrantyTask = ($form) ->
+  # Check if device was sold by us: dynamic attr (new job) or server-rendered (existing job)
+  soldByUs = $('.device_input').attr('data-1c-sold') == 'true' || $form.data('sold-by-us') == true
+  return unless soldByUs
+
+  # IMEI: input field → device autocomplete attr → server-rendered form attr
+  imei = $('#service_job_imei').val() || $('.device_input').attr('data-device-imei') || $form.data('device-imei')
+  return if !imei || String(imei).trim() == ''
+
+  # Disable form submission
+  $form.find('[type="submit"]').prop('disabled', true)
+
+  # Show warning message
+  isExistingJob = $form.data('sold-by-us') == true
+  entity = if isExistingJob then 'задачу' else 'работу'
+
+  $warning = $('#find_my_warning')
+  if $warning.length == 0
+    warningHtml = """
+      <div id="find_my_warning" style="border: 2px solid #b94a48; padding: 15px; margin: 15px 0; text-align: center; background: #fff;">
+        <p style="color: #b94a48; font-weight: bold; font-size: 14px;">
+          Устройство приобреталось в компании Айтек.
+          При нажатии на кнопку "Продолжить" сервис проверит включена ли функция
+          "Найти iPhone/Mac/iPad" и даст создать #{entity} только при выключенной этой функции.
+        </p>
+        <p style="color: #b94a48; font-size: 14px;">
+          Если же функция включена, то следующую возможность
+          создать данную #{entity} будет у вас через 5 минут.
+        </p>
+        <p style="color: #b94a48; font-weight: bold; font-size: 14px;">
+          Поэтому убедительная просьба прежде чем нажать на "Продолжить"
+          проверьте, что функция "Найти iPhone/Mac/iPad" выключена.
+        </p>
+        <button type="button" class="btn btn-large" id="find_my_continue_btn"
+                style="border: 2px solid #b94a48; color: #b94a48; margin-top: 10px; font-size: 16px; padding: 8px 30px;">
+          Продолжить
+        </button>
+      </div>
+    """
+    $('#device_tasks').before(warningHtml)
+    $warning = $('#find_my_warning')
+
+  $warning.show()
+
+  # Handle "Продолжить" button click
+  $('#find_my_continue_btn').off('click').on 'click', ->
+    $btn = $(this)
+    $btn.prop('disabled', true).text('Проверка...')
+
+    $.ajax
+      url: '/find_my_device_checks/check.json'
+      method: 'POST'
+      data: { imei: imei }
+      headers: { 'X-CSRF-Token': $('meta[name="csrf-token"]').attr('content') }
+      success: (data) ->
+        if data.success
+          if data.skip
+            # Check disabled in settings — allow submission
+            $warning.hide()
+            $form.find('[type="submit"]').prop('disabled', false)
+          else
+            # Find My is OFF — allow submission
+            $warning.html('<p style="color: #468847; font-weight: bold; padding: 15px;">✓ Проверка пройдена. Функция «Найти iPhone» выключена.</p>')
+            setTimeout ->
+              $warning.fadeOut()
+            , 3000
+            $form.find('[type="submit"]').prop('disabled', false)
+        else
+          if data.blocked || data.locked
+            $btn.text('Заблокировано').addClass('btn-danger')
+            $warning.find('p').first().html(
+              '<span style="color: #b94a48; font-weight: bold;">' + data.error + '</span>'
+            )
+          else
+            # API error — allow submission (graceful degradation)
+            $warning.html('<p style="color: #c09853; font-weight: bold; padding: 15px;">⚠ ' + data.error + ' Создание работы разрешено.</p>')
+            setTimeout ->
+              $warning.fadeOut()
+            , 5000
+            $form.find('[type="submit"]').prop('disabled', false)
+      error: ->
+        # Network error — allow submission (graceful degradation)
+        $warning.html('<p style="color: #c09853; font-weight: bold; padding: 15px;">⚠ Сервис проверки недоступен. Создание работы разрешено.</p>')
+        setTimeout ->
+          $warning.fadeOut()
+        , 5000
+        $form.find('[type="submit"]').prop('disabled', false)
+
+dismissFindMyWarning = ($form) ->
+  $warning = $('#find_my_warning')
+  if $warning.length > 0
+    $warning.hide()
+  $form.find('[type="submit"]').prop('disabled', false)
 
 # ========== Repair Selection Functions (Cascading) ==========
 

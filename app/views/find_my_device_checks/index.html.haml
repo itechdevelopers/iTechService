@@ -1,0 +1,41 @@
+.page-header
+  %h1= t('.title')
+
+.row-fluid
+  .span12
+    .well.well-small
+      = form_tag toggle_find_my_device_checks_path, method: :post, class: 'form-inline', style: 'margin-bottom: 0;' do
+        %label.checkbox
+          = check_box_tag :enabled, '1', @enabled, onchange: 'this.form.submit()'
+          = t('.toggle_label')
+
+%table.table.table-striped.table-condensed
+  %thead
+    %tr
+      %th= t('.imei')
+      %th= t('.user')
+      %th= t('.service_job')
+      %th= t('.datetime')
+      %th= t('.status')
+      %th= t('.api_response')
+  %tbody
+    - @checks.each do |check|
+      %tr
+        %td= check.imei
+        %td= check.user.short_name
+        %td
+          - if check.service_job.present?
+            = link_to "##{check.service_job.ticket_number}", service_job_path(check.service_job)
+        %td= l(check.created_at, format: :long)
+        %td
+          - case check.status
+          - when 'unlocked'
+            %span.label.label-success= t('.unlocked')
+          - when 'locked'
+            %span.label.label-important= t('.locked')
+          - when 'error'
+            %span.label.label-warning= t('.error')
+        %td
+          %small= truncate(check.api_response.to_s, length: 80)
+
+= paginate @checks
