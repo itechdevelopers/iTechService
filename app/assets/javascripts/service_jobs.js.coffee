@@ -45,6 +45,8 @@ jQuery ->
         # Find My iPhone check for warranty tasks
         if data.location_code == 'warranty'
           checkFindMyForWarrantyTask($service_job_form)
+        else
+          dismissFindMyWarning($service_job_form)
 
       $.getJSON "/tasks/#{task_id}/device_validation", {item_id: item_id}, (data)->
         alert(data['message']) if data['message']
@@ -238,16 +240,21 @@ $(document).on 'click', '#completion_act_link', ->
 # ========== Find My iPhone Check (Warranty Tasks) ==========
 
 checkFindMyForWarrantyTask = ($form) ->
-  soldByUs = $('.device_input').attr('data-1c-sold')
-  return unless soldByUs == 'true'
+  # Check if device was sold by us: dynamic attr (new job) or server-rendered (existing job)
+  soldByUs = $('.device_input').attr('data-1c-sold') == 'true' || $form.data('sold-by-us') == true
+  return unless soldByUs
 
-  # Try dedicated IMEI field first, fallback to data-attribute from device autocomplete
-  imei = $('#service_job_imei').val() || $('.device_input').attr('data-device-imei')
-  return if !imei || imei.trim() == ''
+  # IMEI: input field → device autocomplete attr → server-rendered form attr
+  imei = $('#service_job_imei').val() || $('.device_input').attr('data-device-imei') || $form.data('device-imei')
+  return if !imei || String(imei).trim() == ''
+
   # Disable form submission
   $form.find('[type="submit"]').prop('disabled', true)
 
   # Show warning message
+  isExistingJob = $form.data('sold-by-us') == true
+  entity = if isExistingJob then 'задачу' else 'работу'
+
   $warning = $('#find_my_warning')
   if $warning.length == 0
     warningHtml = """
@@ -255,11 +262,11 @@ checkFindMyForWarrantyTask = ($form) ->
         <p style="color: #b94a48; font-weight: bold; font-size: 14px;">
           Устройство приобреталось в компании Айтек.
           При нажатии на кнопку "Продолжить" сервис проверит включена ли функция
-          "Найти iPhone/Mac/iPad" и даст создать работу только при выключенной этой функции.
+          "Найти iPhone/Mac/iPad" и даст создать #{entity} только при выключенной этой функции.
         </p>
         <p style="color: #b94a48; font-size: 14px;">
           Если же функция включена, то следующую возможность
-          создать данную работу будет у вас через 5 минут.
+          создать данную #{entity} будет у вас через 5 минут.
         </p>
         <p style="color: #b94a48; font-weight: bold; font-size: 14px;">
           Поэтому убедительная просьба прежде чем нажать на "Продолжить"
@@ -300,12 +307,7 @@ checkFindMyForWarrantyTask = ($form) ->
             , 3000
             $form.find('[type="submit"]').prop('disabled', false)
         else
-          if data.blocked
-            $btn.text('Заблокировано').addClass('btn-danger')
-            $warning.find('p').first().html(
-              '<span style="color: #b94a48; font-weight: bold;">' + data.error + '</span>'
-            )
-          else if data.locked
+          if data.blocked || data.locked
             $btn.text('Заблокировано').addClass('btn-danger')
             $warning.find('p').first().html(
               '<span style="color: #b94a48; font-weight: bold;">' + data.error + '</span>'
@@ -324,6 +326,12 @@ checkFindMyForWarrantyTask = ($form) ->
           $warning.fadeOut()
         , 5000
         $form.find('[type="submit"]').prop('disabled', false)
+
+dismissFindMyWarning = ($form) ->
+  $warning = $('#find_my_warning')
+  if $warning.length > 0
+    $warning.hide()
+  $form.find('[type="submit"]').prop('disabled', false)
 
 # ========== Repair Selection Functions (Cascading) ==========
 
