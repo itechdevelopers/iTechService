@@ -1,0 +1,15 @@
+ru:
+  find_my_device_checks:
+    link: 'Проверка Найти iPhone'
+    index:
+      title: 'Проверка «Найти iPhone»'
+      toggle_label: 'Включить проверку при приёмке'
+      imei: 'IMEI'
+      user: 'Сотрудник'
+      service_job: 'Работа'
+      datetime: 'Дата и время'
+      status: 'Статус'
+      api_response: 'Ответ сервиса'
+      unlocked: 'Выключен'
+      locked: 'Включён'
+      error: 'Ошибка'

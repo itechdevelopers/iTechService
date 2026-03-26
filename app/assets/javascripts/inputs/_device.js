@@ -26,6 +26,7 @@
         .then(response => response.json())
         .then(data => {
           $status_field.text(data.status)
+          App.Inputs.Device._save1cSoldStatus(data.status)
         })
     },
     check_1c_status_by_sn: function () {
@@ -37,7 +38,12 @@
           .then(response => response.json())
           .then(data => {
             $status_field.text(data.status);
+            App.Inputs.Device._save1cSoldStatus(data.status);
           });
+    },
+    _save1cSoldStatus: function(statusText) {
+      const sold = statusText && statusText.toLowerCase().indexOf('продано') !== -1;
+      $('.device_input').attr('data-1c-sold', sold ? 'true' : 'false');
     }
   }
 
@@ -67,6 +73,9 @@
         $(this).siblings('.show_item_btn').attr('href', "/devices/" + ui.item.value + ".js").attr('data-remote', true)
         App.Inputs.Device.check_imei()
         App.Inputs.Device.check_1c_status()
+
+        // Save IMEI for Find My iPhone check
+        $('.device_input').attr('data-device-imei', ui.item.imei || '')
 
         // Auto-populate trademark and device_group from product_group (v2 only)
         var $form = $(this).closest('form.service_job_form')

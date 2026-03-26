@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20260320072803) do
+ActiveRecord::Schema.define(version: 20260324102228) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -586,6 +586,19 @@ ActiveRecord::Schema.define(version: 20260320072803) do
   create_table "features_items", id: :serial, force: :cascade do |t|
     t.integer "feature_id"
     t.integer "item_id"
+  end
+
+  create_table "find_my_device_checks", force: :cascade do |t|
+    t.string "imei", null: false
+    t.bigint "user_id", null: false
+    t.bigint "service_job_id"
+    t.integer "status", default: 0, null: false
+    t.string "api_response"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["imei", "created_at"], name: "index_find_my_device_checks_on_imei_and_created_at"
+    t.index ["service_job_id"], name: "index_find_my_device_checks_on_service_job_id"
+    t.index ["user_id"], name: "index_find_my_device_checks_on_user_id"
   end
 
   create_table "gift_certificates", id: :serial, force: :cascade do |t|
@@ -2164,6 +2177,8 @@ ActiveRecord::Schema.define(version: 20260320072803) do
   add_foreign_key "faults", "fault_kinds", column: "kind_id"
   add_foreign_key "faults", "users", column: "causer_id"
   add_foreign_key "faults", "users", column: "issued_by_id"
+  add_foreign_key "find_my_device_checks", "service_jobs"
+  add_foreign_key "find_my_device_checks", "users"
   add_foreign_key "kanban_boards", "telegram_chats"
   add_foreign_key "kanban_boards_users", "kanban_boards"
   add_foreign_key "kanban_boards_users", "users"

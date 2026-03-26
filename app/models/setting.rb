@@ -34,7 +34,8 @@ class Setting < ApplicationRecord
     ticket_prefix: 'string',
     request_review_text: 'string',
     request_review_time_out: 'integer',
-    warranty_overstay_thresholds: 'json'
+    warranty_overstay_thresholds: 'json',
+    find_my_device_check_enabled: 'boolean'
   }.freeze
 
   VALUE_TYPES = %w[boolean integer string text json].freeze
