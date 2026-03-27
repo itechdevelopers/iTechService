@@ -19,4 +19,9 @@ $imei_inputs.addClass('hidden');
 $('.popover-content', '#client_devices').html("<%= j service_tasks_list(device.last_service_job) %>");
 <% end %>
 
-App.DeviceInput.check_imei();
+if (typeof App.DeviceInput !== 'undefined') { App.DeviceInput.check_imei(); }
+console.log('[FindMy] save.js.erb: device saved, imei from server =', '<%= device.imei || "" %>');
+App.Inputs.Device.check_1c_status();
+console.log('[FindMy] save.js.erb: check_1c_status called');
+$('.device_input').attr('data-device-imei', '<%= device.imei || "" %>');
+console.log('[FindMy] save.js.erb: data-device-imei set =', $('.device_input').attr('data-device-imei'));

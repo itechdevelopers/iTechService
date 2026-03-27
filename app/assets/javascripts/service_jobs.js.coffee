@@ -27,6 +27,9 @@ jQuery ->
       imei = getDeviceImei($form)
       return true unless imei
       e.preventDefault()
+      # Persist sold-by-us state across form re-renders on validation errors
+      $form.find('#one_c_sold_hidden').remove()
+      $form.append('<input type="hidden" id="one_c_sold_hidden" name="one_c_sold" value="true">')
       showFindMyModal($form, imei)
 
     $(document).on 'click', '.device_task_task .custom-option', () ->
