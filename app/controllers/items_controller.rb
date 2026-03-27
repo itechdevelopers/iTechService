@@ -153,7 +153,8 @@ class ItemsController < ApplicationController
 
   def check_1c_status_by_sn
     authorize Item
-    response = ::CheckDeviceStatus.call(serial_number: params[:serial_number])
+    identifier = extract_device_identifier(params[:serial_number])
+    response = ::CheckDeviceStatus.call(serial_number: identifier)
     render json: { status: response }.as_json
   end
 
@@ -163,5 +164,17 @@ class ItemsController < ApplicationController
                   features: [:value, :item, :item_id, :feature_type, :feature_type_id]
           )
     # TODO: check nested attributes for: features
+  end
+
+  # Extract serial number or IMEI from presentation string
+  # Format: "Name / serial_number / imei" or just a plain serial/IMEI
+  def extract_device_identifier(input)
+    return input unless input.present? && input.include?(' / ')
+
+    parts = input.split(' / ').map(&:strip)
+    # parts: [name, serial_number, imei] — take serial_number or fallback to imei
+    sn = parts[1]
+    imei = parts[2]
+    (sn.present? && sn != '?') ? sn : imei
   end
 end
