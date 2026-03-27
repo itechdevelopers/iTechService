@@ -170,6 +170,7 @@ class ServiceJobsController < ApplicationController
         format.json { render json: @service_job, status: :created, location: @service_job }
       else
         prepare_check_list_data
+        @one_c_sold = params[:one_c_sold]
         format.html { render_form }
         format.json { render json: @service_job.errors, status: :unprocessable_entity }
       end
@@ -192,6 +193,7 @@ class ServiceJobsController < ApplicationController
         format.json { render json: @service_job, status: :created, location: @service_job }
       else
         prepare_check_list_data
+        @one_c_sold = params[:one_c_sold]
         format.html { render_form }
         format.json { render json: @service_job.errors, status: :unprocessable_entity }
       end
