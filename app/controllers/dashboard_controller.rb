@@ -72,7 +72,7 @@ class DashboardController < ApplicationController
       if current_user.any_admin?
         if params[:location].present?
           location = Location.find(params[:location])
-          @service_jobs = @service_jobs.pending.located_at(location)
+          @service_jobs = location.is_done? ? @service_jobs.located_at(location) : @service_jobs.pending.located_at(location)
           @location = location
           @location_name = location.name
         else
