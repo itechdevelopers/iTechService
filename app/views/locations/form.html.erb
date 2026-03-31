@@ -7,6 +7,7 @@
   <%= f.input :code, collection: Location::CODES %>
   <%= f.input :position %>
   <%= f.input :hidden %>
+  <%= f.input :color, as: :string, input_html: { type: 'color', style: 'width: 60px; height: 30px; padding: 2px;' }, hint: 'Цвет локации для отображения в графиках' %>
   <%= f.input :storage_term, as: :radio_buttons, collection: [['3 месяца', 3], ['год', 12], ['больше года', 88]] %>
 
   <div class="form-actions">

@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20260324102228) do
+ActiveRecord::Schema.define(version: 20260331190818) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -771,6 +771,7 @@ ActiveRecord::Schema.define(version: 20260324102228) do
     t.integer "department_id"
     t.boolean "hidden", default: false
     t.integer "storage_term"
+    t.string "color"
     t.index ["ancestry"], name: "index_locations_on_ancestry"
     t.index ["code"], name: "index_locations_on_code"
     t.index ["department_id"], name: "index_locations_on_department_id"
@@ -1695,6 +1696,7 @@ ActiveRecord::Schema.define(version: 20260324102228) do
     t.integer "position", default: 0
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.boolean "includes_evening", default: false
   end
 
   create_table "spare_part_defects", id: :serial, force: :cascade do |t|

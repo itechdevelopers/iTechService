@@ -15,6 +15,13 @@ class ShiftsController < ApplicationController
     load_shifts
   end
 
+  def update
+    authorize :schedule
+    @shift = Shift.find(params[:id])
+    @shift.update(shift_params)
+    load_shifts
+  end
+
   def destroy
     authorize :schedule
     @shift = Shift.find(params[:id])
@@ -29,6 +36,6 @@ class ShiftsController < ApplicationController
   end
 
   def shift_params
-    params.require(:shift).permit(:name, :short_name, :start_time, :end_time, :position)
+    params.require(:shift).permit(:name, :short_name, :start_time, :end_time, :position, :includes_evening)
   end
 end

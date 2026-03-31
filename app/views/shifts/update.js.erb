@@ -1,0 +1,5 @@
+<% if @shift.errors.empty? %>
+  $("#shifts_list").html("<%= j(render('list')) %>");
+<% else %>
+  alert("<%= j(@shift.errors.full_messages.join(', ')) %>");
+<% end %>

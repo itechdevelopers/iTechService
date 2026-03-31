@@ -67,7 +67,7 @@ Rails.application.routes.draw do
   resources :department_schedule_configs, only: %i[index update] do
     post :batch_update, on: :collection
   end
-  resources :shifts, only: %i[index create destroy]
+  resources :shifts, only: %i[index create update destroy]
   resources :occupation_types, only: %i[index create update destroy]
   resources :time_bank_event_types, only: %i[index create update destroy]
   resources :schedule_groups, only: %i[show new create edit update destroy] do

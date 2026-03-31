@@ -325,6 +325,7 @@ ru:
 
       location:
         ancestry: 'Предок'
+        color: 'Цвет'
         hidden: 'Скрытая'
         name: 'Название'
         position: 'Позиция'
