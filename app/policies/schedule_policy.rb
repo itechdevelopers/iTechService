@@ -84,4 +84,12 @@ class SchedulePolicy < ApplicationPolicy
   def destroy_time_bank_entry?
     manage?
   end
+
+  def assign?
+    manage?
+  end
+
+  def unassign?
+    manage?
+  end
 end

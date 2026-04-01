@@ -67,6 +67,10 @@ Rails.application.routes.draw do
   resources :department_schedule_configs, only: %i[index update] do
     post :batch_update, on: :collection
   end
+  resource :duty_schedule, only: %i[show] do
+    post :assign, on: :member
+    delete :unassign, on: :member
+  end
   resources :shifts, only: %i[index create update destroy]
   resources :occupation_types, only: %i[index create update destroy]
   resources :time_bank_event_types, only: %i[index create update destroy]

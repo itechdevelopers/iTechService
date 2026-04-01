@@ -1,0 +1,3 @@
+$("#new_duty_schedule_content").html("<%= j(render('duty_schedules/table', query: @query, department: @department, week_start: @week_start)) %>");
+$('.btn-department-select').removeClass('btn-primary');
+$('.btn-department-select[data-department-id="<%= @department.id %>"]').addClass('btn-primary');

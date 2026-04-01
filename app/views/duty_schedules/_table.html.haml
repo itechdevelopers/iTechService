@@ -1,0 +1,60 @@
+- stats = query.month_stats
+- employees = query.employees
+- week_dates = query.week_dates
+- schedule_index = query.schedule_entries_index
+- duty_index = query.duty_entries_index
+- monthly_counts = query.monthly_duty_counts
+
+.duty-schedule
+  %hr
+
+  .row-fluid
+    .span12
+      .btn-toolbar
+        .btn-group
+          = link_to duty_schedule_path(department_id: department.id, week_start: (week_start - 7.days).to_s), remote: true, class: 'btn' do
+            = glyph(:'chevron-left')
+            = t('duty_schedules.nav.prev_week')
+          %span.btn.disabled
+            = l(week_start, format: '%d.%m')
+            \-
+            = l(week_start + 6.days, format: '%d.%m.%Y')
+          = link_to duty_schedule_path(department_id: department.id, week_start: (week_start + 7.days).to_s), remote: true, class: 'btn' do
+            = t('duty_schedules.nav.next_week')
+            = glyph(:'chevron-right')
+
+  %hr
+
+  %p.duty-schedule__stats
+    = t('duty_schedules.table.stats', employees: stats[:employees_count], days: stats[:days_in_month], avg: stats[:avg_duties])
+
+  - if employees.any?
+    %table.table.table-bordered.table-condensed.duty-schedule__table
+      %thead
+        %tr
+          %th
+          - week_dates.each do |date|
+            %th.text-center
+              = I18n.l(date, format: '%a')
+              %br
+              = I18n.l(date, format: '%d.%m.%Y')
+          %th.text-center= t('duty_schedules.table.monthly_count')
+      %tbody
+        - employees.each do |employee|
+          %tr
+            %td.duty-schedule__employee-cell{style: "background-color: #{employee.location&.color || '#ffffff'}"}
+              = employee.short_name
+            - week_dates.each do |date|
+              - entry = schedule_index[[employee.id, date]]
+              - duty = duty_index[[employee.id, date]]
+              %td.duty-schedule__cell.text-center{data: { user_id: employee.id, date: date.to_s }}
+                - if entry
+                  .duty-schedule__shift-info
+                    = entry.display_text
+                - if duty
+                  .duty-schedule__duty-marker
+                    %span.label.label-warning= t('duty_schedules.table.on_duty')
+            %td.text-center
+              = monthly_counts[employee.id] || 0
+  - else
+    %p.muted= t('duty_schedules.table.no_employees')

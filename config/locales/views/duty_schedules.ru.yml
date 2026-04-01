@@ -1,0 +1,17 @@
+ru:
+  duty_schedules:
+    nav:
+      prev_week: "Пред. неделя"
+      next_week: "След. неделя"
+    table:
+      stats: "Сотрудников %{employees}. Дней %{days}. Итого среднее количество дежурных смен %{avg}"
+      monthly_count: "Дежурств в месяц"
+      on_duty: "Дежурный"
+      no_employees: "Нет сотрудников для выбранного подразделения на этой неделе"
+    warnings:
+      no_schedule_entry: "У сотрудника нет записи в расписании на этот день"
+      not_working: "Сотрудник не работает в этот день"
+      different_department: "Сотрудник работает на другом подразделении (%{department}) в этот день"
+      custom_shift_not_evening: "Кастомная смена заканчивается в %{end_time}, подразделение закрывается в %{closes_at}"
+      department_closed: "Подразделение не работает в этот день"
+      no_evening_shift: "Сотрудник работает в первой смене"
