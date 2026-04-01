@@ -37,10 +37,12 @@
 :javascript
   $(function() {
     var currentDepartmentId = null;
+    var currentMode = null;
 
     $('#tab_new_duty').on('click', '.btn-department-select', function(e) {
       e.preventDefault();
       currentDepartmentId = $(this).data('department-id');
+      currentMode = null;
       $.ajax({
         url: '#{duty_schedule_path}',
         data: { department_id: currentDepartmentId },
@@ -48,25 +50,39 @@
       });
     });
 
-    // Toggle duty assignment on cell click
-    $('#new_duty_schedule_content').on('click', '.duty-schedule__cell', function(e) {
-      if (!currentDepartmentId) return;
+    // Tool selection (toggle)
+    $('#new_duty_schedule_content').on('click', '.duty-schedule__tool-btn', function() {
+      var $btn = $(this);
+      var mode = $btn.data('mode');
+
+      if (currentMode === mode) {
+        currentMode = null;
+        $btn.removeClass('active');
+      } else {
+        currentMode = mode;
+        $('.duty-schedule__tool-btn').removeClass('active');
+        $btn.addClass('active');
+      }
+    });
+
+    // Cell click — apply selected tool
+    $('#new_duty_schedule_content').on('click', '.duty-schedule__cell', function() {
+      if (!currentDepartmentId || !currentMode) return;
       var $cell = $(this);
       var userId = $cell.data('user-id');
       var date = $cell.data('date');
-      var hasDuty = $cell.find('.duty-schedule__duty-marker').length > 0;
 
-      if (hasDuty) {
-        $.ajax({
-          url: '#{unassign_duty_schedule_path}',
-          method: 'DELETE',
-          data: { department_id: currentDepartmentId, user_id: userId, date: date },
-          dataType: 'script'
-        });
-      } else {
+      if (currentMode === 'assign') {
         $.ajax({
           url: '#{assign_duty_schedule_path}',
           method: 'POST',
+          data: { department_id: currentDepartmentId, user_id: userId, date: date },
+          dataType: 'script'
+        });
+      } else if (currentMode === 'clear') {
+        $.ajax({
+          url: '#{unassign_duty_schedule_path}',
+          method: 'DELETE',
           data: { department_id: currentDepartmentId, user_id: userId, date: date },
           dataType: 'script'
         });

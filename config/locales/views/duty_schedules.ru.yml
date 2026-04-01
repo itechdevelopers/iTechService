@@ -3,6 +3,9 @@ ru:
     nav:
       prev_week: "Пред. неделя"
       next_week: "След. неделя"
+    tools:
+      assign: "Дежурство"
+      clear: "Очистить"
     table:
       stats: "Сотрудников %{employees}. Дней %{days}. Итого среднее количество дежурных смен %{avg}"
       monthly_count: "Дежурств в месяц"

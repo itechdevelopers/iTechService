@@ -25,6 +25,15 @@
 
   %hr
 
+  .duty-schedule__tools
+    .btn-group
+      %button.btn.btn-small.duty-schedule__tool-btn{data: { mode: 'assign' }}
+        = glyph(:plus)
+        = t('duty_schedules.tools.assign')
+      %button.btn.btn-small.btn-warning.duty-schedule__tool-btn{data: { mode: 'clear' }}
+        = glyph(:remove)
+        = t('duty_schedules.tools.clear')
+
   %p.duty-schedule__stats
     = t('duty_schedules.table.stats', employees: stats[:employees_count], days: stats[:days_in_month], avg: stats[:avg_duties])
 
