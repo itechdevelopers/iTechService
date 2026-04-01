@@ -122,11 +122,17 @@ ru:
       title: 'Настройка смен'
       name_placeholder: 'Название смены'
       short_name_placeholder: 'Сокр.'
+      includes_evening: 'Вечер'
       add: 'Добавить'
     list:
       name: 'Название'
       short_name: 'Сокращение'
       time: 'Время'
+      evening: 'Вечер'
+      yes: 'Да'
+      edit: 'Редактировать'
+      save: 'Сохранить'
+      cancel: 'Отмена'
       empty: 'Смены не добавлены'
 
   occupation_types:

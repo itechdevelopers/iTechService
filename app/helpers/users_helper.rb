@@ -285,11 +285,22 @@ module UsersHelper
   end
 
   def duty_info_tag
-    kind = current_user.current_duty_day&.kind
-    return if kind.nil?
+    # Old system (DutyDay)
+    old_kind = current_user.current_duty_day&.kind
+
+    # New system (DutyScheduleEntry)
+    new_duty = DutyScheduleEntry.today.where(user_id: current_user.id).exists?
+
+    return if old_kind.nil? && !new_duty
+
+    message = if new_duty
+                DutyNotificationPhrase.random_active&.text || t('users.duty_info.kitchen')
+              else
+                t("users.duty_info.#{old_kind}")
+              end
 
     content_tag :div, id: 'duty_info', class: 'alert alert-block' do
-      content_tag :h4, t("users.duty_info.#{kind}")
+      content_tag :h4, message
     end
   end
 

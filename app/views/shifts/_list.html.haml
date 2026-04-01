@@ -5,16 +5,54 @@
         %th= t('.name')
         %th= t('.short_name')
         %th= t('.time')
+        %th= t('.evening')
         %th
     %tbody
       - @shifts.each do |shift|
-        %tr
-          %td= shift.name
-          %td= shift.short_name
-          %td
+        %tr{id: "shift_#{shift.id}"}
+          -# Display mode
+          %td.shift-name= shift.name
+          %td.shift-short-name= shift.short_name
+          %td.shift-time
             - if shift.start_time && shift.end_time
               = "#{shift.start_time.strftime('%H:%M')} - #{shift.end_time.strftime('%H:%M')}"
-          %td.text-right
+          %td.shift-evening
+            - if shift.includes_evening?
+              %span.label.label-info= t('.yes')
+          %td.text-right.shift-actions
+            = link_to glyph(:pencil), '#', class: 'btn btn-mini btn-edit-shift', title: t('.edit')
             = link_to glyph(:remove), shift_path(shift), method: :delete, remote: true, class: 'btn btn-mini btn-danger', title: t('helpers.links.destroy'), data: { confirm: t('helpers.links.confirm') }
+
+          -# Edit mode (hidden by default)
+          %td.shift-edit.hide{colspan: 5}
+            = form_with model: shift, url: shift_path(shift), method: :patch, local: false, html: { class: 'form-inline shift-edit-form' } do |f|
+              = f.text_field :name, class: 'input-medium', placeholder: t('shifts.modal_form_content.name_placeholder')
+              = f.text_field :short_name, class: 'input-mini', placeholder: t('shifts.modal_form_content.short_name_placeholder'), maxlength: 10
+              = f.time_field :start_time, class: 'input-small'
+              = f.time_field :end_time, class: 'input-small'
+              = f.check_box :includes_evening, style: 'vertical-align: middle; margin-left: 10px;'
+              %span{style: 'vertical-align: middle;'}= t('shifts.modal_form_content.includes_evening')
+              = f.submit t('.save'), class: 'btn btn-mini btn-primary', style: 'margin-left: 10px;'
+              = link_to t('.cancel'), '#', class: 'btn btn-mini btn-cancel-edit-shift'
 - else
   %p.muted= t('.empty')
+
+:javascript
+  $(function() {
+    // Edit button click
+    $('#shifts_list').on('click', '.btn-edit-shift', function(e) {
+      e.preventDefault();
+      var $row = $(this).closest('tr');
+      $row.find('.shift-name, .shift-short-name, .shift-time, .shift-evening, .shift-actions').addClass('hide');
+      $row.find('.shift-edit').removeClass('hide');
+      $row.find('.shift-edit input[type="text"]').first().focus();
+    });
+
+    // Cancel button click
+    $('#shifts_list').on('click', '.btn-cancel-edit-shift', function(e) {
+      e.preventDefault();
+      var $row = $(this).closest('tr');
+      $row.find('.shift-name, .shift-short-name, .shift-time, .shift-evening, .shift-actions').removeClass('hide');
+      $row.find('.shift-edit').addClass('hide');
+    });
+  });

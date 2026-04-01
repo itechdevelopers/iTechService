@@ -1,0 +1,11 @@
+<% if @success %>
+  var $cell = $('.duty-schedule__cell[data-user-id="<%= @user.id %>"][data-date="<%= @date %>"]');
+  $cell.find('.duty-schedule__duty-marker').remove();
+  $cell.append('<div class="duty-schedule__duty-marker"><span class="label label-warning"><%= j t("duty_schedules.table.on_duty") %></span></div>');
+  $cell.closest('tr').find('td:last').text('<%= @monthly_count %>');
+  <% if @warnings.any? %>
+  alert("<%= j @warnings.join("\n") %>");
+  <% end %>
+<% else %>
+  alert("<%= j @warnings.join("\n") %>");
+<% end %>

@@ -1,0 +1,3 @@
+var $cell = $('.duty-schedule__cell[data-user-id="<%= @user.id %>"][data-date="<%= @date %>"]');
+$cell.find('.duty-schedule__duty-marker').remove();
+$cell.closest('tr').find('td:last').text('<%= @monthly_count %>');

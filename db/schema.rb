@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20260324102228) do
+ActiveRecord::Schema.define(version: 20260331194217) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -470,6 +470,26 @@ ActiveRecord::Schema.define(version: 20260324102228) do
     t.index ["user_id"], name: "index_duty_days_on_user_id"
   end
 
+  create_table "duty_notification_phrases", force: :cascade do |t|
+    t.string "text", null: false
+    t.boolean "active", default: true
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+  end
+
+  create_table "duty_schedule_entries", force: :cascade do |t|
+    t.bigint "department_id", null: false
+    t.bigint "user_id", null: false
+    t.date "date", null: false
+    t.bigint "assigned_by_id"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["assigned_by_id"], name: "index_duty_schedule_entries_on_assigned_by_id"
+    t.index ["department_id", "user_id", "date"], name: "index_duty_schedule_entries_uniqueness", unique: true
+    t.index ["department_id"], name: "index_duty_schedule_entries_on_department_id"
+    t.index ["user_id"], name: "index_duty_schedule_entries_on_user_id"
+  end
+
   create_table "electronic_queues", force: :cascade do |t|
     t.string "queue_name"
     t.bigint "department_id", null: false
@@ -771,6 +791,7 @@ ActiveRecord::Schema.define(version: 20260324102228) do
     t.integer "department_id"
     t.boolean "hidden", default: false
     t.integer "storage_term"
+    t.string "color"
     t.index ["ancestry"], name: "index_locations_on_ancestry"
     t.index ["code"], name: "index_locations_on_code"
     t.index ["department_id"], name: "index_locations_on_department_id"
@@ -1695,6 +1716,7 @@ ActiveRecord::Schema.define(version: 20260324102228) do
     t.integer "position", default: 0
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.boolean "includes_evening", default: false
   end
 
   create_table "spare_part_defects", id: :serial, force: :cascade do |t|
@@ -2171,6 +2193,9 @@ ActiveRecord::Schema.define(version: 20260324102228) do
   add_foreign_key "departments", "cities"
   add_foreign_key "device_tasks", "repair_causes", column: "expected_repair_cause_id"
   add_foreign_key "device_tasks", "repair_services", column: "expected_repair_service_id"
+  add_foreign_key "duty_schedule_entries", "departments"
+  add_foreign_key "duty_schedule_entries", "users"
+  add_foreign_key "duty_schedule_entries", "users", column: "assigned_by_id"
   add_foreign_key "electronic_queues", "departments"
   add_foreign_key "elqueue_ticket_movements", "waiting_clients"
   add_foreign_key "elqueue_windows", "electronic_queues"

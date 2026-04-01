@@ -2,11 +2,94 @@
   %h1
     = link_back_to_index
     = t 'users.duty_schedule'
-.row-fluid
-  #staff_schedule.span8
-    #duty_schedule_tab.tab-pane
-      - DutyDay::KINDS.each do |kind|
-        = duty_calendar(kind, Date.current.beginning_of_month)
 
-  .span4
-    = render 'users/staff_schedule_legend', locations: @locations
+%ul.nav.nav-tabs
+  %li.active
+    %a{href: '#tab_old_duty', 'data-toggle' => 'tab'}= t('users.schedule_tabs.old_duty')
+  %li
+    %a{href: '#tab_new_duty', 'data-toggle' => 'tab'}= t('users.schedule_tabs.new_duty')
+  %li
+    %a{href: '#tab_cashier', 'data-toggle' => 'tab'}= t('users.schedule_tabs.cashier')
+  %li
+    %a{href: '#tab_store_closing', 'data-toggle' => 'tab'}= t('users.schedule_tabs.store_closing')
+
+.tab-content
+  #tab_old_duty.tab-pane.active
+    .row-fluid
+      .span12
+        - DutyDay::KINDS.each do |kind|
+          = duty_calendar(kind, Date.current.beginning_of_month)
+
+  #tab_new_duty.tab-pane
+    %h3= t('users.schedule_tabs.department_select')
+    .btn-group
+      - @departments.each do |department|
+        = link_to department.name, '#', class: 'btn btn-department-select', data: { department_id: department.id }
+    - if can?(:manage, :schedule)
+      = link_to duty_notification_phrases_path, remote: true, class: 'btn btn-small pull-right' do
+        = glyph(:comment)
+        = t('users.schedule_tabs.manage_phrases')
+    #new_duty_schedule_content
+      %p.muted= t('users.schedule_tabs.select_department_hint')
+
+  #tab_cashier.tab-pane
+    %p.muted= t('users.schedule_tabs.coming_soon')
+
+  #tab_store_closing.tab-pane
+    %p.muted= t('users.schedule_tabs.coming_soon')
+
+:javascript
+  $(function() {
+    var currentDepartmentId = null;
+    var currentMode = null;
+
+    $('#tab_new_duty').on('click', '.btn-department-select', function(e) {
+      e.preventDefault();
+      currentDepartmentId = $(this).data('department-id');
+      currentMode = null;
+      $.ajax({
+        url: '#{duty_schedule_path}',
+        data: { department_id: currentDepartmentId },
+        dataType: 'script'
+      });
+    });
+
+    // Tool selection (toggle)
+    $('#new_duty_schedule_content').on('click', '.duty-schedule__tool-btn', function() {
+      var $btn = $(this);
+      var mode = $btn.data('mode');
+
+      if (currentMode === mode) {
+        currentMode = null;
+        $btn.removeClass('active');
+      } else {
+        currentMode = mode;
+        $('.duty-schedule__tool-btn').removeClass('active');
+        $btn.addClass('active');
+      }
+    });
+
+    // Cell click — apply selected tool
+    $('#new_duty_schedule_content').on('click', '.duty-schedule__cell', function() {
+      if (!currentDepartmentId || !currentMode) return;
+      var $cell = $(this);
+      var userId = $cell.data('user-id');
+      var date = $cell.data('date');
+
+      if (currentMode === 'assign') {
+        $.ajax({
+          url: '#{assign_duty_schedule_path}',
+          method: 'POST',
+          data: { department_id: currentDepartmentId, user_id: userId, date: date },
+          dataType: 'script'
+        });
+      } else if (currentMode === 'clear') {
+        $.ajax({
+          url: '#{unassign_duty_schedule_path}',
+          method: 'DELETE',
+          data: { department_id: currentDepartmentId, user_id: userId, date: date },
+          dataType: 'script'
+        });
+      }
+    });
+  });
