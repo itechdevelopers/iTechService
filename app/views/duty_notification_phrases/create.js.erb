@@ -1,0 +1,7 @@
+<% if @phrase.persisted? %>
+  $("#phrases_list").html("<%= j(render('list')) %>");
+  $("#phrase_form")[0].reset();
+  $("#phrase_form input[type='text']").focus();
+<% else %>
+  alert("<%= j(@phrase.errors.full_messages.join(', ')) %>");
+<% end %>

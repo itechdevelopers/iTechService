@@ -25,6 +25,10 @@
     .btn-group
       - @departments.each do |department|
         = link_to department.name, '#', class: 'btn btn-department-select', data: { department_id: department.id }
+    - if can?(:manage, :schedule)
+      = link_to duty_notification_phrases_path, remote: true, class: 'btn btn-small pull-right' do
+        = glyph(:comment)
+        = t('users.schedule_tabs.manage_phrases')
     #new_duty_schedule_content
       %p.muted= t('users.schedule_tabs.select_department_hint')
 

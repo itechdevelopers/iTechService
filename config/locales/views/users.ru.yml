@@ -91,6 +91,7 @@ ru:
       department_select: 'Выбор подразделения'
       select_department_hint: 'Выберите подразделение для отображения графика дежурств'
       coming_soon: 'Функционал в разработке'
+      manage_phrases: 'Фразы уведомлений'
     group_karma: 'Сгруппировать'
     info: 'Информация'
     job_schedule: 'График работы'
