@@ -1,0 +1,15 @@
+ru:
+  duty_schedule_color_settings:
+    modal_form_content:
+      title: "Настройка фона ячеек"
+    list:
+      status: "Статус"
+      color: "Цвет"
+      edit: "Редактировать"
+      save: "Сохранить"
+      cancel: "Отмена"
+      keys:
+        first_shift: "Первая смена (занято)"
+        not_working: "Не работает / другое подразделение"
+        available: "Свободно (можно назначить)"
+        quota_filled: "Уже хватает (норма выполнена)"

@@ -1,0 +1,41 @@
+%table.table.table-condensed.table-striped
+  %thead
+    %tr
+      %th= t('.status')
+      %th= t('.color')
+      %th
+  %tbody
+    - @color_settings.each do |setting|
+      %tr{id: "color_setting_#{setting.id}"}
+        -# Display mode
+        %td.cs-label= t(".keys.#{setting.key}")
+        %td.cs-color
+          %span.duty-schedule-color-swatch{style: "background-color: #{setting.color};"}
+          %code= setting.color
+        %td.text-right.cs-actions
+          = link_to glyph(:pencil), '#', class: 'btn btn-mini btn-edit-color', title: t('.edit'), data: { id: setting.id }
+
+        -# Edit mode (hidden by default)
+        %td.cs-edit.hide{colspan: 3}
+          = form_with model: setting, url: duty_schedule_color_setting_path(setting), method: :patch, local: false, html: { class: 'form-inline cs-edit-form' } do |f|
+            %strong= t(".keys.#{setting.key}")
+            = f.color_field :color, style: 'width: 60px; height: 30px; padding: 2px; margin-left: 10px;'
+            = f.submit t('.save'), class: 'btn btn-mini btn-primary', style: 'margin-left: 10px;'
+            = link_to t('.cancel'), '#', class: 'btn btn-mini btn-cancel-edit-color'
+
+:javascript
+  $(function() {
+    $('#color_settings_list').on('click', '.btn-edit-color', function(e) {
+      e.preventDefault();
+      var $row = $(this).closest('tr');
+      $row.find('.cs-label, .cs-color, .cs-actions').addClass('hide');
+      $row.find('.cs-edit').removeClass('hide');
+    });
+
+    $('#color_settings_list').on('click', '.btn-cancel-edit-color', function(e) {
+      e.preventDefault();
+      var $row = $(this).closest('tr');
+      $row.find('.cs-label, .cs-color, .cs-actions').removeClass('hide');
+      $row.find('.cs-edit').addClass('hide');
+    });
+  });

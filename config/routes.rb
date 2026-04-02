@@ -75,6 +75,7 @@ Rails.application.routes.draw do
   resources :occupation_types, only: %i[index create update destroy]
   resources :time_bank_event_types, only: %i[index create update destroy]
   resources :duty_notification_phrases, only: %i[index create update destroy]
+  resources :duty_schedule_color_settings, only: %i[index update]
   resources :schedule_groups, only: %i[show new create edit update destroy] do
     get :history, on: :member
     post :save_week, on: :member

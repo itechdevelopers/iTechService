@@ -1,0 +1,5 @@
+<% if @setting.errors.empty? %>
+  $("#color_settings_list").html("<%= j(render('list')) %>");
+<% else %>
+  alert("<%= j(@setting.errors.full_messages.join(', ')) %>");
+<% end %>

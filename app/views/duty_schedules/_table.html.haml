@@ -4,6 +4,8 @@
 - schedule_index = query.schedule_entries_index
 - duty_index = query.duty_entries_index
 - monthly_counts = query.monthly_duty_counts
+- cell_statuses = query.cell_statuses_index
+- colors = DutyScheduleColorSetting.colors_hash
 
 .duty-schedule
   %hr
@@ -56,7 +58,9 @@
             - week_dates.each do |date|
               - entry = schedule_index[[employee.id, date]]
               - duty = duty_index[[employee.id, date]]
-              %td.duty-schedule__cell.text-center{data: { user_id: employee.id, date: date.to_s }}
+              - cell_status = cell_statuses[[employee.id, date]]
+              - cell_bg = cell_status ? (colors[cell_status] || DutyScheduleColorSetting::DEFAULTS[cell_status]) : nil
+              %td.duty-schedule__cell.text-center{data: { user_id: employee.id, date: date.to_s }, style: (cell_bg ? "background-color: #{cell_bg}" : nil)}
                 - if entry
                   .duty-schedule__shift-info
                     = entry.display_text

@@ -28,6 +28,7 @@
  *= require dashboard
  *= require cities
  *= require device_notes
+ *= require duty_schedule
  *= require device_tasks
  *= require device_types
  *= require gift_certificates
