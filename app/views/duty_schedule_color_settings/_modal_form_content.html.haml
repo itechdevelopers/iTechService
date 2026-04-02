@@ -1,0 +1,10 @@
+.modal-header
+  = button_to_close_modal
+  %h3= t('.title')
+
+.modal-body
+  #color_settings_list
+    = render 'list'
+
+.modal-footer
+  = link_to t('helpers.links.close'), '#', 'data-dismiss' => 'modal', class: 'btn'

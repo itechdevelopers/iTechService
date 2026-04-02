@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20260331194217) do
+ActiveRecord::Schema.define(version: 20260402120000) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -475,6 +475,14 @@ ActiveRecord::Schema.define(version: 20260331194217) do
     t.boolean "active", default: true
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+  end
+
+  create_table "duty_schedule_color_settings", force: :cascade do |t|
+    t.string "key", null: false
+    t.string "color", null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["key"], name: "index_duty_schedule_color_settings_on_key", unique: true
   end
 
   create_table "duty_schedule_entries", force: :cascade do |t|

@@ -78,7 +78,63 @@ class DutyScheduleQuery
     { days_in_month: days, employees_count: emp_count, avg_duties: avg }
   end
 
+  # Hash of [user_id, date] => status_key (String or nil)
+  # Possible keys: 'not_working', 'first_shift', 'available', 'quota_filled'
+  # nil = no schedule entry or uncovered edge case (no color)
+  def cell_statuses_index
+    @cell_statuses_index ||= build_cell_statuses
+  end
+
   private
+
+  def build_cell_statuses
+    statuses = {}
+    duty_quota = month_stats[:avg_duties].to_i
+    dept_hours_index = load_dept_hours_index
+
+    employees.each do |employee|
+      week_dates.each do |date|
+        statuses[[employee.id, date]] = cell_status_for(
+          employee, date, dept_hours_index, duty_quota
+        )
+      end
+    end
+
+    statuses
+  end
+
+  def cell_status_for(employee, date, dept_hours_index, duty_quota)
+    entry = schedule_entries_index[[employee.id, date]]
+    return nil unless entry
+
+    # Cases 2, 3: not working or different department
+    return 'not_working' unless entry.occupation_type&.counts_as_working?
+    return 'not_working' if entry.department_id != department.id
+
+    # Cases 4, 5: department closed or no shift end time
+    dept_hours = dept_hours_index[date.cwday - 1]
+    return nil if dept_hours.nil? || dept_hours.is_closed?
+
+    shift_end = entry.custom_shift? ? entry.custom_end_time : entry.shift&.end_time
+    return nil unless shift_end
+
+    # Case 6: first shift (shift ends before department closes)
+    if shift_end.seconds_since_midnight < dept_hours.closes_at.seconds_since_midnight
+      return 'first_shift'
+    end
+
+    # Case 7: eligible — check quota
+    count = monthly_duty_counts[employee.id] || 0
+    count >= duty_quota && duty_quota.positive? ? 'quota_filled' : 'available'
+  end
+
+  # Load DepartmentWorkingHours for all 7 days of the week in one query
+  # Returns hash: day_of_week (0=Mon..6=Sun) => DepartmentWorkingHours
+  def load_dept_hours_index
+    DepartmentWorkingHours
+      .where(department: department)
+      .index_by(&:day_of_week)
+  end
 
   def schedule_entries_for_week
     group_ids = city.schedule_groups.pluck(:id)
