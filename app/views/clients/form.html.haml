@@ -22,7 +22,7 @@
         = ff.input_field :client_category_id, collection: ClientCategory.all, prompt: ClientCharacteristic.human_attribute_name(:client_category)
         = ff.error :client_category_id
         %br
-        = ff.input_field :comment, placeholder: ClientCharacteristic.human_attribute_name(:comment), rows: 3
+        = ff.input_field :comment, placeholder: t('clients.characteristic_reason_placeholder'), rows: 3
         = ff.error :comment
         %label.checkbox
           = ff.check_box :_destroy
