@@ -33,21 +33,12 @@ class DutyAssignmentValidator
       return { eligible: false, warnings: warnings }
     end
 
-    if entry.custom_shift?
-      return validate_custom_shift(entry, warnings)
-    end
-
-    unless entry.shift&.includes_evening?
-      warnings << I18n.t('duty_schedules.warnings.no_evening_shift')
-      return { eligible: false, warnings: warnings }
-    end
-
-    { eligible: true, warnings: warnings }
+    validate_evening_shift(entry, warnings)
   end
 
   private
 
-  def validate_custom_shift(entry, warnings)
+  def validate_evening_shift(entry, warnings)
     dept_hours = DepartmentWorkingHours.find_by(
       department: department,
       day_of_week: date.cwday - 1
@@ -58,11 +49,22 @@ class DutyAssignmentValidator
       return { eligible: false, warnings: warnings }
     end
 
-    if entry.custom_end_time.seconds_since_midnight >= dept_hours.closes_at.seconds_since_midnight
+    shift_end = if entry.custom_shift?
+                  entry.custom_end_time
+                else
+                  entry.shift&.end_time
+                end
+
+    unless shift_end
+      warnings << I18n.t('duty_schedules.warnings.no_evening_shift')
+      return { eligible: false, warnings: warnings }
+    end
+
+    if shift_end.seconds_since_midnight >= dept_hours.closes_at.seconds_since_midnight
       { eligible: true, warnings: warnings }
     else
-      warnings << I18n.t('duty_schedules.warnings.custom_shift_not_evening',
-                          end_time: entry.custom_end_time.strftime('%H:%M'),
+      warnings << I18n.t('duty_schedules.warnings.shift_ends_before_closing',
+                          end_time: shift_end.strftime('%H:%M'),
                           closes_at: dept_hours.closes_at.strftime('%H:%M'))
       { eligible: false, warnings: warnings }
     end
