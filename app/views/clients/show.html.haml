@@ -41,8 +41,15 @@
       %dt= Client.human_attribute_name :client_characteristic
       %dd
         = @client.category_name
-        %br
-        = @client.characteristic
+        - if current_user.any_admin? && @client.client_characteristic.present?
+          %br
+          = @client.characteristic
+          - if @client.client_characteristic.set_at.present?
+            %br
+            %small.muted
+              = l(@client.client_characteristic.set_at, format: :date_time)
+              - if @client.client_characteristic.set_by_user.present?
+                = @client.client_characteristic.set_by_user.short_name
 
       %dt= Client.human_attribute_name :category
       %dd= human_client_category @client

@@ -27,3 +27,4 @@ ru:
     updated: 'Клиент изменён'
     available_discount: "Доступная скидка"
     not_found: 'Клиент не найден'
+    characteristic_reason_placeholder: 'Укажите здесь причину, почему клиент попал в эту категорию'

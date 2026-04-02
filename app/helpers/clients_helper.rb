@@ -74,7 +74,7 @@ module ClientsHelper
     return unless can?(:edit_department, form.object)
 
     form.input :city, required: true, input_html: {class: 'input-xlarge'} do
-      form.collection_radio_buttons :city, City.main, :id, :name do |b|
+      form.collection_radio_buttons :city, City.main, :id, :name, checked: form.object.city&.id do |b|
         b.radio_button + city_tag(b.object)
       end
     end
