@@ -4,6 +4,15 @@
 
 jQuery ->
 
+  # Auto-set phone as checked for existing clients (no need to click checkmark)
+  $phoneField = $('#client_full_phone_number')
+  $phoneChecked = $('#client_phone_number_checked')
+  if $phoneField.length > 0 and $phoneField.val() isnt ''
+    $phoneChecked.val('1')
+    $phoneChecked.data('checked_number', $phoneField.val())
+    $('#phone_length').text($phoneField.val().length)
+    $('#check_phone_number').addClass('btn-success')
+
   $(document).on 'click', '#check_phone_number', (event) ->
     unless $(this).hasClass 'disabled'
       number = $('#client_full_phone_number').val()

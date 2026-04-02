@@ -49,7 +49,7 @@ class Client < ApplicationRecord
   validates_associated :comments
   validates_associated :client_characteristic
   validate :restricted_attributes, unless: proc { User.current.any_admin? or User.current.able_to?(:edit_clients) }
-  validates_acceptance_of :phone_number_checked
+  validates_acceptance_of :phone_number_checked, if: :full_phone_number_changed?
   before_destroy :send_mail
 
   after_initialize do
