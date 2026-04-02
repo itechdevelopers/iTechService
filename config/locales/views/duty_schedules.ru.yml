@@ -15,6 +15,6 @@ ru:
       no_schedule_entry: "У сотрудника нет записи в расписании на этот день"
       not_working: "Сотрудник не работает в этот день"
       different_department: "Сотрудник работает на другом подразделении (%{department}) в этот день"
-      custom_shift_not_evening: "Кастомная смена заканчивается в %{end_time}, подразделение закрывается в %{closes_at}"
       department_closed: "Подразделение не работает в этот день"
-      no_evening_shift: "Сотрудник работает в первой смене"
+      no_evening_shift: "Не удалось определить время окончания смены"
+      shift_ends_before_closing: "Смена заканчивается в %{end_time}, подразделение закрывается в %{closes_at}"

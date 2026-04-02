@@ -32,7 +32,7 @@ class DutyScheduleQuery
           .where(id: user_ids)
           .joins(:location)
           .where(locations: { schedule: true })
-          .order(:id)
+          .order('locations.name ASC, users.surname ASC, users.name ASC')
     end
   end
 
