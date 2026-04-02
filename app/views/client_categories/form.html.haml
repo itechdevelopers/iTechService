@@ -5,6 +5,7 @@
   .form-inputs
     = f.input :name
     = f.input :color, as: :color
+    = f.input :work_algorithm, as: :text, input_html: { rows: 5 }
 
   .form-actions
     = submit_button f

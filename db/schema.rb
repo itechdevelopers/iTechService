@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20260402120000) do
+ActiveRecord::Schema.define(version: 20260402130000) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -241,6 +241,7 @@ ActiveRecord::Schema.define(version: 20260402120000) do
     t.string "color", limit: 255
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.text "work_algorithm"
   end
 
   create_table "client_characteristics", id: :serial, force: :cascade do |t|

@@ -54,6 +54,6 @@ class ClientCategoriesController < ApplicationController
   private
 
   def client_category_params
-    params.require(:client_category).permit(:color, :name)
+    params.require(:client_category).permit(:color, :name, :work_algorithm)
   end
 end
