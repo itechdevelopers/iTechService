@@ -6,7 +6,7 @@ class ClientInput < SimpleForm::Inputs::StringInput
       search_value = client&.presentation || template.params[:client]
       template.content_tag(:span, template.icon_tag(:search), class: 'add-on') +
       if client.is_a?(Client)
-        template.text_field_tag(:client_search, search_value, placeholder: template.t('client_input_placeholder').html_safe, autofocus: true, autocomplete: 'off', style: "color: #{client&.category_color}", class: 'has-tooltip', title: client&.characteristic, data: {html: true, container: 'body'})
+        template.text_field_tag(:client_search, search_value, placeholder: template.t('client_input_placeholder').html_safe, autofocus: true, autocomplete: 'off', style: "color: #{client&.category_color}", class: 'has-tooltip', title: client&.work_algorithm, data: {html: true, container: 'body'})
       else
         template.text_field_tag(:client_search, search_value, placeholder: template.t('client_input_placeholder').html_safe, autofocus: true, autocomplete: 'off')
       end +

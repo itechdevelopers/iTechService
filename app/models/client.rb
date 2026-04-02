@@ -128,6 +128,10 @@ class Client < ApplicationRecord
     client_characteristic.present? ? client_characteristic.comment : nil
   end
 
+  def work_algorithm
+    client_category.present? ? client_category.work_algorithm : nil
+  end
+
   def category_s
     CATEGORIES[category || 0]
   end
