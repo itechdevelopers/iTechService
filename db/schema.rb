@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20260402140000) do
+ActiveRecord::Schema.define(version: 20260404120000) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -175,6 +175,26 @@ ActiveRecord::Schema.define(version: 20260402140000) do
     t.integer "cash_drawer_id"
     t.index ["cash_drawer_id"], name: "index_cash_shifts_on_cash_drawer_id"
     t.index ["user_id"], name: "index_cash_shifts_on_user_id"
+  end
+
+  create_table "cashier_notification_phrases", force: :cascade do |t|
+    t.string "text", null: false
+    t.boolean "active", default: true, null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+  end
+
+  create_table "cashier_schedule_entries", force: :cascade do |t|
+    t.bigint "department_id", null: false
+    t.bigint "user_id", null: false
+    t.date "date", null: false
+    t.bigint "assigned_by_id"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["assigned_by_id"], name: "index_cashier_schedule_entries_on_assigned_by_id"
+    t.index ["department_id", "user_id", "date"], name: "index_cashier_schedule_entries_uniqueness", unique: true
+    t.index ["department_id"], name: "index_cashier_schedule_entries_on_department_id"
+    t.index ["user_id"], name: "index_cashier_schedule_entries_on_user_id"
   end
 
   create_table "check_list_items", force: :cascade do |t|
@@ -2196,6 +2216,9 @@ ActiveRecord::Schema.define(version: 20260402140000) do
   end
 
   add_foreign_key "call_transcriptions", "clients"
+  add_foreign_key "cashier_schedule_entries", "departments"
+  add_foreign_key "cashier_schedule_entries", "users"
+  add_foreign_key "cashier_schedule_entries", "users", column: "assigned_by_id"
   add_foreign_key "check_list_items", "check_lists"
   add_foreign_key "check_list_responses", "check_lists"
   add_foreign_key "check_lists", "check_list_items", column: "main_question_id"

@@ -1,0 +1,50 @@
+- if @phrases.any?
+  %table.table.table-condensed.table-striped
+    %thead
+      %tr
+        %th= t('.text')
+        %th= t('.active')
+        %th
+    %tbody
+      - @phrases.each do |phrase|
+        %tr{id: "cashier_phrase_#{phrase.id}"}
+          -# Display mode
+          %td.phrase-text= phrase.text
+          %td.phrase-active
+            - if phrase.active?
+              %span.label.label-success= t('.yes')
+            - else
+              %span.label= t('.no')
+          %td.text-right.phrase-actions
+            = link_to glyph(:pencil), '#', class: 'btn btn-mini btn-edit-cashier-phrase', title: t('.edit'), data: { id: phrase.id }
+            = link_to glyph(:remove), cashier_notification_phrase_path(phrase), method: :delete, remote: true, class: 'btn btn-mini btn-danger', title: t('helpers.links.destroy'), data: { confirm: t('helpers.links.confirm') }
+
+          -# Edit mode (hidden by default)
+          %td.phrase-edit.hide{colspan: 3}
+            = form_with model: phrase, url: cashier_notification_phrase_path(phrase), method: :patch, local: false, html: { class: 'form-inline cashier-phrase-edit-form' } do |f|
+              = f.text_field :text, class: 'input-xlarge', placeholder: t('.text_placeholder')
+              %label.checkbox.inline{style: 'margin-left: 10px;'}
+                = f.check_box :active
+                = t('.active')
+              = f.submit t('.save'), class: 'btn btn-mini btn-primary', style: 'margin-left: 10px;'
+              = link_to t('.cancel'), '#', class: 'btn btn-mini btn-cancel-edit-cashier-phrase'
+- else
+  %p.muted= t('.empty')
+
+:javascript
+  $(function() {
+    $('#cashier_phrases_list').on('click', '.btn-edit-cashier-phrase', function(e) {
+      e.preventDefault();
+      var $row = $(this).closest('tr');
+      $row.find('.phrase-text, .phrase-active, .phrase-actions').addClass('hide');
+      $row.find('.phrase-edit').removeClass('hide');
+      $row.find('.phrase-edit input[type="text"]').focus();
+    });
+
+    $('#cashier_phrases_list').on('click', '.btn-cancel-edit-cashier-phrase', function(e) {
+      e.preventDefault();
+      var $row = $(this).closest('tr');
+      $row.find('.phrase-text, .phrase-active, .phrase-actions').removeClass('hide');
+      $row.find('.phrase-edit').addClass('hide');
+    });
+  });

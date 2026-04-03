@@ -1,0 +1,78 @@
+- stats = query.month_stats
+- employees = query.employees
+- week_dates = query.week_dates
+- schedule_index = query.schedule_entries_index
+- cashier_index = query.cashier_entries_index
+- duty_index = query.duty_entries_index
+- monthly_counts = query.monthly_cashier_counts
+- cell_statuses = query.cell_statuses_index
+- colors = DutyScheduleColorSetting.colors_hash
+
+.cashier-schedule
+  %hr
+
+  .row-fluid
+    .span12
+      .btn-toolbar
+        .btn-group
+          = link_to cashier_schedule_path(department_id: department.id, week_start: (week_start - 7.days).to_s), remote: true, class: 'btn' do
+            = glyph(:'chevron-left')
+            = t('cashier_schedules.nav.prev_week')
+          %span.btn.disabled
+            = l(week_start, format: '%d.%m')
+            \-
+            = l(week_start + 6.days, format: '%d.%m.%Y')
+          = link_to cashier_schedule_path(department_id: department.id, week_start: (week_start + 7.days).to_s), remote: true, class: 'btn' do
+            = t('cashier_schedules.nav.next_week')
+            = glyph(:'chevron-right')
+
+  %hr
+
+  .cashier-schedule__tools
+    .btn-group
+      %button.btn.btn-small.cashier-schedule__tool-btn{data: { mode: 'assign' }}
+        = glyph(:plus)
+        = t('cashier_schedules.tools.assign')
+      %button.btn.btn-small.btn-warning.cashier-schedule__tool-btn{data: { mode: 'clear' }}
+        = glyph(:remove)
+        = t('cashier_schedules.tools.clear')
+
+  %p.cashier-schedule__stats
+    = t('cashier_schedules.table.stats', employees: stats[:employees_count], days: stats[:days_in_month], avg: stats[:avg_duties])
+
+  - if employees.any?
+    %table.table.table-bordered.table-condensed.cashier-schedule__table
+      %thead
+        %tr
+          %th
+          - week_dates.each do |date|
+            %th.text-center
+              = I18n.l(date, format: '%a')
+              %br
+              = I18n.l(date, format: '%d.%m.%Y')
+          %th.text-center= t('cashier_schedules.table.monthly_count')
+      %tbody
+        - employees.each do |employee|
+          %tr
+            %td.cashier-schedule__employee-cell{style: "background-color: #{employee.location&.color || '#ffffff'}"}
+              = employee.short_name
+            - week_dates.each do |date|
+              - entry = schedule_index[[employee.id, date]]
+              - cashier = cashier_index[[employee.id, date]]
+              - duty = duty_index[[employee.id, date]]
+              - cell_status = cell_statuses[[employee.id, date]]
+              - cell_bg = cell_status ? (colors[cell_status] || DutyScheduleColorSetting::DEFAULTS[cell_status]) : nil
+              %td.cashier-schedule__cell.text-center{data: { user_id: employee.id, date: date.to_s }, style: (cell_bg ? "background-color: #{cell_bg}" : nil)}
+                - if entry
+                  .cashier-schedule__shift-info
+                    = entry.display_text
+                - if duty
+                  .cashier-schedule__duty-marker
+                    %span.label.label-important= t('cashier_schedules.table.on_duty')
+                - if cashier
+                  .cashier-schedule__cashier-marker
+                    %span.label.label-warning= t('cashier_schedules.table.closing_cashier')
+            %td.text-center
+              = monthly_counts[employee.id] || 0
+  - else
+    %p.muted= t('cashier_schedules.table.no_employees')

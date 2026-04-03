@@ -1,0 +1,3 @@
+$("#cashier_schedule_content").html("<%= j(render('cashier_schedules/table', query: @query, department: @department, week_start: @week_start)) %>");
+$('#tab_cashier .btn-department-select').removeClass('btn-primary');
+$('#tab_cashier .btn-department-select[data-department-id="<%= @department.id %>"]').addClass('btn-primary');

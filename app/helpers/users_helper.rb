@@ -291,17 +291,28 @@ module UsersHelper
     # New system (DutyScheduleEntry)
     new_duty = DutyScheduleEntry.today.where(user_id: current_user.id).exists?
 
-    return if old_kind.nil? && !new_duty
+    # Cashier closing (CashierScheduleEntry)
+    cashier_closing = CashierScheduleEntry.today.where(user_id: current_user.id).exists?
 
-    message = if new_duty
-                DutyNotificationPhrase.random_active&.text || t('users.duty_info.kitchen')
-              else
-                t("users.duty_info.#{old_kind}")
-              end
+    return if old_kind.nil? && !new_duty && !cashier_closing
 
-    content_tag :div, id: 'duty_info', class: 'alert alert-block' do
-      content_tag :h4, message
+    messages = []
+
+    if new_duty
+      messages << (DutyNotificationPhrase.random_active&.text || t('users.duty_info.kitchen'))
+    elsif old_kind.present?
+      messages << t("users.duty_info.#{old_kind}")
     end
+
+    if cashier_closing
+      messages << (CashierNotificationPhrase.random_active&.text || t('users.duty_info.salesroom'))
+    end
+
+    safe_join(messages.map { |msg|
+      content_tag :div, class: 'alert alert-block' do
+        content_tag :h4, msg
+      end
+    })
   end
 
   def accessible_roles

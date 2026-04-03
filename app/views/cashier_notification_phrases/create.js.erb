@@ -1,0 +1,7 @@
+<% if @phrase.persisted? %>
+  $("#cashier_phrases_list").html("<%= j(render('list')) %>");
+  $("#cashier_phrase_form")[0].reset();
+  $("#cashier_phrase_form input[type='text']").focus();
+<% else %>
+  alert("<%= j(@phrase.errors.full_messages.join(', ')) %>");
+<% end %>
