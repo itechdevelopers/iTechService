@@ -6,7 +6,7 @@ class ClientInput < SimpleForm::Inputs::StringInput
       search_value = client&.presentation || template.params[:client]
       template.content_tag(:span, template.icon_tag(:search), class: 'add-on') +
       if client.is_a?(Client)
-        template.text_field_tag(:client_search, search_value, placeholder: template.t('client_input_placeholder').html_safe, autofocus: true, autocomplete: 'off', style: "color: #{client&.category_color}", class: 'has-tooltip', title: client&.work_algorithm, data: {html: true, container: 'body'})
+        template.text_field_tag(:client_search, search_value, placeholder: template.t('client_input_placeholder').html_safe, autofocus: true, autocomplete: 'off', style: "color: #{client&.category_color}")
       else
         template.text_field_tag(:client_search, search_value, placeholder: template.t('client_input_placeholder').html_safe, autofocus: true, autocomplete: 'off')
       end +
@@ -18,6 +18,7 @@ class ClientInput < SimpleForm::Inputs::StringInput
     template.content_tag(:ul, id: 'clients_autocomplete_list', class: 'dropdown-menu') do
       template.clients_autocomplete_list
     end +
+    work_algorithm_block +
     if options[:no_devices]
       ''
     else
@@ -45,6 +46,18 @@ class ClientInput < SimpleForm::Inputs::StringInput
     return @client if defined? @client
 
     @client = @builder.object.client || Client.find_by(id: @builder.object.client_id)
+  end
+
+  def work_algorithm_block
+    algorithm = client&.work_algorithm
+    display = algorithm.present? ? 'block' : 'none'
+    template.content_tag(:div, id: 'client_work_algorithm', class: 'alert alert-info', style: "display: #{display}; cursor: pointer; margin-top: 5px;") do
+      template.content_tag(:div, class: 'client-work-algorithm__header') do
+        template.content_tag(:strong, I18n.t('clients.work_algorithm_title')) +
+        template.content_tag(:span, ' ▾', class: 'client-work-algorithm__toggle')
+      end +
+      template.content_tag(:div, algorithm, id: 'client_work_algorithm_body', class: 'client-work-algorithm__body', style: 'margin-top: 5px;')
+    end
   end
 
   def transfer_link(transfer)

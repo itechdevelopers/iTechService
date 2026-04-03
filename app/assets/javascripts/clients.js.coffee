@@ -42,6 +42,11 @@ jQuery ->
     else
       $('#client_questionnaire_input').addClass 'hidden'
 
+  $(document).on 'click', '#client_work_algorithm', ->
+    $('#client_work_algorithm_body').slideToggle(150)
+    $toggle = $(this).find('.client-work-algorithm__toggle')
+    $toggle.text(if $toggle.text().trim() == '▾' then ' ▴' else ' ▾')
+
   $(document).on 'click', '#questionnaire_link', (event)->
     $this = $ this
     params = $this.parents('form:first').serialize()

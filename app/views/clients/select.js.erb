@@ -7,10 +7,15 @@
   <% else %>
     $client_search = $('#client_search');
     $client_search.val("<%= @client.presentation %>");
-    $client_search.tooltip('destroy');
-    $client_search.css({color: "<%= @client.category_color %>"})
-      .attr('title', "<%= j @client.work_algorithm %>");
-    $client_search.tooltip();
+    $client_search.css({color: "<%= @client.category_color %>"});
+
+    $algorithm = $('#client_work_algorithm');
+    <% if @client.work_algorithm.present? %>
+      $('#client_work_algorithm_body').text("<%= j @client.work_algorithm %>");
+      $algorithm.show();
+    <% else %>
+      $algorithm.hide();
+    <% end %>
 
     $('#client_input').find('.client_id').val('<%= @client.id %>');
     $edit_client_link = $('#edit_client_link');
