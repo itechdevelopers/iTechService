@@ -1,0 +1,3 @@
+var $cell = $('.cashier-schedule__cell[data-user-id="<%= @user.id %>"][data-date="<%= @date %>"]');
+$cell.find('.cashier-schedule__cashier-marker').remove();
+$cell.closest('tr').find('td:last').text('<%= @monthly_count %>');

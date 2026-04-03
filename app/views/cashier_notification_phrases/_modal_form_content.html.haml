@@ -1,0 +1,16 @@
+.modal-header
+  = button_to_close_modal
+  %h3= t('.title')
+
+.modal-body
+  = form_with model: @phrase, url: cashier_notification_phrases_path, local: false, class: 'form-inline', id: 'cashier_phrase_form' do |f|
+    = f.text_field :text, class: 'input-xlarge', placeholder: t('.text_placeholder')
+    = f.submit t('.add'), class: 'btn btn-success'
+
+  %hr
+
+  #cashier_phrases_list
+    = render 'list'
+
+.modal-footer
+  = link_to t('helpers.links.close'), '#', 'data-dismiss' => 'modal', class: 'btn'

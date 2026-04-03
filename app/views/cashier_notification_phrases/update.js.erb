@@ -1,0 +1,5 @@
+<% if @phrase.errors.empty? %>
+  $("#cashier_phrases_list").html("<%= j(render('list')) %>");
+<% else %>
+  alert("<%= j(@phrase.errors.full_messages.join(', ')) %>");
+<% end %>

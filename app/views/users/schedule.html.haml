@@ -37,61 +37,121 @@
       %p.muted= t('users.schedule_tabs.select_department_hint')
 
   #tab_cashier.tab-pane
-    %p.muted= t('users.schedule_tabs.coming_soon')
+    %h3= t('users.schedule_tabs.department_select')
+    .btn-group
+      - @departments.each do |department|
+        = link_to department.name, '#', class: 'btn btn-cashier-department-select', data: { department_id: department.id }
+    - if can?(:manage, :schedule)
+      .pull-right
+        = link_to duty_schedule_color_settings_path, remote: true, class: 'btn btn-small' do
+          = glyph(:tint)
+          = t('users.schedule_tabs.cell_colors')
+        = link_to cashier_notification_phrases_path, remote: true, class: 'btn btn-small' do
+          = glyph(:comment)
+          = t('users.schedule_tabs.manage_cashier_phrases')
+    #cashier_schedule_content
+      %p.muted= t('users.schedule_tabs.select_department_hint_cashier')
 
   #tab_store_closing.tab-pane
     %p.muted= t('users.schedule_tabs.coming_soon')
 
 :javascript
   $(function() {
-    var currentDepartmentId = null;
-    var currentMode = null;
+    // === Duty Schedule (tab_new_duty) ===
+    var dutyDepartmentId = null;
+    var dutyMode = null;
 
     $('#tab_new_duty').on('click', '.btn-department-select', function(e) {
       e.preventDefault();
-      currentDepartmentId = $(this).data('department-id');
-      currentMode = null;
+      dutyDepartmentId = $(this).data('department-id');
+      dutyMode = null;
       $.ajax({
         url: '#{duty_schedule_path}',
-        data: { department_id: currentDepartmentId },
+        data: { department_id: dutyDepartmentId },
         dataType: 'script'
       });
     });
 
-    // Tool selection (toggle)
     $('#new_duty_schedule_content').on('click', '.duty-schedule__tool-btn', function() {
       var $btn = $(this);
       var mode = $btn.data('mode');
-
-      if (currentMode === mode) {
-        currentMode = null;
+      if (dutyMode === mode) {
+        dutyMode = null;
         $btn.removeClass('active');
       } else {
-        currentMode = mode;
+        dutyMode = mode;
         $('.duty-schedule__tool-btn').removeClass('active');
         $btn.addClass('active');
       }
     });
 
-    // Cell click — apply selected tool
     $('#new_duty_schedule_content').on('click', '.duty-schedule__cell', function() {
-      if (!currentDepartmentId || !currentMode) return;
+      if (!dutyDepartmentId || !dutyMode) return;
       var $cell = $(this);
       var userId = $cell.data('user-id');
       var date = $cell.data('date');
-
-      if (currentMode === 'assign') {
+      if (dutyMode === 'assign') {
         $.ajax({
           url: '#{assign_duty_schedule_path}',
           method: 'POST',
-          data: { department_id: currentDepartmentId, user_id: userId, date: date },
+          data: { department_id: dutyDepartmentId, user_id: userId, date: date },
           dataType: 'script'
         });
-      } else if (currentMode === 'clear') {
+      } else if (dutyMode === 'clear') {
         $.ajax({
           url: '#{unassign_duty_schedule_path}',
           method: 'DELETE',
-          data: { department_id: currentDepartmentId, user_id: userId, date: date },
+          data: { department_id: dutyDepartmentId, user_id: userId, date: date },
+          dataType: 'script'
+        });
+      }
+    });
+
+    // === Cashier Schedule (tab_cashier) ===
+    var cashierDepartmentId = null;
+    var cashierMode = null;
+
+    $('#tab_cashier').on('click', '.btn-cashier-department-select', function(e) {
+      e.preventDefault();
+      cashierDepartmentId = $(this).data('department-id');
+      cashierMode = null;
+      $.ajax({
+        url: '#{cashier_schedule_path}',
+        data: { department_id: cashierDepartmentId },
+        dataType: 'script'
+      });
+    });
+
+    $('#cashier_schedule_content').on('click', '.cashier-schedule__tool-btn', function() {
+      var $btn = $(this);
+      var mode = $btn.data('mode');
+      if (cashierMode === mode) {
+        cashierMode = null;
+        $btn.removeClass('active');
+      } else {
+        cashierMode = mode;
+        $('.cashier-schedule__tool-btn').removeClass('active');
+        $btn.addClass('active');
+      }
+    });
+
+    $('#cashier_schedule_content').on('click', '.cashier-schedule__cell', function() {
+      if (!cashierDepartmentId || !cashierMode) return;
+      var $cell = $(this);
+      var userId = $cell.data('user-id');
+      var date = $cell.data('date');
+      if (cashierMode === 'assign') {
+        $.ajax({
+          url: '#{assign_cashier_schedule_path}',
+          method: 'POST',
+          data: { department_id: cashierDepartmentId, user_id: userId, date: date },
+          dataType: 'script'
+        });
+      } else if (cashierMode === 'clear') {
+        $.ajax({
+          url: '#{unassign_cashier_schedule_path}',
+          method: 'DELETE',
+          data: { department_id: cashierDepartmentId, user_id: userId, date: date },
           dataType: 'script'
         });
       }

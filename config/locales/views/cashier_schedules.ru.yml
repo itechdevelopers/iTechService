@@ -1,0 +1,22 @@
+ru:
+  cashier_schedules:
+    nav:
+      prev_week: "Пред. неделя"
+      next_week: "След. неделя"
+    tools:
+      assign: "Закрытие кассы"
+      clear: "Очистить"
+    table:
+      stats: "Сотрудников %{employees}. Дней %{days}. Итого среднее количество закрытий %{avg}"
+      monthly_count: "Закрытий в месяц"
+      closing_cashier: "Закрывает кассу"
+      on_duty: "Дежурный"
+      no_employees: "Нет сотрудников Бара для выбранного подразделения на этой неделе"
+    warnings:
+      no_schedule_entry: "У сотрудника нет записи в расписании на этот день"
+      not_working: "Сотрудник не работает в этот день"
+      different_department: "Сотрудник работает на другом подразделении (%{department}) в этот день"
+      already_on_duty: "Сотрудник в этот день дежурит и не может закрывать кассу"
+      department_closed: "Подразделение не работает в этот день"
+      no_evening_shift: "Не удалось определить время окончания смены"
+      shift_ends_before_closing: "Смена заканчивается в %{end_time}, подразделение закрывается в %{closes_at}"

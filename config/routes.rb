@@ -71,10 +71,15 @@ Rails.application.routes.draw do
     post :assign, on: :member
     delete :unassign, on: :member
   end
+  resource :cashier_schedule, only: %i[show] do
+    post :assign, on: :member
+    delete :unassign, on: :member
+  end
   resources :shifts, only: %i[index create update destroy]
   resources :occupation_types, only: %i[index create update destroy]
   resources :time_bank_event_types, only: %i[index create update destroy]
   resources :duty_notification_phrases, only: %i[index create update destroy]
+  resources :cashier_notification_phrases, only: %i[index create update destroy]
   resources :duty_schedule_color_settings, only: %i[index update]
   resources :schedule_groups, only: %i[show new create edit update destroy] do
     get :history, on: :member
