@@ -28,3 +28,4 @@ ru:
     available_discount: "Доступная скидка"
     not_found: 'Клиент не найден'
     characteristic_reason_placeholder: 'Укажите здесь причину, почему клиент попал в эту категорию'
+    work_algorithm_title: 'Алгоритм работы с категорией клиента:'
