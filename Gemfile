@@ -104,6 +104,7 @@ group :development do
   gem 'puma'
   gem 'awesome_print'
   gem 'byebug'
+  gem 'bullet'
   # gem 'active_record_query_trace'  # Commented out - query traces too verbose, may re-enable later
 end
 
