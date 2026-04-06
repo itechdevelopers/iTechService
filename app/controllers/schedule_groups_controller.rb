@@ -37,7 +37,13 @@ class ScheduleGroupsController < ApplicationController
     @city = @schedule_group.city
     @week_start = parse_week_start(params[:week])
     @week_dates = (@week_start..(@week_start + 6.days)).to_a
-    @members = @schedule_group.members.ordered
+    @members = @schedule_group.members
+                               .where('users.is_fired IS NOT TRUE OR users.dismissed_date >= ?', @week_start)
+                               .reorder('schedule_group_memberships.position ASC')
+    @dismissed_dates = @members.where(is_fired: true)
+                               .where.not(dismissed_date: nil)
+                               .pluck(:id, :dismissed_date)
+                               .to_h
     @entries = @schedule_group.schedule_entries
                               .for_week(@week_start)
                               .includes(:department, :shift, :occupation_type)

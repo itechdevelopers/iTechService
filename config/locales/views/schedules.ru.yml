@@ -34,6 +34,7 @@ ru:
       department: 'Подразделение'
       shift: 'Смена'
       occupation_type: 'Занятость'
+      dismissed: 'Уволен'
       clear_cell: 'Очистить ячейку'
       custom_shift: 'Кастомная смена'
       custom_shift_from: 'С'

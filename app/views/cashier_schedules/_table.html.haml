@@ -7,6 +7,7 @@
 - monthly_counts = query.monthly_cashier_counts
 - cell_statuses = query.cell_statuses_index
 - colors = DutyScheduleColorSetting.colors_hash
+- dismissed_dates = query.dismissed_dates
 
 .cashier-schedule
   %hr
@@ -53,25 +54,30 @@
           %th.text-center= t('cashier_schedules.table.monthly_count')
       %tbody
         - employees.each do |employee|
+          - dismissed = dismissed_dates[employee.id]
           %tr
-            %td.cashier-schedule__employee-cell{style: "background-color: #{employee.location&.color || '#ffffff'}"}
+            %td.cashier-schedule__employee-cell{style: "background-color: #{employee.location&.color || '#ffffff'}; #{dismissed ? 'text-decoration: line-through' : ''}"}
               = employee.short_name
             - week_dates.each do |date|
-              - entry = schedule_index[[employee.id, date]]
-              - cashier = cashier_index[[employee.id, date]]
-              - duty = duty_index[[employee.id, date]]
-              - cell_status = cell_statuses[[employee.id, date]]
-              - cell_bg = cell_status ? (colors[cell_status] || DutyScheduleColorSetting::DEFAULTS[cell_status]) : nil
-              %td.cashier-schedule__cell.text-center{data: { user_id: employee.id, date: date.to_s }, style: (cell_bg ? "background-color: #{cell_bg}" : nil)}
-                - if entry
-                  .cashier-schedule__shift-info
-                    = entry.display_text
-                - if duty
-                  .cashier-schedule__duty-marker
-                    %span.label.label-important= t('cashier_schedules.table.on_duty')
-                - if cashier
-                  .cashier-schedule__cashier-marker
-                    %span.label.label-warning= t('cashier_schedules.table.closing_cashier')
+              - if dismissed && date >= dismissed
+                %td.cashier-schedule__cell.text-center{style: 'background-color: #1a1a1a; color: #fff; font-size: 10px; pointer-events: none'}
+                  = t('cashier_schedules.table.dismissed')
+              - else
+                - entry = schedule_index[[employee.id, date]]
+                - cashier = cashier_index[[employee.id, date]]
+                - duty = duty_index[[employee.id, date]]
+                - cell_status = cell_statuses[[employee.id, date]]
+                - cell_bg = cell_status ? (colors[cell_status] || DutyScheduleColorSetting::DEFAULTS[cell_status]) : nil
+                %td.cashier-schedule__cell.text-center{data: { user_id: employee.id, date: date.to_s }, style: (cell_bg ? "background-color: #{cell_bg}" : nil)}
+                  - if entry
+                    .cashier-schedule__shift-info
+                      = entry.display_text
+                  - if duty
+                    .cashier-schedule__duty-marker
+                      %span.label.label-important= t('cashier_schedules.table.on_duty')
+                  - if cashier
+                    .cashier-schedule__cashier-marker
+                      %span.label.label-warning= t('cashier_schedules.table.closing_cashier')
             %td.text-center
               = monthly_counts[employee.id] || 0
   - else

@@ -788,7 +788,16 @@ class User < ApplicationRecord
   end
 
   def update_schedule_column
-    self.schedule = false if is_fired
+    if is_fired
+      self.schedule = false
+      remove_future_duty_assignments
+    end
+  end
+
+  def remove_future_duty_assignments
+    cutoff = dismissed_date || Date.current
+    DutyScheduleEntry.where(user_id: id).where('date >= ?', cutoff).delete_all
+    CashierScheduleEntry.where(user_id: id).where('date >= ?', cutoff).delete_all
   end
 
   def ensure_pause_record_consistency
