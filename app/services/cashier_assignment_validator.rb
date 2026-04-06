@@ -16,6 +16,11 @@ class CashierAssignmentValidator
   def validate
     warnings = []
 
+    if user.is_fired?
+      warnings << I18n.t('cashier_schedules.warnings.employee_fired')
+      return { eligible: false, warnings: warnings }
+    end
+
     entry = find_schedule_entry
     unless entry
       warnings << I18n.t('cashier_schedules.warnings.no_schedule_entry')

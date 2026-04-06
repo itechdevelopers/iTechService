@@ -11,8 +11,10 @@ ru:
       monthly_count: "Закрытий в месяц"
       closing_cashier: "Закрывает кассу"
       on_duty: "Дежурный"
+      dismissed: "Уволен"
       no_employees: "Нет сотрудников Бара для выбранного подразделения на этой неделе"
     warnings:
+      employee_fired: "Сотрудник уволен"
       no_schedule_entry: "У сотрудника нет записи в расписании на этот день"
       not_working: "Сотрудник не работает в этот день"
       different_department: "Сотрудник работает на другом подразделении (%{department}) в этот день"

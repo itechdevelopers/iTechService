@@ -30,10 +30,19 @@ class DutyScheduleQuery
 
       User.includes(:location, :department)
           .where(id: user_ids)
+          .where('users.is_fired IS NOT TRUE OR users.dismissed_date >= ?', week_start)
           .joins(:location)
           .where(locations: { schedule: true })
           .order('locations.name ASC, users.surname ASC, users.name ASC')
     end
+  end
+
+  # Hash of user_id => dismissed_date for fired employees
+  def dismissed_dates
+    @dismissed_dates ||= employees.where(is_fired: true)
+                                   .where.not(dismissed_date: nil)
+                                   .pluck(:id, :dismissed_date)
+                                   .to_h
   end
 
   # Hash of [user_id, date] => ScheduleEntry

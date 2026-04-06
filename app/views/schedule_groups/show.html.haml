@@ -101,7 +101,8 @@
         %th= t('.date')
         %th= t('.day_of_week')
         - @members.each do |member|
-          %th.member-header{'data-user-id' => member.id}
+          - dismissed = @dismissed_dates[member.id]
+          %th.member-header{'data-user-id' => member.id, style: dismissed ? 'text-decoration: line-through' : nil}
             = member.short_name
     %tbody
       - @week_dates.each do |date|
@@ -109,15 +110,20 @@
           %td.date-cell{'data-date' => date.to_s}= l(date, format: '%d.%m.%Y')
           %td.weekday-cell= l(date, format: '%A')
           - @members.each do |member|
-            - entry = @entries[[member.id, date]]
-            - cell_data = {'data-user-id' => member.id, 'data-date' => date.to_s}
-            - cell_data['data-entry-id'] = entry.id if entry
-            - if entry && entry.display_text
-              - cell_bg = (entry.department_id && @schedule_group.department_color_override(entry.department_id)) || entry.background_color
-              %td.schedule-cell{cell_data.merge(style: "background-color: #{cell_bg}")}
-                = entry.display_text
+            - dismissed = @dismissed_dates[member.id]
+            - if dismissed && date >= dismissed
+              %td.schedule-cell.dismissed-cell{'data-user-id' => member.id, 'data-date' => date.to_s}
+                = t('.dismissed')
             - else
-              %td.schedule-cell.empty-cell{cell_data}
+              - entry = @entries[[member.id, date]]
+              - cell_data = {'data-user-id' => member.id, 'data-date' => date.to_s}
+              - cell_data['data-entry-id'] = entry.id if entry
+              - if entry && entry.display_text
+                - cell_bg = (entry.department_id && @schedule_group.department_color_override(entry.department_id)) || entry.background_color
+                %td.schedule-cell{cell_data.merge(style: "background-color: #{cell_bg}")}
+                  = entry.display_text
+              - else
+                %td.schedule-cell.empty-cell{cell_data}
     %tfoot.weekly-hours-footer
       %tr
         %td{colspan: 2}= t('.weekly_days_off')
@@ -351,6 +357,13 @@
   }
   .schedule-table .empty-cell {
     background-color: #ffffff;
+  }
+  .schedule-table .dismissed-cell {
+    background-color: #1a1a1a;
+    color: #ffffff;
+    font-size: 10px;
+    cursor: default !important;
+    pointer-events: none;
   }
   .schedule-table[data-can-edit="true"] .schedule-cell {
     cursor: pointer;
