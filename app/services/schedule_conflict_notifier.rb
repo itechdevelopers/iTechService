@@ -53,6 +53,16 @@ class ScheduleConflictNotifier
         message: message
       )
     end
+
+    send_to_telegram(message)
+  end
+
+  def self.send_to_telegram(message)
+    chat_id = ENV['TELEGRAM_SCHEDULE_CONFLICT_CHAT_ID']
+    return unless chat_id.present?
+
+    text = "<b>⚠️ Конфликт в графике</b>\n\n#{message}"
+    SendTelegramMessage.call(chat_id: chat_id, text: text)
   end
 
   private_class_method :notify_superadmins
