@@ -210,6 +210,7 @@ class User < ApplicationRecord
   before_validation :validate_rights_changing
   before_update :update_schedule_column, if: :is_fired_changed?
   after_update :sync_employment_period_dismissal, if: :saved_change_to_dismissed_date?
+  after_update :notify_scheduled_dismissal_conflicts, if: :saved_change_to_dismissed_date?
   before_save :update_elqueue_window_status, if: :elqueue_window_id_changed?
   before_save :ensure_pause_record_consistency, if: :paused_changed?
   after_create :create_default_settings
@@ -848,6 +849,7 @@ class User < ApplicationRecord
   def update_schedule_column
     if is_fired
       self.schedule = false
+      ScheduleConflictNotifier.on_dismissal(self)
       remove_future_duty_assignments
       close_current_employment_period
     end
@@ -862,6 +864,13 @@ class User < ApplicationRecord
       dismissal_reason_id: dismissal_reason_id,
       dismissal_comment: dismissal_comment
     )
+  end
+
+  def notify_scheduled_dismissal_conflicts
+    return if is_fired? # already handled by update_schedule_column
+    return unless dismissed_date.present?
+
+    ScheduleConflictNotifier.on_dismissal(self)
   end
 
   def sync_employment_period_dismissal

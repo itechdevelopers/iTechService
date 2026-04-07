@@ -81,6 +81,7 @@ ru:
     date: 'Дата'
     dismissal:
       fired_status: 'Уволен'
+      scheduled_status: 'Увольнение запланировано на %{date}'
       rehire_checkbox: 'Вернуть на работу'
       rehire_date: 'Дата возвращения'
       rehire_reason: 'Причина возвращения'

@@ -37,11 +37,11 @@ class CashierScheduleQuery
     end
   end
 
-  # Hash of user_id => dismissed_date for fired employees
+  # Hash of user_id => dismissed_date for fired or scheduled-to-fire employees
   def dismissed_dates
-    @dismissed_dates ||= employees.where(is_fired: true)
-                                   .where.not(dismissed_date: nil)
+    @dismissed_dates ||= employees.where.not(dismissed_date: nil)
                                    .pluck(:id, :dismissed_date)
+                                   .map { |id, date| [id, date.to_date] }
                                    .to_h
   end
 

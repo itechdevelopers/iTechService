@@ -40,9 +40,9 @@ class ScheduleGroupsController < ApplicationController
     @members = @schedule_group.members
                                .where('users.is_fired IS NOT TRUE OR users.dismissed_date >= ?', @week_start)
                                .reorder('schedule_group_memberships.position ASC')
-    @dismissed_dates = @members.where(is_fired: true)
-                               .where.not(dismissed_date: nil)
+    @dismissed_dates = @members.where.not(dismissed_date: nil)
                                .pluck(:id, :dismissed_date)
+                               .map { |id, date| [id, date.to_date] }
                                .to_h
     @entries = @schedule_group.schedule_entries
                               .for_week(@week_start)

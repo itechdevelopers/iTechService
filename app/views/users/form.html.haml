@@ -68,8 +68,13 @@
               = text_area_tag 'user[rehire_reason]', nil, rows: 2, id: 'rehire_reason', disabled: true
       - else
         -# State 1: Working — show normal checkbox
+        - scheduled_dismissal = !@user.is_fired? && @user.dismissed_date.present? && @user.dismissed_date.to_date > Date.current
         = f.input :is_fired
-        #dismissal_features.control-group-row{style: ("display: none" unless @user.is_fired)}
+        - if scheduled_dismissal
+          .control-group
+            .controls
+              %span.label.label-warning= t('users.dismissal.scheduled_status', date: @user.dismissed_date.strftime('%d.%m.%Y'))
+        #dismissal_features.control-group-row{style: ("display: none" unless @user.is_fired? || scheduled_dismissal)}
           = f.input :dismissed_date, as: :my_date
           = f.input :dismissal_reason_id, collection: dismissal_reasons, value_method: :id
           = f.input :dismissal_comment
