@@ -79,6 +79,22 @@ ru:
     comment: 'Комментарий'
     created: 'Пользователь создан'
     date: 'Дата'
+    dismissal:
+      fired_status: 'Уволен'
+      rehire_checkbox: 'Вернуть на работу'
+      rehire_date: 'Дата возвращения'
+      rehire_reason: 'Причина возвращения'
+      previous_periods: 'Предыдущие периоды'
+    rehired: 'Сотрудник возвращён на работу'
+    employment_history:
+      title: 'Трудовой стаж'
+      period: 'Рабочий опыт'
+      from: 'с'
+      to: 'по'
+      to_present: 'по настоящее время'
+      tenure: 'Стаж'
+      dismissal_reason: 'Причина ухода'
+      total_tenure: 'Общий стаж'
     duty_info:
       kitchen: 'Сегодня дежурный день!'
       salesroom: 'Ты сегодня закрываешь кассу!'

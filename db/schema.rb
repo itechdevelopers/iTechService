@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20260404120000) do
+ActiveRecord::Schema.define(version: 20260407120001) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -574,6 +574,20 @@ ActiveRecord::Schema.define(version: 20260404120000) do
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.index ["electronic_queue_id"], name: "index_elqueue_windows_on_electronic_queue_id"
+  end
+
+  create_table "employment_periods", force: :cascade do |t|
+    t.bigint "user_id", null: false
+    t.date "started_at", null: false
+    t.date "ended_at"
+    t.bigint "dismissal_reason_id"
+    t.text "dismissal_comment"
+    t.text "rehire_reason"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["dismissal_reason_id"], name: "index_employment_periods_on_dismissal_reason_id"
+    t.index ["user_id", "started_at"], name: "index_employment_periods_on_user_id_and_started_at"
+    t.index ["user_id"], name: "index_employment_periods_on_user_id"
   end
 
   create_table "fault_kinds", id: :serial, force: :cascade do |t|
@@ -2235,6 +2249,8 @@ ActiveRecord::Schema.define(version: 20260404120000) do
   add_foreign_key "electronic_queues", "departments"
   add_foreign_key "elqueue_ticket_movements", "waiting_clients"
   add_foreign_key "elqueue_windows", "electronic_queues"
+  add_foreign_key "employment_periods", "dismissal_reasons"
+  add_foreign_key "employment_periods", "users"
   add_foreign_key "faults", "fault_kinds", column: "kind_id"
   add_foreign_key "faults", "users", column: "causer_id"
   add_foreign_key "faults", "users", column: "issued_by_id"

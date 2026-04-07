@@ -60,6 +60,14 @@ jQuery ->
     else
       $('#dismissal_features').css('display', 'none');
 
+  $(document).on 'change', '#rehire_toggle', (event) ->
+    if $(this).is(':checked')
+      $('#rehire_features').css('display', 'inline-block')
+      $('#rehire_features').find('input, textarea, select').prop('disabled', false)
+    else
+      $('#rehire_features').css('display', 'none')
+      $('#rehire_features').find('input, textarea, select').prop('disabled', true)
+
   $('#edit_wish_link').click (event) ->
     $('#wish_view, #wish_edit').toggleClass 'hide'
 

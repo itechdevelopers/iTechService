@@ -75,6 +75,14 @@ class UsersController < ApplicationController
   def update
     @user = find_record User
 
+    if params[:user][:rehire] == '1'
+      rehire_date = params[:user][:rehire_date].present? ? Date.parse(params[:user][:rehire_date]) : Date.current
+      rehire_reason = params[:user][:rehire_reason]
+      @user.rehire!(rehire_date: rehire_date, rehire_reason: rehire_reason)
+      redirect_to @user, notice: t('users.rehired')
+      return
+    end
+
     respond_to do |format|
       if @user.update_attributes(params_for_update)
         format.html do
