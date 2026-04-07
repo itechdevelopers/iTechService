@@ -46,6 +46,12 @@ schedule_automatic_completion:
   queue: 'default'
   active_job: true
 
+process_scheduled_dismissals:
+  cron: '0 0 * * * Asia/Vladivostok'
+  class: 'ProcessScheduledDismissalsJob'
+  queue: 'default'
+  active_job: true
+
 queue_anomaly_detection:
   cron: '00 7 * * * Asia/Vladivostok'
   class: 'QueueAnomalyDetectionJob'

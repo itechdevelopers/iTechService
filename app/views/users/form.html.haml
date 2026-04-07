@@ -29,11 +29,66 @@
       = f.input :email
       = f.input :job_title
       = f.input(:hiring_date, as: :my_date) unless @user.persisted?
-      = f.input :is_fired
-      #dismissal_features.control-group-row{style: ("display: none" unless @user.is_fired)}
-        = f.input :dismissed_date, as: :my_date
-        = f.input :dismissal_reason_id, collection: dismissal_reasons, value_method: :id
-        = f.input :dismissal_comment
+
+      - if @user.persisted? && @user.is_fired?
+        -# State 2: Fired — dismissal info + rehire checkbox
+        .control-group
+          %label.control-label= User.human_attribute_name :is_fired
+          .controls
+            %span.label.label-important= t('users.dismissal.fired_status')
+
+        - if current_user.superadmin?
+          = f.input :dismissed_date, as: :my_date
+          = f.input :dismissal_reason_id, collection: dismissal_reasons, value_method: :id
+          = f.input :dismissal_comment
+        - else
+          .control-group
+            %label.control-label= User.human_attribute_name :dismissed_date
+            .controls
+              %span= @user.dismissed_date&.strftime('%d.%m.%Y') || '-'
+          .control-group
+            %label.control-label= User.human_attribute_name :dismissal_reason_id
+            .controls
+              %span= @user.dismissal_reason&.name || '-'
+
+        .control-group
+          %label.control-label= t('users.dismissal.rehire_checkbox')
+          .controls.rehire-checkbox
+            = check_box_tag 'rehire_toggle', '1', false, id: 'rehire_toggle'
+        #rehire_features{style: 'display: none'}
+          = f.hidden_field :is_fired, value: '0', id: 'rehire_is_fired_field', disabled: true
+          = hidden_field_tag 'user[rehire]', '1', id: 'rehire_flag', disabled: true
+          .control-group
+            %label.control-label= t('users.dismissal.rehire_date')
+            .controls
+              = date_field_tag 'user[rehire_date]', Date.current, id: 'rehire_date', disabled: true
+          .control-group
+            %label.control-label= t('users.dismissal.rehire_reason')
+            .controls
+              = text_area_tag 'user[rehire_reason]', nil, rows: 2, id: 'rehire_reason', disabled: true
+      - else
+        -# State 1: Working — show normal checkbox
+        - scheduled_dismissal = !@user.is_fired? && @user.dismissed_date.present? && @user.dismissed_date.to_date > Date.current
+        = f.input :is_fired
+        - if scheduled_dismissal
+          .control-group
+            .controls
+              %span.label.label-warning= t('users.dismissal.scheduled_status', date: @user.dismissed_date.strftime('%d.%m.%Y'))
+        #dismissal_features.control-group-row{style: ("display: none" unless @user.is_fired? || scheduled_dismissal)}
+          = f.input :dismissed_date, as: :my_date
+          = f.input :dismissal_reason_id, collection: dismissal_reasons, value_method: :id
+          = f.input :dismissal_comment
+
+        -# Show previous employment periods for context (if any ended)
+        - ended_periods = @user.employment_periods.where.not(ended_at: nil).chronological
+        - if ended_periods.any?
+          .control-group
+            %label.control-label= t('users.dismissal.previous_periods')
+            .controls
+              - ended_periods.each_with_index do |period, i|
+                %div
+                  = "#{i + 1}. #{l(period.started_at, format: '%d.%m.%Y')} — #{l(period.ended_at, format: '%d.%m.%Y')}"
+                  = "(#{period.duration_text})"
 
       = f.input :prepayment
       = f.input :color, as: :color

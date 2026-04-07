@@ -1,0 +1,6 @@
+ru:
+  schedule_conflict_notifications:
+    duty_dismissed: "Сотрудник %{name} стоял в графике дежурств %{duty_date}, но был уволен %{dismissed_date}. Требуется замена."
+    cashier_dismissed: "Сотрудник %{name} стоял в графике закрытия кассы %{duty_date}, но был уволен %{dismissed_date}. Требуется замена."
+    duty_non_working: "Сотрудник %{name} назначен дежурным %{date}, но не работает в этот день. Требуется замена."
+    cashier_non_working: "Сотрудник %{name} закрывает кассу %{date}, но не работает в этот день. Требуется замена."

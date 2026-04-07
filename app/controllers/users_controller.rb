@@ -75,6 +75,14 @@ class UsersController < ApplicationController
   def update
     @user = find_record User
 
+    if params[:user][:rehire] == '1'
+      rehire_date = params[:user][:rehire_date].present? ? Date.parse(params[:user][:rehire_date]) : Date.current
+      rehire_reason = params[:user][:rehire_reason]
+      @user.rehire!(rehire_date: rehire_date, rehire_reason: rehire_reason)
+      redirect_to @user, notice: t('users.rehired')
+      return
+    end
+
     respond_to do |format|
       if @user.update_attributes(params_for_update)
         format.html do
@@ -296,6 +304,14 @@ class UsersController < ApplicationController
       end
 
       p.delete :hiring_date
+
+      # Scheduled dismissal: if dismissed_date is in the future, don't set is_fired yet
+      if p[:is_fired] == '1' && p[:dismissed_date].present?
+        dismissed = Date.parse(p[:dismissed_date]) rescue nil
+        if dismissed && dismissed > Date.current
+          p[:is_fired] = '0'
+        end
+      end
 
       filter_ability_ids_for_limited_rights(p)
     end

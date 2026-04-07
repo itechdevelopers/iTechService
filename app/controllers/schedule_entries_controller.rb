@@ -18,6 +18,7 @@ class ScheduleEntriesController < ApplicationController
 
     if @entry.save
       @entry.reload # Reload to get associations
+      check_duty_conflict(@entry)
       @weekly_days_off = calculate_weekly_days_off_for_users([@entry.user_id])
       @weekly_hours = calculate_weekly_hours_for_users([@entry.user_id])
       @department_counts = calculate_department_counts_for_week
@@ -62,6 +63,7 @@ class ScheduleEntriesController < ApplicationController
     end
 
     @entries.each(&:reload)
+    @entries.each { |entry| check_duty_conflict(entry) }
     @weekly_days_off = calculate_weekly_days_off_for_users(user_ids)
     @weekly_hours = calculate_weekly_hours_for_users(user_ids)
     @department_counts = calculate_department_counts_for_week
@@ -105,6 +107,15 @@ class ScheduleEntriesController < ApplicationController
 
   def entry_params
     params.permit(:department_id, :shift_id, :occupation_type_id, :custom_start_time, :custom_end_time)
+  end
+
+  def check_duty_conflict(entry)
+    return unless entry.occupation_type && !entry.occupation_type.counts_as_working?
+
+    ScheduleConflictNotifier.on_non_working_schedule(
+      entry.user,
+      entry.date
+    )
   end
 
   def can_edit_week?

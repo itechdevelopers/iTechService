@@ -120,6 +120,7 @@ class User < ApplicationRecord
   belongs_to :department, optional: true
   belongs_to :service_job_sorting, optional: true
   belongs_to :dismissal_reason, optional: true
+  has_many :employment_periods, dependent: :destroy
   belongs_to :elqueue_window, optional: true
   has_one :user_settings, dependent: :destroy
   has_many :user_pauses, dependent: :destroy
@@ -208,6 +209,8 @@ class User < ApplicationRecord
   validate :validate_subscription_limit, on: :validate_subscription_limit
   before_validation :validate_rights_changing
   before_update :update_schedule_column, if: :is_fired_changed?
+  after_update :sync_employment_period_dismissal, if: :saved_change_to_dismissed_date?
+  after_update :notify_scheduled_dismissal_conflicts, if: :saved_change_to_dismissed_date?
   before_save :update_elqueue_window_status, if: :elqueue_window_id_changed?
   before_save :ensure_pause_record_consistency, if: :paused_changed?
   after_create :create_default_settings
@@ -398,6 +401,46 @@ class User < ApplicationRecord
     else
       '-'
     end
+  end
+
+  def current_employment_period
+    employment_periods.current.first
+  end
+
+  def total_tenure_months
+    return nil if employment_periods.none?
+    employment_periods.sum(&:duration_months)
+  end
+
+  def total_tenure_text
+    total = total_tenure_months
+    return nil if total.nil?
+    years = total / 12
+    months = total % 12
+    parts = []
+    if years > 0
+      word = if years == 1 || (years > 20 && years % 10 == 1)
+               'год'
+             elsif (years < 5 || years > 20) && (years % 10).in?(2..4)
+               'года'
+             else
+               'лет'
+             end
+      parts << "#{years} #{word}"
+    end
+    parts << "#{months} мес." if months > 0
+    if parts.empty?
+      days = employment_periods.sum { |ep| ((ep.ended_at || Date.current) - ep.started_at).to_i }
+      word = if days % 10 == 1 && days != 11
+               'день'
+             elsif (days % 10).in?(2..4) && !days.in?(12..14)
+               'дня'
+             else
+               'дней'
+             end
+      parts << "#{days} #{word}"
+    end
+    parts.join(' ')
   end
 
   def presentation
@@ -763,6 +806,22 @@ class User < ApplicationRecord
     end
   end
 
+  def rehire!(rehire_date: Date.current, rehire_reason: nil)
+    transaction do
+      self.is_fired = false
+      self.dismissed_date = nil
+      self.dismissal_reason_id = nil
+      self.dismissal_comment = nil
+      self.schedule = false
+      save!
+
+      employment_periods.create!(
+        started_at: rehire_date,
+        rehire_reason: rehire_reason
+      )
+    end
+  end
+
   private
 
   def add_to_auto_add_boards
@@ -790,8 +849,42 @@ class User < ApplicationRecord
   def update_schedule_column
     if is_fired
       self.schedule = false
+      ScheduleConflictNotifier.on_dismissal(self)
       remove_future_duty_assignments
+      close_current_employment_period
     end
+  end
+
+  def close_current_employment_period
+    period = current_employment_period
+    return unless period
+
+    period.update!(
+      ended_at: dismissed_date&.to_date || Date.current,
+      dismissal_reason_id: dismissal_reason_id,
+      dismissal_comment: dismissal_comment
+    )
+  end
+
+  def notify_scheduled_dismissal_conflicts
+    return if is_fired? # already handled by update_schedule_column
+    return unless dismissed_date.present?
+
+    ScheduleConflictNotifier.on_dismissal(self)
+  end
+
+  def sync_employment_period_dismissal
+    return unless is_fired?
+    return if saved_change_to_is_fired? # already handled by close_current_employment_period
+
+    period = employment_periods.where.not(ended_at: nil).order(ended_at: :desc, id: :desc).first
+    return unless period
+
+    period.update!(
+      ended_at: dismissed_date&.to_date || period.ended_at,
+      dismissal_reason_id: dismissal_reason_id,
+      dismissal_comment: dismissal_comment
+    )
   end
 
   def remove_future_duty_assignments
