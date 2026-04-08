@@ -8,6 +8,22 @@ class ScheduleConflictNotifier
     cutoff = user.dismissed_date&.to_date || Date.current
     conflicts = []
 
+    # Schedule conflicts (working days in ScheduleEntry)
+    working_entries = ScheduleEntry.where(user_id: user.id)
+                                   .where('date >= ?', cutoff)
+                                   .includes(:department, :shift, :occupation_type)
+                                   .select { |e| e.occupation_type&.counts_as_working? }
+    working_entries.each do |entry|
+      shift_info = entry.custom_shift? ? "#{entry.custom_start_time.strftime('%H:%M')}-#{entry.custom_end_time.strftime('%H:%M')}" : entry.shift&.name
+      conflicts << I18n.t('schedule_conflict_notifications.schedule_dismissed',
+                          name: user.short_name,
+                          date: I18n.l(entry.date, format: '%d.%m.%Y'),
+                          department: entry.department&.name,
+                          shift: shift_info,
+                          dismissed_date: cutoff.strftime('%d.%m.%Y'))
+    end
+
+    # Duty conflicts
     DutyScheduleEntry.where(user_id: user.id).where('date >= ?', cutoff).find_each do |entry|
       conflicts << I18n.t('schedule_conflict_notifications.duty_dismissed',
                           name: user.short_name,
@@ -15,6 +31,7 @@ class ScheduleConflictNotifier
                           dismissed_date: cutoff.strftime('%d.%m.%Y'))
     end
 
+    # Cashier conflicts
     CashierScheduleEntry.where(user_id: user.id).where('date >= ?', cutoff).find_each do |entry|
       conflicts << I18n.t('schedule_conflict_notifications.cashier_dismissed',
                           name: user.short_name,

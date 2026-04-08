@@ -58,3 +58,13 @@ When starting work:
 3. Work in atomic, testable increments
 4. Return patch diffs with clear commit messages
 
+## Testing Instructions for Stakeholder
+
+After completing a feature or bug fix, write a simple testing instruction in Russian for the project lead. The instruction should:
+- Be written in plain language (non-technical)
+- Include step-by-step UI actions: what page to open, what to click, what to fill in
+- Describe the expected result after each action
+- Cover all main scenarios (happy path + edge cases)
+- Mention any ENV variables or server-side changes needed (e.g., schedule.yml, ENV keys)
+- Format as numbered steps grouped by scenario
+

@@ -214,6 +214,7 @@ class User < ApplicationRecord
   before_save :update_elqueue_window_status, if: :elqueue_window_id_changed?
   before_save :ensure_pause_record_consistency, if: :paused_changed?
   after_create :create_default_settings
+  after_create :create_initial_employment_period
   after_create :add_to_auto_add_boards
 
   mount_uploader :photo, PhotoUploader
@@ -839,6 +840,12 @@ class User < ApplicationRecord
     create_user_settings unless user_settings
   end
 
+  def create_initial_employment_period
+    return unless hiring_date.present?
+
+    employment_periods.create!(started_at: hiring_date)
+  end
+
   def update_elqueue_window_status
     old_elqueue_window = ElqueueWindow.find_by(id: elqueue_window_id_was)
     old_elqueue_window&.set_inactive!
@@ -857,7 +864,12 @@ class User < ApplicationRecord
 
   def close_current_employment_period
     period = current_employment_period
-    return unless period
+
+    unless period
+      # Create period if missing (e.g. user created before EmploymentPeriod feature)
+      start = hiring_date || created_at&.to_date || Date.current
+      period = employment_periods.create!(started_at: start)
+    end
 
     period.update!(
       ended_at: dismissed_date&.to_date || Date.current,
