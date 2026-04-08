@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20260407120001) do
+ActiveRecord::Schema.define(version: 20260408120003) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -1803,6 +1803,46 @@ ActiveRecord::Schema.define(version: 20260407120001) do
     t.index ["serial_number"], name: "index_stolen_phones_on_serial_number"
   end
 
+  create_table "store_closing_entries", force: :cascade do |t|
+    t.bigint "department_id", null: false
+    t.bigint "user_id", null: false
+    t.date "date", null: false
+    t.bigint "assigned_by_id"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["assigned_by_id"], name: "index_store_closing_entries_on_assigned_by_id"
+    t.index ["department_id", "user_id", "date"], name: "index_store_closing_entries_uniqueness", unique: true
+    t.index ["department_id"], name: "index_store_closing_entries_on_department_id"
+    t.index ["user_id"], name: "index_store_closing_entries_on_user_id"
+  end
+
+  create_table "store_closing_groups", force: :cascade do |t|
+    t.bigint "department_id", null: false
+    t.bigint "created_by_id"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["created_by_id"], name: "index_store_closing_groups_on_created_by_id"
+    t.index ["department_id"], name: "index_store_closing_groups_on_department_id", unique: true
+  end
+
+  create_table "store_closing_memberships", force: :cascade do |t|
+    t.bigint "store_closing_group_id", null: false
+    t.bigint "user_id", null: false
+    t.integer "position"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["store_closing_group_id", "user_id"], name: "index_store_closing_memberships_uniqueness", unique: true
+    t.index ["store_closing_group_id"], name: "index_store_closing_memberships_on_store_closing_group_id"
+    t.index ["user_id"], name: "index_store_closing_memberships_on_user_id"
+  end
+
+  create_table "store_closing_notification_phrases", force: :cascade do |t|
+    t.string "text", null: false
+    t.boolean "active", default: true, null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+  end
+
   create_table "store_items", id: :serial, force: :cascade do |t|
     t.integer "item_id"
     t.integer "store_id"
@@ -2323,6 +2363,13 @@ ActiveRecord::Schema.define(version: 20260407120001) do
   add_foreign_key "spare_part_defects", "items"
   add_foreign_key "spare_part_defects", "repair_parts"
   add_foreign_key "stolen_phones", "items"
+  add_foreign_key "store_closing_entries", "departments"
+  add_foreign_key "store_closing_entries", "users"
+  add_foreign_key "store_closing_entries", "users", column: "assigned_by_id"
+  add_foreign_key "store_closing_groups", "departments"
+  add_foreign_key "store_closing_groups", "users", column: "created_by_id"
+  add_foreign_key "store_closing_memberships", "store_closing_groups"
+  add_foreign_key "store_closing_memberships", "users"
   add_foreign_key "substitute_phones", "departments"
   add_foreign_key "substitute_phones", "items"
   add_foreign_key "substitute_phones", "service_jobs"

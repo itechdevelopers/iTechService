@@ -903,6 +903,7 @@ class User < ApplicationRecord
     cutoff = dismissed_date || Date.current
     DutyScheduleEntry.where(user_id: id).where('date >= ?', cutoff).delete_all
     CashierScheduleEntry.where(user_id: id).where('date >= ?', cutoff).delete_all
+    StoreClosingEntry.where(user_id: id).where('date >= ?', cutoff).delete_all
   end
 
   def ensure_pause_record_consistency

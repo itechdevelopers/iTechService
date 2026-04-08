@@ -75,6 +75,12 @@ Rails.application.routes.draw do
     post :assign, on: :member
     delete :unassign, on: :member
   end
+  resource :store_closing_schedule, only: %i[show] do
+    post :assign, on: :member
+    delete :unassign, on: :member
+  end
+  resources :store_closing_groups, only: %i[new create edit update]
+  resources :store_closing_notification_phrases, only: %i[index create update destroy]
   resources :shifts, only: %i[index create update destroy]
   resources :occupation_types, only: %i[index create update destroy]
   resources :time_bank_event_types, only: %i[index create update destroy]

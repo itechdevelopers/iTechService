@@ -1,0 +1,7 @@
+<% if @group %>
+  $("#store_closing_schedule_content").html("<%= j(render('store_closing_schedules/table', query: @query, department: @department, week_start: @week_start, group: @group)) %>");
+<% else %>
+  $("#store_closing_schedule_content").html("<%= j(render('store_closing_schedules/no_group', department: @department)) %>");
+<% end %>
+$('#tab_store_closing .btn-store-closing-department-select').removeClass('btn-primary');
+$('#tab_store_closing .btn-store-closing-department-select[data-department-id="<%= @department.id %>"]').addClass('btn-primary');

@@ -294,7 +294,10 @@ module UsersHelper
     # Cashier closing (CashierScheduleEntry)
     cashier_closing = CashierScheduleEntry.today.where(user_id: current_user.id).exists?
 
-    return if old_kind.nil? && !new_duty && !cashier_closing
+    # Store closing (StoreClosingEntry)
+    store_closing = StoreClosingEntry.today.where(user_id: current_user.id).exists?
+
+    return if old_kind.nil? && !new_duty && !cashier_closing && !store_closing
 
     messages = []
 
@@ -306,6 +309,10 @@ module UsersHelper
 
     if cashier_closing
       messages << (CashierNotificationPhrase.random_active&.text || t('users.duty_info.salesroom'))
+    end
+
+    if store_closing
+      messages << (StoreClosingNotificationPhrase.random_active&.text || t('users.duty_info.store_closing'))
     end
 
     safe_join(messages.map { |msg|
