@@ -99,6 +99,7 @@ ru:
     duty_info:
       kitchen: 'Сегодня дежурный день!'
       salesroom: 'Ты сегодня закрываешь кассу!'
+      store_closing: 'Ого! Ты сегодня магазин закрываешь. Прикинь?'
     duty_schedule: 'График дежурств'
     schedule_tabs:
       old_duty: 'График дежурств'
@@ -112,6 +113,8 @@ ru:
       manage_cashier_phrases: 'Фразы уведомлений'
       cell_colors: 'Фон ячеек'
       select_department_hint_cashier: 'Выберите подразделение для отображения графика закрытия кассы'
+      select_department_hint_store_closing: 'Выберите подразделение для отображения графика закрытия магазина'
+      manage_store_closing_phrases: 'Фразы уведомлений'
     group_karma: 'Сгруппировать'
     info: 'Информация'
     job_schedule: 'График работы'

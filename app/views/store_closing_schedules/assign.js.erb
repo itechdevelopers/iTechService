@@ -1,0 +1,11 @@
+<% if @success %>
+  var $cell = $('.store-closing-schedule__cell[data-user-id="<%= @user.id %>"][data-date="<%= @date %>"]');
+  $cell.find('.store-closing-schedule__closing-marker').remove();
+  $cell.append('<div class="store-closing-schedule__closing-marker"><span class="label label-warning"><%= j t("store_closing_schedules.table.closing_store") %></span></div>');
+  $cell.closest('tr').find('td:last').text('<%= @monthly_count %>');
+  <% if @warnings.any? %>
+  alert("<%= j @warnings.join("\n") %>");
+  <% end %>
+<% else %>
+  alert("<%= j @warnings.join("\n") %>");
+<% end %>

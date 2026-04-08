@@ -1,0 +1,29 @@
+ru:
+  store_closing_schedules:
+    nav:
+      prev_week: "Пред. неделя"
+      next_week: "След. неделя"
+    tools:
+      assign: "Закрытие магазина"
+      clear: "Очистить"
+      edit_group: "Редактировать набор"
+    table:
+      stats: "Сотрудников %{employees}. Дней %{days}. Итого среднее количество закрытий %{avg}"
+      monthly_count: "Закрытий в месяц"
+      closing_store: "Закрывает магазин"
+      closing_cashier: "Закрывает кассу"
+      on_duty: "Дежурный"
+      dismissed: "Уволен"
+      no_employees: "Нет сотрудников в наборе"
+      missing_schedule_warning: "У следующих сотрудников не выставлено расписание на эту неделю: "
+    no_group:
+      message: "Для данного подразделения ещё не создан набор сотрудников для закрытия магазина"
+      create: "Создать набор"
+    warnings:
+      employee_fired: "Сотрудник уволен"
+      no_schedule_entry: "У сотрудника нет записи в расписании на этот день"
+      not_working: "Сотрудник не работает в этот день"
+      different_department: "Сотрудник работает на другом подразделении (%{department}) в этот день"
+      department_closed: "Подразделение не работает в этот день"
+      no_evening_shift: "Не удалось определить время окончания смены"
+      shift_ends_before_closing: "Смена заканчивается в %{end_time}, подразделение закрывается в %{closes_at}"

@@ -1,0 +1,61 @@
+.modal-header
+  = button_to_close_modal
+  %h3= @group&.persisted? ? t('.edit_title') : t('.title')
+
+.modal-body.store-closing-group-modal-body
+  = form_with model: @group, url: @group&.persisted? ? store_closing_group_path(@group) : store_closing_groups_path(store_closing_group: { department_id: @department.id }), local: false, id: 'store_closing_group_form' do |f|
+    %p.muted
+      = t('.department')
+      %strong= @department.name
+
+    .control-group
+      = label_tag :member_ids, t('.members'), class: 'control-label'
+      .controls.store-closing-group-multiselect-wrapper
+        = select_tag :member_ids, options_from_collection_for_select(@available_users, :id, :short_name_with_role, @group&.member_ids || []), multiple: true, class: 'input-xlarge multiselect-store-closing-members', id: 'store_closing_member_ids_select', style: 'display: none;'
+        %p.help-block= t('.members_help')
+
+    .form-actions
+      = f.submit t('helpers.links.save'), class: 'btn btn-primary'
+
+.modal-footer
+  = link_to t('helpers.links.close'), '#', 'data-dismiss' => 'modal', class: 'btn'
+
+:css
+  .store-closing-group-modal-body {
+    max-height: 70vh;
+    overflow-y: auto;
+    overflow-x: hidden;
+  }
+  .store-closing-group-multiselect-wrapper {
+    position: relative;
+  }
+  .store-closing-group-multiselect-wrapper .multiselect-container {
+    position: absolute;
+    z-index: 1060;
+  }
+
+:javascript
+  $(function() {
+    if ($('.multiselect-store-closing-members').length && !$('.multiselect-store-closing-members').data('multiselect')) {
+      $('.multiselect-store-closing-members').multiselect({
+        enableCaseInsensitiveFiltering: true,
+        filterPlaceholder: 'Поиск...',
+        nonSelectedText: 'Выберите сотрудников',
+        nSelectedText: 'выбрано',
+        allSelectedText: 'Все сотрудники',
+        selectAllText: 'Выбрать всех',
+        includeSelectAllOption: true,
+        buttonWidth: '100%',
+        maxHeight: 300,
+        templates: {
+          filter: '<div class="multiselect-filter"><div class="input-prepend"><span class="add-on"><i class="icon-search"></i></span><input class="multiselect-search" type="text" /></div></div>',
+          filterClearBtn: ''
+        },
+        onInitialized: function() {
+          $('.multiselect-store-closing-members').closest('.controls').find('.multiselect-group, .multiselect-option, .multiselect-all').each(function() {
+            $(this).attr('type', 'button');
+          });
+        }
+      });
+    }
+  });

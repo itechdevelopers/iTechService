@@ -1,0 +1,16 @@
+ru:
+  store_closing_notification_phrases:
+    modal_form_content:
+      title: "Фразы уведомлений о закрытии магазина"
+      text_placeholder: "Текст фразы..."
+      add: "Добавить"
+    list:
+      text: "Фраза"
+      active: "Активна"
+      yes: "Да"
+      no: "Нет"
+      edit: "Редактировать"
+      save: "Сохранить"
+      cancel: "Отмена"
+      text_placeholder: "Текст фразы..."
+      empty: "Фразы не добавлены. Будет использоваться стандартный текст уведомления."

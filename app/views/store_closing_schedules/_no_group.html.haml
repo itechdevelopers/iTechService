@@ -1,0 +1,5 @@
+.store-closing-schedule
+  %hr
+  %p.muted= t('store_closing_schedules.no_group.message')
+  - if policy(:schedule).create?
+    = link_to t('store_closing_schedules.no_group.create'), new_store_closing_group_path(department_id: department.id), remote: true, class: 'btn btn-primary'

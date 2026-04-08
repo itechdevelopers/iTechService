@@ -53,7 +53,20 @@
       %p.muted= t('users.schedule_tabs.select_department_hint_cashier')
 
   #tab_store_closing.tab-pane
-    %p.muted= t('users.schedule_tabs.coming_soon')
+    %h3= t('users.schedule_tabs.department_select')
+    .btn-group
+      - @departments.each do |department|
+        = link_to department.name, '#', class: 'btn btn-store-closing-department-select', data: { department_id: department.id }
+    - if can?(:manage, :schedule)
+      .pull-right
+        = link_to duty_schedule_color_settings_path, remote: true, class: 'btn btn-small' do
+          = glyph(:tint)
+          = t('users.schedule_tabs.cell_colors')
+        = link_to store_closing_notification_phrases_path, remote: true, class: 'btn btn-small' do
+          = glyph(:comment)
+          = t('users.schedule_tabs.manage_store_closing_phrases')
+    #store_closing_schedule_content
+      %p.muted= t('users.schedule_tabs.select_department_hint_store_closing')
 
 :javascript
   $(function() {
@@ -152,6 +165,56 @@
           url: '#{unassign_cashier_schedule_path}',
           method: 'DELETE',
           data: { department_id: cashierDepartmentId, user_id: userId, date: date },
+          dataType: 'script'
+        });
+      }
+    });
+
+    // === Store Closing Schedule (tab_store_closing) ===
+    var storeClosingDepartmentId = null;
+    var storeClosingMode = null;
+
+    $('#tab_store_closing').on('click', '.btn-store-closing-department-select', function(e) {
+      e.preventDefault();
+      storeClosingDepartmentId = $(this).data('department-id');
+      storeClosingMode = null;
+      $.ajax({
+        url: '#{store_closing_schedule_path}',
+        data: { department_id: storeClosingDepartmentId },
+        dataType: 'script'
+      });
+    });
+
+    $('#store_closing_schedule_content').on('click', '.store-closing-schedule__tool-btn', function() {
+      var $btn = $(this);
+      var mode = $btn.data('mode');
+      if (storeClosingMode === mode) {
+        storeClosingMode = null;
+        $btn.removeClass('active');
+      } else {
+        storeClosingMode = mode;
+        $('.store-closing-schedule__tool-btn').removeClass('active');
+        $btn.addClass('active');
+      }
+    });
+
+    $('#store_closing_schedule_content').on('click', '.store-closing-schedule__cell', function() {
+      if (!storeClosingDepartmentId || !storeClosingMode) return;
+      var $cell = $(this);
+      var userId = $cell.data('user-id');
+      var date = $cell.data('date');
+      if (storeClosingMode === 'assign') {
+        $.ajax({
+          url: '#{assign_store_closing_schedule_path}',
+          method: 'POST',
+          data: { department_id: storeClosingDepartmentId, user_id: userId, date: date },
+          dataType: 'script'
+        });
+      } else if (storeClosingMode === 'clear') {
+        $.ajax({
+          url: '#{unassign_store_closing_schedule_path}',
+          method: 'DELETE',
+          data: { department_id: storeClosingDepartmentId, user_id: userId, date: date },
           dataType: 'script'
         });
       }

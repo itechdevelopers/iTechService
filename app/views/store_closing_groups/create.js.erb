@@ -1,0 +1,11 @@
+<% if @group.errors.any? %>
+$('#modal_form').html('<%= j render "modal_form_content" %>');
+<% else %>
+$('#modal_form').modal('hide');
+// Reload store closing schedule for this department
+$.ajax({
+  url: '<%= store_closing_schedule_path %>',
+  data: { department_id: <%= @department.id %> },
+  dataType: 'script'
+});
+<% end %>

@@ -1,0 +1,3 @@
+var $cell = $('.store-closing-schedule__cell[data-user-id="<%= @user.id %>"][data-date="<%= @date %>"]');
+$cell.find('.store-closing-schedule__closing-marker').remove();
+$cell.closest('tr').find('td:last').text('<%= @monthly_count %>');
