@@ -6,48 +6,45 @@
 class ScheduleConflictNotifier
   def self.on_dismissal(user)
     cutoff = user.dismissed_date&.to_date || Date.current
-    conflicts = []
 
-    # Schedule conflicts (working days in ScheduleEntry)
+    # Schedule conflicts (working days in ScheduleEntry) → link to /schedules
+    schedule_conflicts = []
     working_entries = ScheduleEntry.where(user_id: user.id)
                                    .where('date >= ?', cutoff)
                                    .includes(:department, :shift, :occupation_type)
                                    .select { |e| e.occupation_type&.counts_as_working? }
     working_entries.each do |entry|
       shift_info = entry.custom_shift? ? "#{entry.custom_start_time.strftime('%H:%M')}-#{entry.custom_end_time.strftime('%H:%M')}" : entry.shift&.name
-      conflicts << I18n.t('schedule_conflict_notifications.schedule_dismissed',
-                          name: user.short_name,
-                          date: I18n.l(entry.date, format: '%d.%m.%Y'),
-                          department: entry.department&.name,
-                          shift: shift_info,
-                          dismissed_date: cutoff.strftime('%d.%m.%Y'))
+      schedule_conflicts << I18n.t('schedule_conflict_notifications.schedule_dismissed',
+                                   name: user.short_name,
+                                   date: I18n.l(entry.date, format: '%d.%m.%Y'),
+                                   department: entry.department&.name,
+                                   shift: shift_info,
+                                   dismissed_date: cutoff.strftime('%d.%m.%Y'))
     end
+    notify_superadmins(schedule_conflicts, url: '/schedules') if schedule_conflicts.any?
 
-    # Duty conflicts
+    # Duty/Cashier/Store closing conflicts → link to /users/schedule
+    duty_conflicts = []
     DutyScheduleEntry.where(user_id: user.id).where('date >= ?', cutoff).find_each do |entry|
-      conflicts << I18n.t('schedule_conflict_notifications.duty_dismissed',
-                          name: user.short_name,
-                          duty_date: I18n.l(entry.date, format: '%d.%m.%Y'),
-                          dismissed_date: cutoff.strftime('%d.%m.%Y'))
+      duty_conflicts << I18n.t('schedule_conflict_notifications.duty_dismissed',
+                               name: user.short_name,
+                               duty_date: I18n.l(entry.date, format: '%d.%m.%Y'),
+                               dismissed_date: cutoff.strftime('%d.%m.%Y'))
     end
-
-    # Cashier conflicts
     CashierScheduleEntry.where(user_id: user.id).where('date >= ?', cutoff).find_each do |entry|
-      conflicts << I18n.t('schedule_conflict_notifications.cashier_dismissed',
-                          name: user.short_name,
-                          duty_date: I18n.l(entry.date, format: '%d.%m.%Y'),
-                          dismissed_date: cutoff.strftime('%d.%m.%Y'))
+      duty_conflicts << I18n.t('schedule_conflict_notifications.cashier_dismissed',
+                               name: user.short_name,
+                               duty_date: I18n.l(entry.date, format: '%d.%m.%Y'),
+                               dismissed_date: cutoff.strftime('%d.%m.%Y'))
     end
-
-    # Store closing conflicts
     StoreClosingEntry.where(user_id: user.id).where('date >= ?', cutoff).find_each do |entry|
-      conflicts << I18n.t('schedule_conflict_notifications.store_closing_dismissed',
-                          name: user.short_name,
-                          duty_date: I18n.l(entry.date, format: '%d.%m.%Y'),
-                          dismissed_date: cutoff.strftime('%d.%m.%Y'))
+      duty_conflicts << I18n.t('schedule_conflict_notifications.store_closing_dismissed',
+                               name: user.short_name,
+                               duty_date: I18n.l(entry.date, format: '%d.%m.%Y'),
+                               dismissed_date: cutoff.strftime('%d.%m.%Y'))
     end
-
-    notify_superadmins(conflicts) if conflicts.any?
+    notify_superadmins(duty_conflicts, url: '/users/schedule') if duty_conflicts.any?
   end
 
   def self.on_non_working_schedule(user, date)
@@ -71,17 +68,18 @@ class ScheduleConflictNotifier
                           date: I18n.l(date, format: '%d.%m.%Y'))
     end
 
-    notify_superadmins(conflicts) if conflicts.any?
+    notify_superadmins(conflicts, url: '/users/schedule') if conflicts.any?
   end
 
-  def self.notify_superadmins(messages)
+  def self.notify_superadmins(messages, url: nil)
     superadmins = User.where(role: 'superadmin').active
     message = messages.join("\n")
 
     superadmins.find_each do |admin|
       Notification.create!(
         user: admin,
-        message: message
+        message: message,
+        url: url
       )
     end
 
