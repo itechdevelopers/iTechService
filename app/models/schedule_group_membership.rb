@@ -7,7 +7,7 @@ class ScheduleGroupMembership < ApplicationRecord
   validates :user_id, uniqueness: { scope: :schedule_group_id }
   validate :user_not_in_another_group_in_same_city
 
-  default_scope { order(:position) }
+  default_scope { joins(:user).order('users.created_at ASC') }
 
   private
 
