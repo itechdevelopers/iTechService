@@ -7,3 +7,11 @@ ru:
     cashier_non_working: "Сотрудник %{name} закрывает кассу %{date}, но не работает в этот день. Требуется замена."
     store_closing_dismissed: "Сотрудник %{name} стоял в графике закрытия магазина %{duty_date}, но был уволен %{dismissed_date}. Требуется замена."
     store_closing_non_working: "Сотрудник %{name} закрывает магазин %{date}, но не работает в этот день. Требуется замена."
+    telegram:
+      schedule_dismissed: "Сотрудник %{name} стоял в расписании %{date} (<b>%{department}</b>, <b>%{shift}</b>), но был уволен %{dismissed_date}.\n<b>ТРЕБУЕТСЯ ЗАМЕНА В РАСПИСАНИИ</b>"
+      duty_dismissed: "Сотрудник %{name} стоял в графике дежурств %{duty_date}, но был уволен %{dismissed_date}.\n<b>ТРЕБУЕТСЯ ЗАМЕНА</b>"
+      cashier_dismissed: "Сотрудник %{name} стоял в графике закрытия кассы %{duty_date}, но был уволен %{dismissed_date}.\n<b>ТРЕБУЕТСЯ ЗАМЕНА</b>"
+      duty_non_working: "Сотрудник %{name} назначен дежурным %{date}, но не работает в этот день.\n<b>ТРЕБУЕТСЯ ЗАМЕНА</b>"
+      cashier_non_working: "Сотрудник %{name} закрывает кассу %{date}, но не работает в этот день.\n<b>ТРЕБУЕТСЯ ЗАМЕНА</b>"
+      store_closing_dismissed: "Сотрудник %{name} стоял в графике закрытия магазина %{duty_date}, но был уволен %{dismissed_date}.\n<b>ТРЕБУЕТСЯ ЗАМЕНА</b>"
+      store_closing_non_working: "Сотрудник %{name} закрывает магазин %{date}, но не работает в этот день.\n<b>ТРЕБУЕТСЯ ЗАМЕНА</b>"
