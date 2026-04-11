@@ -330,6 +330,237 @@ module UsersHelper
     DismissalReason.all
   end
 
+  def schedule_calendar_for(user, month, entries_index)
+    days = calendar_month_days(month).in_groups_of(7)
+    container_id = 'user_schedule_calendar'
+
+    prev_link = link_to('&larr;'.html_safe,
+                        schedule_calendar_user_path(user, date: month.prev_month), remote: true)
+    next_link = link_to('&rarr;'.html_safe,
+                        schedule_calendar_user_path(user, date: month.next_month), remote: true)
+
+    content_tag(:div, id: container_id, class: 'calendar user_calendar') do
+      content_tag(:table, class: 'table table-bordered table-condensed') do
+        content_tag(:caption) do
+          content_tag(:h4, t('users.schedule_calendar.title'))
+        end <<
+          content_tag(:thead) do
+            content_tag(:tr) do
+              content_tag(:th, colspan: 8) do
+                content_tag(:ul, class: 'pager') do
+                  content_tag(:li, prev_link, class: 'previous') <<
+                    content_tag(:li,
+                                content_tag(:span, "#{t('date.month_names_single')[month.month]} #{month.year}")) <<
+                    content_tag(:li, next_link, class: 'next')
+                end
+              end
+            end <<
+              content_tag(:tr) do
+                tag(:th) <<
+                  t('date.abbr_day_names').rotate(1).map do |day|
+                    content_tag(:th, content_tag(:strong, day))
+                  end.join.html_safe
+              end
+          end <<
+          content_tag(:tbody) do
+            rows_tag = ''
+            days.each_index do |w|
+              rows_tag << content_tag(:tr) do
+                content_tag(:td, content_tag(:strong, w + 1)) <<
+                  days[w].map do |day|
+                    schedule_calendar_cell(day, month.month, entries_index)
+                  end.join.html_safe
+              end
+            end
+            rows_tag.html_safe
+          end
+      end
+    end
+  end
+
+  def schedule_calendar_cell(day, month, entries_index)
+    entry = entries_index[day]
+    day_class = ''
+    day_class << 'today ' if day.today?
+    style = ''
+    title = ''
+
+    if day.month == month
+      day_class << 'calendar_day'
+      if entry
+        if entry.occupation_type&.counts_as_working?
+          day_class << ' work_day'
+          color = entry.background_color
+          style = "background-color: #{color}" if color.present? && color != '#FFFFFF'
+          title = entry.display_text.to_s.gsub("\n", ' ')
+        else
+          day_class << ' day_off'
+          title = entry.occupation_type&.name.to_s
+        end
+      end
+    else
+      day_class << 'muted'
+    end
+
+    content_tag(:td, class: day_class, style: style, title: title) do
+      if day.today?
+        content_tag(:span, day.day, class: 'badge badge-info')
+      else
+        content_tag(:span, day.day, class: 'badge badge-blank')
+      end
+    end.html_safe
+  end
+
+  def assignments_calendar_for(user, month, duty_index, cashier_index, store_closing_index,
+                                other_duty_dates, other_cashier_dates, other_store_closing_dates,
+                                upcoming_duties, upcoming_cashier, upcoming_store_closing)
+    days = calendar_month_days(month).in_groups_of(7)
+    container_id = 'user_assignments_calendar'
+
+    prev_link = link_to('&larr;'.html_safe,
+                        assignments_calendar_user_path(user, date: month.prev_month), remote: true)
+    next_link = link_to('&rarr;'.html_safe,
+                        assignments_calendar_user_path(user, date: month.next_month), remote: true)
+
+    content_tag(:div, id: container_id, class: 'calendar user_calendar') do
+      content_tag(:table, class: 'table table-bordered table-condensed') do
+        content_tag(:caption) do
+          content_tag(:h4, t('users.assignments_calendar.title'))
+        end <<
+          content_tag(:thead) do
+            content_tag(:tr) do
+              content_tag(:th, colspan: 8) do
+                content_tag(:ul, class: 'pager') do
+                  content_tag(:li, prev_link, class: 'previous') <<
+                    content_tag(:li,
+                                content_tag(:span, "#{t('date.month_names_single')[month.month]} #{month.year}")) <<
+                    content_tag(:li, next_link, class: 'next')
+                end
+              end
+            end <<
+              content_tag(:tr) do
+                tag(:th) <<
+                  t('date.abbr_day_names').rotate(1).map do |day|
+                    content_tag(:th, content_tag(:strong, day))
+                  end.join.html_safe
+              end
+          end <<
+          content_tag(:tbody) do
+            rows_tag = ''
+            days.each_index do |w|
+              rows_tag << content_tag(:tr) do
+                content_tag(:td, content_tag(:strong, w + 1)) <<
+                  days[w].map do |day|
+                    assignments_calendar_cell(day, month.month, duty_index, cashier_index, store_closing_index,
+                                              other_duty_dates, other_cashier_dates, other_store_closing_dates)
+                  end.join.html_safe
+              end
+            end
+            rows_tag.html_safe
+          end <<
+          assignments_calendar_footer(upcoming_duties, upcoming_cashier, upcoming_store_closing)
+      end
+    end
+  end
+
+  def assignments_calendar_cell(day, month, duty_index, cashier_index, store_closing_index,
+                                 other_duty_dates, other_cashier_dates, other_store_closing_dates)
+    day_class = ''
+    day_class << 'today ' if day.today?
+    markers = []
+    title_parts = []
+
+    if day.month == month
+      day_class << 'calendar_day'
+
+      has_duty = duty_index[day].present?
+      has_cashier = cashier_index[day].present?
+      has_store_closing = store_closing_index[day].present?
+
+      if has_duty
+        day_class << ' duty'
+        markers << content_tag(:span, 'Д', class: 'badge badge-warning assignment-marker')
+        title_parts << "Дежурство: #{duty_index[day].department.name}"
+      end
+
+      if has_cashier
+        markers << content_tag(:span, 'К', class: 'badge badge-important assignment-marker')
+        title_parts << "Касса: #{cashier_index[day].department.name}"
+      end
+
+      if has_store_closing
+        markers << content_tag(:span, 'М', class: 'badge badge-success assignment-marker')
+        title_parts << "Магазин: #{store_closing_index[day].department.name}"
+      end
+
+      unless has_duty || has_cashier || has_store_closing
+        if other_duty_dates.include?(day) || other_cashier_dates.include?(day) || other_store_closing_dates.include?(day)
+          day_class << ' other_duty'
+        end
+      end
+    else
+      day_class << 'muted'
+    end
+
+    content_tag(:td, class: day_class, title: title_parts.join('; ')) do
+      day_content = if day.today?
+                      content_tag(:span, day.day, class: 'badge badge-info')
+                    else
+                      content_tag(:span, day.day, class: 'badge badge-blank')
+                    end
+      (day_content + markers.join.html_safe).html_safe
+    end.html_safe
+  end
+
+  def assignments_calendar_footer(upcoming_duties, upcoming_cashier, upcoming_store_closing)
+    return ''.html_safe if upcoming_duties.blank? && upcoming_cashier.blank? && upcoming_store_closing.blank?
+
+    content_tag(:tfoot) do
+      rows = ''
+
+      if upcoming_duties.any?
+        rows << content_tag(:tr) do
+          content_tag(:td, content_tag(:strong, t('users.assignments_calendar.upcoming_duties')), colspan: 8, class: 'assignment-footer-header')
+        end
+        upcoming_duties.each do |entry|
+          rows << content_tag(:tr) do
+            content_tag(:td, entry.date.strftime('%d.%m'), colspan: 2) <<
+              content_tag(:td, entry.user.short_name, colspan: 4) <<
+              content_tag(:td, entry.department.name, colspan: 2)
+          end
+        end
+      end
+
+      if upcoming_cashier.any?
+        rows << content_tag(:tr) do
+          content_tag(:td, content_tag(:strong, t('users.assignments_calendar.upcoming_cashier')), colspan: 8, class: 'assignment-footer-header')
+        end
+        upcoming_cashier.each do |entry|
+          rows << content_tag(:tr) do
+            content_tag(:td, entry.date.strftime('%d.%m'), colspan: 2) <<
+              content_tag(:td, entry.user.short_name, colspan: 4) <<
+              content_tag(:td, entry.department.name, colspan: 2)
+          end
+        end
+      end
+
+      if upcoming_store_closing.any?
+        rows << content_tag(:tr) do
+          content_tag(:td, content_tag(:strong, t('users.assignments_calendar.upcoming_store_closing')), colspan: 8, class: 'assignment-footer-header')
+        end
+        upcoming_store_closing.each do |entry|
+          rows << content_tag(:tr) do
+            content_tag(:td, entry.date.strftime('%d.%m'), colspan: 2) <<
+              content_tag(:td, entry.user.short_name, colspan: 4) <<
+              content_tag(:td, entry.department.name, colspan: 2)
+          end
+        end
+      end
+
+      rows.html_safe
+    end
+  end
+
   private
 
   def is_other_duty?(user, date)

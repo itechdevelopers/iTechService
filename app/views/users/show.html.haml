@@ -211,23 +211,9 @@
                 %br
                 %a#save_user_wish.btn.btn-primary= 'Save'
 
-        %table#schedule_table.table.table-bordered.table-condensed
-          %thead
-            %tr
-              %th
-              - ('10'..'20').each do |h|
-                %th= h
-          %tbody
-            - (1..7).each do |day|
-              %tr{day: day}
-                %td
-                  %strong= t('date.abbr_day_names')[day-1]
-                - (10..20).each do |hour|
-                  %td{class: schedule_hour_class_for(@user, day, hour), day: day, hour: hour}
+        = schedule_calendar_for(@user, @schedule_month, @schedule_entries_index)
 
-        #duty_days
-          - DutyDay::KINDS.each do |kind|
-            = duty_calendar(kind, Date.current.beginning_of_month, @user)
+        = assignments_calendar_for(@user, @assignments_month, @duty_entries_index, @cashier_entries_index, @store_closing_entries_index, @other_duty_dates, @other_cashier_dates, @other_store_closing_dates, @upcoming_duties, @upcoming_cashier, @upcoming_store_closing)
 
       #faults_tab.tab-pane
 
