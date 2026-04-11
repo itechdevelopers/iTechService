@@ -233,14 +233,8 @@ class ScheduleGroupsController < ApplicationController
   end
 
   def can_edit_week?(week_start)
-    # Superadmin can edit any week (including past)
-    return true if current_user.superadmin?
-
-    # Users with manage_schedules ability can edit current and future weeks
-    return false unless able_to?(:manage_schedules)
-
-    current_week = Date.current.beginning_of_week(:monday)
-    week_start >= current_week
+    # Superadmin or users with manage_schedules ability can edit any week (including past)
+    current_user.superadmin? || able_to?(:manage_schedules)
   end
 
   def update_memberships
