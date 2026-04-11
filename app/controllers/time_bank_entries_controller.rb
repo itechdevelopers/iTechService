@@ -6,7 +6,7 @@ class TimeBankEntriesController < ApplicationController
   def new_entry
     authorize :schedule, :create_time_bank_entry?
     @event_types = TimeBankEventType.active.ordered
-    @members = @schedule_group.members.ordered
+    @members = @schedule_group.active_members
     render 'shared/show_modal_form'
   end
 
@@ -104,6 +104,6 @@ class TimeBankEntriesController < ApplicationController
                                         .includes(:user, :event_type, :created_by)
                                         .chronological
                                         .limit(50)
-    @members = @schedule_group.members.ordered
+    @members = @schedule_group.active_members
   end
 end

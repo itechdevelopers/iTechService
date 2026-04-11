@@ -242,8 +242,8 @@ class ScheduleGroupsController < ApplicationController
 
     member_ids = params[:member_ids].reject(&:blank?).map(&:to_i)
 
-    # Remove members not in the new list
-    @schedule_group.memberships.where.not(user_id: member_ids).destroy_all
+    # Remove active members not in the new list (preserve inactive/fired members)
+    @schedule_group.memberships.active.where.not(user_id: member_ids).destroy_all
 
     # Add new members
     existing_member_ids = @schedule_group.memberships.pluck(:user_id)

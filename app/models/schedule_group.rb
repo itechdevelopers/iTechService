@@ -17,6 +17,8 @@ class ScheduleGroup < ApplicationRecord
 
   has_many :memberships, class_name: 'ScheduleGroupMembership', dependent: :destroy
   has_many :members, through: :memberships, source: :user
+  has_many :active_memberships, -> { where(active: true) }, class_name: 'ScheduleGroupMembership'
+  has_many :active_members, through: :active_memberships, source: :user
   has_many :schedule_entries, dependent: :destroy
   has_many :schedule_week_snapshots, dependent: :destroy
   has_many :schedule_week_memos, dependent: :destroy

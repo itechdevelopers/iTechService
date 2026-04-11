@@ -154,7 +154,7 @@ class ScheduleEntriesController < ApplicationController
     if params[:user_id].present?
       [params[:user_id].to_i]
     else
-      @schedule_group.members.pluck(:id)
+      @schedule_group.active_members.pluck(:id)
     end
   end
 
@@ -191,7 +191,7 @@ class ScheduleEntriesController < ApplicationController
     week_dates_range = (week_start..(week_start + 6.days)).to_a
 
     # Get all member names for "not assigned" calculation
-    all_member_names = @schedule_group.members.map(&:short_name)
+    all_member_names = @schedule_group.active_members.map(&:short_name)
 
     # Get all working entries for the week
     entries = @schedule_group.schedule_entries
@@ -228,7 +228,7 @@ class ScheduleEntriesController < ApplicationController
   def calculate_total_dept_counts
     week_start = week_start_from_params
     week_dates_range = (week_start..(week_start + 6.days)).to_a
-    all_member_names = @schedule_group.members.map(&:short_name)
+    all_member_names = @schedule_group.active_members.map(&:short_name)
 
     all_entries = @schedule_group.schedule_entries
                                  .where(date: week_dates_range)
@@ -286,7 +286,7 @@ class ScheduleEntriesController < ApplicationController
     @week_dates = (week_start..(week_start + 6.days)).to_a
 
     # Get all member names for "not assigned" calculation
-    all_member_names = @schedule_group.members.map(&:short_name)
+    all_member_names = @schedule_group.active_members.map(&:short_name)
 
     # Get current working entries
     entries = @schedule_group.schedule_entries
