@@ -859,7 +859,12 @@ class User < ApplicationRecord
       ScheduleConflictNotifier.on_dismissal(self)
       remove_future_duty_assignments
       close_current_employment_period
+      deactivate_schedule_memberships
     end
+  end
+
+  def deactivate_schedule_memberships
+    ScheduleGroupMembership.where(user_id: id, active: true).update_all(active: false)
   end
 
   def close_current_employment_period

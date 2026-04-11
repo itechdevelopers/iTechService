@@ -12,9 +12,9 @@
             = glyph(:user)
             = t('schedules.schedule_groups.owner')
             = group.owner.short_name
-          - if group.members.any?
+          - if group.active_members.any?
             %p
-              %small= group.members.map(&:short_name).join(', ')
+              %small= group.active_members.map(&:short_name).join(', ')
           - else
             %p.muted
               %small= t('schedules.schedule_groups.no_members')

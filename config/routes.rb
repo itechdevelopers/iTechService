@@ -116,6 +116,8 @@ Rails.application.routes.draw do
 
   resources :users do
     get :duty_calendar, on: :member
+    get :schedule_calendar, on: :member
+    get :assignments_calendar, on: :member
     get :schedule, on: :collection
     get :add_to_job_schedule, on: :member
     get :staff_duty_schedule, on: :collection

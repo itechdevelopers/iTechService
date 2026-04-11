@@ -28,6 +28,10 @@ class UsersController < ApplicationController
   def show
     @user = find_record User.includes(comments: :user)
     @service_jobs = @user.service_jobs.not_at_archive.newest
+    @schedule_month = Date.current
+    load_schedule_calendar_data
+    @assignments_month = Date.current
+    load_assignments_calendar_data
 
     respond_to do |format|
       format.html
@@ -163,6 +167,20 @@ class UsersController < ApplicationController
     respond_to(&:js)
   end
 
+  def schedule_calendar
+    @user = find_record User
+    @schedule_month = params[:date].blank? ? Date.current : params[:date].to_date
+    load_schedule_calendar_data
+    respond_to(&:js)
+  end
+
+  def assignments_calendar
+    @user = find_record User
+    @assignments_month = params[:date].blank? ? Date.current : params[:date].to_date
+    load_assignments_calendar_data
+    respond_to(&:js)
+  end
+
   def staff_duty_schedule
     authorize User
     @calendar_month = params[:date].blank? ? Date.current : params[:date].to_date
@@ -270,6 +288,35 @@ class UsersController < ApplicationController
   end
 
   private
+
+  def load_schedule_calendar_data
+    range = @schedule_month.beginning_of_month..@schedule_month.end_of_month
+    schedule_group = @user.schedule_group_membership&.schedule_group
+    @schedule_entries_index = if schedule_group
+      schedule_group.schedule_entries
+        .where(user: @user, date: range)
+        .includes(:shift, :occupation_type, department: :schedule_config)
+        .index_by(&:date)
+    else
+      {}
+    end
+  end
+
+  def load_assignments_calendar_data
+    month = @assignments_month
+    @duty_entries_index = DutyScheduleEntry.where(user: @user).for_month(month).includes(:department).index_by(&:date)
+    @cashier_entries_index = CashierScheduleEntry.where(user: @user).for_month(month).includes(:department).index_by(&:date)
+    @store_closing_entries_index = StoreClosingEntry.where(user: @user).for_month(month).includes(:department).index_by(&:date)
+
+    user_dates = (@duty_entries_index.keys + @cashier_entries_index.keys + @store_closing_entries_index.keys).to_set
+    @other_duty_dates = DutyScheduleEntry.where.not(user: @user).for_month(month).distinct.pluck(:date).to_set - user_dates
+    @other_cashier_dates = CashierScheduleEntry.where.not(user: @user).for_month(month).distinct.pluck(:date).to_set - user_dates
+    @other_store_closing_dates = StoreClosingEntry.where.not(user: @user).for_month(month).distinct.pluck(:date).to_set - user_dates
+
+    @upcoming_duties = DutyScheduleEntry.where('date >= ?', Date.current).includes(:user, :department).order(:date).limit(10)
+    @upcoming_cashier = CashierScheduleEntry.where('date >= ?', Date.current).includes(:user, :department).order(:date).limit(10)
+    @upcoming_store_closing = StoreClosingEntry.where('date >= ?', Date.current).includes(:user, :department).order(:date).limit(10)
+  end
 
   def load_infos
     # @infos = Info.actual.available_for(current_user).grouped_by_date.limit 20

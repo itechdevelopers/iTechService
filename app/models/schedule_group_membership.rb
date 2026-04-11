@@ -8,6 +8,7 @@ class ScheduleGroupMembership < ApplicationRecord
   validate :user_not_in_another_group_in_same_city
 
   default_scope { joins(:user).order('users.created_at ASC') }
+  scope :active, -> { where(active: true) }
 
   private
 

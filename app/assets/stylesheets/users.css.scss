@@ -61,8 +61,21 @@
     &.other_duty {
       background-color: #FCF8E3;
     }
+    &.day_off {
+      background-color: #D9EDF7;
+    }
+    .assignment-marker {
+      display: block;
+      font-size: 9px;
+      margin-top: 1px;
+      line-height: 1;
+    }
   }
 
+  tfoot .assignment-footer-header {
+    background-color: #F5F5F5;
+    padding-top: 8px;
+  }
 }
 
 .user_calendar.editable td.calendar_day.work_day.empty>span {

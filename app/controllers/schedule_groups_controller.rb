@@ -233,14 +233,8 @@ class ScheduleGroupsController < ApplicationController
   end
 
   def can_edit_week?(week_start)
-    # Superadmin can edit any week (including past)
-    return true if current_user.superadmin?
-
-    # Users with manage_schedules ability can edit current and future weeks
-    return false unless able_to?(:manage_schedules)
-
-    current_week = Date.current.beginning_of_week(:monday)
-    week_start >= current_week
+    # Superadmin or users with manage_schedules ability can edit any week (including past)
+    current_user.superadmin? || able_to?(:manage_schedules)
   end
 
   def update_memberships
@@ -248,8 +242,8 @@ class ScheduleGroupsController < ApplicationController
 
     member_ids = params[:member_ids].reject(&:blank?).map(&:to_i)
 
-    # Remove members not in the new list
-    @schedule_group.memberships.where.not(user_id: member_ids).destroy_all
+    # Remove active members not in the new list (preserve inactive/fired members)
+    @schedule_group.memberships.active.where.not(user_id: member_ids).destroy_all
 
     # Add new members
     existing_member_ids = @schedule_group.memberships.pluck(:user_id)

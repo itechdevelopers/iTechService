@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20260408120003) do
+ActiveRecord::Schema.define(version: 20260411120000) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -1528,6 +1528,7 @@ ActiveRecord::Schema.define(version: 20260408120003) do
     t.integer "position", default: 0
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.boolean "active", default: true, null: false
     t.index ["schedule_group_id", "user_id"], name: "index_schedule_group_memberships_uniqueness", unique: true
     t.index ["schedule_group_id"], name: "index_schedule_group_memberships_on_schedule_group_id"
     t.index ["user_id"], name: "index_schedule_group_memberships_on_user_id"
