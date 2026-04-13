@@ -14,6 +14,8 @@ class CallTranscription < ApplicationRecord
   before_validation :extract_sentiment, on: :create
   after_create_commit :check_marker_words
 
+  scope :by_sentiment, ->(sentiments) { where('sentiment && ARRAY[?]::varchar[]', sentiments) }
+
   # TODO: Replace with Full-Text Search when needed
   scope :search, ->(query, whole_word: false) {
     phone_query = query.gsub(/\D/, '')
