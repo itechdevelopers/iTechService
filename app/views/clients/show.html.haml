@@ -28,6 +28,8 @@
             .tel-info__add__list__items
               %a{ href: "http://wa.me/#{@client.human_phone_number.gsub(/\D/, '')}", target: '_blank' }
                 = image_tag('/tel_tel.jpg', width: '60')
+              %a{ href: "https://t.me/+#{@client.human_phone_number.gsub(/\D/, '')}", target: '_blank' }
+                = image_tag('/tel_tg.jpg', width: '60')
               %a{ href: "tel:8#{@client.human_phone_number[2..-1].gsub(/\D/, '')}" }
                 = image_tag('/tel_call.jpg', width: '60')
               = image_tag('/tel_copy.jpg', width: '60', class: 'js--copy-number')
