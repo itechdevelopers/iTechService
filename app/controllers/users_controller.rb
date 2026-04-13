@@ -155,6 +155,10 @@ class UsersController < ApplicationController
   def profile
     @user = authorize current_user
     @service_jobs = @user.service_jobs.not_at_archive.newest
+    @schedule_month = Date.current
+    load_schedule_calendar_data
+    @assignments_month = Date.current
+    load_assignments_calendar_data
 
     respond_to do |format|
       format.html { render 'show' }
