@@ -12,8 +12,12 @@
     %label.checkbox.inline
       = check_box_tag :whole_word, '1', params[:whole_word] == '1'
       = t('.whole_word')
+    - CallTranscription::VALID_SENTIMENTS.each do |s|
+      %label.checkbox.inline
+        = check_box_tag 'sentiments[]', s, Array(params[:sentiments]).include?(s)
+        = sentiment_dot(s)
     = submit_tag t('.filter'), class: 'btn btn-info'
-    - if params[:date_from].present? || params[:date_to].present? || params[:query].present?
+    - if params[:date_from].present? || params[:date_to].present? || params[:query].present? || params[:sentiments].present?
       = link_to t('.clear'), call_transcriptions_path, class: 'btn'
 
 #resource_table

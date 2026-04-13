@@ -18,8 +18,6 @@ module CallTranscriptionsHelper
     simple_format(with_emoji)
   end
 
-  private
-
   def sentiment_dot(sentiment)
     color = SENTIMENT_COLORS[sentiment]
     content_tag(:span, '', style: "background-color: #{color}; width: 10px; height: 10px; border-radius: 50%; display: inline-block; vertical-align: middle;", title: sentiment)
