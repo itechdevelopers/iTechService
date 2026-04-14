@@ -22,6 +22,7 @@
         <th class="locations-sortable" data-sort="department" style="cursor: pointer;">
           <%= Location.human_attribute_name :department %> &#x25B2;&#x25BC;
         </th>
+        <th><%= Location.human_attribute_name :overstay_thresholds %></th>
         <th><%= Location.human_attribute_name :created_at %></th>
         <th></th>
       </tr>
@@ -34,6 +35,7 @@
           <td><%= location.code %></td>
           <td><%= location.position %></td>
           <td><%= location.department_name %></td>
+          <td><%= location.overstay_thresholds %></td>
           <td><%= human_datetime location.created_at %></td>
           <td>
             <div class="btn-group">

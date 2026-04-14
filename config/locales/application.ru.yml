@@ -2,6 +2,7 @@ ru:
 
   notifications:
     warranty_overstay: 'Заказ №%{ticket} (купленное %{sold_date}) находится у нас более %{days} дней'
+    location_overstay: 'Заказ №%{ticket} находится на локации «%{location}» более %{days} дней'
 
   queue_anomaly:
     zero_activity: 'В очереди "%{queue_name}" (%{department}) вчера не было создано ни одного талона'

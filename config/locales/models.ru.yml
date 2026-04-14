@@ -328,6 +328,7 @@ ru:
         color: 'Цвет'
         hidden: 'Скрытая'
         name: 'Название'
+        overstay_thresholds: 'Уведомления о залёживании (дни)'
         position: 'Позиция'
         schedule: 'Отображать в календаре'
         storage_term: 'Срок хранения'

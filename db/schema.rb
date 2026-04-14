@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20260411120000) do
+ActiveRecord::Schema.define(version: 20260414120000) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -838,6 +838,7 @@ ActiveRecord::Schema.define(version: 20260411120000) do
     t.boolean "hidden", default: false
     t.integer "storage_term"
     t.string "color"
+    t.string "overstay_thresholds"
     t.index ["ancestry"], name: "index_locations_on_ancestry"
     t.index ["code"], name: "index_locations_on_code"
     t.index ["department_id"], name: "index_locations_on_department_id"

@@ -129,6 +129,7 @@ class ServiceJob < ApplicationRecord
   after_update :deduct_spare_parts
   after_update :clear_subscriptions_if_done_or_archived
   after_update :close_warranty_overstay_notifications_if_archived
+  after_update :schedule_location_overstay_checks
 
   audited
   has_associated_audits
@@ -607,6 +608,28 @@ kind: 'device_return', content: id.to_s)
 
     Notification.where(referenceable: self, closed_at: nil)
                 .where("kind LIKE ?", 'warranty_overstay_%')
+                .find_each(&:close)
+  end
+
+  def schedule_location_overstay_checks
+    return unless location_id_changed?
+
+    close_location_overstay_notifications_for_previous_location
+
+    location = self.location
+    return unless location&.overstay_tracking?
+
+    location.parsed_overstay_thresholds.each do |days|
+      LocationOverstayCheckJob.set(wait: days.days).perform_later(id, location.id, days)
+    end
+  end
+
+  def close_location_overstay_notifications_for_previous_location
+    prev_location_id = location_id_was
+    return if prev_location_id.blank?
+
+    Notification.where(referenceable: self, closed_at: nil)
+                .where("kind LIKE ?", "location_overstay_%_loc_#{prev_location_id}")
                 .find_each(&:close)
   end
 end

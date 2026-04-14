@@ -100,6 +100,15 @@ class Location < ApplicationRecord
     code == 'special'
   end
 
+  def parsed_overstay_thresholds
+    return [] if overstay_thresholds.blank?
+    overstay_thresholds.split(',').map(&:strip).select(&:present?).map(&:to_i).select(&:positive?).uniq.sort
+  end
+
+  def overstay_tracking?
+    parsed_overstay_thresholds.any?
+  end
+
   def in_transfer?
     department.is_transfer?
   end
