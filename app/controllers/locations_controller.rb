@@ -68,6 +68,6 @@ class LocationsController < ApplicationController
 
   def location_params
     params.require(:location)
-          .permit(:ancestry, :code, :color, :department_id, :hidden, :name, :overstay_thresholds, :position, :schedule, :storage_term)
+          .permit(:ancestry, :code, :color, :department_id, :hidden, :less_popular, :name, :overstay_thresholds, :position, :schedule, :storage_term)
   end
 end

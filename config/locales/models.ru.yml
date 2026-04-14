@@ -327,6 +327,7 @@ ru:
         ancestry: 'Предок'
         color: 'Цвет'
         hidden: 'Скрытая'
+        less_popular: 'Менее популярная локация'
         name: 'Название'
         overstay_thresholds: 'Уведомления о залёживании (дни)'
         position: 'Позиция'
