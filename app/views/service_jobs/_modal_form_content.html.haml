@@ -31,6 +31,14 @@
             = link_to icon_tag(:copy), '#', id: 'copy_itunes_string', data: {'clipboard-target' => 'itunes_string', 'clipboard-text' => 'iTunes string'}, :title => t('helpers.buttons.copy_to_clipboard')
 
         .control-group
+          %label.control-label= ServiceJob.human_attribute_name :serial_number
+          .controls= @service_job.serial_number.presence || '-'
+
+        .control-group
+          %label.control-label= ServiceJob.human_attribute_name :imei
+          .controls= @service_job.imei.presence || '-'
+
+        .control-group
           %label.control-label= ServiceJob.human_attribute_name :client
           .controls
             = link_to @service_job.client_name, client_path(@service_job.client_id), target: '_blank'
