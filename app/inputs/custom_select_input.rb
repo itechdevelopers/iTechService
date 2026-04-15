@@ -61,6 +61,6 @@ class CustomSelectInput < SimpleForm::Inputs::Base
   end
 
   def selected_option
-    @options[:selected_option] || ''
+    @options[:selected_option] || @builder.object.try(:send, attribute_name) || ''
   end
 end
