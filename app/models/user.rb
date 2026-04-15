@@ -823,6 +823,35 @@ class User < ApplicationRecord
     end
   end
 
+  # Wishlist JSONB helpers
+
+  def wishlist_items
+    (wishlist || []).map(&:with_indifferent_access)
+  end
+
+  def wishlist_urls
+    wishlist_items.map { |item| item[:url] }
+  end
+
+  def wishlist=(value)
+    today = Date.current.to_s
+    old_items = (read_attribute(:wishlist) || []).map { |i| i.is_a?(Hash) ? i.to_h : {} }
+
+    new_value = Array(value).map do |entry|
+      url = entry.is_a?(Hash) ? (entry['url'] || entry[:url]) : entry.to_s
+      next if url.blank?
+
+      existing = old_items.find { |i| i['url'] == url }
+      if existing
+        existing.merge('updated_at' => today).to_h
+      else
+        { 'url' => url, 'added_at' => today }
+      end
+    end.compact
+
+    write_attribute(:wishlist, new_value)
+  end
+
   private
 
   def add_to_auto_add_boards

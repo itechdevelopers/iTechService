@@ -7,8 +7,8 @@ class ArrayInput < SimpleForm::Inputs::StringInput
     t = template
     c = t.content_tag(:div, id: "#{attribute_name}_list") do
       Array(object.public_send(attribute_name)).map do |array_el|
-        input_element(array_el)
-        # @builder.text_field(nil, input_html_options.merge(value: array_el, name: "#{object_name}[#{attribute_name}][]"))
+        value = array_el.is_a?(Hash) ? array_el['url'] || array_el[:url] : array_el
+        input_element(value.to_s)
       end.join.html_safe
     end
 

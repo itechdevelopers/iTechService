@@ -129,11 +129,18 @@
             %dl.dl-horizontal
               %dt= User.human_attribute_name :wishlist
               %dd
-                - if @user.wishlist.blank?
+                - if @user.wishlist_items.blank?
                   -
                 - else
-                  - @user.wishlist.each do |wish|
-                    %p= link_to wish, wish
+                  - @user.wishlist_items.each do |wish|
+                    %p
+                      = link_to wish[:url], wish[:url]
+                      %br
+                      %small.muted
+                        - if wish[:updated_at].present?
+                          Обновлено #{wish[:updated_at]}
+                        - elsif wish[:added_at].present?
+                          Добавлено #{wish[:added_at]}
 
               -#%dd= @user.wishlist&.any? ? @user.wishlist : '-'
 
