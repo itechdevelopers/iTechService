@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20260414120000) do
+ActiveRecord::Schema.define(version: 20260415120001) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -839,6 +839,7 @@ ActiveRecord::Schema.define(version: 20260414120000) do
     t.integer "storage_term"
     t.string "color"
     t.string "overstay_thresholds"
+    t.boolean "less_popular", default: false
     t.index ["ancestry"], name: "index_locations_on_ancestry"
     t.index ["code"], name: "index_locations_on_code"
     t.index ["department_id"], name: "index_locations_on_department_id"
@@ -2164,7 +2165,7 @@ ActiveRecord::Schema.define(version: 20260414120000) do
     t.string "uniform_sex"
     t.string "uniform_size"
     t.integer "activities_mask"
-    t.string "wishlist", default: [], array: true
+    t.jsonb "wishlist", default: []
     t.text "hobby"
     t.boolean "can_help_in_mac_service", default: false
     t.string "work_phone"
