@@ -42,11 +42,13 @@ module Checkable
 
       # Get questions that need to be checked based on main question status
       questions_to_check = if check_list.has_main_question?
-                            main_answer = response.answer_for_item(check_list.main_question_id)
-                            if main_answer == "yes" || main_answer == "true"
+                            main_question = check_list.main_question
+                            main_answer = response.answer_for_item(main_question.id)
+                            subordinate_required = main_question.custom_answers? ? main_answer.present? : main_answer == "yes"
+                            if subordinate_required
                               check_list.check_list_items.where(required: true)
                             else
-                              check_list.check_list_items.where(id: check_list.main_question_id, required: true)
+                              check_list.check_list_items.where(id: main_question.id, required: true)
                             end
                           else
                             check_list.check_list_items.where(required: true)

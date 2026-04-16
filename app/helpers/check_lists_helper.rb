@@ -37,37 +37,40 @@ module CheckListsHelper
         response = check_list_response_for(model, check_list)
 
         if check_list.has_main_question?
-          # Render main question first with special styling
           main_item = check_list.main_question
           main_checked = response&.answer_for_item(main_item.id)
           p_result << content_tag(:strong) do
-            check_mark_for_item(response, main_item) + main_item.question
+            check_mark_for_item(response, main_item) + main_item.question +
+              answer_label_for(response, main_item)
           end
+          p_result << render_item_comment(response, main_item)
           p_result << tag(:br)
 
-          # Only show subordinate questions if main question was answered "yes"
-          if main_checked == "yes" || main_checked == "true"
+          show_subordinate = main_item.custom_answers? ? main_checked.present? : main_checked == "yes"
+          if show_subordinate
             check_list.subordinate_items.each do |question|
               p_result << '&nbsp;&nbsp;&nbsp;&nbsp;'.html_safe
               p_result << check_mark_for_item(response, question)
               p_result << question.question
+              p_result << answer_label_for(response, question)
+              p_result << render_item_comment(response, question)
               p_result << tag(:br)
             end
           else
             p_result << content_tag(:em, '&nbsp;&nbsp;&nbsp;&nbsp;(остальные вопросы не показаны)'.html_safe)
             p_result << tag(:br)
 
-            # Add warning message for DeviceTask checklists when main question is not checked
             if entity_type == 'DeviceTask'
               p_result << content_tag(:strong, '&nbsp;&nbsp;&nbsp;&nbsp;Работоспособность устройства специалисту проверить не удалось'.html_safe, class: 'text-warning')
               p_result << tag(:br)
             end
           end
         else
-          # No main question, render all normally
           check_list.check_list_items.ordered.each do |question|
             p_result << check_mark_for_item(response, question)
             p_result << question.question
+            p_result << answer_label_for(response, question)
+            p_result << render_item_comment(response, question)
             p_result << tag(:br)
           end
         end
@@ -81,17 +84,33 @@ module CheckListsHelper
     model.check_list_responses.find { |r| r.check_list_id == check_list.id }
   end
 
-  def check_mark_for_item(response, question)
-    answer = response&.answer_for_item(question.id)
+  def check_mark_for_item(response, item)
+    answer = response&.answer_for_item(item.id)
 
-    case answer
-    when "yes", "true"
-      "#{icon_tag('check', 'checklist-success')} ".html_safe
-    when "no"
-      "#{icon_tag('times', 'checklist-danger')} ".html_safe
+    if answer.present?
+      if item.custom_answers?
+        # Custom answers don't use check/cross icons
+        "".html_safe
+      elsif answer == "yes"
+        "#{icon_tag('check', 'checklist-success')} ".html_safe
+      else
+        "#{icon_tag('times', 'checklist-danger')} ".html_safe
+      end
     else
-      # Unanswered question (both required and optional show cross)
       "#{icon_tag('times', 'checklist-danger')} ".html_safe
     end
+  end
+
+  def answer_label_for(response, item)
+    return ''.html_safe unless item.custom_answers?
+    answer = response&.answer_for_item(item.id)
+    return ''.html_safe if answer.blank?
+    " — #{answer}".html_safe
+  end
+
+  def render_item_comment(response, item)
+    comment = response&.comment_for_item(item.id)
+    return ''.html_safe if comment.blank?
+    " ".html_safe + content_tag(:em, "(#{comment})", class: 'muted')
   end
 end

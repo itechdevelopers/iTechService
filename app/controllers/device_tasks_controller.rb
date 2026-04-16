@@ -44,7 +44,7 @@ class DeviceTasksController < ApplicationController
 
   def device_task_params
     params.require(:device_task)
-          .permit(:comment, :cost, :done, :done_at, :performer_id, :service_job_id, :task_id, :user_comment, check_list_responses_attributes: [:id, :check_list_id, responses: {}])
+          .permit(:comment, :cost, :done, :done_at, :performer_id, :service_job_id, :task_id, :user_comment, check_list_responses_attributes: [:id, :check_list_id, responses: {}, comments: {}])
           .tap do |p|
       if params[:device_task][:service_job_attributes]
         # Explicitly whitelist service job attributes for security
