@@ -19,6 +19,8 @@ class Location < ApplicationRecord
   scope :in_department, ->(department) { where department_id: department }
   scope :for_schedule, -> { where(schedule: true) }
   scope :visible, -> { where hidden: [false, nil] }
+  scope :popular, -> { where less_popular: [false, nil] }
+  scope :less_popular, -> { where less_popular: true }
   scope :archive, -> { where code: 'archive' }
   scope :bar, -> { where code: 'bar' }
   scope :content, -> { where code: 'content' }
@@ -44,6 +46,7 @@ class Location < ApplicationRecord
     locations = all
     locations = locations.where(department_id: params[:department_id]) if params.key?(:department_id)
     locations = locations.visible unless params[:visible].nil?
+    locations = locations.popular if params[:popular].present?
     locations
   end
 
