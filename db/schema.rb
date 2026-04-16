@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20260415120001) do
+ActiveRecord::Schema.define(version: 20260417120001) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -204,6 +204,7 @@ ActiveRecord::Schema.define(version: 20260415120001) do
     t.integer "position", null: false
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.text "answer_variants"
     t.index ["check_list_id", "position"], name: "index_check_list_items_on_check_list_id_and_position", unique: true
     t.index ["check_list_id"], name: "index_check_list_items_on_check_list_id"
   end

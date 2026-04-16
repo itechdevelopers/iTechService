@@ -1,0 +1,32 @@
+-# Renders a single check list item with radio buttons and comment field
+-# Locals: model_name (e.g. "device_task"), index, item, response, is_main (bool), indent (bool)
+
+- current_answer = response.answer_for_item(item.id)
+- current_comment = response.comment_for_item(item.id)
+- field_prefix = "#{model_name}[check_list_responses_attributes][#{index}]"
+- field_id_prefix = "#{model_name}_check_list_responses_attributes_#{index}"
+- answers = item.available_answers
+- is_yes_no = !item.custom_answers?
+- answer_label = ->(v) { is_yes_no ? (v == 'yes' ? t('yep') : t('simple_form.no')) : v }
+
+.check-list-question-group
+  .question-text{class: indent ? 'subordinate-indent' : nil}
+    = item.question
+    - if item.required?
+      %span.required *
+  .radio-group{class: indent ? 'subordinate-indent' : nil}
+    - answers.each do |variant|
+      %label.radio.inline
+        = radio_button_tag "#{field_prefix}[responses][#{item.id}]",
+                            variant,
+                            current_answer == variant,
+                            id: "#{field_id_prefix}_responses_#{item.id}_#{variant.parameterize(separator: '_')}",
+                            class: is_main ? 'main-question-radio' : nil,
+                            required: item.required?
+        = answer_label.call(variant)
+  .comment-field
+    = text_field_tag "#{field_prefix}[comments][#{item.id}]",
+                      current_comment,
+                      placeholder: t('check_lists.comment_placeholder', default: 'Комментарий'),
+                      class: 'input-block-level input-small check-list-comment',
+                      id: "#{field_id_prefix}_comments_#{item.id}"

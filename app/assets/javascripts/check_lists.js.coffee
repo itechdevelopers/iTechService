@@ -20,20 +20,25 @@ $ ->
 
   # Function to toggle subordinate questions visibility based on radio selection
   toggleSubordinateQuestions = (checkList) ->
-    # Find the 'yes' radio button for the main question
-    mainQuestionYes = checkList.find('.main-question-radio[value="yes"]')
+    mainQuestionRadios = checkList.find('.main-question-radio')
     subordinateContainer = checkList.find('.subordinate-questions')
 
-    if mainQuestionYes.length > 0 && subordinateContainer.length > 0
-      if mainQuestionYes.is(':checked')
+    if mainQuestionRadios.length > 0 && subordinateContainer.length > 0
+      checkedRadio = mainQuestionRadios.filter(':checked')
+      # For yes/no: show subordinate only on "yes"
+      # For custom answers: show subordinate on any selection
+      hasCustomAnswers = mainQuestionRadios.filter('[value="yes"]').length == 0
+      shouldShow = if hasCustomAnswers
+        checkedRadio.length > 0
+      else
+        checkedRadio.val() == 'yes'
+
+      if shouldShow
         subordinateContainer.show()
-        # Enable radio buttons in subordinate questions
         subordinateContainer.find('input[type="radio"]').prop('disabled', false)
       else
         subordinateContainer.hide()
-        # Clear subordinate question selections when main is 'no'
         subordinateContainer.find('input[type="radio"]').prop('checked', false)
-        # Optionally disable them to prevent accidental selection
         subordinateContainer.find('input[type="radio"]').prop('disabled', true)
 
   # Initialize on page load (for regular forms like ServiceJob)
@@ -108,10 +113,12 @@ $ ->
         container.removeClass('error')
         container.find('.checklist-error-message').remove()
 
-        # If main question answered "yes", check subordinate questions
+        # If main question answered, check subordinate questions visibility
         if mainAnswered
           mainValue = container.find('.main-question-radio:checked').val()
-          if mainValue == 'yes'
+          hasCustomAnswers = container.find('.main-question-radio[value="yes"]').length == 0
+          subordinateVisible = if hasCustomAnswers then true else mainValue == 'yes'
+          if subordinateVisible
             subordinateQuestions = container.find('.subordinate-questions .check-list-question-group')
             subordinateQuestions.each ->
               questionGroup = $(this)
@@ -164,10 +171,12 @@ $ ->
           hasErrors = true
           return false  # break from each loop
 
-        # If main answered "yes", check subordinates
+        # If main answered, check subordinates when visible
         if mainAnswered
           mainValue = container.find('.main-question-radio:checked').val()
-          if mainValue == 'yes'
+          hasCustomAnswers = container.find('.main-question-radio[value="yes"]').length == 0
+          subordinateVisible = if hasCustomAnswers then true else mainValue == 'yes'
+          if subordinateVisible
             subordinateQuestions = container.find('.subordinate-questions .check-list-question-group')
             subordinateQuestions.each ->
               questionGroup = $(this)

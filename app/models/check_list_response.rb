@@ -9,32 +9,82 @@ class CheckListResponse < ApplicationRecord
 
   serialize :responses, JSON
 
-  def answer_for_item(item_id)
-    # Returns the actual answer: "yes", "no", or nil for unanswered
-    value = responses&.dig(item_id.to_s)
+  # Virtual attribute for comments coming from nested attributes forms
+  attr_accessor :comments
 
-    # Handle legacy data: convert "true" to "yes" for backward compatibility
-    return "yes" if value == "true"
+  before_validation :merge_flat_responses_and_comments
+
+  # Storage format: { "item_id" => { "answer" => "yes", "comment" => "some text" } }
+  # Form input format (flat): responses = { "item_id" => "yes" }, comments = { "item_id" => "text" }
+
+  def answer_for_item(item_id)
+    value = responses&.dig(item_id.to_s)
     return nil if value.blank?
 
-    value
+    if value.is_a?(Hash)
+      answer = value["answer"]
+      return "yes" if answer == "true"
+      answer
+    else
+      # Legacy flat format
+      return "yes" if value == "true"
+      value
+    end
   end
 
-  def set_answer(item_id, value)
+  def comment_for_item(item_id)
+    value = responses&.dig(item_id.to_s)
+    return nil unless value.is_a?(Hash)
+    value["comment"].presence
+  end
+
+  def set_answer(item_id, answer, comment: nil)
     self.responses ||= {}
-    # Only set if value is "yes" or "no", remove if blank
-    if value.present? && ["yes", "no"].include?(value)
-      self.responses[item_id.to_s] = value
-    elsif value.blank?
-      self.responses.delete(item_id.to_s)
+    key = item_id.to_s
+
+    if answer.present?
+      entry = { "answer" => answer }
+      entry["comment"] = comment if comment.present?
+      self.responses[key] = entry
+    else
+      self.responses.delete(key)
     end
   end
 
   def answered?(item_id)
-    ["yes", "no", "true"].include?(responses&.dig(item_id.to_s))
+    answer_for_item(item_id).present?
   end
 
   private
+
+  # Convert flat form input { "17" => "yes" } + comments { "17" => "text" }
+  # into nested storage format { "17" => { "answer" => "yes", "comment" => "text" } }
+  def merge_flat_responses_and_comments
+    return if responses.blank?
+
+    # Check if responses are in flat form format (values are strings, not hashes)
+    first_value = responses.values.first
+    if first_value.is_a?(String)
+      merged = {}
+      responses.each do |item_id, answer|
+        next if answer.blank?
+        entry = { "answer" => answer }
+        comment = comments&.dig(item_id.to_s)
+        entry["comment"] = comment if comment.present?
+        merged[item_id.to_s] = entry
+      end
+      self.responses = merged
+    elsif first_value.is_a?(Hash) && comments.present?
+      # Already nested but comments came separately (shouldn't normally happen)
+      comments.each do |item_id, comment|
+        if responses[item_id.to_s].is_a?(Hash) && comment.present?
+          responses[item_id.to_s]["comment"] = comment
+        end
+      end
+    end
+
+    self.comments = nil
+  end
 
   def validate_required_questions
     return unless check_list.present?
@@ -43,14 +93,15 @@ class CheckListResponse < ApplicationRecord
       main_question = check_list.main_question
       main_answer = answer_for_item(main_question.id)
 
-      # First: Validate main question if it's required
       if main_question.required? && !answered?(main_question.id)
         errors.add(:base, I18n.t('check_lists.errors.required_question_not_answered',
                                  question: main_question.question))
       end
 
-      # Second: Only validate subordinate questions if main question answered "yes"
-      if main_answer == "yes" || main_answer == "true"
+      # For yes/no: subordinate required only on "yes"
+      # For custom answers: subordinate required on any answer
+      subordinate_required = main_question.custom_answers? ? main_answer.present? : main_answer == "yes"
+      if subordinate_required
         check_list.subordinate_items.where(required: true).each do |item|
           unless answered?(item.id)
             errors.add(:base, I18n.t('check_lists.errors.required_question_not_answered',
@@ -59,7 +110,6 @@ class CheckListResponse < ApplicationRecord
         end
       end
     else
-      # No main question - validate all required questions
       check_list.check_list_items.where(required: true).each do |item|
         unless answered?(item.id)
           errors.add(:base, I18n.t('check_lists.errors.required_question_not_answered',

@@ -2,3 +2,8 @@
   = f.input :question, label: 'Вопрос'
   = f.input :required, label: 'Обязательный'
   = f.input :position, as: :hidden
+  .control-group
+    %label.control-label Варианты ответов
+    .controls
+      %input.check-list-item-variants{type: 'text', name: "#{f.object_name}[answer_variants_raw]", value: (f.object.answer_variants.present? ? f.object.answer_variants.join(', ') : ''), placeholder: 'По умолчанию: Да / Нет. Через запятую: работает, не работает, частично'}
+      %p.help-block Оставьте пустым для стандартных Да/Нет. Для кастомных — перечислите через запятую.

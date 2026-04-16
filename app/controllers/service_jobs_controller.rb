@@ -501,7 +501,7 @@ class ServiceJobsController < ApplicationController
       :ticket_number, :trademark, :type_of_work, :user_id, :substitute_phone_id, :substitute_phone_icloud_connected,
       data_storages: [],
       device_tasks_attributes: [:id, :_destroy, :task_id, :cost, :comment, :user_comment, :performer_id, :expected_repair_cause_id, :expected_repair_service_id, expected_repair_cause_ids: [], expected_repair_service_ids: []],
-      check_list_responses_attributes: [:id, :check_list_id, responses: {}]
+      check_list_responses_attributes: [:id, :check_list_id, responses: {}, comments: {}]
     )
   end
 
