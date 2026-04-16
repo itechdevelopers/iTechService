@@ -12,15 +12,18 @@ class LocationInput < SimpleForm::Inputs::Base
               content_tag(:span, nil, class: 'caret pull-right')
           end +
             content_tag(:ul, id: 'locations_list', class: 'dropdown-menu') do
-              template.render 'locations/list', locations: locations
+              template.render 'locations/list', locations: locations, show_less_popular: true
             end +
             content_tag(:ul, id: 'departments_list', class: 'dropdown-menu hidden') do
               departments.map do |department|
                 content_tag(:li,
                             link_to(department.full_name,
-                                    locations_path(department_id: department.id, visible: true),
+                                    locations_path(department_id: department.id, visible: true, popular: true),
                                     remote: true))
               end.join.html_safe
+            end +
+            content_tag(:ul, id: 'less_popular_list', class: 'dropdown-menu hidden') do
+              template.render 'locations/list', locations: less_popular_locations, show_less_popular: false
             end
         end
     end.html_safe
@@ -33,7 +36,11 @@ class LocationInput < SimpleForm::Inputs::Base
   end
 
   def locations
-    Location.in_department(user.department).visible.ordered
+    Location.in_department(user.department).visible.popular.ordered
+  end
+
+  def less_popular_locations
+    Location.visible.less_popular.ordered
   end
 
   def departments

@@ -1,4 +1,7 @@
 <li><a href="#" data-behavior="show_departments">Другие подразделения</a></li>
+<% if local_assigns[:show_less_popular] %>
+  <li><a href="#" data-behavior="show_less_popular">Другие локации</a></li>
+<% end %>
 <li class="divider"></li>
 <% locations.each do |location| %>
   <li><a href="#" class="location-item" data-id="<%= location.id %>"><%= location.name %></a></li>
