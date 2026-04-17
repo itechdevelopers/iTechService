@@ -50,25 +50,35 @@ class ScheduleEntry < ApplicationRecord
         start_str = custom_start_time.strftime('%H:%M')
         end_str = custom_end_time.strftime('%H:%M')
         dept_short = department&.schedule_config&.short_name
-        dept_short ? "#{dept_short}\n#{start_str}-#{end_str}" : "#{start_str}-#{end_str}"
+        if dept_short
+          header = occupation_type.is_other_work? ? "#{dept_short}/#{occupation_type.name}" : dept_short
+          "#{header}\n#{start_str}-#{end_str}"
+        else
+          "#{start_str}-#{end_str}"
+        end
       else
         return nil unless department&.schedule_config&.short_name && shift&.short_name
 
-        "#{department.schedule_config.short_name}/#{shift.short_name}"
+        base = "#{department.schedule_config.short_name}/#{shift.short_name}"
+        occupation_type.is_other_work? ? "#{base}/#{occupation_type.name}" : base
       end
     else
       occupation_type&.name
     end
   end
 
+  def use_department_color?
+    occupation_type&.counts_as_working? && !occupation_type&.is_other_work?
+  end
+
   def background_color
     return '#FFFFFF' unless occupation_type
 
-    if occupation_type.counts_as_working?
-      # Working occupation → use department color
+    if occupation_type.counts_as_working? && !occupation_type.is_other_work?
+      # Regular working occupation → use department color
       department&.schedule_config&.color || '#FFFFFF'
     else
-      # Non-working occupation (vacation, sick leave, etc.) → use occupation color
+      # Non-working OR other-work occupation → use occupation color
       occupation_type.color || '#FFFFFF'
     end
   end
