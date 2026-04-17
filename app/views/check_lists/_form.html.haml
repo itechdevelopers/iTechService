@@ -8,6 +8,15 @@
             label: 'Тип сущности'
   = f.input :active, label: 'Активен'
 
+  #repair-services-select{style: @check_list.entity_type == 'DeviceTask' ? '' : 'display: none;'}
+    = f.input :repair_service_ids,
+              collection: RepairGroup.not_archived,
+              as: :grouped_select,
+              group_method: :repair_services,
+              label: 'Виды ремонта',
+              hint: 'Оставьте пустым, чтобы чек-лист показывался для всех видов ремонта',
+              input_html: { multiple: true, class: 'multiselect-rep-services' }
+
   - if @check_list.persisted? && @check_list.check_list_items.any?
     = f.association :main_question,
                     collection: @check_list.check_list_items.ordered,

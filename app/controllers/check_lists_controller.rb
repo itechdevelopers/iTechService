@@ -51,6 +51,7 @@ class CheckListsController < ApplicationController
   def check_list_params
     params.require(:check_list)
           .permit(:name, :description, :entity_type, :active, :main_question_id,
-          check_list_items_attributes: [:id, :question, :required, :position, :_destroy, :answer_variants_raw])
+          check_list_items_attributes: [:id, :question, :required, :position, :_destroy, :answer_variants_raw],
+          repair_service_ids: [])
   end
 end

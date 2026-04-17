@@ -239,7 +239,9 @@ Rails.application.routes.draw do
   get 'check_order_status' => 'orders#check_status'
   get 'service_jobs/:service_job_id/device_tasks/:id/history' => 'service_jobs#task_history', as: :history_device_task, defaults: { format: 'js' }
 
-  resources :device_tasks, only: [:edit, :update]
+  resources :device_tasks, only: [:edit, :update] do
+    get :check_lists, on: :member, defaults: { format: :js }
+  end
 
   resources :orders do
     patch :change_status, on: :member, defaults: { format: 'js' }

@@ -63,6 +63,30 @@ $ ->
         toggleSubordinateQuestions($(this))
     , 100
 
+  # Reload check lists when repair tasks change in device task modal
+  window.reloadDeviceTaskCheckLists = ->
+    container = $('#device-task-check-lists')
+    return unless container.length > 0
+
+    url = container.data('check-lists-url')
+    return unless url
+
+    # Collect repair_service_ids from visible repair_task fields
+    repairServiceIds = []
+    $('#repair_tasks .fields:visible input[name*="[repair_service_id]"]').each ->
+      val = $(this).val()
+      repairServiceIds.push(val) if val
+
+    $.ajax
+      url: url
+      type: 'GET'
+      dataType: 'script'
+      data: { repair_service_ids: repairServiceIds }
+
+  # Watch for repair task removals (click on remove link)
+  $(document).on 'click', '#repair_tasks .remove_fields', ->
+    setTimeout window.reloadDeviceTaskCheckLists, 200
+
   # For check list edit form - update main question dropdown when items change
   $(document).on 'nested:fieldAdded', '#check-list-items', (event) ->
     updateMainQuestionDropdown()
@@ -242,3 +266,29 @@ $ ->
       form.data('validation-attempted', true)
       $('.check-list-container').each ->
         highlightCheckListErrors($(this))
+
+  # === Admin form: toggle repair services select based on entity_type ===
+  toggleRepairServicesSelect = ->
+    select = $('#check_list_entity_type')
+    return unless select.length > 0
+    container = $('#repair-services-select')
+    if select.val() == 'DeviceTask'
+      container.show()
+    else
+      container.hide()
+
+  $(document).on 'change', '#check_list_entity_type', ->
+    toggleRepairServicesSelect()
+
+  # Initialize multiselect for repair services on admin form
+  $(document).ready ->
+    if $('#repair-services-select .multiselect-rep-services').length
+      $('#repair-services-select .multiselect-rep-services').multiselect
+        enableClickableOptGroups: false
+        nonSelectedText: 'Выберите виды ремонта'
+        nSelectedText: 'выбрано'
+        allSelectedText: 'Все виды ремонта'
+        onInitialized: ->
+          $('#repair-services-select .multiselect-group, #repair-services-select .multiselect-option, #repair-services-select .multiselect-all').each ->
+            $(this).attr('type', 'button')
+      toggleRepairServicesSelect()

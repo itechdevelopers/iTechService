@@ -7,4 +7,8 @@ class DeviceTaskPolicy < BasePolicy
           able_to?(:perform_engraving_tasks) && record.engraving?
       )
   end
+
+  def check_lists?
+    update?
+  end
 end

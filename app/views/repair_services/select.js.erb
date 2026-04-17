@@ -1,1 +1,2 @@
 $('#repair_tasks').append("<%= j(repair_task_fields(@repair_service)) %>");
+if (typeof reloadDeviceTaskCheckLists === 'function') { reloadDeviceTaskCheckLists(); }

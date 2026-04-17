@@ -1,0 +1,22 @@
+$('#device-task-check-lists').html('<%= j render("check_lists_block", available_check_lists: @check_lists) %>');
+
+// Re-initialize subordinate question toggles
+$('#device-task-check-lists .check-list-container').each(function() {
+  var checkList = $(this);
+  var mainQuestionRadios = checkList.find('.main-question-radio');
+  var subordinateContainer = checkList.find('.subordinate-questions');
+
+  if (mainQuestionRadios.length > 0 && subordinateContainer.length > 0) {
+    var checkedRadio = mainQuestionRadios.filter(':checked');
+    var hasCustomAnswers = mainQuestionRadios.filter('[value="yes"]').length === 0;
+    var shouldShow = hasCustomAnswers ? checkedRadio.length > 0 : checkedRadio.val() === 'yes';
+
+    if (shouldShow) {
+      subordinateContainer.show();
+      subordinateContainer.find('input[type="radio"]').prop('disabled', false);
+    } else {
+      subordinateContainer.hide();
+      subordinateContainer.find('input[type="radio"]').prop('disabled', true);
+    }
+  }
+});

@@ -42,6 +42,21 @@ class DeviceTasksController < ApplicationController
     end
   end
 
+  def check_lists
+    @device_task = find_record DeviceTask
+    authorize @device_task
+    repair_service_ids = Array(params[:repair_service_ids]).map(&:to_i)
+    @check_lists = CheckList.active.for_entity('DeviceTask')
+
+    if repair_service_ids.any?
+      @check_lists = @check_lists.left_joins(:repair_services)
+                                  .where('repair_services.id IN (?) OR repair_services.id IS NULL', repair_service_ids)
+                                  .distinct
+    else
+      @check_lists = @check_lists.none
+    end
+  end
+
   def device_task_params
     params.require(:device_task)
           .permit(:comment, :cost, :done, :done_at, :performer_id, :service_job_id, :task_id, :user_comment, check_list_responses_attributes: [:id, :check_list_id, responses: {}, comments: {}])

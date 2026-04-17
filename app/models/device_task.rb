@@ -78,6 +78,16 @@ class DeviceTask < ApplicationRecord
     }
   end
 
+  def available_check_lists
+    all_lists = super
+    rs_ids = repair_tasks.map(&:repair_service_id).compact.uniq
+    return all_lists.none if rs_ids.empty?
+
+    all_lists.left_joins(:repair_services)
+             .where('repair_services.id IN (?) OR repair_services.id IS NULL', rs_ids)
+             .distinct
+  end
+
   def task_name
     task.try :name
   end

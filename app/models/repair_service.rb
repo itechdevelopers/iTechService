@@ -28,6 +28,7 @@ class RepairService < ApplicationRecord
   has_and_belongs_to_many :repair_causes
   has_and_belongs_to_many :products
   has_and_belongs_to_many :device_tasks, join_table: 'device_tasks_repair_services'
+  has_and_belongs_to_many :check_lists
 
   accepts_nested_attributes_for :spare_parts, allow_destroy: true
   accepts_nested_attributes_for :prices, reject_if: proc { |attrs|
