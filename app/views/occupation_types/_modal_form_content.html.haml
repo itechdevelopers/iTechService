@@ -13,6 +13,9 @@
     = f.label :is_day_off, class: 'checkbox' do
       = f.check_box :is_day_off
       = t('.is_day_off')
+    = f.label :is_other_work, class: 'checkbox' do
+      = f.check_box :is_other_work
+      = t('.is_other_work')
     = f.submit t('.add'), class: 'btn btn-success'
 
   %hr

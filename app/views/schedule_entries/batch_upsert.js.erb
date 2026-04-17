@@ -3,7 +3,7 @@ var $cell = $('.schedule-cell[data-user-id="<%= entry.user_id %>"][data-date="<%
 
 <% if entry.display_text.present? %>
   $cell.html('<%= j entry.display_text %>');
-  $cell.css('background-color', '<%= (entry.department_id && @schedule_group.department_color_override(entry.department_id)) || entry.background_color %>');
+  $cell.css('background-color', '<%= (entry.use_department_color? && entry.department_id && @schedule_group.department_color_override(entry.department_id)) || entry.background_color %>');
   $cell.removeClass('empty-cell');
 <% else %>
   $cell.html('');

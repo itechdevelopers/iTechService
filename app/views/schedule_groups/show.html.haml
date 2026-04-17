@@ -78,7 +78,7 @@
         %h5= t('.occupation_type')
         .btn-group.selection-group{'data-selection' => 'occupation_type'}
           - @occupation_types.each do |ot|
-            %button.btn.btn-small.selection-btn{'data-id' => ot.id, 'data-color' => ot.color, 'data-counts-as-working' => ot.counts_as_working.to_s}
+            %button.btn.btn-small.selection-btn{'data-id' => ot.id, 'data-color' => ot.color, 'data-counts-as-working' => ot.counts_as_working.to_s, 'data-is-other-work' => ot.is_other_work.to_s}
               .btn-label= ot.name
               %span.btn-hint-color{style: "background-color: #{ot.color}"}
       .span3
@@ -119,7 +119,7 @@
               - cell_data = {'data-user-id' => member.id, 'data-date' => date.to_s}
               - cell_data['data-entry-id'] = entry.id if entry
               - if entry && entry.display_text
-                - cell_bg = (entry.department_id && @schedule_group.department_color_override(entry.department_id)) || entry.background_color
+                - cell_bg = (entry.use_department_color? && entry.department_id && @schedule_group.department_color_override(entry.department_id)) || entry.background_color
                 %td.schedule-cell{cell_data.merge(style: "background-color: #{cell_bg}")}
                   = entry.display_text
               - else
