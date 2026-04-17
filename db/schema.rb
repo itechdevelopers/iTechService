@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20260417120001) do
+ActiveRecord::Schema.define(version: 20260418120000) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -232,6 +232,13 @@ ActiveRecord::Schema.define(version: 20260417120001) do
     t.index ["active"], name: "index_check_lists_on_active"
     t.index ["entity_type"], name: "index_check_lists_on_entity_type"
     t.index ["main_question_id"], name: "index_check_lists_on_main_question_id"
+  end
+
+  create_table "check_lists_repair_services", id: false, force: :cascade do |t|
+    t.bigint "check_list_id", null: false
+    t.bigint "repair_service_id", null: false
+    t.index ["check_list_id", "repair_service_id"], name: "idx_check_lists_repair_services", unique: true
+    t.index ["repair_service_id", "check_list_id"], name: "idx_repair_services_check_lists"
   end
 
   create_table "cities", id: :serial, force: :cascade do |t|
