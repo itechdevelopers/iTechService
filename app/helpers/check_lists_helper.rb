@@ -26,7 +26,7 @@ module CheckListsHelper
   end
 
   def render_check_lists_answers_for(model, entity_type)
-    available_lists = available_check_lists_for(entity_type)
+    available_lists = model.respond_to?(:available_check_lists) ? model.available_check_lists : available_check_lists_for(entity_type)
     return '' if available_lists.empty?
 
     result = ''
