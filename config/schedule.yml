@@ -57,3 +57,9 @@ queue_anomaly_detection:
   class: 'QueueAnomalyDetectionJob'
   queue: 'reports'
   active_job: true
+
+transcription_silence_check:
+  cron: '0 10-20 * * * Asia/Vladivostok'
+  class: 'TranscriptionSilenceCheckJob'
+  queue: 'default'
+  active_job: true

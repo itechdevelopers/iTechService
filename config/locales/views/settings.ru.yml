@@ -39,5 +39,6 @@ ru:
     request_review_time_out: Таймаут отправки смс запроса оценки работы сотрудника, мин
     warranty_overstay_thresholds: 'Пороги уведомлений о долго лежащих устройствах, купленных у нас (дни, массив)'
     find_my_device_check_enabled: 'Проверка «Найти iPhone» при приёмке'
+    transcription_silence_threshold_hours: 'Порог тишины транскрибированных диалогов (часы)'
     errors:
       not_found: 'Параметр "%{name}" не найден!'
