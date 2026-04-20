@@ -1,4 +1,7 @@
-.nested-fields.well
+.nested-fields.well.fields
+  = f.hidden_field :_destroy
+  = link_to '#', class: 'remove_fields btn btn-mini btn-danger pull-right' do
+    %i.icon-minus
   = f.input :question, label: 'Вопрос'
   = f.input :required, label: 'Обязательный'
   = f.input :position, as: :hidden
