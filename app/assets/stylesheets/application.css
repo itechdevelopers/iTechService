@@ -66,5 +66,6 @@
  *= require elqueue_ticket_movements
  *= require custom_select
  *= require achievements
+ *= require schedule_mobile
  *= require warranty_overstay_notifications
  */
