@@ -104,7 +104,7 @@ class ElqueueTicketsReport < BaseReport
       completed_automatically = wc.completed_automatically
       called_event = wc.elqueue_ticket_movements.where(type: "ElqueueTicketMovement::Called").order(created_at: :desc).first
       username = called_event&.user&.short_name || '-'
-      called_at = called_event&.created_at.strftime('%d.%m.%Y %H:%M')
+      called_at = called_event&.created_at&.strftime('%d.%m.%Y %H:%M')
 
       window = called_event&.elqueue_window
       calling_user = called_event&.user

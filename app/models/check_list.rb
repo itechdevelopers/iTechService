@@ -8,6 +8,8 @@ class CheckList < ApplicationRecord
   belongs_to :main_question, class_name: 'CheckListItem', optional: true
   has_and_belongs_to_many :repair_services
 
+  before_destroy :nullify_main_question
+
   validates :name, presence: true
   validates :entity_type, presence: true, inclusion: { in: ENTITY_TYPES }
   validate :main_question_belongs_to_this_checklist
@@ -35,6 +37,10 @@ class CheckList < ApplicationRecord
   end
 
   private
+
+  def nullify_main_question
+    update_column(:main_question_id, nil) if main_question_id.present?
+  end
 
   def main_question_belongs_to_this_checklist
     return unless main_question_id.present?
