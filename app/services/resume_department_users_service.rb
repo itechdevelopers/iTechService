@@ -10,7 +10,9 @@ class ResumeDepartmentUsersService
   def call
     paused_users = User.in_department(@department_id).where(paused: true)
     paused_users.each(&:resume!)
-    
+
+    User.in_department(@department_id).where(remember_pause: true).update_all(remember_pause: false)
+
     paused_users.count
   end
 
