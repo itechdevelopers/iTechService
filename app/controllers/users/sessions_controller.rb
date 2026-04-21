@@ -17,9 +17,6 @@ class Users::SessionsController < Devise::SessionsController
         user.save
       end
 
-      user.resume!
-      user.unset_remember_pause
-
       if (location = after_sign_in_path_for(user))
         respond_with resource, location: location
         return
