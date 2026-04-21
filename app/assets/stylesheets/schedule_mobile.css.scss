@@ -1,0 +1,148 @@
+// Schedule Groups - Mobile responsive styles
+// Adapts the schedule view for screens <= 767px
+
+@media (max-width: 767px) {
+
+  // === Selection panel: stack columns vertically ===
+  #selection-panel .row-fluid {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+  }
+
+  #selection-panel .row-fluid .span3 {
+    width: 100% !important;
+    margin-left: 0 !important;
+    float: none !important;
+  }
+
+  #selection-panel h5 {
+    margin-bottom: 4px;
+    font-size: 14px;
+  }
+
+  // Bigger tap targets for buttons (Apple HIG: 44px minimum)
+  #selection-panel .selection-btn {
+    min-width: 70px;
+    min-height: 44px;
+    padding: 6px 10px;
+  }
+
+  #selection-panel #clear-selection-btn {
+    min-height: 44px;
+    width: 100%;
+  }
+
+  // Custom shift fields: wrap on narrow screens
+  .custom-shift-fields {
+    flex-wrap: wrap;
+  }
+
+  .custom-shift-fields .input-small {
+    width: 80px;
+  }
+
+  // === Week navigation: stack button groups ===
+  .btn-toolbar {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+
+  .btn-toolbar .btn-group.pull-right {
+    float: none !important;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 4px;
+  }
+
+  .btn-toolbar .btn-group .btn {
+    font-size: 12px;
+    padding: 6px 8px;
+  }
+
+  // === Schedule table: compact sticky columns ===
+  .schedule-table .date-cell {
+    min-width: 70px !important;
+    max-width: 70px !important;
+    width: 70px !important;
+    font-size: 11px;
+  }
+
+  .schedule-table .weekday-cell {
+    min-width: 80px !important;
+    max-width: 80px !important;
+    width: 80px !important;
+    font-size: 11px;
+  }
+
+  .schedule-table thead th:nth-child(1) {
+    min-width: 70px !important;
+    max-width: 70px !important;
+    width: 70px !important;
+  }
+
+  .schedule-table thead th:nth-child(2),
+  .schedule-table tbody td:nth-child(2) {
+    left: 70px !important;
+    min-width: 80px !important;
+    max-width: 80px !important;
+    width: 80px !important;
+  }
+
+  .schedule-table .member-header {
+    min-width: 60px;
+    font-size: 11px;
+  }
+
+  .schedule-table .schedule-cell {
+    min-width: 50px;
+    height: 36px;
+    font-size: 11px;
+  }
+
+  .schedule-table-caption {
+    font-size: 14px;
+    padding: 6px;
+  }
+
+  // === Department summaries: full-width scroll ===
+  .department-summaries {
+    flex-direction: column;
+    gap: 16px;
+  }
+
+  .department-summary,
+  .total-dept-summary-section {
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  // === Save section: stack vertically ===
+  .save-section {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 8px;
+  }
+
+  // === Week memos: full width ===
+  .week-memos-section {
+    max-width: 100%;
+  }
+
+  // === Time bank: horizontal scroll for wide table ===
+  .time-bank-section {
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  .time-bank-table {
+    font-size: 12px;
+    white-space: nowrap;
+  }
+
+  // === Page header and back button ===
+  h3 {
+    font-size: 18px;
+  }
+}
