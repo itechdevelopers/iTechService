@@ -3,12 +3,12 @@
 class CheckList < ApplicationRecord
   ENTITY_TYPES = %w[TradeInDevice Product Task ServiceJob RepairTask DeviceTask].freeze
 
+  before_destroy :nullify_main_question
+
   has_many :check_list_items, dependent: :destroy
   has_many :check_list_responses, dependent: :destroy
   belongs_to :main_question, class_name: 'CheckListItem', optional: true
   has_and_belongs_to_many :repair_services
-
-  before_destroy :nullify_main_question
 
   validates :name, presence: true
   validates :entity_type, presence: true, inclusion: { in: ENTITY_TYPES }
