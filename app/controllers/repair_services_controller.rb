@@ -166,6 +166,24 @@ class RepairServicesController < ApplicationController
     end
   end
 
+  def move
+    @repair_service = find_record RepairService
+    target_group_id = params[:repair_group_id].presence
+    target_group_id = nil if target_group_id == 'nil'
+
+    if @repair_service.update(repair_group_id: target_group_id)
+      target_group = target_group_id ? RepairGroup.find_by(id: target_group_id) : nil
+      render json: {
+        status: 'ok',
+        id: @repair_service.id,
+        repair_group_id: target_group_id,
+        repair_group_name: target_group&.name
+      }
+    else
+      render json: { errors: @repair_service.errors.full_messages }, status: :unprocessable_entity
+    end
+  end
+
   private
 
   def price_json(repair_service, department)

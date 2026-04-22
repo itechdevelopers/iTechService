@@ -21,6 +21,10 @@ class RepairServicePolicy < CommonPolicy
     manage?
   end
 
+  def move?
+    manage?
+  end
+
   def archived?
     read?
   end

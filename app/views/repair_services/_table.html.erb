@@ -15,7 +15,10 @@
     <% show_qty = current_user.able_to?(:show_spare_parts_qty) || current_user.superadmin? # Setting.show_spare_parts_qty %>
     <% @repair_services.find_each do |repair_service| %>
       <% parts_qty = repair_service.spare_parts.count %>
-      <tr>
+      <% can_move = can?(:manage, RepairService) %>
+      <tr class="repair-service-row<%= ' rs-draggable' if can_move %>"
+          data-repair-service-id="<%= repair_service.id %>"
+          <%= 'draggable="true"'.html_safe if can_move %>>
         <td rowspan="<%= parts_qty+1 %>"><%= repair_service.id %></td>
         <td class="name">
           <span class="label label-info"><%= repair_service.name %></span>

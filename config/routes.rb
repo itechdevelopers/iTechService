@@ -442,6 +442,7 @@ Rails.application.routes.draw do
     put :mass_update, on: :collection
     patch :archive, on: :member
     patch :unarchive, on: :member
+    patch :move, on: :member, defaults: {format: :json}
     get :archived, on: :collection
   end
 

@@ -1,0 +1,16 @@
+// Drag-and-drop индикаторы для переноса видов ремонта между группами.
+// BEM-именование (блок .rs-drag-*), чтобы не конфликтовать с общими стилями таблиц и дерева.
+
+.repair-service-row.rs-draggable {
+  cursor: move;
+}
+
+.repair-service-row.rs-dragging {
+  opacity: 0.4;
+}
+
+#repair_groups li.repair_group.rs-drop-target > a {
+  background-color: #dff0d8;
+  outline: 2px dashed #5cb85c;
+  outline-offset: -2px;
+}
