@@ -58,6 +58,15 @@ When starting work:
 3. Work in atomic, testable increments
 4. Return patch diffs with clear commit messages
 
+## Manual endpoint testing via curl
+
+When testing protected JSON/AJAX endpoints without a browser (e.g., for backend validation of new actions), the Devise + CSRF flow has non-obvious traps:
+- Login form field is `user[username]` (NOT `email` or `login`) — see `config.authentication_keys = [:username]` in [config/initializers/devise.rb](config/initializers/devise.rb)
+- Devise returns **HTTP 200** on failed login (re-renders form) and **HTTP 302** on success
+- CSRF token must be re-read from an authenticated page **after** sign-in
+
+Full recipe with working curl examples: **[docs/testing-endpoints-with-curl.md](docs/testing-endpoints-with-curl.md)**
+
 ## Testing Instructions for Stakeholder
 
 After completing a feature or bug fix, write a simple testing instruction in Russian for the project lead. The instruction should:
