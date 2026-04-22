@@ -43,6 +43,12 @@ jQuery ->
     $('.rs-drop-target').removeClass('rs-drop-target')
     return unless service_id and group_id
 
+    # No-op: drop на ту же группу, в которой вид уже лежит.
+    # params[:group] текущей страницы хранится в скрытом поле #group-param формы поиска.
+    current_group = $('#group-param').val()
+    if current_group and String(current_group) is String(group_id)
+      return
+
     csrf_token = $('meta[name="csrf-token"]').attr('content')
     $.ajax
       type: 'PATCH'
