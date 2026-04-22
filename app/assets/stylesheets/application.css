@@ -45,6 +45,7 @@
  *= require purchases
  *= require repair_groups
  *= require repair_services
+ *= require repair_service_drag
  *= require reports
  *= require revaluation_acts
  *= require sales
