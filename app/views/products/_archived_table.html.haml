@@ -1,0 +1,32 @@
+- if @products.any?
+  .row-fluid
+    .span12.text-right
+      - if params[:show_all].blank?
+        = link_to "Показать все продукты", archived_products_path(group: params[:group], show_all: true), class: 'btn btn-info'
+      - else
+        = link_to "Вернуться к постраничному просмотру", archived_products_path(group: params[:group]), class: 'btn btn-default'
+  - model_class = Product
+  %table.table.table-striped
+    %thead
+      %tr
+        %th= model_class.human_attribute_name(:id)
+        %th= model_class.human_attribute_name(:code)
+        %th= model_class.human_attribute_name(:name)
+        - if can? :manage, Product
+          %th
+    %tbody
+      - @products.each do |product|
+        %tr
+          %td= link_to product.id, product_path(product)
+          %td= link_to product.code, product_path(product)
+          %td= link_to product.name, product_path(product)
+          - if can? :manage, Product
+            %td.btn-group
+              = link_to "#{glyph(:refresh)} Восстановить".html_safe, unarchive_product_path(product), method: :patch,
+                        class: 'btn btn-small btn-info',
+                        data: { confirm: 'Вы уверены, что хотите восстановить продукт из архива?' }
+
+  - unless params[:show_all].present?
+    = paginate @products, remote: true
+- else
+  %p.text-muted В архиве нет продуктов.

@@ -30,8 +30,13 @@ module ProductGroupsHelper
       is_current = product_group.id == current_id
       li_class = (opened.include?(product_group.id)) ? 'opened' : 'closed'
       li_class << ' current' if is_current
-      url = options[:url].present? ? "#{options[:url]}?product_group_id=#{product_group.id}" :
-              product_group_path(product_group, options)
+      url = if options[:archived_view]
+              archived_products_path(group: product_group.id)
+            elsif options[:url].present?
+              "#{options[:url]}?product_group_id=#{product_group.id}"
+            else
+              product_group_path(product_group, options.except(:archived_view))
+            end
 
       content_tag :li,
                   link_to(product_group.name, url, remote: true) +
