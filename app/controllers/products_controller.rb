@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 class ProductsController < ApplicationController
-  skip_after_action :verify_authorized, except: %i[create update destroy remains_in_store show_prices show_remains]
+  skip_after_action :verify_authorized, except: %i[create update destroy archive unarchive archived remains_in_store show_prices show_remains]
   protect_from_forgery except: :choose
 
   def index
@@ -15,6 +15,7 @@ class ProductsController < ApplicationController
       @products = @current_product_group.products.search(search_params)
     end
 
+    @products = @products.not_archived
     @products = @products.available if params[:form] == 'sale'
     @products = @products.preload(:product_group, :product_category)
     @products = @products.page(params[:page]) unless params[:show_all].present?
@@ -109,6 +110,49 @@ class ProductsController < ApplicationController
     respond_to do |format|
       format.html { redirect_to products_url }
       format.json { head :no_content }
+    end
+  end
+
+  def archive
+    @product = find_record Product
+    @product.archive!
+    respond_to do |format|
+      format.html { redirect_to products_path, notice: t('products.archived_notice') }
+      format.js
+    end
+  end
+
+  def unarchive
+    @product = find_record Product
+    @product.unarchive!
+    respond_to do |format|
+      format.html { redirect_to archived_products_path, notice: t('products.unarchived_notice') }
+      format.js
+    end
+  end
+
+  def archived
+    authorize Product
+    @product_groups = ProductGroup.roots.ordered
+    search_params_with_archived = search_params.merge(include_archived: true)
+    if params[:group].blank?
+      @opened_product_groups = []
+      @products = Product.search(search_params_with_archived)
+    else
+      @current_product_group = ProductGroup.find params[:group]
+      @opened_product_groups = @current_product_group.path_ids[1..-1].map { |g| "product_group_#{g}" }
+      @products = @current_product_group.products.search(search_params_with_archived)
+    end
+
+    @products = @products.archived
+    @products = @products.preload(:product_group, :product_category)
+    @products = @products.page(params[:page]) unless params[:show_all].present?
+
+    params[:table_name] = 'archived_table'
+
+    respond_to do |format|
+      format.html { render 'index', locals: { archived_view: true } }
+      format.js { render 'index' }
     end
   end
 

@@ -4,6 +4,10 @@ ru:
     add_product: 'Добавить Продукт'
     created: "Продукт создан"
     updated: "Продукт изменён"
+    archived_notice: "Продукт перенесён в архив"
+    unarchived_notice: "Продукт восстановлен из архива"
+    archived:
+      title: "Архив продуктов"
     form:
       attributes: 'Атрибуты'
       add_store: "Добавить склад"

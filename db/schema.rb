@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20260418120001) do
+ActiveRecord::Schema.define(version: 20260423120000) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -1197,6 +1197,8 @@ ActiveRecord::Schema.define(version: 20260418120001) do
     t.string "article"
     t.string "photos", default: [], array: true
     t.string "photos_meta_data", default: [], array: true
+    t.boolean "archived", default: false, null: false
+    t.index ["archived"], name: "index_products_on_archived"
     t.index ["article"], name: "index_products_on_article", unique: true
     t.index ["barcode_num"], name: "index_products_on_barcode_num"
     t.index ["code"], name: "index_products_on_code"

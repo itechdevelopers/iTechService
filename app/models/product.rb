@@ -24,6 +24,8 @@ class Product < ApplicationRecord
                                 }
 
   scope :in_group, ->(group) { where(product_group_id: ProductGroup.descendants_of(group)) }
+  scope :archived, -> { where(archived: true) }
+  scope :not_archived, -> { where(archived: false) }
 
   belongs_to :product_category, inverse_of: :products, optional: true
   belongs_to :product_group, inverse_of: :products, optional: true
@@ -86,7 +88,7 @@ class Product < ApplicationRecord
   after_create :sync_repair_services_from_product_group
 
   def self.search(params)
-    products = Product.all
+    products = params[:include_archived] ? Product.all : Product.not_archived
     query = params[:query] || params[:q]
 
     unless query.blank?
@@ -243,5 +245,13 @@ class Product < ApplicationRecord
 
     # Добавляем repair_services к новому продукту (если они есть)
     self.repair_service_ids = repair_service_ids if repair_service_ids.any?
+  end
+
+  def archive!
+    update!(archived: true)
+  end
+
+  def unarchive!
+    update!(archived: false)
   end
 end

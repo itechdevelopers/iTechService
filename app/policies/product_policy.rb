@@ -11,6 +11,18 @@ class ProductPolicy < CommonPolicy
     any_manager?
   end
 
+  def archive?
+    any_manager?
+  end
+
+  def unarchive?
+    any_manager?
+  end
+
+  def archived?
+    read?
+  end
+
   def show_prices?
     any_manager?
   end

@@ -39,7 +39,10 @@
             - if can? :manage, Product
               %td.btn-group
                 = link_to_edit_small product
-                = link_to_destroy_small product
+                = link_to glyph(:archive), archive_product_path(product), method: :patch,
+                          class: 'btn btn-small btn-warning',
+                          title: 'В архив',
+                          data: { confirm: 'Вы уверены, что хотите перенести продукт в архив?' }
 
     - unless params[:show_all].present?
       = paginate @products, remote: true

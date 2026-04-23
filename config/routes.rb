@@ -352,6 +352,9 @@ Rails.application.routes.draw do
     post :select, on: :collection, defaults: {format: :js}
     get :find, on: :collection
     patch :update_repair_services, on: :collection, defaults: {format: :js}
+    patch :archive, on: :member
+    patch :unarchive, on: :member
+    get :archived, on: :collection
     resources :items, except: [:show]
     scope module: :products do
       resources :photos, format: :js, only: [:show, :new, :create, :destroy]

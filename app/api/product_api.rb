@@ -15,7 +15,7 @@ class ProductApi < Grape::API
   desc 'Get products remnants for shops'
   post 'products_sync' do
     authorize :sync, Product
-    products_hash Product.goods
+    products_hash Product.goods.not_archived
   end
 
   desc 'Get products remnants'
