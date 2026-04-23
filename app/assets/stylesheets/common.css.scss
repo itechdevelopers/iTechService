@@ -427,6 +427,19 @@ tr.fields {
     margin-left: 0 !important;
     float: none !important;
   }
+
+  #notifications {
+    width: 100%;
+    left: 0;
+    right: 0;
+    box-sizing: border-box;
+  }
+
+  #hide_notifications_button {
+    width: 88% !important;
+    padding: 0 8px !important;
+    box-sizing: border-box;
+  }
 }
 
 .one_line_inputs {
