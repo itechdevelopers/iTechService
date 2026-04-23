@@ -158,6 +158,34 @@ label.label-card-managers {
     max-width: 100%;
   }
 
+  .form-horizontal .control-group {
+    display: flex;
+    flex-direction: column;
+
+    .control-label {
+      width: auto;
+      text-align: left;
+      float: none;
+      margin-bottom: 4px;
+    }
+
+    .controls {
+      margin-left: 0;
+    }
+  }
+
+  .kanban-managers .row-fluid .span8 {
+    width: 100% !important;
+    margin-left: 0 !important;
+    float: none !important;
+  }
+
+  span.role-dep-info {
+    max-width: 100%;
+    white-space: normal;
+    word-break: break-word;
+  }
+
   .row-fluid.kanban-column-headers {
     display: block;
     overflow-x: auto;
