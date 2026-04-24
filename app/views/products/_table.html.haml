@@ -1,4 +1,5 @@
-= simple_form_for :product, url: update_repair_services_products_path, method: :patch, html: { id: 'batch_update_form', local: true } do |f|
+= simple_form_for :product, url: update_repair_services_products_path, method: :patch, authenticity_token: true, html: { id: 'batch_update_form' } do |f|
+  = hidden_field_tag :group, params[:group] if params[:group].present?
   .row-fluid
     .span6
       = f.input :repair_service_ids,
@@ -8,41 +9,47 @@
         label: 'Прикрепить виды ремонта',
         input_html: { class: 'multiselect-rep-services optional', multiple: true }
     .span6
-      = f.button :submit, "Сохранить", class: 'btn-primary', id: 'batch_update_submit', disabled: true
+      = button_tag "Сохранить виды ремонта", type: :submit, class: 'btn btn-primary', id: 'batch_update_submit', disabled: true
 
-  - if @products.any?
-    .row-fluid
-      .span12.text-right
-        - if params[:show_all].blank?
-          = link_to "Показать все продукты", products_path(group: params[:group], show_all: true), class: 'btn btn-info'
-        - else
-          = link_to "Вернуться к постраничному просмотру", products_path(group: params[:group]), class: 'btn btn-default'
-    - model_class = Product
-    %table.table.table-striped
-      %thead
-        %tr
-          %th= model_class.human_attribute_name(:id)
+= form_tag batch_archive_products_path, method: :patch, id: 'batch_archive_form', class: 'inline-form' do
+  = hidden_field_tag :group, params[:group] if params[:group].present?
+  = button_tag "#{glyph(:archive)} В архив".html_safe, type: :submit,
+               class: 'btn btn-warning', id: 'batch_archive_submit', disabled: true,
+               data: { confirm: 'Перенести выбранные продукты в архив?' }
+
+- if @products.any?
+  .row-fluid
+    .span12.text-right
+      - if params[:show_all].blank?
+        = link_to "Показать все продукты", products_path(group: params[:group], show_all: true), class: 'btn btn-info'
+      - else
+        = link_to "Вернуться к постраничному просмотру", products_path(group: params[:group]), class: 'btn btn-default'
+  - model_class = Product
+  %table.table.table-striped
+    %thead
+      %tr
+        %th= model_class.human_attribute_name(:id)
+        %th
+          = check_box_tag 'select_all', '', false, class: 'select-all-checkbox'
+        %th= model_class.human_attribute_name(:code)
+        %th= model_class.human_attribute_name(:name)
+        - if can? :manage, Product
           %th
-            = check_box_tag 'select_all', '', false, class: 'select-all-checkbox'
-          %th= model_class.human_attribute_name(:code)
-          %th= model_class.human_attribute_name(:name)
+    %tbody
+      - @products.each do |product|
+        %tr
+          %td= link_to product.id, product_path(product)
+          %td
+            = check_box_tag 'product_ids[]', product.id, false, class: 'product-checkbox'
+          %td= link_to product.code, product_path(product)
+          %td= link_to product.name, product_path(product)
           - if can? :manage, Product
-            %th
-      %tbody
-        - @products.each do |product|
-          %tr
-            %td= link_to product.id, product_path(product)
-            %td
-              = check_box_tag 'product_ids[]', product.id, false, class: 'product-checkbox'
-            %td= link_to product.code, product_path(product)
-            %td= link_to product.name, product_path(product)
-            - if can? :manage, Product
-              %td.btn-group
-                = link_to_edit_small product
-                = link_to glyph(:archive), archive_product_path(product), method: :patch,
-                          class: 'btn btn-small btn-warning',
-                          title: 'В архив',
-                          data: { confirm: 'Вы уверены, что хотите перенести продукт в архив?' }
+            %td.btn-group
+              = link_to_edit_small product
+              = link_to glyph(:archive), archive_product_path(product), method: :patch,
+                        class: 'btn btn-small btn-warning',
+                        title: 'В архив',
+                        data: { confirm: 'Вы уверены, что хотите перенести продукт в архив?' }
 
-    - unless params[:show_all].present?
-      = paginate @products, remote: true
+  - unless params[:show_all].present?
+    = paginate @products, remote: true

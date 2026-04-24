@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 class ProductsController < ApplicationController
-  skip_after_action :verify_authorized, except: %i[create update destroy archive unarchive archived remains_in_store show_prices show_remains]
+  skip_after_action :verify_authorized, except: %i[create update destroy archive unarchive archived batch_archive remains_in_store show_prices show_remains]
   protect_from_forgery except: :choose
 
   def index
@@ -275,17 +275,30 @@ class ProductsController < ApplicationController
     authorize Product
     if params[:product_ids].present? && params[:product][:repair_service_ids].present?
       products = Product.where(id: params[:product_ids])
-      
+
       products.each do |product|
         product.repair_service_ids = params[:product][:repair_service_ids]
       end
-      
+
       flash[:success] = "Виды ремонта обновлены для #{products.count} продуктов"
     else
       flash[:error] = "Необходимо выбрать продукты и услуги ремонта"
     end
-    
+
     redirect_to products_path
+  end
+
+  def batch_archive
+    authorize Product
+    if params[:product_ids].present?
+      products = Product.where(id: params[:product_ids])
+      products.each(&:archive!)
+      flash[:success] = "В архив перенесено продуктов: #{products.count}"
+    else
+      flash[:error] = "Необходимо выбрать продукты"
+    end
+
+    redirect_to products_path(group: params[:group])
   end
 
   def repair_services

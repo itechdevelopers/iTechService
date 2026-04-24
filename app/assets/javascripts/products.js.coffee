@@ -236,10 +236,25 @@ $ ->
     # Обработчик клика на группу больше не нужен - обработчики добавляются в setupMultiselectGroups
 
   updateSubmitButton = ->
-    if $('.product-checkbox:checked').length > 0 && $('.multiselect-rep-services').val()?.length > 0
-      $('#batch_update_submit').prop('disabled', false)
-    else
-      $('#batch_update_submit').prop('disabled', true)
+    productsSelected = $('.product-checkbox:checked').length > 0
+    servicesSelected = $('.multiselect-rep-services').val()?.length > 0
+
+    $('#batch_update_submit').prop('disabled', !(productsSelected && servicesSelected))
+    $('#batch_archive_submit').prop('disabled', !productsSelected)
+
+  injectSelectedProductIds = ($form) ->
+    $form.find('input[name="product_ids[]"]').remove()
+    $('.product-checkbox:checked').each ->
+      productId = $(this).val()
+      $form.append('<input type="hidden" name="product_ids[]" value="' + productId + '">')
+
+  $(document).on 'submit', '#batch_update_form', ->
+    injectSelectedProductIds($(this))
+    return
+
+  $(document).on 'submit', '#batch_archive_form', ->
+    injectSelectedProductIds($(this))
+    return
 
 
   if $('.multiselect-rep-causes').length

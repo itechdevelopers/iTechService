@@ -15,6 +15,10 @@ class ProductPolicy < CommonPolicy
     any_manager?
   end
 
+  def batch_archive?
+    any_manager?
+  end
+
   def unarchive?
     any_manager?
   end
