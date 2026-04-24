@@ -248,12 +248,12 @@ $ ->
       productId = $(this).val()
       $form.append('<input type="hidden" name="product_ids[]" value="' + productId + '">')
 
-  $(document).on 'submit', '#batch_update_form', ->
-    injectSelectedProductIds($(this))
+  $(document).on 'click', '#batch_update_submit', ->
+    injectSelectedProductIds($('#batch_update_form'))
     return
 
-  $(document).on 'submit', '#batch_archive_form', ->
-    injectSelectedProductIds($(this))
+  $(document).on 'click', '#batch_archive_submit', ->
+    injectSelectedProductIds($('#batch_archive_form'))
     return
 
 

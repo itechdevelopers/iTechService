@@ -1,0 +1,10 @@
+:plain
+  var archivedIds = #{@archived_ids.to_json};
+  archivedIds.forEach(function(id) {
+    $("#product_" + id).fadeOut(300, function() { $(this).remove(); });
+  });
+  $('.product-checkbox').prop('checked', false);
+  $('.select-all-checkbox').prop('checked', false);
+  $('#batch_update_submit').prop('disabled', true);
+  $('#batch_archive_submit').prop('disabled', true);
+  $("#flash_place").html("<div class='alert alert-#{@flash_type} fade in'><button class='close' data-dismiss='alert'>&times;</button>#{j @flash_message}</div>");

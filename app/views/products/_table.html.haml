@@ -11,7 +11,7 @@
     .span6
       = button_tag "Сохранить виды ремонта", type: :submit, class: 'btn btn-primary', id: 'batch_update_submit', disabled: true
 
-= form_tag batch_archive_products_path, method: :patch, id: 'batch_archive_form', class: 'inline-form' do
+= form_tag batch_archive_products_path, method: :patch, id: 'batch_archive_form', class: 'inline-form', remote: true do
   = hidden_field_tag :group, params[:group] if params[:group].present?
   = button_tag "#{glyph(:archive)} В архив".html_safe, type: :submit,
                class: 'btn btn-warning', id: 'batch_archive_submit', disabled: true,
@@ -37,7 +37,7 @@
           %th
     %tbody
       - @products.each do |product|
-        %tr
+        %tr{ id: dom_id(product) }
           %td= link_to product.id, product_path(product)
           %td
             = check_box_tag 'product_ids[]', product.id, false, class: 'product-checkbox'
@@ -46,7 +46,7 @@
           - if can? :manage, Product
             %td.btn-group
               = link_to_edit_small product
-              = link_to glyph(:archive), archive_product_path(product), method: :patch,
+              = link_to glyph(:archive), archive_product_path(product), method: :patch, remote: true,
                         class: 'btn btn-small btn-warning',
                         title: 'В архив',
                         data: { confirm: 'Вы уверены, что хотите перенести продукт в архив?' }

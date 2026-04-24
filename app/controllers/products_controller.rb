@@ -118,7 +118,7 @@ class ProductsController < ApplicationController
     @product.archive!
     respond_to do |format|
       format.html { redirect_to products_path, notice: t('products.archived_notice') }
-      format.js
+      format.js { @flash_message = t('products.archived_notice') }
     end
   end
 
@@ -127,7 +127,7 @@ class ProductsController < ApplicationController
     @product.unarchive!
     respond_to do |format|
       format.html { redirect_to archived_products_path, notice: t('products.unarchived_notice') }
-      format.js
+      format.js { @flash_message = t('products.unarchived_notice') }
     end
   end
 
@@ -290,15 +290,26 @@ class ProductsController < ApplicationController
 
   def batch_archive
     authorize Product
+    @archived_ids = []
     if params[:product_ids].present?
       products = Product.where(id: params[:product_ids])
+      @archived_ids = products.pluck(:id)
       products.each(&:archive!)
-      flash[:success] = "В архив перенесено продуктов: #{products.count}"
+      @flash_message = "В архив перенесено продуктов: #{products.count}"
+      @flash_type = 'success'
     else
-      flash[:error] = "Необходимо выбрать продукты"
+      @flash_message = "Необходимо выбрать продукты"
+      @flash_type = 'error'
     end
 
-    redirect_to products_path(group: params[:group])
+    respond_to do |format|
+      format.html do
+        flash[:notice] = @flash_message if @flash_type == 'success'
+        flash[:error] = @flash_message if @flash_type == 'error'
+        redirect_to products_path(group: params[:group])
+      end
+      format.js
+    end
   end
 
   def repair_services
