@@ -354,6 +354,7 @@ Rails.application.routes.draw do
     patch :update_repair_services, on: :collection, defaults: {format: :js}
     patch :archive, on: :member
     patch :unarchive, on: :member
+    patch :batch_archive, on: :collection
     get :archived, on: :collection
     resources :items, except: [:show]
     scope module: :products do
