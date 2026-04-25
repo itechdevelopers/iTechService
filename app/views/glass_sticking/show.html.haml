@@ -1,0 +1,11 @@
+.glass-sticking
+  .glass-sticking__header
+    %h2.glass-sticking__title= t('glass_sticking.show.title')
+    %p.glass-sticking__hint= t('glass_sticking.show.hint')
+
+  .glass-sticking__filters
+    -# Цикл 4: фильтры (бар+сейчас / бар-все / все подразделения) и поиск
+    %p.text-muted= t('glass_sticking.show.coming_soon')
+
+  .glass-sticking__recipients#glass-sticking-recipients
+    -# Цикл 4: список карточек сотрудников

@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20260423120000) do
+ActiveRecord::Schema.define(version: 20260425120002) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -685,6 +685,20 @@ ActiveRecord::Schema.define(version: 20260423120000) do
     t.integer "department_id"
     t.index ["department_id"], name: "index_gift_certificates_on_department_id"
     t.index ["number"], name: "index_gift_certificates_on_number"
+  end
+
+  create_table "glass_sticking_notifications", force: :cascade do |t|
+    t.bigint "sender_id", null: false
+    t.bigint "recipient_id", null: false
+    t.bigint "department_id", null: false
+    t.integer "status", null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["department_id", "created_at"], name: "idx_glass_sticking_dept_created"
+    t.index ["department_id"], name: "index_glass_sticking_notifications_on_department_id"
+    t.index ["recipient_id"], name: "index_glass_sticking_notifications_on_recipient_id"
+    t.index ["sender_id", "created_at"], name: "idx_glass_sticking_sender_created"
+    t.index ["sender_id"], name: "index_glass_sticking_notifications_on_sender_id"
   end
 
   create_table "history_records", id: :serial, force: :cascade do |t|
@@ -2131,6 +2145,7 @@ ActiveRecord::Schema.define(version: 20260423120000) do
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.boolean "receive_location_task_notifications", default: true, null: false
+    t.boolean "receive_glass_sticking_notifications", default: true, null: false
     t.index ["user_id"], name: "index_user_settings_on_user_id"
   end
 
@@ -2310,6 +2325,9 @@ ActiveRecord::Schema.define(version: 20260423120000) do
   add_foreign_key "faults", "users", column: "issued_by_id"
   add_foreign_key "find_my_device_checks", "service_jobs"
   add_foreign_key "find_my_device_checks", "users"
+  add_foreign_key "glass_sticking_notifications", "departments"
+  add_foreign_key "glass_sticking_notifications", "users", column: "recipient_id"
+  add_foreign_key "glass_sticking_notifications", "users", column: "sender_id"
   add_foreign_key "kanban_boards", "telegram_chats"
   add_foreign_key "kanban_boards_users", "kanban_boards"
   add_foreign_key "kanban_boards_users", "users"

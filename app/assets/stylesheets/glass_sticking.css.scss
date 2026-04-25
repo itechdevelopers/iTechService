@@ -1,0 +1,42 @@
+.glass-sticking {
+  padding: 16px;
+  max-width: 960px;
+  margin: 0 auto;
+
+  &__header {
+    margin-bottom: 16px;
+  }
+
+  &__title {
+    margin: 0 0 4px;
+    font-size: 22px;
+  }
+
+  &__hint {
+    color: #666;
+    margin: 0;
+  }
+
+  &__filters {
+    margin-bottom: 16px;
+    padding: 12px;
+    background: #f5f5f5;
+    border-radius: 6px;
+  }
+
+  &__recipients {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+    gap: 12px;
+  }
+}
+
+@media (max-width: 480px) {
+  .glass-sticking {
+    padding: 8px;
+
+    &__recipients {
+      grid-template-columns: 1fr;
+    }
+  }
+}
