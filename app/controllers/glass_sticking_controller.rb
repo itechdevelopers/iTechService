@@ -37,6 +37,7 @@ class GlassStickingController < ApplicationController
     @recipient_name = recipient.short_name
     @status = status
     broadcast_in_app_notifications
+    SendGlassStickingTelegramJob.perform_later(@glass_notification.id)
     respond_to(&:js)
   end
 
