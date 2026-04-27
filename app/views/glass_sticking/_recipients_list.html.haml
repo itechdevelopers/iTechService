@@ -1,0 +1,16 @@
+- if recipients.any?
+  - recipients.each do |user|
+    .glass-sticking__card{ data: { user_id: user.id } }
+      .glass-sticking__avatar
+        - if user.photo?
+          = image_tag user.photo.thumb.url
+        - else
+          .glass-sticking__avatar-placeholder= user.short_name.to_s[0, 1]
+      .glass-sticking__name= user.short_name
+      .glass-sticking__actions
+        %button.glass-sticking__btn.glass-sticking__btn--ready{ type: 'button', data: { status: 'ready' } }
+          = t('glass_sticking.actions.ready')
+        %button.glass-sticking__btn.glass-sticking__btn--problem{ type: 'button', data: { status: 'problem' } }
+          = t('glass_sticking.actions.problem')
+- else
+  %p.glass-sticking__empty= t('glass_sticking.show.empty')

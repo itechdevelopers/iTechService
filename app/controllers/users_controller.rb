@@ -336,7 +336,7 @@ class UsersController < ApplicationController
   end
 
   def user_settings_params
-    params.require(:user_settings).permit(:fixed_main_menu, :auto_department_detection, :receive_location_task_notifications)
+    params.require(:user_settings).permit(:fixed_main_menu, :auto_department_detection, :receive_location_task_notifications, :receive_glass_sticking_notifications)
   end
 
   def update_self_params

@@ -60,6 +60,7 @@
  *= require timesheet_days
  *= require top_salables
  *= require users
+ *= require user_settings_form
  *= require wiki
  *= require_directory ./service
  *= require electronic_queues

@@ -1,2 +1,1 @@
-// Cycle 4 will populate this with recipient cards.
-$('#glass-sticking-recipients').html('');
+$('#glass-sticking-recipients').html('<%= j render("recipients_list", recipients: @recipients) %>');

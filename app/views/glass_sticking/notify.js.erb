@@ -1,0 +1,2 @@
+<% toast_message = t("glass_sticking.toast.#{@status}", full_name: @recipient_name) %>
+$("#flash_place").html("<div class='alert alert-success fade in'><button class='close' data-dismiss='alert'>&times;</button><%= j toast_message %></div>");

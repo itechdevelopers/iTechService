@@ -1,0 +1,33 @@
+.user-settings-form {
+  .control-group {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 10px;
+  }
+
+  .control-label {
+    width: auto;
+    margin: 0;
+    text-align: left;
+    float: none;
+    order: 2;
+  }
+
+  .controls {
+    margin-left: 0;
+    order: 1;
+
+    label.checkbox {
+      margin: 0;
+      padding: 0;
+      min-height: 0;
+      display: inline-flex;
+      align-items: center;
+    }
+
+    input[type="checkbox"] {
+      margin: 0;
+    }
+  }
+}
