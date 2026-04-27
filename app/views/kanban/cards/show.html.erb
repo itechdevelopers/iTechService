@@ -13,7 +13,9 @@
     <% end %>
     <h4><%= @card.name %></h4>
     <blockquote>
-      <p class="kanban-card-content" data-font-size="<%= @card.board.open_card_font_size %>"><%= @card.content %></p>
+      <div class="kanban-card-content" data-font-size="<%= @card.board.open_card_font_size %>">
+        <%= sanitize(auto_link(simple_format(@card.content), html: { target: '_blank', rel: 'noopener' })) %>
+      </div>
       <small><%= @card.author_presentation %> [<%= l @card.created_at, format: :date_time %>]</small>
     </blockquote>
     <div>
