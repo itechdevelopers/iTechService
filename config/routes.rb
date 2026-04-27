@@ -20,6 +20,11 @@ Rails.application.routes.draw do
 
   resource :forma, controller: :forma, only: %i[new create show]
 
+  resource :glass_sticking, only: %i[show], controller: 'glass_sticking' do
+    get :recipients, defaults: { format: :js }
+    post :notify, defaults: { format: :js }
+  end
+
   devise_for :users, controllers: {
     sessions: 'users/sessions'
   }

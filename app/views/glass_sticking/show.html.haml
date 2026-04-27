@@ -1,0 +1,17 @@
+.glass-sticking{ data: { recipients_url: recipients_glass_sticking_path, notify_url: notify_glass_sticking_path } }
+  .glass-sticking__header
+    %h2.glass-sticking__title= t('glass_sticking.show.title')
+    %p.glass-sticking__hint= t('glass_sticking.show.hint')
+
+  .glass-sticking__filters
+    .glass-sticking__modes
+      - GlassStickingRecipientsQuery::MODES.each do |mode|
+        %label.glass-sticking__mode
+          %input{ type: 'radio', name: 'mode', value: mode, checked: (mode == @mode) }
+          = t("glass_sticking.modes.#{mode}")
+    .glass-sticking__search
+      %input.glass-sticking__search-input{ type: 'search', name: 'name',
+        placeholder: t('glass_sticking.show.search_placeholder') }
+
+  .glass-sticking__recipients#glass-sticking-recipients
+    = render 'recipients_list', recipients: @recipients

@@ -75,3 +75,4 @@
 //= require tasks
 //= require achievements
 //= require highlight_notifications
+//= require glass_sticking

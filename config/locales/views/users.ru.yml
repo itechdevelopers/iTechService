@@ -39,6 +39,7 @@ ru:
       track_elqueue_work: 'Учитывать работу с электронной очередью'
       work_with_electronic_queues: 'Может работать с электронными очередями'
       manage_schedules: 'Редактировать расписание'
+      glass_sticking: 'Доступ к функционалу «Наклейка стекла»'
       listen_all_transcriptions: 'Прослушивать все транскрибированные диалоги'
     activities:
       free: Бесплатные

@@ -22,6 +22,7 @@
         = menu_item t('quick_orders.link'), quick_orders_path if can? :read, QuickOrder
         = menu_item t('media_orders.index.title'), media_orders_path
         = menu_item t('media_menu.view.title'), media_menu_path
+        = menu_item t('shared.navbar.glass_sticking'), glass_sticking_path if policy(:glass_sticking).show?
         = drop_down_divider
         = menu_item t('orders.link', default: 'Orders'), orders_path if can? :read, Order
         = drop_down_divider

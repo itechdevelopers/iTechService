@@ -44,6 +44,44 @@ class ScheduleEntry < ApplicationRecord
   scope :for_week, ->(start_date) { where(date: start_date..(start_date + 6.days)) }
   scope :for_group, ->(group) { where(schedule_group: group) }
 
+  # Returns array of ScheduleEntry records that represent users actively working
+  # at the given moment in the given department. Combines DB filtering (date,
+  # department, working occupation) with Ruby-side time-of-day filtering against
+  # shift or custom shift bounds. Reusable across features that need "who's
+  # currently on shift" — see TODO.md > Schedule for usage notes.
+  def self.working_now_in(department, at: Time.current)
+    today = at.to_date
+    seconds = at.seconds_since_midnight
+    where(date: today, department: department)
+      .joins(:occupation_type).where(occupation_types: { counts_as_working: true })
+      .includes(:shift, :user)
+      .select { |e| e.covers_time?(seconds) }
+  end
+
+  def effective_start_seconds
+    if custom_shift?
+      custom_start_time.seconds_since_midnight
+    else
+      shift&.start_time&.seconds_since_midnight
+    end
+  end
+
+  def effective_end_seconds
+    if custom_shift?
+      custom_end_time.seconds_since_midnight
+    else
+      shift&.end_time&.seconds_since_midnight
+    end
+  end
+
+  def covers_time?(seconds_since_midnight)
+    s = effective_start_seconds
+    e = effective_end_seconds
+    return false unless s && e
+
+    s <= seconds_since_midnight && seconds_since_midnight < e
+  end
+
   def display_text
     if occupation_type&.counts_as_working?
       if custom_shift?
