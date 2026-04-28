@@ -2,6 +2,9 @@ class ElectronicQueue < ApplicationRecord
   belongs_to :department
   has_many :queue_items
   has_many :elqueue_windows, dependent: :destroy
+  has_many :inactivity_thresholds,
+           class_name: 'ElectronicQueueInactivityThreshold',
+           dependent: :destroy
 
   validates :department, presence: true
   validates :queue_name, presence: true

@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20260425120002) do
+ActiveRecord::Schema.define(version: 20260428120001) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -530,6 +530,16 @@ ActiveRecord::Schema.define(version: 20260425120002) do
     t.index ["user_id"], name: "index_duty_schedule_entries_on_user_id"
   end
 
+  create_table "electronic_queue_inactivity_thresholds", force: :cascade do |t|
+    t.bigint "electronic_queue_id", null: false
+    t.integer "total_on_shift", null: false
+    t.integer "max_inactive", null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["electronic_queue_id", "total_on_shift"], name: "idx_eq_inactivity_thresholds_unique", unique: true
+    t.index ["electronic_queue_id"], name: "idx_eq_inactivity_thresholds_eq_id"
+  end
+
   create_table "electronic_queues", force: :cascade do |t|
     t.string "queue_name"
     t.bigint "department_id", null: false
@@ -551,6 +561,7 @@ ActiveRecord::Schema.define(version: 20260425120002) do
     t.string "automatic_completion"
     t.boolean "sounds_enabled", default: false
     t.boolean "strict_mode", default: false, null: false
+    t.integer "min_unattended_seconds"
     t.index ["department_id"], name: "index_electronic_queues_on_department_id"
     t.index ["ipad_link"], name: "index_electronic_queues_on_ipad_link", unique: true
     t.index ["tv_link"], name: "index_electronic_queues_on_tv_link", unique: true
@@ -2315,6 +2326,7 @@ ActiveRecord::Schema.define(version: 20260425120002) do
   add_foreign_key "duty_schedule_entries", "departments"
   add_foreign_key "duty_schedule_entries", "users"
   add_foreign_key "duty_schedule_entries", "users", column: "assigned_by_id"
+  add_foreign_key "electronic_queue_inactivity_thresholds", "electronic_queues"
   add_foreign_key "electronic_queues", "departments"
   add_foreign_key "elqueue_ticket_movements", "waiting_clients"
   add_foreign_key "elqueue_windows", "electronic_queues"

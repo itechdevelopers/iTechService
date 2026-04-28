@@ -1,4 +1,11 @@
 ru:
+  activerecord:
+    errors:
+      models:
+        electronic_queue_inactivity_threshold:
+          attributes:
+            max_inactive:
+              must_be_less_than_total_on_shift: "должно быть меньше количества сотрудников в смене"
   waiting_clients:
     pdf:
       your_queue_number: "Ваш номер в очереди"
