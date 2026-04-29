@@ -8,6 +8,8 @@ class WaitingClient < ApplicationRecord
   before_create :set_initial_attributes
   after_create :set_move_ticket_job
   after_create :trigger_electronic_queue_move
+  after_commit :schedule_inactivity_check, on: :create
+  after_commit :close_inactivity_alerts_if_resolved, on: :update
 
   validates :status, inclusion: { in: %w[waiting in_service completed did_not_come archived] }
 
@@ -308,5 +310,30 @@ class WaitingClient < ApplicationRecord
 
   def ticket_number_prefix
     queue_item.ticket_abbreviation || ''
+  end
+
+  def schedule_inactivity_check
+    return unless status == 'waiting'
+
+    setting = electronic_queue.inactivity_alert_setting
+    return if setting.nil?
+    return if setting.min_unattended_seconds.to_i <= 0
+
+    CheckQueueInactivityJob.set(wait: setting.min_unattended_seconds.seconds)
+                            .perform_later(id)
+  end
+
+  def close_inactivity_alerts_if_resolved
+    return unless saved_change_to_status?
+    return if status == 'waiting'
+
+    if unattended_started_at.present? && unattended_duration_seconds.nil?
+      duration = (Time.zone.now - unattended_started_at).to_i
+      update_columns(unattended_duration_seconds: duration)
+    end
+
+    Notification.where(referenceable: self,
+                       kind: CheckQueueInactivityJob::KIND,
+                       closed_at: nil).find_each(&:close)
   end
 end

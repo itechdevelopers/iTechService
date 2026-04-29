@@ -67,6 +67,9 @@ ru:
       inactivity_settings: "Настройки контроля неактивности"
     inactivity_settings:
       title: "Контроль неактивности — %{queue_name}"
+      schedule_group: "Набор сотрудников"
+      schedule_group_blank: "— выберите набор —"
+      schedule_group_hint: "Считаем активными только тех, кто входит в этот набор и сейчас по расписанию работает."
       min_unattended_seconds: "Минимум ожидания клиента до сигнала"
       seconds_unit: "секунд"
       thresholds_table_title: "Порог неактивных сотрудников"

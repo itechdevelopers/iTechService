@@ -5,6 +5,9 @@ class ElectronicQueue < ApplicationRecord
   has_many :inactivity_thresholds,
            class_name: 'ElectronicQueueInactivityThreshold',
            dependent: :destroy
+  has_one :inactivity_alert_setting,
+          class_name: 'QueueInactivityAlertSetting',
+          dependent: :destroy
 
   validates :department, presence: true
   validates :queue_name, presence: true

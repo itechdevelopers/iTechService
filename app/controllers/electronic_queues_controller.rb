@@ -146,11 +146,17 @@ class ElectronicQueuesController < ApplicationController
     (1..(@electronic_queue.windows_count || 0)).each do |n|
       @thresholds_by_total[n] ||= @electronic_queue.inactivity_thresholds.build(total_on_shift: n, max_inactive: 0)
     end
+    @alert_setting = @electronic_queue.inactivity_alert_setting || @electronic_queue.build_inactivity_alert_setting
+    @available_schedule_groups = ScheduleGroup.where(city_id: @electronic_queue.department.city_id).order(:name)
   end
 
   def save_inactivity_settings
+    setting_params = params.require(:alert_setting).permit(:schedule_group_id, :min_unattended_seconds)
+
     ActiveRecord::Base.transaction do
-      @electronic_queue.update!(min_unattended_seconds: params.require(:electronic_queue).permit(:min_unattended_seconds)[:min_unattended_seconds])
+      setting = @electronic_queue.inactivity_alert_setting || @electronic_queue.build_inactivity_alert_setting
+      setting.assign_attributes(setting_params)
+      setting.save!
 
       thresholds_input = params.fetch(:thresholds, {}).permit!.to_h
       thresholds_input.each do |total_on_shift, max_inactive|

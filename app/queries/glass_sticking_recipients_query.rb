@@ -30,7 +30,12 @@ class GlassStickingRecipientsQuery
   end
 
   def working_now_user_ids
-    ScheduleEntry.working_now_in(@department).map(&:user_id).uniq
+    ScheduleEntry.working_now_in(@department, at: now_in_city).map(&:user_id).uniq
+  end
+
+  def now_in_city
+    tz = @department.city&.time_zone || 'Vladivostok'
+    Time.current.in_time_zone(tz)
   end
 
   def filter_by_name(scope)

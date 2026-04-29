@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20260428120001) do
+ActiveRecord::Schema.define(version: 20260429120000) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -561,7 +561,6 @@ ActiveRecord::Schema.define(version: 20260428120001) do
     t.string "automatic_completion"
     t.boolean "sounds_enabled", default: false
     t.boolean "strict_mode", default: false, null: false
-    t.integer "min_unattended_seconds"
     t.index ["department_id"], name: "index_electronic_queues_on_department_id"
     t.index ["ipad_link"], name: "index_electronic_queues_on_ipad_link", unique: true
     t.index ["tv_link"], name: "index_electronic_queues_on_tv_link", unique: true
@@ -1253,6 +1252,16 @@ ActiveRecord::Schema.define(version: 20260428120001) do
     t.index ["contractor_id"], name: "index_purchases_on_contractor_id"
     t.index ["status"], name: "index_purchases_on_status"
     t.index ["store_id"], name: "index_purchases_on_store_id"
+  end
+
+  create_table "queue_inactivity_alert_settings", force: :cascade do |t|
+    t.bigint "electronic_queue_id", null: false
+    t.bigint "schedule_group_id", null: false
+    t.integer "min_unattended_seconds", null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["electronic_queue_id"], name: "idx_qias_electronic_queue_id", unique: true
+    t.index ["schedule_group_id"], name: "idx_qias_schedule_group_id"
   end
 
   create_table "queue_items", force: :cascade do |t|
@@ -2249,6 +2258,8 @@ ActiveRecord::Schema.define(version: 20260428120001) do
     t.integer "priority", default: 0, null: false
     t.integer "attached_window"
     t.boolean "completed_automatically", default: false, null: false
+    t.datetime "unattended_started_at"
+    t.integer "unattended_duration_seconds"
     t.index ["client_id"], name: "index_waiting_clients_on_client_id"
     t.index ["elqueue_window_id"], name: "index_waiting_clients_on_elqueue_window_id"
     t.index ["queue_item_id"], name: "index_waiting_clients_on_queue_item_id"
@@ -2366,6 +2377,8 @@ ActiveRecord::Schema.define(version: 20260428120001) do
   add_foreign_key "product_groups_option_values", "product_groups"
   add_foreign_key "product_options", "option_values"
   add_foreign_key "product_options", "products"
+  add_foreign_key "queue_inactivity_alert_settings", "electronic_queues"
+  add_foreign_key "queue_inactivity_alert_settings", "schedule_groups"
   add_foreign_key "queue_items", "electronic_queues"
   add_foreign_key "quick_orders", "clients"
   add_foreign_key "repair_prices", "departments"

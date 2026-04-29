@@ -1,4 +1,6 @@
-- min_unattended_value = params.dig(:electronic_queue, :min_unattended_seconds) || @electronic_queue.min_unattended_seconds
+- alert_input = params[:alert_setting] || {}
+- min_unattended_value = alert_input[:min_unattended_seconds] || @alert_setting.min_unattended_seconds
+- selected_group_id = alert_input[:schedule_group_id] || @alert_setting.schedule_group_id
 - thresholds_input = params[:thresholds] || {}
 
 .page-header
@@ -8,9 +10,18 @@
 
 = form_with url: update_inactivity_settings_electronic_queue_path(@electronic_queue), method: :patch, local: true, class: 'form-horizontal' do |f|
   .control-group
-    = label_tag 'electronic_queue_min_unattended_seconds', t('.min_unattended_seconds'), class: 'control-label required'
+    = label_tag 'alert_setting_schedule_group_id', t('.schedule_group'), class: 'control-label required'
     .controls
-      = number_field_tag 'electronic_queue[min_unattended_seconds]', min_unattended_value, min: 1, class: 'input-small', id: 'electronic_queue_min_unattended_seconds'
+      = select_tag 'alert_setting[schedule_group_id]',
+                   options_from_collection_for_select(@available_schedule_groups, :id, :name, selected_group_id),
+                   include_blank: t('.schedule_group_blank'),
+                   id: 'alert_setting_schedule_group_id'
+      %p.help-block= t('.schedule_group_hint')
+
+  .control-group
+    = label_tag 'alert_setting_min_unattended_seconds', t('.min_unattended_seconds'), class: 'control-label required'
+    .controls
+      = number_field_tag 'alert_setting[min_unattended_seconds]', min_unattended_value, min: 1, class: 'input-small', id: 'alert_setting_min_unattended_seconds'
       %span.help-inline= t('.seconds_unit')
 
   %h3= t('.thresholds_table_title')
