@@ -1,4 +1,11 @@
 ru:
+  activerecord:
+    errors:
+      models:
+        electronic_queue_inactivity_threshold:
+          attributes:
+            max_inactive:
+              must_be_less_than_total_on_shift: "должно быть меньше количества сотрудников в смене"
   waiting_clients:
     pdf:
       your_queue_number: "Ваш номер в очереди"
@@ -57,6 +64,23 @@ ru:
       check_info: "Дополнительная информация на чеке"
       enabled: "Включена"
       new_queue_item: "Новый элемент очереди"
+      inactivity_settings: "Настройки контроля неактивности"
+    inactivity_settings:
+      title: "Контроль неактивности — %{queue_name}"
+      schedule_group: "Набор сотрудников"
+      schedule_group_blank: "— выберите набор —"
+      schedule_group_hint: "Считаем активными только тех, кто входит в этот набор и сейчас по расписанию работает."
+      min_unattended_seconds: "Минимум ожидания клиента до сигнала"
+      seconds_unit: "секунд"
+      thresholds_table_title: "Порог неактивных сотрудников"
+      thresholds_table_hint: "Для каждого размера смены задайте, сколько сотрудников могут быть на паузе или без окна, прежде чем мы посчитаем ситуацию проблемной."
+      total_on_shift: "Сотрудников в смене"
+      max_inactive: "Допустимо неактивных"
+      save: "Сохранить"
+      cancel: "Отмена"
+    update_inactivity_settings:
+      saved: "Настройки контроля неактивности сохранены"
+      save_failed: "Не удалось сохранить — проверьте значения"
     create:
       electronic_queue_was_successfully_created: "Электронная очередь успешно создана"
     update:

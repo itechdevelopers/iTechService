@@ -1,0 +1,48 @@
+- alert_input = params[:alert_setting] || {}
+- min_unattended_value = alert_input[:min_unattended_seconds] || @alert_setting.min_unattended_seconds
+- selected_group_id = alert_input[:schedule_group_id] || @alert_setting.schedule_group_id
+- thresholds_input = params[:thresholds] || {}
+
+.page-header
+  %h1
+    = link_to icon_tag('arrow-left'), electronic_queue_path(@electronic_queue), class: 'btn btn-link'
+    = t('.title', queue_name: @electronic_queue.queue_name)
+
+= form_with url: update_inactivity_settings_electronic_queue_path(@electronic_queue), method: :patch, local: true, class: 'form-horizontal' do |f|
+  .control-group
+    = label_tag 'alert_setting_schedule_group_id', t('.schedule_group'), class: 'control-label required'
+    .controls
+      = select_tag 'alert_setting[schedule_group_id]',
+                   options_from_collection_for_select(@available_schedule_groups, :id, :name, selected_group_id),
+                   include_blank: t('.schedule_group_blank'),
+                   id: 'alert_setting_schedule_group_id'
+      %p.help-block= t('.schedule_group_hint')
+
+  .control-group
+    = label_tag 'alert_setting_min_unattended_seconds', t('.min_unattended_seconds'), class: 'control-label required'
+    .controls
+      = number_field_tag 'alert_setting[min_unattended_seconds]', min_unattended_value, min: 1, class: 'input-small', id: 'alert_setting_min_unattended_seconds'
+      %span.help-inline= t('.seconds_unit')
+
+  %h3= t('.thresholds_table_title')
+  %p.help-block= t('.thresholds_table_hint')
+
+  %table.table.table-bordered.table-condensed{ style: 'max-width: 600px;' }
+    %thead
+      %tr
+        %th= t('.total_on_shift')
+        %th= t('.max_inactive')
+    %tbody
+      - (1..(@electronic_queue.windows_count || 0)).each do |n|
+        - threshold = @thresholds_by_total[n]
+        - input_value = thresholds_input[n.to_s] || threshold.max_inactive
+        %tr
+          %td= n
+          %td
+            = number_field_tag "thresholds[#{n}]", input_value, min: 0, max: n - 1, class: 'input-mini'
+            - if threshold.errors.any?
+              %span.text-error= threshold.errors.full_messages.join(', ')
+
+  .form-actions
+    = button_tag t('.save'), class: 'btn btn-primary'
+    = link_to t('.cancel'), electronic_queue_path(@electronic_queue), class: 'btn'
