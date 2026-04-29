@@ -55,6 +55,10 @@
                   manage_windows_electronic_queue_path(@electronic_queue),
                   remote: true,
                   class: 'btn btn-primary'
+        - if policy(@electronic_queue).inactivity_settings?
+          = link_to icon_tag('bell') + " #{t('.inactivity_settings')}".html_safe,
+                    inactivity_settings_electronic_queue_path(@electronic_queue),
+                    class: 'btn btn-warning'
   .span6
     = link_to glyph(:file) + t('.new_queue_item').html_safe, new_electronic_queue_queue_item_path(electronic_queue_id: @electronic_queue.id), remote: true, class: 'btn btn-success'
 

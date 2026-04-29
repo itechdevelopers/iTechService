@@ -4,7 +4,8 @@ class ElectronicQueuesController < ApplicationController
   before_action :custom_authenticate_user, only: %i[ipad_show tv_show]
   before_action :set_and_authorize_record, only: %i[show edit update destroy show_active_tickets
                                                     manage_tickets sort_tickets return_old_ticket
-                                                    manage_windows monitoring control_panel]
+                                                    manage_windows monitoring control_panel
+                                                    inactivity_settings update_inactivity_settings]
 
   def ipad_show
     authorize ElectronicQueue
@@ -99,6 +100,21 @@ class ElectronicQueuesController < ApplicationController
     redirect_to electronic_queues_path, notice: t('.electronic_queue_was_successfully_deleted')
   end
 
+  def inactivity_settings
+    ensure_thresholds_built
+  end
+
+  def update_inactivity_settings
+    if save_inactivity_settings
+      redirect_to inactivity_settings_electronic_queue_path(@electronic_queue),
+                  notice: t('.saved')
+    else
+      ensure_thresholds_built
+      flash.now[:alert] = t('.save_failed')
+      render :inactivity_settings
+    end
+  end
+
   def sort_tickets
     sorted_tickets = JSON.parse(electronic_queue_params[:ticket_ids])
     moved_ticket_id = electronic_queue_params[:id_moved]
@@ -124,6 +140,30 @@ class ElectronicQueuesController < ApplicationController
   end
 
   private
+
+  def ensure_thresholds_built
+    @thresholds_by_total = @electronic_queue.inactivity_thresholds.index_by(&:total_on_shift)
+    (1..(@electronic_queue.windows_count || 0)).each do |n|
+      @thresholds_by_total[n] ||= @electronic_queue.inactivity_thresholds.build(total_on_shift: n, max_inactive: 0)
+    end
+  end
+
+  def save_inactivity_settings
+    ActiveRecord::Base.transaction do
+      @electronic_queue.update!(min_unattended_seconds: params.require(:electronic_queue).permit(:min_unattended_seconds)[:min_unattended_seconds])
+
+      thresholds_input = params.fetch(:thresholds, {}).permit!.to_h
+      thresholds_input.each do |total_on_shift, max_inactive|
+        record = @electronic_queue.inactivity_thresholds.find_or_initialize_by(total_on_shift: total_on_shift.to_i)
+        record.max_inactive = max_inactive.to_i
+        record.save!
+      end
+    end
+    true
+  rescue ActiveRecord::RecordInvalid, ActionController::ParameterMissing
+    @electronic_queue.reload
+    false
+  end
 
   def custom_authenticate_user
     unless user_signed_in?

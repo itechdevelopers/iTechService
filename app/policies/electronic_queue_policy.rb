@@ -46,4 +46,12 @@ class ElectronicQueuePolicy < ApplicationPolicy
   def return_old_ticket?
     true
   end
+
+  def inactivity_settings?
+    superadmin?
+  end
+
+  def update_inactivity_settings?
+    superadmin?
+  end
 end
