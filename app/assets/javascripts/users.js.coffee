@@ -93,6 +93,10 @@ jQuery ->
   $('#edit_wishlist_hobby_link').click (event) ->
     $('#wishlist_hobby_view, #wishlist_hobby_edit').toggleClass 'hide'
 
+  $(document).on 'click', '#edit_telegram_username_link', (event) ->
+    event.preventDefault()
+    $('#telegram_username_view, #telegram_username_edit').toggleClass 'hide'
+
   $(document).ready () ->
     ready()
     $(".add_wishlist_fields").click (event) ->

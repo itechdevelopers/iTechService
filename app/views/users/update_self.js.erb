@@ -1,3 +1,14 @@
-$("#uniform_sex_value")[0].innerText = '<%= @user.uniform_sex %>'
-$("#uniform_size_value")[0].innerText = '<%= @user.uniform_size %>'
-$("#uniform_view, #uniform_edit").toggleClass("hide")
+if ($("#uniform_sex_value").length) {
+  $("#uniform_sex_value")[0].innerText = '<%= j @user.uniform_sex.to_s %>';
+  $("#uniform_size_value")[0].innerText = '<%= j @user.uniform_size.to_s %>';
+  $("#uniform_view, #uniform_edit").toggleClass("hide");
+}
+
+if ($("#telegram_username_view").length) {
+  <% if @user.errors[:telegram_username].any? %>
+    alert('<%= j @user.errors[:telegram_username].join(", ") %>');
+  <% else %>
+    $("#telegram_username_view").html('<%= j render "telegram_username_view", user: @user %>');
+    $("#telegram_username_view, #telegram_username_edit").toggleClass("hide");
+  <% end %>
+}

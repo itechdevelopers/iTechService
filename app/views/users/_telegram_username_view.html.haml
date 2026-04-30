@@ -1,0 +1,7 @@
+- if user.telegram_username.present?
+  = link_to "@#{user.telegram_username}", "https://t.me/#{user.telegram_username}", target: '_blank', rel: 'noopener'
+- else
+  = '-'
+- if can? :update_self, user
+  %a#edit_telegram_username_link.btn.btn-mini{href: '#'}
+    %i.icon-edit

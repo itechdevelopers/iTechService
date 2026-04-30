@@ -139,6 +139,7 @@ class UsersController < ApplicationController
     @user.update_attributes(update_self_params)
     respond_to do |format|
       format.html { redirect_to :profile }
+      format.js
     end
   end
 
@@ -340,7 +341,7 @@ class UsersController < ApplicationController
   end
 
   def update_self_params
-    params.require(:user).permit(:hobby, wishlist: [])
+    params.require(:user).permit(:hobby, :telegram_username, wishlist: [])
   end
 
   def duty_day_params

@@ -206,7 +206,11 @@ class User < ApplicationRecord
   validates :password, presence: true, confirmation: true, if: :password_required?
   validates :role, inclusion: { in: ROLES }
   validates_numericality_of :session_duration, only_integer: true, greater_than: 0, allow_nil: true
+  validates :telegram_username,
+            format: { with: /\A[A-Za-z][A-Za-z0-9_]{3,30}[A-Za-z0-9]\z/ },
+            allow_blank: true
   validate :validate_subscription_limit, on: :validate_subscription_limit
+  before_validation :normalize_telegram_username
   before_validation :validate_rights_changing
   before_update :update_schedule_column, if: :is_fired_changed?
   after_update :sync_employment_period_dismissal, if: :saved_change_to_dismissed_date?
@@ -853,6 +857,11 @@ class User < ApplicationRecord
   end
 
   private
+
+  def normalize_telegram_username
+    return if telegram_username.blank?
+    self.telegram_username = telegram_username.strip.sub(/\A@/, '').presence
+  end
 
   def add_to_auto_add_boards
     return unless department_id.present?
