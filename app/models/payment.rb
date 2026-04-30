@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 class Payment < ApplicationRecord
-  KINDS = %w[cash card credit certificate trade_in].freeze
+  KINDS = %w[cash card credit certificate trade_in qr invoice].freeze
 
   scope :in_department, ->(department) { where sale_id: Sale.in_department(department) }
   scope :cash, -> { where(kind: 'cash') }
@@ -10,6 +10,8 @@ class Payment < ApplicationRecord
   scope :certificate, -> { where(kind: 'certificate') }
   scope :gift_certificates, -> { where(kind: 'certificate') }
   scope :trade_in, -> { where(kind: 'trade_in') }
+  scope :qr, -> { where(kind: 'qr') }
+  scope :invoice, -> { where(kind: 'invoice') }
   scope :sales, -> { joins(:sale).where(sales: { is_return: false }) }
   scope :returns, -> { joins(:sale).where(sales: { is_return: true }) }
 
@@ -28,6 +30,7 @@ class Payment < ApplicationRecord
   validates_presence_of :gift_certificate, if: :purchase_with_certificate
   validates_presence_of :device_name, :device_number, :client_info, :appraiser, if: :is_trade_in?
   validates_acceptance_of :device_logout, if: :is_trade_in?
+  validates_presence_of :organization_name, if: :is_invoice?
   validates_numericality_of :value, greater_than: 0
   validates_numericality_of :value, less_than_or_equal_to: :gift_certificate_balance, if: :purchase_with_certificate
   before_validation :clear_unnecessary_attributes
@@ -46,6 +49,14 @@ class Payment < ApplicationRecord
 
   def is_trade_in?
     kind == 'trade_in'
+  end
+
+  def is_qr?
+    kind == 'qr'
+  end
+
+  def is_invoice?
+    kind == 'invoice'
   end
 
   def is_by_bank?
@@ -68,6 +79,10 @@ class Payment < ApplicationRecord
       result[:client_info] = client_info
       result[:appraiser] = appraiser
     end
+    if is_invoice?
+      result[:organization_name] = organization_name
+      result[:payment_details] = payment_details
+    end
     result
   end
 
@@ -77,5 +92,6 @@ class Payment < ApplicationRecord
     self.bank_id = nil unless is_by_bank?
     self.gift_certificate_id = nil unless is_gift_certificate?
     self.device_name = self.device_number = self.client_info = self.appraiser = nil unless is_trade_in?
+    self.organization_name = self.payment_details = nil unless is_invoice?
   end
 end

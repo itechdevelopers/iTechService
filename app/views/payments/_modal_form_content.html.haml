@@ -11,6 +11,9 @@
     = f.association :bank if f.object.is_by_bank?
     - if f.object.is_gift_certificate?
       = f.input :gift_certificate, as: :gift_certificate
+    - if f.object.is_invoice?
+      = f.input :organization_name, hint: t('payments.hints.organization_name')
+      = f.input :payment_details, as: :text, input_html: { rows: 3 }, hint: t('payments.hints.payment_details')
 
     #sale_calculation_amount{data: {amount: @sale.calculation_amount}}= t 'sales.calculation_amount', amount: human_currency(@sale.calculation_amount, false)
   .modal-footer

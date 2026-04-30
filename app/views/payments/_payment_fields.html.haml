@@ -10,5 +10,8 @@
       = f.input :client_info
       = f.input :appraiser
       = f.input :device_logout, as: :boolean, label: false, inline_label: t('activerecord.attributes.payment.device_logout')
+    .invoice_field{class: f.object.is_invoice? ? '' : 'hidden'}
+      = f.input :organization_name, hint: t('payments.hints.organization_name')
+      = f.input :payment_details, as: :text, input_html: { rows: 3 }, hint: t('payments.hints.payment_details')
 
   %td= link_to_remove_fields f
