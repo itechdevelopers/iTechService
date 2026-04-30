@@ -394,6 +394,8 @@ ru:
         device_logout: 'Проверка выхода из учётной записи'
         client_info: 'Телефон и имя клиента'
         appraiser: 'Имя оценщика'
+        organization_name: 'Название организации'
+        payment_details: 'Доп. информация об оплате'
 
       price:
         file: 'Файл'

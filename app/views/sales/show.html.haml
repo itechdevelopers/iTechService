@@ -67,6 +67,12 @@
               = payment.device_number
               = payment.client_info
               = payment.appraiser
+            - when 'invoice'
+              %strong= "#{Payment.human_attribute_name(:organization_name)}: "
+              = payment.organization_name
+              - if payment.payment_details.present?
+                %br
+                = payment.payment_details
   %tfoot
     %tr
       %td= t 'total'

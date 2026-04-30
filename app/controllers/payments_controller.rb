@@ -83,6 +83,6 @@ class PaymentsController < ApplicationController
 
   def payment_params
     params.require(:payment)
-          .permit(:appraiser, :bank_id, :client_info, :device_name, :device_number, :gift_certificate_id, :kind, :sale_id, :value)
+          .permit(:appraiser, :bank_id, :client_info, :device_name, :device_number, :gift_certificate_id, :kind, :sale_id, :value, :organization_name, :payment_details)
   end
 end

@@ -12,6 +12,7 @@ $(document).on 'change', '#payments_table .payment_kind', ->
     when 'card', 'credit' then $('.bank_field', $row).removeClass('hidden')
     when 'certificate' then $('.gift_certificate_field', $row).removeClass('hidden')
     when 'trade_in' then $('.trade_in_field', $row).removeClass('hidden')
+    when 'invoice' then $('.invoice_field', $row).removeClass('hidden')
 
 $(document).on 'change, blur', '#payments_table .payment_value', ->
   calculateSalePayments()

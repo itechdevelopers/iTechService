@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20260429130000) do
+ActiveRecord::Schema.define(version: 20260501120000) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -1073,6 +1073,8 @@ ActiveRecord::Schema.define(version: 20260429130000) do
     t.string "appraiser", limit: 255
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.string "organization_name"
+    t.text "payment_details"
     t.index ["bank_id"], name: "index_payments_on_bank_id"
     t.index ["gift_certificate_id"], name: "index_payments_on_gift_certificate_id"
     t.index ["kind"], name: "index_payments_on_kind"

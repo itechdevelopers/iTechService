@@ -56,7 +56,9 @@ module SalesHelper
           content_tag(:li, link_to(t('payments.kinds.certificate'), new_sale_payment_path(sale_id: sale.id, payment: {kind: 'certificate', value: sale.calculation_amount}), remote: true)) +
           content_tag(:li, link_to(t('payments.kinds.credit'), new_sale_payment_path(sale_id: sale.id, payment: {kind: 'credit', value: sale.calculation_amount}), remote: true)) +
           content_tag(:li, link_to(t('payments.kinds.card'), new_sale_payment_path(sale_id: sale.id, payment: {kind: 'card', value: sale.calculation_amount}), remote: true)) +
-          content_tag(:li, link_to(t('payments.kinds.cash'), sale_payments_path(sale_id: sale.id, payment: {kind: 'cash', value: sale.calculation_amount}), method: :post, remote: true, rel: 'nofollow'))
+          content_tag(:li, link_to(t('payments.kinds.cash'), sale_payments_path(sale_id: sale.id, payment: {kind: 'cash', value: sale.calculation_amount}), method: :post, remote: true, rel: 'nofollow')) +
+          content_tag(:li, link_to(t('payments.kinds.qr'), sale_payments_path(sale_id: sale.id, payment: {kind: 'qr', value: sale.calculation_amount}), method: :post, remote: true, rel: 'nofollow')) +
+          content_tag(:li, link_to(t('payments.kinds.invoice'), new_sale_payment_path(sale_id: sale.id, payment: {kind: 'invoice', value: sale.calculation_amount}), remote: true))
         end
       end
     end
