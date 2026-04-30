@@ -125,6 +125,7 @@ ru:
       manage_store_closing_phrases: 'Фразы уведомлений'
     group_karma: 'Сгруппировать'
     info: 'Информация'
+    telegram_username_hint: 'Только латиница, цифры и _, 5–32 символа. Без @ в начале.'
     job_schedule: 'График работы'
     link: 'Пользователи'
     rating: 'Рейтинг'

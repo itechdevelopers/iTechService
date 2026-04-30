@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20260429120000) do
+ActiveRecord::Schema.define(version: 20260429130000) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -2224,6 +2224,7 @@ ActiveRecord::Schema.define(version: 20260429120000) do
     t.bigint "elqueue_window_id"
     t.boolean "remember_pause", default: false, null: false
     t.boolean "paused"
+    t.string "telegram_username"
     t.index ["authentication_token"], name: "index_users_on_authentication_token", unique: true
     t.index ["card_number"], name: "index_users_on_card_number"
     t.index ["department_id"], name: "index_users_on_department_id"

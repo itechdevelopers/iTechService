@@ -705,6 +705,7 @@ ru:
         session_duration: 'Длительность сессии (мин.)'
         surname: 'Фамилия'
         username: 'Логин'
+        telegram_username: 'Ник в Telegram'
         wish: 'Пожелание'
         uniform_sex: Тип футболки
         uniform_size: Размер футболки

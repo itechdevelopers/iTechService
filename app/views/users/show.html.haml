@@ -94,6 +94,20 @@
           %dt= User.human_attribute_name :email
           %dd= @user.email.presence || '-'
 
+          %dt= User.human_attribute_name :telegram_username
+          %dd
+            #telegram_username_view= render 'telegram_username_view', user: @user
+            - if can? :update_self, @user
+              #telegram_username_edit.hide
+                = simple_form_for @user, url: update_self_user_path(@user),
+                  method: :patch, remote: true, id: 'update_telegram_username_form',
+                  html: { class: 'form-inline user_form', autocomplete: 'off' } do |f|
+                  = f.input :telegram_username, label: false,
+                    placeholder: 'ivan_petrov',
+                    hint: t('users.telegram_username_hint'),
+                    input_html: { id: :input_telegram_username }
+                  = submit_button f
+
           %dt= User.human_attribute_name :birthday
           %dd= @user.birthday.present? ? human_date(@user.birthday) : '-'
 
