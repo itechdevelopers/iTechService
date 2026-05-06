@@ -1,25 +1,9 @@
-class MoveBarcodeFromItemToProduct < ActiveRecord::Migration
-  class Product < ActiveRecord::Base
-    belongs_to :product_category
-    has_many :items
-
-    def item
-      product_category.feature_accounting ? nil : items.first
-    end
-  end
+class MoveBarcodeFromItemToProduct < ActiveRecord::Migration[4.2]
+  # 2021-11 backfill barcode_num из items в products для категорий с feature_accounting=false.
+  # На проде применена в 2021. Содержимое удалено: за 4.5 года данные обновлялись другими путями,
+  # повторный запуск стёр бы актуальные значения. Файл оставлен для целостности data_schema.
 
   def up
-    category_ids = ProductCategory.where(feature_accounting: false).ids
-
-    Product.where(product_category_id: category_ids)
-           .preload(:items, :product_category)
-           .find_in_batches do |batch|
-      batch.each do |product|
-        next unless (item = product.item)
-
-        product.update(barcode_num: item.barcode_num)
-      end
-    end
   end
 
   def down
