@@ -51,6 +51,7 @@ class DeviceTask < ApplicationRecord
   validate :valid_repair if :is_repair?
   validates_associated :repair_tasks
   after_commit :update_service_job_done_attribute
+  after_commit :sync_service_job_repair_status, on: :update
   # after_save :deduct_spare_parts if :is_repair?
   after_initialize :set_performer
 
@@ -178,5 +179,44 @@ class DeviceTask < ApplicationRecord
     if performer_id.nil? && done && (user = history_records.task_completions.order_by_newest.where(new_value: true).first.try(:user)).present?
       update_attribute :performer_id, user.id
     end
+  end
+
+  def sync_service_job_repair_status
+    return unless is_repair?
+    return unless saved_change_to_done?
+    return unless service_job&.location&.is_any_repair?
+
+    if done.zero?
+      revert_to_in_progress_if_completed
+    else
+      mark_completed_if_all_repair_tasks_done
+    end
+  end
+
+  def mark_completed_if_all_repair_tasks_done
+    return if other_repair_tasks_pending?
+
+    service_job.change_repair_status!(
+      RepairStatus.by_code(RepairStatus::COMPLETED),
+      user: User.current
+    )
+  end
+
+  def revert_to_in_progress_if_completed
+    return unless service_job.repair_status&.completed?
+
+    service_job.change_repair_status!(
+      RepairStatus.by_code(RepairStatus::IN_PROGRESS),
+      user: User.current
+    )
+  end
+
+  def other_repair_tasks_pending?
+    service_job.device_tasks
+               .joins(task: :product)
+               .where('products.code LIKE ?', 'repair%')
+               .where(done: 0)
+               .where.not(id: id)
+               .exists?
   end
 end
