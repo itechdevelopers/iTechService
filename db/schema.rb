@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20260506130325) do
+ActiveRecord::Schema.define(version: 20260509074936) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -1444,6 +1444,7 @@ ActiveRecord::Schema.define(version: 20260506130325) do
     t.boolean "system", default: false, null: false
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.boolean "archived", default: false, null: false
     t.index ["code"], name: "index_repair_statuses_on_code", unique: true
   end
 
