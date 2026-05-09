@@ -48,6 +48,10 @@ class ServiceJobPolicy < CommonPolicy
     any_admin?(:technician)
   end
 
+  def update_repair_status?
+    repair?
+  end
+
   def view_repair_parts?
     (record.at_done? || record.in_archive?) && (superadmin? || able_to?(:view_repair_parts))
   end

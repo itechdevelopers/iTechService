@@ -1,0 +1,85 @@
+.repair-status-widget {
+  display: inline-block;
+  margin-left: 8px;
+  vertical-align: middle;
+}
+
+.repair-status-widget__inline-slot {
+  display: inline-block;
+  vertical-align: middle;
+}
+
+.repair-status-badge {
+  display: inline-block;
+  padding: 4px 10px;
+  border-radius: 14px;
+  color: #fff;
+  font-weight: 600;
+  font-size: 12px;
+  line-height: 1.4;
+  text-decoration: none;
+  user-select: none;
+  cursor: pointer;
+
+  &:hover, &:focus {
+    color: #fff;
+    text-decoration: none;
+    opacity: 0.9;
+  }
+
+  .caret {
+    margin-left: 6px;
+    vertical-align: middle;
+    border-top-color: #fff;
+  }
+}
+
+.repair-status-widget__menu {
+  min-width: 200px;
+
+  > li > a {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+}
+
+.repair-status-widget__color-dot {
+  display: inline-block;
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  margin-right: 6px;
+  vertical-align: middle;
+  border: 1px solid rgba(0, 0, 0, 0.15);
+}
+
+.repair-status-widget__menu .dropdown-submenu {
+  position: relative;
+
+  > a:after {
+    margin-top: 3px;
+  }
+
+  > .dropdown-menu {
+    top: 0;
+    left: 100%;
+    margin-top: -6px;
+    margin-left: -1px;
+    border-radius: 0 4px 4px 4px;
+    display: none;
+  }
+
+  &:hover > .dropdown-menu {
+    display: block;
+  }
+}
+
+.repair-status-widget__pause-reasons {
+  min-width: 180px;
+}
+
+#service_job_device_tasks .repair-status-widget {
+  display: block;
+  margin: 8px 0 0 0;
+}

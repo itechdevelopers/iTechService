@@ -69,3 +69,41 @@ bin/rails db:migrate:with_data
 
 - **Старая миграция без `[версии]` блокирует все pending data-миграции.** Если `data:migrate` падает с `Directly inheriting from ActiveRecord::Migration is not supported` — найди и почини виновный файл (добавь `[4.2]` или подходящую версию). До этого **новые** data-миграции не запустятся, в т.ч. на проде.
 - В проекте до 2026 года была всего одна data-миграция (с 2021), и она была написана без указания версии Rails. Починена в ветке `137-repair-statuses` (2026-05-06): тело удалено как устаревшее, версия `[4.2]` проставлена.
+
+---
+
+## UI testing с Playwright MCP
+
+Playwright MCP позволяет автоматически проверять UI-фичи без участия пользователя — навигация, клики, скриншоты, инспекция DOM.
+
+### Перед запуском
+
+1. **Поднять dev-сервер:** `bin/rails server -p 3000 -e development` (фоном через `run_in_background: true`). Дождаться отклика: `until curl -sS -o /dev/null --max-time 2 http://localhost:3000; do sleep 2; done`.
+2. **Получить тестового юзера** у пользователя — username + password. **Никогда не угадывать** пароли реальных юзеров. Логин в Devise: поле `user[username]`, не `email`.
+3. Если боишься испортить dev-БД — спросить разрешения или предложить создать временного test-юзера.
+
+### Известные нюансы
+
+- **`hover` теряется между tool-вызовами.** Если в DOM есть cascading submenu через CSS `:hover` — Playwright делает hover, потом следующий tool-call (screenshot, click) → mouse уходит → submenu прячется. Решение: проверять submenu сразу через `browser_evaluate({ display, visibility })` пока hover активен; для click на скрытый под-пункт — использовать `browser_evaluate` с прямым `link.click()` (Rails-UJS зарегистрирован на ссылке).
+- **Bootstrap 2.x dropdown** открывается на `click` по triggering element с `data-toggle="dropdown"`. Класс `.btn-group` получает `.open` когда раскрыт.
+- **Strict mode locator violation** при идентичных селекторах в разных местах — использовать ID-обёртку (`#repair_status_widget_header .foo`).
+
+### Cleanup в конце (обязательно)
+
+```bash
+# 1. Закрыть браузер
+mcp__playwright__browser_close
+
+# 2. Остановить dev-сервер (browser_close его НЕ убивает)
+ps aux | grep -E "puma|rails server" | grep -v grep
+kill <PID>
+# проверить:
+curl -sS -o /dev/null --max-time 2 http://localhost:3000  # должно вернуть error
+
+# 3. Удалить артефакты (скриншоты, дампы) из корня репо
+rm -f cycle*.png page-*.png screenshot-*.png
+
+# 4. Если меняли данные через UI — спросить пользователя что делать с БД
+```
+
+См. также memory `feedback_session_cleanup.md` — общее правило про cleanup после внешних ресурсов.

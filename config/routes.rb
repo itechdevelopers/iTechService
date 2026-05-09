@@ -215,6 +215,7 @@ Rails.application.routes.draw do
     get :completion_act, on: :member
     post :create_sale, on: :member
     patch :set_keeper, on: :member, defaults: { format: 'js' }
+    patch :repair_status, on: :member, defaults: { format: 'js' }, action: :update_repair_status
     put :archive, on: :member, defaults: { format: 'js' }
     get :new_v2, on: :collection
     post :create_v2, on: :collection

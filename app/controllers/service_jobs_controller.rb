@@ -397,6 +397,31 @@ class ServiceJobsController < ApplicationController
     respond_to(&:js)
   end
 
+  def update_repair_status
+    @service_job = find_record ServiceJob
+    new_status = RepairStatus.active.find_by(code: params[:repair_status_code])
+
+    if new_status.nil? || new_status.completed?
+      @repair_status_error = t('service_jobs.repair_status.invalid_status', default: 'Недопустимый статус')
+      respond_to(&:js)
+      return
+    end
+
+    pause_reason =
+      if new_status.paused?
+        RepairPauseReason.active.find_by(id: params[:repair_pause_reason_id])
+      end
+
+    if new_status.paused? && pause_reason.nil?
+      @repair_status_error = t('service_jobs.repair_status.pause_reason_required', default: 'Выберите причину паузы')
+      respond_to(&:js)
+      return
+    end
+
+    @service_job.change_repair_status!(new_status, user: current_user, pause_reason: pause_reason)
+    respond_to(&:js)
+  end
+
   def archive
     @service_job = find_record ServiceJob
     respond_to do |format|
