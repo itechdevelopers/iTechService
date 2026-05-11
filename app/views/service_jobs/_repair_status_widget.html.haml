@@ -2,7 +2,7 @@
 - current_status = service_job.repair_status
 - selectable_statuses = RepairStatus.active.ordered.where.not(code: RepairStatus::COMPLETED)
 
-.repair-status-widget{ id: "repair_status_widget_#{service_job.id}" }
+.repair-status-widget{ data: { 'repair-status-sj-id': service_job.id } }
   - if can?(:update_repair_status, service_job)
     .btn-group
       %a.repair-status-badge{ class: "repair-status-badge--#{current_status.code}", data: { toggle: 'dropdown' }, href: '#', style: ("background: #{current_status.color};" if current_status.color.present?) }

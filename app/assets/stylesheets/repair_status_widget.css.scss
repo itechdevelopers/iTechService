@@ -13,17 +13,23 @@
   display: inline-block;
   padding: 4px 10px;
   border-radius: 14px;
-  color: #fff;
   font-weight: 600;
   font-size: 12px;
   line-height: 1.4;
-  text-decoration: none;
   user-select: none;
   cursor: pointer;
 
-  &:hover, &:focus {
-    color: #fff;
+  &,
+  &:link,
+  &:visited,
+  &:hover,
+  &:focus,
+  &:active {
+    color: #fff !important;
     text-decoration: none;
+  }
+
+  &:hover, &:focus {
     opacity: 0.9;
   }
 

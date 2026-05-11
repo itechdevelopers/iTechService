@@ -11,6 +11,7 @@
     - spoiler = service_job_row_tag_device_attribute(service_job, %i[claimed_defect device_condition client_comment type_of_work estimated_cost_of_repair])
     - unless spoiler.blank?
       %details=spoiler
+    = render 'service_jobs/repair_status_widget', service_job: service_job
   %td.client_comment_column
     - if service_job.client.present?
       = link_to(service_job.client_short_name, client_path(service_job.client))

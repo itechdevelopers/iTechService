@@ -2,6 +2,7 @@
   = button_to_close_modal
   %h3
     = @service_job.type_name
+    .repair-status-widget__inline-slot= render 'repair_status_widget', service_job: @service_job
 
 .modal-body
   .row-fluid
