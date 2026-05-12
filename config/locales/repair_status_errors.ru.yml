@@ -1,0 +1,14 @@
+ru:
+  activerecord:
+    errors:
+      models:
+        repair_status:
+          attributes:
+            base:
+              restrict_dependent_destroy:
+                has_many: 'Нельзя удалить: статус используется в записях о ремонте.'
+        repair_pause_reason:
+          attributes:
+            base:
+              restrict_dependent_destroy:
+                has_many: 'Нельзя удалить: причина паузы используется в записях о ремонте.'
