@@ -1,4 +1,7 @@
 class RepairAttentionMarker < ApplicationRecord
+  ATTENTION_TIMEOUT_SECONDS = 300
+  ANTI_SPAM_WINDOW = 10.minutes
+
   belongs_to :service_job
   belongs_to :user
   belongs_to :status_at_view, class_name: 'RepairStatus', optional: true
