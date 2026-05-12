@@ -151,6 +151,13 @@ Rails.application.routes.draw do
     post :close, on: :member, defaults: { format: :js }
   end
 
+  resources :repair_attention_markers, only: [] do
+    member do
+      get :dismiss
+      get :start_repair
+    end
+  end
+
   resources :dismissal_reasons, except: :show
 
   resources :faults, only: %i[new create]

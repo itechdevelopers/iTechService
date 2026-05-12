@@ -1,12 +1,11 @@
-class RepairAttentionMarkerJob < ApplicationJob
-  ESCALATION_DELAY = 1.hour
-
+class RepairAttentionEscalationJob < ApplicationJob
   queue_as :default
 
   def perform(marker_id)
     marker = RepairAttentionMarker.find_by(id: marker_id)
     return unless marker
     return if marker.processed?
+    return if marker.escalated_at.present?
 
     if status_changed?(marker)
       marker.mark_auto_resolved!
@@ -14,9 +13,7 @@ class RepairAttentionMarkerJob < ApplicationJob
     end
 
     RepairAttentionNotifier.call(marker)
-    marker.update!(notified_at: Time.zone.now)
-
-    RepairAttentionEscalationJob.set(wait: ESCALATION_DELAY).perform_later(marker.id)
+    marker.update!(escalated_at: Time.zone.now)
   end
 
   private
