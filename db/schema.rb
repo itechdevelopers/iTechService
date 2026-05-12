@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20260501120000) do
+ActiveRecord::Schema.define(version: 20260512195809) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -1333,6 +1333,30 @@ ActiveRecord::Schema.define(version: 20260501120000) do
     t.index ["user_id"], name: "index_record_edits_on_user_id"
   end
 
+  create_table "repair_attention_markers", force: :cascade do |t|
+    t.bigint "service_job_id", null: false
+    t.bigint "user_id", null: false
+    t.bigint "status_at_view_id"
+    t.datetime "viewed_at", null: false
+    t.string "dismiss_token", null: false
+    t.string "start_token", null: false
+    t.datetime "notified_at"
+    t.datetime "escalated_at"
+    t.datetime "processed_at"
+    t.string "processed_action"
+    t.bigint "processed_by_id"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["dismiss_token"], name: "index_repair_attention_markers_on_dismiss_token", unique: true
+    t.index ["processed_by_id"], name: "index_repair_attention_markers_on_processed_by_id"
+    t.index ["service_job_id", "processed_at"], name: "idx_ram_on_sj_and_processed_at"
+    t.index ["service_job_id"], name: "index_repair_attention_markers_on_service_job_id"
+    t.index ["start_token"], name: "index_repair_attention_markers_on_start_token", unique: true
+    t.index ["status_at_view_id"], name: "index_repair_attention_markers_on_status_at_view_id"
+    t.index ["user_id", "service_job_id", "viewed_at"], name: "idx_ram_on_user_sj_viewed_at"
+    t.index ["user_id"], name: "index_repair_attention_markers_on_user_id"
+  end
+
   create_table "repair_cause_groups", force: :cascade do |t|
     t.string "title"
     t.datetime "created_at", null: false
@@ -1379,6 +1403,14 @@ ActiveRecord::Schema.define(version: 20260501120000) do
     t.index ["repair_task_id"], name: "index_repair_parts_on_repair_task_id"
   end
 
+  create_table "repair_pause_reasons", force: :cascade do |t|
+    t.string "name", null: false
+    t.integer "position", default: 0, null: false
+    t.boolean "archived", default: false, null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+  end
+
   create_table "repair_prices", id: :serial, force: :cascade do |t|
     t.integer "repair_service_id"
     t.integer "department_id"
@@ -1409,6 +1441,42 @@ ActiveRecord::Schema.define(version: 20260501120000) do
     t.integer "time_standard_from"
     t.integer "time_standard_to"
     t.index ["repair_group_id"], name: "index_repair_services_on_repair_group_id"
+  end
+
+  create_table "repair_status_changes", force: :cascade do |t|
+    t.bigint "service_job_id", null: false
+    t.bigint "from_status_id"
+    t.bigint "to_status_id", null: false
+    t.bigint "repair_pause_reason_id"
+    t.bigint "user_id"
+    t.datetime "changed_at", null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["changed_at"], name: "index_repair_status_changes_on_changed_at"
+    t.index ["from_status_id"], name: "index_repair_status_changes_on_from_status_id"
+    t.index ["repair_pause_reason_id"], name: "index_repair_status_changes_on_repair_pause_reason_id"
+    t.index ["service_job_id"], name: "index_repair_status_changes_on_service_job_id"
+    t.index ["to_status_id"], name: "index_repair_status_changes_on_to_status_id"
+    t.index ["user_id"], name: "index_repair_status_changes_on_user_id"
+  end
+
+  create_table "repair_status_settings", force: :cascade do |t|
+    t.integer "attention_timeout_seconds", default: 300, null: false
+    t.integer "escalation_timeout_seconds", default: 3600, null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+  end
+
+  create_table "repair_statuses", force: :cascade do |t|
+    t.string "code", null: false
+    t.string "name", null: false
+    t.string "color", default: "#cccccc", null: false
+    t.integer "position", default: 0, null: false
+    t.boolean "system", default: false, null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.boolean "archived", default: false, null: false
+    t.index ["code"], name: "index_repair_statuses_on_code", unique: true
   end
 
   create_table "repair_tasks", id: :serial, force: :cascade do |t|
@@ -1747,6 +1815,9 @@ ActiveRecord::Schema.define(version: 20260501120000) do
     t.integer "one_c_device_check_status"
     t.datetime "one_c_device_checked_at"
     t.string "one_c_device_check_error"
+    t.bigint "repair_status_id"
+    t.bigint "repair_pause_reason_id"
+    t.datetime "repair_status_changed_at"
     t.index ["carrier_id"], name: "index_service_jobs_on_carrier_id"
     t.index ["case_color_id"], name: "index_service_jobs_on_case_color_id"
     t.index ["client_id"], name: "index_service_jobs_on_client_id"
@@ -1758,6 +1829,8 @@ ActiveRecord::Schema.define(version: 20260501120000) do
     t.index ["item_id"], name: "index_service_jobs_on_item_id"
     t.index ["location_id"], name: "index_service_jobs_on_location_id"
     t.index ["photo_container_id"], name: "index_service_jobs_on_photo_container_id"
+    t.index ["repair_pause_reason_id"], name: "index_service_jobs_on_repair_pause_reason_id"
+    t.index ["repair_status_id"], name: "index_service_jobs_on_repair_status_id"
     t.index ["return_at"], name: "index_service_jobs_on_return_at"
     t.index ["sale_id"], name: "index_service_jobs_on_sale_id"
     t.index ["status"], name: "index_service_jobs_on_status"
@@ -2384,8 +2457,17 @@ ActiveRecord::Schema.define(version: 20260501120000) do
   add_foreign_key "queue_inactivity_alert_settings", "schedule_groups"
   add_foreign_key "queue_items", "electronic_queues"
   add_foreign_key "quick_orders", "clients"
+  add_foreign_key "repair_attention_markers", "repair_statuses", column: "status_at_view_id"
+  add_foreign_key "repair_attention_markers", "service_jobs"
+  add_foreign_key "repair_attention_markers", "users"
+  add_foreign_key "repair_attention_markers", "users", column: "processed_by_id"
   add_foreign_key "repair_prices", "departments"
   add_foreign_key "repair_prices", "repair_services"
+  add_foreign_key "repair_status_changes", "repair_pause_reasons"
+  add_foreign_key "repair_status_changes", "repair_statuses", column: "from_status_id"
+  add_foreign_key "repair_status_changes", "repair_statuses", column: "to_status_id"
+  add_foreign_key "repair_status_changes", "service_jobs"
+  add_foreign_key "repair_status_changes", "users"
   add_foreign_key "repair_tasks", "users", column: "repairer_id"
   add_foreign_key "report_cards", "report_columns"
   add_foreign_key "report_columns", "reports_boards"
@@ -2415,6 +2497,8 @@ ActiveRecord::Schema.define(version: 20260501120000) do
   add_foreign_key "service_job_viewings", "users"
   add_foreign_key "service_jobs", "departments", column: "initial_department_id"
   add_foreign_key "service_jobs", "photo_containers"
+  add_foreign_key "service_jobs", "repair_pause_reasons"
+  add_foreign_key "service_jobs", "repair_statuses"
   add_foreign_key "service_repair_returns", "service_jobs"
   add_foreign_key "service_repair_returns", "users", column: "performer_id"
   add_foreign_key "service_sms_notifications", "service_jobs"

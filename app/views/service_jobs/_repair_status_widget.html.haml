@@ -1,0 +1,30 @@
+- return unless service_job.repair_status_id.present?
+- current_status = service_job.repair_status
+- selectable_statuses = RepairStatus.active.ordered.where.not(code: RepairStatus::COMPLETED)
+
+.repair-status-widget{ data: { 'repair-status-sj-id': service_job.id } }
+  - if can?(:update_repair_status, service_job)
+    .btn-group
+      %a.repair-status-badge{ class: "repair-status-badge--#{current_status.code}", data: { toggle: 'dropdown' }, href: '#', style: ("background: #{current_status.color};" if current_status.color.present?) }
+        = current_status.name
+        %span.caret
+      %ul.dropdown-menu.repair-status-widget__menu
+        - selectable_statuses.each do |status|
+          - if status.paused?
+            %li.dropdown-submenu
+              %a{ href: '#', tabindex: '-1' }
+                %span.repair-status-widget__color-dot{ style: "background: #{status.color};" }
+                = status.name
+              %ul.dropdown-menu.repair-status-widget__pause-reasons
+                - RepairPauseReason.active.ordered.each do |reason|
+                  %li
+                    = link_to repair_status_service_job_path(service_job, repair_status_code: status.code, repair_pause_reason_id: reason.id), method: :patch, remote: true do
+                      = reason.name
+          - else
+            %li{ class: ('active' if status.id == current_status.id) }
+              = link_to repair_status_service_job_path(service_job, repair_status_code: status.code), method: :patch, remote: true do
+                %span.repair-status-widget__color-dot{ style: "background: #{status.color};" }
+                = status.name
+  - else
+    %span.repair-status-badge{ class: "repair-status-badge--#{current_status.code}", style: ("background: #{current_status.color};" if current_status.color.present?) }
+      = current_status.name

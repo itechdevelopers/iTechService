@@ -71,7 +71,10 @@ class ServiceJob < ApplicationRecord
   belongs_to :carrier, optional: true
   belongs_to :keeper, class_name: 'User', optional: true
   belongs_to :photo_container, optional: true
+  belongs_to :repair_status, optional: true
+  belongs_to :repair_pause_reason, optional: true
   has_many :features, through: :item
+  has_many :repair_status_changes, dependent: :destroy
   has_many :device_tasks, dependent: :destroy
   has_many :tasks, through: :device_tasks
   has_many :repair_tasks, through: :device_tasks
@@ -130,6 +133,7 @@ class ServiceJob < ApplicationRecord
   after_update :clear_subscriptions_if_done_or_archived
   after_update :close_warranty_overstay_notifications_if_archived
   after_update :schedule_location_overstay_checks
+  after_update :auto_set_waiting_repair_status
 
   audited
   has_associated_audits
@@ -441,6 +445,30 @@ kind: 'device_return', content: id.to_s)
     I18n.t("service_jobs.security_codes.#{security_code}")
   end
 
+  def change_repair_status!(new_status, user:, pause_reason: nil)
+    pause_reason = nil unless new_status.paused?
+    return if repair_status_id == new_status.id && repair_pause_reason_id == pause_reason&.id
+
+    now = Time.zone.now
+
+    transaction do
+      RepairStatusChange.create!(
+        service_job: self,
+        from_status_id: repair_status_id,
+        to_status: new_status,
+        repair_pause_reason: pause_reason,
+        user: user,
+        changed_at: now
+      )
+      update_columns(
+        repair_status_id: new_status.id,
+        repair_pause_reason_id: pause_reason&.id,
+        repair_status_changed_at: now,
+        updated_at: now
+      )
+    end
+  end
+
   private
 
   def clear_subscriptions_if_done_or_archived
@@ -631,5 +659,16 @@ kind: 'device_return', content: id.to_s)
     Notification.where(referenceable: self, closed_at: nil)
                 .where("kind LIKE ?", "location_overstay_%_loc_#{prev_location_id}")
                 .find_each(&:close)
+  end
+
+  def auto_set_waiting_repair_status
+    return unless saved_change_to_location_id?
+    return unless location&.is_any_repair?
+    return if repair_status&.waiting?
+
+    change_repair_status!(
+      RepairStatus.by_code(RepairStatus::WAITING),
+      user: User.current
+    )
   end
 end

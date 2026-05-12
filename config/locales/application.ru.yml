@@ -4,6 +4,7 @@ ru:
     warranty_overstay: 'Заказ №%{ticket} (купленное %{sold_date}) находится у нас более %{days} дней'
     location_overstay: 'Заказ №%{ticket} находится на локации «%{location}» более %{days} дней'
     queue_inactivity: 'Талон №%{ticket} в очереди «%{queue}» ждёт уже %{waited} мин. На смене %{total} сотр., активны только %{active}. Проверьте состояние очереди.'
+    repair_attention: 'Работа №%{ticket} ждёт твоего внимания — приступаешь к ремонту?'
 
   queue_anomaly:
     zero_activity: 'В очереди "%{queue_name}" (%{department}) вчера не было создано ни одного талона'

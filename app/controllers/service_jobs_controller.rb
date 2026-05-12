@@ -86,6 +86,7 @@ class ServiceJobsController < ApplicationController
       respond_to do |format|
         format.html do
           log_viewing
+          enqueue_repair_attention_marker_if_applicable(@service_job)
           @same_item_service_jobs = []
           if (item = @service_job.item)
             @same_item_service_jobs = item.service_jobs.where
@@ -96,6 +97,7 @@ class ServiceJobsController < ApplicationController
         end
         format.json do
           log_viewing
+          enqueue_repair_attention_marker_if_applicable(@service_job)
           render json: @service_job
         end
         format.pdf do
@@ -148,6 +150,7 @@ class ServiceJobsController < ApplicationController
     @modal = "service-job-#{@service_job.id}"
     build_device_note
     log_viewing
+    enqueue_repair_attention_marker_if_applicable(@service_job)
     respond_to do |format|
       format.html { render_form }
       format.js { render 'shared/show_modal_form' }
@@ -397,6 +400,31 @@ class ServiceJobsController < ApplicationController
     respond_to(&:js)
   end
 
+  def update_repair_status
+    @service_job = find_record ServiceJob
+    new_status = RepairStatus.active.find_by(code: params[:repair_status_code])
+
+    if new_status.nil? || new_status.completed?
+      @repair_status_error = t('service_jobs.repair_status.invalid_status', default: 'Недопустимый статус')
+      respond_to(&:js)
+      return
+    end
+
+    pause_reason =
+      if new_status.paused?
+        RepairPauseReason.active.find_by(id: params[:repair_pause_reason_id])
+      end
+
+    if new_status.paused? && pause_reason.nil?
+      @repair_status_error = t('service_jobs.repair_status.pause_reason_required', default: 'Выберите причину паузы')
+      respond_to(&:js)
+      return
+    end
+
+    @service_job.change_repair_status!(new_status, user: current_user, pause_reason: pause_reason)
+    respond_to(&:js)
+  end
+
   def archive
     @service_job = find_record ServiceJob
     respond_to do |format|
@@ -453,6 +481,24 @@ class ServiceJobsController < ApplicationController
 
   def log_viewing
     ServiceJobViewing.create(service_job: @service_job, user: current_user, time: Time.current, ip: request.ip)
+  end
+
+  def enqueue_repair_attention_marker_if_applicable(service_job)
+    return unless current_user&.location&.is_any_repair?
+    return unless service_job.repair_status&.waiting?
+    return if RepairAttentionMarker
+                .where(service_job_id: service_job.id, user_id: current_user.id, processed_at: nil)
+                .where('viewed_at > ?', RepairAttentionMarker::ANTI_SPAM_WINDOW.ago)
+                .exists?
+
+    marker = RepairAttentionMarker.create!(
+      service_job: service_job,
+      user: current_user,
+      status_at_view: service_job.repair_status,
+      viewed_at: Time.zone.now
+    )
+    RepairAttentionMarkerJob.set(wait: RepairStatusSetting.instance.attention_timeout_seconds.seconds)
+                            .perform_later(marker.id)
   end
 
   def create_phone_substitution

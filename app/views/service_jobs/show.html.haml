@@ -17,6 +17,8 @@
     = link_to icon_tag(:print) + t('tickets.link'), service_job_path(@service_job, format: 'pdf', print: true), class: 'btn btn-primary', target: '_blank', id: 'print_service_job_ticket'
     = link_to icon_tag('eye') + t('tickets.link'), service_job_path(@service_job, format: 'pdf'), class: 'btn btn-info pull-right', target: '_blank', id: 'show_service_job_ticket'
 
+  .repair-status-widget__inline-slot= render 'repair_status_widget', service_job: @service_job
+
   = new_sms_notification_link(@service_job) if @service_job.at_done?
 
   - if current_user.able_to?(:show_reviews) && (review = @service_job.review)
@@ -194,6 +196,7 @@
   .span8
     #service_job_device_tasks
       = render 'device_tasks_show', service_job: @service_job
+    = render 'repair_status_widget', service_job: @service_job
 .form-actions
   = link_to_edit @service_job
   - if @service_job.at_done?
