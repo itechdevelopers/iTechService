@@ -497,7 +497,7 @@ class ServiceJobsController < ApplicationController
       status_at_view: service_job.repair_status,
       viewed_at: Time.zone.now
     )
-    RepairAttentionMarkerJob.set(wait: RepairAttentionMarker::ATTENTION_TIMEOUT_SECONDS.seconds)
+    RepairAttentionMarkerJob.set(wait: RepairStatusSetting.instance.attention_timeout_seconds.seconds)
                             .perform_later(marker.id)
   end
 

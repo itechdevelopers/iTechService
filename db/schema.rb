@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20260512114043) do
+ActiveRecord::Schema.define(version: 20260512195809) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -1458,6 +1458,13 @@ ActiveRecord::Schema.define(version: 20260512114043) do
     t.index ["service_job_id"], name: "index_repair_status_changes_on_service_job_id"
     t.index ["to_status_id"], name: "index_repair_status_changes_on_to_status_id"
     t.index ["user_id"], name: "index_repair_status_changes_on_user_id"
+  end
+
+  create_table "repair_status_settings", force: :cascade do |t|
+    t.integer "attention_timeout_seconds", default: 300, null: false
+    t.integer "escalation_timeout_seconds", default: 3600, null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
   end
 
   create_table "repair_statuses", force: :cascade do |t|

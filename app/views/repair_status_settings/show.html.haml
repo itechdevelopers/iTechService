@@ -1,0 +1,46 @@
+.page-header
+  %h1= t('.title', default: 'Настройки статусов ремонта')
+
+.row-fluid
+  .span6
+    %h3= t('.timeouts_section', default: 'Таймауты маячка')
+    = simple_form_for @setting, url: repair_status_settings_path, method: :patch, html: { class: 'form-horizontal' } do |f|
+      = f.input :attention_timeout_seconds,
+                label: t('.attention_timeout_label', default: 'Через сколько секунд после просмотра проверять статус'),
+                hint: t('.attention_timeout_hint', default: 'По умолчанию 300 (5 минут)')
+      = f.input :escalation_timeout_seconds,
+                label: t('.escalation_timeout_label', default: 'Через сколько секунд напоминать повторно'),
+                hint: t('.escalation_timeout_hint', default: 'По умолчанию 3600 (1 час)')
+      .form-actions
+        = f.submit 'Сохранить', class: 'btn btn-primary'
+
+  .span6
+    %h3= t('.colors_section', default: 'Названия и цвета статусов')
+    = form_tag update_statuses_repair_status_settings_path, method: :patch, class: 'form-horizontal' do
+      %table.table.table-condensed
+        %thead
+          %tr
+            %th= t('.col_code', default: 'Код')
+            %th= t('.col_name', default: 'Название')
+            %th= t('.col_color', default: 'Цвет')
+            %th= t('.col_preview', default: 'Превью')
+        %tbody
+          - @repair_statuses.each do |status|
+            %tr
+              %td
+                %code= status.code
+              %td
+                = text_field_tag "repair_statuses[#{status.id}][name]", status.name, class: 'input-medium'
+              %td
+                .input-append.color{ data: { color: status.color, 'color-format': 'hex' } }
+                  = text_field_tag "repair_statuses[#{status.id}][color]", status.color, class: 'input-small'
+                  %span.add-on
+                    %i{ style: "background-color: #{status.color};" }
+              %td
+                %span.repair-status-badge{ class: "repair-status-badge--#{status.code}", style: "background: #{status.color};" }
+                  = status.name
+      .form-actions
+        = submit_tag 'Сохранить', class: 'btn btn-primary'
+
+:javascript
+  $(function() { $('.color').colorpicker(); });

@@ -1,6 +1,4 @@
 class RepairAttentionMarkerJob < ApplicationJob
-  ESCALATION_DELAY = 1.hour
-
   queue_as :default
 
   def perform(marker_id)
@@ -16,7 +14,8 @@ class RepairAttentionMarkerJob < ApplicationJob
     RepairAttentionNotifier.call(marker)
     marker.update!(notified_at: Time.zone.now)
 
-    RepairAttentionEscalationJob.set(wait: ESCALATION_DELAY).perform_later(marker.id)
+    delay = RepairStatusSetting.instance.escalation_timeout_seconds.seconds
+    RepairAttentionEscalationJob.set(wait: delay).perform_later(marker.id)
   end
 
   private

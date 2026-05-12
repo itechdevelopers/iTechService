@@ -158,6 +158,10 @@ Rails.application.routes.draw do
     end
   end
 
+  resource :repair_status_settings, only: %i[show update] do
+    patch :update_statuses, on: :collection
+  end
+
   resources :dismissal_reasons, except: :show
 
   resources :faults, only: %i[new create]
