@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20260509074936) do
+ActiveRecord::Schema.define(version: 20260512114043) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -1333,6 +1333,30 @@ ActiveRecord::Schema.define(version: 20260509074936) do
     t.index ["user_id"], name: "index_record_edits_on_user_id"
   end
 
+  create_table "repair_attention_markers", force: :cascade do |t|
+    t.bigint "service_job_id", null: false
+    t.bigint "user_id", null: false
+    t.bigint "status_at_view_id"
+    t.datetime "viewed_at", null: false
+    t.string "dismiss_token", null: false
+    t.string "start_token", null: false
+    t.datetime "notified_at"
+    t.datetime "escalated_at"
+    t.datetime "processed_at"
+    t.string "processed_action"
+    t.bigint "processed_by_id"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["dismiss_token"], name: "index_repair_attention_markers_on_dismiss_token", unique: true
+    t.index ["processed_by_id"], name: "index_repair_attention_markers_on_processed_by_id"
+    t.index ["service_job_id", "processed_at"], name: "idx_ram_on_sj_and_processed_at"
+    t.index ["service_job_id"], name: "index_repair_attention_markers_on_service_job_id"
+    t.index ["start_token"], name: "index_repair_attention_markers_on_start_token", unique: true
+    t.index ["status_at_view_id"], name: "index_repair_attention_markers_on_status_at_view_id"
+    t.index ["user_id", "service_job_id", "viewed_at"], name: "idx_ram_on_user_sj_viewed_at"
+    t.index ["user_id"], name: "index_repair_attention_markers_on_user_id"
+  end
+
   create_table "repair_cause_groups", force: :cascade do |t|
     t.string "title"
     t.datetime "created_at", null: false
@@ -2426,6 +2450,10 @@ ActiveRecord::Schema.define(version: 20260509074936) do
   add_foreign_key "queue_inactivity_alert_settings", "schedule_groups"
   add_foreign_key "queue_items", "electronic_queues"
   add_foreign_key "quick_orders", "clients"
+  add_foreign_key "repair_attention_markers", "repair_statuses", column: "status_at_view_id"
+  add_foreign_key "repair_attention_markers", "service_jobs"
+  add_foreign_key "repair_attention_markers", "users"
+  add_foreign_key "repair_attention_markers", "users", column: "processed_by_id"
   add_foreign_key "repair_prices", "departments"
   add_foreign_key "repair_prices", "repair_services"
   add_foreign_key "repair_status_changes", "repair_pause_reasons"
