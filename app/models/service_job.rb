@@ -133,6 +133,7 @@ class ServiceJob < ApplicationRecord
   after_update :clear_subscriptions_if_done_or_archived
   after_update :close_warranty_overstay_notifications_if_archived
   after_update :schedule_location_overstay_checks
+  after_create :auto_set_waiting_repair_status
   after_update :auto_set_waiting_repair_status
 
   audited
@@ -662,9 +663,16 @@ kind: 'device_return', content: id.to_s)
   end
 
   def auto_set_waiting_repair_status
-    return unless saved_change_to_location_id?
     return unless location&.is_any_repair?
     return if repair_status&.waiting?
+
+    if repair_status_id.nil?
+      # первая инициализация: новая работа, перенос со статусом nil, забытая работа на repair
+    elsif saved_change_to_location_id? && repair_status&.completed?
+      # повторный ремонт: устройство было completed, вернулось на repair — снова waiting
+    else
+      return
+    end
 
     change_repair_status!(
       RepairStatus.by_code(RepairStatus::WAITING),
