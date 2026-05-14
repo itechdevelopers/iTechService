@@ -40,7 +40,7 @@ class RepairAttentionNotifier
   def telegram_text
     user = marker.user
     sj   = marker.service_job
-    mention = user.telegram_username.present? ? "@#{esc(user.telegram_username)} " : ''
+    mention = user.telegram_username.present? ? "@#{esc(user.telegram_username)}" : nil
     full_name = esc(user.full_name)
     ticket = esc(sj.ticket_number)
     client = esc(sj.client&.presentation)
@@ -52,13 +52,20 @@ class RepairAttentionNotifier
     dismiss_url = url_helpers.dismiss_repair_attention_marker_url(
                     marker, token: marker.dismiss_token, host: app_host)
 
-    <<~HTML.strip
-      #{mention}#{full_name}, ты смотрел эту задачу <a href="#{sj_url}">#{ticket}</a>
-      #{client} #{device}.
-      Ты приступил к ремонту или просто посмотрел?
-
-      <a href="#{start_url}">Приступил к ремонту</a> | <a href="#{dismiss_url}">Просто посмотрел</a>
-    HTML
+    lines = []
+    lines << "#{[mention, full_name].compact.join(' ')}, ты смотрел эту задачу:"
+    lines << ''
+    lines << "<b>Талон:</b> #{ticket}"
+    lines << "<b>Клиент:</b> #{client}"
+    lines << "<b>Устройство:</b> #{device}"
+    lines << ''
+    lines << "<a href=\"#{sj_url}\">Перейти к работе</a>"
+    lines << ''
+    lines << 'Ты приступил к ремонту или просто посмотрел?'
+    lines << ''
+    lines << "<a href=\"#{start_url}\">Приступил к ремонту</a>"
+    lines << "<a href=\"#{dismiss_url}\">Просто посмотрел</a>"
+    lines.join("\n")
   end
 
   def esc(value)
