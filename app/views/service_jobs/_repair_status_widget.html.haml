@@ -1,4 +1,5 @@
 - return unless service_job.repair_status_id.present?
+- return unless current_user&.location_id.present? && current_user.location_id == service_job.location_id
 - current_status = service_job.repair_status
 - selectable_statuses = RepairStatus.active.ordered.where.not(code: RepairStatus::COMPLETED)
 
