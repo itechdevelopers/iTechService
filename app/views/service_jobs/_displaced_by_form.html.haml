@@ -1,0 +1,33 @@
+- urgent_reason = RepairPauseReason.find_by(code: RepairPauseReason::URGENT_REPAIR)
+- paused_status = RepairStatus.by_code(RepairStatus::PAUSED)
+
+.repair-status-widget-modal{ id: "displaced_by_modal_#{service_job.id}", tabindex: -1, role: 'dialog' }
+  .repair-status-widget-modal__dialog
+    = form_with url: repair_status_service_job_path(service_job),
+                method: :patch,
+                local: false,
+                html: { id: "displaced_by_form_#{service_job.id}", class: 'repair-status-widget-modal__form' } do
+      = hidden_field_tag :repair_status_code, paused_status&.code
+      = hidden_field_tag :repair_pause_reason_id, urgent_reason&.id
+
+      .repair-status-widget-modal__header
+        %h4= t('service_jobs.repair_status.displaced_by_modal.title', default: 'Срочный ремонт')
+        %button.repair-status-widget-modal__close{ type: 'button', 'aria-label': 'Close', data: { repair_status_widget_modal_close_for: service_job.id } } ×
+
+      .repair-status-widget-modal__body
+        - if local_assigns[:error].present?
+          .repair-status-widget-modal__error= error
+        %label.repair-status-widget-modal__label{ for: "displaced_by_ticket_number_#{service_job.id}" }
+          = t('service_jobs.repair_status.displaced_by_modal.label', default: 'Номер ремонта (талона) который вытесняет текущий:')
+        = text_field_tag :displaced_by_ticket_number,
+                          local_assigns[:ticket_number],
+                          id: "displaced_by_ticket_number_#{service_job.id}",
+                          class: 'repair-status-widget-modal__input',
+                          autocomplete: 'off',
+                          autofocus: true
+
+      .repair-status-widget-modal__footer
+        %button.btn{ type: 'button', data: { repair_status_widget_modal_close_for: service_job.id } }
+          = t('helpers.links.cancel', default: 'Отмена')
+        %button.btn.btn-primary{ type: 'submit' }
+          = t('helpers.submit.submit', default: 'Сохранить')

@@ -1,7 +1,17 @@
-<% if @repair_status_error.present? %>
+<% if @displaced_by_error.present? %>
+  (function() {
+    var $modal = $('#displaced_by_modal_<%= @service_job.id %>');
+    if ($modal.length === 0) { return; }
+    $modal.find('.repair-status-widget-modal__error').remove();
+    $modal.find('.repair-status-widget-modal__body')
+          .prepend('<div class="repair-status-widget-modal__error"><%= j @displaced_by_error %></div>');
+    $modal.find('input[name="displaced_by_ticket_number"]').focus();
+  })();
+<% elsif @repair_status_error.present? %>
   alert("<%= j @repair_status_error %>");
 <% else %>
   (function() {
+    $('#displaced_by_modal_<%= @service_job.id %>').remove();
     var html = "<%= j render('repair_status_widget', service_job: @service_job) %>";
     $('[data-repair-status-sj-id="<%= @service_job.id %>"]').each(function() {
       $(this).replaceWith(html);

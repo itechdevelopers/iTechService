@@ -1,0 +1,18 @@
+(function() {
+  $('#displaced_by_modal_<%= @service_job.id %>').remove();
+
+  var $host = $('#repair_status_widget_modal_host');
+  if ($host.length === 0) {
+    $host = $('<div id="repair_status_widget_modal_host"></div>').appendTo('body');
+  }
+  $host.append("<%= j render('displaced_by_form', service_job: @service_job) %>");
+
+  var $modal = $('#displaced_by_modal_<%= @service_job.id %>');
+  $modal.on('click', '[data-repair-status-widget-modal-close-for]', function(e) {
+    e.preventDefault();
+    $modal.remove();
+  });
+  setTimeout(function() {
+    $modal.find('input[type=text]').first().focus();
+  }, 50);
+})();

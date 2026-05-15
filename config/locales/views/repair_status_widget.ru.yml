@@ -1,0 +1,15 @@
+ru:
+  service_jobs:
+    repair_status:
+      invalid_status: 'Недопустимый статус'
+      pause_reason_required: 'Выберите причину паузы'
+      displaced_by_required: 'Введите номер ремонта'
+      displaced_by_not_found: 'Ремонт с таким номером не найден'
+      displaced_by_modal:
+        title: 'Срочный ремонт'
+        label: 'Номер ремонта (талона) который вытесняет текущий:'
+  helpers:
+    submit:
+      submit: 'Сохранить'
+    links:
+      cancel: 'Отмена'

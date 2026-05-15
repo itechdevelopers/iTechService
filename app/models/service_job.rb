@@ -446,6 +446,18 @@ kind: 'device_return', content: id.to_s)
     I18n.t("service_jobs.security_codes.#{security_code}")
   end
 
+  def current_displaced_by_service_job
+    return nil unless repair_status&.paused? && repair_pause_reason&.urgent_repair?
+
+    repair_status_changes
+      .where(to_status_id: repair_status_id, repair_pause_reason_id: repair_pause_reason_id)
+      .order(changed_at: :desc)
+      .limit(1)
+      .pluck(:displaced_by_service_job_id)
+      .first
+      &.then { |id| ServiceJob.find_by(id: id) }
+  end
+
   def change_repair_status!(new_status, user:, pause_reason: nil, displaced_by: nil)
     pause_reason = nil unless new_status.paused?
     displaced_by = nil unless pause_reason&.urgent_repair?
