@@ -73,7 +73,9 @@ class RepairAttentionNotifier
   end
 
   def app_host
-    ENV.fetch('APP_HOST', 'localhost:3000')
+    ENV['SERVER_HOST'].presence ||
+      Rails.application.routes.default_url_options[:host].presence ||
+      'localhost:3000'
   end
 
   def url_helpers
