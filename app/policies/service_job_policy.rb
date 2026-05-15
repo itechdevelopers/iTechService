@@ -48,6 +48,10 @@ class ServiceJobPolicy < CommonPolicy
     any_admin?(:technician)
   end
 
+  def displaced_by_prompt?
+    update_repair_status?
+  end
+
   def update_repair_status?
     repair?
   end

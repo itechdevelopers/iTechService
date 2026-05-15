@@ -421,7 +421,50 @@ class ServiceJobsController < ApplicationController
       return
     end
 
-    @service_job.change_repair_status!(new_status, user: current_user, pause_reason: pause_reason)
+    displaced_by = nil
+    if pause_reason&.urgent_repair?
+      raw = params[:displaced_by_ticket_number].to_s.strip
+      if raw.blank?
+        @displaced_by_error = t('service_jobs.repair_status.displaced_by_required', default: 'Введите номер ремонта')
+        respond_to(&:js)
+        return
+      end
+      displaced_by = ServiceJob.find_by_ticket_number(raw)
+      if displaced_by.nil? || displaced_by.id == @service_job.id
+        @displaced_by_error = t('service_jobs.repair_status.displaced_by_not_found', default: 'Ремонт с таким номером не найден')
+        respond_to(&:js)
+        return
+      end
+    end
+
+    if new_status.in_progress?
+      active = ServiceJob.active_in_progress_for(current_user).where.not(id: @service_job.id).first
+      if active && params[:force_displace_active].blank?
+        @displace_confirm_target = active
+        @displace_new_for = @service_job
+        respond_to(&:js)
+        return
+      end
+
+      if active && params[:force_displace_active].present?
+        urgent = RepairPauseReason.find_by(code: RepairPauseReason::URGENT_REPAIR)
+        paused = RepairStatus.by_code(RepairStatus::PAUSED)
+        ServiceJob.transaction do
+          active.change_repair_status!(paused, user: current_user, pause_reason: urgent, displaced_by: @service_job)
+          @service_job.change_repair_status!(new_status, user: current_user)
+        end
+        @displaced_active = active
+        respond_to(&:js)
+        return
+      end
+    end
+
+    @service_job.change_repair_status!(new_status, user: current_user, pause_reason: pause_reason, displaced_by: displaced_by)
+    respond_to(&:js)
+  end
+
+  def displaced_by_prompt
+    @service_job = find_record ServiceJob
     respond_to(&:js)
   end
 

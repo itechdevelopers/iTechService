@@ -139,6 +139,25 @@ class ServiceJob < ApplicationRecord
   audited
   has_associated_audits
 
+  def self.active_in_progress_for(user)
+    in_progress = RepairStatus.by_code(RepairStatus::IN_PROGRESS)
+    return ServiceJob.none unless user && in_progress
+
+    where(repair_status_id: in_progress.id).where(<<~SQL.squish, user.id, in_progress.id, in_progress.id)
+      EXISTS (
+        SELECT 1 FROM repair_status_changes rsc
+        WHERE rsc.service_job_id = service_jobs.id
+          AND rsc.user_id = ?
+          AND rsc.to_status_id = ?
+          AND rsc.changed_at = (
+            SELECT MAX(rsc2.changed_at) FROM repair_status_changes rsc2
+            WHERE rsc2.service_job_id = service_jobs.id
+              AND rsc2.to_status_id = ?
+          )
+      )
+    SQL
+  end
+
   def self.search(params)
     service_jobs = ServiceJob.includes :device_tasks, :tasks
 
@@ -446,8 +465,21 @@ kind: 'device_return', content: id.to_s)
     I18n.t("service_jobs.security_codes.#{security_code}")
   end
 
-  def change_repair_status!(new_status, user:, pause_reason: nil)
+  def current_displaced_by_service_job
+    return nil unless repair_status&.paused? && repair_pause_reason&.urgent_repair?
+
+    repair_status_changes
+      .where(to_status_id: repair_status_id, repair_pause_reason_id: repair_pause_reason_id)
+      .order(changed_at: :desc)
+      .limit(1)
+      .pluck(:displaced_by_service_job_id)
+      .first
+      &.then { |id| ServiceJob.find_by(id: id) }
+  end
+
+  def change_repair_status!(new_status, user:, pause_reason: nil, displaced_by: nil)
     pause_reason = nil unless new_status.paused?
+    displaced_by = nil unless pause_reason&.urgent_repair?
     return if repair_status_id == new_status.id && repair_pause_reason_id == pause_reason&.id
 
     now = Time.zone.now
@@ -458,6 +490,7 @@ kind: 'device_return', content: id.to_s)
         from_status_id: repair_status_id,
         to_status: new_status,
         repair_pause_reason: pause_reason,
+        displaced_by_service_job: displaced_by,
         user: user,
         changed_at: now
       )

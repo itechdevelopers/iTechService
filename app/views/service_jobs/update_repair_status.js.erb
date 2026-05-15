@@ -1,10 +1,41 @@
-<% if @repair_status_error.present? %>
+<% if @displaced_by_error.present? %>
+  (function() {
+    var $modal = $('#displaced_by_modal_<%= @service_job.id %>');
+    if ($modal.length === 0) { return; }
+    $modal.find('.repair-status-widget-modal__error').remove();
+    $modal.find('.repair-status-widget-modal__body')
+          .prepend('<div class="repair-status-widget-modal__error"><%= j @displaced_by_error %></div>');
+    $modal.find('input[name="displaced_by_ticket_number"]').focus();
+  })();
+<% elsif @displace_confirm_target.present? %>
+  (function() {
+    $('#displace_confirm_modal_<%= @displace_new_for.id %>').remove();
+    var $host = $('#repair_status_widget_modal_host');
+    if ($host.length === 0) {
+      $host = $('<div id="repair_status_widget_modal_host"></div>').appendTo('body');
+    }
+    $host.append("<%= j render('displace_confirm_modal', target: @displace_confirm_target, new_for: @displace_new_for) %>");
+    var $modal = $('#displace_confirm_modal_<%= @displace_new_for.id %>');
+    $modal.on('click', '[data-repair-status-widget-modal-close-for]', function(e) {
+      e.preventDefault();
+      $modal.remove();
+    });
+  })();
+<% elsif @repair_status_error.present? %>
   alert("<%= j @repair_status_error %>");
 <% else %>
   (function() {
+    $('#displaced_by_modal_<%= @service_job.id %>').remove();
+    $('#displace_confirm_modal_<%= @service_job.id %>').remove();
     var html = "<%= j render('repair_status_widget', service_job: @service_job) %>";
     $('[data-repair-status-sj-id="<%= @service_job.id %>"]').each(function() {
       $(this).replaceWith(html);
     });
+    <% if @displaced_active.present? %>
+      var displacedHtml = "<%= j render('repair_status_widget', service_job: @displaced_active) %>";
+      $('[data-repair-status-sj-id="<%= @displaced_active.id %>"]').each(function() {
+        $(this).replaceWith(displacedHtml);
+      });
+    <% end %>
   })();
 <% end %>
