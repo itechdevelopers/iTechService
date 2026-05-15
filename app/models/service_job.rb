@@ -446,8 +446,9 @@ kind: 'device_return', content: id.to_s)
     I18n.t("service_jobs.security_codes.#{security_code}")
   end
 
-  def change_repair_status!(new_status, user:, pause_reason: nil)
+  def change_repair_status!(new_status, user:, pause_reason: nil, displaced_by: nil)
     pause_reason = nil unless new_status.paused?
+    displaced_by = nil unless pause_reason&.urgent_repair?
     return if repair_status_id == new_status.id && repair_pause_reason_id == pause_reason&.id
 
     now = Time.zone.now
@@ -458,6 +459,7 @@ kind: 'device_return', content: id.to_s)
         from_status_id: repair_status_id,
         to_status: new_status,
         repair_pause_reason: pause_reason,
+        displaced_by_service_job: displaced_by,
         user: user,
         changed_at: now
       )

@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20260512195809) do
+ActiveRecord::Schema.define(version: 20260515120000) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -1409,6 +1409,8 @@ ActiveRecord::Schema.define(version: 20260512195809) do
     t.boolean "archived", default: false, null: false
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.string "code"
+    t.index ["code"], name: "index_repair_pause_reasons_on_code", unique: true
   end
 
   create_table "repair_prices", id: :serial, force: :cascade do |t|
@@ -1452,7 +1454,9 @@ ActiveRecord::Schema.define(version: 20260512195809) do
     t.datetime "changed_at", null: false
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.bigint "displaced_by_service_job_id"
     t.index ["changed_at"], name: "index_repair_status_changes_on_changed_at"
+    t.index ["displaced_by_service_job_id"], name: "index_repair_status_changes_on_displaced_by_service_job_id"
     t.index ["from_status_id"], name: "index_repair_status_changes_on_from_status_id"
     t.index ["repair_pause_reason_id"], name: "index_repair_status_changes_on_repair_pause_reason_id"
     t.index ["service_job_id"], name: "index_repair_status_changes_on_service_job_id"
@@ -2467,6 +2471,7 @@ ActiveRecord::Schema.define(version: 20260512195809) do
   add_foreign_key "repair_status_changes", "repair_statuses", column: "from_status_id"
   add_foreign_key "repair_status_changes", "repair_statuses", column: "to_status_id"
   add_foreign_key "repair_status_changes", "service_jobs"
+  add_foreign_key "repair_status_changes", "service_jobs", column: "displaced_by_service_job_id"
   add_foreign_key "repair_status_changes", "users"
   add_foreign_key "repair_tasks", "users", column: "repairer_id"
   add_foreign_key "report_cards", "report_columns"
