@@ -8,6 +8,11 @@ ru:
       displaced_by_modal:
         title: 'Срочный ремонт'
         label: 'Номер ремонта (талона) который вытесняет текущий:'
+      displace_confirm:
+        title: 'Переключение между ремонтами'
+        intro_html: 'У вас уже в работе ремонт <strong>#%{ticket}</strong>.'
+        question: 'Поставить его на паузу с причиной «Срочный ремонт» и взять текущий ремонт?'
+        confirm: 'Да, переключиться'
   helpers:
     submit:
       submit: 'Сохранить'

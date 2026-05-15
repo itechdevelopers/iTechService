@@ -139,6 +139,25 @@ class ServiceJob < ApplicationRecord
   audited
   has_associated_audits
 
+  def self.active_in_progress_for(user)
+    in_progress = RepairStatus.by_code(RepairStatus::IN_PROGRESS)
+    return ServiceJob.none unless user && in_progress
+
+    where(repair_status_id: in_progress.id).where(<<~SQL.squish, user.id, in_progress.id, in_progress.id)
+      EXISTS (
+        SELECT 1 FROM repair_status_changes rsc
+        WHERE rsc.service_job_id = service_jobs.id
+          AND rsc.user_id = ?
+          AND rsc.to_status_id = ?
+          AND rsc.changed_at = (
+            SELECT MAX(rsc2.changed_at) FROM repair_status_changes rsc2
+            WHERE rsc2.service_job_id = service_jobs.id
+              AND rsc2.to_status_id = ?
+          )
+      )
+    SQL
+  end
+
   def self.search(params)
     service_jobs = ServiceJob.includes :device_tasks, :tasks
 

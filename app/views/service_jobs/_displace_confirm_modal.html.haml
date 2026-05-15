@@ -1,0 +1,25 @@
+.repair-status-widget-modal{ id: "displace_confirm_modal_#{new_for.id}", tabindex: -1, role: 'dialog' }
+  .repair-status-widget-modal__dialog
+    = form_with url: repair_status_service_job_path(new_for),
+                method: :patch,
+                local: false,
+                html: { id: "displace_confirm_form_#{new_for.id}", class: 'repair-status-widget-modal__form' } do
+      = hidden_field_tag :repair_status_code, RepairStatus::IN_PROGRESS
+      = hidden_field_tag :force_displace_active, '1'
+
+      .repair-status-widget-modal__header
+        %h4= t('service_jobs.repair_status.displace_confirm.title', default: 'Переключение между ремонтами')
+        %button.repair-status-widget-modal__close{ type: 'button', 'aria-label': 'Close', data: { repair_status_widget_modal_close_for: new_for.id } } ×
+
+      .repair-status-widget-modal__body
+        %p
+          = t('service_jobs.repair_status.displace_confirm.intro_html',
+              default: 'У вас уже в работе ремонт <strong>#%{ticket}</strong>.',
+              ticket: target.ticket_number).html_safe
+        %p= t('service_jobs.repair_status.displace_confirm.question', default: 'Поставить его на паузу с причиной «Срочный ремонт» и взять текущий ремонт?')
+
+      .repair-status-widget-modal__footer
+        %button.btn{ type: 'button', data: { repair_status_widget_modal_close_for: new_for.id } }
+          = t('helpers.links.cancel', default: 'Отмена')
+        %button.btn.btn-primary{ type: 'submit' }
+          = t('service_jobs.repair_status.displace_confirm.confirm', default: 'Да, переключиться')

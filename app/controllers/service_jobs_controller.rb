@@ -437,6 +437,28 @@ class ServiceJobsController < ApplicationController
       end
     end
 
+    if new_status.in_progress?
+      active = ServiceJob.active_in_progress_for(current_user).where.not(id: @service_job.id).first
+      if active && params[:force_displace_active].blank?
+        @displace_confirm_target = active
+        @displace_new_for = @service_job
+        respond_to(&:js)
+        return
+      end
+
+      if active && params[:force_displace_active].present?
+        urgent = RepairPauseReason.find_by(code: RepairPauseReason::URGENT_REPAIR)
+        paused = RepairStatus.by_code(RepairStatus::PAUSED)
+        ServiceJob.transaction do
+          active.change_repair_status!(paused, user: current_user, pause_reason: urgent, displaced_by: @service_job)
+          @service_job.change_repair_status!(new_status, user: current_user)
+        end
+        @displaced_active = active
+        respond_to(&:js)
+        return
+      end
+    end
+
     @service_job.change_repair_status!(new_status, user: current_user, pause_reason: pause_reason, displaced_by: displaced_by)
     respond_to(&:js)
   end
