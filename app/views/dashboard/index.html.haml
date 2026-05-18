@@ -24,5 +24,7 @@
       %li.all_service_jobs_nav= link_to t('dashboard.all_service_jobs'), service_jobs_path
 
 #dashboard_table_filter= render @table_name+'_filter'
+- if @table_name == 'tasks_table'
+  = render 'repair_status_summary'
 #dashboard_table_colors= render @table_name+'_colors'
 #dashboard_content= render @table_name

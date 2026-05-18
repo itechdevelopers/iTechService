@@ -9,6 +9,7 @@ class DashboardController < ApplicationController
       @table_name = 'orders_table'
     else
       load_actual_jobs
+      load_repair_status_summary
       @table_name = 'tasks_table'
     end
     respond_to do |format|
@@ -26,6 +27,7 @@ class DashboardController < ApplicationController
 
   def actual_tasks
     load_actual_jobs
+    load_repair_status_summary
     respond_to do |format|
       format.js
     end
@@ -121,6 +123,45 @@ class DashboardController < ApplicationController
     else
       @orders = policy_scope(Order).actual_orders.marketing_orders.search(search_params).oldest.page(params[:page])
     end
+  end
+
+  def load_repair_status_summary
+    repair_locations = resolve_repair_locations_for_summary
+    return @repair_status_summary = nil if repair_locations.blank?
+
+    counts_by_code = ServiceJob.pending
+                       .located_at(repair_locations)
+                       .joins(:repair_status)
+                       .where(repair_statuses: { archived: false })
+                       .where.not(repair_statuses: { code: RepairStatus::COMPLETED })
+                       .group('repair_statuses.code')
+                       .count
+
+    statuses = RepairStatus.active.ordered.where.not(code: RepairStatus::COMPLETED)
+
+    @repair_status_summary = {
+      total: counts_by_code.values.sum,
+      statuses: statuses.map { |s| { code: s.code, name: s.name, color: s.color, count: counts_by_code[s.code].to_i } },
+      location_name: repair_summary_scope_label(repair_locations)
+    }
+  end
+
+  # nil → не показываем виджет (юзер не имеет отношения к repair-локациям)
+  def resolve_repair_locations_for_summary
+    if current_user.any_admin?
+      if params[:location].present?
+        loc = Location.find_by(id: params[:location])
+        loc&.is_any_repair? ? [loc] : nil
+      else
+        Location.in_department(current_department).where(code: %w[repair repairmac repair_notebooks]).to_a.presence
+      end
+    elsif current_user.location&.is_any_repair?
+      [current_user.location]
+    end
+  end
+
+  def repair_summary_scope_label(locations)
+    locations.size == 1 ? locations.first.name : t('dashboard.repair_status_summary.all_repair_locations', default: 'Все локации ремонта')
   end
 
   def service_job_search_params

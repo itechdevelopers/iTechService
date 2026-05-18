@@ -27,3 +27,8 @@ ru:
       title: "Печать штрихкодов"
       print: "Печатать"
       choose_product: "Выбрать продукт"
+
+    repair_status_summary:
+      title: "Сводка по ремонту"
+      total: "Всего на ремонте"
+      all_repair_locations: "Все локации ремонта"
