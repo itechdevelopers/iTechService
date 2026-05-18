@@ -10,5 +10,5 @@
           .repair-status-summary__label= t('dashboard.repair_status_summary.total', default: 'Всего на ремонте')
         - @repair_status_summary[:statuses].each do |status|
           = link_to repair_status_devices_path(status_code: status[:code], location: params[:location]), remote: true, class: "repair-status-summary__tile repair-status-summary__tile--#{status[:code]}", style: ("border-top-color: #{status[:color]};" if status[:color].present?), data: { status_code: status[:code] } do
-            .repair-status-summary__count{ style: ("color: #{status[:color]};" if status[:color].present?) }= status[:count]
+            .repair-status-summary__count= status[:count]
             .repair-status-summary__label= status[:name]

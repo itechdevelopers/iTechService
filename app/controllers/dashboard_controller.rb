@@ -63,9 +63,13 @@ class DashboardController < ApplicationController
       @service_jobs = base
     when RepairStatus::WAITING, RepairStatus::IN_PROGRESS, RepairStatus::PAUSED
       @service_jobs = base.where(repair_statuses: { code: @status_code })
-      if @status_code == RepairStatus::PAUSED && params[:pause_reason_id].present?
-        @pause_reason = RepairPauseReason.find_by(id: params[:pause_reason_id])
-        @service_jobs = @service_jobs.where(repair_pause_reason_id: @pause_reason.id) if @pause_reason
+      if @status_code == RepairStatus::PAUSED
+        all_paused_for_reason_counts = base.where(repair_statuses: { code: RepairStatus::PAUSED })
+        @pause_reason_counts = all_paused_for_reason_counts.group(:repair_pause_reason_id).count
+        if params[:pause_reason_id].present?
+          @pause_reason = RepairPauseReason.find_by(id: params[:pause_reason_id])
+          @service_jobs = @service_jobs.where(repair_pause_reason_id: @pause_reason.id) if @pause_reason
+        end
       end
     else
       return head :bad_request

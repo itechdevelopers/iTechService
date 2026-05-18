@@ -45,3 +45,6 @@ ru:
         status: "Статус"
         technician: "Мастер"
         in_progress_since: "В работе с"
+      pause_filter:
+        label: "Причина:"
+        all: "Все"
