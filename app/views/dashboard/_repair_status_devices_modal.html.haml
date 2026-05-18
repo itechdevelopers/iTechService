@@ -1,0 +1,13 @@
+.modal-header
+  %button.close{ type: 'button', 'data-dismiss' => 'modal' } &times;
+  %h3
+    = t("dashboard.repair_status_summary.modal_titles.#{@status_code}", default: t('dashboard.repair_status_summary.modal_titles.total'))
+    %small.repair-status-devices__scope= " — #{@scope_label}"
+
+.modal-body
+  - if @status_code == RepairStatus::PAUSED
+    = render 'repair_status_pause_filter'
+  = render 'repair_status_devices_list'
+
+.modal-footer
+  = link_to t('helpers.links.close'), '#', 'data-dismiss' => 'modal', class: 'btn'

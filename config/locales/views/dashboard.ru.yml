@@ -27,3 +27,24 @@ ru:
       title: "Печать штрихкодов"
       print: "Печатать"
       choose_product: "Выбрать продукт"
+
+    repair_status_summary:
+      title: "Сводка по ремонту"
+      total: "Всего на ремонте"
+      all_repair_locations: "Все локации ремонта"
+      empty: "Нет устройств в этом статусе"
+      modal_titles:
+        total: "Все устройства на ремонте"
+        waiting: "В ожидании ремонта"
+        in_progress: "В процессе ремонта"
+        paused: "На паузе"
+      columns:
+        ticket: "Талон"
+        device: "Устройство"
+        client: "Клиент"
+        status: "Статус"
+        technician: "Мастер"
+        in_progress_since: "В работе с"
+      pause_filter:
+        label: "Причина:"
+        all: "Все"

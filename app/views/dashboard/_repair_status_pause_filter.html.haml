@@ -1,0 +1,13 @@
+- total_paused = (@pause_reason_counts || {}).values.sum
+- counts_all_inclusive = total_paused
+- shared_params = { status_code: RepairStatus::PAUSED, location: params[:location] }
+.repair-status-pause-filter
+  %span.repair-status-pause-filter__label= t('dashboard.repair_status_summary.pause_filter.label', default: 'Причина:')
+  = link_to repair_status_devices_path(shared_params.merge(pause_reason_id: nil)), remote: true, class: ('repair-status-pause-filter__btn' + (@pause_reason.nil? ? ' active' : '')) do
+    = t('dashboard.repair_status_summary.pause_filter.all', default: 'Все')
+    %span.repair-status-pause-filter__count= counts_all_inclusive
+  - RepairPauseReason.active.ordered.each do |reason|
+    - count = (@pause_reason_counts || {})[reason.id].to_i
+    = link_to repair_status_devices_path(shared_params.merge(pause_reason_id: reason.id)), remote: true, class: ('repair-status-pause-filter__btn' + (@pause_reason&.id == reason.id ? ' active' : '')) do
+      = reason.name
+      %span.repair-status-pause-filter__count= count

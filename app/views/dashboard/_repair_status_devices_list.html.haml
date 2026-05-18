@@ -1,0 +1,49 @@
+- if @service_jobs.empty?
+  %p.repair-status-devices__empty= t('dashboard.repair_status_summary.empty')
+- else
+  %table.repair-status-devices__table.table.table-condensed.table-hover
+    %thead
+      %tr
+        %th= t('dashboard.repair_status_summary.columns.ticket')
+        %th= t('dashboard.repair_status_summary.columns.device')
+        %th= t('dashboard.repair_status_summary.columns.client')
+        - if @status_code == 'total' || @status_code == RepairStatus::PAUSED
+          %th= t('dashboard.repair_status_summary.columns.status')
+        - if @include_technician
+          %th= t('dashboard.repair_status_summary.columns.technician')
+          %th= t('dashboard.repair_status_summary.columns.in_progress_since')
+    %tbody
+      - @service_jobs.each do |sj|
+        - status = sj.repair_status
+        - tech = (@current_technicians || {})[sj.id]
+        %tr
+          %td
+            = link_to sj.ticket_number, service_job_path(sj), target: '_blank'
+          %td= sj.device_short_name.presence || '—'
+          %td
+            = sj.client_presentation
+            %br
+            %small.muted= sj.client_phone
+          - if @status_code == 'total' || @status_code == RepairStatus::PAUSED
+            %td
+              %span.repair-status-devices__badge{ style: ("background: #{status.color};" if status&.color.present?) }
+                = status&.name
+              - if status&.paused? && sj.repair_pause_reason.present?
+                %br
+                %small.muted
+                  = sj.repair_pause_reason.name
+                  - if sj.repair_pause_reason.urgent_repair? && (displaced = sj.current_displaced_by_service_job)
+                    = " (##{displaced.ticket_number})"
+          - if @include_technician
+            - if status&.in_progress?
+              %td= tech&.dig(:user)&.name || '—'
+              %td
+                - if tech&.dig(:changed_at)
+                  = l(tech[:changed_at], format: :short)
+                  %br
+                  %small.muted= "(#{time_ago_in_words(tech[:changed_at])})"
+                - else
+                  —
+            - else
+              %td —
+              %td —

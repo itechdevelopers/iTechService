@@ -10,6 +10,7 @@ Rails.application.routes.draw do
   get 'become/:id', to: 'dashboard#become', as: 'become'
   get 'actual_orders', to: 'dashboard#actual_orders'
   get 'actual_tasks', to: 'dashboard#actual_tasks'
+  get 'repair_status_devices', to: 'dashboard#repair_status_devices'
   get 'actual_supply_requests', to: 'dashboard#actual_supply_requests'
   get 'ready_service_jobs', to: 'dashboard#ready_service_jobs'
   get 'check_session_status', to: 'dashboard#check_session_status'

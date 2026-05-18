@@ -1,0 +1,14 @@
+#dashboard_repair_status_summary
+  - if @repair_status_summary.present?
+    .repair-status-summary
+      .repair-status-summary__header
+        %span.repair-status-summary__title= t('dashboard.repair_status_summary.title', default: 'Сводка по ремонту')
+        %span.repair-status-summary__scope= @repair_status_summary[:location_name]
+      .repair-status-summary__tiles
+        = link_to repair_status_devices_path(status_code: 'total', location: params[:location]), remote: true, class: 'repair-status-summary__tile repair-status-summary__tile--total' do
+          .repair-status-summary__count= @repair_status_summary[:total]
+          .repair-status-summary__label= t('dashboard.repair_status_summary.total', default: 'Всего на ремонте')
+        - @repair_status_summary[:statuses].each do |status|
+          = link_to repair_status_devices_path(status_code: status[:code], location: params[:location]), remote: true, class: "repair-status-summary__tile repair-status-summary__tile--#{status[:code]}", style: ("border-top-color: #{status[:color]};" if status[:color].present?), data: { status_code: status[:code] } do
+            .repair-status-summary__count= status[:count]
+            .repair-status-summary__label= status[:name]
