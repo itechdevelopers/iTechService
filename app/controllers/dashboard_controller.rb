@@ -42,6 +42,44 @@ class DashboardController < ApplicationController
     end
   end
 
+  def repair_status_devices
+    repair_locations = resolve_repair_locations_for_summary
+    return head :forbidden if repair_locations.blank?
+
+    @status_code = params[:status_code].to_s
+    @pause_reason = nil
+    @scope_label = repair_summary_scope_label(repair_locations)
+
+    base = ServiceJob.pending
+             .located_at(repair_locations)
+             .joins(:repair_status)
+             .where(repair_statuses: { archived: false })
+             .where.not(repair_statuses: { code: RepairStatus::COMPLETED })
+             .includes(:client, :location, :repair_status, :repair_pause_reason,
+                       item: { product: :product_group })
+
+    case @status_code
+    when 'total'
+      @service_jobs = base
+    when RepairStatus::WAITING, RepairStatus::IN_PROGRESS, RepairStatus::PAUSED
+      @service_jobs = base.where(repair_statuses: { code: @status_code })
+      if @status_code == RepairStatus::PAUSED && params[:pause_reason_id].present?
+        @pause_reason = RepairPauseReason.find_by(id: params[:pause_reason_id])
+        @service_jobs = @service_jobs.where(repair_pause_reason_id: @pause_reason.id) if @pause_reason
+      end
+    else
+      return head :bad_request
+    end
+
+    @service_jobs = @service_jobs.order(:return_at).to_a
+    @include_technician = [RepairStatus::IN_PROGRESS, 'total'].include?(@status_code)
+    @current_technicians = @include_technician ? load_current_technicians_for(@service_jobs) : {}
+
+    respond_to do |format|
+      format.js
+    end
+  end
+
   def ready_service_jobs
     @service_jobs = ServiceJob.ready(current_department).order(done_at: :desc)
                       .search(service_job_search_params).page(params[:page])
@@ -162,6 +200,20 @@ class DashboardController < ApplicationController
 
   def repair_summary_scope_label(locations)
     locations.size == 1 ? locations.first.name : t('dashboard.repair_status_summary.all_repair_locations', default: 'Все локации ремонта')
+  end
+
+  # Возвращает { service_job_id => { user:, changed_at: } } — последний переход в in_progress
+  def load_current_technicians_for(service_jobs)
+    sj_ids = service_jobs.select { |sj| sj.repair_status&.in_progress? }.map(&:id)
+    return {} if sj_ids.empty?
+
+    in_progress_status = RepairStatus.find_by(code: RepairStatus::IN_PROGRESS)
+    return {} unless in_progress_status
+
+    last_ids = RepairStatusChange.where(to_status_id: in_progress_status.id, service_job_id: sj_ids).group(:service_job_id).maximum(:id).values
+    RepairStatusChange.includes(:user).where(id: last_ids).each_with_object({}) do |change, memo|
+      memo[change.service_job_id] = { user: change.user, changed_at: change.changed_at }
+    end
   end
 
   def service_job_search_params
