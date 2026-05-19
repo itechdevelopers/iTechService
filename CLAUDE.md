@@ -24,11 +24,21 @@ Reference: @CONTEXT.md for project architecture, @PLAYBOOK.md for project-specif
 ## Git Commit Format
 
 ```
-type: description (max 50 chars)
+type: short description (subject up to ~72 chars)
+
+Optional body — wrap at ~72 chars. Use it for any non-trivial change
+to explain WHY (not what), edge cases, follow-up commits, or context
+that won't be obvious from the diff. Empty line between subject and
+body is required.
 
 Types: feat, fix, refactor, test, docs, style, perf
-Example: feat: add invoice CSV export
+Example subject: feat: add invoice CSV export
 ```
+
+**Length notes** (calibrated to actual project history):
+- Subject: aim for ≤72 chars (median in recent history ~59, p90 ~71). Hard 50-char limit is NOT a project convention.
+- Body: present in most non-trivial commits — 3–10 lines is normal, longer is fine when the change is subtle. See `git log` for examples.
+- Language: subject AND body in **English** (project convention, see also memory `feedback_commit_messages_english.md`).
 
 ## Workflow for using Git
 
@@ -39,7 +49,7 @@ Example: feat: add invoice CSV export
 
 - **CONTEXT.md is the guardrail** - Read it, respect it, never violate it
 - **Keep CONTEXT.md tiny** (<200 lines) - It's compressed knowledge, not documentation
-- **After each loop:** Update CONTEXT.md deltas, append to 02-decisions.md if decisions made. 
+- **After each loop:** Update CONTEXT.md if architectural deltas; record non-obvious decisions in the commit message body (the project doesn't keep a separate decisions log).
 - **35 minutes means 35 minutes** - Don't stretch it. Quality through constraint.
 
 ## Project TODO List

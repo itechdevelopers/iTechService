@@ -12,11 +12,28 @@ class TranscriptionSilenceCheckJob < ApplicationJob
 
     silence_hours = ((Time.current - last_transcription.created_at) / 1.hour).round
     return if silence_hours < threshold
+    return if already_notified_today?
 
     notify_superadmins(silence_hours)
+    mark_notified
   end
 
   private
+
+  def already_notified_today?
+    Setting.transcription_silence_last_notified_on == Date.current.to_s
+  end
+
+  def mark_notified
+    setting = Setting.find_or_initialize_by(
+      name: 'transcription_silence_last_notified_on',
+      department_id: nil
+    )
+    setting.value = Date.current.to_s
+    setting.value_type = 'string'
+    setting.presentation = I18n.t('settings.transcription_silence_last_notified_on')
+    setting.save!
+  end
 
   def notify_superadmins(hours)
     recipients = User.active.superadmins

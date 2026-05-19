@@ -40,5 +40,6 @@ ru:
     warranty_overstay_thresholds: 'Пороги уведомлений о долго лежащих устройствах, купленных у нас (дни, массив)'
     find_my_device_check_enabled: 'Проверка «Найти iPhone» при приёмке'
     transcription_silence_threshold_hours: 'Порог тишины транскрибированных диалогов (часы)'
+    transcription_silence_last_notified_on: 'Дата последнего уведомления о тишине транскрипций (служебное)'
     errors:
       not_found: 'Параметр "%{name}" не найден!'
