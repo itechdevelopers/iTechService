@@ -184,7 +184,7 @@ class DeviceTask < ApplicationRecord
   def sync_service_job_repair_status
     return unless is_repair?
     return unless saved_change_to_done?
-    return unless service_job&.location&.is_any_repair?
+    return if service_job&.repair_status_id.nil?
 
     if done.zero?
       revert_to_in_progress_if_completed
