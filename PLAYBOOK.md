@@ -107,3 +107,61 @@ rm -f cycle*.png page-*.png screenshot-*.png
 ```
 
 См. также memory `feedback_session_cleanup.md` — общее правило про cleanup после внешних ресурсов.
+
+---
+
+## `Setting` model — чтение и запись из кода
+
+`Setting` — это EAV-таблица: одна строка на ключ, значение хранится в колонке `value` (text), тип значения — в `value_type`. Допустимы только примитивные типы: `boolean`, `integer`, `string`, `text`, `json` (см. `Setting::VALUE_TYPES` в [app/models/setting.rb](app/models/setting.rb)). **Типа `date` нет** — даты кладём как ISO-строку (`Date.current.to_s` → `"2026-05-19"`) с типом `'string'`.
+
+### Регистрация нового параметра
+
+1. Добавить ключ в `Setting::TYPES` хеш в [app/models/setting.rb](app/models/setting.rb):
+   ```ruby
+   TYPES = {
+     ...
+     my_new_flag: 'boolean',          # или 'integer', 'string', 'text', 'json'
+   }.freeze
+   ```
+2. Добавить русский лейбл в [config/locales/views/settings.ru.yml](config/locales/views/settings.ru.yml) под ключом `settings.my_new_flag` — иначе на странице `/settings` будет английский `humanize`-fallback.
+3. Никаких миграций не нужно — записи создаются лениво.
+
+### Чтение
+
+```ruby
+Setting.my_new_flag           # method_missing → typecast по TYPES (Bool/Int/String/Hash)
+Setting.my_new_flag?          # для boolean — алиас, тоже работает
+Setting.get_value(:my_new_flag)  # сырая строка без typecast — полезно для дат и edge-cases
+```
+
+`method_missing` смотрит сначала на department-scoped запись (`Department.current`), затем на глобальную (`department_id: nil`). Для системных флагов всегда используем глобальную.
+
+### Запись из кода (нет class-level setter'а!)
+
+`Setting.my_new_flag = ...` **не работает** — есть только getter через `method_missing`, setter не определён. Канонический способ записи — копируем паттерн из [find_my_device_checks_controller.rb:54-58](app/controllers/find_my_device_checks_controller.rb#L54-L58):
+
+```ruby
+setting = Setting.find_or_initialize_by(name: 'my_new_flag', department_id: nil)
+setting.value = '1'                          # bool: '1'/'0'; int/string: to_s; json: .to_json
+setting.value_type = 'boolean'               # обязательно при первом создании
+setting.presentation = I18n.t('settings.my_new_flag')  # иначе before_validation подставит humanize
+setting.save!
+```
+
+**Гарантии:**
+- `find_or_initialize_by` идемпотентен — повторный вызов обновит существующую запись.
+- `before_validation` в `Setting` ([app/models/setting.rb:55-58](app/models/setting.rb#L55-L58)) подставит `value_type` и `presentation` из дефолтов, если оставить пустыми, — но лучше задавать явно, потому что при rename ключа в `TYPES` дефолт сломается.
+- Для глобальных настроек обязательно `department_id: nil` — иначе создастся scope'нутая запись в текущем департаменте, и другие департаменты её не увидят.
+
+### Сброс параметра
+
+```ruby
+Setting.find_by(name: 'my_new_flag')&.destroy
+```
+
+После destroy `Setting.my_new_flag` вернёт typecast'нутую `nil`/пустоту (`false` для boolean, `0` для integer, `""` для string, `{}` для json).
+
+### Известные грабли
+
+- **Setting не годится для частых записей.** Это AR-модель с `before_validation`-колбэком и callback'ами вроде `apply_warranty_overstay_thresholds` — каждая запись = транзакция. Для счётчиков/HEARTBEAT'ов используй `Rails.cache` или отдельную таблицу.
+- **`Date.today` vs `Date.current`.** В коде, который пишет даты в Setting (например, `transcription_silence_last_notified_on`), всегда `Date.current` — он уважает `Time.zone` из [config/application.rb](config/application.rb), `Date.today` берёт системное время сервера. На сервере в UTC утром во Владивостоке это разные числа.
