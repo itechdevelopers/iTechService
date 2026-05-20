@@ -4,16 +4,20 @@
 
 .modal-body.notifications-modal__body
   #notifications_modal_chips.notifications-modal__chips
-    -# Слот для чипов-«батареек» (L2)
+    = render 'chips'
 
   .notifications-modal__list
     - if @notifications.any?
-      = render collection: @notifications, partial: 'short_notification', as: :notification
+      = render collection: @notifications, partial: 'full_notification', as: :notification
     - else
-      .notifications-modal__empty Нет активных уведомлений
+      .notifications-modal__empty
+        - if @filter.present?
+          В выбранной категории уведомлений нет
+        - else
+          Нет активных уведомлений
 
   .notifications-modal__pagination
-    = paginate @notifications, remote: true
+    = paginate @notifications, remote: true, params: { filter: @filter }
 
 .modal-footer
   = link_to t('helpers.links.close'), '#', 'data-dismiss' => 'modal', class: 'btn'

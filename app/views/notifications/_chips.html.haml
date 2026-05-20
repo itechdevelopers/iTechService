@@ -1,0 +1,11 @@
+- chips = notification_chip_definitions(@chip_counts || {})
+- chips.each do |chip|
+  - is_active = notification_chip_active?(chip[:key], @filter)
+  - is_empty = chip[:count].zero?
+  - url = notifications_path(format: :js, filter: chip[:key])
+  - classes = ['notifications-modal__chip']
+  - classes << 'notifications-modal__chip--active' if is_active
+  - classes << 'notifications-modal__chip--empty' if is_empty && !is_active
+  = link_to url, remote: true, class: classes.join(' ') do
+    %span.notifications-modal__chip-label= chip[:label]
+    %span.notifications-modal__chip-count= chip[:count]
