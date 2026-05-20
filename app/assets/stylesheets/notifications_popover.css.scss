@@ -1,0 +1,127 @@
+#topbar {
+  #user_notifications + .popover {
+    width: 420px;
+    max-width: calc(100vw - 20px);
+    left: auto !important;
+    right: 10px;
+    text-align: left;
+
+    > .arrow {
+      left: auto !important;
+      right: 130px;
+      margin-left: 0 !important;
+    }
+
+    .popover-title {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .notifications-popover__title-label {
+      flex: 1 1 auto;
+      min-width: 0;
+    }
+
+    .notifications-popover__title-actions {
+      flex: 0 0 auto;
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+    }
+
+    .notifications-popover__action {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: 22px;
+      height: 22px;
+      color: #777;
+      text-shadow: none;
+      border-radius: 3px;
+      transition: background-color 0.12s ease, color 0.12s ease;
+
+      &:hover {
+        background-color: rgba(0, 0, 0, 0.06);
+        color: #2c3e50;
+        text-decoration: none;
+      }
+
+      .fa {
+        line-height: 1;
+      }
+    }
+
+    .popover-content {
+      padding: 0;
+    }
+
+    .single-notification {
+      display: flex;
+      align-items: flex-start;
+      gap: 10px;
+      padding: 8px 14px;
+      border-bottom: 1px solid #e5e5e5;
+      line-height: 1.25;
+      font-size: 13px;
+      transition: background-color 0.12s ease;
+
+      &:last-child {
+        border-bottom: none;
+      }
+
+      &:hover {
+        background-color: #f7f7f7;
+      }
+
+      &__body {
+        flex: 1 1 auto;
+        min-width: 0;
+
+        a {
+          display: block;
+          padding: 0;
+          line-height: inherit;
+          color: #333;
+          text-decoration: none;
+          text-shadow: none;
+          word-wrap: break-word;
+          overflow-wrap: break-word;
+
+          &:hover {
+            text-decoration: underline;
+          }
+        }
+      }
+
+      &__close {
+        flex: 0 0 auto;
+        padding: 0;
+        line-height: inherit;
+        color: #999;
+        text-shadow: none;
+
+        &:hover {
+          color: #c0392b;
+          text-decoration: none;
+        }
+      }
+    }
+
+    .single-notification--warranty-overstay {
+      .single-notification__body a {
+        color: #c0392b;
+        font-weight: bold;
+      }
+
+      .single-notification__close {
+        color: #999;
+        font-weight: normal;
+
+        &:hover {
+          color: #c0392b;
+        }
+      }
+    }
+  }
+}

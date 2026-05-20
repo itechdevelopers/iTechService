@@ -70,6 +70,7 @@
  *= require achievements
  *= require schedule_mobile
  *= require warranty_overstay_notifications
+ *= require notifications_popover
  *= require glass_sticking
  *= require repair_status_widget
  *= require repair_status_summary

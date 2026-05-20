@@ -148,7 +148,10 @@ Rails.application.routes.draw do
   end
 
   resources :notifications, only: %i[destroy], defaults: { format: :js } do
-    get :user_notifications, on: :collection, defaults: { format: :js }
+    collection do
+      get :user_notifications
+      post :close_all
+    end
     post :close, on: :member, defaults: { format: :js }
   end
 

@@ -22,6 +22,13 @@ class NotificationsController < ApplicationController
     respond_to(&:js)
   end
 
+  def close_all
+    authorize Notification
+    current_user.notifications.not_closed.update_all(closed_at: Time.zone.now)
+
+    respond_to(&:js)
+  end
+
   private
 
   def set_notification
