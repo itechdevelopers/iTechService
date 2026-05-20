@@ -89,9 +89,18 @@ module TopBarHelper
       title: 'Закрыть все уведомления'
     )
 
+    show_all_btn = link_to(
+      glyph(:'list-alt'),
+      notifications_path(format: :js),
+      remote: true,
+      class: 'notifications-popover__action notifications-popover__action--show-all',
+      title: 'Все уведомления'
+    )
+
     label = content_tag(:span, 'Активные уведомления',
                         class: 'notifications-popover__title-label')
-    actions = content_tag(:span, close_all_btn,
+    actions = content_tag(:span,
+                          safe_join([close_all_btn, show_all_btn]),
                           class: 'notifications-popover__title-actions')
 
     (label + actions).to_s

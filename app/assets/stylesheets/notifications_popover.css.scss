@@ -55,73 +55,113 @@
     .popover-content {
       padding: 0;
     }
+  }
+}
 
-    .single-notification {
-      display: flex;
-      align-items: flex-start;
-      gap: 10px;
-      padding: 8px 14px;
-      border-bottom: 1px solid #e5e5e5;
-      line-height: 1.25;
-      font-size: 13px;
-      transition: background-color 0.12s ease;
+.single-notification {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  padding: 8px 14px;
+  border-bottom: 1px solid #e5e5e5;
+  line-height: 1.25;
+  font-size: 13px;
+  transition: background-color 0.12s ease;
 
-      &:last-child {
-        border-bottom: none;
-      }
+  &:last-child {
+    border-bottom: none;
+  }
+
+  &:hover {
+    background-color: #f7f7f7;
+  }
+
+  &__body {
+    flex: 1 1 auto;
+    min-width: 0;
+
+    a {
+      display: block;
+      padding: 0;
+      line-height: inherit;
+      color: #333;
+      text-decoration: none;
+      text-shadow: none;
+      word-wrap: break-word;
+      overflow-wrap: break-word;
 
       &:hover {
-        background-color: #f7f7f7;
-      }
-
-      &__body {
-        flex: 1 1 auto;
-        min-width: 0;
-
-        a {
-          display: block;
-          padding: 0;
-          line-height: inherit;
-          color: #333;
-          text-decoration: none;
-          text-shadow: none;
-          word-wrap: break-word;
-          overflow-wrap: break-word;
-
-          &:hover {
-            text-decoration: underline;
-          }
-        }
-      }
-
-      &__close {
-        flex: 0 0 auto;
-        padding: 0;
-        line-height: inherit;
-        color: #999;
-        text-shadow: none;
-
-        &:hover {
-          color: #c0392b;
-          text-decoration: none;
-        }
+        text-decoration: underline;
       }
     }
+  }
 
-    .single-notification--warranty-overstay {
-      .single-notification__body a {
-        color: #c0392b;
-        font-weight: bold;
-      }
+  &__close {
+    flex: 0 0 auto;
+    padding: 0;
+    line-height: inherit;
+    color: #999;
+    text-shadow: none;
 
-      .single-notification__close {
-        color: #999;
-        font-weight: normal;
-
-        &:hover {
-          color: #c0392b;
-        }
-      }
+    &:hover {
+      color: #c0392b;
+      text-decoration: none;
     }
+  }
+}
+
+.single-notification--warranty-overstay {
+  .single-notification__body a {
+    color: #c0392b;
+    font-weight: bold;
+  }
+
+  .single-notification__close {
+    color: #999;
+    font-weight: normal;
+
+    &:hover {
+      color: #c0392b;
+    }
+  }
+}
+
+.notifications-modal__body {
+  padding: 0;
+  max-height: calc(100vh - 220px);
+  overflow-y: auto;
+}
+
+.notifications-modal__chips {
+  padding: 10px 14px;
+  border-bottom: 1px solid #e5e5e5;
+
+  &:empty {
+    display: none;
+  }
+}
+
+.notifications-modal__list {
+  font-size: 14px;
+
+  .single-notification {
+    padding: 10px 14px;
+    font-size: 14px;
+  }
+}
+
+.notifications-modal__empty {
+  padding: 24px 14px;
+  text-align: center;
+  color: #888;
+}
+
+.notifications-modal__pagination {
+  padding: 10px 14px;
+  border-top: 1px solid #e5e5e5;
+  text-align: center;
+
+  .pagination {
+    margin: 0;
   }
 }

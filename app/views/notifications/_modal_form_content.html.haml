@@ -1,0 +1,19 @@
+.modal-header
+  = button_to_close_modal
+  %h3 Уведомления
+
+.modal-body.notifications-modal__body
+  #notifications_modal_chips.notifications-modal__chips
+    -# Слот для чипов-«батареек» (L2)
+
+  .notifications-modal__list
+    - if @notifications.any?
+      = render collection: @notifications, partial: 'short_notification', as: :notification
+    - else
+      .notifications-modal__empty Нет активных уведомлений
+
+  .notifications-modal__pagination
+    = paginate @notifications, remote: true
+
+.modal-footer
+  = link_to t('helpers.links.close'), '#', 'data-dismiss' => 'modal', class: 'btn'

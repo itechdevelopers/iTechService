@@ -1,6 +1,15 @@
 class NotificationsController < ApplicationController
   before_action :set_notification, only: %i[destroy, close]
 
+  def index
+    authorize Notification
+    @notifications = current_user.notifications.not_closed
+                                 .order(created_at: :desc)
+                                 .page(params[:page]).per(100)
+
+    respond_to(&:js)
+  end
+
   def destroy
     authorize @notification
     @notification.destroy
