@@ -7,6 +7,10 @@ class NotificationPolicy < BasePolicy
     view_notifications?
   end
 
+  def close_all?
+    read?
+  end
+
   def view_notifications?
     owner? || superadmin?
   end

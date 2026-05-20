@@ -71,8 +71,38 @@ module TopBarHelper
   end
 
   def header_link_to_notifications
-    link_to "", id: "user_notifications", rel: "popover", data: {html: true, placement: "bottom", title: "Активные уведомления"} do
+    link_to "", id: "user_notifications", rel: "popover",
+            data: { html: true, placement: "bottom", title: notifications_popover_title } do
       inline_svg("letter.svg")
     end
+  end
+
+  private
+
+  def notifications_popover_title
+    close_all_btn = link_to(
+      glyph(:check),
+      close_all_notifications_path,
+      remote: true,
+      method: :post,
+      class: 'notifications-popover__action notifications-popover__action--close-all',
+      title: 'Закрыть все уведомления'
+    )
+
+    show_all_btn = link_to(
+      glyph(:'list-alt'),
+      notifications_path(format: :js),
+      remote: true,
+      class: 'notifications-popover__action notifications-popover__action--show-all',
+      title: 'Все уведомления'
+    )
+
+    label = content_tag(:span, 'Активные уведомления',
+                        class: 'notifications-popover__title-label')
+    actions = content_tag(:span,
+                          safe_join([close_all_btn, show_all_btn]),
+                          class: 'notifications-popover__title-actions')
+
+    (label + actions).to_s
   end
 end

@@ -1,6 +1,11 @@
 %div{data: { notification_id: notification.id }, class: "single-notification#{' single-notification--warranty-overstay' if notification.kind&.start_with?('warranty_overstay') || notification.kind&.start_with?('location_overstay')}"}
   .single-notification__body
     = link_to notification.message, notification.url
+    .single-notification__meta
+      %span.single-notification__badge= notification_type_label(notification)
+      %span.single-notification__sep ·
+      %time.single-notification__time{datetime: notification.created_at.iso8601, title: l(notification.created_at, format: :date_time)}
+        = notification_time_ago(notification.created_at)
   = link_to glyph(:remove), close_notification_path(id: notification.id),
       remote: true,
       method: :post,

@@ -1,0 +1,23 @@
+.modal-header
+  = button_to_close_modal
+  %h3 Уведомления
+
+.modal-body.notifications-modal__body
+  #notifications_modal_chips.notifications-modal__chips
+    = render 'chips'
+
+  .notifications-modal__list
+    - if @notifications.any?
+      = render collection: @notifications, partial: 'full_notification', as: :notification
+    - else
+      .notifications-modal__empty
+        - if @filter.present?
+          В выбранной категории уведомлений нет
+        - else
+          Нет активных уведомлений
+
+  .notifications-modal__pagination
+    = paginate @notifications, remote: true, params: { filter: @filter }
+
+.modal-footer
+  = link_to t('helpers.links.close'), '#', 'data-dismiss' => 'modal', class: 'btn'
