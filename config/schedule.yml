@@ -63,3 +63,9 @@ transcription_silence_check:
   class: 'TranscriptionSilenceCheckJob'
   queue: 'default'
   active_job: true
+
+bootstrap_today_finalizations:
+  cron: '0 8 * * * Asia/Vladivostok'
+  class: 'BootstrapTodayFinalizationsJob'
+  queue: 'default'
+  active_job: true
