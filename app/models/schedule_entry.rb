@@ -10,6 +10,7 @@ class ScheduleEntry < ApplicationRecord
   belongs_to :occupation_type
 
   before_validation :clear_work_fields_for_non_working_occupation
+  after_create_commit :schedule_today_finalization, if: :should_schedule_finalization?
 
   validates :date, presence: true
   validates :occupation_type, presence: true
@@ -130,6 +131,26 @@ class ScheduleEntry < ApplicationRecord
     self.shift_id = nil
     self.custom_start_time = nil
     self.custom_end_time = nil
+  end
+
+  def should_schedule_finalization?
+    return false unless occupation_type&.counts_as_working?
+    return false unless effective_end_seconds
+    return false unless schedule_group&.city
+
+    tz = schedule_group.city.time_zone.presence || 'Vladivostok'
+    Time.use_zone(tz) { date == Time.zone.today }
+  end
+
+  def schedule_today_finalization
+    tz = schedule_group.city.time_zone.presence || 'Vladivostok'
+    Time.use_zone(tz) do
+      finalize_at = Time.zone.local(date.year, date.month, date.day) +
+                    effective_end_seconds.seconds + 10.minutes
+      return if finalize_at.past?
+
+      FinalizeUserShiftJob.set(wait_until: finalize_at).perform_later(user_id)
+    end
   end
 
   def custom_shift_times_consistency
