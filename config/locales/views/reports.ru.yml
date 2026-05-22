@@ -145,6 +145,8 @@ ru:
       with_parts: 'с использованием запчастей'
       without_parts: 'без использования запчастей'
       without_payment: 'без оплаты'
+      without_service_group: 'Без указания услуги'
+      without_service: '—'
     repair_parts:
       title: 'Отчёт по запчастям'
     repairers:
@@ -170,6 +172,7 @@ ru:
       user: 'Имя тех. специалиста'
       quantity: "Количество работ"
       sum: "Сумма наценки работ"
+      without_service: 'Без указания услуги'
     technicians_difficult_jobs:
       title: "Отчёт сложных работ технических специалистов"
       user: 'Имя тех. специалиста'

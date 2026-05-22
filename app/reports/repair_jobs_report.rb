@@ -1,4 +1,6 @@
 class RepairJobsReport < BaseReport
+  NO_SERVICE_KEY = 'no_service'.freeze
+
   def call
     repair_tasks = RepairTask.includes(:device_task)
                      .in_department(department)
@@ -35,6 +37,63 @@ class RepairJobsReport < BaseReport
         end
       end
     end
+
+    add_device_tasks_without_repair_tasks
     result
+  end
+
+  private
+
+  def add_device_tasks_without_repair_tasks
+    device_tasks_without_repair_tasks.each do |device_task|
+      service_job = device_task.service_job
+      next if service_job.nil?
+
+      cost = device_task.cost.to_f
+      job = {
+        id: "dt-#{device_task.id}",
+        price: cost,
+        parts_cost: 0,
+        margin: cost,
+        device_id: service_job.id,
+        service_job_presentation: service_job.presentation
+      }
+
+      groups = [:without_parts]
+      groups << :without_payment unless cost.positive?
+
+      groups.each { |group| accumulate_orphan(group, job, cost) }
+    end
+  end
+
+  def device_tasks_without_repair_tasks
+    DeviceTask
+      .in_department(department)
+      .joins(task: :product)
+      .left_joins(:repair_tasks)
+      .where(done: 1, done_at: period)
+      .where("products.code LIKE 'repair%'")
+      .where(repair_tasks: { id: nil })
+      .includes(:service_job)
+  end
+
+  def accumulate_orphan(group, job, cost)
+    result[group][NO_SERVICE_KEY] ||= {
+      name: I18n.t('reports.repair_jobs.without_service_group'),
+      services_qty: 1,
+      jobs_qty: 0,
+      services: {}
+    }
+    result[group][NO_SERVICE_KEY][:services][NO_SERVICE_KEY] ||= {
+      name: I18n.t('reports.repair_jobs.without_service'),
+      jobs_qty: 0,
+      jobs_sum: 0,
+      jobs: []
+    }
+
+    result[group][NO_SERVICE_KEY][:jobs_qty] += 1
+    result[group][NO_SERVICE_KEY][:services][NO_SERVICE_KEY][:jobs_qty] += 1
+    result[group][NO_SERVICE_KEY][:services][NO_SERVICE_KEY][:jobs_sum] += cost
+    result[group][NO_SERVICE_KEY][:services][NO_SERVICE_KEY][:jobs] << job
   end
 end
