@@ -7,7 +7,6 @@ class ScheduleEntriesController < ApplicationController
 
   def upsert
     authorize :schedule
-    return head(:forbidden) unless can_edit_week?
 
     @entry = @schedule_group.schedule_entries.find_or_initialize_by(
       user_id: params[:user_id],
@@ -31,7 +30,6 @@ class ScheduleEntriesController < ApplicationController
 
   def destroy
     authorize :schedule
-    return head(:forbidden) unless can_edit_week?
 
     @user_id = @entry.user_id
     @date = @entry.date
@@ -44,7 +42,6 @@ class ScheduleEntriesController < ApplicationController
 
   def batch_upsert
     authorize :schedule
-    return head(:forbidden) unless can_edit_week?
 
     @entries = []
     dates = week_dates
@@ -73,7 +70,6 @@ class ScheduleEntriesController < ApplicationController
 
   def batch_destroy
     authorize :schedule
-    return head(:forbidden) unless can_edit_week?
 
     dates = week_dates
     user_ids = batch_user_ids
@@ -116,23 +112,6 @@ class ScheduleEntriesController < ApplicationController
       entry.user,
       entry.date
     )
-  end
-
-  def can_edit_week?
-    # For destroy action, get date from @entry; for upsert/batch, from params
-    date = @entry&.date || params[:date]&.to_date || week_start_from_params
-    return false unless date
-
-    week_start = date.beginning_of_week(:monday)
-
-    # Superadmin can edit any week (including past)
-    return true if current_user.superadmin?
-
-    # Users with manage_schedules ability can edit current and future weeks
-    return false unless able_to?(:manage_schedules)
-
-    current_week = Date.current.beginning_of_week(:monday)
-    week_start >= current_week
   end
 
   def week_start_from_params
