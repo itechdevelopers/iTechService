@@ -6,6 +6,11 @@ ru:
     queue_inactivity: 'Талон №%{ticket} в очереди «%{queue}» ждёт уже %{waited} мин. На смене %{total} сотр., активны только %{active}. Проверьте состояние очереди.'
     repair_attention: 'Работа №%{ticket} ждёт твоего внимания — приступаешь к ремонту?'
 
+  repair_attention:
+    sign_in_then_click_again: 'Войдите в АИС и кликните ссылку из Telegram снова.'
+    wrong_user: 'Эта ссылка адресована сотруднику %{target_user}, не вам. Статус ремонта не изменён.'
+    auto_displaced: 'Вы взяли в работу №%{new_ticket}. Предыдущий ремонт №%{paused_ticket} автоматически поставлен на паузу с причиной «Срочный ремонт».'
+
   queue_anomaly:
     zero_activity: 'В очереди "%{queue_name}" (%{department}) вчера не было создано ни одного талона'
     low_activity: 'В очереди "%{queue_name}" (%{department}) зафиксирована низкая активность: %{yesterday_count} талонов (среднее: %{average_count})'
