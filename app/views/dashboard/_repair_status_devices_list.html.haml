@@ -16,7 +16,9 @@
       - @service_jobs.each do |sj|
         - status = sj.repair_status
         - tech = (@current_technicians || {})[sj.id]
-        %tr
+        - master_id = tech&.dig(:user)&.id
+        - unavailable_occupation = master_id && (@unavailable_master_occupations || {})[master_id]
+        %tr{ class: ('repair-status-devices__row--attention' if unavailable_occupation && status&.in_progress?) }
           %td
             = link_to sj.ticket_number, service_job_path(sj), target: '_blank'
           %td= sj.device_short_name.presence || '—'
@@ -36,7 +38,12 @@
                     = " (##{displaced.ticket_number})"
           - if @include_technician
             - if status&.in_progress?
-              %td= tech&.dig(:user)&.name || '—'
+              %td
+                = tech&.dig(:user)&.name || '—'
+                - if unavailable_occupation
+                  %br
+                  %small.repair-status-devices__master-unavailable
+                    = t('dashboard.repair_status_summary.attention.master_off', reason: unavailable_occupation.name)
               %td
                 - if tech&.dig(:changed_at)
                   = l(tech[:changed_at], format: :short)
