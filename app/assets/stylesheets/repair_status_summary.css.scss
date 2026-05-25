@@ -73,6 +73,29 @@
   margin-top: 2px;
 }
 
+.repair-status-summary__attention {
+  position: absolute;
+  top: 4px;
+  right: 6px;
+  background: #d9534f;
+  color: #fff;
+  padding: 1px 7px;
+  border-radius: 9px;
+  font-size: 10px;
+  font-weight: bold;
+  line-height: 14px;
+  white-space: nowrap;
+}
+
+.repair-status-devices__row--attention {
+  background-color: #fcf8e3;
+}
+
+.repair-status-devices__master-unavailable {
+  color: #c9302c;
+  font-weight: bold;
+}
+
 .repair-status-devices__scope {
   color: #777;
   font-weight: normal;

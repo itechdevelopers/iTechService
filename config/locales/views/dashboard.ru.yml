@@ -48,3 +48,6 @@ ru:
       pause_filter:
         label: "Причина:"
         all: "Все"
+      attention:
+        badge: "%{count} без присмотра"
+        master_off: "Сегодня не работает: %{reason}"

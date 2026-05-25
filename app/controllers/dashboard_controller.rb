@@ -78,6 +78,11 @@ class DashboardController < ApplicationController
     @service_jobs = @service_jobs.order(:return_at).to_a
     @include_technician = [RepairStatus::IN_PROGRESS, 'total'].include?(@status_code)
     @current_technicians = @include_technician ? load_current_technicians_for(@service_jobs) : {}
+    @unavailable_master_occupations = if @include_technician
+                                        unavailable_master_occupations(@current_technicians.values.map { |t| t[:user]&.id }.compact.uniq)
+                                      else
+                                        {}
+                                      end
 
     respond_to do |format|
       format.js
@@ -184,8 +189,39 @@ class DashboardController < ApplicationController
     @repair_status_summary = {
       total: counts_by_code.values.sum,
       statuses: statuses.map { |s| { code: s.code, name: s.name, color: s.color, count: counts_by_code[s.code].to_i } },
-      location_name: repair_summary_scope_label(repair_locations)
+      location_name: repair_summary_scope_label(repair_locations),
+      in_progress_attention_count: count_in_progress_with_unavailable_master(repair_locations)
     }
+  end
+
+  # Кол-во устройств в in_progress, чей текущий мастер сегодня не работает по расписанию
+  # (выходной/отпуск/больничный — любой OccupationType с counts_as_working: false).
+  def count_in_progress_with_unavailable_master(repair_locations)
+    in_progress_status = RepairStatus.find_by(code: RepairStatus::IN_PROGRESS)
+    return 0 unless in_progress_status
+
+    in_progress_jobs = ServiceJob.pending
+                         .located_at(repair_locations)
+                         .where(repair_status_id: in_progress_status.id)
+                         .includes(:repair_status)
+                         .to_a
+    return 0 if in_progress_jobs.empty?
+
+    techs = load_current_technicians_for(in_progress_jobs)
+    master_ids = techs.values.map { |t| t[:user]&.id }.compact.uniq
+    unavailable = unavailable_master_occupations(master_ids)
+    techs.count { |_id, tech| unavailable.key?(tech[:user]&.id) }
+  end
+
+  # Возвращает { user_id => OccupationType } для мастеров с нерабочей записью в расписании на дату.
+  # Если у мастера нет записи на дату — он отсутствует в результате (не флагуем нерасписанных юзеров).
+  def unavailable_master_occupations(user_ids, date = Time.zone.today)
+    return {} if user_ids.blank?
+
+    ScheduleEntry.eager_load(:occupation_type)
+      .where(user_id: user_ids, date: date)
+      .where(occupation_types: { counts_as_working: false })
+      .each_with_object({}) { |entry, memo| memo[entry.user_id] = entry.occupation_type }
   end
 
   # nil → не показываем виджет (юзер не имеет отношения к repair-локациям)
