@@ -17,7 +17,46 @@ class RepairAttentionMarkersController < ApplicationController
     end
 
     marker = RepairAttentionMarker.find_by!(start_token: params[:token])
+
+    if current_user.id != marker.user_id
+      flash[:alert] = t('repair_attention.wrong_user',
+                       target_user: marker.user.full_name)
+      redirect_to service_job_path(marker.service_job)
+      return
+    end
+
     marker.mark_started!(current_user)
+    apply_repair_status_change(marker)
+
     redirect_to service_job_path(marker.service_job)
+  end
+
+  private
+
+  def apply_repair_status_change(marker)
+    service_job = marker.service_job
+    return unless service_job.repair_status&.waiting?
+
+    in_progress = RepairStatus.by_code(RepairStatus::IN_PROGRESS)
+    active = ServiceJob.active_in_progress_for(current_user)
+                       .where.not(id: service_job.id).first
+
+    if active
+      paused = RepairStatus.by_code(RepairStatus::PAUSED)
+      urgent = RepairPauseReason.find_by(code: RepairPauseReason::URGENT_REPAIR)
+      ServiceJob.transaction do
+        active.change_repair_status!(paused, user: current_user,
+                                     pause_reason: urgent,
+                                     displaced_by: service_job)
+        service_job.change_repair_status!(in_progress, user: current_user,
+                                          changed_at: marker.viewed_at)
+      end
+      flash[:alert] = t('repair_attention.auto_displaced',
+                       new_ticket: service_job.ticket_number,
+                       paused_ticket: active.ticket_number)
+    else
+      service_job.change_repair_status!(in_progress, user: current_user,
+                                        changed_at: marker.viewed_at)
+    end
   end
 end
