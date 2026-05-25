@@ -165,3 +165,38 @@ Setting.find_by(name: 'my_new_flag')&.destroy
 
 - **Setting не годится для частых записей.** Это AR-модель с `before_validation`-колбэком и callback'ами вроде `apply_warranty_overstay_thresholds` — каждая запись = транзакция. Для счётчиков/HEARTBEAT'ов используй `Rails.cache` или отдельную таблицу.
 - **`Date.today` vs `Date.current`.** В коде, который пишет даты в Setting (например, `transcription_silence_last_notified_on`), всегда `Date.current` — он уважает `Time.zone` из [config/application.rb](config/application.rb), `Date.today` берёт системное время сервера. На сервере в UTC утром во Владивостоке это разные числа.
+
+---
+
+## Flash-сообщения — какие ключи реально рендерятся
+
+Партиал [`app/views/shared/_flash_messages.html.haml`](app/views/shared/_flash_messages.html.haml) **не универсальный**. Он рендерит только три ключа: `notice`, `alert`, `error`. Любой другой ключ (`warning`, `success`, `info`, кастомные) **молча игнорируется** — `flash` запишется в сессию, но в HTML страницы ничего не появится. Это легко пропустить в код-ревью, потому что Rails не валидирует ключи flash.
+
+### Что использовать когда
+
+| Что нужно показать | Какой ключ ставить | Как отрисуется |
+|---|---|---|
+| Успех операции (зелёный) | `flash[:notice] = '...'` | `.alert.alert-success` + `icon-info-sign` |
+| Предупреждение / «обрати внимание» (жёлтый) | `flash[:alert] = '...'` | `.alert.alert` + `icon-warning-sign` |
+| Ошибка / редкий случай (красный) | `flash[:error] = '...'` | `.alert.alert-error` + `icon-exclamation-sign` |
+| **«Warning», «success», «info» и т.п.** | **НЕ ИСПОЛЬЗОВАТЬ** | Молча выкидывается |
+
+### Как проверить что flash действительно виден
+
+В Rails-консоли смотреть бесполезно — flash пишется в сессию. Видимость определяется только в DOM/HTML:
+
+```bash
+# Через curl (после Devise sign_in):
+curl -sS -b cookies.txt "$BASE/<after_redirect_url>" \
+  | grep -oE 'span class="text">[^<]+'
+```
+
+Или в Playwright/браузере: `document.querySelector('.alert_place .alert')?.offsetParent !== null`.
+
+### Если нужен новый цвет/семантика
+
+Не плодить ключи в `flash[]`. Добавить новую ветку в [`_flash_messages.html.haml`](app/views/shared/_flash_messages.html.haml) с явной обработкой. Альтернатива — переиспользовать ближайший из существующих трёх (например, `:alert` отлично подходит для «warning»-семантики, потому что и иконка предупреждающая).
+
+### Откуда мы об этом узнали
+
+Найдено в задаче `144-tg-start-repair-changes-status` (2026-05-25): в контроллере был выставлен `flash[:warning]`, текст в БД-сессию записывался корректно, curl-тест видел сообщение в HTML response, а в браузере **баннера не было**. Партиал не имел ветки для `:warning` — оно молча терялось. Заменено на `flash[:alert]` (семантика подходит: «обрати внимание на побочку»).
