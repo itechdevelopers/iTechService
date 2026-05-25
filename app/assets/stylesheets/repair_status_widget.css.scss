@@ -96,6 +96,15 @@
   opacity: 0.85;
 }
 
+.repair-status-badge__reason {
+  display: block;
+  margin-top: 2px;
+  font-size: 10px;
+  font-weight: 400;
+  line-height: 1.2;
+  opacity: 0.9;
+}
+
 .repair-status-widget-modal {
   position: fixed;
   top: 0; left: 0; right: 0; bottom: 0;

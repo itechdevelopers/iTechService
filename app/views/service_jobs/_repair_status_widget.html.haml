@@ -3,17 +3,19 @@
 - current_status = service_job.repair_status
 - current_reason = service_job.repair_pause_reason
 - displaced_by_sj = (current_reason&.urgent_repair? ? service_job.current_displaced_by_service_job : nil)
-- badge_label = (current_reason&.urgent_repair? ? current_reason.name : current_status.name)
 - selectable_statuses = RepairStatus.active.ordered.where.not(code: RepairStatus::COMPLETED)
 
 .repair-status-widget{ data: { 'repair-status-sj-id': service_job.id } }
   - if can?(:update_repair_status, service_job)
     .btn-group
       %a.repair-status-badge{ class: "repair-status-badge--#{current_status.code}", data: { toggle: 'dropdown' }, href: '#', style: ("background: #{current_status.color};" if current_status.color.present?) }
-        = badge_label
-        - if displaced_by_sj
-          %span.repair-status-badge__ref= " ##{displaced_by_sj.ticket_number}"
+        = current_status.name
         %span.caret
+        - if current_status.paused? && current_reason
+          %span.repair-status-badge__reason
+            = current_reason.name
+            - if displaced_by_sj
+              %span.repair-status-badge__ref= " ##{displaced_by_sj.ticket_number}"
       %ul.dropdown-menu.repair-status-widget__menu
         - selectable_statuses.each do |status|
           - if status.paused?
@@ -37,6 +39,9 @@
                 = status.name
   - else
     %span.repair-status-badge{ class: "repair-status-badge--#{current_status.code}", style: ("background: #{current_status.color};" if current_status.color.present?) }
-      = badge_label
-      - if displaced_by_sj
-        %span.repair-status-badge__ref= " ##{displaced_by_sj.ticket_number}"
+      = current_status.name
+      - if current_status.paused? && current_reason
+        %span.repair-status-badge__reason
+          = current_reason.name
+          - if displaced_by_sj
+            %span.repair-status-badge__ref= " ##{displaced_by_sj.ticket_number}"
