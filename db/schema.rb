@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20260515120000) do
+ActiveRecord::Schema.define(version: 20260526212912) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -1114,6 +1114,16 @@ ActiveRecord::Schema.define(version: 20260515120000) do
     t.string "reception_photos_meta_data", default: [], array: true
     t.string "in_operation_photos_meta_data", default: [], array: true
     t.string "completed_photos_meta_data", default: [], array: true
+  end
+
+  create_table "plans", force: :cascade do |t|
+    t.date "month", null: false
+    t.integer "city_id", null: false
+    t.string "metric", null: false
+    t.integer "target", default: 0, null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["month", "city_id", "metric"], name: "index_plans_on_month_and_city_id_and_metric", unique: true
   end
 
   create_table "price_types", id: :serial, force: :cascade do |t|
@@ -2452,6 +2462,7 @@ ActiveRecord::Schema.define(version: 20260515120000) do
   add_foreign_key "phone_substitutions", "substitute_phones"
   add_foreign_key "phone_substitutions", "users", column: "issuer_id"
   add_foreign_key "phone_substitutions", "users", column: "receiver_id"
+  add_foreign_key "plans", "cities"
   add_foreign_key "product_groups", "repair_groups"
   add_foreign_key "product_groups_option_values", "option_values"
   add_foreign_key "product_groups_option_values", "product_groups"
