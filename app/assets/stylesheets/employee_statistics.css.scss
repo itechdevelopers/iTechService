@@ -1,0 +1,89 @@
+.employee-statistics {
+  margin-top: 12px;
+
+  &__tabs {
+    margin-bottom: 0;
+  }
+
+  &__tabs li > a {
+    border-radius: 4px 4px 0 0;
+  }
+
+  &__tab--free.active > a,
+  &__tab--free.active > a:hover,
+  &__tab--free.active > a:focus {
+    background-color: #fff5d6;
+    border-bottom-color: #fff5d6;
+  }
+
+  &__tab--fast.active > a,
+  &__tab--fast.active > a:hover,
+  &__tab--fast.active > a:focus {
+    background-color: #d6ebff;
+    border-bottom-color: #d6ebff;
+  }
+
+  &__tab--long.active > a,
+  &__tab--long.active > a:hover,
+  &__tab--long.active > a:focus {
+    background-color: #e8e4ff;
+    border-bottom-color: #e8e4ff;
+  }
+
+  &__tab--mac.active > a,
+  &__tab--mac.active > a:hover,
+  &__tab--mac.active > a:focus {
+    background-color: #d6f5e3;
+    border-bottom-color: #d6f5e3;
+  }
+
+  &__panel {
+    padding: 16px;
+    border-radius: 0 4px 4px 4px;
+
+    &--free { background-color: #fff5d6; }
+    &--fast { background-color: #d6ebff; }
+    &--long { background-color: #e8e4ff; }
+    &--mac  { background-color: #d6f5e3; }
+  }
+
+  &__table {
+    margin-bottom: 0;
+    background-color: transparent;
+  }
+
+  &__avatar {
+    max-width: 40px;
+    max-height: 40px;
+    border-radius: 50%;
+  }
+
+  &__name--achieved {
+    background-color: #5cb85c !important;
+    color: #fff;
+    font-weight: bold;
+  }
+
+  &__plan-row {
+    font-weight: bold;
+  }
+
+  &__plan-input {
+    width: 5em;
+    margin: 0;
+  }
+
+  &__plan-input--saving {
+    border-color: #f0ad4e;
+  }
+
+  &__plan-input--saved {
+    border-color: #5cb85c;
+    box-shadow: 0 0 4px #5cb85c;
+  }
+
+  &__plan-input--error {
+    border-color: #d9534f;
+    box-shadow: 0 0 4px #d9534f;
+  }
+}

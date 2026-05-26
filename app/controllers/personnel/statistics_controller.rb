@@ -8,6 +8,7 @@ module Personnel
       @city    = resolve_city(params[:city_id])
       @cities  = City.all
       @rows    = EmployeeStatisticsQuery.new(metric: @metric, month: @month, city_id: @city.id).call
+      @plan    = Plan.find_or_initialize_by(month: @month, city_id: @city.id, metric: @metric)
     end
 
     private
