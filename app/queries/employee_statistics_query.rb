@@ -26,7 +26,8 @@ class EmployeeStatisticsQuery
   attr_reader :metric, :month, :city_id
 
   def eligible_users
-    User.joins(:department)
+    User.active
+        .joins(:department)
         .where(departments: { city_id: city_id })
         .where('users.activities_mask & ? > 0', activity_bit)
         .order(:name)
