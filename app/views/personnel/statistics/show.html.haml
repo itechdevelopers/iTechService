@@ -1,0 +1,43 @@
+.page-header
+  %h1= t('.title')
+
+.well.well-small.employee-statistics__filters
+  = form_tag personnel_statistics_path, method: :get, class: 'form-inline' do
+    = label_tag :metric, t('.metric'), class: 'control-label'
+    = select_tag :metric,
+                 options_for_select(User::ACTIVITIES.map { |m| [t("personnel.statistics.metrics.#{m}"), m] }, @metric),
+                 class: 'input-medium',
+                 onchange: 'this.form.submit()'
+
+    = label_tag :month, t('.month'), class: 'control-label'
+    = select_tag :month,
+                 options_for_select(month_options, @month.to_s),
+                 class: 'input-medium',
+                 onchange: 'this.form.submit()'
+
+    = label_tag :city_id, t('.city'), class: 'control-label'
+    = select_tag :city_id,
+                 options_from_collection_for_select(@cities, :id, :name, @city.id),
+                 class: 'input-medium',
+                 onchange: 'this.form.submit()'
+
+.employee-statistics
+  %h3= "#{t("personnel.statistics.metrics.#{@metric}")} — #{l(@month, format: '%B %Y')}, #{@city.name}"
+
+  - if @rows.empty?
+    %p.muted= t('.empty')
+  - else
+    %table.table.table-striped.employee-statistics__table
+      %thead
+        %tr
+          %th{style: 'width: 60px;'}= t('.photo')
+          %th= t('.employee')
+          %th{style: 'width: 120px; text-align: right;'}= t('.value')
+      %tbody
+        - @rows.each do |user, count|
+          %tr
+            %td
+              - if user.photo?
+                = image_tag user.photo.thumb.url, class: 'employee-statistics__avatar'
+            %td= user.name
+            %td{style: 'text-align: right;'}= count

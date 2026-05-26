@@ -579,6 +579,10 @@ Rails.application.routes.draw do
     end
   end
 
+  namespace :personnel do
+    get 'statistics', to: 'statistics#show', as: :statistics
+  end
+
   # Webhook endpoints (no authentication required)
   namespace :webhooks do
     resource :green_api, controller: 'green_api', only: [] do
