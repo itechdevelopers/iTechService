@@ -43,7 +43,7 @@
               %td
                 - if user.photo?
                   = image_tag user.photo.thumb.url, class: 'employee-statistics__avatar'
-              %td{ class: ('employee-statistics__name--achieved' if achieved.call(count)) }= user.name
+              %td{ class: ('employee-statistics__name--achieved' if achieved.call(count)) }= user.short_name
               %td{style: 'text-align: right;'}= count
         %tfoot
           %tr.employee-statistics__plan-row
