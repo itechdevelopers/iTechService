@@ -1,0 +1,20 @@
+ru:
+  personnel:
+    statistics:
+      link: 'Показатели'
+      metrics:
+        free: 'Бесплатные'
+        fast: 'Быстрые заказы'
+        long: 'Длинная приёмка'
+        mac:  'Маки'
+      show:
+        title: 'Показатели сотрудников'
+        metric: 'Метрика'
+        month: 'Месяц'
+        city: 'Город'
+        photo: 'Фото'
+        employee: 'Сотрудник'
+        value: 'Значение'
+        empty: 'Сотрудники не найдены'
+        plan_value: 'Плановое значение'
+        plan_update_error: 'Не удалось сохранить план'
