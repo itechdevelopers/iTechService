@@ -48,7 +48,8 @@
   }
 
   &__table {
-    margin-bottom: 0;
+    max-width: 70%;
+    margin: 0 auto;
     background-color: transparent;
   }
 
@@ -58,9 +59,9 @@
     border-radius: 50%;
   }
 
-  &__name--achieved {
-    background-color: #5cb85c !important;
-    color: #fff;
+  &__row--achieved > td {
+    background-color: #a8d8a8 !important;
+    color: #000;
     font-weight: bold;
   }
 

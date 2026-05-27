@@ -25,7 +25,7 @@
                   personnel_statistics_path(metric: m, month: @month.to_s, city_id: @city.id)
 
   .employee-statistics__panel{ class: "employee-statistics__panel--#{@metric}" }
-    %h3= "#{t("personnel.statistics.metrics.#{@metric}")} — #{l(@month, format: '%B %Y')}, #{@city.name}"
+    %h3= "#{t("personnel.statistics.metrics.#{@metric}")} — #{nominative_month_year(@month)}, #{@city.name}"
 
     - if @rows.empty?
       %p.muted= t('.empty')
@@ -39,11 +39,11 @@
         %tbody
           - achieved = ->(count) { @plan.target.to_i.positive? && count >= @plan.target.to_i }
           - @rows.each do |user, count|
-            %tr
+            %tr{ class: ('employee-statistics__row--achieved' if achieved.call(count)) }
               %td
                 - if user.photo?
                   = image_tag user.photo.thumb.url, class: 'employee-statistics__avatar'
-              %td{ class: ('employee-statistics__name--achieved' if achieved.call(count)) }= user.short_name
+              %td= user.short_name
               %td{style: 'text-align: right;'}= count
         %tfoot
           %tr.employee-statistics__plan-row
