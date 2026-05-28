@@ -39,8 +39,20 @@
 }
 
 #orders-table {
-  .button_to_archive {
-    margin-top: 8px;
+  .table-actions {
+    &__row {
+      display: flex;
+      align-items: center;
+      gap: 4px;
+      margin-top: 4px;
+      flex-wrap: nowrap;
+    }
+    &__row:empty {
+      display: none;
+    }
+    .button_to {
+      margin: 0;
+    }
   }
 
   tbody {
@@ -67,12 +79,6 @@
     }
     tr.archive > td {
       background-color: #f9f9f9;
-    }
-    td.table-actions {
-      .button_to {
-        display: block;
-        margin-top: 8px;
-      }
     }
   }
 
