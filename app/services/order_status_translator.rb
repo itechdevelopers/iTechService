@@ -6,6 +6,7 @@ class OrderStatusTranslator
   # Status translations: English (database format) ↔ Cyrillic (1C format)
   STATUS_TRANSLATIONS = {
     'current' => 'ВРаботе',
+    'pending' => 'Выполняется',
     'on_the_way' => 'ВПутиНаФилиал',
     'done' => 'Дозваниваемся',
     'notified' => 'Уведомлен',
