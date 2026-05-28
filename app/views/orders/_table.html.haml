@@ -51,7 +51,10 @@
               - if can? :edit, order
                 %button.btn.btn-small.btn-primary.manual-sync-btn{type: 'button', data: {order_id: order.id}, title: 'Синхронизировать с 1С'}
                   = glyph("refresh")
-            = button_to_change_order_status(order) unless order.canceled?
+            .table-actions__row
+              = button_to_change_order_status(order) unless order.canceled?
+              - unless order.archived? || order.canceled?
+                = link_to glyph("trash"), edit_archive_reason_order_path(order), remote: true, class: 'btn btn-small btn-danger button_to_archive', title: 'В архив'
         %tr{class: row_class, id: "edit_order_#{ order.id }_comment"}
           %td{colspan: 5}
             %strong Комментарий: 

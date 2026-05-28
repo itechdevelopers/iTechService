@@ -6,7 +6,7 @@ class Order < ApplicationRecord
   OBJECT_KINDS = %w[device accessory soft misc spare_part].freeze
   STATUSES = %w[new pending current on_the_way done canceled notified issued archive].freeze
   OLD_STATUSES = %w[new pending done canceled notified issued archive].freeze
-  NEW_STATUSES = %w[current on_the_way done notified archive].freeze
+  NEW_STATUSES = %w[current pending on_the_way notified archive].freeze
   ARCHIVE_REASONS = %w[order_picked_up order_cancelled_by_customer order_cancelled_by_company order_created_by_mistake].freeze
 
   scope :in_department, ->(department) { where department_id: department }

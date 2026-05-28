@@ -47,7 +47,7 @@
         as: :select,
         input_html: { multiple: true },
         selected: @filter_params[:statuses],
-        collection: Order::STATUSES.map {|s| [t("orders.statuses.#{s}"), s] }
+        collection: Order::NEW_STATUSES.map {|s| [t("orders.statuses.#{s}"), s] }
       =f.button :submit, "Найти"
 
       -# = orders_department_filter_tag
