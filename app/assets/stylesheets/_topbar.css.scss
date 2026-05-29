@@ -162,6 +162,21 @@ svg#letter-icon {
 }
 
 .active-notifications svg#letter-icon {
-  stroke: #da273c;
+  stroke: #da273c; // красный — есть «обычные» уведомления (поведение по умолчанию)
   stroke-width: 16px;
+}
+
+// только склейка стекла — синий
+.active-notifications.active-notifications--gluing svg#letter-icon {
+  stroke: #2b6cb0;
+}
+
+// склейка + другие уведомления — пульсация красный↔синий
+.active-notifications.active-notifications--mixed svg#letter-icon {
+  animation: letter-mixed-flash 1s infinite alternate ease-in-out;
+}
+
+@keyframes letter-mixed-flash {
+  from { stroke: #da273c; }
+  to   { stroke: #2b6cb0; }
 }

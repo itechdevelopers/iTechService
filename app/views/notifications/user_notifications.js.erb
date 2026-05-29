@@ -1,4 +1,16 @@
+<%# Единственный авторитетный источник состояния иконки уведомлений. %>
+<%# Сбрасываем все классы и заново выставляем нужный — так путь работает %>
+<%# одинаково при загрузке страницы и при realtime-перерисовке. %>
+$("#user_notifications").removeClass("active-notifications active-notifications--gluing active-notifications--mixed");
+
 <% if @notifications.present? %>
   $("#user_notifications").addClass("active-notifications");
+  <% if @has_gluing && @has_other %>
+    $("#user_notifications").addClass("active-notifications--mixed");
+  <% elsif @has_gluing %>
+    $("#user_notifications").addClass("active-notifications--gluing");
+  <% end %>
   $("#user_notifications").attr("data-content", "<%= j render(collection: @notifications, partial: "short_notification", as: :notification) %>");
+<% else %>
+  $("#user_notifications").attr("data-content", "");
 <% end %>
