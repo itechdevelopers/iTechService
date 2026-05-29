@@ -28,7 +28,13 @@ class NotificationsController < ApplicationController
 
   def user_notifications
     authorize Notification
-    @notifications = current_user.notifications.not_closed.page(params[:page])
+
+    scope = current_user.notifications.not_closed
+    @notifications = scope.page(params[:page])
+    # Флаги для цвета иконки в topbar: синий — только склейка,
+    # красный — только прочие, красно-синий — и то, и другое.
+    @has_gluing = scope.gluing.exists?
+    @has_other  = scope.non_gluing.exists?
 
     respond_to(&:js)
   end

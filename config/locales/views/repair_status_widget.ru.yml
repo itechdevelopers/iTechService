@@ -5,9 +5,13 @@ ru:
       pause_reason_required: 'Выберите причину паузы'
       displaced_by_required: 'Введите номер ремонта'
       displaced_by_not_found: 'Ремонт с таким номером не найден'
+      gluing_hours_required: 'Введите количество часов (целое число больше 0)'
       displaced_by_modal:
         title: 'Срочный ремонт'
         label: 'Номер ремонта (талона) который вытесняет текущий:'
+      gluing_modal:
+        title: 'На проклейке'
+        label: 'Сколько часов устройство должно клеиться:'
       displace_confirm:
         title: 'Переключение между ремонтами'
         intro_html: 'У вас уже в работе ремонт <strong>#%{ticket}</strong>.'

@@ -1,0 +1,18 @@
+(function() {
+  $('#gluing_modal_<%= @service_job.id %>').remove();
+
+  var $host = $('#repair_status_widget_modal_host');
+  if ($host.length === 0) {
+    $host = $('<div id="repair_status_widget_modal_host"></div>').appendTo('body');
+  }
+  $host.append("<%= j render('gluing_form', service_job: @service_job) %>");
+
+  var $modal = $('#gluing_modal_<%= @service_job.id %>');
+  $modal.on('click', '[data-repair-status-widget-modal-close-for]', function(e) {
+    e.preventDefault();
+    $modal.remove();
+  });
+  setTimeout(function() {
+    $modal.find('input[type=number]').first().focus();
+  }, 50);
+})();

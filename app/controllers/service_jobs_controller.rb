@@ -437,6 +437,17 @@ class ServiceJobsController < ApplicationController
       end
     end
 
+    gluing_hours = nil
+    if pause_reason&.gluing?
+      raw = params[:gluing_hours].to_s.strip
+      gluing_hours = raw.to_i
+      if raw.blank? || gluing_hours < 1
+        @gluing_error = t('service_jobs.repair_status.gluing_hours_required', default: 'Введите количество часов (целое число больше 0)')
+        respond_to(&:js)
+        return
+      end
+    end
+
     if new_status.in_progress?
       active = ServiceJob.active_in_progress_for(current_user).where.not(id: @service_job.id).first
       if active && params[:force_displace_active].blank?
@@ -459,11 +470,19 @@ class ServiceJobsController < ApplicationController
       end
     end
 
-    @service_job.change_repair_status!(new_status, user: current_user, pause_reason: pause_reason, displaced_by: displaced_by)
+    change = @service_job.change_repair_status!(new_status, user: current_user, pause_reason: pause_reason, displaced_by: displaced_by, gluing_hours: gluing_hours)
+    if change && pause_reason&.gluing? && gluing_hours
+      RepairGluingReminderJob.set(wait: gluing_hours.hours).perform_later(change.id)
+    end
     respond_to(&:js)
   end
 
   def displaced_by_prompt
+    @service_job = find_record ServiceJob
+    respond_to(&:js)
+  end
+
+  def gluing_prompt
     @service_job = find_record ServiceJob
     respond_to(&:js)
   end
