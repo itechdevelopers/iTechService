@@ -36,6 +36,8 @@
                   = sj.repair_pause_reason.name
                   - if sj.repair_pause_reason.urgent_repair? && (displaced = sj.current_displaced_by_service_job)
                     = " (##{displaced.ticket_number})"
+                  - elsif sj.repair_pause_reason.gluing? && (hours = sj.current_gluing_hours)
+                    = " (#{hours} ч)"
           - if @include_technician
             - if status&.in_progress?
               %td
