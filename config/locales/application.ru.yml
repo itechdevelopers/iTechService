@@ -5,6 +5,7 @@ ru:
     location_overstay: 'Заказ №%{ticket} находится на локации «%{location}» более %{days} дней'
     queue_inactivity: 'Талон №%{ticket} в очереди «%{queue}» ждёт уже %{waited} мин. На смене %{total} сотр., активны только %{active}. Проверьте состояние очереди.'
     repair_attention: 'Работа №%{ticket} ждёт твоего внимания — приступаешь к ремонту?'
+    repair_gluing: 'Устройство по талону №%{ticket} на проклейке уже %{hours} ч — пора забирать.'
 
   repair_attention:
     sign_in_then_click_again: 'Войдите в АИС и кликните ссылку из Telegram снова.'
