@@ -52,6 +52,10 @@ class ServiceJobPolicy < CommonPolicy
     update_repair_status?
   end
 
+  def gluing_prompt?
+    update_repair_status?
+  end
+
   def update_repair_status?
     repair?
   end

@@ -3,6 +3,7 @@
 - current_status = service_job.repair_status
 - current_reason = service_job.repair_pause_reason
 - displaced_by_sj = (current_reason&.urgent_repair? ? service_job.current_displaced_by_service_job : nil)
+- gluing_hours = (current_reason&.gluing? ? service_job.current_gluing_hours : nil)
 - selectable_statuses = RepairStatus.active.ordered.where.not(code: RepairStatus::COMPLETED)
 
 .repair-status-widget{ data: { 'repair-status-sj-id': service_job.id } }
@@ -16,6 +17,8 @@
             = current_reason.name
             - if displaced_by_sj
               %span.repair-status-badge__ref= " ##{displaced_by_sj.ticket_number}"
+            - if gluing_hours
+              %span.repair-status-badge__ref= " (#{gluing_hours} ч)"
       %ul.dropdown-menu.repair-status-widget__menu
         - selectable_statuses.each do |status|
           - if status.paused?
@@ -28,6 +31,9 @@
                   %li
                     - if reason.urgent_repair?
                       = link_to displaced_by_prompt_service_job_path(service_job), remote: true do
+                        = reason.name
+                    - elsif reason.gluing?
+                      = link_to gluing_prompt_service_job_path(service_job), remote: true do
                         = reason.name
                     - else
                       = link_to repair_status_service_job_path(service_job, repair_status_code: status.code, repair_pause_reason_id: reason.id), method: :patch, remote: true do
@@ -45,3 +51,5 @@
           = current_reason.name
           - if displaced_by_sj
             %span.repair-status-badge__ref= " ##{displaced_by_sj.ticket_number}"
+          - if gluing_hours
+            %span.repair-status-badge__ref= " (#{gluing_hours} ч)"
