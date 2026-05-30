@@ -31,10 +31,10 @@ class NotificationsController < ApplicationController
 
     scope = current_user.notifications.not_closed
     @notifications = scope.page(params[:page])
-    # Флаги для цвета иконки в topbar: синий — только склейка,
+    # Флаги для цвета иконки в topbar: синий — только наклейка стекла,
     # красный — только прочие, красно-синий — и то, и другое.
-    @has_gluing = scope.gluing.exists?
-    @has_other  = scope.non_gluing.exists?
+    @has_glass = scope.glass_sticking.exists?
+    @has_other = scope.non_glass_sticking.exists?
 
     respond_to(&:js)
   end
