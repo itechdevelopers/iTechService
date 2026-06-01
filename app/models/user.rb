@@ -820,6 +820,8 @@ class User < ApplicationRecord
       self.schedule = false
       save!
 
+      reactivate_schedule_memberships
+
       employment_periods.create!(
         started_at: rehire_date,
         rehire_reason: rehire_reason
@@ -903,6 +905,15 @@ class User < ApplicationRecord
 
   def deactivate_schedule_memberships
     ScheduleGroupMembership.where(user_id: id, active: true).update_all(active: false)
+  end
+
+  # Mirror of #deactivate_schedule_memberships: on rehire we bring the
+  # soft-deleted (active: false) membership rows back, so the user reappears
+  # in the schedule and time-bank member pickers. Without this the row stays
+  # active: false forever and the UI cannot fix it (update_memberships skips
+  # already-existing user_ids and the uniqueness index blocks a re-create).
+  def reactivate_schedule_memberships
+    ScheduleGroupMembership.where(user_id: id, active: false).update_all(active: true)
   end
 
   def close_current_employment_period
