@@ -375,10 +375,11 @@ class ServiceJobsController < ApplicationController
           else
             format.html { redirect_to service_job.sale }
           end
-        elsif (sale = service_job.create_filled_sale).present?
+        elsif (sale = service_job.create_filled_sale).persisted?
           format.html { redirect_to edit_sale_path(sale) }
         else
-          format.html { head :no_content }
+          error_msg = sale.errors.full_messages.to_sentence.presence || 'Не удалось создать продажу'
+          format.html { redirect_to service_job, alert: error_msg }
         end
       else
         format.html { render plain: 'Вы находитесь на разных подразделениях с устройством. Смените подразделение' }
