@@ -20,4 +20,8 @@ class TestingPolicy < ApplicationPolicy
   def returned?
     index?
   end
+
+  def resume?
+    index?
+  end
 end

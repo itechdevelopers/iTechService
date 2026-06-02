@@ -19,6 +19,7 @@ Rails.application.routes.draw do
       patch :start
       get   :finish_prompt
       patch :finish
+      patch :resume
     end
   end
   get 'check_session_status', to: 'dashboard#check_session_status'

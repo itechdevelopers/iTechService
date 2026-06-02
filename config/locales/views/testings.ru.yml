@@ -27,6 +27,10 @@ ru:
         result: "Результат"
         tester: "Кто тестировал"
         notes: "Заметки по тесту"
+        action: "Действие"
+      resume: "Продолжить ремонт"
+      resume_confirm: "Снять с паузы и продолжить ремонт?"
+      resumed: "Ремонт продолжен"
     testing_session:
       play: "Начать тест"
       tester: "Тестирует"

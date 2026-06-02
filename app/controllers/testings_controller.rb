@@ -54,6 +54,22 @@ class TestingsController < ApplicationController
     respond_to { |format| format.js }
   end
 
+  # Снятие ремонта с «тестовой» паузы после неудачного теста: paused → in_progress.
+  # Отсчёт времени ремонта (return_at) возобновляется. Идемпотентно: если ремонт
+  # уже снят с паузы — ничего не делаем (не плодим записи в repair_status_changes).
+  def resume
+    authorize :testing, :resume?
+    @testing_session = TestingSession.where(sender_id: current_user.id).find(params[:id])
+    service_job = @testing_session.service_job
+
+    if service_job.repair_status&.paused?
+      service_job.change_repair_status!(RepairStatus.by_code(RepairStatus::IN_PROGRESS), user: current_user)
+      @testing_session.reload # сбросить устаревший после update_columns кэш repair_status
+    end
+
+    respond_to { |format| format.js }
+  end
+
   private
 
   # Сессии, доступные текущему сотруднику: его локация (у админов без

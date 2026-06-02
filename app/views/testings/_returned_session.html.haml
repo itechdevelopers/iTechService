@@ -21,3 +21,11 @@
     - if testing_session.started_at && testing_session.ended_at
       %br
       %span.testings__duration= "#{t('testings.testing_session.duration')}: #{distance_of_time_in_words(testing_session.started_at, testing_session.ended_at)}"
+  %td.testings-returned__action
+    - if testing_session.failed?
+      - if service_job.repair_status&.paused?
+        = link_to t('testings.returned.resume'), resume_testing_path(testing_session),
+                  method: :patch, remote: true, class: 'btn btn-primary btn-small',
+                  data: { confirm: t('testings.returned.resume_confirm') }
+      - else
+        %span.testings-returned__resumed= t('testings.returned.resumed')

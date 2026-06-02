@@ -7,8 +7,9 @@
       %th= t('.columns.result')
       %th= t('.columns.tester')
       %th= t('.columns.notes')
+      %th= t('.columns.action')
   %tbody
     - if @testing_sessions.empty?
       %tr
-        %td{ colspan: 4 }= t('.empty')
+        %td{ colspan: 5 }= t('.empty')
     = render partial: 'returned_session', collection: @testing_sessions, as: :testing_session
