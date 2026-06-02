@@ -12,4 +12,8 @@ class TestingPolicy < ApplicationPolicy
   def start?
     index?
   end
+
+  def finish?
+    index?
+  end
 end

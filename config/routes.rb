@@ -14,7 +14,11 @@ Rails.application.routes.draw do
   get 'actual_supply_requests', to: 'dashboard#actual_supply_requests'
   get 'ready_service_jobs', to: 'dashboard#ready_service_jobs'
   resources :testings, only: %i[index] do
-    member { patch :start }
+    member do
+      patch :start
+      get   :finish_prompt
+      patch :finish
+    end
   end
   get 'check_session_status', to: 'dashboard#check_session_status'
   get 'print_tags', to: 'dashboard#print_tags'

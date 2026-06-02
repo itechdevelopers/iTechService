@@ -5,6 +5,9 @@ ru:
       in_progress: "Тестируется"
       passed: "Успешное тестирование"
       failed: "Неуспешное тестирование"
+    failure_actions:
+      return_to_tech: "Вернуть технарям"
+      retry: "Тестировать снова"
     index:
       title: "Тестирование"
       empty: "Нет устройств на тестировании"
@@ -16,3 +19,12 @@ ru:
     testing_session:
       play: "Начать тест"
       tester: "Тестирует"
+      passed_btn: "Успешно"
+      failed_btn: "Неуспешно"
+      duration: "Длительность"
+    finish_modal:
+      title_passed: "Успешное завершение теста"
+      title_failed: "Неуспешное завершение теста"
+      failure_action_label: "Что делать дальше:"
+      notes_label: "Заметки по тесту:"
+      submit: "Сохранить"

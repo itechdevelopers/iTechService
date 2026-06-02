@@ -1,0 +1,18 @@
+(function() {
+  $('#testing_finish_modal_<%= @testing_session.id %>').remove();
+
+  var $host = $('#repair_status_widget_modal_host');
+  if ($host.length === 0) {
+    $host = $('<div id="repair_status_widget_modal_host"></div>').appendTo('body');
+  }
+  $host.append("<%= j render('testing_finish_form', testing_session: @testing_session, outcome: @outcome) %>");
+
+  var $modal = $('#testing_finish_modal_<%= @testing_session.id %>');
+  $modal.on('click', '[data-testing-finish-modal-close-for]', function(e) {
+    e.preventDefault();
+    $modal.remove();
+  });
+  setTimeout(function() {
+    $modal.find('textarea').first().focus();
+  }, 50);
+})();

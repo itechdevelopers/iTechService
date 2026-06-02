@@ -1,0 +1,31 @@
+- failed = outcome == 'failed'
+.repair-status-widget-modal{ id: "testing_finish_modal_#{testing_session.id}", tabindex: -1, role: 'dialog' }
+  .repair-status-widget-modal__dialog
+    = form_with url: finish_testing_path(testing_session), method: :patch, local: false,
+                html: { class: 'repair-status-widget-modal__form' } do
+      = hidden_field_tag :outcome, outcome
+
+      .repair-status-widget-modal__header
+        %h4= failed ? t('testings.finish_modal.title_failed') : t('testings.finish_modal.title_passed')
+        %button.repair-status-widget-modal__close{ type: 'button', 'aria-label': 'Close', data: { testing_finish_modal_close_for: testing_session.id } } ×
+
+      .repair-status-widget-modal__body
+        - if failed
+          %label.repair-status-widget-modal__label= t('testings.finish_modal.failure_action_label')
+          %label.radio
+            = radio_button_tag :failure_action, TestingSession::FAILURE_ACTIONS[:return_to_tech], true
+            = t('testings.failure_actions.return_to_tech')
+          %label.radio
+            = radio_button_tag :failure_action, TestingSession::FAILURE_ACTIONS[:retry]
+            = t('testings.failure_actions.retry')
+
+        %label.repair-status-widget-modal__label{ for: "testing_notes_#{testing_session.id}" }
+          = t('testings.finish_modal.notes_label')
+        = text_area_tag :notes, nil, id: "testing_notes_#{testing_session.id}", rows: 3,
+                        class: 'repair-status-widget-modal__input', autocomplete: 'off', autofocus: true
+
+      .repair-status-widget-modal__footer
+        %button.btn{ type: 'button', data: { testing_finish_modal_close_for: testing_session.id } }
+          = t('helpers.links.cancel', default: 'Отмена')
+        %button.btn.btn-primary{ type: 'submit' }
+          = t('testings.finish_modal.submit')

@@ -43,4 +43,31 @@ class TestingSession < ApplicationRecord
     reload
     updated.positive?
   end
+
+  # Завершение теста: in_progress → passed/failed, фиксируем ended_at + заметки.
+  # При failed сохраняем failure_action (return_to_tech / retry); при retry
+  # создаём НОВУЮ сессию (история попыток) — копия маршрута, статус not_started.
+  # Возвращает новую retry-сессию или nil. Всё в одной транзакции.
+  def finish!(outcome:, notes:, failure_action: nil)
+    outcome = outcome.to_s
+    return nil unless in_progress? && %w[passed failed].include?(outcome)
+
+    action = outcome == 'failed' ? failure_action.to_s.presence_in(FAILURE_ACTIONS.values) : nil
+    retry_session = nil
+    transaction do
+      update!(status: outcome, notes: notes, ended_at: Time.current, failure_action: action)
+      retry_session = build_retry_session.tap(&:save!) if action == FAILURE_ACTIONS[:retry]
+    end
+    retry_session
+  end
+
+  private
+
+  def build_retry_session
+    self.class.new(
+      service_job: service_job, sender: sender,
+      target_location: target_location, what_to_test: what_to_test,
+      status: 'not_started'
+    )
+  end
 end

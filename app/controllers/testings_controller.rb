@@ -21,6 +21,28 @@ class TestingsController < ApplicationController
     respond_to { |format| format.js }
   end
 
+  # Открывает модалку завершения теста (исход — passed/failed из params).
+  def finish_prompt
+    authorize :testing, :finish?
+    @testing_session = accessible_sessions.find(params[:id])
+    @outcome = params[:outcome].to_s.presence_in(%w[passed failed]) || 'passed'
+
+    respond_to { |format| format.js }
+  end
+
+  # Завершение теста. На retry модель возвращает новую сессию → вставляем строку.
+  def finish
+    authorize :testing, :finish?
+    @testing_session = accessible_sessions.find(params[:id])
+    @retry_session = @testing_session.finish!(
+      outcome: params[:outcome],
+      notes: params[:notes],
+      failure_action: params[:failure_action]
+    )
+
+    respond_to { |format| format.js }
+  end
+
   private
 
   # Сессии, доступные текущему сотруднику: его локация (у админов без

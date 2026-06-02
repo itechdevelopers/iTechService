@@ -1,0 +1,10 @@
+// Перерисовываем завершённую строку (статус-результат + длительность + заметки).
+$('#testing_session_<%= @testing_session.id %>').replaceWith('<%= j render partial: 'testing_session', object: @testing_session, as: :testing_session %>');
+
+<% if @retry_session.present? %>
+// retry: новая сессия снова во входящих — добавляем строкой в начало.
+$('#testings_table tbody').prepend('<%= j render partial: 'testing_session', object: @retry_session, as: :testing_session %>');
+<% end %>
+
+// Закрываем модалку.
+$('#testing_finish_modal_<%= @testing_session.id %>').remove();
