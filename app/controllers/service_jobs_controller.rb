@@ -489,10 +489,11 @@ class ServiceJobsController < ApplicationController
     end
 
     change = nil
+    testing_session = nil
     ServiceJob.transaction do
       change = @service_job.change_repair_status!(new_status, user: current_user, pause_reason: pause_reason, displaced_by: displaced_by, gluing_hours: gluing_hours)
       if change && pause_reason&.testing?
-        @service_job.testing_sessions.create!(
+        testing_session = @service_job.testing_sessions.create!(
           sender: current_user,
           target_location: testing_target_location,
           what_to_test: testing_what_to_test
@@ -502,6 +503,9 @@ class ServiceJobsController < ApplicationController
     if change && pause_reason&.gluing? && gluing_hours
       RepairGluingReminderJob.set(wait: gluing_hours.hours).perform_later(change.id)
     end
+    # Уведомление технарей в Telegram — после коммита транзакции (иначе Sidekiq
+    # может не найти ещё не сохранённую сессию).
+    SendTestingTelegramNotificationJob.perform_later(testing_session.id) if testing_session
     respond_to(&:js)
   end
 
