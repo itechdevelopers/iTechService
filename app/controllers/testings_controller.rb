@@ -45,11 +45,19 @@ class TestingsController < ApplicationController
   def finish
     authorize :testing, :finish?
     @testing_session = accessible_sessions.find(params[:id])
+    # Запоминаем ДО finish!: уведомляем только если именно этот вызов завершил
+    # тест (был in_progress → стал passed/failed). Иначе повторный сабмит по уже
+    # завершённой сессии (finish! no-op) слал бы дубль уведомления.
+    was_in_progress = @testing_session.in_progress?
     @retry_session = @testing_session.finish!(
       outcome: params[:outcome],
       notes: params[:notes],
       failure_action: params[:failure_action]
     )
+
+    if was_in_progress && (@testing_session.passed? || @testing_session.failed?)
+      SendTestingTelegramNotificationJob.perform_later(@testing_session.id)
+    end
 
     respond_to { |format| format.js }
   end
