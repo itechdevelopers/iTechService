@@ -22,6 +22,7 @@
           %li.actual_requests_nav= link_to t('dashboard.actual_requests'), actual_supply_requests_path, remote: true
       %li.ready_service_jobs_nav= link_to t('dashboard.ready_service_jobs'), ready_service_jobs_path, remote: true
       %li.testings_nav= link_to t('dashboard.testings'), testings_path
+      %li.returned_testings_nav= link_to t('dashboard.returned_testings'), returned_testings_path
       %li.all_service_jobs_nav= link_to t('dashboard.all_service_jobs'), service_jobs_path
 
 #dashboard_table_filter= render @table_name+'_filter'

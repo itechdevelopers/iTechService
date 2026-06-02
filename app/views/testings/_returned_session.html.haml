@@ -1,0 +1,23 @@
+- service_job = testing_session.service_job
+- row_modifier = testing_session.failed? ? 'testings-returned__row--failed' : 'testings-returned__row--passed'
+%tr.testings-returned__row{ class: row_modifier, id: "returned_session_#{testing_session.id}", data: { testing_session_id: testing_session.id } }
+  %td
+    = link_to service_job.presentation, service_job_path(service_job)
+    %br
+    %span.device_ticket_number
+      #{ServiceJob.human_attribute_name(:ticket_number)}: #{service_job.ticket_number}
+    %br
+    = service_job.client_presentation
+  %td.testings-returned__result
+    - if testing_session.passed?
+      %i.icon-ok
+      %strong= t('testings.results.passed')
+    - else
+      %i.icon-remove
+      %strong= t('testings.results.failed')
+  %td= testing_session.tester&.short_name
+  %td
+    = testing_session.notes
+    - if testing_session.started_at && testing_session.ended_at
+      %br
+      %span.testings__duration= "#{t('testings.testing_session.duration')}: #{distance_of_time_in_words(testing_session.started_at, testing_session.ended_at)}"

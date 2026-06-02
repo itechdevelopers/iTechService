@@ -11,6 +11,17 @@ class TestingsController < ApplicationController
                           .chronological
   end
 
+  # «ВЕРНУЛОСЬ С ТЕСТИРОВАНИЯ» у технаря: завершённые сессии, которые он сам
+  # отправлял (sender), прошедшие ИЛИ возвращённые после провала (retry — нет).
+  def returned
+    authorize :testing, :returned?
+
+    @testing_sessions = TestingSession.returned
+                          .where(sender_id: current_user.id)
+                          .includes(:tester, :target_location, service_job: :client)
+                          .order(ended_at: :desc)
+  end
+
   # Старт теста: not_started → in_progress, фиксируем tester + started_at.
   # accessible_sessions ограничивает выбор локацией сотрудника (чужую → 404).
   def start

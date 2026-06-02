@@ -1,0 +1,14 @@
+%h3= t('.title')
+
+%table#returned_testings_table.table.table-hover.table-bordered.testings-returned
+  %thead
+    %tr
+      %th= t('.columns.identification')
+      %th= t('.columns.result')
+      %th= t('.columns.tester')
+      %th= t('.columns.notes')
+  %tbody
+    - if @testing_sessions.empty?
+      %tr
+        %td{ colspan: 4 }= t('.empty')
+    = render partial: 'returned_session', collection: @testing_sessions, as: :testing_session

@@ -25,6 +25,12 @@ class TestingSession < ApplicationRecord
   scope :finished,      -> { where(status: %w[passed failed]) }
   # Активные = ещё не завершённые: видны входящими у целевого отдела.
   scope :active,        -> { where(status: %w[not_started in_progress]) }
+  # Вернувшиеся к технарю: прошедшие ИЛИ проваленные с возвратом
+  # (retry исключаем — устройство снова ушло на тест, не вернулось).
+  scope :returned, lambda {
+    where(status: 'passed')
+      .or(where(status: 'failed', failure_action: FAILURE_ACTIONS[:return_to_tech]))
+  }
 
   # Длительность теста в секундах (nil, пока тест не завершён).
   def duration

@@ -14,6 +14,7 @@ Rails.application.routes.draw do
   get 'actual_supply_requests', to: 'dashboard#actual_supply_requests'
   get 'ready_service_jobs', to: 'dashboard#ready_service_jobs'
   resources :testings, only: %i[index] do
+    collection { get :returned }
     member do
       patch :start
       get   :finish_prompt

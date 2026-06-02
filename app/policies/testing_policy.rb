@@ -16,4 +16,8 @@ class TestingPolicy < ApplicationPolicy
   def finish?
     index?
   end
+
+  def returned?
+    index?
+  end
 end

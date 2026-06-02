@@ -8,6 +8,9 @@ ru:
     failure_actions:
       return_to_tech: "Вернуть технарям"
       retry: "Тестировать снова"
+    results:
+      passed: "Прошёл"
+      failed: "Не прошёл"
     index:
       title: "Тестирование"
       empty: "Нет устройств на тестировании"
@@ -16,6 +19,14 @@ ru:
         target: "Куда / Что тестировать"
         sender: "Кто направил"
         status: "Статус"
+    returned:
+      title: "Вернулось с тестирования"
+      empty: "Нет вернувшихся с тестирования устройств"
+      columns:
+        identification: "Устройство / Талон / Клиент"
+        result: "Результат"
+        tester: "Кто тестировал"
+        notes: "Заметки по тесту"
     testing_session:
       play: "Начать тест"
       tester: "Тестирует"

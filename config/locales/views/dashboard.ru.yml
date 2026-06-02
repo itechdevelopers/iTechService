@@ -11,6 +11,7 @@ ru:
     all_service_jobs: "Все работы"
     ready_service_jobs: "Готовые работы"
     testings: "Тестирование"
+    returned_testings: "Вернулось с тестирования"
     misc: 'Прочее'
     moved_title: 'Перемещен'
     new_service_job: 'Приёмка девайса'
