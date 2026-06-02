@@ -1,0 +1,15 @@
+ru:
+  testings:
+    index:
+      title: "Тестирование"
+      empty: "Нет устройств на тестировании"
+      columns:
+        identification: "Устройство / Талон / Клиент"
+        target: "Куда / Что тестировать"
+        sender: "Кто направил"
+        status: "Статус"
+      statuses:
+        not_started: "Не начинали"
+        in_progress: "Тестируется"
+        passed: "Успешное тестирование"
+        failed: "Неуспешное тестирование"

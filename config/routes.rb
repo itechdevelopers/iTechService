@@ -13,6 +13,7 @@ Rails.application.routes.draw do
   get 'repair_status_devices', to: 'dashboard#repair_status_devices'
   get 'actual_supply_requests', to: 'dashboard#actual_supply_requests'
   get 'ready_service_jobs', to: 'dashboard#ready_service_jobs'
+  resources :testings, only: %i[index]
   get 'check_session_status', to: 'dashboard#check_session_status'
   get 'print_tags', to: 'dashboard#print_tags'
 

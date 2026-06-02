@@ -23,6 +23,8 @@ class TestingSession < ApplicationRecord
 
   scope :chronological, -> { order(:created_at) }
   scope :finished,      -> { where(status: %w[passed failed]) }
+  # Активные = ещё не завершённые: видны входящими у целевого отдела.
+  scope :active,        -> { where(status: %w[not_started in_progress]) }
 
   # Длительность теста в секундах (nil, пока тест не завершён).
   def duration
