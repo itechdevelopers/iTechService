@@ -31,4 +31,16 @@ class TestingSession < ApplicationRecord
     return nil unless started_at && ended_at
     ended_at - started_at
   end
+
+  # Старт теста сотрудником. Защита от гонки: обновляем только если запись
+  # ещё в not_started (двое не перетрут tester друг друга — побеждает первый).
+  # Возвращает true, если именно этот вызов перевёл сессию в in_progress.
+  def start_by!(user)
+    updated = self.class.not_started.where(id: id).update_all(
+      status: 'in_progress', tester_id: user.id,
+      started_at: Time.current, updated_at: Time.current
+    )
+    reload
+    updated.positive?
+  end
 end

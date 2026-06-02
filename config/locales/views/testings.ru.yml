@@ -1,5 +1,10 @@
 ru:
   testings:
+    statuses:
+      not_started: "Не начинали"
+      in_progress: "Тестируется"
+      passed: "Успешное тестирование"
+      failed: "Неуспешное тестирование"
     index:
       title: "Тестирование"
       empty: "Нет устройств на тестировании"
@@ -8,8 +13,6 @@ ru:
         target: "Куда / Что тестировать"
         sender: "Кто направил"
         status: "Статус"
-      statuses:
-        not_started: "Не начинали"
-        in_progress: "Тестируется"
-        passed: "Успешное тестирование"
-        failed: "Неуспешное тестирование"
+    testing_session:
+      play: "Начать тест"
+      tester: "Тестирует"

@@ -11,19 +11,4 @@
     - if @testing_sessions.empty?
       %tr
         %td{ colspan: 4 }= t('.empty')
-    - @testing_sessions.each do |session|
-      - service_job = session.service_job
-      %tr{ data: { testing_session_id: session.id } }
-        %td
-          = link_to service_job.presentation, service_job_path(service_job)
-          %br
-          %span.device_ticket_number
-            #{ServiceJob.human_attribute_name(:ticket_number)}: #{service_job.ticket_number}
-          %br
-          = service_job.client_presentation
-        %td
-          %strong= session.target_location&.name
-          %br
-          = session.what_to_test
-        %td= session.sender&.short_name
-        %td= t(".statuses.#{session.status}")
+    = render partial: 'testing_session', collection: @testing_sessions, as: :testing_session

@@ -5,4 +5,11 @@ class TestingPolicy < ApplicationPolicy
   def index?
     user.present?
   end
+
+  # Гейтит существование экшена для аутентифицированного сотрудника.
+  # Ограничение «только своя локация» обеспечивает accessible_sessions
+  # в контроллере (headless-политика не видит конкретную запись).
+  def start?
+    index?
+  end
 end
