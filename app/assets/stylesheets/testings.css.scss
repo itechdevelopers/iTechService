@@ -1,0 +1,85 @@
+// Стили фичи «Тестирование» (передача устройства между отделами).
+// BEM, всё под собственными блоками (#testings_table / .testings-returned),
+// generic-селекторы (.table, .icon-ok) НЕ трогаем — см. CONTEXT.md.
+// Палитра согласована с repair_status_summary.css.scss.
+
+// ── Витрина «ТЕСТИРОВАНИЕ» (входящие) — /testings ───────────────────────────
+#testings_table {
+  // Акцентная рамка + шапка: сущность визуально выделяется (ТЗ §2).
+  border-left: 3px solid #f0ad4e;
+
+  thead th {
+    background-color: #fcf6e9;
+    border-bottom: 2px solid #f0ad4e;
+  }
+
+  .testings__status-cell {
+    white-space: nowrap;
+  }
+
+  .testings__actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    margin-top: 6px;
+  }
+
+  .testings__tester,
+  .testings__duration,
+  .testings__notes,
+  .testings__failure-action {
+    font-size: 12px;
+  }
+
+  .testings__tester,
+  .testings__duration {
+    color: #777;
+  }
+
+  .testings__notes {
+    color: #555;
+    font-style: italic;
+  }
+
+  .testings__failure-action {
+    color: #c9302c;
+    font-weight: bold;
+  }
+}
+
+// ── Витрина «ВЕРНУЛОСЬ С ТЕСТИРОВАНИЯ» — /returned ──────────────────────────
+.testings-returned {
+  &__row--passed > td {
+    background-color: #f1f8f1;
+  }
+
+  &__row--failed > td {
+    background-color: #fdf3f3;
+  }
+
+  &__result {
+    white-space: nowrap;
+
+    .icon-ok {
+      color: #5cb85c;
+    }
+
+    .icon-remove {
+      color: #d9534f;
+    }
+  }
+
+  &__row--passed &__result strong {
+    color: #3d8b3d;
+  }
+
+  &__row--failed &__result strong {
+    color: #c9302c;
+  }
+
+  &__resumed {
+    color: #777;
+    font-style: italic;
+    font-size: 12px;
+  }
+}
