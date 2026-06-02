@@ -1,0 +1,56 @@
+- testing_reason = RepairPauseReason.find_by(code: RepairPauseReason::TESTING)
+- paused_status = RepairStatus.by_code(RepairStatus::PAUSED)
+- locations = Location.allowed_for(current_user, service_job).ordered
+- templates = TestingTemplate.ordered
+
+.repair-status-widget-modal{ id: "testing_modal_#{service_job.id}", tabindex: -1, role: 'dialog' }
+  .repair-status-widget-modal__dialog
+    = form_with url: repair_status_service_job_path(service_job),
+                method: :patch,
+                local: false,
+                html: { id: "testing_form_#{service_job.id}", class: 'repair-status-widget-modal__form' } do
+      = hidden_field_tag :repair_status_code, paused_status&.code
+      = hidden_field_tag :repair_pause_reason_id, testing_reason&.id
+
+      .repair-status-widget-modal__header
+        %h4= t('service_jobs.repair_status.testing_modal.title', default: 'Отправить на тестирование')
+        %button.repair-status-widget-modal__close{ type: 'button', 'aria-label': 'Close', data: { repair_status_widget_modal_close_for: service_job.id } } ×
+
+      .repair-status-widget-modal__body
+        - if local_assigns[:error].present?
+          .repair-status-widget-modal__error= error
+
+        %label.repair-status-widget-modal__label{ for: "testing_target_#{service_job.id}" }
+          = t('service_jobs.repair_status.testing_modal.target_label', default: 'Куда отправить:')
+        = select_tag :target_location_id,
+                     options_from_collection_for_select(locations, :id, :short_name, local_assigns[:target_location_id]),
+                     include_blank: true,
+                     id: "testing_target_#{service_job.id}",
+                     class: 'repair-status-widget-modal__input',
+                     autofocus: true
+
+        - if templates.any?
+          %label.repair-status-widget-modal__label{ for: "testing_template_#{service_job.id}" }
+            = t('service_jobs.repair_status.testing_modal.template_label', default: 'Шаблон (подставит текст ниже):')
+          = select_tag :testing_template,
+                       options_from_collection_for_select(templates, :content, :content),
+                       include_blank: true,
+                       id: "testing_template_#{service_job.id}",
+                       class: 'repair-status-widget-modal__input',
+                       data: { testing_template_select_for: service_job.id }
+
+        %label.repair-status-widget-modal__label{ for: "testing_what_#{service_job.id}" }
+          = t('service_jobs.repair_status.testing_modal.what_label', default: 'Что тестировать:')
+        = text_area_tag :what_to_test,
+                        local_assigns[:what_to_test],
+                        id: "testing_what_#{service_job.id}",
+                        rows: 3,
+                        class: 'repair-status-widget-modal__input',
+                        autocomplete: 'off',
+                        data: { testing_what_for: service_job.id }
+
+      .repair-status-widget-modal__footer
+        %button.btn{ type: 'button', data: { repair_status_widget_modal_close_for: service_job.id } }
+          = t('helpers.links.cancel', default: 'Отмена')
+        %button.btn.btn-primary{ type: 'submit' }
+          = t('service_jobs.repair_status.testing_modal.submit', default: 'Отправить на тест')

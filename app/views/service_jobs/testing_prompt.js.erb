@@ -1,0 +1,25 @@
+(function() {
+  $('#testing_modal_<%= @service_job.id %>').remove();
+
+  var $host = $('#repair_status_widget_modal_host');
+  if ($host.length === 0) {
+    $host = $('<div id="repair_status_widget_modal_host"></div>').appendTo('body');
+  }
+  $host.append("<%= j render('testing_form', service_job: @service_job) %>");
+
+  var $modal = $('#testing_modal_<%= @service_job.id %>');
+  $modal.on('click', '[data-repair-status-widget-modal-close-for]', function(e) {
+    e.preventDefault();
+    $modal.remove();
+  });
+  // Выбор шаблона подставляет его текст в поле «что тестировать».
+  $modal.on('change', '[data-testing-template-select-for]', function() {
+    var content = $(this).val();
+    if (content) {
+      $modal.find('[data-testing-what-for]').val(content);
+    }
+  });
+  setTimeout(function() {
+    $modal.find('select').first().focus();
+  }, 50);
+})();

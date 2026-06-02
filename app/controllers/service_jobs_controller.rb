@@ -449,6 +449,23 @@ class ServiceJobsController < ApplicationController
       end
     end
 
+    testing_target_location = nil
+    testing_what_to_test = nil
+    if pause_reason&.testing?
+      testing_target_location = Location.find_by(id: params[:target_location_id])
+      testing_what_to_test = params[:what_to_test].to_s.strip
+      if testing_target_location.nil?
+        @testing_error = t('service_jobs.repair_status.testing_target_required', default: 'Выберите, куда отправить устройство')
+        respond_to(&:js)
+        return
+      end
+      if testing_what_to_test.blank?
+        @testing_error = t('service_jobs.repair_status.testing_what_required', default: 'Укажите, что тестировать')
+        respond_to(&:js)
+        return
+      end
+    end
+
     if new_status.in_progress?
       active = ServiceJob.active_in_progress_for(current_user).where.not(id: @service_job.id).first
       if active && params[:force_displace_active].blank?
@@ -471,7 +488,17 @@ class ServiceJobsController < ApplicationController
       end
     end
 
-    change = @service_job.change_repair_status!(new_status, user: current_user, pause_reason: pause_reason, displaced_by: displaced_by, gluing_hours: gluing_hours)
+    change = nil
+    ServiceJob.transaction do
+      change = @service_job.change_repair_status!(new_status, user: current_user, pause_reason: pause_reason, displaced_by: displaced_by, gluing_hours: gluing_hours)
+      if change && pause_reason&.testing?
+        @service_job.testing_sessions.create!(
+          sender: current_user,
+          target_location: testing_target_location,
+          what_to_test: testing_what_to_test
+        )
+      end
+    end
     if change && pause_reason&.gluing? && gluing_hours
       RepairGluingReminderJob.set(wait: gluing_hours.hours).perform_later(change.id)
     end
@@ -484,6 +511,11 @@ class ServiceJobsController < ApplicationController
   end
 
   def gluing_prompt
+    @service_job = find_record ServiceJob
+    respond_to(&:js)
+  end
+
+  def testing_prompt
     @service_job = find_record ServiceJob
     respond_to(&:js)
   end

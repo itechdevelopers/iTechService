@@ -233,6 +233,7 @@ Rails.application.routes.draw do
     patch :repair_status, on: :member, defaults: { format: 'js' }, action: :update_repair_status
     get :displaced_by_prompt, on: :member, defaults: { format: 'js' }
     get :gluing_prompt, on: :member, defaults: { format: 'js' }
+    get :testing_prompt, on: :member, defaults: { format: 'js' }
     put :archive, on: :member, defaults: { format: 'js' }
     get :new_v2, on: :collection
     post :create_v2, on: :collection
