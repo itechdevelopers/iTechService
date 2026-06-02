@@ -354,6 +354,7 @@ Rails.application.routes.draw do
   resources :feature_types, except: :show
   resources :top_salables
   resources :task_templates
+  resources :testing_templates
 
   resources :stores do
     get :product_details, on: :member, defaults: {format: :js}
