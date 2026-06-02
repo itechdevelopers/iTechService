@@ -1,0 +1,38 @@
+- service_job = testing_session.service_job
+%tr{ id: "testing_session_#{testing_session.id}", data: { testing_session_id: testing_session.id } }
+  %td
+    = link_to service_job.presentation, service_job_path(service_job)
+    %br
+    %span.device_ticket_number
+      #{ServiceJob.human_attribute_name(:ticket_number)}: #{service_job.ticket_number}
+    %br
+    = service_job.client_presentation
+  %td
+    %strong= testing_session.target_location&.name
+    %br
+    = testing_session.what_to_test
+  %td= testing_session.sender&.short_name
+  %td.testings__status-cell
+    - if testing_session.not_started?
+      = link_to start_testing_path(testing_session), method: :patch, remote: true, class: 'btn btn-success btn-small' do
+        %i.icon-play.icon-white
+        = t('.play')
+    - elsif testing_session.in_progress?
+      %strong= t("testings.statuses.#{testing_session.status}")
+      - if testing_session.tester.present?
+        %br
+        %span.testings__tester= "#{t('.tester')}: #{testing_session.tester.short_name}"
+      .testings__actions
+        = link_to t('.passed_btn'), finish_prompt_testing_path(testing_session, outcome: 'passed'), remote: true, class: 'btn btn-success btn-small'
+        = link_to t('.failed_btn'), finish_prompt_testing_path(testing_session, outcome: 'failed'), remote: true, class: 'btn btn-danger btn-small'
+    - else
+      %strong= t("testings.statuses.#{testing_session.status}")
+      - if testing_session.started_at && testing_session.ended_at
+        %br
+        %span.testings__duration= "#{t('.duration')}: #{distance_of_time_in_words(testing_session.started_at, testing_session.ended_at)}"
+      - if testing_session.failed? && testing_session.failure_action.present?
+        %br
+        %span.testings__failure-action= t("testings.failure_actions.#{testing_session.failure_action}")
+      - if testing_session.notes.present?
+        %br
+        %span.testings__notes= testing_session.notes

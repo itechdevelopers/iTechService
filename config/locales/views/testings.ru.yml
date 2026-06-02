@@ -1,0 +1,45 @@
+ru:
+  testings:
+    statuses:
+      not_started: "Не начинали"
+      in_progress: "Тестируется"
+      passed: "Успешное тестирование"
+      failed: "Неуспешное тестирование"
+    failure_actions:
+      return_to_tech: "Вернуть технарям"
+      retry: "Тестировать снова"
+    results:
+      passed: "Прошёл"
+      failed: "Не прошёл"
+    index:
+      title: "Тестирование"
+      empty: "Нет устройств на тестировании"
+      columns:
+        identification: "Устройство / Талон / Клиент"
+        target: "Куда / Что тестировать"
+        sender: "Кто направил"
+        status: "Статус"
+    returned:
+      title: "Вернулось с тестирования"
+      empty: "Нет вернувшихся с тестирования устройств"
+      columns:
+        identification: "Устройство / Талон / Клиент"
+        result: "Результат"
+        tester: "Кто тестировал"
+        notes: "Заметки по тесту"
+        action: "Действие"
+      resume: "Продолжить ремонт"
+      resume_confirm: "Снять с паузы и продолжить ремонт?"
+      resumed: "Ремонт продолжен"
+    testing_session:
+      play: "Начать тест"
+      tester: "Тестирует"
+      passed_btn: "Успешно"
+      failed_btn: "Неуспешно"
+      duration: "Длительность"
+    finish_modal:
+      title_passed: "Успешное завершение теста"
+      title_failed: "Неуспешное завершение теста"
+      failure_action_label: "Что делать дальше:"
+      notes_label: "Заметки по тесту:"
+      submit: "Сохранить"

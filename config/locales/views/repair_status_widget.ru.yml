@@ -6,12 +6,20 @@ ru:
       displaced_by_required: 'Введите номер ремонта'
       displaced_by_not_found: 'Ремонт с таким номером не найден'
       gluing_hours_required: 'Введите количество часов (целое число больше 0)'
+      testing_target_required: 'Выберите, куда отправить устройство'
+      testing_what_required: 'Укажите, что тестировать'
       displaced_by_modal:
         title: 'Срочный ремонт'
         label: 'Номер ремонта (талона) который вытесняет текущий:'
       gluing_modal:
         title: 'На проклейке'
         label: 'Сколько часов устройство должно клеиться:'
+      testing_modal:
+        title: 'Отправить на тестирование'
+        target_label: 'Куда отправить:'
+        template_label: 'Шаблон (подставит текст ниже):'
+        what_label: 'Что тестировать:'
+        submit: 'Отправить на тест'
       displace_confirm:
         title: 'Переключение между ремонтами'
         intro_html: 'У вас уже в работе ремонт <strong>#%{ticket}</strong>.'

@@ -1,0 +1,9 @@
+= auto_header_tag @testing_template
+= simple_form_for @testing_template, html: { class: 'form-horizontal' } do |f|
+  = f.error_notification
+
+  = f.input :content, as: :text, input_html: { rows: 3 }
+  = f.input :position
+
+  .form-actions
+    = submit_button f

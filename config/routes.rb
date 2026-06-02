@@ -13,6 +13,15 @@ Rails.application.routes.draw do
   get 'repair_status_devices', to: 'dashboard#repair_status_devices'
   get 'actual_supply_requests', to: 'dashboard#actual_supply_requests'
   get 'ready_service_jobs', to: 'dashboard#ready_service_jobs'
+  resources :testings, only: %i[index] do
+    collection { get :returned }
+    member do
+      patch :start
+      get   :finish_prompt
+      patch :finish
+      patch :resume
+    end
+  end
   get 'check_session_status', to: 'dashboard#check_session_status'
   get 'print_tags', to: 'dashboard#print_tags'
 
@@ -233,6 +242,7 @@ Rails.application.routes.draw do
     patch :repair_status, on: :member, defaults: { format: 'js' }, action: :update_repair_status
     get :displaced_by_prompt, on: :member, defaults: { format: 'js' }
     get :gluing_prompt, on: :member, defaults: { format: 'js' }
+    get :testing_prompt, on: :member, defaults: { format: 'js' }
     put :archive, on: :member, defaults: { format: 'js' }
     get :new_v2, on: :collection
     post :create_v2, on: :collection
@@ -354,6 +364,7 @@ Rails.application.routes.draw do
   resources :feature_types, except: :show
   resources :top_salables
   resources :task_templates
+  resources :testing_templates
 
   resources :stores do
     get :product_details, on: :member, defaults: {format: :js}

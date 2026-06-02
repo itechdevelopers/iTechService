@@ -1,0 +1,15 @@
+ru:
+  testing_templates:
+    edit:
+      title: 'Редактирование шаблона тестирования'
+    new:
+      title: 'Новый шаблон тестирования'
+    index:
+      title: 'Шаблоны тестирования'
+    created: 'Шаблон тестирования создан'
+    updated: 'Шаблон тестирования изменён'
+  activerecord:
+    attributes:
+      testing_template:
+        content: 'Что тестировать'
+        position: 'Позиция'

@@ -1,0 +1,17 @@
+= auto_header_tag
+%p= link_to_new TestingTemplate if can? :create, TestingTemplate
+%table.table.table-hover.table-striped
+  %thead
+    %tr
+      %th= TestingTemplate.human_attribute_name :position
+      %th= TestingTemplate.human_attribute_name :content
+      %th
+  %tbody
+    - @testing_templates.each do |testing_template|
+      %tr
+        %td= testing_template.position
+        %td= testing_template.content
+        %td
+          .btn-group
+            = link_to_edit_small testing_template if can? :edit, testing_template
+            = link_to_destroy_small testing_template if can? :destroy, testing_template

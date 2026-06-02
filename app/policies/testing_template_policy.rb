@@ -1,0 +1,2 @@
+class TestingTemplatePolicy < CommonPolicy
+end

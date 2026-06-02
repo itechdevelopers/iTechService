@@ -1,0 +1,2 @@
+// Ремонт снят с паузы → перерисовываем строку (кнопка → «Ремонт продолжен»).
+$('#returned_session_<%= @testing_session.id %>').replaceWith('<%= j render partial: 'returned_session', object: @testing_session, as: :testing_session %>');

@@ -1,0 +1,14 @@
+%h3= t('.title')
+
+%table#testings_table.table.table-hover.table-bordered
+  %thead
+    %tr
+      %th= t('.columns.identification')
+      %th= t('.columns.target')
+      %th= t('.columns.sender')
+      %th= t('.columns.status')
+  %tbody
+    - if @testing_sessions.empty?
+      %tr
+        %td{ colspan: 4 }= t('.empty')
+    = render partial: 'testing_session', collection: @testing_sessions, as: :testing_session

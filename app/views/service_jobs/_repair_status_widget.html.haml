@@ -35,6 +35,9 @@
                     - elsif reason.gluing?
                       = link_to gluing_prompt_service_job_path(service_job), remote: true do
                         = reason.name
+                    - elsif reason.testing?
+                      = link_to testing_prompt_service_job_path(service_job), remote: true do
+                        = reason.name
                     - else
                       = link_to repair_status_service_job_path(service_job, repair_status_code: status.code, repair_pause_reason_id: reason.id), method: :patch, remote: true do
                         = reason.name
