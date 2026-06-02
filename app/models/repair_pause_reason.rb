@@ -1,6 +1,7 @@
 class RepairPauseReason < ApplicationRecord
   URGENT_REPAIR = 'urgent_repair'.freeze
   GLUING = 'gluing'.freeze
+  TESTING = 'testing'.freeze
 
   has_many :repair_status_changes, dependent: :restrict_with_error
 
@@ -16,5 +17,9 @@ class RepairPauseReason < ApplicationRecord
 
   def gluing?
     code == GLUING
+  end
+
+  def testing?
+    code == TESTING
   end
 end

@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20260529120000) do
+ActiveRecord::Schema.define(version: 20260602142044) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -2106,6 +2106,26 @@ ActiveRecord::Schema.define(version: 20260529120000) do
     t.index ["chat_id"], name: "index_telegram_chats_on_chat_id", unique: true
   end
 
+  create_table "testing_sessions", force: :cascade do |t|
+    t.bigint "service_job_id", null: false
+    t.bigint "sender_id"
+    t.bigint "target_location_id"
+    t.bigint "tester_id"
+    t.text "what_to_test"
+    t.string "status", default: "not_started", null: false
+    t.datetime "started_at"
+    t.datetime "ended_at"
+    t.text "notes"
+    t.string "failure_action"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["sender_id"], name: "index_testing_sessions_on_sender_id"
+    t.index ["service_job_id"], name: "index_testing_sessions_on_service_job_id"
+    t.index ["status"], name: "index_testing_sessions_on_status"
+    t.index ["target_location_id"], name: "index_testing_sessions_on_target_location_id"
+    t.index ["tester_id"], name: "index_testing_sessions_on_tester_id"
+  end
+
   create_table "time_bank_entries", force: :cascade do |t|
     t.bigint "user_id", null: false
     t.bigint "schedule_group_id", null: false
@@ -2534,6 +2554,10 @@ ActiveRecord::Schema.define(version: 20260529120000) do
   add_foreign_key "substitute_phones", "departments"
   add_foreign_key "substitute_phones", "items"
   add_foreign_key "substitute_phones", "service_jobs"
+  add_foreign_key "testing_sessions", "locations", column: "target_location_id"
+  add_foreign_key "testing_sessions", "service_jobs"
+  add_foreign_key "testing_sessions", "users", column: "sender_id"
+  add_foreign_key "testing_sessions", "users", column: "tester_id"
   add_foreign_key "time_bank_entries", "schedule_groups"
   add_foreign_key "time_bank_entries", "time_bank_event_types", column: "event_type_id"
   add_foreign_key "time_bank_entries", "users"
