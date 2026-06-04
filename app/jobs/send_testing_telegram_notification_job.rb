@@ -8,7 +8,7 @@
 #
 # Первой строкой сообщения идут @-упоминания сотрудников, которые должны
 # среагировать (работающие сейчас по расписанию на нужной локации) —
-# их подбирает TestingMentionRecipientsQuery по направлению устройства.
+# их подбирает TestingRecipientsQuery по направлению устройства.
 # Если тегать некого / нет ников — префикс опускается (сообщение всё равно шлётся).
 #
 # Чат адресуется через ENV (стандарт проекта для фиксированных бот-чатов, см. docs):
@@ -49,7 +49,7 @@ class SendTestingTelegramNotificationJob < ApplicationJob
 
   # Строка @-упоминаний из ников Telegram. nil, если получателей/ников нет.
   def mentions_line(session)
-    mentions = TestingMentionRecipientsQuery.new(session: session).call
+    mentions = TestingRecipientsQuery.new(session: session).call
                  .map { |user| user.telegram_username.presence }
                  .compact
                  .map { |nick| "@#{esc(nick)}" }

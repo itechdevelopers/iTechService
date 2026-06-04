@@ -503,9 +503,13 @@ class ServiceJobsController < ApplicationController
     if change && pause_reason&.gluing? && gluing_hours
       RepairGluingReminderJob.set(wait: gluing_hours.hours).perform_later(change.id)
     end
-    # Уведомление технарей в Telegram — после коммита транзакции (иначе Sidekiq
-    # может не найти ещё не сохранённую сессию).
-    SendTestingTelegramNotificationJob.perform_later(testing_session.id) if testing_session
+    # Уведомления — после коммита транзакции (иначе Sidekiq может не найти ещё
+    # не сохранённую сессию). Telegram (общий чат с @-тегами) + in-app (по записи
+    # на каждого получателя целевой тест-локации).
+    if testing_session
+      SendTestingTelegramNotificationJob.perform_later(testing_session.id)
+      SendTestingInAppNotificationJob.perform_later(testing_session.id)
+    end
     respond_to(&:js)
   end
 

@@ -58,6 +58,7 @@ class TestingsController < ApplicationController
 
     if was_in_progress && (@testing_session.passed? || @testing_session.failed?)
       SendTestingTelegramNotificationJob.perform_later(@testing_session.id)
+      SendTestingInAppNotificationJob.perform_later(@testing_session.id)
     end
 
     respond_to { |format| format.js }
