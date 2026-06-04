@@ -15,6 +15,7 @@ class Notification < ApplicationRecord
     'Kanban::Card'             => 'Канбан-карточки',
     'Kanban::Column'           => 'Канбан-колонки',
     'GlassStickingNotification' => 'Стикеры стекла',
+    'TestingSession'           => 'Тестирование',
     nil                        => 'Без типа'
   }.freeze
 

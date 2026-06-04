@@ -3,6 +3,7 @@
 <%= simple_form_for @location, html: { class: 'form-horizontal' } do |f| %>
   <%= f.association :department %>
   <%= f.input :schedule %>
+  <%= f.input :for_testing %>
   <%= f.input :name, autofocus: true %>
   <%= f.input :code, collection: Location::CODES %>
   <%= f.input :position %>

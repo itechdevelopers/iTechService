@@ -6,8 +6,13 @@
 #   passed      → тест пройден      (триггер из TestingsController#finish)
 #   failed      → тест не пройден   (триггер из TestingsController#finish)
 #
+# Первой строкой сообщения идут @-упоминания сотрудников, которые должны
+# среагировать (работающие сейчас по расписанию на нужной локации) —
+# их подбирает TestingRecipientsQuery по направлению устройства.
+# Если тегать некого / нет ников — префикс опускается (сообщение всё равно шлётся).
+#
 # Чат адресуется через ENV (стандарт проекта для фиксированных бот-чатов, см. docs):
-#   TELEGRAM_TECH_NOTIFICATIONS_CHAT_ID — id группы «Уведомление технарей».
+#   TELEGRAM_DEVICE_TESTING_CHAT_ID — id группы «Уведомление технарей».
 # Если переменная не задана (dev / не настроенный прод) — job молча no-op'ит
 # (SendTelegramMessage тоже отдельно проверяет TELEGRAM_BOT_TOKEN).
 class SendTestingTelegramNotificationJob < ApplicationJob
@@ -16,7 +21,7 @@ class SendTestingTelegramNotificationJob < ApplicationJob
   def perform(testing_session_id)
     # ENV читаем здесь, а не на уровне класса: значение может появиться/смениться
     # после загрузки класса (консоль, тесты, reload).
-    chat_id = ENV['TELEGRAM_TECH_NOTIFICATIONS_CHAT_ID']
+    chat_id = ENV['TELEGRAM_DEVICE_TESTING_CHAT_ID']
     return if chat_id.blank?
 
     session = TestingSession.find(testing_session_id)
@@ -30,11 +35,27 @@ class SendTestingTelegramNotificationJob < ApplicationJob
   private
 
   def build_message(session)
-    case session.status
-    when 'passed' then finished_message(session, header: '✅ Тест пройден успешно', failed: false)
-    when 'failed' then finished_message(session, header: '❌ Тест не пройден', failed: true)
-    else sent_message(session)
-    end
+    body =
+      case session.status
+      when 'passed' then finished_message(session, header: '✅ Тест пройден успешно', failed: false)
+      when 'failed' then finished_message(session, header: '❌ Тест не пройден', failed: true)
+      else sent_message(session)
+      end
+    # @-теги сотрудников, которые должны среагировать (работающие сейчас по
+    # расписанию на нужной локации), идут первой строкой. Если тегать некого
+    # или ни у кого не заполнен ник — шлём сообщение без префикса (fallback).
+    [mentions_line(session), body].compact.join("\n\n")
+  end
+
+  # Строка @-упоминаний из ников Telegram. nil, если получателей/ников нет.
+  def mentions_line(session)
+    mentions = TestingRecipientsQuery.new(session: session).call
+                 .map { |user| user.telegram_username.presence }
+                 .compact
+                 .map { |nick| "@#{esc(nick)}" }
+    return nil if mentions.empty?
+
+    mentions.join(' ')
   end
 
   # Уведомление об отправке устройства на тест.

@@ -31,6 +31,12 @@ class TestingSession < ApplicationRecord
     where(status: 'passed')
       .or(where(status: 'failed', failure_action: FAILURE_ACTIONS[:return_to_tech]))
   }
+  # Сессии, чей ремонт «живёт» в указанном подразделении (по department_id
+  # самого service_job). Витрина «Вернулось» фильтруется по отделу сотрудника,
+  # а не по sender — вернувшееся видит весь ремонтный отдел, не только отправитель.
+  scope :in_department, lambda { |department|
+    joins(:service_job).where(service_jobs: { department_id: department })
+  }
 
   # Длительность теста в секундах (nil, пока тест не завершён).
   def duration

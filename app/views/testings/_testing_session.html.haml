@@ -1,5 +1,8 @@
 - service_job = testing_session.service_job
-%tr{ id: "testing_session_#{testing_session.id}", data: { testing_session_id: testing_session.id } }
+- # «Требует действия» = ещё не начатый тест (нужно нажать «Начать тест»).
+- # После старта (in_progress) класс не добавляется → подсветка гаснет.
+- action_needed = 'testings__row--action-needed' if testing_session.not_started?
+%tr.testings__row{ class: action_needed, id: "testing_session_#{testing_session.id}", data: { testing_session_id: testing_session.id } }
   %td
     = link_to service_job.presentation, service_job_path(service_job)
     %br

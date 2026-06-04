@@ -18,6 +18,7 @@ class Location < ApplicationRecord
   scope :in_city, ->(city) { where department_id: Department.in_city(city) }
   scope :in_department, ->(department) { where department_id: department }
   scope :for_schedule, -> { where(schedule: true) }
+  scope :for_testing, -> { where(for_testing: true) }
   scope :visible, -> { where hidden: [false, nil] }
   scope :popular, -> { where less_popular: [false, nil] }
   scope :less_popular, -> { where less_popular: true }

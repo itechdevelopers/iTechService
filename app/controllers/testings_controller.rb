@@ -11,13 +11,14 @@ class TestingsController < ApplicationController
                           .chronological
   end
 
-  # «ВЕРНУЛОСЬ С ТЕСТИРОВАНИЯ» у технаря: завершённые сессии, которые он сам
-  # отправлял (sender), прошедшие ИЛИ возвращённые после провала (retry — нет).
+  # «ВЕРНУЛОСЬ С ТЕСТИРОВАНИЯ»: завершённые сессии (прошедшие ИЛИ возвращённые
+  # после провала; retry — нет), чей ремонт живёт в подразделении сотрудника.
+  # Видимость по отделу, а не по sender — вернувшееся видит весь ремонтный отдел.
   def returned
     authorize :testing, :returned?
 
     @testing_sessions = TestingSession.returned
-                          .where(sender_id: current_user.id)
+                          .in_department(current_department)
                           .includes(:tester, :target_location, service_job: :client)
                           .order(ended_at: :desc)
   end
@@ -57,6 +58,7 @@ class TestingsController < ApplicationController
 
     if was_in_progress && (@testing_session.passed? || @testing_session.failed?)
       SendTestingTelegramNotificationJob.perform_later(@testing_session.id)
+      SendTestingInAppNotificationJob.perform_later(@testing_session.id)
     end
 
     respond_to { |format| format.js }
@@ -67,7 +69,10 @@ class TestingsController < ApplicationController
   # уже снят с паузы — ничего не делаем (не плодим записи в repair_status_changes).
   def resume
     authorize :testing, :resume?
-    @testing_session = TestingSession.where(sender_id: current_user.id).find(params[:id])
+    # scope-then-find: ограничиваем отделом сотрудника (как и список «Вернулось»),
+    # чужой отдел → RecordNotFound (404). Защита от IDOR на уровне записи, т.к.
+    # headless TestingPolicy конкретную запись не проверяет.
+    @testing_session = TestingSession.in_department(current_department).find(params[:id])
     service_job = @testing_session.service_job
 
     if service_job.repair_status&.paused?
