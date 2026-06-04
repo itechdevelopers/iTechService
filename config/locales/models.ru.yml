@@ -326,6 +326,7 @@ ru:
       location:
         ancestry: 'Предок'
         color: 'Цвет'
+        for_testing: 'Участвует в тестировании'
         hidden: 'Скрытая'
         less_popular: 'Менее популярная локация'
         name: 'Название'

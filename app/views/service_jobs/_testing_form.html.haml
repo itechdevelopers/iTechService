@@ -1,6 +1,6 @@
 - testing_reason = RepairPauseReason.find_by(code: RepairPauseReason::TESTING)
 - paused_status = RepairStatus.by_code(RepairStatus::PAUSED)
-- locations = Location.allowed_for(current_user, service_job).ordered
+- locations = Location.allowed_for(current_user, service_job).for_testing.ordered
 - templates = TestingTemplate.ordered
 
 .repair-status-widget-modal{ id: "testing_modal_#{service_job.id}", tabindex: -1, role: 'dialog' }
