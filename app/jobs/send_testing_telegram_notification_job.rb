@@ -7,7 +7,7 @@
 #   failed      → тест не пройден   (триггер из TestingsController#finish)
 #
 # Чат адресуется через ENV (стандарт проекта для фиксированных бот-чатов, см. docs):
-#   TELEGRAM_TECH_NOTIFICATIONS_CHAT_ID — id группы «Уведомление технарей».
+#   TELEGRAM_DEVICE_TESTING_CHAT_ID — id группы «Уведомление технарей».
 # Если переменная не задана (dev / не настроенный прод) — job молча no-op'ит
 # (SendTelegramMessage тоже отдельно проверяет TELEGRAM_BOT_TOKEN).
 class SendTestingTelegramNotificationJob < ApplicationJob
@@ -16,7 +16,7 @@ class SendTestingTelegramNotificationJob < ApplicationJob
   def perform(testing_session_id)
     # ENV читаем здесь, а не на уровне класса: значение может появиться/смениться
     # после загрузки класса (консоль, тесты, reload).
-    chat_id = ENV['TELEGRAM_TECH_NOTIFICATIONS_CHAT_ID']
+    chat_id = ENV['TELEGRAM_DEVICE_TESTING_CHAT_ID']
     return if chat_id.blank?
 
     session = TestingSession.find(testing_session_id)
