@@ -18,13 +18,14 @@ class TestingPolicy < ApplicationPolicy
   end
 
   # «Вернулось с тестирования» и снятие с паузы — сторона технаря-отправителя,
-  # а не тестировщика. Гейтится фильтром sender_id в контроллере и не зависит
-  # от for_schedule-локации, поэтому доступно любому аутентифицированному.
+  # а не тестировщика. Доступ у сотрудников ремонтных локаций (код начинается
+  # с repair, см. Location#is_any_repair?) плюс админы. Содержимое страницы
+  # дополнительно сужается по sender_id в контроллере (видишь только свои).
   def returned?
-    user.present?
+    user.present? && (user.any_admin? || user.location&.is_any_repair?)
   end
 
   def resume?
-    user.present?
+    returned?
   end
 end
