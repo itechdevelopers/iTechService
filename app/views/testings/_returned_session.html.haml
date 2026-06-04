@@ -1,6 +1,10 @@
 - service_job = testing_session.service_job
 - row_modifier = testing_session.failed? ? 'testings-returned__row--failed' : 'testings-returned__row--passed'
-%tr.testings-returned__row{ class: row_modifier, id: "returned_session_#{testing_session.id}", data: { testing_session_id: testing_session.id } }
+- # «Требует действия» = провален и ремонт ещё на тестовой паузе (то же условие,
+- # что гейтит кнопку «Продолжить ремонт» ниже). После resume → не paused →
+- # полоса гаснет, остаётся только тон исхода.
+- action_needed = 'testings-returned__row--action-needed' if testing_session.failed? && service_job.repair_status&.paused?
+%tr.testings-returned__row{ class: [row_modifier, action_needed].compact, id: "returned_session_#{testing_session.id}", data: { testing_session_id: testing_session.id } }
   %td
     = link_to service_job.presentation, service_job_path(service_job)
     %br

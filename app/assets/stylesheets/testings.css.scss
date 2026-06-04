@@ -13,6 +13,12 @@
     border-bottom: 2px solid #f0ad4e;
   }
 
+  // «Требует действия»: ещё не начатый тест — заливаем строку, чтобы to-do
+  // выделялись на фоне уже тестируемых (белых). Гаснет после старта.
+  .testings__row--action-needed > td {
+    background-color: #fcf3d6;
+  }
+
   .testings__status-cell {
     white-space: nowrap;
   }
@@ -55,6 +61,13 @@
 
   &__row--failed > td {
     background-color: #fdf3f3;
+  }
+
+  // «Требует действия»: провален и ремонт ещё на паузе. Янтарная полоса —
+  // отдельный «зов к действию» поверх тона исхода (не перекрашиваем фон,
+  // чтобы не слиться с красным --failed). Гаснет после «Продолжить ремонт».
+  &__row--action-needed > td:first-child {
+    border-left: 3px solid #f0ad4e;
   }
 
   &__result {
