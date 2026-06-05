@@ -25,7 +25,7 @@ class RepairTask < ApplicationRecord
 
   after_initialize do
     self.price ||= repair_service&.price(department)&.value
-    self.store_id = Department.current.spare_parts_store.id
+    self.store_id ||= Department.current&.spare_parts_store&.id
     # self.store_id = User.current.try(:spare_parts_store).try(:id)
     if repair_service.present? and repair_parts.empty?
       repair_service.spare_parts.each do |spare_part|
