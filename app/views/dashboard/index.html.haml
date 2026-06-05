@@ -22,7 +22,12 @@
           %li.actual_requests_nav= link_to t('dashboard.actual_requests'), actual_supply_requests_path, remote: true
       %li.ready_service_jobs_nav= link_to t('dashboard.ready_service_jobs'), ready_service_jobs_path, remote: true
       - if current_user.any_admin? || current_user.location&.for_testing?
-        %li.testings_nav= link_to t('dashboard.testings'), testings_path
+        - testings_action_needed = TestingSession.for_tester(current_user).not_started.count
+        %li.testings_nav
+          = link_to testings_path do
+            = t('dashboard.testings')
+            - if testings_action_needed > 0
+              %span.testings-nav-badge{ title: t('dashboard.testings_action_needed_hint', count: testings_action_needed, default: "Не начатых тестов: #{testings_action_needed}") }= testings_action_needed
       - if current_user.any_admin? || current_user.location&.is_any_repair?
         %li.returned_testings_nav= link_to t('dashboard.returned_testings'), returned_testings_path
       %li.all_service_jobs_nav= link_to t('dashboard.all_service_jobs'), service_jobs_path

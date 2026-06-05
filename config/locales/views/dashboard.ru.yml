@@ -11,6 +11,7 @@ ru:
     all_service_jobs: "Все работы"
     ready_service_jobs: "Готовые работы"
     testings: "Тестирование"
+    testings_action_needed_hint: "Устройств ждут начала тестирования: %{count}"
     returned_testings: "Вернулось с тестирования"
     misc: 'Прочее'
     moved_title: 'Перемещен'
