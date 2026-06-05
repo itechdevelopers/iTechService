@@ -44,6 +44,19 @@ class TestingSession < ApplicationRecord
   scope :for_tester, lambda { |user|
     user&.location_id.present? ? where(target_location_id: user.location_id) : all
   }
+  # «Требуют действия» на витрине /returned: провалены с возвратом технарю И
+  # ремонт всё ещё на паузе (технарь не нажал «Продолжить ремонт»). Предикат
+  # дословно повторяет условие подсветки строки в _returned_session
+  # (failed? && service_job.repair_status&.paused?) — чтобы счётчик-бейдж в
+  # навбаре всегда совпадал с числом подсвеченных строк. Один JOIN на
+  # service_job→repair_status (department-фильтр здесь же, без in_department,
+  # иначе Rails 5.1 продублировал бы join к service_jobs).
+  scope :awaiting_resume_in, lambda { |department|
+    where(status: 'failed', failure_action: FAILURE_ACTIONS[:return_to_tech])
+      .joins(service_job: :repair_status)
+      .where(repair_statuses: { code: RepairStatus::PAUSED })
+      .where(service_jobs: { department_id: department })
+  }
 
   # Длительность теста в секундах (nil, пока тест не завершён).
   def duration

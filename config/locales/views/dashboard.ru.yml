@@ -13,6 +13,7 @@ ru:
     testings: "Тестирование"
     testings_action_needed_hint: "Устройств ждут начала тестирования: %{count}"
     returned_testings: "Вернулось с тестирования"
+    returned_action_needed_hint: "Ждут продолжения ремонта после неудачного теста: %{count}"
     misc: 'Прочее'
     moved_title: 'Перемещен'
     new_service_job: 'Приёмка девайса'
