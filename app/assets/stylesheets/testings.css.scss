@@ -3,6 +3,30 @@
 // generic-селекторы (.table, .icon-ok) НЕ трогаем — см. CONTEXT.md.
 // Палитра согласована с repair_status_summary.css.scss.
 
+// ── Бейдж-счётчик на ссылке «Тестирование» в навбаре дашборда ───────────────
+// Красный кружок с числом устройств, ждущих начала теста (not_started) —
+// как счётчик непрочитанных. Палитра/форма зеркалят .repair-status-summary__
+// attention. Сидит «надстрочно» в правом верхнем углу, слегка наезжая на
+// последнюю букву слова: остаётся в инлайн-потоке (последний элемент внутри
+// ссылки), а relative + отрицательные top/left поднимают и сдвигают его на
+// текст — так он привязан к букве, а не к правому краю ссылки с её padding'ом.
+.testings-nav-badge {
+  position: relative;
+  top: -0.9em;
+  left: -0.4em;
+  display: inline-block;
+  min-width: 8px;
+  padding: 0 6px;
+  background: #d9534f;
+  color: #fff;
+  border-radius: 10px;
+  font-size: 11px;
+  font-weight: bold;
+  line-height: 16px;
+  text-align: center;
+  vertical-align: baseline;
+}
+
 // ── Витрина «ТЕСТИРОВАНИЕ» (входящие) — /testings ───────────────────────────
 #testings_table {
   // Акцентная рамка + шапка: сущность визуально выделяется (ТЗ §2).

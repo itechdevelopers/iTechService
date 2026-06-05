@@ -37,6 +37,13 @@ class TestingSession < ApplicationRecord
   scope :in_department, lambda { |department|
     joins(:service_job).where(service_jobs: { department_id: department })
   }
+  # Сессии, доступные сотруднику как тестировщику: ограничены его локацией
+  # (target_location). У админов без локации — все. Единый источник и для
+  # витрины /testings (что видно/подсвечено), и для счётчика-бейджа в навбаре,
+  # чтобы цифра бейджа всегда совпадала с числом строк на странице.
+  scope :for_tester, lambda { |user|
+    user&.location_id.present? ? where(target_location_id: user.location_id) : all
+  }
 
   # Длительность теста в секундах (nil, пока тест не завершён).
   def duration

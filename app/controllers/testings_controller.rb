@@ -87,9 +87,9 @@ class TestingsController < ApplicationController
 
   # Сессии, доступные текущему сотруднику: его локация (у админов без
   # локации — все). Используется и для списка, и для проверки прав на старт.
+  # Тот же scope питает счётчик-бейдж в навбаре (см. dashboard/index) — выборка
+  # подсветки и цифры бейджа намеренно одна.
   def accessible_sessions
-    scope = TestingSession.all
-    scope = scope.where(target_location_id: current_user.location_id) if current_user.location_id.present?
-    scope
+    TestingSession.for_tester(current_user)
   end
 end
