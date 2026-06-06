@@ -11,6 +11,7 @@
       .controls= image_tag form.model.icon_url
   = f.input :is_permanent, as: :boolean
   = f.input :financial, as: :boolean
+  = f.input :exchangeable, as: :boolean
 
   = f.input :penalties do
     - FaultKind::PENALTIES_COUNT.times do |n|

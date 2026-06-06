@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20260606085531) do
+ActiveRecord::Schema.define(version: 20260606093914) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -617,6 +617,7 @@ ActiveRecord::Schema.define(version: 20260606085531) do
     t.text "description"
     t.boolean "financial", default: false, null: false
     t.string "penalties"
+    t.boolean "exchangeable", default: true, null: false
   end
 
   create_table "faults", id: :serial, force: :cascade do |t|
@@ -629,6 +630,8 @@ ActiveRecord::Schema.define(version: 20260606085531) do
     t.integer "penalty"
     t.boolean "expired", default: false, null: false
     t.bigint "issued_by_id"
+    t.boolean "exchanged", default: false, null: false
+    t.datetime "exchanged_at"
     t.index ["causer_id"], name: "index_faults_on_causer_id"
     t.index ["issued_by_id"], name: "index_faults_on_issued_by_id"
     t.index ["kind_id"], name: "index_faults_on_kind_id"

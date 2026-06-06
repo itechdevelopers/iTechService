@@ -48,6 +48,6 @@ class FaultKindsController < ApplicationController
 
   def fault_kind_params
     params.require(:fault_kind)
-          .permit(:description, :financial, :icon, :is_permanent, :name, :penalties)
+          .permit(:description, :exchangeable, :financial, :icon, :is_permanent, :name, :penalties)
   end
 end

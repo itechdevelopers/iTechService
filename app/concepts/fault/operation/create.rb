@@ -26,7 +26,7 @@ class Fault::Create < BaseOperation
     else
       date = options['contract.default'].date.to_date
       causer_id = options['contract.default'].causer_id
-      count = Fault.active.by_causer(causer_id).by_kind(kind).on_date(date).count
+      count = Fault.active.not_exchanged.by_causer(causer_id).by_kind(kind).on_date(date).count
 
       if count < kind.penalties.length
         options['contract.default'].penalty = kind.penalties[count]

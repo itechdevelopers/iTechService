@@ -251,6 +251,7 @@ ru:
       fault_kind:
         is_permanent: 'Постоянный?'
         financial: 'Денежный'
+        exchangeable: 'Можно обменять на плюсы'
         penalties: 'Штрафные санкции'
 
       merit:
