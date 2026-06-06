@@ -55,12 +55,20 @@ class Location < ApplicationRecord
     Location.archive.pluck(:id)
   end
 
-  # Локации, доступные для отправки на тестирование. Сужаем до подразделения
-  # ремонта (по service_job, иначе текущий отдел) ДЛЯ ВСЕХ, включая админов:
-  # устройство тестируется внутри своего отдела. Раньше админам отдавались все
-  # локации всех отделов — это был баг (дропдаун «куда отправить на тест»).
-  # user оставлен в сигнатуре под возможные ability-проверки в будущем.
   def self.allowed_for(user, service_job)
+    if user.admin?
+      visible
+    else
+      department = service_job.present? && service_job.department.present? ? service_job.department : Department.current
+      visible.where(department_id: department.id)
+    end
+  end
+
+  # Локации — допустимые цели отправки на тестирование. В отличие от общего
+  # allowed_for, сужает до подразделения ремонта ДЛЯ ВСЕХ (в т.ч. админов):
+  # устройство тестируется внутри своего отдела, поэтому роль роли не играет.
+  # Используется формой «Пауза → Тестирование» (_testing_form.html.haml).
+  def self.testing_targets_for(service_job)
     department = service_job&.department || Department.current
     visible.where(department_id: department&.id)
   end
