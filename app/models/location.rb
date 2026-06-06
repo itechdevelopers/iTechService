@@ -64,6 +64,15 @@ class Location < ApplicationRecord
     end
   end
 
+  # Локации — допустимые цели отправки на тестирование. В отличие от общего
+  # allowed_for, сужает до подразделения ремонта ДЛЯ ВСЕХ (в т.ч. админов):
+  # устройство тестируется внутри своего отдела, поэтому роль роли не играет.
+  # Используется формой «Пауза → Тестирование» (_testing_form.html.haml).
+  def self.testing_targets_for(service_job)
+    department = service_job&.department || Department.current
+    visible.where(department_id: department&.id)
+  end
+
   def to_s
     name
   end
