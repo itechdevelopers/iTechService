@@ -1,0 +1,4 @@
+$('#modal_form').modal('hide');
+<% if @model&.recipient %>
+$('#merits_list').html('<%= j render('table', merits: @model.recipient.merits.ordered.page(1)) %>');
+<% end %>

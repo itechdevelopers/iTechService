@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20260604092632) do
+ActiveRecord::Schema.define(version: 20260606085531) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -902,6 +902,21 @@ ActiveRecord::Schema.define(version: 20260604092632) do
     t.text "content"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+  end
+
+  create_table "merits", force: :cascade do |t|
+    t.bigint "recipient_id"
+    t.bigint "issued_by_id"
+    t.text "comment", null: false
+    t.date "date"
+    t.boolean "exchanged", default: false, null: false
+    t.datetime "exchanged_at"
+    t.bigint "fault_id"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["fault_id"], name: "index_merits_on_fault_id"
+    t.index ["issued_by_id"], name: "index_merits_on_issued_by_id"
+    t.index ["recipient_id"], name: "index_merits_on_recipient_id"
   end
 
   create_table "messages", id: :serial, force: :cascade do |t|
@@ -2480,6 +2495,9 @@ ActiveRecord::Schema.define(version: 20260604092632) do
   add_foreign_key "kanban_cards_users", "users"
   add_foreign_key "kanban_columns", "kanban_boards", column: "board_id"
   add_foreign_key "lost_devices", "service_jobs"
+  add_foreign_key "merits", "faults"
+  add_foreign_key "merits", "users", column: "issued_by_id"
+  add_foreign_key "merits", "users", column: "recipient_id"
   add_foreign_key "messages", "departments"
   add_foreign_key "notifications", "users"
   add_foreign_key "option_values", "option_types"

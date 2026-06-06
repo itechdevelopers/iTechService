@@ -5,6 +5,9 @@ jQuery ->
   $('.user-fautls').click ->
     $.get $(this).find('a').data('source')
 
+  $('.user-merits').click ->
+    $.get $(this).find('a').data('source')
+
   markedCells = [null, null, null, null]
 
   $('#schedule_table tbody').mousedown (event) ->

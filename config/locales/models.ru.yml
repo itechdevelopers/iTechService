@@ -32,6 +32,7 @@ ru:
       discount: 'Скидка'
       duty_day: 'Дежурство'
       fault_kind: 'Вид минуса'
+      merit: 'Плюс'
       feature: 'Характеристика'
       feature_type: 'Тип характеристики'
       gift_certificate: 'Подарочный сертификат'
@@ -251,6 +252,12 @@ ru:
         is_permanent: 'Постоянный?'
         financial: 'Денежный'
         penalties: 'Штрафные санкции'
+
+      merit:
+        recipient: 'Сотрудник'
+        issued_by: 'Выдал'
+        comment: 'Комментарий'
+        date: 'Дата'
 
       feature:
         value: 'Значение'
