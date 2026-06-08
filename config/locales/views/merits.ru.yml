@@ -1,0 +1,13 @@
+ru:
+  merits:
+    index:
+      title: 'Плюсы'
+    new:
+      title: 'Новый Плюс'
+      add: 'Добавить плюс'
+    edit:
+      title: 'Редактирование Плюса'
+    created: 'Плюс создан'
+    updated: 'Плюс изменён'
+    destroyed: 'Плюс удалён'
+    exchanged_label: 'обменян'

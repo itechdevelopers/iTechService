@@ -25,6 +25,7 @@
       %li.active= link_to t("users.info"), "#info_tab", 'data-toggle' => 'tab'
       %li= link_to t('users.schedule'), '#schedule_tab', 'data-toggle' => 'tab'
       %li.user-fautls= link_to t('faults.index.title'), '#faults_tab', class: 'user-faults-link', data: {toggle: 'tab', source: user_faults_path(@user)}
+      %li.user-merits= link_to t('merits.index.title'), '#merits_tab', class: 'user-merits-link', data: {toggle: 'tab', source: user_merits_path(@user)}
       -#- if can? :manage, Salary
       -#  %li= link_to t('salaries.index.title'), '#salary_tab', 'data-toggle' => 'tab'
       %li= link_to t("users.account"), '#account_tab', 'data-toggle' => 'tab'
@@ -237,6 +238,12 @@
         = assignments_calendar_for(@user, @assignments_month, @duty_entries_index, @cashier_entries_index, @store_closing_entries_index, @other_duty_dates, @other_cashier_dates, @other_store_closing_dates, @upcoming_duties, @upcoming_cashier, @upcoming_store_closing)
 
       #faults_tab.tab-pane
+
+      #merits_tab.tab-pane
+        - if can? :create, Merit
+          .form-actions.merits-toolbar
+            = link_to (glyph(:plus) + ' ' + t('merits.new.add')).html_safe, new_user_merit_path(@user), remote: true, class: 'btn btn-small btn-success'
+        #merits_list
 
       #account_tab.tab-pane
         %dl.dl-horizontal

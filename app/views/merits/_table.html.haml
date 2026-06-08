@@ -1,0 +1,22 @@
+%table.table.table-hover
+  %thead
+    %tr
+      %th= Merit.human_attribute_name(:date)
+      %th= Merit.human_attribute_name(:comment)
+      %th= Merit.human_attribute_name(:issued_by)
+      %th
+
+  %tbody#merits
+    - merits.each do |merit|
+      %tr.merit{'data-id': merit.id, class: ('merit--exchanged' if merit.exchanged?)}
+        %td= l merit.date
+        %td= merit.comment
+        %td= merit.issued_by&.short_name
+        %td
+          - if merit.exchanged?
+            %span.merit__exchanged-label= t('merits.exchanged_label')
+          - else
+            .btn-group
+              = link_to_destroy_small merit, remote: true if can? :destroy, merit
+
+= paginate merits, remote: true

@@ -1,0 +1,27 @@
+// Визуальное «гашение» обменянных плюсов (Merit) и минусов (Fault) — Цикл 4 фичи.
+// BEM с уникальными префиксами: НЕ трогаем generic-селекторы (.table, td и т.п.),
+// чтобы не задеть остальное приложение (правило CONTEXT.md по CSS).
+
+.merit--exchanged,
+.fault--exchanged {
+  color: #999;
+
+  td {
+    opacity: 0.7;
+    text-decoration: line-through;
+  }
+}
+
+.merit__exchanged-label,
+.fault__exchanged-label {
+  display: inline-block;
+  margin-right: 6px;
+  padding: 1px 6px;
+  font-size: 11px;
+  line-height: 16px;
+  color: #fff;
+  background-color: #999;
+  border-radius: 3px;
+  text-decoration: none; // перебиваем line-through родительского td
+  vertical-align: middle;
+}

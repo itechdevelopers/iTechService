@@ -142,7 +142,11 @@ Rails.application.routes.draw do
     get :bonuses, on: :member
     get :experience, on: :collection, format: :js
     get :search, on: :collection, format: :json
-    resources :faults, shallow: true, only: %i[index new create destroy]
+    resources :faults, shallow: true, only: %i[index new create destroy] do
+      post :exchange, on: :member
+      post :unexchange, on: :member
+    end
+    resources :merits, shallow: true, only: %i[index new create destroy]
     post :create_duty_day, on: :collection
     post :destroy_duty_day, on: :collection
     patch :update_uniform, on: :member

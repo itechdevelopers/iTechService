@@ -1,0 +1,14 @@
+= simple_form_for [@form.recipient, @form], remote: true, html: {class: 'form-inline form-horizontal'} do |f|
+  .modal-header
+    = button_to_close_modal
+    %h3= auto_title @form.model
+
+  .modal-body
+    - if @form.errors.any?
+      .alert.alert-error= @form.errors.full_messages.join('. ')
+    = f.input :recipient_id, collection: merit_recipients_collection, label_method: :short_name, as: :select, label: Merit.human_attribute_name(:recipient)
+    = f.input :date, as: :my_date
+    = f.input :comment, as: :text
+    = f.input :issued_by_id, as: :hidden, input_html: { value: current_user.id }
+
+  .modal-footer= submit_button f

@@ -6,6 +6,7 @@ class FaultKind < ApplicationRecord
   scope :expireable, -> { where is_permanent: false }
   scope :monthly, -> { expireable }
   scope :financial, -> { where financial: true }
+  scope :exchangeable, -> { where exchangeable: true }
 
   has_many :faults, foreign_key: :kind_id, dependent: :delete_all
 

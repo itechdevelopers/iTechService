@@ -10,6 +10,8 @@ class Fault < ApplicationRecord
   scope :ordered, -> { order date: :desc }
   scope :active, -> { where(expired: false) }
   scope :expired, -> { where(expired: true) }
+  scope :not_exchanged, -> { where(exchanged: false) }
+  scope :exchanged, -> { where(exchanged: true) }
   scope :expireable, -> { where(kind: FaultKind.expireable) }
 
   delegate :name, :icon, :icon_url, :financial?, :description, to: :kind, allow_nil: true

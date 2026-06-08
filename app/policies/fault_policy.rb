@@ -18,4 +18,17 @@ class FaultPolicy < ApplicationPolicy
   def destroy?
     superadmin?
   end
+
+  # Обмен минуса на плюсы жмётся ТОЛЬКО владельцем учётки (защита от мискликов
+  # старших). Доступен лишь для обменяемых видов и ещё не обменянных минусов.
+  def exchange?
+    record.causer_id == user.id &&
+      record.kind&.exchangeable? &&
+      !record.exchanged?
+  end
+
+  # Откат обмена — только superadmin, и только для уже обменянного минуса.
+  def unexchange?
+    superadmin? && record.exchanged?
+  end
 end
