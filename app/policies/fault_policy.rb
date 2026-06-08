@@ -27,8 +27,8 @@ class FaultPolicy < ApplicationPolicy
       !record.exchanged?
   end
 
-  # Откат обмена — только superadmin (реализуется в Цикле 4).
+  # Откат обмена — только superadmin, и только для уже обменянного минуса.
   def unexchange?
-    superadmin?
+    superadmin? && record.exchanged?
   end
 end

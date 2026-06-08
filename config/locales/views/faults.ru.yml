@@ -9,7 +9,11 @@ ru:
     created: 'Минус создан'
     updated: 'Минус изменён'
     destroyed: 'Минус удалён'
+    exchanged_label: 'обменян'
     exchange:
       button: 'Обменять'
       confirm: 'Списать 2 плюса и погасить этот минус?'
       not_enough: 'Недостаточно плюсов (нужно 2)'
+    unexchange:
+      button: 'Откатить обмен'
+      confirm: 'Вернуть 2 плюса и снова активировать этот минус?'

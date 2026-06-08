@@ -8,12 +8,15 @@
 
   %tbody#merits
     - merits.each do |merit|
-      %tr.merit{'data-id': merit.id}
+      %tr.merit{'data-id': merit.id, class: ('merit--exchanged' if merit.exchanged?)}
         %td= l merit.date
         %td= merit.comment
         %td= merit.issued_by&.short_name
         %td
-          .btn-group
-            = link_to_destroy_small merit, remote: true if can? :destroy, merit
+          - if merit.exchanged?
+            %span.merit__exchanged-label= t('merits.exchanged_label')
+          - else
+            .btn-group
+              = link_to_destroy_small merit, remote: true if can? :destroy, merit
 
 = paginate merits, remote: true

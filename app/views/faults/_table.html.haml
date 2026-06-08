@@ -11,7 +11,7 @@
   - available_merits = current_user.available_merits_count
   %tbody#faults
     - faults.each do |fault|
-      %tr.fault{'data-id': fault.id}
+      %tr.fault{'data-id': fault.id, class: ('fault--exchanged' if fault.exchanged?)}
         %td= l fault.date
         %td
           = image_tag fault.icon_url, class: 'fault_kind-icon' if fault.icon.present?
@@ -20,8 +20,13 @@
         %td= fault.penalty
         %td= fault.issued_by&.short_name
         %td
+          - if fault.exchanged?
+            %span.fault__exchanged-label= t('faults.exchanged_label')
           .btn-group
-            - if can? :exchange, fault
+            - if fault.exchanged?
+              - if can? :unexchange, fault
+                = link_to t('faults.unexchange.button'), unexchange_fault_path(fault), method: :post, remote: true, data: {confirm: t('faults.unexchange.confirm')}, class: 'btn btn-mini'
+            - elsif can? :exchange, fault
               - if available_merits >= Merit::Exchange::RATE
                 = link_to t('faults.exchange.button'), exchange_fault_path(fault), method: :post, remote: true, data: {confirm: t('faults.exchange.confirm')}, class: 'btn btn-mini btn-warning'
               - else

@@ -39,6 +39,13 @@ class FaultsController < ApplicationController
     failed
   end
 
+  def unexchange
+    run Merit::Unexchange do
+      return render 'exchange'
+    end
+    failed
+  end
+
   def fault_params
     params.require(:fault)
           .permit(:causer_id, :comment, :date, :kind_id, :penalty, :issued_by_id)

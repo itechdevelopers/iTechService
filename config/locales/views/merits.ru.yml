@@ -10,3 +10,4 @@ ru:
     created: 'Плюс создан'
     updated: 'Плюс изменён'
     destroyed: 'Плюс удалён'
+    exchanged_label: 'обменян'
