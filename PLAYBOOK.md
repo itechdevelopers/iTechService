@@ -4,6 +4,47 @@ Patterns and recipes specific to this codebase. Reference: see also [CLAUDE.md](
 
 ---
 
+## Тестирование Trailblazer-операций из rails runner / console
+
+Операции (`app/concepts/**/operation/*.rb`, наследники `BaseOperation`) на стеке
+`trailblazer-operation 0.0.13` вызываются **позиционно**, ровно как делает контроллерный
+хелпер `run` ([application_controller.rb:42](app/controllers/application_controller.rb#L42)):
+
+```ruby
+# ПРАВИЛЬНО — первый позиционный аргумент = params, второй = runtime-опции:
+result = Merit::Exchange.({ id: fault.id }, 'current_user' => some_user)
+result.success?            # => true/false
+result['model']            # модель из Model(...)-макроса
+result['result.message']   # сообщение, выставленное failure-хендлером
+```
+
+**Почему НЕ `Op.(params: {...}, current_user: u)`:** keyword-форма кладёт `params` в
+символьный ключ, а `Trailblazer::Operation::Model::Builder#find_by!` читает
+`options["params"]` (**строковый** ключ) → `params == nil` → `find_by(id: nil)` → модель
+`nil`. Дальше policy/шаги «молча» валятся (исключение на `nil` глотается Railway и уводит на
+failure-track), и вы получаете **ложный провал** с чужим сообщением. Это сбивает с толку:
+выглядит так, будто упала бизнес-логика, хотя на деле модель просто не нашлась.
+Виновник — `Skill::Call::Positional#call(params={}, options={})`, который делает
+`options.merge("params" => params)` только для позиционного вызова.
+
+**Грабля №2 — arity step-методов.** Step, заданный символом (`step :foo`), Trailblazer зовёт
+через `Option::KW#call_method`: при `method.arity == 1` — чистый `send(:foo, options)`, иначе —
+`send(:foo, options, **options.to_hash)`. Поэтому step-методы пишем с **одним позиционным
+аргументом** и читаем всё из него по строковым ключам — как
+[`Fault::Create#calculate_penalty`](app/concepts/fault/operation/create.rb#L21):
+
+```ruby
+def enough_merits?(options)        # arity 1 — ОК
+  options['model']                 # модель
+  # options['current_user'], options['params'], options['contract.default'] ...
+end
+```
+
+Лямбда-шаги (`step ->(*, model:, **) { ... }`) — наоборот, спокойно используют keyword-извлечение
+(`model:`, `current_user:`); это работает только для лямбд, не для `def`-методов.
+
+---
+
 ## Data migrations (для справочников и backfill)
 
 В проекте подключён gem `data_migrate` (`gem 'data_migrate', '~> 7.0.2'` в Gemfile) и Capistrano-расширение `capistrano/data_migrate` (в Capfile). Это значит: **на каждом `cap production deploy` автоматически прогоняется `data:migrate`** наряду со `schema db:migrate`. Никаких ручных шагов на проде.

@@ -8,6 +8,7 @@
       %th= Fault.human_attribute_name(:issued_by)
       %th
 
+  - available_merits = current_user.available_merits_count
   %tbody#faults
     - faults.each do |fault|
       %tr.fault{'data-id': fault.id}
@@ -20,6 +21,11 @@
         %td= fault.issued_by&.short_name
         %td
           .btn-group
+            - if can? :exchange, fault
+              - if available_merits >= Merit::Exchange::RATE
+                = link_to t('faults.exchange.button'), exchange_fault_path(fault), method: :post, remote: true, data: {confirm: t('faults.exchange.confirm')}, class: 'btn btn-mini btn-warning'
+              - else
+                %span.btn.btn-mini.disabled{title: t('faults.exchange.not_enough')}= t('faults.exchange.button')
             = link_to_destroy_small fault, remote: true if can? :destroy, fault
 
 = paginate faults, remote: true
