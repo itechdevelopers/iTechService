@@ -130,6 +130,7 @@
         = menu_item t('reports.title'), reports_path if can?(:manage, :report) || current_user.accessible_report_cards.exists?
         = menu_item t('call_transcriptions.link'), call_transcriptions_path if policy(CallTranscription).index?
         = menu_item t('telegram_bot_settings.link'), telegram_bot_settings_path
+        = menu_item t('telegram_broadcasts.link'), telegram_broadcasts_path if policy(TelegramBroadcast).index?
         = drop_down_divider
         = menu_item t('stolen_phones.link'), stolen_phones_path
         = menu_item t('case_pictures.index.title'), case_pictures_path

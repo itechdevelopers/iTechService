@@ -1,0 +1,65 @@
+ru:
+  telegram_broadcasts:
+    link: 'Telegram рассылки'
+
+    schedule_types:
+      day_of_month: 'Раз в месяц (в определённый день)'
+      every_n_days: 'Раз в N дней'
+
+    selection_modes:
+      random_variant: 'Случайный вариант'
+      in_order: 'По очереди (по кругу)'
+
+    index:
+      title: 'Telegram рассылки'
+      description: 'Запланированные сообщения, которые бот сам отправляет в группы по расписанию.'
+      add: 'Добавить рассылку'
+      schedule: 'Расписание'
+      selection: 'Выбор варианта'
+      variants_count: 'Вариантов'
+      send_now: 'Отправить сейчас (тест)'
+      send_now_confirm: 'Отправить тестовое сообщение в группу прямо сейчас? Расписание это не сдвинет.'
+      day_of_month_summary: '%{day}-го числа каждого месяца'
+      every_n_days_summary: 'каждые %{count} дн.'
+      empty: 'Рассылок пока нет'
+
+    new:
+      title: 'Новая рассылка'
+    edit:
+      title: 'Редактирование рассылки'
+
+    form:
+      schedule_legend: 'Расписание'
+      day_of_month_hint: 'Для варианта «раз в месяц»: число от 1 до 28.'
+      interval_days_hint: 'Для варианта «раз в N дней»: целое число ≥ 1.'
+      selection_legend: 'Какой вариант отправлять'
+      image_legend: 'Картинка (необязательно)'
+      image_hint: 'Если задана — сообщение уйдёт картинкой с текстом-подписью.'
+      remove_image: 'Удалить картинку'
+      variants_legend: 'Варианты сообщений'
+      variants_hint: 'Добавьте один или несколько текстов — при каждой отправке бот выберет один из них.'
+      add_variant: 'Добавить вариант'
+
+    create:
+      created: 'Рассылка создана'
+    update:
+      updated: 'Рассылка обновлена'
+    destroy:
+      destroyed: 'Рассылка удалена'
+    send_now:
+      sent: 'Тестовое сообщение отправлено в группу'
+      send_failed: 'Не удалось отправить. Проверьте токен бота, chat_id и наличие вариантов.'
+
+  activerecord:
+    attributes:
+      telegram_broadcast:
+        title: 'Название'
+        telegram_chat: 'Группа (чат)'
+        active: 'Активна'
+        schedule_type: 'Тип расписания'
+        day_of_month: 'День месяца'
+        interval_days: 'Интервал, дней'
+        selection_mode: 'Выбор варианта'
+        image: 'Картинка'
+      telegram_broadcast_variant:
+        body: 'Текст сообщения'

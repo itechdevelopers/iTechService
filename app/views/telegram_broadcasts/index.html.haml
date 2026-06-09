@@ -1,0 +1,47 @@
+- content_for :title, t('.title')
+
+%h3= t('.title')
+
+%p.muted= t('.description')
+
+= link_to new_telegram_broadcast_path, class: 'btn btn-success' do
+  = glyph(:plus)
+  = t('.add')
+
+%hr
+
+- if @telegram_broadcasts.any?
+  %table.table.table-condensed.table-striped
+    %thead
+      %tr
+        %th= TelegramBroadcast.human_attribute_name :title
+        %th= TelegramBroadcast.human_attribute_name :telegram_chat
+        %th= t('.schedule')
+        %th= t('.selection')
+        %th.text-center= t('.variants_count')
+        %th.text-center= TelegramBroadcast.human_attribute_name :active
+        %th
+    %tbody
+      - @telegram_broadcasts.each do |broadcast|
+        %tr
+          %td= broadcast.title
+          %td= broadcast.telegram_chat.name
+          %td
+            - if broadcast.day_of_month?
+              = t('.day_of_month_summary', day: broadcast.day_of_month)
+            - else
+              = t('.every_n_days_summary', count: broadcast.interval_days)
+          %td= t("telegram_broadcasts.selection_modes.#{broadcast.selection_mode}")
+          %td.text-center= broadcast.variants.size
+          %td.text-center
+            - if broadcast.active?
+              = glyph(:check)
+            - else
+              = glyph(:times)
+          %td.text-right
+            = link_to send_now_telegram_broadcast_path(broadcast), method: :post, class: 'btn btn-mini btn-info', title: t('.send_now'), data: { confirm: t('.send_now_confirm') } do
+              = glyph(:paper_plane)
+            = link_to glyph(:pencil), edit_telegram_broadcast_path(broadcast), class: 'btn btn-mini', title: t('helpers.links.edit')
+            = link_to glyph(:trash), telegram_broadcast_path(broadcast), method: :delete, class: 'btn btn-mini btn-danger', title: t('helpers.links.destroy'), data: { confirm: t('helpers.links.confirm') }
+- else
+  %p.muted= t('.empty')

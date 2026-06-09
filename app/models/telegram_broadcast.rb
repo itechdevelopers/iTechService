@@ -43,25 +43,38 @@ class TelegramBroadcast < ApplicationRecord
   # Выбирает один вариант (random / по кругу), шлёт в группу, двигает курсор.
   # last_sent_on/курсор обновляются ТОЛЬКО при успешной отправке.
   def deliver!(date = Date.current)
-    ordered = variants.order(:id).to_a
-    return false if ordered.empty?
-
-    if random_variant?
-      variant    = ordered.sample
-      next_index = last_variant_index
-    else
-      index      = last_variant_index.to_i % ordered.size
-      variant    = ordered[index]
-      next_index = (index + 1) % ordered.size
-    end
-
+    variant, next_index = pick_variant
+    return false if variant.nil?
     return false unless send_to_telegram(variant)
 
     update_columns(last_sent_on: date, last_variant_index: next_index)
     true
   end
 
+  # Тест-отправка из админки: реально шлёт в группу тот вариант, что ушёл бы
+  # следующим, но НЕ трогает last_sent_on/курсор — на расписание не влияет,
+  # кнопку можно жать многократно. Возвращает true/false по факту отправки.
+  def deliver_now!
+    variant, _next_index = pick_variant
+    return false if variant.nil?
+
+    send_to_telegram(variant)
+  end
+
   private
+
+  # → [variant, next_index]. Для пустого набора — [nil, last_variant_index].
+  def pick_variant
+    ordered = variants.order(:id).to_a
+    return [nil, last_variant_index] if ordered.empty?
+
+    if random_variant?
+      [ordered.sample, last_variant_index]
+    else
+      index = last_variant_index.to_i % ordered.size
+      [ordered[index], (index + 1) % ordered.size]
+    end
+  end
 
   def send_to_telegram(variant)
     if image.present?
