@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20260606093914) do
+ActiveRecord::Schema.define(version: 20260609120000) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -2118,6 +2118,30 @@ ActiveRecord::Schema.define(version: 20260606093914) do
     t.index ["role"], name: "index_tasks_on_role"
   end
 
+  create_table "telegram_broadcast_variants", force: :cascade do |t|
+    t.bigint "telegram_broadcast_id", null: false
+    t.text "body", null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["telegram_broadcast_id"], name: "index_telegram_broadcast_variants_on_telegram_broadcast_id"
+  end
+
+  create_table "telegram_broadcasts", force: :cascade do |t|
+    t.bigint "telegram_chat_id", null: false
+    t.string "title", null: false
+    t.integer "schedule_type", default: 0, null: false
+    t.integer "day_of_month"
+    t.integer "interval_days"
+    t.integer "selection_mode", default: 0, null: false
+    t.integer "last_variant_index", default: 0, null: false
+    t.date "last_sent_on"
+    t.boolean "active", default: true, null: false
+    t.string "image"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["telegram_chat_id"], name: "index_telegram_broadcasts_on_telegram_chat_id"
+  end
+
   create_table "telegram_chats", force: :cascade do |t|
     t.string "name", null: false
     t.string "chat_id", null: false
@@ -2584,6 +2608,8 @@ ActiveRecord::Schema.define(version: 20260606093914) do
   add_foreign_key "substitute_phones", "departments"
   add_foreign_key "substitute_phones", "items"
   add_foreign_key "substitute_phones", "service_jobs"
+  add_foreign_key "telegram_broadcast_variants", "telegram_broadcasts"
+  add_foreign_key "telegram_broadcasts", "telegram_chats"
   add_foreign_key "testing_sessions", "locations", column: "target_location_id"
   add_foreign_key "testing_sessions", "service_jobs"
   add_foreign_key "testing_sessions", "users", column: "sender_id"

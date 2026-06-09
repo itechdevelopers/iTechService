@@ -1,0 +1,51 @@
+= auto_header_tag @telegram_broadcast
+
+= simple_form_for @telegram_broadcast, html: { class: 'form-horizontal', multipart: true } do |f|
+  = f.error_notification message: error_messages_for(@telegram_broadcast)
+
+  = f.input :title
+  = f.input :telegram_chat_id, collection: TelegramChat.order(:name).map { |c| [c.name, c.id] },
+                               include_blank: false,
+                               label: TelegramBroadcast.human_attribute_name(:telegram_chat)
+  = f.input :active, as: :boolean
+
+  %fieldset
+    %legend= t('.schedule_legend')
+    = f.input :schedule_type, as: :radio_buttons, label: false,
+              collection: TelegramBroadcast.schedule_types.keys.map { |k| [t("telegram_broadcasts.schedule_types.#{k}"), k] }
+    = f.input :day_of_month, hint: t('.day_of_month_hint')
+    = f.input :interval_days, hint: t('.interval_days_hint')
+
+  %fieldset
+    %legend= t('.selection_legend')
+    = f.input :selection_mode, as: :radio_buttons, label: false,
+              collection: TelegramBroadcast.selection_modes.keys.map { |k| [t("telegram_broadcasts.selection_modes.#{k}"), k] }
+
+  %fieldset
+    %legend= t('.image_legend')
+    = f.input :image, as: :file, label: false, hint: t('.image_hint')
+    - if @telegram_broadcast.image?
+      .controls
+        = image_tag @telegram_broadcast.image.url, style: 'max-height: 120px; display: block; margin-bottom: 6px;'
+        %label.checkbox
+          = f.check_box :remove_image
+          = t('.remove_image')
+
+  %fieldset
+    %legend= t('.variants_legend')
+    %p.muted= t('.variants_hint')
+    %table.table.table-condensed.table-bordered.table-small
+      %thead
+        %tr
+          %th= TelegramBroadcastVariant.human_attribute_name :body
+          %th
+      %tbody#telegram_broadcast_variants
+        = f.simple_fields_for :variants do |ff|
+          = render 'variant_fields', f: ff
+      %tfoot
+        %tr
+          %td(colspan='2')= link_to_add_fields t('.add_variant'), '#telegram_broadcast_variants', f, :variants
+
+  .form-actions
+    = submit_button f
+    = link_to t('helpers.links.cancel'), telegram_broadcasts_path, class: 'btn'

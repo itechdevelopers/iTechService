@@ -78,6 +78,9 @@ Rails.application.routes.draw do
   resources :phone_labels, only: %i[index create destroy]
   resources :telegram_bot_settings, only: %i[index]
   resources :telegram_chats, only: %i[new create edit update destroy]
+  resources :telegram_broadcasts, except: %i[show] do
+    post :send_now, on: :member
+  end
   resources :schedules, only: %i[index]
   resources :department_schedule_configs, only: %i[index update] do
     post :batch_update, on: :collection
