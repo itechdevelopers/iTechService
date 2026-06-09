@@ -69,3 +69,9 @@ bootstrap_today_finalizations:
   class: 'BootstrapTodayFinalizationsJob'
   queue: 'default'
   active_job: true
+
+telegram_broadcast_tick:
+  cron: '0 9 * * * Asia/Vladivostok'
+  class: 'TelegramBroadcastTickJob'
+  queue: 'default'
+  active_job: true
