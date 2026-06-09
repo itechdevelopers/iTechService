@@ -35,6 +35,10 @@ ru:
       updated: 'Колонка изменена'
       destroyed: 'Колонка удалена'
     cards:
+      form:
+        check_all: Отметить всех
+        uncheck_all: Снять отметки со всех
+        filter_user: Поиск...
       edit:
         title: 'Редактирование Карточки'
       new:
