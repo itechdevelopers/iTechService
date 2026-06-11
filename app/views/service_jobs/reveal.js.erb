@@ -1,0 +1,24 @@
+// «Строгий ремонт» — ответ на клик «глаза».
+// Маркер внимания уже создан на сервере (#reveal), догонялка запланирована.
+// Снимаем вуаль (идемпотентно, на случай если клиентский тоггл цикла 2 не сработал)
+// и показываем диалог «Взять в работу? Да / Нет».
+//   «Да» → PATCH repair_status (тот же путь, что и виджет: вытеснение подхватится);
+//   «Нет» → POST dismiss_reveal (закрытие маркера).
+// Обе кнопки и крестик закрывают модалку клиентски; «Да»/«Нет» параллельно шлют UJS-запрос.
+(function() {
+  var sjId = <%= @service_job.id %>;
+  $('.strict-repair[data-strict-repair-id="' + sjId + '"]').addClass('strict-repair--revealed');
+
+  $('#strict_repair_modal_' + sjId).remove();
+
+  var $host = $('#repair_status_widget_modal_host');
+  if ($host.length === 0) {
+    $host = $('<div id="repair_status_widget_modal_host"></div>').appendTo('body');
+  }
+  $host.append("<%= j render('take_to_work_modal', service_job: @service_job) %>");
+
+  var $modal = $('#strict_repair_modal_' + sjId);
+  $modal.on('click', '[data-strict-repair-modal-close-for], [data-strict-repair-modal-dismiss-for], [data-strict-repair-modal-start-for]', function() {
+    $modal.remove();
+  });
+})();

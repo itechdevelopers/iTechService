@@ -87,9 +87,10 @@
                 %td.task_name_column= task.name
                 %td.task_cost_column= task.cost
                 %td.task_comment_column
-                  %span.client_comment= task.comment
-                  %br
-                  %strong.user_comment= task.user_comment
+                  = strict_secret(@service_job, inline: true) do
+                    %span.client_comment= task.comment
+                    %br
+                    %strong.user_comment= task.user_comment
           %tfoot
             %tr
               %td= t 'total'

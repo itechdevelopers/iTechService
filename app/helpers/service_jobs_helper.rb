@@ -2,6 +2,41 @@
 module ServiceJobsHelper
   TG_URL = 'https://t.me/'
 
+  # «Строгий ремонт»: предикат — нужно ли прятать чувствительный контент работы
+  # от текущего пользователя. Прячем только для технарей на repair-локациях,
+  # в филиалах со strict_repair и пока работу никто не взял (repair_status.waiting?).
+  # Админы (надзор/отладка) видят всё — как в фиче «Тестирование».
+  def strict_repair_active?(service_job)
+    return false if current_user.any_admin?
+
+    current_user.location&.is_any_repair? &&
+      service_job.department&.strict_repair? &&
+      service_job.repair_status&.waiting? || false
+  end
+
+  # Обёртка-вуаль: если строгий режим активен, размывает содержимое блока и
+  # накрывает кнопкой-«глазом». Иначе отдаёт содержимое как есть.
+  # Цикл 2: клик снимал blur локально. Цикл 3: «глаз» — remote-ссылка (POST на
+  # #reveal), которая создаёт маркер внимания и планирует догонялку; UJS выполнит
+  # ответ reveal.js.erb. Делегированный JS цикла 2 параллельно снимает blur мгновенно.
+  # inline: true — для узких ячеек таблиц (значения атрибутов, колонки задач).
+  # Резервирует ширину под pill-кнопку «глаза», чтобы она не наезжала на соседний
+  # контент. Блочные места (таблица задач, alert) оставляют inline: false (overlay по центру).
+  def strict_secret(service_job, inline: false, &block)
+    content = capture(&block)
+    return content unless strict_repair_active?(service_job)
+
+    klass = ['strict-repair', ('strict-repair--inline' if inline)].compact.join(' ')
+    content_tag :div, class: klass, data: { 'strict-repair-id' => service_job.id } do
+      reveal = link_to reveal_service_job_path(service_job), remote: true, method: :post,
+                       class: 'strict-repair__reveal' do
+        safe_join([icon_tag('eye'), ' ', t('service_jobs.strict_repair.reveal')])
+      end
+      veil = content_tag :div, content, class: 'strict-repair__veil'
+      reveal + veil
+    end
+  end
+
   def service_job_status_options(selected = nil)
     options_for_select [
                          [t('service_jobs.status.all'), nil],
