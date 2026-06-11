@@ -2,6 +2,11 @@ ru:
   service_jobs:
     strict_repair:
       reveal: 'Показать'
+      take_to_work:
+        title: 'Взять в работу?'
+        question: 'Вы открыли суть задачи. Берёте устройство в работу?'
+        confirm: 'Да, беру в работу'
+        decline: 'Нет'
     security_codes:
       none: 'Нет пароля'
       not_provided: 'Не дают пароль'

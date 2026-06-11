@@ -60,8 +60,13 @@ class ServiceJobPolicy < CommonPolicy
     update_repair_status?
   end
 
+  # Управление статусом ремонта (виджет + «Да» в строгом режиме) доступно
+  # технарям/админам ИЛИ любому сотруднику на repair-локации. Локационная ветка
+  # добавлена для «Строгого ремонта»: фича целиком location-based (вуаль/reveal),
+  # и кто сидит на «Ремонте» — даже не technician — должен мочь взять устройство в
+  # работу. Выровнено по той же логике, что и reveal?.
   def update_repair_status?
-    repair?
+    repair? || user.location&.is_any_repair? || false
   end
 
   # «Строгий ремонт»: клик по «глазу» (явный просмотр) доступен той же аудитории,
@@ -71,6 +76,13 @@ class ServiceJobPolicy < CommonPolicy
   # создать маркер и потерял бы догонялку, которую в обычном режиме получает.
   def reveal?
     (user.location&.is_any_repair? || any_admin?) || false
+  end
+
+  # «Строгий ремонт»: ответ «Нет» в диалоге «Взять в работу?» — закрытие маркера
+  # внимания (факт просмотра сохраняется). Доступен той же аудитории, что и сам
+  # просмотр (#reveal). «Да» идёт через update_repair_status? (по роли) отдельно.
+  def dismiss_reveal?
+    reveal?
   end
 
   def view_repair_parts?

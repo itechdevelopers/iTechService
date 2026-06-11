@@ -1,0 +1,22 @@
+-# «Строгий ремонт»: диалог после клика «глаза». «Да» → старт ремонта через тот же
+-# update_repair_status, что и виджет (переиспускает вытеснение «один in_progress»).
+-# «Нет» → закрытие маркера (#dismiss_reveal). Оверлей — BEM виджета (уже стилизован).
+.repair-status-widget-modal{ id: "strict_repair_modal_#{service_job.id}", tabindex: -1, role: 'dialog' }
+  .repair-status-widget-modal__dialog
+    .repair-status-widget-modal__header
+      %h4= t('service_jobs.strict_repair.take_to_work.title')
+      %button.repair-status-widget-modal__close{ type: 'button', 'aria-label': 'Close', data: { strict_repair_modal_close_for: service_job.id } } ×
+
+    .repair-status-widget-modal__body
+      %p= t('service_jobs.strict_repair.take_to_work.question')
+
+    .repair-status-widget-modal__footer
+      = link_to t('service_jobs.strict_repair.take_to_work.decline'),
+                dismiss_reveal_service_job_path(service_job),
+                method: :post, remote: true, class: 'btn',
+                data: { strict_repair_modal_dismiss_for: service_job.id }
+      - if can?(:update_repair_status, service_job)
+        = link_to t('service_jobs.strict_repair.take_to_work.confirm'),
+                  repair_status_service_job_path(service_job, repair_status_code: RepairStatus::IN_PROGRESS),
+                  method: :patch, remote: true, class: 'btn btn-primary',
+                  data: { strict_repair_modal_start_for: service_job.id }

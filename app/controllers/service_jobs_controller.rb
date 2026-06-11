@@ -538,6 +538,18 @@ class ServiceJobsController < ApplicationController
     respond_to(&:js)
   end
 
+  # «Строгий ремонт»: ответ «Нет» в диалоге «Взять в работу?». Закрываем маркер
+  # (processed_action: dismissed — факт просмотра сохранён), вуаль остаётся снятой.
+  # Догонялка не сработает: RepairAttentionMarkerJob увидит processed? → return.
+  def dismiss_reveal
+    @service_job = find_record ServiceJob
+    marker = RepairAttentionMarker
+               .where(service_job_id: @service_job.id, user_id: current_user.id, processed_at: nil)
+               .order(:viewed_at).last
+    marker&.dismiss!
+    respond_to(&:js)
+  end
+
   def archive
     @service_job = find_record ServiceJob
     respond_to do |format|
