@@ -528,6 +528,16 @@ class ServiceJobsController < ApplicationController
     respond_to(&:js)
   end
 
+  # «Строгий ремонт»: клик по «глазу» = осознанный просмотр. Создаём маркер
+  # внимания (как делал бы пассивный enqueue на открытии) и планируем догонялку
+  # через attention_timeout_seconds. Ответ (reveal.js.erb) снимает вуаль; модалку
+  # «Взять в работу? Да / Нет» добавит цикл 4.
+  def reveal
+    @service_job = find_record ServiceJob
+    @marker = find_or_create_attention_marker(@service_job)
+    respond_to(&:js)
+  end
+
   def archive
     @service_job = find_record ServiceJob
     respond_to do |format|
@@ -586,13 +596,28 @@ class ServiceJobsController < ApplicationController
     ServiceJobViewing.create(service_job: @service_job, user: current_user, time: Time.current, ip: request.ip)
   end
 
+  # Пассивный маркер на открытии show/edit. В «строгом ремонте» контент скрыт —
+  # технарь «ещё не видел», поэтому авто-маркер ПОДАВЛЯЕМ: он создастся явно по
+  # клику «глаза» (#reveal).
   def enqueue_repair_attention_marker_if_applicable(service_job)
+    return if strict_mode_hides_content?(service_job)
+
+    find_or_create_attention_marker(service_job)
+  end
+
+  # Общий путь создания маркера внимания + планирования догонялки. Используется и
+  # пассивным enqueue, и активным #reveal. Идемпотентен в пределах анти-спам-окна:
+  # повторный заход вернёт существующий незакрытый маркер (диалог переоткроется по
+  # нему, новая догонялка не планируется — она уже тикает с первого просмотра).
+  def find_or_create_attention_marker(service_job)
     return unless current_user&.location&.is_any_repair?
     return unless service_job.repair_status&.waiting?
-    return if RepairAttentionMarker
-                .where(service_job_id: service_job.id, user_id: current_user.id, processed_at: nil)
-                .where('viewed_at > ?', RepairAttentionMarker::ANTI_SPAM_WINDOW.ago)
-                .exists?
+
+    existing = RepairAttentionMarker
+                 .where(service_job_id: service_job.id, user_id: current_user.id, processed_at: nil)
+                 .where('viewed_at > ?', RepairAttentionMarker::ANTI_SPAM_WINDOW.ago)
+                 .order(:viewed_at).last
+    return existing if existing
 
     marker = RepairAttentionMarker.create!(
       service_job: service_job,
@@ -602,6 +627,16 @@ class ServiceJobsController < ApplicationController
     )
     RepairAttentionMarkerJob.set(wait: RepairStatusSetting.instance.attention_timeout_seconds.seconds)
                             .perform_later(marker.id)
+    marker
+  end
+
+  # Зеркалит ServiceJobsHelper#strict_repair_active? для точки подавления авто-маркера.
+  # repair-локация и waiting? уже проверяются в find_or_create_attention_marker, здесь —
+  # только admin-исключение и флаг филиала.
+  def strict_mode_hides_content?(service_job)
+    return false if current_user&.any_admin?
+
+    service_job.department&.strict_repair? || false
   end
 
   def create_phone_substitution

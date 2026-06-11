@@ -16,13 +16,16 @@ module ServiceJobsHelper
 
   # Обёртка-вуаль: если строгий режим активен, размывает содержимое блока и
   # накрывает кнопкой-«глазом». Иначе отдаёт содержимое как есть.
-  # Цикл 2: клик по «глазу» только снимает blur (диалог/маркер — циклы 3–4).
+  # Цикл 2: клик снимал blur локально. Цикл 3: «глаз» — remote-ссылка (POST на
+  # #reveal), которая создаёт маркер внимания и планирует догонялку; UJS выполнит
+  # ответ reveal.js.erb. Делегированный JS цикла 2 параллельно снимает blur мгновенно.
   def strict_secret(service_job, &block)
     content = capture(&block)
     return content unless strict_repair_active?(service_job)
 
     content_tag :div, class: 'strict-repair', data: { 'strict-repair-id' => service_job.id } do
-      reveal = content_tag :button, type: 'button', class: 'strict-repair__reveal' do
+      reveal = link_to reveal_service_job_path(service_job), remote: true, method: :post,
+                       class: 'strict-repair__reveal' do
         safe_join([icon_tag('eye'), ' ', t('service_jobs.strict_repair.reveal')])
       end
       veil = content_tag :div, content, class: 'strict-repair__veil'

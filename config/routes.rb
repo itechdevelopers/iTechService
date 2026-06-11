@@ -247,6 +247,7 @@ Rails.application.routes.draw do
     post :create_sale, on: :member
     patch :set_keeper, on: :member, defaults: { format: 'js' }
     patch :repair_status, on: :member, defaults: { format: 'js' }, action: :update_repair_status
+    post :reveal, on: :member, defaults: { format: 'js' }
     get :displaced_by_prompt, on: :member, defaults: { format: 'js' }
     get :gluing_prompt, on: :member, defaults: { format: 'js' }
     get :testing_prompt, on: :member, defaults: { format: 'js' }

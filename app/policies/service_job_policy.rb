@@ -64,6 +64,15 @@ class ServiceJobPolicy < CommonPolicy
     repair?
   end
 
+  # «Строгий ремонт»: клик по «глазу» (явный просмотр) доступен той же аудитории,
+  # что видит вуаль, — сотрудникам repair-локаций (плюс админам на случай прямого
+  # вызова). Гейтим по ЛОКАЦИИ, а не по роли: система маркеров внимания тоже
+  # location-based, иначе не-технарь на repair-локации в строгом режиме не смог бы
+  # создать маркер и потерял бы догонялку, которую в обычном режиме получает.
+  def reveal?
+    (user.location&.is_any_repair? || any_admin?) || false
+  end
+
   def view_repair_parts?
     (record.at_done? || record.in_archive?) && (superadmin? || able_to?(:view_repair_parts))
   end
