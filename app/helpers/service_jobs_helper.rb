@@ -19,11 +19,15 @@ module ServiceJobsHelper
   # Цикл 2: клик снимал blur локально. Цикл 3: «глаз» — remote-ссылка (POST на
   # #reveal), которая создаёт маркер внимания и планирует догонялку; UJS выполнит
   # ответ reveal.js.erb. Делегированный JS цикла 2 параллельно снимает blur мгновенно.
-  def strict_secret(service_job, &block)
+  # inline: true — для узких ячеек таблиц (значения атрибутов, колонки задач).
+  # Резервирует ширину под pill-кнопку «глаза», чтобы она не наезжала на соседний
+  # контент. Блочные места (таблица задач, alert) оставляют inline: false (overlay по центру).
+  def strict_secret(service_job, inline: false, &block)
     content = capture(&block)
     return content unless strict_repair_active?(service_job)
 
-    content_tag :div, class: 'strict-repair', data: { 'strict-repair-id' => service_job.id } do
+    klass = ['strict-repair', ('strict-repair--inline' if inline)].compact.join(' ')
+    content_tag :div, class: klass, data: { 'strict-repair-id' => service_job.id } do
       reveal = link_to reveal_service_job_path(service_job), remote: true, method: :post,
                        class: 'strict-repair__reveal' do
         safe_join([icon_tag('eye'), ' ', t('service_jobs.strict_repair.reveal')])

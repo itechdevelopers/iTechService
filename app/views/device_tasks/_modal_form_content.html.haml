@@ -51,10 +51,11 @@
         = @device_task.service_job.type_name
 
     .modal-body
-      .alert.alert-info
-        %strong= @device_task.task_name
-        %br
-        = @device_task.comment
+      = strict_secret(service_job) do
+        .alert.alert-info
+          %strong= @device_task.task_name
+          %br
+          = @device_task.comment
 
       - if f.object.errors.any?
         .alert.alert-error

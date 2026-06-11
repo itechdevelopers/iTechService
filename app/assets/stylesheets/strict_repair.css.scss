@@ -5,6 +5,41 @@
   position: relative;
 }
 
+// Для ячеек таблиц: вместо overlay-по-центру (перекрывает короткий текст)
+// — инлайн-раскладка: компактная кнопка «глаза» слева + размытый текст рядом.
+// Так блюр виден всегда, а кнопка остаётся скромной.
+.strict-repair--inline {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  max-width: 100%;
+  vertical-align: top;
+
+  .strict-repair__reveal {
+    position: static;
+    transform: none;
+    top: auto;
+    left: auto;
+    flex: 0 0 auto;
+
+    padding: 1px 9px;
+    font-size: 12px;
+    font-weight: 500;
+    border-radius: 11px;
+    gap: 4px;
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.2);
+
+    i {
+      margin-right: 2px;
+    }
+  }
+
+  .strict-repair__veil {
+    flex: 1 1 auto;
+    min-width: 0;
+  }
+}
+
 .strict-repair__veil {
   filter: blur(6px);
   user-select: none;

@@ -173,7 +173,12 @@
         - unless @service_job.send(attr).blank?
           %tr
             %td= ServiceJob.human_attribute_name attr
-            %td= @service_job.send(attr)
+            %td
+              - if %i[claimed_defect client_comment type_of_work].include?(attr)
+                = strict_secret(@service_job, inline: true) do
+                  = @service_job.send(attr)
+              - else
+                = @service_job.send(attr)
 
     %hr
     = render 'photos', division: :reception
