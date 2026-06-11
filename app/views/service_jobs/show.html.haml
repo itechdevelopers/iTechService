@@ -194,8 +194,9 @@
 
 .row-fluid
   .span8
-    #service_job_device_tasks
-      = render 'device_tasks_show', service_job: @service_job
+    = strict_secret(@service_job) do
+      #service_job_device_tasks
+        = render 'device_tasks_show', service_job: @service_job
     = render 'repair_status_widget', service_job: @service_job
 .form-actions
   = link_to_edit @service_job

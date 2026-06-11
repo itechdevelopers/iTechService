@@ -1,5 +1,7 @@
 ru:
   service_jobs:
+    strict_repair:
+      reveal: 'Показать'
     security_codes:
       none: 'Нет пароля'
       not_provided: 'Не дают пароль'

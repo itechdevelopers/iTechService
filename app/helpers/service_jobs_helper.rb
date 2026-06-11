@@ -2,6 +2,34 @@
 module ServiceJobsHelper
   TG_URL = 'https://t.me/'
 
+  # «Строгий ремонт»: предикат — нужно ли прятать чувствительный контент работы
+  # от текущего пользователя. Прячем только для технарей на repair-локациях,
+  # в филиалах со strict_repair и пока работу никто не взял (repair_status.waiting?).
+  # Админы (надзор/отладка) видят всё — как в фиче «Тестирование».
+  def strict_repair_active?(service_job)
+    return false if current_user.any_admin?
+
+    current_user.location&.is_any_repair? &&
+      service_job.department&.strict_repair? &&
+      service_job.repair_status&.waiting? || false
+  end
+
+  # Обёртка-вуаль: если строгий режим активен, размывает содержимое блока и
+  # накрывает кнопкой-«глазом». Иначе отдаёт содержимое как есть.
+  # Цикл 2: клик по «глазу» только снимает blur (диалог/маркер — циклы 3–4).
+  def strict_secret(service_job, &block)
+    content = capture(&block)
+    return content unless strict_repair_active?(service_job)
+
+    content_tag :div, class: 'strict-repair', data: { 'strict-repair-id' => service_job.id } do
+      reveal = content_tag :button, type: 'button', class: 'strict-repair__reveal' do
+        safe_join([icon_tag('eye'), ' ', t('service_jobs.strict_repair.reveal')])
+      end
+      veil = content_tag :div, content, class: 'strict-repair__veil'
+      reveal + veil
+    end
+  end
+
   def service_job_status_options(selected = nil)
     options_for_select [
                          [t('service_jobs.status.all'), nil],
