@@ -1,0 +1,43 @@
+= simple_form_for @birthday_greeting, url: birthday_greeting_path, method: :patch,
+                   html: { class: 'form-horizontal', multipart: true } do |f|
+  = f.error_notification message: error_messages_for(@birthday_greeting)
+
+  = f.input :enabled, as: :boolean
+  = f.input :telegram_chat_id, collection: TelegramChat.order(:name).map { |c| [c.name, c.id] },
+                               include_blank: true,
+                               label: BirthdayGreeting.human_attribute_name(:telegram_chat)
+  = f.input :send_gif, as: :boolean, hint: t('.send_gif_hint')
+
+  %fieldset
+    %legend= t('.variants_legend')
+    %p.muted= t('.variants_hint', max: BirthdayGreeting::MAX_VARIANTS)
+    %table.table.table-condensed.table-bordered.table-small
+      %thead
+        %tr
+          %th= BirthdayGreetingVariant.human_attribute_name :body
+          %th
+      %tbody#birthday_greeting_variants
+        = f.simple_fields_for :variants do |ff|
+          = render 'variant_fields', f: ff
+      %tfoot
+        %tr
+          %td(colspan='2')= link_to_add_fields t('.add_variant'), '#birthday_greeting_variants', f, :variants
+
+  %fieldset
+    %legend= t('.gifs_legend')
+    %p.muted= t('.gifs_hint')
+    %table.table.table-condensed.table-bordered.table-small
+      %thead
+        %tr
+          %th= BirthdayGreetingGif.human_attribute_name :file
+          %th
+      %tbody#birthday_greeting_gifs
+        = f.simple_fields_for :gifs do |ff|
+          = render 'gif_fields', f: ff
+      %tfoot
+        %tr
+          %td(colspan='2')= link_to_add_fields t('.add_gif'), '#birthday_greeting_gifs', f, :gifs
+
+  .form-actions
+    = submit_button f
+    = link_to t('helpers.links.cancel'), telegram_bot_settings_path, class: 'btn'

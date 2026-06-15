@@ -16,3 +16,12 @@
 
     #telegram_chats_list
       = render 'telegram_chats/list'
+
+    - if policy(BirthdayGreeting).edit?
+      %hr
+      %h4= t('.birthday_greetings_title')
+      %p.muted= t('.birthday_greetings_description')
+
+      = link_to edit_birthday_greeting_path, class: 'btn btn-success' do
+        = glyph(:gift)
+        = t('.birthday_greetings_link')
