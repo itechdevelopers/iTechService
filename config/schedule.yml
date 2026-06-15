@@ -75,3 +75,9 @@ telegram_broadcast_tick:
   class: 'TelegramBroadcastTickJob'
   queue: 'default'
   active_job: true
+
+birthday_greeting_tick:
+  cron: '0 10 * * * Asia/Vladivostok'
+  class: 'BirthdayGreetingTickJob'
+  queue: 'default'
+  active_job: true

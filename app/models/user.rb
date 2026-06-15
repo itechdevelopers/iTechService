@@ -524,6 +524,14 @@ class User < ApplicationRecord
     end
   end
 
+  # Ровно сегодня (не «ближайшие 3 дня», как upcoming_birthday?).
+  # По таймзоне приложения — Date.current уважает Time.zone (Asia/Vladivostok).
+  def birthday_today?(date = Date.current)
+    return false if birthday.blank?
+
+    birthday.month == date.month && birthday.day == date.day
+  end
+
   def timeout_in
     if session_duration.present?
       session_duration.minutes

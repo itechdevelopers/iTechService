@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20260610210722) do
+ActiveRecord::Schema.define(version: 20260615120000) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -93,6 +93,32 @@ ActiveRecord::Schema.define(version: 20260610210722) do
     t.datetime "updated_at", null: false
     t.index ["item_id"], name: "index_batches_on_item_id"
     t.index ["purchase_id"], name: "index_batches_on_purchase_id"
+  end
+
+  create_table "birthday_greeting_gifs", force: :cascade do |t|
+    t.bigint "birthday_greeting_id", null: false
+    t.string "file"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["birthday_greeting_id"], name: "index_birthday_greeting_gifs_on_birthday_greeting_id"
+  end
+
+  create_table "birthday_greeting_variants", force: :cascade do |t|
+    t.bigint "birthday_greeting_id", null: false
+    t.text "body", null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["birthday_greeting_id"], name: "index_birthday_greeting_variants_on_birthday_greeting_id"
+  end
+
+  create_table "birthday_greetings", force: :cascade do |t|
+    t.bigint "telegram_chat_id"
+    t.boolean "enabled", default: false, null: false
+    t.boolean "send_gif", default: true, null: false
+    t.date "last_run_on"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["telegram_chat_id"], name: "index_birthday_greetings_on_telegram_chat_id"
   end
 
   create_table "bonus_types", id: :serial, force: :cascade do |t|
@@ -2483,6 +2509,9 @@ ActiveRecord::Schema.define(version: 20260610210722) do
     t.index ["path"], name: "index_wiki_pages_on_path", unique: true
   end
 
+  add_foreign_key "birthday_greeting_gifs", "birthday_greetings"
+  add_foreign_key "birthday_greeting_variants", "birthday_greetings"
+  add_foreign_key "birthday_greetings", "telegram_chats"
   add_foreign_key "call_transcriptions", "clients"
   add_foreign_key "cashier_schedule_entries", "departments"
   add_foreign_key "cashier_schedule_entries", "users"
