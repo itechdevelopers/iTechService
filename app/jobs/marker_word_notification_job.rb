@@ -27,7 +27,8 @@ class MarkerWordNotificationJob < ApplicationJob
     words_list = markers.map(&:word).join(', ')
     message = I18n.t('marker_words.notification.message',
                      words: words_list,
-                     transcription_id: transcription.id)
+                     transcription_id: transcription.id,
+                     call_date: transcription.call_date.strftime('%d.%m.%Y %H:%M'))
     url = Rails.application.routes.url_helpers.call_transcription_path(transcription)
 
     recipients.each do |recipient|

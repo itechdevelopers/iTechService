@@ -7,4 +7,4 @@ ru:
     list:
       empty: 'Нет добавленных слов-маркеров'
     notification:
-      message: 'В диалоге #%{transcription_id} найдены слова-маркеры: %{words}'
+      message: 'В диалоге #%{transcription_id} от %{call_date} найдены слова-маркеры: %{words}'
