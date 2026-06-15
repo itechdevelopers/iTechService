@@ -1,0 +1,10 @@
+%tr.birthday_greeting_gif.fields
+  %td
+    = f.hidden_field :id
+    - if f.object.persisted? && f.object.file?
+      - if f.object.file.file.extension.to_s.downcase == 'gif'
+        = image_tag f.object.file.url, style: 'max-height: 90px; display: block; margin-bottom: 6px;'
+      - else
+        = link_to f.object.file_identifier, f.object.file.url, target: '_blank'
+    = f.input :file, as: :file, label: false
+  %td.text-right= link_to_remove_fields f

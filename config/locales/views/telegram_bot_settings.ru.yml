@@ -6,6 +6,9 @@ ru:
       chats_title: 'Telegram чаты'
       chats_description: 'Чаты, в которые бот может отправлять расписание и другие уведомления.'
       add_chat: 'Добавить чат'
+      birthday_greetings_title: 'Поздравления с Днём Рождения'
+      birthday_greetings_description: 'Бот сам поздравляет сотрудников в день рождения в выбранной группе.'
+      birthday_greetings_link: 'Настроить поздравления'
 
   telegram_chats:
     list:

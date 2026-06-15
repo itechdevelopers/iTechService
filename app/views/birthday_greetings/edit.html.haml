@@ -1,0 +1,15 @@
+- content_for :title, t('.title')
+
+%h3= t('.title')
+
+%p.muted= t('.description')
+
+- if @birthday_greeting.persisted?
+  = link_to send_now_birthday_greeting_path, method: :post, class: 'btn btn-info',
+            data: { confirm: t('.send_now_confirm') } do
+    = glyph(:paper_plane)
+    = t('.send_now')
+
+%hr
+
+= render 'form'

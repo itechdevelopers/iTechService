@@ -1,0 +1,5 @@
+%tr.birthday_greeting_variant.fields
+  %td
+    = f.hidden_field :id
+    = f.input :body, as: :text, label: false, input_html: { rows: 2, class: 'input-block-level' }
+  %td.text-right= link_to_remove_fields f

@@ -81,6 +81,9 @@ Rails.application.routes.draw do
   resources :telegram_broadcasts, except: %i[show] do
     post :send_now, on: :member
   end
+  resource :birthday_greeting, only: %i[edit update] do
+    post :send_now
+  end
   resources :schedules, only: %i[index]
   resources :department_schedule_configs, only: %i[index update] do
     post :batch_update, on: :collection
