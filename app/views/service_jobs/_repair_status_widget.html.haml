@@ -4,6 +4,7 @@
 - current_reason = service_job.repair_pause_reason
 - displaced_by_sj = (current_reason&.urgent_repair? ? service_job.current_displaced_by_service_job : nil)
 - gluing_hours = (current_reason&.gluing? ? service_job.current_gluing_hours : nil)
+- in_progress_user = (current_status.in_progress? ? service_job.current_in_progress_user : nil)
 - selectable_statuses = RepairStatus.active.ordered.where.not(code: RepairStatus::COMPLETED)
 
 .repair-status-widget{ data: { 'repair-status-sj-id': service_job.id } }
@@ -19,6 +20,8 @@
               %span.repair-status-badge__ref= " ##{displaced_by_sj.ticket_number}"
             - if gluing_hours
               %span.repair-status-badge__ref= " (#{gluing_hours} ч)"
+        - if in_progress_user
+          %span.repair-status-badge__reason= in_progress_user.short_name
       %ul.dropdown-menu.repair-status-widget__menu
         - selectable_statuses.each do |status|
           - if status.paused?
@@ -56,3 +59,5 @@
             %span.repair-status-badge__ref= " ##{displaced_by_sj.ticket_number}"
           - if gluing_hours
             %span.repair-status-badge__ref= " (#{gluing_hours} ч)"
+      - if in_progress_user
+        %span.repair-status-badge__reason= in_progress_user.short_name
