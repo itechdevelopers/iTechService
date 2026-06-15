@@ -489,6 +489,18 @@ kind: 'device_return', content: id.to_s)
       .first
   end
 
+  def current_in_progress_user
+    return nil unless repair_status&.in_progress?
+
+    repair_status_changes
+      .where(to_status_id: repair_status_id)
+      .order(changed_at: :desc)
+      .limit(1)
+      .pluck(:user_id)
+      .first
+      &.then { |id| User.find_by(id: id) }
+  end
+
   def change_repair_status!(new_status, user:, pause_reason: nil, displaced_by: nil, gluing_hours: nil, changed_at: nil)
     pause_reason = nil unless new_status.paused?
     displaced_by = nil unless pause_reason&.urgent_repair?
