@@ -1,0 +1,13 @@
+.row-fluid
+  .span6
+    = simple_form_for @client_request, html: { class: 'form-horizontal' } do |f|
+      - if f.object.errors.any?
+        .alert.alert-error= f.object.errors.full_messages.join('. ')
+
+      = f.input :client, as: :client, wrapper_html: { id: 'client_fields' }, no_devices: true
+      = f.input :item, as: :device, required: true
+      = f.input :reason, as: :text, input_html: { rows: 5 }
+      .form-actions
+        = submit_button f
+
+  .span6= secondary_form_container

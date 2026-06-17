@@ -2,6 +2,10 @@ ru:
   client_requests:
     index:
       title: Запросы клиентов
+    new:
+      title: Новый запрос на поиск чека
+    create:
+      created: Запрос создан
     kinds:
       receipt_search: Поиск оригинального чека
       device_unblock: Разблокировка устройства

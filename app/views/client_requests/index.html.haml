@@ -1,4 +1,6 @@
 .page-header
+  - if policy(ClientRequest).new?
+    = link_to t('helpers.links.new'), new_client_request_path, class: 'btn btn-success pull-right'
   %h2= t('.title')
 
 - if @client_requests.empty?
