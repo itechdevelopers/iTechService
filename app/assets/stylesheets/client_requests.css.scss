@@ -1,0 +1,35 @@
+// Стили фичи «Запросы клиентов». BEM, всё под собственным блоком
+// .client-requests; generic-селекторы (.label, .table) НЕ трогаем (CONTEXT.md).
+// Палитра согласована с testings.css.scss / repair_status_summary.css.scss.
+
+.client-requests {
+  // ── Цветная заливка строки по workflow-статусу ────────────────────────────
+  // Зелёный/красный/жёлтый тон фона повторяет семантику бейджа, но мягче.
+  // Модификаторы через дефис — status.tr('_','-') в _client_request.html.haml.
+  .client-requests__row--in-progress > td { background-color: #fcf6e9; }
+  .client-requests__row--done > td        { background-color: #f1f8f1; }
+  .client-requests__row--failed > td      { background-color: #fdf3f3; }
+
+  // ── Бейдж статуса ─────────────────────────────────────────────────────────
+  .client-requests__status--new-request { background-color: #2f96b4; } // синий
+  .client-requests__status--in-progress { background-color: #f0ad4e; } // жёлтый
+  .client-requests__status--done        { background-color: #5cb85c; } // зелёный
+  .client-requests__status--failed      { background-color: #d9534f; } // красный
+
+  // ── Срок использования (sold_at → created_at) ─────────────────────────────
+  // Жирный + цвет по корзине срока — зеркалит окраску уведомлений (план §5).
+  .client-requests__usage--under-year { font-weight: bold; color: #d9534f; } // <1 года
+  .client-requests__usage--one-to-two { font-weight: bold; color: #f0ad4e; } // 1–2 года
+  .client-requests__usage--over-two   { font-weight: bold; }                 // >2 лет (чёрный)
+
+  .client-requests__purchase-status { color: #777; font-style: italic; }
+
+  .client-requests__status-cell { white-space: nowrap; }
+
+  .client-requests__actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    margin-top: 6px;
+  }
+}

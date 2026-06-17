@@ -2,10 +2,26 @@ ru:
   client_requests:
     index:
       title: Запросы клиентов
+      empty: Запросов пока нет.
+      columns:
+        created_at: Создан
+        purchase: Покупка / срок
+    show:
+      title: Запрос на поиск чека
     new:
       title: Новый запрос на поиск чека
     create:
       created: Запрос создан
+    update_status:
+      updated: Статус обновлён
+    client_section:
+      title: Запросы клиента
+    client_request:
+      usage: срок
+      in_progress_btn: В работу
+      done_btn: Выполнен
+      failed_btn: Не выполнен
+      mark_unconfirmed_btn: Покупка не подтверждена
     kinds:
       receipt_search: Поиск оригинального чека
       device_unblock: Разблокировка устройства

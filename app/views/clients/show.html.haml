@@ -123,6 +123,8 @@
 
 #client_quick_orders= cell(QuickOrder::Cell::Table, @client.quick_orders).()
 
+= render 'client_requests', client: @client
+
 #client_purchases
   %table.table.table-bordered.table-condensed.table-hover
     %caption

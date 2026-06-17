@@ -3,5 +3,17 @@
     = link_to t('helpers.links.new'), new_client_request_path, class: 'btn btn-success pull-right'
   %h2= t('.title')
 
-- if @client_requests.empty?
-  %p.muted Запросов пока нет.
+%table#client_requests_table.table.table-hover.table-bordered.client-requests
+  %thead
+    %tr
+      %th= t('.columns.created_at')
+      %th= ClientRequest.human_attribute_name(:client)
+      %th= ClientRequest.human_attribute_name(:item)
+      %th= t('.columns.purchase')
+      %th= ClientRequest.human_attribute_name(:reason)
+      %th= ClientRequest.human_attribute_name(:status)
+  %tbody
+    - if @client_requests.empty?
+      %tr
+        %td{ colspan: 6 }= t('.empty')
+    = render partial: 'client_request', collection: @client_requests, as: :client_request

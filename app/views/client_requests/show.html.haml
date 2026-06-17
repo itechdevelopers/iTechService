@@ -1,0 +1,17 @@
+.page-header
+  %h2
+    = link_back_to_index
+    = t('.title')
+  %small= history_link_to history_client_request_path(@client_request)
+
+%table.table.table-bordered.table-hover.client-requests
+  %thead
+    %tr
+      %th= t('client_requests.index.columns.created_at')
+      %th= ClientRequest.human_attribute_name(:client)
+      %th= ClientRequest.human_attribute_name(:item)
+      %th= t('client_requests.index.columns.purchase')
+      %th= ClientRequest.human_attribute_name(:reason)
+      %th= ClientRequest.human_attribute_name(:status)
+  %tbody
+    = render partial: 'client_request', object: @client_request, as: :client_request

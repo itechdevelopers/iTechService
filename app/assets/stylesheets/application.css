@@ -22,6 +22,7 @@
  *= require cash_drawers
  *= require check_lists
  *= require client_categories
+ *= require client_requests
  *= require clients
  *= require comments
  *= require common

@@ -6,6 +6,12 @@ class ClientRequest < ApplicationRecord
   belongs_to :user
   belongs_to :department
 
+  # Кастомная история проекта (иконка часов) читает HistoryRecord, который
+  # наполняет HistoryObserver — это ОТДЕЛЬНАЯ система от гема `audited` ниже
+  # (тот пишет в Audited::Audit и для shared/_history не используется).
+  # Без этой связи history-экшен и shared/show_history работать не будут.
+  has_many :history_records, as: :object, dependent: :destroy
+
   audited
 
   # Тип запроса. Сейчас реализуем только receipt_search; device_unblock —

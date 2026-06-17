@@ -29,6 +29,7 @@ class Client < ApplicationRecord
   has_many :sales, inverse_of: :client, dependent: :nullify
   has_many :free_jobs, class_name: 'Service::FreeJob', dependent: :restrict_with_error
   has_many :quick_orders, dependent: :restrict_with_error
+  has_many :client_requests, dependent: :destroy
   has_many :trade_in_devices, inverse_of: :client, dependent: :restrict_with_error
   has_many :call_transcriptions, dependent: :nullify
 

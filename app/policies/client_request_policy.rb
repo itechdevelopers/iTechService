@@ -7,6 +7,11 @@ class ClientRequestPolicy < ApplicationPolicy
     permitted?
   end
 
+  # Иконка часов (history-экшен) доступна тем же, кто видит запрос.
+  def history?
+    show?
+  end
+
   def create?
     permitted?
   end

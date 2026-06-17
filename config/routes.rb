@@ -214,6 +214,7 @@ Rails.application.routes.draw do
 
   resources :client_requests do
     patch :update_status, on: :member
+    get :history, on: :member, defaults: { format: 'js' }
   end
 
   resources :client_categories

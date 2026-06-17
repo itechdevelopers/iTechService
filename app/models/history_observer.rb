@@ -1,7 +1,8 @@
 class HistoryObserver < ActiveRecord::Observer
   include DeviseHelper
 
-  observe :service_job, :device_task, :order, :user, :gift_certificate, :client, :quick_order, :client_characteristic
+  observe :service_job, :device_task, :order, :user, :gift_certificate, :client, :quick_order, :client_characteristic,
+          :client_request
 
   def after_save(model)
     if model.is_a? ServiceJob
@@ -24,6 +25,8 @@ class HistoryObserver < ActiveRecord::Observer
       tracked_attributes = %w[is_done]
     elsif model.is_a? ClientCharacteristic
       tracked_attributes = %w[comment client_category_id]
+    elsif model.is_a? ClientRequest
+      tracked_attributes = %w[status purchase_check_status reason]
     end
 
     unless (changed_attributes_keys = tracked_attributes & model.changed_attributes.keys).empty?
