@@ -81,3 +81,9 @@ birthday_greeting_tick:
   class: 'BirthdayGreetingTickJob'
   queue: 'default'
   active_job: true
+
+client_request_purchase_reminder:
+  cron: '0 8 * * * Asia/Vladivostok'
+  class: 'ClientRequestPurchaseReminderJob'
+  queue: 'default'
+  active_job: true

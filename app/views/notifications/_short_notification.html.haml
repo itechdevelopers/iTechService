@@ -1,4 +1,4 @@
-%div{data: { notification_id: notification.id }, class: "single-notification#{' single-notification--warranty-overstay' if notification.kind&.start_with?('warranty_overstay') || notification.kind&.start_with?('location_overstay')}"}
+%div{data: { notification_id: notification.id }, class: single_notification_class(notification)}
   .single-notification__body
     = link_to notification.message, notification.url
   = link_to glyph(:remove), close_notification_path(id: notification.id),
