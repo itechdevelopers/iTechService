@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20260615120000) do
+ActiveRecord::Schema.define(version: 20260616120000) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -307,6 +307,26 @@ ActiveRecord::Schema.define(version: 20260615120000) do
     t.datetime "set_at"
     t.index ["client_category_id"], name: "index_client_characteristics_on_client_category_id"
     t.index ["set_by_user_id"], name: "index_client_characteristics_on_set_by_user_id"
+  end
+
+  create_table "client_requests", force: :cascade do |t|
+    t.bigint "client_id", null: false
+    t.bigint "item_id", null: false
+    t.bigint "user_id", null: false
+    t.bigint "department_id", null: false
+    t.integer "kind", default: 0, null: false
+    t.integer "status", default: 0, null: false
+    t.text "reason"
+    t.integer "purchase_check_status", default: 0, null: false
+    t.date "sold_at"
+    t.datetime "purchase_checked_at"
+    t.string "purchase_check_error"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["client_id"], name: "index_client_requests_on_client_id"
+    t.index ["department_id"], name: "index_client_requests_on_department_id"
+    t.index ["item_id"], name: "index_client_requests_on_item_id"
+    t.index ["user_id"], name: "index_client_requests_on_user_id"
   end
 
   create_table "clients", id: :serial, force: :cascade do |t|
@@ -2520,6 +2540,10 @@ ActiveRecord::Schema.define(version: 20260615120000) do
   add_foreign_key "check_list_responses", "check_lists"
   add_foreign_key "check_lists", "check_list_items", column: "main_question_id"
   add_foreign_key "client_characteristics", "users", column: "set_by_user_id"
+  add_foreign_key "client_requests", "clients"
+  add_foreign_key "client_requests", "departments"
+  add_foreign_key "client_requests", "items"
+  add_foreign_key "client_requests", "users"
   add_foreign_key "department_schedule_configs", "departments"
   add_foreign_key "department_working_hours", "departments"
   add_foreign_key "departments", "brands"

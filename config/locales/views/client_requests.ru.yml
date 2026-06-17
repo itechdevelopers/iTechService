@@ -1,0 +1,28 @@
+ru:
+  client_requests:
+    index:
+      title: Запросы клиентов
+    kinds:
+      receipt_search: Поиск оригинального чека
+      device_unblock: Разблокировка устройства
+    statuses:
+      new_request: Новый
+      in_progress: В работе
+      done: Выполнен
+      failed: Не выполнен
+    purchase_check_statuses:
+      pending: Проверяется
+      confirmed: Подтверждена
+      unconfirmed: Не подтверждена
+  activerecord:
+    models:
+      client_request: Запрос клиента
+    attributes:
+      client_request:
+        client: Клиент
+        item: Устройство
+        reason: Причина обращения
+        kind: Тип запроса
+        status: Статус
+        sold_at: Дата продажи
+        purchase_check_status: Проверка покупки
