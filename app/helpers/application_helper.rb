@@ -192,13 +192,30 @@ module ApplicationHelper
       when 'nominal'
         object&.is_a?(GiftCertificate) ? human_gift_certificate_nominal(object) : value
       when 'status'
-        object&.is_a?(GiftCertificate) ? object.status_h : value
+        if object&.is_a?(GiftCertificate)
+          object.status_h
+        elsif object&.is_a?(ClientRequest)
+          client_request_enum_label(:statuses, value)
+        else
+          value
+        end
+      when 'purchase_check_status'
+        object&.is_a?(ClientRequest) ? client_request_enum_label(:purchase_check_statuses, value) : value
       else
         value
       end
     else
       value
     end
+  end
+
+  # Человекочитаемый ярлык enum-поля ClientRequest в истории. HistoryRecord
+  # хранит либо строковый ключ ('in_progress'), либо integer ('1') — обрабатываем
+  # оба случая. enum_plural — :statuses / :purchase_check_statuses.
+  def client_request_enum_label(enum_plural, value)
+    mapping = ClientRequest.public_send(enum_plural)
+    key = mapping.key?(value.to_s) ? value.to_s : mapping.key(value.to_i)
+    key ? t("client_requests.#{enum_plural}.#{key}") : value
   end
 
   def human_history_change(rec)

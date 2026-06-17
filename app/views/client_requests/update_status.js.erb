@@ -1,0 +1,3 @@
+// Перерисовываем только изменённую строку — цвет статуса/бейджа и набор
+// доступных кнопок обновляются без перезагрузки страницы (паттерн testings).
+$('#client_request_<%= @client_request.id %>').replaceWith('<%= j render partial: 'client_request', object: @client_request, as: :client_request %>');

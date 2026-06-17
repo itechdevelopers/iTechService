@@ -212,6 +212,11 @@ Rails.application.routes.draw do
     get :history, on: :member, defaults: { format: 'js' }
   end
 
+  resources :client_requests do
+    patch :update_status, on: :member
+    get :history, on: :member, defaults: { format: 'js' }
+  end
+
   resources :client_categories
 
   resources :device_types, except: [:new] do

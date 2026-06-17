@@ -197,9 +197,21 @@ class MockOneCService
       'status' => 'Продан',
       'item' => "iPhone #{rand(12..15)} Pro (MOCK)",
       'serialnumber' => serial_number,
-      'data' => (Time.current - rand(1..30).days).iso8601,
+      'data' => mock_sold_date(serial_number).iso8601,
       'shop' => ['Филиал Центр (MOCK)', 'Филиал Север (MOCK)', 'Филиал Юг (MOCK)'].sample
     }
+  end
+
+  # Дата продажи варьируется по последней цифре серийника, чтобы в dev можно
+  # было получить все три «корзины» срока фичи «Запросы клиента» (usage_bucket):
+  #   …4 → ~18 мес (one_to_two, оранжевый), …6 → ~40 мес (over_two, чёрный),
+  #   прочие «проданные» (…0/…2/…8) → недавно (under_year, красный).
+  def mock_sold_date(serial_number)
+    case serial_number.to_s.last
+    when '4' then Time.current - 18.months
+    when '6' then Time.current - 40.months
+    else          Time.current - rand(1..30).days
+    end
   end
 
   def mock_accepted_device_response(serial_number)

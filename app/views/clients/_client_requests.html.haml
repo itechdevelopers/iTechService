@@ -1,0 +1,18 @@
+-# Секция «Запросы клиента» в карточке клиента. Переиспользует строку-партиал
+-# client_requests/_client_request (та же разметка, что в общей таблице).
+- requests = client.client_requests.recent.includes(:item)
+- if requests.any?
+  #client_requests_section
+    %table.table.table-bordered.table-condensed.table-hover.client-requests
+      %caption
+        %h4= t('client_requests.client_section.title')
+      %thead
+        %tr
+          %th= t('client_requests.index.columns.created_at')
+          %th= ClientRequest.human_attribute_name(:client)
+          %th= ClientRequest.human_attribute_name(:item)
+          %th= t('client_requests.index.columns.purchase')
+          %th= ClientRequest.human_attribute_name(:reason)
+          %th= ClientRequest.human_attribute_name(:status)
+      %tbody
+        = render partial: 'client_requests/client_request', collection: requests, as: :client_request

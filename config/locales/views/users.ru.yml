@@ -41,6 +41,7 @@ ru:
       manage_schedules: 'Редактировать расписание'
       glass_sticking: 'Доступ к функционалу «Наклейка стекла»'
       listen_all_transcriptions: 'Прослушивать все транскрибированные диалоги'
+      work_with_receipt_search_requests: 'Работа с запросами на поиск чека'
     activities:
       free: Бесплатные
       fast: Быстрые

@@ -1,0 +1,37 @@
+-# Строка таблицы запроса. Переиспользуется в index, show и карточке клиента.
+-# cr — экземпляр ClientRequest (передаётся как :client_request).
+- cr = client_request
+- status_mod = cr.status.tr('_', '-')
+%tr.client-requests__row{ class: "client-requests__row--#{status_mod}", id: "client_request_#{cr.id}" }
+  %td= human_datetime cr.created_at
+  %td= link_to cr.client.short_name, client_path(cr.client)
+  %td
+    = cr.item.name
+    - if cr.item.serial_number.present?
+      %br
+      %small.muted= cr.item.serial_number
+  %td.client-requests__purchase-cell
+    - if cr.sold_at.present?
+      %span{ class: "client-requests__usage--#{cr.usage_bucket.to_s.tr('_', '-')}" }
+        = l(cr.sold_at)
+        %br
+        = "#{t('.usage')}: #{distance_of_time_in_words(cr.sold_at, cr.created_at)}"
+    - else
+      %span.client-requests__purchase-status= t("client_requests.purchase_check_statuses.#{cr.purchase_check_status}")
+      - if cr.purchase_check_error.present?
+        %br
+        %small.muted= cr.purchase_check_error
+  %td= cr.reason
+  %td.client-requests__status-cell
+    %span.label{ class: "client-requests__status--#{status_mod}" }= t("client_requests.statuses.#{cr.status}")
+    - if policy(cr).update_status?
+      .client-requests__actions
+        - unless cr.in_progress?
+          = link_to t('.in_progress_btn'), update_status_client_request_path(cr, client_request: { status: :in_progress }), method: :patch, remote: true, class: 'btn btn-warning btn-small'
+        - unless cr.done?
+          = link_to t('.done_btn'), update_status_client_request_path(cr, client_request: { status: :done }), method: :patch, remote: true, class: 'btn btn-success btn-small'
+        - unless cr.failed?
+          = link_to t('.failed_btn'), update_status_client_request_path(cr, client_request: { status: :failed }), method: :patch, remote: true, class: 'btn btn-danger btn-small'
+        - unless cr.unconfirmed?
+          = link_to t('.mark_unconfirmed_btn'), update_status_client_request_path(cr, client_request: { purchase_check_status: :unconfirmed }), method: :patch, remote: true, class: 'btn btn-small'
+    = history_link_to history_client_request_path(cr)

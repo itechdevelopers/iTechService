@@ -126,6 +126,39 @@
   }
 }
 
+// Окраска уведомлений фичи «Запросы клиента» по сроку использования (план §5).
+// Цвет/жирность через kind-класс, message остаётся plain text.
+.single-notification--client-request-under-year .single-notification__body a {
+  font-weight: bold;
+  color: #d9534f; // <1 года — красный
+}
+
+.single-notification--client-request-one-to-two .single-notification__body a {
+  font-weight: bold;
+  color: #f0ad4e; // 1–2 года — оранжевый
+}
+
+.single-notification--client-request-over-two .single-notification__body a {
+  font-weight: bold; // >2 лет — чёрный жирный
+}
+
+.single-notification--client-request-unconfirmed .single-notification__body a {
+  font-weight: bold;
+  color: #d9534f; // покупку не подтвердить — красный
+}
+
+// В топбар-поповере уведомления рендерятся внутри #topbar .bar-buttons, где
+// правило `#topbar .bar-buttons a { color: #777 }` (specificity с id) перебивает
+// окраску по kind-классу — цвет терялся (оставалась только жирность). Дублируем
+// правила цвета в том же id-контексте, чтобы они выигрывали и в поповере.
+// (В модалке «Все уведомления» работают правила выше — она вне #topbar.)
+#topbar .bar-buttons {
+  .single-notification--client-request-under-year  .single-notification__body a { color: #d9534f; }
+  .single-notification--client-request-one-to-two  .single-notification__body a { color: #f0ad4e; }
+  .single-notification--client-request-over-two    .single-notification__body a { color: #333; }
+  .single-notification--client-request-unconfirmed .single-notification__body a { color: #d9534f; }
+}
+
 .notifications-modal__body {
   padding: 0;
   max-height: calc(100vh - 220px);

@@ -731,6 +731,12 @@ ru:
 
     errors:
       models:
+        client_request:
+          attributes:
+            client:
+              required: 'не может быть пустым'
+            item:
+              required: 'не может быть пустым'
         department:
           attributes:
             role:
