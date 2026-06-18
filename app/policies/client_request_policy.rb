@@ -1,10 +1,16 @@
 class ClientRequestPolicy < ApplicationPolicy
+  # Просмотр списка/карточки и СОЗДАНИЕ запросов доступны любому залогиненному
+  # сотруднику — галочка work_with_receipt_search_requests больше не требуется.
+  # Это сознательное открытие доступа: запрос может завести кто угодно, а список
+  # видят все (см. решение в ветке 159-client-requests-receipt-search).
+  # ОБРАБОТКА запроса (update_status / edit) и удаление остаются за
+  # superadmin ∪ галочкой — см. permitted? / destroy?.
   def index?
-    permitted?
+    true
   end
 
   def show?
-    permitted?
+    true
   end
 
   # Иконка часов (history-экшен) доступна тем же, кто видит запрос.
@@ -13,7 +19,7 @@ class ClientRequestPolicy < ApplicationPolicy
   end
 
   def create?
-    permitted?
+    true
   end
 
   def new?
@@ -39,8 +45,9 @@ class ClientRequestPolicy < ApplicationPolicy
 
   private
 
-  # Доступ к функционалу запросов: суперадмин ∪ сотрудник с галочкой ability.
-  # Тот же набор, что и адресаты уведомлений (план §5).
+  # Право ОБРАБОТКИ запроса (смена статуса / редактирование): суперадмин ∪
+  # сотрудник с галочкой ability. Тот же набор, что и адресаты уведомлений
+  # (план §5). Создание и просмотр сюда больше не завязаны — см. index?/create?.
   def permitted?
     superadmin? || able_to?(:work_with_receipt_search_requests)
   end
