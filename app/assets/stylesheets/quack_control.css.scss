@@ -1,0 +1,86 @@
+// «Кря-контроль» — страница анти-рейтинга + иконка «Ой» в шапке.
+// BEM-блок .quack-control с уникальным префиксом (см. CONTEXT.md: не трогать .table/.modal и т.п.).
+
+.quack-control {
+  max-width: 640px;
+  margin: 24px auto;
+  padding: 0 16px;
+
+  &__header {
+    text-align: center;
+    margin-bottom: 24px;
+  }
+
+  &__duck {
+    margin-bottom: 8px;
+  }
+
+  &__duck-img {
+    width: 220px;
+    height: auto;
+  }
+
+  &__title {
+    font-size: 22px;
+    font-weight: 600;
+    margin: 8px 0 4px;
+  }
+
+  &__subtitle {
+    color: #888;
+    font-style: italic;
+    margin: 0;
+  }
+
+  &__month-nav {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 16px;
+    margin-bottom: 16px;
+  }
+
+  &__month-label {
+    font-weight: 600;
+    min-width: 140px;
+    text-align: center;
+  }
+
+  &__month-link--disabled {
+    color: #ccc;
+    cursor: default;
+  }
+
+  &__table {
+    width: 100%;
+  }
+
+  &__col-count,
+  &__cell-count {
+    text-align: right;
+    width: 120px;
+  }
+
+  &__cell-count {
+    font-weight: 600;
+  }
+
+  // «Чистые» технари (0 за месяц) — приглушаем, не выделяем как нарушителей.
+  &__row--clean {
+    color: #aaa;
+  }
+
+  &__empty {
+    text-align: center;
+    color: #888;
+    padding: 24px 0;
+  }
+
+  // Иконка «Ой» в шапке — маленькая, дружелюбная, две буквы.
+  &__nav-icon {
+    display: inline-block;
+    font-weight: 700;
+    font-size: 16px;
+    padding: 2px 6px;
+  }
+}

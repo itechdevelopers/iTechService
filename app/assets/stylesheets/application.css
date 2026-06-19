@@ -45,6 +45,7 @@
  *= require products
  *= require products_photos
  *= require purchases
+ *= require quack_control
  *= require repair_groups
  *= require repair_services
  *= require repair_service_drag
