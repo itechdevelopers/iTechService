@@ -60,6 +60,15 @@ module TopBarHelper
             data: {html: true, placement: 'bottom', title: "Кто? И сколько работает в компании?"}
   end
 
+  # Иконка «Ой» → страница «Кря-контроль». Видна только тем же ролям, что
+  # пускает QuackControlPolicy#show? (repair-локация или супер-админ).
+  def header_link_to_quack_control
+    return unless current_user.location&.is_any_repair? || current_user.superadmin?
+
+    link_to t('quack_control.icon_label'), quack_control_path,
+            class: 'quack-control__nav-icon', title: t('quack_control.show.title')
+  end
+
   def header_link_to_birthdays
     link_to image_tag('cake.svg'), '#', rel: 'popover', class: 'hidden', id: 'birthday_announcements',
             data: {html: true, placement: 'bottom', title: 'Дни рождения'}

@@ -1,0 +1,33 @@
+- content_for :title, t('.title')
+
+.quack-control
+  .quack-control__header
+    .quack-control__duck
+      = image_tag 'quack_control/duck.png', alt: t('.duck_alt'), class: 'quack-control__duck-img'
+    %h1.quack-control__title= t('.title')
+    %p.quack-control__subtitle= t('.subtitle')
+
+  .quack-control__month-nav
+    = link_to t('.nav.prev'), quack_control_path(month: @prev_month.strftime('%Y-%m')),
+        class: 'quack-control__month-link quack-control__month-link--prev'
+    %span.quack-control__month-label
+      = "#{t('date.standalone_month_names')[@month.month]} #{@month.year}"
+    - if @next_month
+      = link_to t('.nav.next'), quack_control_path(month: @next_month.strftime('%Y-%m')),
+          class: 'quack-control__month-link quack-control__month-link--next'
+    - else
+      %span.quack-control__month-link.quack-control__month-link--disabled= t('.nav.next')
+
+  - if @rows.empty?
+    %p.quack-control__empty= t('.empty')
+  - else
+    %table.quack-control__table.table
+      %thead
+        %tr
+          %th.quack-control__col-name= t('.columns.technician')
+          %th.quack-control__col-count= t('.columns.count')
+      %tbody
+        - @rows.each do |row|
+          %tr.quack-control__row{ class: ('quack-control__row--clean' if row[:count].zero?) }
+            %td.quack-control__cell-name= row[:user].short_name
+            %td.quack-control__cell-count= row[:count]
