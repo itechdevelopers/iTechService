@@ -76,11 +76,18 @@
     padding: 24px 0;
   }
 
-  // Иконка «Ой» в шапке — маленькая, дружелюбная, две буквы.
-  &__nav-icon {
-    display: inline-block;
-    font-weight: 700;
-    font-size: 16px;
-    padding: 2px 6px;
-  }
+}
+
+// Иконка «Ой» в шапке топбара — маленькая, дружелюбная, две буквы.
+// Живёт внутри `#topbar .bar-buttons`, где `a { padding:10px; line-height:36px }`
+// иначе раздувает иконку в высокий inline-block (56px вместо 37px у соседей) —
+// он ломает выравнивание ряда. Селектор обязан начинаться с #topbar: правило
+// топбара несёт ID, и без него любой класс проигрывает по specificity.
+#topbar .bar-buttons a.quack-control__nav-icon {
+  display: inline-block;
+  font-weight: 700;
+  font-size: 16px;
+  line-height: 36px;       // как у соседних иконок-ссылок
+  padding: 0 6px;          // только горизонталь — вертикальный padding раздувает высоту
+  vertical-align: middle;  // по центру строки, вровень с глифами соседей
 }
