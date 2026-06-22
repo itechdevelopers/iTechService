@@ -1,10 +1,15 @@
 class ClientRequestPolicy < ApplicationPolicy
-  # Запросы клиентов полностью открыты: любой залогиненный сотрудник может
-  # просматривать список/карточку, создавать, обрабатывать (смена статуса /
-  # редактирование) и удалять запросы. Галочка work_with_receipt_search_requests
+  # Запросы клиентов в основном открыты: любой залогиненный сотрудник может
+  # просматривать список/карточку, создавать, обрабатывать (смена статуса через
+  # update_status?) и удалять запросы. Галочка work_with_receipt_search_requests
   # и роль superadmin больше нигде не требуются — сознательное решение в ветке
   # 159-client-requests-receipt-search (адресаты уведомлений при этом остаются
   # прежними: superadmin ∪ галочка — см. ClientRequest.notification_recipients).
+  #
+  # ИСКЛЮЧЕНИЕ (ветка 161-client-requests-edit): полное редактирование
+  # (устройство / дата покупки / комментарий через edit?/update?) — ТОЛЬКО
+  # superadmin. Это правка «фактуры» запроса (исправление ошибочного серийника,
+  # ручная простановка даты покупки), поэтому права у́же, чем у смены статуса.
   def index?
     true
   end
@@ -27,11 +32,11 @@ class ClientRequestPolicy < ApplicationPolicy
   end
 
   def update?
-    true
+    superadmin?
   end
 
   def edit?
-    true
+    superadmin?
   end
 
   # Кастомный member-экшен — Pundit требует одноимённый предикат.

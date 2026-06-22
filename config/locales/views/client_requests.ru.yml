@@ -10,8 +10,12 @@ ru:
       title: Запрос на поиск чека
     new:
       title: Новый запрос на поиск чека
+    edit:
+      title: Редактирование запроса
     create:
       created: Запрос создан
+    update:
+      updated: Запрос обновлён
     update_status:
       updated: Статус обновлён
     client_section:
@@ -22,6 +26,7 @@ ru:
       done_btn: Выполнен
       failed_btn: Не выполнен
       mark_unconfirmed_btn: Покупка не подтверждена
+      edit_btn: Редактировать
     kinds:
       receipt_search: Поиск оригинального чека
       device_unblock: Разблокировка устройства

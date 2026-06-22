@@ -4,9 +4,21 @@
       - if f.object.errors.any?
         .alert.alert-error= f.object.errors.full_messages.join('. ')
 
-      = f.input :client, as: :client, wrapper_html: { id: 'client_fields' }, no_devices: true
+      -# При создании клиента ищем/заводим; при редактировании запрос привязан
+      -# к тому же клиенту — показываем его только для чтения.
+      - if f.object.persisted?
+        .control-group
+          %label.control-label= ClientRequest.human_attribute_name(:client)
+          .controls
+            %span.uneditable-input= f.object.client.short_name
+      - else
+        = f.input :client, as: :client, wrapper_html: { id: 'client_fields' }, no_devices: true
       = f.input :item, as: :device, required: true
       = f.input :reason, as: :text, input_html: { rows: 5 }
+      -# Ручная простановка даты покупки — только в редактировании (см. контроллер:
+      -# заполненная дата → purchase_check_status = confirmed).
+      - if f.object.persisted?
+        = f.input :sold_at, as: :string, input_html: { value: (f.object.sold_at && l(f.object.sold_at)), class: 'datepicker input-medium', data: { 'date-language' => 'ru', 'date-format' => 'dd.mm.yyyy', 'date-weekstart' => 1, 'date-viewmode' => 'days' } }
       .form-actions
         = submit_button f
 
