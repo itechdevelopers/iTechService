@@ -7,7 +7,7 @@
 # (`notified_at` присутствует), а работа так и не была взята (`processed_action`
 # не 'started', включая NULL = проигнорировал). Период фильтруется по `viewed_at`.
 #
-# Строки = только активные технари (роль technician): на текущей ремонтной локации
+# Строки = активные сотрудники (любая роль) на текущей ремонтной локации
 # (code repair*) + те, у кого за период был хотя бы один засчитанный маркер
 # (на случай ухода с ремонта). Сортировка: count desc, затем имя.
 class QuackControlQuery
@@ -39,14 +39,14 @@ class QuackControlQuery
       .count
   end
 
-  # Только технари (роль technician): и текущие на ремонте, и «нагрешившие» за период.
+  # Активные сотрудники (любая роль): и текущие на ремонте, и «нагрешившие» за период.
   def relevant_users(user_ids_with_markers)
-    User.active.technician.where(id: repair_technician_ids | user_ids_with_markers)
+    User.active.where(id: repair_location_user_ids | user_ids_with_markers)
   end
 
-  # Активные технари, чья текущая локация — любая ремонтная (code LIKE 'repair%')
-  def repair_technician_ids
-    User.active.technician
+  # Активные сотрудники, чья текущая локация — любая ремонтная (code LIKE 'repair%')
+  def repair_location_user_ids
+    User.active
         .joins(:location)
         .where("locations.code LIKE ?", 'repair%')
         .pluck(:id)
