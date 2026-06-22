@@ -60,12 +60,11 @@ module TopBarHelper
             data: {html: true, placement: 'bottom', title: "Кто? И сколько работает в компании?"}
   end
 
-  # Иконка «Ой» → страница «Кря-контроль». Видна тем же, кого пускает
-  # QuackControlPolicy#show?: технарю на ремонтной локации или супер-админу.
+  # Иконка «Ой» → страница «Кря-контроль». Видимость делегирована политике,
+  # чтобы не расходиться с доступом к самой странице (QuackControlPolicy#show?:
+  # сотрудник на ремонтной локации или супер-админ).
   def header_link_to_quack_control
-    visible = (current_user.technician? && current_user.location&.is_any_repair?) ||
-              current_user.superadmin?
-    return unless visible
+    return unless policy(:quack_control).show?
 
     link_to t('quack_control.icon_label'), quack_control_path,
             class: 'quack-control__nav-icon', title: t('quack_control.show.title')
