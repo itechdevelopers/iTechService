@@ -26,7 +26,7 @@ class HistoryObserver < ActiveRecord::Observer
     elsif model.is_a? ClientCharacteristic
       tracked_attributes = %w[comment client_category_id]
     elsif model.is_a? ClientRequest
-      tracked_attributes = %w[status purchase_check_status reason]
+      tracked_attributes = %w[status purchase_check_status reason sold_at]
     end
 
     unless (changed_attributes_keys = tracked_attributes & model.changed_attributes.keys).empty?
