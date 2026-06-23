@@ -5,7 +5,12 @@
   .repair-status-widget-modal__dialog
     .repair-status-widget-modal__header
       %h4= t('service_jobs.strict_repair.take_to_work.title')
-      %button.repair-status-widget-modal__close{ type: 'button', 'aria-label': 'Close', data: { strict_repair_modal_close_for: service_job.id } } ×
+      -# Крестик ведёт себя как «Нет»: тот же POST dismiss_reveal (маркер → dismissed,
+      -# вуаль возвращается). Делегированный хендлер ловит dismiss-for → закрывает клиентски.
+      = link_to '×', dismiss_reveal_service_job_path(service_job),
+                method: :post, remote: true,
+                class: 'repair-status-widget-modal__close', 'aria-label': 'Close',
+                data: { strict_repair_modal_dismiss_for: service_job.id }
 
     .repair-status-widget-modal__body
       %p= t('service_jobs.strict_repair.take_to_work.question')

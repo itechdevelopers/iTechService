@@ -145,8 +145,9 @@
   line-height: 1;
   cursor: pointer;
   color: #999;
+  text-decoration: none;
 
-  &:hover { color: #333; }
+  &:hover { color: #333; text-decoration: none; }
 }
 
 .repair-status-widget-modal__body {
