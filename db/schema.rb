@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20260616120000) do
+ActiveRecord::Schema.define(version: 20260623120000) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -2186,6 +2186,9 @@ ActiveRecord::Schema.define(version: 20260616120000) do
     t.string "image"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.integer "send_hour_from"
+    t.integer "send_hour_to"
+    t.datetime "last_sent_at"
     t.index ["telegram_chat_id"], name: "index_telegram_broadcasts_on_telegram_chat_id"
   end
 

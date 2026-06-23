@@ -17,6 +17,14 @@
     = f.input :interval_days, hint: t('.interval_days_hint')
 
   %fieldset
+    %legend= t('.time_legend')
+    %p.muted= t('.time_hint')
+    = f.input :send_hour_from, collection: (0..23).map { |h| [format('%02d:00', h), h] },
+              include_blank: t('.hour_default'), hint: t('.send_hour_from_hint')
+    = f.input :send_hour_to, collection: (0..23).map { |h| [format('%02d:00', h), h] },
+              include_blank: t('.hour_same_as_from'), hint: t('.send_hour_to_hint')
+
+  %fieldset
     %legend= t('.selection_legend')
     = f.input :selection_mode, as: :radio_buttons, label: false,
               collection: TelegramBroadcast.selection_modes.keys.map { |k| [t("telegram_broadcasts.selection_modes.#{k}"), k] }

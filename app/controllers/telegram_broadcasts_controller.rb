@@ -66,6 +66,7 @@ class TelegramBroadcastsController < ApplicationController
   def broadcast_params
     params.require(:telegram_broadcast).permit(
       :telegram_chat_id, :title, :schedule_type, :day_of_month, :interval_days,
+      :send_hour_from, :send_hour_to,
       :selection_mode, :active, :image, :remove_image,
       variants_attributes: %i[id body _destroy]
     )
