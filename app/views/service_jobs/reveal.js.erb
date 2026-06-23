@@ -4,7 +4,7 @@
 // и показываем диалог «Взять в работу? Да / Нет».
 //   «Да» → PATCH repair_status (тот же путь, что и виджет: вытеснение подхватится);
 //   «Нет» → POST dismiss_reveal (закрытие маркера).
-// Обе кнопки и крестик закрывают модалку клиентски; «Да»/«Нет» параллельно шлют UJS-запрос.
+// Все три элемента закрывают модалку клиентски; «Да» шлёт PATCH, «Нет» и крестик — POST dismiss_reveal.
 (function() {
   var sjId = <%= @service_job.id %>;
   $('.strict-repair[data-strict-repair-id="' + sjId + '"]').addClass('strict-repair--revealed');
@@ -18,7 +18,7 @@
   $host.append("<%= j render('take_to_work_modal', service_job: @service_job) %>");
 
   var $modal = $('#strict_repair_modal_' + sjId);
-  $modal.on('click', '[data-strict-repair-modal-close-for], [data-strict-repair-modal-dismiss-for], [data-strict-repair-modal-start-for]', function() {
+  $modal.on('click', '[data-strict-repair-modal-dismiss-for], [data-strict-repair-modal-start-for]', function() {
     $modal.remove();
   });
 })();
