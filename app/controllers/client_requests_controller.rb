@@ -56,9 +56,8 @@ class ClientRequestsController < ApplicationController
     end
   end
 
-  # Смена workflow-статуса (в работу / выполнен / не выполнен) ИЛИ ручная
-  # пометка покупки неподтверждённой — обе через одну кнопку-ссылку remote:true.
-  # find_record авторизует через update_status? (action_name → предикат policy).
+  # Смена workflow-статуса (в работу / выполнен / не выполнен) — кнопка-ссылка
+  # remote:true. find_record авторизует через update_status? (action_name → предикат policy).
   def update_status
     @client_request = find_record ClientRequest
 
@@ -101,8 +100,10 @@ class ClientRequestsController < ApplicationController
     nil
   end
 
-  # Разрешаем менять только эти два enum-поля. Кнопки шлют ровно одно из них.
+  # Разрешаем менять только workflow-статус. purchase_check_status выставляется
+  # автоматически 1С-джобой либо вручную через форму редактирования (ввод даты),
+  # но НЕ через эту кнопку — иначе sold_at и статус проверки рассинхронизируются.
   def status_params
-    params.require(:client_request).permit(:status, :purchase_check_status)
+    params.require(:client_request).permit(:status)
   end
 end
