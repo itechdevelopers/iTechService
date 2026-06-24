@@ -25,7 +25,6 @@ ru:
       in_progress_btn: В работу
       done_btn: Выполнен
       failed_btn: Не выполнен
-      mark_unconfirmed_btn: Покупка не подтверждена
       edit_btn: Редактировать
     kinds:
       receipt_search: Поиск оригинального чека

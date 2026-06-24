@@ -32,8 +32,6 @@
           = link_to t('.done_btn'), update_status_client_request_path(cr, client_request: { status: :done }), method: :patch, remote: true, class: 'btn btn-success btn-small'
         - unless cr.failed?
           = link_to t('.failed_btn'), update_status_client_request_path(cr, client_request: { status: :failed }), method: :patch, remote: true, class: 'btn btn-danger btn-small'
-        - unless cr.unconfirmed?
-          = link_to t('.mark_unconfirmed_btn'), update_status_client_request_path(cr, client_request: { purchase_check_status: :unconfirmed }), method: :patch, remote: true, class: 'btn btn-small'
     - if policy(cr).edit?
       = link_to glyph(:pencil), edit_client_request_path(cr), class: 'btn btn-small', title: t('.edit_btn')
     = history_link_to history_client_request_path(cr)
