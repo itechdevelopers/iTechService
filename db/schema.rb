@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20260623120000) do
+ActiveRecord::Schema.define(version: 20260624111005) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -2165,6 +2165,14 @@ ActiveRecord::Schema.define(version: 20260623120000) do
     t.index ["role"], name: "index_tasks_on_role"
   end
 
+  create_table "telegram_broadcast_images", force: :cascade do |t|
+    t.bigint "telegram_broadcast_id", null: false
+    t.string "file"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["telegram_broadcast_id"], name: "index_telegram_broadcast_images_on_telegram_broadcast_id"
+  end
+
   create_table "telegram_broadcast_variants", force: :cascade do |t|
     t.bigint "telegram_broadcast_id", null: false
     t.text "body", null: false
@@ -2189,6 +2197,7 @@ ActiveRecord::Schema.define(version: 20260623120000) do
     t.integer "send_hour_from"
     t.integer "send_hour_to"
     t.datetime "last_sent_at"
+    t.integer "last_image_index", default: 0, null: false
     t.index ["telegram_chat_id"], name: "index_telegram_broadcasts_on_telegram_chat_id"
   end
 
@@ -2665,6 +2674,7 @@ ActiveRecord::Schema.define(version: 20260623120000) do
   add_foreign_key "substitute_phones", "departments"
   add_foreign_key "substitute_phones", "items"
   add_foreign_key "substitute_phones", "service_jobs"
+  add_foreign_key "telegram_broadcast_images", "telegram_broadcasts"
   add_foreign_key "telegram_broadcast_variants", "telegram_broadcasts"
   add_foreign_key "telegram_broadcasts", "telegram_chats"
   add_foreign_key "testing_sessions", "locations", column: "target_location_id"

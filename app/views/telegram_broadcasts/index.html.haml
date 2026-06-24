@@ -19,6 +19,7 @@
         %th= t('.schedule')
         %th= t('.selection')
         %th.text-center= t('.variants_count')
+        %th.text-center= t('.images_count')
         %th.text-center= TelegramBroadcast.human_attribute_name :active
         %th
     %tbody
@@ -33,6 +34,7 @@
               = t('.every_n_days_summary', count: broadcast.interval_days)
           %td= t("telegram_broadcasts.selection_modes.#{broadcast.selection_mode}")
           %td.text-center= broadcast.variants.size
+          %td.text-center= broadcast.images.size
           %td.text-center
             - if broadcast.active?
               = glyph(:check)
