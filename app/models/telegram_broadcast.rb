@@ -4,7 +4,11 @@ class TelegramBroadcast < ApplicationRecord
                       dependent: :destroy, inverse_of: :broadcast
   accepts_nested_attributes_for :variants, allow_destroy: true,
                                            reject_if: ->(a) { a[:body].blank? }
+  has_many :images, class_name: 'TelegramBroadcastImage',
+                    dependent: :destroy, inverse_of: :broadcast
 
+  # Одиночная картинка (legacy). Колонку `image` дропаем в цикле 2 после
+  # переноса в коллекцию images data-миграцией — пока оставляем для миграции.
   mount_uploader :image, TelegramBroadcastImageUploader
 
   enum schedule_type: { day_of_month: 0, every_n_days: 1 }
@@ -23,7 +27,7 @@ class TelegramBroadcast < ApplicationRecord
 
   # Запускается тикером раз в час: отправляет все рассылки, которым «пора» сейчас.
   def self.deliver_due!(now = Time.current)
-    enabled.includes(:telegram_chat, :variants).select { |b| b.due?(now) }.each do |broadcast|
+    enabled.includes(:telegram_chat, :variants, :images).select { |b| b.due?(now) }.each do |broadcast|
       broadcast.deliver!(now)
     end
   end
@@ -52,11 +56,15 @@ class TelegramBroadcast < ApplicationRecord
   # Выбирает один вариант (random / по кругу), шлёт в группу, двигает курсор.
   # last_sent_on/курсор обновляются ТОЛЬКО при успешной отправке.
   def deliver!(now = Time.current)
-    variant, next_index = pick_variant
+    variant, next_variant_index = pick_variant
     return false if variant.nil?
-    return false unless send_to_telegram(variant)
 
-    update_columns(last_sent_on: now.to_date, last_sent_at: now, last_variant_index: next_index)
+    image, next_image_index = pick_image
+    return false unless send_to_telegram(variant, image)
+
+    update_columns(last_sent_on: now.to_date, last_sent_at: now,
+                   last_variant_index: next_variant_index,
+                   last_image_index: next_image_index)
     true
   end
 
@@ -64,10 +72,11 @@ class TelegramBroadcast < ApplicationRecord
   # следующим, но НЕ трогает last_sent_on/курсор — на расписание не влияет,
   # кнопку можно жать многократно. Возвращает true/false по факту отправки.
   def deliver_now!
-    variant, _next_index = pick_variant
+    variant, _next_variant_index = pick_variant
     return false if variant.nil?
 
-    send_to_telegram(variant)
+    image, _next_image_index = pick_image
+    send_to_telegram(variant, image)
   end
 
   private
@@ -104,11 +113,26 @@ class TelegramBroadcast < ApplicationRecord
     end
   end
 
-  def send_to_telegram(variant)
-    if image.present?
+  # → [image, next_index]. Близнец pick_variant: тот же selection_mode,
+  # отдельный курсор last_image_index. Пустой пул → [nil, last_image_index].
+  def pick_image
+    ordered = images.order(:id).to_a
+    return [nil, last_image_index] if ordered.empty?
+
+    if random_variant?
+      [ordered.sample, last_image_index]
+    else
+      index = last_image_index.to_i % ordered.size
+      [ordered[index], (index + 1) % ordered.size]
+    end
+  end
+
+  # image — TelegramBroadcastImage или nil (пустой пул → шлём текстом).
+  def send_to_telegram(variant, image)
+    if image && image.file.present?
       SendTelegramSchedule.call(
         chat_id: telegram_chat.chat_id,
-        image_data: Base64.encode64(image.read),
+        image_data: Base64.encode64(image.file.read),
         caption: variant.body
       ).success?
     else
