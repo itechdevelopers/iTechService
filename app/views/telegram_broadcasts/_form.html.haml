@@ -30,14 +30,18 @@
               collection: TelegramBroadcast.selection_modes.keys.map { |k| [t("telegram_broadcasts.selection_modes.#{k}"), k] }
 
   %fieldset
-    %legend= t('.image_legend')
-    = f.input :image, as: :file, label: false, hint: t('.image_hint')
-    - if @telegram_broadcast.image?
-      .controls
-        = image_tag @telegram_broadcast.image.url, style: 'max-height: 120px; display: block; margin-bottom: 6px;'
-        %label.checkbox
-          = f.check_box :remove_image
-          = t('.remove_image')
+    %legend= t('.images_legend')
+    %p.muted= t('.images_hint')
+    = file_field_tag 'telegram_broadcast[new_images][]', multiple: true,
+                     accept: 'image/png,image/jpeg,image/gif'
+    - if @telegram_broadcast.images.any?
+      .controls{ style: 'margin-top: 10px;' }
+        - @telegram_broadcast.images.order(:id).each do |img|
+          %div{ style: 'display: inline-block; margin: 0 12px 12px 0; text-align: center; vertical-align: top;' }
+            = image_tag img.file.url, style: 'max-height: 90px; display: block; margin-bottom: 4px;'
+            %label.checkbox.inline
+              = check_box_tag 'telegram_broadcast[remove_image_ids][]', img.id, false
+              = t('.remove_image')
 
   %fieldset
     %legend= t('.variants_legend')

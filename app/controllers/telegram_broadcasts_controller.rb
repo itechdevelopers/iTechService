@@ -5,7 +5,7 @@ class TelegramBroadcastsController < ApplicationController
 
   def index
     authorize TelegramBroadcast
-    @telegram_broadcasts = TelegramBroadcast.includes(:telegram_chat, :variants).order(:title)
+    @telegram_broadcasts = TelegramBroadcast.includes(:telegram_chat, :variants, :images).order(:title)
   end
 
   def new
@@ -18,6 +18,7 @@ class TelegramBroadcastsController < ApplicationController
     authorize TelegramBroadcast
     @telegram_broadcast = TelegramBroadcast.new(broadcast_params)
     if @telegram_broadcast.save
+      attach_new_images
       redirect_to telegram_broadcasts_path, notice: t('.created')
     else
       @telegram_broadcast.variants.build if @telegram_broadcast.variants.empty?
@@ -33,6 +34,8 @@ class TelegramBroadcastsController < ApplicationController
   def update
     authorize @telegram_broadcast
     if @telegram_broadcast.update(broadcast_params)
+      remove_images
+      attach_new_images
       redirect_to telegram_broadcasts_path, notice: t('.updated')
     else
       @telegram_broadcast.variants.build if @telegram_broadcast.variants.empty?
@@ -67,8 +70,22 @@ class TelegramBroadcastsController < ApplicationController
     params.require(:telegram_broadcast).permit(
       :telegram_chat_id, :title, :schedule_type, :day_of_month, :interval_days,
       :send_hour_from, :send_hour_to,
-      :selection_mode, :active, :image, :remove_image,
+      :selection_mode, :active,
       variants_attributes: %i[id body _destroy]
     )
+  end
+
+  # Картинки пула — не model attributes, поэтому вне broadcast_params.
+  def attach_new_images
+    files = params.dig(:telegram_broadcast, :new_images)
+    Array(files).reject(&:blank?).each do |file|
+      @telegram_broadcast.images.create(file: file)
+    end
+  end
+
+  def remove_images
+    ids = params.dig(:telegram_broadcast, :remove_image_ids)
+    ids = Array(ids).reject(&:blank?)
+    @telegram_broadcast.images.where(id: ids).destroy_all if ids.any?
   end
 end
