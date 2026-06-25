@@ -1,0 +1,21 @@
+.page-header
+  %h2
+    = link_back_to_index
+    = t('.title')
+  %small= history_link_to history_device_unlock_request_path(@device_unlock_request)
+
+%table.table.table-bordered.table-hover.device-unlock-requests
+  %thead
+    %tr
+      %th= t('device_unlock_requests.index.columns.created_at')
+      %th= DeviceUnlockRequest.human_attribute_name(:client)
+      %th= DeviceUnlockRequest.human_attribute_name(:item)
+      %th= DeviceUnlockRequest.human_attribute_name(:reason)
+      %th= t('device_unlock_requests.index.columns.last_comment')
+      %th= DeviceUnlockRequest.human_attribute_name(:status)
+  %tbody
+    = render partial: 'device_unlock_request', object: @device_unlock_request, as: :device_unlock_request
+
+%h3= t('.comments')
+#comments.comments_list= comments_list_for @device_unlock_request
+= comment_form_for @device_unlock_request
