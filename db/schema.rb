@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20260624111005) do
+ActiveRecord::Schema.define(version: 20260625120000) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -524,6 +524,21 @@ ActiveRecord::Schema.define(version: 20260624111005) do
     t.index ["ancestry"], name: "index_device_types_on_ancestry"
     t.index ["code_1c"], name: "index_device_types_on_code_1c"
     t.index ["name"], name: "index_device_types_on_name"
+  end
+
+  create_table "device_unlock_requests", force: :cascade do |t|
+    t.bigint "client_id", null: false
+    t.bigint "item_id", null: false
+    t.bigint "user_id", null: false
+    t.bigint "department_id", null: false
+    t.integer "status", default: 0, null: false
+    t.text "reason"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["client_id"], name: "index_device_unlock_requests_on_client_id"
+    t.index ["department_id"], name: "index_device_unlock_requests_on_department_id"
+    t.index ["item_id"], name: "index_device_unlock_requests_on_item_id"
+    t.index ["user_id"], name: "index_device_unlock_requests_on_user_id"
   end
 
   create_table "discounts", id: :serial, force: :cascade do |t|
@@ -2562,6 +2577,10 @@ ActiveRecord::Schema.define(version: 20260624111005) do
   add_foreign_key "departments", "cities"
   add_foreign_key "device_tasks", "repair_causes", column: "expected_repair_cause_id"
   add_foreign_key "device_tasks", "repair_services", column: "expected_repair_service_id"
+  add_foreign_key "device_unlock_requests", "clients"
+  add_foreign_key "device_unlock_requests", "departments"
+  add_foreign_key "device_unlock_requests", "items"
+  add_foreign_key "device_unlock_requests", "users"
   add_foreign_key "duty_schedule_entries", "departments"
   add_foreign_key "duty_schedule_entries", "users"
   add_foreign_key "duty_schedule_entries", "users", column: "assigned_by_id"

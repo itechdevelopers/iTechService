@@ -1,0 +1,39 @@
+// Стили фичи «Запросы на разблокировку». BEM, всё под собственным блоком
+// .device-unlock-requests; generic-селекторы (.label, .table) НЕ трогаем (CONTEXT.md).
+// Палитра согласована с client_requests.css.scss.
+
+.device-unlock-requests {
+  // ── Цветная заливка строки по workflow-статусу ────────────────────────────
+  // Модификаторы через дефис — status.tr('_','-') в _device_unlock_request.html.haml.
+  .device-unlock-requests__row--in-progress > td    { background-color: #fcf6e9; }
+  .device-unlock-requests__row--needs-approval > td  { background-color: #fdf1e7; }
+  .device-unlock-requests__row--approved > td        { background-color: #f1f8f1; }
+  .device-unlock-requests__row--client-declined > td { background-color: #fdf3f3; }
+
+  // ── Бейдж статуса (5 цветов по ТЗ) ────────────────────────────────────────
+  .device-unlock-requests__status--new-request     { background-color: #2f96b4; } // синий
+  .device-unlock-requests__status--in-progress     { background-color: #f0ad4e; } // жёлтый
+  .device-unlock-requests__status--needs-approval  { background-color: #e8772e; } // оранжевый
+  .device-unlock-requests__status--approved        { background-color: #5cb85c; } // зелёный
+  .device-unlock-requests__status--client-declined { background-color: #d9534f; } // красный
+
+  .device-unlock-requests__status-cell { white-space: nowrap; }
+
+  .device-unlock-requests__actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    margin-top: 6px;
+  }
+
+  // ── Инлайн-добавление комментария в ячейке «последний» (Цикл 4) ────────────
+  .device-unlock-requests__last-comment { margin-bottom: 6px; }
+
+  .device-unlock-requests__comment-form {
+    display: flex;
+    gap: 6px;
+    margin: 0;
+
+    input[type='text'] { margin: 0; }
+  }
+}

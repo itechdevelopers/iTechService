@@ -1,0 +1,43 @@
+ru:
+  device_unlock_requests:
+    index:
+      title: Запросы на разблокировку
+      empty: Запросов пока нет.
+      columns:
+        id: "№"
+        created_at: Создан
+        last_comment: Комментарий последний
+    show:
+      title: Запрос на разблокировку устройства
+      comments: Комментарии
+    new:
+      title: Новый запрос на разблокировку
+    create:
+      created: Запрос создан
+    update_status:
+      updated: Статус обновлён
+    client_section:
+      title: Запросы на разблокировку
+    device_unlock_request:
+      comment_placeholder: Добавить комментарий…
+      comment_btn: Отправить
+      new_request_btn: Новый
+      in_progress_btn: В работу
+      needs_approval_btn: На согласование
+      approved_btn: Согласован
+      client_declined_btn: Отказ клиента
+    statuses:
+      new_request: Новый
+      in_progress: В работе
+      needs_approval: Требует согласования
+      approved: Согласован
+      client_declined: Отказ от клиента
+  activerecord:
+    models:
+      device_unlock_request: Запрос на разблокировку
+    attributes:
+      device_unlock_request:
+        client: Клиент
+        item: Устройство
+        reason: Причина обращения
+        status: Статус

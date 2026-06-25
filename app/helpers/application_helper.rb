@@ -196,6 +196,8 @@ module ApplicationHelper
           object.status_h
         elsif object&.is_a?(ClientRequest)
           client_request_enum_label(:statuses, value)
+        elsif object&.is_a?(DeviceUnlockRequest)
+          device_unlock_request_status_label(value)
         else
           value
         end
@@ -216,6 +218,15 @@ module ApplicationHelper
     mapping = ClientRequest.public_send(enum_plural)
     key = mapping.key?(value.to_s) ? value.to_s : mapping.key(value.to_i)
     key ? t("client_requests.#{enum_plural}.#{key}") : value
+  end
+
+  # Человекочитаемый ярлык статуса DeviceUnlockRequest в истории. HistoryRecord
+  # хранит либо строковый ключ ('needs_approval'), либо integer ('2') —
+  # обрабатываем оба случая (тот же приём, что и client_request_enum_label).
+  def device_unlock_request_status_label(value)
+    mapping = DeviceUnlockRequest.statuses
+    key = mapping.key?(value.to_s) ? value.to_s : mapping.key(value.to_i)
+    key ? t("device_unlock_requests.statuses.#{key}") : value
   end
 
   def human_history_change(rec)

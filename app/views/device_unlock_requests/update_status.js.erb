@@ -1,0 +1,3 @@
+// Перерисовываем только изменённую строку — цвет статуса/бейджа и набор
+// доступных кнопок обновляются без перезагрузки (паттерн client_requests).
+$('#device_unlock_request_<%= @device_unlock_request.id %>').replaceWith('<%= j render partial: 'device_unlock_request', object: @device_unlock_request, as: :device_unlock_request %>');
