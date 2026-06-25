@@ -1,4 +1,6 @@
 .page-header
+  - if policy(DeviceUnlockRequest).new?
+    = link_to t('helpers.links.new'), new_device_unlock_request_path, class: 'btn btn-success pull-right'
   %h2= t('.title')
 
 %table#device_unlock_requests_table.table.table-hover.table-bordered.device-unlock-requests
@@ -14,3 +16,4 @@
     - if @device_unlock_requests.empty?
       %tr
         %td{ colspan: 6 }= t('.empty')
+    = render partial: 'device_unlock_request', collection: @device_unlock_requests, as: :device_unlock_request

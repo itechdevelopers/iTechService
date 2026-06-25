@@ -23,6 +23,7 @@
  *= require check_lists
  *= require client_categories
  *= require client_requests
+ *= require device_unlock_requests
  *= require clients
  *= require comments
  *= require common
