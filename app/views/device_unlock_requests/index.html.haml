@@ -1,0 +1,16 @@
+.page-header
+  %h2= t('.title')
+
+%table#device_unlock_requests_table.table.table-hover.table-bordered.device-unlock-requests
+  %thead
+    %tr
+      %th= t('.columns.created_at')
+      %th= DeviceUnlockRequest.human_attribute_name(:client)
+      %th= DeviceUnlockRequest.human_attribute_name(:item)
+      %th= DeviceUnlockRequest.human_attribute_name(:reason)
+      %th= t('.columns.last_comment')
+      %th= DeviceUnlockRequest.human_attribute_name(:status)
+  %tbody
+    - if @device_unlock_requests.empty?
+      %tr
+        %td{ colspan: 6 }= t('.empty')
