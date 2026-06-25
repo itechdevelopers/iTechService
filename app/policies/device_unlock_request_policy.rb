@@ -29,6 +29,11 @@ class DeviceUnlockRequestPolicy < ApplicationPolicy
     true
   end
 
+  # Инлайн-добавление комментария из таблицы (member-экшен add_comment).
+  def add_comment?
+    true
+  end
+
   def destroy?
     true
   end

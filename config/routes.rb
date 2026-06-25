@@ -220,6 +220,7 @@ Rails.application.routes.draw do
 
   resources :device_unlock_requests do
     patch :update_status, on: :member
+    post :add_comment, on: :member
     get :history, on: :member, defaults: { format: 'js' }
   end
 

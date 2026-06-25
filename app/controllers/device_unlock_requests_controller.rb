@@ -44,6 +44,23 @@ class DeviceUnlockRequestsController < ApplicationController
     end
   end
 
+  # Инлайн-добавление комментария прямо из строки таблицы (Цикл 4). НЕ через
+  # CommentsController: создаём Comment и перерисовываем строку (паттерн
+  # update_status), чтобы новый «последний комментарий» сразу появился в ячейке.
+  def add_comment
+    @device_unlock_request = find_record DeviceUnlockRequest
+    comment = @device_unlock_request.comments.build(content: params[:content], user: current_user)
+
+    if comment.save
+      respond_to do |format|
+        format.js   # add_comment.js.erb — replaceWith строки
+        format.html { redirect_to device_unlock_requests_path }
+      end
+    else
+      head :unprocessable_entity # пустой комментарий — молча, без перерисовки
+    end
+  end
+
   # История изменений (иконка часов) — читает HistoryRecord, как в clients#history.
   def history
     @device_unlock_request = find_record DeviceUnlockRequest

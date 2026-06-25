@@ -3,6 +3,7 @@
 - r = device_unlock_request
 - status_mod = r.status.tr('_', '-')
 %tr.device-unlock-requests__row{ class: "device-unlock-requests__row--#{status_mod}", id: "device_unlock_request_#{r.id}" }
+  %td= link_to r.id, device_unlock_request_path(r)
   %td= human_datetime r.created_at
   %td= link_to r.client.short_name, client_path(r.client)
   %td
@@ -11,7 +12,13 @@
       %br
       %small.muted= r.item.serial_number
   %td= r.reason
-  %td= r.last_comment&.content
+  %td.device-unlock-requests__comment-cell
+    - if r.last_comment
+      .device-unlock-requests__last-comment= r.last_comment.content
+    - if policy(r).add_comment?
+      = form_tag add_comment_device_unlock_request_path(r), method: :post, remote: true, class: 'device-unlock-requests__comment-form' do
+        = text_field_tag :content, nil, id: "duq_comment_content_#{r.id}", placeholder: t('.comment_placeholder'), class: 'input-medium'
+        = submit_tag t('.comment_btn'), class: 'btn btn-small'
   %td.device-unlock-requests__status-cell
     %span.label{ class: "device-unlock-requests__status--#{status_mod}" }= t("device_unlock_requests.statuses.#{r.status}")
     - if policy(r).update_status?

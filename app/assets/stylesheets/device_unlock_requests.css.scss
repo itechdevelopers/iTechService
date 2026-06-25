@@ -25,4 +25,15 @@
     gap: 6px;
     margin-top: 6px;
   }
+
+  // ── Инлайн-добавление комментария в ячейке «последний» (Цикл 4) ────────────
+  .device-unlock-requests__last-comment { margin-bottom: 6px; }
+
+  .device-unlock-requests__comment-form {
+    display: flex;
+    gap: 6px;
+    margin: 0;
+
+    input[type='text'] { margin: 0; }
+  }
 }

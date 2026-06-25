@@ -9,6 +9,7 @@
         %h4= t('device_unlock_requests.client_section.title')
       %thead
         %tr
+          %th= t('device_unlock_requests.index.columns.id')
           %th= t('device_unlock_requests.index.columns.created_at')
           %th= DeviceUnlockRequest.human_attribute_name(:client)
           %th= DeviceUnlockRequest.human_attribute_name(:item)

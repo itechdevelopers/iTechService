@@ -4,6 +4,7 @@ ru:
       title: Запросы на разблокировку
       empty: Запросов пока нет.
       columns:
+        id: "№"
         created_at: Создан
         last_comment: Комментарий последний
     show:
@@ -18,6 +19,8 @@ ru:
     client_section:
       title: Запросы на разблокировку
     device_unlock_request:
+      comment_placeholder: Добавить комментарий…
+      comment_btn: Отправить
       new_request_btn: Новый
       in_progress_btn: В работу
       needs_approval_btn: На согласование
