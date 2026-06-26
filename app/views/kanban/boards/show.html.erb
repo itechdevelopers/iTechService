@@ -18,6 +18,11 @@
       <% end %>
       <%= link_to(icon(:edit), edit_kanban_board_path(@board), class: 'btn btn-small') if can?(:edit, @board) %>
       <%= link_to_destroy_small(@board) if can?(:destroy, @board) %>
+      <% if can?(:archive, @board) %>
+        <%= link_to icon_tag(:archive), archive_kanban_board_path(@board), method: :patch,
+                    class: 'btn btn-small', title: t('.archive_board'),
+                    data: { confirm: t('.archive_confirm') } %>
+      <% end %>
       <%= link_to 'Архивные карточки', archived_kanban_board_path(@board), class: 'btn btn-submit' %>
     </h2>
 

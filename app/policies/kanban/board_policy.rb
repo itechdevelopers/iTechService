@@ -15,5 +15,17 @@ module Kanban
     def archived?
       read?
     end
+
+    def archived_boards?
+      read?
+    end
+
+    def archive?
+      manage?
+    end
+
+    def unarchive?
+      manage?
+    end
   end
 end

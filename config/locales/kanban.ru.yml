@@ -12,7 +12,14 @@ ru:
       index:
         title: 'Канбан Доски'
         add_board: 'Добавить Доску'
+        archived_boards: 'Архив досок'
+      archived_boards:
+        title: 'Архивные доски'
+        empty: 'Архивных досок нет'
+        unarchive: 'Вернуть из архива'
       show:
+        archive_board: 'В архив'
+        archive_confirm: 'Убрать доску в архив?'
         choose_sorting_type: 'Выберите вариант сортировки:'
         classic_sort: 'Классическая'
         deadline_desc_sort: 'Сроки по убыванию'
@@ -24,6 +31,8 @@ ru:
       created: 'Доска создана'
       updated: 'Доска изменена'
       destroyed: 'Доска удалена'
+      archived: 'Доска убрана в архив'
+      unarchived: 'Доска возвращена из архива'
     columns:
       edit:
         title: 'Редактирование Колонки'

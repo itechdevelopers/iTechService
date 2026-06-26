@@ -1,10 +1,15 @@
 module Kanban
   class BoardsController < ApplicationController
-    before_action :set_board, only: %i[edit update destroy sorted archived]
+    before_action :set_board, only: %i[edit update destroy sorted archived archive unarchive]
 
     def index
       authorize Board
-      @boards = Board.order(:id)
+      @boards = Board.active.order(:id)
+    end
+
+    def archived_boards
+      authorize Board
+      @boards = Board.archived.order(:id)
     end
 
     def show
@@ -66,6 +71,16 @@ module Kanban
 
     def archived
       @archived_cards = @board.archived_cards
+    end
+
+    def archive
+      @board.archive!
+      redirect_to kanban_boards_url, notice: t('.archived')
+    end
+
+    def unarchive
+      @board.unarchive!
+      redirect_to archived_boards_kanban_boards_url, notice: t('.unarchived')
     end
 
     private

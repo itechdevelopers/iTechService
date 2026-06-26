@@ -1,4 +1,7 @@
 class Kanban::Board < ApplicationRecord
+  scope :active, -> { where(archived: false) }
+  scope :archived, -> { where(archived: true) }
+
   has_many :columns, -> { ordered }, class_name: 'Kanban::Column', dependent: :destroy
   belongs_to :telegram_chat, optional: true
   has_and_belongs_to_many :managers,
@@ -26,5 +29,13 @@ class Kanban::Board < ApplicationRecord
                 .joins(:column)
                 .where(kanban_columns: {board_id: id})
                 .where(archived: true)
+  end
+
+  def archive!
+    update!(archived: true)
+  end
+
+  def unarchive!
+    update!(archived: false)
   end
 end
