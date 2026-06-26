@@ -3,6 +3,8 @@ ru:
     index:
       title: Запросы на разблокировку
       empty: Запросов пока нет.
+      priority_label: "Сортировка по статусу:"
+      priority_reset: Сбросить
       columns:
         id: "№"
         created_at: Создан
