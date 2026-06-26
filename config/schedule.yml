@@ -87,3 +87,9 @@ client_request_purchase_reminder:
   class: 'ClientRequestPurchaseReminderJob'
   queue: 'default'
   active_job: true
+
+kanban_card_deadline_reminder:
+  cron: '0 10 * * * Asia/Vladivostok'
+  class: 'KanbanCardDeadlineReminderJob'
+  queue: 'default'
+  active_job: true
