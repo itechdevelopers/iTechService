@@ -1,26 +1,25 @@
 <div class="page-header">
   <h2>
+    <%= link_back_to kanban_boards_path %>
     <%= t '.title' %>
-
-    <% if can? :create, Kanban::Board %>
-      <%= link_to t('kanban.boards.index.add_board'), new_kanban_board_path, class: 'btn btn-success' %>
-    <% end %>
-
-    <%= link_to t('.archived_boards'), archived_boards_kanban_boards_path, class: 'btn' %>
   </h2>
 </div>
 
 <div class="row-fluid">
+  <% if @boards.empty? %>
+    <p class="muted"><%= t '.empty' %></p>
+  <% end %>
+
   <% @boards.each do |board| %>
     <% if can? :show, board %>
       <div class="span2 text-center mobile-full">
         <%= link_to kanban_board_path(board) do %>
           <div class="thumbnail" style="background-color: <%= board.background || '#ffffff' %>;">
             <h3><%= board.name %></h3>
-            <span class="help-tooltip" data-toggle="tooltip" data-placement="right" title="<%= board.outer_annotation %>">
-              <i class="fa fa-question-circle"></i>
-            </span>
           </div>
+        <% end %>
+        <% if can?(:unarchive, board) %>
+          <%= link_to t('.unarchive'), unarchive_kanban_board_path(board), method: :patch, class: 'btn btn-small btn-success' %>
         <% end %>
       </div>
     <% end %>
