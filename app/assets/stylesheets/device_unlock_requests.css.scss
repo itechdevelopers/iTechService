@@ -29,11 +29,19 @@
   // ── Инлайн-добавление комментария в ячейке «последний» (Цикл 4) ────────────
   .device-unlock-requests__last-comment { margin-bottom: 6px; }
 
+  // Часики «все комментарии» рядом с текстом последнего (Цикл 5, п.3).
+  .device-unlock-requests__comments-link { margin-left: 6px; }
+
+  // Форма инлайн-комментария: textarea на всю ширину, кнопка снизу (Цикл 5, п.1).
   .device-unlock-requests__comment-form {
-    display: flex;
-    gap: 6px;
     margin: 0;
 
-    input[type='text'] { margin: 0; }
+    .device-unlock-requests__comment-input {
+      display: block;
+      width: 100%;
+      box-sizing: border-box;
+      margin: 0 0 6px;
+      resize: vertical;
+    }
   }
 }

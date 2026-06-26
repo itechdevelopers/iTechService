@@ -14,10 +14,12 @@
   %td= r.reason
   %td.device-unlock-requests__comment-cell
     - if r.last_comment
-      .device-unlock-requests__last-comment= r.last_comment.content
+      .device-unlock-requests__last-comment
+        = r.last_comment.content
+        = link_to glyph('clock-o'), comments_device_unlock_request_path(r, form_name: 'comments_modal'), remote: true, class: 'device-unlock-requests__comments-link', title: t('.comments_link_title')
     - if policy(r).add_comment?
       = form_tag add_comment_device_unlock_request_path(r), method: :post, remote: true, class: 'device-unlock-requests__comment-form' do
-        = text_field_tag :content, nil, id: "duq_comment_content_#{r.id}", placeholder: t('.comment_placeholder'), class: 'input-medium'
+        = text_area_tag :content, nil, rows: 3, id: "duq_comment_content_#{r.id}", placeholder: t('.comment_placeholder'), class: 'device-unlock-requests__comment-input'
         = submit_tag t('.comment_btn'), class: 'btn btn-small'
   %td.device-unlock-requests__status-cell
     %span.label{ class: "device-unlock-requests__status--#{status_mod}" }= t("device_unlock_requests.statuses.#{r.status}")

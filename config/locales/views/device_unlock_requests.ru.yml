@@ -10,6 +10,9 @@ ru:
     show:
       title: Запрос на разблокировку устройства
       comments: Комментарии
+    comments_modal:
+      title: Все комментарии
+      empty: Комментариев пока нет.
     new:
       title: Новый запрос на разблокировку
     create:
@@ -21,6 +24,7 @@ ru:
     device_unlock_request:
       comment_placeholder: Добавить комментарий…
       comment_btn: Отправить
+      comments_link_title: Показать все комментарии
       new_request_btn: Новый
       in_progress_btn: В работу
       needs_approval_btn: На согласование

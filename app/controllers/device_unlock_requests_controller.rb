@@ -61,6 +61,14 @@ class DeviceUnlockRequestsController < ApplicationController
     end
   end
 
+  # Часики в колонке комментариев — модалка со ВСЕМИ комментариями запроса
+  # (в таблице видно только последний). Переиспользуем общую модалку:
+  # shared/show_modal_form рендерит партиал из params[:form_name] → _comments_modal.
+  def comments
+    @device_unlock_request = find_record DeviceUnlockRequest
+    render 'shared/show_modal_form'
+  end
+
   # История изменений (иконка часов) — читает HistoryRecord, как в clients#history.
   def history
     @device_unlock_request = find_record DeviceUnlockRequest

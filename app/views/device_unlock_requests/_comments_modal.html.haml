@@ -1,0 +1,15 @@
+-# Модалка «все комментарии запроса». Открывается часиками из колонки комментариев
+-# (контроллер #comments → shared/show_modal_form, form_name=comments_modal).
+-# Список — тот же, что на show (Comment::Cell::Preview через comments_list_for).
+.modal-header
+  = button_to_close_modal
+  %h3= t('device_unlock_requests.comments_modal.title')
+
+.modal-body
+  - if @device_unlock_request.comments.any?
+    .comments_list= comments_list_for @device_unlock_request
+  - else
+    %p.muted= t('device_unlock_requests.comments_modal.empty')
+
+.modal-footer
+  = link_to t('helpers.links.close'), '#', 'data-dismiss' => 'modal', class: 'btn'

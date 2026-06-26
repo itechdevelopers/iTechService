@@ -221,6 +221,7 @@ Rails.application.routes.draw do
   resources :device_unlock_requests do
     patch :update_status, on: :member
     post :add_comment, on: :member
+    get :comments, on: :member, defaults: { format: 'js' }
     get :history, on: :member, defaults: { format: 'js' }
   end
 
