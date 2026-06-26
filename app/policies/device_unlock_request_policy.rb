@@ -34,6 +34,11 @@ class DeviceUnlockRequestPolicy < ApplicationPolicy
     true
   end
 
+  # Часики-модалка со всеми комментариями запроса (member-экшен comments).
+  def comments?
+    true
+  end
+
   def destroy?
     true
   end

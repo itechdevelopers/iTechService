@@ -19,6 +19,52 @@
 
   .device-unlock-requests__status-cell { white-space: nowrap; }
 
+  // ── Чипы приоритет-сортировки по статусу (Цикл 6) ─────────────────────────
+  // Ряд тогглов над таблицей: клик поднимает запросы выбранного статуса наверх.
+  &__filters {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 12px;
+  }
+
+  &__filters-label { font-weight: bold; }
+
+  &__chip {
+    display: inline-block;
+    padding: 4px 10px;
+    border: 1px solid #ccc;
+    border-radius: 12px;
+    background: #f5f5f5;
+    color: #555;
+    font-size: 12px;
+    line-height: 1.4;
+    text-decoration: none;
+
+    &:hover { text-decoration: none; opacity: 0.85; }
+  }
+
+  &__chip-count {
+    margin-left: 6px;
+    font-weight: bold;
+  }
+
+  // Активный чип красим в цвет своего статуса (палитра из __status--*).
+  .device-unlock-requests__chip--new-request.is-active     { background: #2f96b4; border-color: #2f96b4; color: #fff; }
+  .device-unlock-requests__chip--in-progress.is-active     { background: #f0ad4e; border-color: #f0ad4e; color: #fff; }
+  .device-unlock-requests__chip--needs-approval.is-active  { background: #e8772e; border-color: #e8772e; color: #fff; }
+  .device-unlock-requests__chip--approved.is-active        { background: #5cb85c; border-color: #5cb85c; color: #fff; }
+  .device-unlock-requests__chip--client-declined.is-active { background: #d9534f; border-color: #d9534f; color: #fff; }
+
+  &__chip-reset {
+    font-size: 12px;
+    color: #999;
+    text-decoration: underline;
+
+    &:hover { color: #555; }
+  }
+
   .device-unlock-requests__actions {
     display: flex;
     flex-wrap: wrap;
@@ -29,11 +75,19 @@
   // ── Инлайн-добавление комментария в ячейке «последний» (Цикл 4) ────────────
   .device-unlock-requests__last-comment { margin-bottom: 6px; }
 
+  // Часики «все комментарии» рядом с текстом последнего (Цикл 5, п.3).
+  .device-unlock-requests__comments-link { margin-left: 6px; }
+
+  // Форма инлайн-комментария: textarea на всю ширину, кнопка снизу (Цикл 5, п.1).
   .device-unlock-requests__comment-form {
-    display: flex;
-    gap: 6px;
     margin: 0;
 
-    input[type='text'] { margin: 0; }
+    .device-unlock-requests__comment-input {
+      display: block;
+      width: 100%;
+      box-sizing: border-box;
+      margin: 0 0 6px;
+      resize: vertical;
+    }
   }
 }

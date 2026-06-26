@@ -3,6 +3,21 @@
     = link_to t('helpers.links.new'), new_device_unlock_request_path, class: 'btn btn-success pull-right'
   %h2= t('.title')
 
+-# Чипы-тогглы приоритет-сортировки по статусу (Цикл 6). Клик = GET-ссылка с
+-# обновлённым ?priority[]= (toggle: активный убираем, неактивный добавляем).
+-# Это сортировка-всплытие, не отсев — строки не исчезают.
+.device-unlock-requests
+  .device-unlock-requests__filters
+    %span.device-unlock-requests__filters-label= t('.priority_label')
+    - DeviceUnlockRequest.statuses.keys.each do |st|
+      - active = @priority_statuses.include?(st)
+      - next_priority = (active ? @priority_statuses - [st] : @priority_statuses + [st])
+      = link_to device_unlock_requests_path(priority: next_priority.presence), class: "device-unlock-requests__chip device-unlock-requests__chip--#{st.tr('_', '-')} #{'is-active' if active}" do
+        = t("device_unlock_requests.statuses.#{st}")
+        %span.device-unlock-requests__chip-count= @status_counts[st]
+    - if @priority_statuses.any?
+      = link_to t('.priority_reset'), device_unlock_requests_path, class: 'device-unlock-requests__chip-reset'
+
 %table#device_unlock_requests_table.table.table-hover.table-bordered.device-unlock-requests
   %thead
     %tr
