@@ -27,8 +27,12 @@
         = menu_item t('orders.link', default: 'Orders'), orders_path if can? :read, Order
         = drop_down_divider
         = menu_item t('clients.link', default: 'Clients'), clients_path
-        = menu_item t('client_requests.index.title'), client_requests_path if policy(ClientRequest).index?
-        = menu_item t('device_unlock_requests.index.title'), device_unlock_requests_path if policy(DeviceUnlockRequest).index?
+        - if policy(ClientRequest).index? || policy(DeviceUnlockRequest).index?
+          %li.dropdown-submenu.navbar-requests-submenu
+            %a{ href: '#', tabindex: '-1' }= t('.client_requests_group')
+            %ul.dropdown-menu
+              = menu_item t('.receipt_search_request'), client_requests_path if policy(ClientRequest).index?
+              = menu_item t('.device_unlock_request'), device_unlock_requests_path if policy(DeviceUnlockRequest).index?
         - if can? :manage, TaskTemplate
           = drop_down_divider
           = menu_item t('task_templates.index.title'), task_templates_path

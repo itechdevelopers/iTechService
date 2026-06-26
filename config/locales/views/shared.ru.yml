@@ -56,9 +56,11 @@ ru:
     navbar:
       cash_drawer: 'Касса'
       chat: 'Чат'
+      client_requests_group: 'Запросы клиентов'
       completed_quick_orders: 'Выполненные'
       current_quick_orders: 'Текущие'
       data_migration: 'Миграция данных'
+      device_unlock_request: 'Запрос на разблокировку'
       directory: 'Каталог'
       employees: 'Сотрудники'
       favorite: 'Избранное'
@@ -70,6 +72,7 @@ ru:
       quick_orders: 'Быстрый заказ'
       quick_order: 'Быстрый заказ'
       rating: 'Рейтинг'
+      receipt_search_request: 'Запрос на оригинальный чек'
       repair_return: 'Возврат ремонта'
       repair_returns: :service.repair_return.view.title.index
       reports: 'Отчёты'
