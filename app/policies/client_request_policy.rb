@@ -44,6 +44,20 @@ class ClientRequestPolicy < ApplicationPolicy
     true
   end
 
+  # Архивация (Цикл 7) — открыта всем, как смена статуса (НЕ superadmin,
+  # в отличие от kanban: тут «кто угодно» обрабатывает запросы).
+  def archive?
+    true
+  end
+
+  def unarchive?
+    true
+  end
+
+  def archived_requests?
+    true
+  end
+
   def destroy?
     true
   end

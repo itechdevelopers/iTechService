@@ -27,6 +27,13 @@ class ClientRequest < ApplicationRecord
 
   scope :recent, -> { order(created_at: :desc) }
 
+  # Архивация (Цикл 7) — паттерн kanban-досок: boolean-колонка + явные scope'ы.
+  # БЕЗ default_scope, чтобы show/archived_requests могли загрузить архивный
+  # запрос. Имя scope :archived совпадает с колонкой — Rails разрешает (scope
+  # перекрывает), kanban подтвердил это эмпирически.
+  scope :active,   -> { where(archived: false) }
+  scope :archived, -> { where(archived: true) }
+
   # Запросы, по которым покупка НЕ подтверждена и workflow ещё открыт
   # (не done/failed). По ним ежедневный ClientRequestPurchaseReminderJob
   # шлёт напоминание, пока покупку не подтвердят или запрос не закроют.
@@ -73,6 +80,14 @@ class ClientRequest < ApplicationRecord
     when 12...24 then :one_to_two
     else              :over_two
     end
+  end
+
+  def archive!
+    update!(archived: true)
+  end
+
+  def unarchive!
+    update!(archived: false)
   end
 
   private

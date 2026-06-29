@@ -1,6 +1,6 @@
 -# Секция «Запросы клиента» в карточке клиента. Переиспользует строку-партиал
 -# client_requests/_client_request (та же разметка, что в общей таблице).
-- requests = client.client_requests.recent.includes(:item)
+- requests = client.client_requests.active.recent.includes(:item)
 - if requests.any?
   #client_requests_section
     %table.table.table-bordered.table-condensed.table-hover.client-requests

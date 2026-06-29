@@ -5,10 +5,14 @@ ru:
       empty: Запросов пока нет.
       priority_label: "Сортировка по статусу:"
       priority_reset: Сбросить
+      archived_link: Архив
       columns:
         id: "№"
         created_at: Создан
         last_comment: Комментарий последний
+    archived_requests:
+      title: Архив запросов на разблокировку
+      empty: В архиве пока нет запросов.
     show:
       title: Запрос на разблокировку устройства
       comments: Комментарии
@@ -21,6 +25,10 @@ ru:
       created: Запрос создан
     update_status:
       updated: Статус обновлён
+    archive:
+      archived: Запрос убран в архив
+    unarchive:
+      unarchived: Запрос возвращён из архива
     client_section:
       title: Запросы на разблокировку
     device_unlock_request:
@@ -32,6 +40,9 @@ ru:
       needs_approval_btn: На согласование
       approved_btn: Согласован
       client_declined_btn: Отказ клиента
+      archive_btn: В архив
+      archive_confirm: Убрать запрос в архив?
+      unarchive_btn: Разархивировать
     statuses:
       new_request: Новый
       in_progress: В работе

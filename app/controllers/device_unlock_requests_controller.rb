@@ -12,7 +12,8 @@ class DeviceUnlockRequestsController < ApplicationController
       Array(params[:priority]).select { |s| DeviceUnlockRequest.statuses.key?(s) }
     @status_counts = status_counts
 
-    scope = DeviceUnlockRequest.recent.includes(:client, :item, :comments)
+    # Архивные (Цикл 8) в основной таблице не показываем — только .active.
+    scope = DeviceUnlockRequest.active.recent.includes(:client, :item, :comments)
     if @priority_statuses.any?
       codes = @priority_statuses.map { |s| DeviceUnlockRequest.statuses[s] }
       # reorder (не order): перебиваем created_at из scope `recent` ведущим
@@ -88,6 +89,28 @@ class DeviceUnlockRequestsController < ApplicationController
     render 'shared/show_modal_form'
   end
 
+  # Архив (Цикл 8). «В архив» — PATCH с redirect (не remote): после archive!
+  # redirect_to index → строка уходит из .active-списка (паттерн kanban).
+  def archive
+    @device_unlock_request = find_record DeviceUnlockRequest
+    @device_unlock_request.archive!
+    redirect_to device_unlock_requests_path, notice: t('.archived')
+  end
+
+  def unarchive
+    @device_unlock_request = find_record DeviceUnlockRequest
+    @device_unlock_request.unarchive!
+    redirect_to archived_requests_device_unlock_requests_path, notice: t('.unarchived')
+  end
+
+  # Список архивных запросов (read-only): без кнопок смены статуса и инлайн-формы
+  # комментария, единственное действие — «Разархивировать» (см. партиал).
+  def archived_requests
+    authorize DeviceUnlockRequest
+    @device_unlock_requests =
+      DeviceUnlockRequest.archived.recent.includes(:client, :item, :comments)
+  end
+
   # История изменений (иконка часов) — читает HistoryRecord, как в clients#history.
   def history
     @device_unlock_request = find_record DeviceUnlockRequest
@@ -101,7 +124,8 @@ class DeviceUnlockRequestsController < ApplicationController
   # ключами либо integer-коды, либо строковые имена — нормализуем к именам enum,
   # чтобы во вью обращаться по строковому ключу статуса.
   def status_counts
-    DeviceUnlockRequest.group(:status).count.each_with_object(Hash.new(0)) do |(key, count), acc|
+    # Только активные — архивные не учитываем в счётчиках чипов.
+    DeviceUnlockRequest.active.group(:status).count.each_with_object(Hash.new(0)) do |(key, count), acc|
       name = key.is_a?(Integer) ? DeviceUnlockRequest.statuses.key(key) : key.to_s
       acc[name] = count
     end

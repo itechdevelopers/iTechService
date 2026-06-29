@@ -39,6 +39,19 @@ class DeviceUnlockRequestPolicy < ApplicationPolicy
     true
   end
 
+  # Архивация (Цикл 8) — открыта всем, как остальные предикаты этой фичи.
+  def archive?
+    true
+  end
+
+  def unarchive?
+    true
+  end
+
+  def archived_requests?
+    true
+  end
+
   def destroy?
     true
   end

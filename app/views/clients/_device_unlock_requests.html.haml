@@ -1,7 +1,7 @@
 -# Секция «Запросы на разблокировку» в карточке клиента. Переиспользует
 -# строку-партиал device_unlock_requests/_device_unlock_request (та же
 -# разметка, что в общей таблице). includes(:comments) — против N+1 в last_comment.
-- requests = client.device_unlock_requests.recent.includes(:item, :comments)
+- requests = client.device_unlock_requests.active.recent.includes(:item, :comments)
 - if requests.any?
   #device_unlock_requests_section
     %table.table.table-bordered.table-condensed.table-hover.device-unlock-requests

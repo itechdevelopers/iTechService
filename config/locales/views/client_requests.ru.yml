@@ -5,9 +5,13 @@ ru:
       empty: Запросов пока нет.
       priority_label: 'Сортировка по статусу:'
       priority_reset: Сбросить
+      archived_link: Архив
       columns:
         created_at: Создан
         purchase: Покупка / срок
+    archived_requests:
+      title: Архив запросов клиентов
+      empty: В архиве пока нет запросов.
     show:
       title: Запрос на поиск чека
     new:
@@ -20,6 +24,10 @@ ru:
       updated: Запрос обновлён
     update_status:
       updated: Статус обновлён
+    archive:
+      archived: Запрос убран в архив
+    unarchive:
+      unarchived: Запрос возвращён из архива
     client_section:
       title: Запросы клиента
     client_request:
@@ -28,6 +36,9 @@ ru:
       done_btn: Выполнен
       failed_btn: Не выполнен
       edit_btn: Редактировать
+      archive_btn: В архив
+      archive_confirm: Убрать запрос в архив?
+      unarchive_btn: Разархивировать
     kinds:
       receipt_search: Поиск оригинального чека
       device_unblock: Разблокировка устройства

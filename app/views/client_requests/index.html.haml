@@ -1,6 +1,8 @@
 .page-header
   - if policy(ClientRequest).new?
     = link_to t('helpers.links.new'), new_client_request_path, class: 'btn btn-success pull-right'
+  - if policy(ClientRequest).archived_requests?
+    = link_to t('.archived_link'), archived_requests_client_requests_path, class: 'btn pull-right'
   %h2= t('.title')
 
 -# Чипы-тогглы приоритет-сортировки по статусу (Цикл 6). Клик = GET-ссылка с
