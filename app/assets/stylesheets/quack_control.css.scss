@@ -76,6 +76,61 @@
     padding: 24px 0;
   }
 
+  // Сводка по месяцу: 3 декады + итог «Всего за месяц» (без рамок — просто числа).
+  &__summary {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: baseline;
+    justify-content: center;
+    gap: 32px;
+    margin: 24px 0 8px;
+  }
+
+  &__shape {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+  }
+
+  &__shape-value {
+    font-size: 26px;
+    font-weight: 700;
+    line-height: 1.1;
+  }
+
+  &__shape-label {
+    font-size: 11px;
+    color: #888;
+    margin-top: 4px;
+  }
+
+  // Итог — крупнее декад, чтобы читался как сумма (без рамки).
+  &__shape--total &__shape-value {
+    font-size: 34px;
+  }
+
+  // Бейдж ±% к прошлому месяцу (только для завершённых месяцев).
+  &__delta {
+    text-align: center;
+    margin-bottom: 16px;
+  }
+
+  &__delta-caption {
+    color: #888;
+    margin-right: 6px;
+  }
+
+  &__delta-value {
+    font-weight: 700;
+
+    // Меньше забываний = хорошо (зелёный), больше = плохо (красный).
+    &--down { color: #2e9e44; }
+    &--up   { color: #d33; }
+    &--flat,
+    &--na   { color: #888; }
+  }
+
 }
 
 // Иконка «Ой» в шапке топбара — маленькая, дружелюбная, две буквы.

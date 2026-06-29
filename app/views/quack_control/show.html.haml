@@ -31,3 +31,24 @@
           %tr.quack-control__row{ class: ('quack-control__row--clean' if row[:count].zero?) }
             %td.quack-control__cell-name= row[:user].short_name
             %td.quack-control__cell-count= row[:count]
+
+  .quack-control__summary
+    - decade_labels = ['1–10', '11–20', "21–#{@month.end_of_month.day}"]
+    - @decades.each_with_index do |count, i|
+      .quack-control__shape.quack-control__shape--decade
+        %span.quack-control__shape-value= count
+        %span.quack-control__shape-label= decade_labels[i]
+    .quack-control__shape.quack-control__shape--total
+      %span.quack-control__shape-value= @total
+      %span.quack-control__shape-label= t('.summary.total')
+
+  - if @month_completed
+    .quack-control__delta
+      %span.quack-control__delta-caption= t('.summary.vs_prev')
+      - if @delta_percent.nil?
+        %span.quack-control__delta-value.quack-control__delta-value--na —
+      - else
+        - direction = @delta_percent.positive? ? 'up' : (@delta_percent.negative? ? 'down' : 'flat')
+        - sign = @delta_percent.positive? ? '+' : ''
+        %span.quack-control__delta-value{ class: "quack-control__delta-value--#{direction}" }
+          = "#{sign}#{@delta_percent}%"
