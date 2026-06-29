@@ -19,6 +19,10 @@ ru:
     comments_modal:
       title: Все комментарии
       empty: Комментариев пока нет.
+    form:
+      reason_presets: "Шаблоны причины:"
+      preset_operator: Разблокировка от оператора
+      preset_icloud: Разблокировка от iCloud
     new:
       title: Новый запрос на разблокировку
     create:

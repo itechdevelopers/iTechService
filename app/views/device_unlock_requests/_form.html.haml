@@ -9,8 +9,51 @@
       -# странице (не в AJAX-модалке) — см. план §4.
       = f.input :client, as: :client, wrapper_html: { id: 'client_fields' }, no_devices: true
       = f.input :item, as: :device, required: true
+
+      -# Чекбоксы-пресеты причины. НЕ поля модели — на сервер не уходят, только
+      -# наполняют textarea ниже через inline-JS (см. конец партиала). Точная фраза
+      -# хранится в data-preset, чтобы JS мог её и вставить, и удалить.
+      .control-group#reason_presets
+        %label.control-label= t('.reason_presets')
+        .controls
+          %label.checkbox.inline
+            = check_box_tag 'reason_preset_operator', '1', false, data: { preset: t('.preset_operator') }
+            = t('.preset_operator')
+          %label.checkbox.inline
+            = check_box_tag 'reason_preset_icloud', '1', false, data: { preset: t('.preset_icloud') }
+            = t('.preset_icloud')
+
       = f.input :reason, as: :text, input_html: { rows: 5 }
       .form-actions
         = submit_button f
 
   .span6= secondary_form_container
+
+:javascript
+  (function() {
+    var textarea = document.getElementById('device_unlock_request_reason');
+    var checks = Array.prototype.slice.call(
+      document.querySelectorAll('#reason_presets input[type=checkbox]')
+    );
+    if (!textarea || !checks.length) return;
+
+    // Все известные пресет-фразы (для удаления, в каком бы месте они ни оказались).
+    var allPresets = checks.map(function(c) { return c.getAttribute('data-preset'); });
+
+    function sync() {
+      var rest = textarea.value.split('\n').filter(function(line) {
+        return allPresets.indexOf(line.trim()) === -1;
+      });
+      // Убираем пустые строки, оставшиеся сверху после удаления пресета.
+      while (rest.length && rest[0].trim() === '') rest.shift();
+
+      // Активные пресеты — строго в DOM-порядке чекбоксов (оператор, затем iCloud),
+      // независимо от порядка кликов.
+      var active = checks.filter(function(c) { return c.checked; })
+                         .map(function(c) { return c.getAttribute('data-preset'); });
+
+      textarea.value = active.concat(rest).join('\n');
+    }
+
+    checks.forEach(function(c) { c.addEventListener('change', sync); });
+  })();
