@@ -3,6 +3,8 @@ ru:
     index:
       title: Запросы клиентов
       empty: Запросов пока нет.
+      priority_label: 'Сортировка по статусу:'
+      priority_reset: Сбросить
       columns:
         created_at: Создан
         purchase: Покупка / срок

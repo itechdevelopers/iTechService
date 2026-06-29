@@ -1,9 +1,29 @@
 # frozen_string_literal: true
 
 class ClientRequestsController < ApplicationController
+  # Приоритет-сортировка по статусам (Цикл 6). Чипы-тогглы передают
+  # ?priority[]=<status_key>; отмеченные статусы всплывают наверх, остальные
+  # остаются ниже (сортировка, НЕ фильтр-отсев). Ключи валидируем по
+  # statuses.keys → в SQL уходят только integer-коды из enum, инъекция исключена.
   def index
     authorize ClientRequest
-    @client_requests = ClientRequest.recent.includes(:client, :item)
+
+    @priority_statuses =
+      Array(params[:priority]).select { |s| ClientRequest.statuses.key?(s) }
+    @status_counts = status_counts
+
+    scope = ClientRequest.recent.includes(:client, :item)
+    if @priority_statuses.any?
+      codes = @priority_statuses.map { |s| ClientRequest.statuses[s] }
+      # reorder (не order): перебиваем created_at из scope `recent` ведущим
+      # CASE-ключом, created_at DESC оставляем вторым — стабильный порядок внутри групп.
+      scope = scope.reorder(
+        Arel.sql("CASE WHEN status IN (#{codes.join(',')}) THEN 0 ELSE 1 END"),
+        created_at: :desc
+      )
+    end
+
+    @client_requests = scope
   end
 
   def show
@@ -79,6 +99,16 @@ class ClientRequestsController < ApplicationController
   end
 
   private
+
+  # Счётчики для бейджей на чипах. group(:status).count в Rails 5.1 может вернуть
+  # ключами либо integer-коды, либо строковые имена — нормализуем к именам enum,
+  # чтобы во вью обращаться по строковому ключу статуса.
+  def status_counts
+    ClientRequest.group(:status).count.each_with_object(Hash.new(0)) do |(key, count), acc|
+      name = key.is_a?(Integer) ? ClientRequest.statuses.key(key) : key.to_s
+      acc[name] = count
+    end
+  end
 
   def client_request_params
     params.require(:client_request).permit(:client_id, :item_id, :reason)

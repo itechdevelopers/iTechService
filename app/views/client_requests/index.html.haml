@@ -3,6 +3,21 @@
     = link_to t('helpers.links.new'), new_client_request_path, class: 'btn btn-success pull-right'
   %h2= t('.title')
 
+-# Чипы-тогглы приоритет-сортировки по статусу (Цикл 6). Клик = GET-ссылка с
+-# обновлённым ?priority[]= (toggle: активный убираем, неактивный добавляем).
+-# Это сортировка-всплытие, не отсев — строки не исчезают.
+.client-requests
+  .client-requests__filters
+    %span.client-requests__filters-label= t('.priority_label')
+    - ClientRequest.statuses.keys.each do |st|
+      - active = @priority_statuses.include?(st)
+      - next_priority = (active ? @priority_statuses - [st] : @priority_statuses + [st])
+      = link_to client_requests_path(priority: next_priority.presence), class: "client-requests__chip client-requests__chip--#{st.tr('_', '-')} #{'is-active' if active}" do
+        = t("client_requests.statuses.#{st}")
+        %span.client-requests__chip-count= @status_counts[st]
+    - if @priority_statuses.any?
+      = link_to t('.priority_reset'), client_requests_path, class: 'client-requests__chip-reset'
+
 %table#client_requests_table.table.table-hover.table-bordered.client-requests
   %thead
     %tr
