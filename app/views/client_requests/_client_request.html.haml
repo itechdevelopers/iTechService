@@ -2,6 +2,8 @@
 -# cr — экземпляр ClientRequest (передаётся как :client_request).
 - cr = client_request
 - status_mod = cr.status.tr('_', '-')
+-# archived=true → строка в архивной таблице: только «Разархивировать», без кнопок статуса.
+- archived = local_assigns.fetch(:archived, false)
 %tr.client-requests__row{ class: "client-requests__row--#{status_mod}", id: "client_request_#{cr.id}" }
   %td= human_datetime cr.created_at
   %td= link_to cr.client.short_name, client_path(cr.client)
@@ -24,14 +26,20 @@
   %td= cr.reason
   %td.client-requests__status-cell
     %span.label{ class: "client-requests__status--#{status_mod}" }= t("client_requests.statuses.#{cr.status}")
-    - if policy(cr).update_status?
-      .client-requests__actions
-        - unless cr.in_progress?
-          = link_to t('.in_progress_btn'), update_status_client_request_path(cr, client_request: { status: :in_progress }), method: :patch, remote: true, class: 'btn btn-warning btn-small'
-        - unless cr.done?
-          = link_to t('.done_btn'), update_status_client_request_path(cr, client_request: { status: :done }), method: :patch, remote: true, class: 'btn btn-success btn-small'
-        - unless cr.failed?
-          = link_to t('.failed_btn'), update_status_client_request_path(cr, client_request: { status: :failed }), method: :patch, remote: true, class: 'btn btn-danger btn-small'
-    - if policy(cr).edit?
-      = link_to glyph(:pencil), edit_client_request_path(cr), class: 'btn btn-small', title: t('.edit_btn')
+    - if archived
+      - if policy(cr).unarchive?
+        = link_to t('.unarchive_btn'), unarchive_client_request_path(cr), method: :patch, class: 'btn btn-small btn-success'
+    - else
+      - if policy(cr).update_status?
+        .client-requests__actions
+          - unless cr.in_progress?
+            = link_to t('.in_progress_btn'), update_status_client_request_path(cr, client_request: { status: :in_progress }), method: :patch, remote: true, class: 'btn btn-warning btn-small'
+          - unless cr.done?
+            = link_to t('.done_btn'), update_status_client_request_path(cr, client_request: { status: :done }), method: :patch, remote: true, class: 'btn btn-success btn-small'
+          - unless cr.failed?
+            = link_to t('.failed_btn'), update_status_client_request_path(cr, client_request: { status: :failed }), method: :patch, remote: true, class: 'btn btn-danger btn-small'
+      - if policy(cr).edit?
+        = link_to glyph(:pencil), edit_client_request_path(cr), class: 'btn btn-small', title: t('.edit_btn')
+      - if policy(cr).archive?
+        = link_to t('.archive_btn'), archive_client_request_path(cr), method: :patch, data: { confirm: t('.archive_confirm') }, class: 'btn btn-small client-requests__archive-btn'
     = history_link_to history_client_request_path(cr)

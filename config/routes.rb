@@ -215,11 +215,19 @@ Rails.application.routes.draw do
 
   resources :client_requests do
     patch :update_status, on: :member
+    patch :archive, on: :member
+    patch :unarchive, on: :member
+    # Collection-роут В блоке: резолвится раньше show :id, иначе
+    # /client_requests/archived_requests съелось бы как show(id: 'archived_requests').
+    get :archived_requests, on: :collection
     get :history, on: :member, defaults: { format: 'js' }
   end
 
   resources :device_unlock_requests do
     patch :update_status, on: :member
+    patch :archive, on: :member
+    patch :unarchive, on: :member
+    get :archived_requests, on: :collection
     post :add_comment, on: :member
     get :comments, on: :member, defaults: { format: 'js' }
     get :history, on: :member, defaults: { format: 'js' }

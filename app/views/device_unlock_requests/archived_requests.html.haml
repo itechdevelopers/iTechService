@@ -1,0 +1,23 @@
+-# Архив запросов на разблокировку (Цикл 8). Read-only: та же строка-партиал,
+-# но с locals archived:true → без кнопок статуса и формы комментария, только
+-# «Разархивировать». Бейдж статуса и последний комментарий остаются.
+.page-header
+  %h2
+    = link_back_to device_unlock_requests_path
+    = t('.title')
+
+%table.table.table-bordered.device-unlock-requests
+  %thead
+    %tr
+      %th= t('device_unlock_requests.index.columns.id')
+      %th= t('device_unlock_requests.index.columns.created_at')
+      %th= DeviceUnlockRequest.human_attribute_name(:client)
+      %th= DeviceUnlockRequest.human_attribute_name(:item)
+      %th= DeviceUnlockRequest.human_attribute_name(:reason)
+      %th= t('device_unlock_requests.index.columns.last_comment')
+      %th= DeviceUnlockRequest.human_attribute_name(:status)
+  %tbody
+    - if @device_unlock_requests.empty?
+      %tr
+        %td{ colspan: 7 }= t('.empty')
+    = render partial: 'device_unlock_request', collection: @device_unlock_requests, as: :device_unlock_request, locals: { archived: true }

@@ -1,6 +1,8 @@
 .page-header
   - if policy(DeviceUnlockRequest).new?
     = link_to t('helpers.links.new'), new_device_unlock_request_path, class: 'btn btn-success pull-right'
+  - if policy(DeviceUnlockRequest).archived_requests?
+    = link_to t('.archived_link'), archived_requests_device_unlock_requests_path, class: 'btn pull-right'
   %h2= t('.title')
 
 -# Чипы-тогглы приоритет-сортировки по статусу (Цикл 6). Клик = GET-ссылка с

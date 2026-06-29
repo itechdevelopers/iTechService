@@ -1,0 +1,21 @@
+-# Архив запросов клиентов (Цикл 7). Read-only: та же строка-партиал, но с
+-# locals archived:true → вместо кнопок статуса показывается «Разархивировать».
+.page-header
+  %h2
+    = link_back_to client_requests_path
+    = t('.title')
+
+%table.table.table-bordered.client-requests
+  %thead
+    %tr
+      %th= t('client_requests.index.columns.created_at')
+      %th= ClientRequest.human_attribute_name(:client)
+      %th= ClientRequest.human_attribute_name(:item)
+      %th= t('client_requests.index.columns.purchase')
+      %th= ClientRequest.human_attribute_name(:reason)
+      %th= ClientRequest.human_attribute_name(:status)
+  %tbody
+    - if @client_requests.empty?
+      %tr
+        %td{ colspan: 6 }= t('.empty')
+    = render partial: 'client_request', collection: @client_requests, as: :client_request, locals: { archived: true }

@@ -31,7 +31,21 @@ class DeviceUnlockRequest < ApplicationRecord
 
   scope :recent, -> { order(created_at: :desc) }
 
+  # Архивация (Цикл 8) — паттерн kanban-досок: boolean-колонка + явные scope'ы.
+  # БЕЗ default_scope, чтобы show/archived_requests могли загрузить архивный
+  # запрос. Имя scope :archived совпадает с колонкой — Rails разрешает.
+  scope :active,   -> { where(archived: false) }
+  scope :archived, -> { where(archived: true) }
+
   def last_comment
     comments.newest.first
+  end
+
+  def archive!
+    update!(archived: true)
+  end
+
+  def unarchive!
+    update!(archived: false)
   end
 end

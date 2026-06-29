@@ -2,6 +2,9 @@
 -# карточке клиента. r — экземпляр DeviceUnlockRequest (передаётся как :device_unlock_request).
 - r = device_unlock_request
 - status_mod = r.status.tr('_', '-')
+-# archived=true → строка в архивной таблице: только «Разархивировать», без кнопок
+-# статуса и без инлайн-формы комментария (read-only). last_comment и часики остаются.
+- archived = local_assigns.fetch(:archived, false)
 %tr.device-unlock-requests__row{ class: "device-unlock-requests__row--#{status_mod}", id: "device_unlock_request_#{r.id}" }
   %td= link_to r.id, device_unlock_request_path(r)
   %td= human_datetime r.created_at
@@ -17,22 +20,28 @@
       .device-unlock-requests__last-comment
         = r.last_comment.content
         = link_to glyph('clock-o'), comments_device_unlock_request_path(r, form_name: 'comments_modal'), remote: true, class: 'device-unlock-requests__comments-link', title: t('.comments_link_title')
-    - if policy(r).add_comment?
+    - if !archived && policy(r).add_comment?
       = form_tag add_comment_device_unlock_request_path(r), method: :post, remote: true, class: 'device-unlock-requests__comment-form' do
         = text_area_tag :content, nil, rows: 3, id: "duq_comment_content_#{r.id}", placeholder: t('.comment_placeholder'), class: 'device-unlock-requests__comment-input'
         = submit_tag t('.comment_btn'), class: 'btn btn-small'
   %td.device-unlock-requests__status-cell
     %span.label{ class: "device-unlock-requests__status--#{status_mod}" }= t("device_unlock_requests.statuses.#{r.status}")
-    - if policy(r).update_status?
-      .device-unlock-requests__actions
-        - unless r.new_request?
-          = link_to t('.new_request_btn'), update_status_device_unlock_request_path(r, device_unlock_request: { status: :new_request }), method: :patch, remote: true, class: 'btn btn-info btn-small'
-        - unless r.in_progress?
-          = link_to t('.in_progress_btn'), update_status_device_unlock_request_path(r, device_unlock_request: { status: :in_progress }), method: :patch, remote: true, class: 'btn btn-warning btn-small'
-        - unless r.needs_approval?
-          = link_to t('.needs_approval_btn'), update_status_device_unlock_request_path(r, device_unlock_request: { status: :needs_approval }), method: :patch, remote: true, class: 'btn btn-small'
-        - unless r.approved?
-          = link_to t('.approved_btn'), update_status_device_unlock_request_path(r, device_unlock_request: { status: :approved }), method: :patch, remote: true, class: 'btn btn-success btn-small'
-        - unless r.client_declined?
-          = link_to t('.client_declined_btn'), update_status_device_unlock_request_path(r, device_unlock_request: { status: :client_declined }), method: :patch, remote: true, class: 'btn btn-danger btn-small'
+    - if archived
+      - if policy(r).unarchive?
+        = link_to t('.unarchive_btn'), unarchive_device_unlock_request_path(r), method: :patch, class: 'btn btn-small btn-success'
+    - else
+      - if policy(r).update_status?
+        .device-unlock-requests__actions
+          - unless r.new_request?
+            = link_to t('.new_request_btn'), update_status_device_unlock_request_path(r, device_unlock_request: { status: :new_request }), method: :patch, remote: true, class: 'btn btn-info btn-small'
+          - unless r.in_progress?
+            = link_to t('.in_progress_btn'), update_status_device_unlock_request_path(r, device_unlock_request: { status: :in_progress }), method: :patch, remote: true, class: 'btn btn-warning btn-small'
+          - unless r.needs_approval?
+            = link_to t('.needs_approval_btn'), update_status_device_unlock_request_path(r, device_unlock_request: { status: :needs_approval }), method: :patch, remote: true, class: 'btn btn-small'
+          - unless r.approved?
+            = link_to t('.approved_btn'), update_status_device_unlock_request_path(r, device_unlock_request: { status: :approved }), method: :patch, remote: true, class: 'btn btn-success btn-small'
+          - unless r.client_declined?
+            = link_to t('.client_declined_btn'), update_status_device_unlock_request_path(r, device_unlock_request: { status: :client_declined }), method: :patch, remote: true, class: 'btn btn-danger btn-small'
+      - if policy(r).archive?
+        = link_to t('.archive_btn'), archive_device_unlock_request_path(r), method: :patch, data: { confirm: t('.archive_confirm') }, class: 'btn btn-small device-unlock-requests__archive-btn'
     = history_link_to history_device_unlock_request_path(r)
