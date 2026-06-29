@@ -27,16 +27,36 @@ class QuackControlQuery
          .sort_by { |row| [-row[:count], row[:user].short_name.to_s.downcase] }
   end
 
+  # @return [Integer] всего засчитанных маркеров за месяц (сумма по всем технарям)
+  def total
+    base_scope.count
+  end
+
+  # @return [Array<Integer>] 3 числа — разбивка по декадам месяца [1–10, 11–20, 21–конец].
+  #   3-я декада поглощает 31-й день (clamp к индексу 2).
+  def decade_counts
+    buckets = [0, 0, 0]
+    base_scope.pluck(:viewed_at).each do |viewed_at|
+      buckets[[(viewed_at.day - 1) / 10, 2].min] += 1
+    end
+    buckets
+  end
+
   private
 
-  # { user_id => count } — айс догнал (notified_at есть), но в работу не взяли
-  def marker_counts
+  # Общая выборка-метрика: айс догнал (notified_at есть), в работу не взяли
+  # (processed_action != 'started'), момент открытия (viewed_at) — внутри месяца.
+  # Один источник правды для rows / total / decade_counts.
+  def base_scope
     RepairAttentionMarker
       .where.not(notified_at: nil)
       .where("repair_attention_markers.processed_action IS DISTINCT FROM ?", 'started')
       .where(viewed_at: @month_start..@month_end)
-      .group(:user_id)
-      .count
+  end
+
+  # { user_id => count } — та же метрика, сгруппированная по технарю
+  def marker_counts
+    base_scope.group(:user_id).count
   end
 
   # Активные сотрудники (любая роль): и текущие на ремонте, и «нагрешившие» за период.
