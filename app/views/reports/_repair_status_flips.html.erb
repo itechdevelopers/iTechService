@@ -1,0 +1,28 @@
+<table id="repair_status_flips_report" class="table table-bordered table-hover">
+  <caption><%= report_title(report) %></caption>
+
+  <thead>
+  <tr>
+    <th><%= t('reports.repair_status_flips.time') %></th>
+    <th><%= t('reports.repair_status_flips.ticket_number') %></th>
+    <th><%= t('reports.repair_status_flips.technician') %></th>
+    <th><%= t('reports.repair_status_flips.duration') %></th>
+  </tr>
+  </thead>
+
+  <tbody>
+  <% if report.result[:records].blank? %>
+    <tr>
+      <td colspan="4" class="muted"><%= t('reports.repair_status_flips.empty') %></td>
+    </tr>
+  <% end %>
+  <% report.result[:records].each do |record| %>
+    <tr>
+      <td><%= I18n.l(record.time, format: :time_date) %></td>
+      <td><%= link_to(record.ticket_number, service_job_path(record.job_id), target: '_blank') %></td>
+      <td><%= record.technician %></td>
+      <td><%= humanized_flip_duration(record.duration) %></td>
+    </tr>
+  <% end %>
+  </tbody>
+</table>

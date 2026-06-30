@@ -151,6 +151,13 @@ ru:
       title: 'Отчёт по запчастям'
     repairers:
       title: 'Кто починил устройство?'
+    repair_status_flips:
+      title: 'Качели статуса (обход строгого ремонта)'
+      time: 'Время и дата'
+      ticket_number: 'Номер устройства'
+      technician: 'Технарь'
+      duration: 'За сколько вернул'
+      empty: 'За выбранный период манёвров не найдено'
     service_job_viewings:
       title: 'Просмотр устройств'
     sms_notifications:
