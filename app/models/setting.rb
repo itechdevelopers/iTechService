@@ -37,7 +37,8 @@ class Setting < ApplicationRecord
     warranty_overstay_thresholds: 'json',
     find_my_device_check_enabled: 'boolean',
     transcription_silence_threshold_hours: 'integer',
-    transcription_silence_last_notified_on: 'string'
+    transcription_silence_last_notified_on: 'string',
+    repair_status_flip_seconds: 'integer'
   }.freeze
 
   VALUE_TYPES = %w[boolean integer string text json].freeze

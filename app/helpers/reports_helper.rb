@@ -4,6 +4,17 @@ module ReportsHelper
     t("reports.#{report.is_a?(String) ? report : report.name}.title")
   end
 
+  # Длительность эпизода «качелей статуса» в секундах → человекочитаемо.
+  # Зеркалит RepairStatusFlipNotifier#humanized_duration (отчёт + уведомление совпадают).
+  def humanized_flip_duration(seconds)
+    seconds = seconds.to_f.round
+    return "#{seconds} с" if seconds < 60
+
+    minutes = seconds / 60
+    rest = seconds % 60
+    rest.zero? ? "#{minutes} мин" : "#{minutes} мин #{rest} с"
+  end
+
   def report_names
     %w[
       device_groups

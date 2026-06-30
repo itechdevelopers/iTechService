@@ -41,5 +41,6 @@ ru:
     find_my_device_check_enabled: 'Проверка «Найти iPhone» при приёмке'
     transcription_silence_threshold_hours: 'Порог тишины транскрибированных диалогов (часы)'
     transcription_silence_last_notified_on: 'Дата последнего уведомления о тишине транскрипций (служебное)'
+    repair_status_flip_seconds: 'Порог «качелей статуса» — быстрый возврат in_progress → в ожидании (секунды, дефолт 300)'
     errors:
       not_found: 'Параметр "%{name}" не найден!'

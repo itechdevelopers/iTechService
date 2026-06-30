@@ -509,9 +509,10 @@ kind: 'device_return', content: id.to_s)
 
     changed_at ||= Time.zone.now
     now = Time.zone.now
+    previous_status = repair_status
 
-    transaction do
-      change = RepairStatusChange.create!(
+    change = transaction do
+      RepairStatusChange.create!(
         service_job: self,
         from_status_id: repair_status_id,
         to_status: new_status,
@@ -520,18 +521,45 @@ kind: 'device_return', content: id.to_s)
         gluing_hours: gluing_hours,
         user: user,
         changed_at: changed_at
-      )
-      update_columns(
-        repair_status_id: new_status.id,
-        repair_pause_reason_id: pause_reason&.id,
-        repair_status_changed_at: changed_at,
-        updated_at: now
-      )
-      change
+      ).tap do
+        update_columns(
+          repair_status_id: new_status.id,
+          repair_pause_reason_id: pause_reason&.id,
+          repair_status_changed_at: changed_at,
+          updated_at: now
+        )
+      end
     end
+
+    detect_repair_status_flip!(change, previous_status, new_status, user)
+    change
   end
 
   private
+
+  # «Качели статуса»: закрывающая смена `in_progress → waiting` тем же юзером,
+  # что и предыдущая `* → in_progress`, быстрее порога. Один индексный SELECT
+  # предыдущего change по `changed_at`. См. docs/repair-status-flip-detection-feature.md.
+  def detect_repair_status_flip!(closing_change, previous_status, new_status, user)
+    return unless previous_status&.in_progress? && new_status.waiting?
+
+    opening_change = repair_status_changes
+                     .where('changed_at <= ?', closing_change.changed_at)
+                     .where.not(id: closing_change.id)
+                     .order(changed_at: :desc, id: :desc)
+                     .first
+    # previous_status — это и есть статус in_progress (проверено выше),
+    # поэтому opening_change должен вести в тот же статус.
+    return unless opening_change&.to_status_id == previous_status.id
+    return unless opening_change.user_id == user.id
+
+    threshold = Setting.repair_status_flip_seconds
+    threshold = 300 if threshold <= 0
+    delta = closing_change.changed_at - opening_change.changed_at
+    return if delta >= threshold
+
+    RepairStatusFlipNotifier.call(service_job: self, user: user, duration: delta)
+  end
 
   def clear_subscriptions_if_done_or_archived
     if location_id_changed? && location.present? && (location.is_done? || location.is_archive?)
