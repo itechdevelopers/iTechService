@@ -5,6 +5,7 @@ ru:
     location_overstay: 'Заказ №%{ticket} находится на локации «%{location}» более %{days} дней'
     queue_inactivity: 'Талон №%{ticket} в очереди «%{queue}» ждёт уже %{waited} мин. На смене %{total} сотр., активны только %{active}. Проверьте состояние очереди.'
     repair_attention: 'Работа №%{ticket} ждёт твоего внимания — приступаешь к ремонту?'
+    repair_status_flip: '%{short_name} открыл работу №%{ticket} сменой статуса и вернул «в ожидании» за %{duration}'
     repair_gluing: 'Устройство по талону №%{ticket} на проклейке уже %{hours} ч — пора забирать.'
     testing_to_test: 'Устройство по талону №%{ticket} ждёт тестирования.'
     testing_returned: 'Устройство по талону №%{ticket} вернулось с тестирования.'
