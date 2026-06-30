@@ -43,6 +43,7 @@ class DeviceUnlockRequestsController < ApplicationController
     @device_unlock_request.department = current_user.department
 
     if @device_unlock_request.save
+      @device_unlock_request.notify_about_creation
       redirect_to device_unlock_requests_path, notice: t('.created')
     else
       render :new

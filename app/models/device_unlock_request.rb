@@ -7,9 +7,10 @@ class DeviceUnlockRequest < ApplicationRecord
   belongs_to :department
 
   # «Комментарий последний» в таблице — полиморфный тред Comment (план §2.3),
-  # тот же механизм, что у order/client/quick_order. Уведомления НЕ потянутся:
-  # CommentsController#create_notifications шлёт их только если commentable
-  # отвечает на :notification_recipients — у нас такого метода нет (план §2.4).
+  # тот же механизм, что у order/client/quick_order. Комментарии тут идут своим
+  # add_comment-экшеном, который МИНУЕТ CommentsController#create_notifications,
+  # поэтому уведомлений о комментариях по-прежнему НЕТ. Уведомляем только о
+  # СОЗДАНИИ запроса — событийно, в #create (см. notify_about_creation ниже).
   has_many :comments, as: :commentable, dependent: :destroy
 
   # Кастомная история проекта (иконка часов) читает HistoryRecord, который
@@ -39,6 +40,36 @@ class DeviceUnlockRequest < ApplicationRecord
 
   def last_comment
     comments.newest.first
+  end
+
+  # Получатели уведомления о новом запросе — суперадмины (они курируют/согласуют
+  # разблокировки). .active — чтобы не слать уволенным (memory feedback_user_active_scope).
+  def self.notification_recipients
+    User.superadmins.active.to_a
+  end
+
+  def notification_message
+    "Создан новый запрос на разблокировку: #{client.full_name}"
+  end
+
+  # Колокольчик ведёт на список запросов — новый всплывает наверх (scope :recent).
+  def url
+    Rails.application.routes.url_helpers.device_unlock_requests_path
+  end
+
+  # Событийное уведомление при создании (паттерн GlassStickingController#notify):
+  # создаём персональный Notification на каждого получателя + realtime-броадкаст.
+  # Автора исключаем — он сам только что создал запрос. Вынесено в модель, чтобы
+  # вызывалось и из контроллера, и из rails runner при ручном тестировании.
+  def notify_about_creation
+    message = notification_message
+    self.class.notification_recipients.reject { |u| u.id == user_id }.each do |recipient|
+      notification = Notification.create(user_id: recipient.id,
+                                         message: message,
+                                         url: url,
+                                         referenceable: self)
+      UserNotificationChannel.broadcast_to(notification.user, notification) unless notification.errors.any?
+    end
   end
 
   def archive!
