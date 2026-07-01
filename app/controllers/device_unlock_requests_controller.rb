@@ -55,6 +55,12 @@ class DeviceUnlockRequestsController < ApplicationController
     @device_unlock_request = find_record DeviceUnlockRequest
 
     if @device_unlock_request.update(status_params)
+      # Авто-уведомление суперадминам при переходе в «Согласован»/«Отказ клиента»
+      # (план §11, Цикл 10). needs_approval пойдёт через пикер (Циклы 11–12).
+      if %w[approved client_declined].include?(@device_unlock_request.status)
+        @device_unlock_request.notify_superadmins_of_status
+      end
+
       respond_to do |format|
         format.js   # перерисовывает строку #device_unlock_request_<id>
         format.html { redirect_to device_unlock_requests_path, notice: t('.updated') }

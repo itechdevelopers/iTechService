@@ -37,8 +37,55 @@ class DeviceUnlockRequest < ApplicationRecord
   scope :active,   -> { where(archived: false) }
   scope :archived, -> { where(archived: true) }
 
+  # Ярлыки статусов для ТЕКСТА уведомления (план §11) — намеренно отдельно от
+  # локали `statuses.*` (там короткие бейджи «Согласован»): здесь падежная форма
+  # под фразу «статус обновлён: …». Хардкод RU — уведомления только на русском.
+  STATUS_NOTIFICATION_LABELS = {
+    'needs_approval'  => 'на согласовании',
+    'approved'        => 'согласован',
+    'client_declined' => 'отказ клиента'
+  }.freeze
+
   def last_comment
     comments.newest.first
+  end
+
+  # Ядро рассылки in-app уведомлений (план §11.1): персональный Notification +
+  # ActionCable-broadcast каждому получателю. Автора действия (User.current)
+  # исключаем всегда (реш. §11.6) — суперадмин, сам сменивший статус, себе
+  # колокольчик не шлёт. Получателей передаём аргументом, НЕ через
+  # notification_recipients — иначе комментарии потянули бы уведомления (§2.4).
+  # На этот метод обопрутся Циклы 11–12 (ручной пикер получателей).
+  def notify(recipients, message, url:)
+    Array(recipients)
+      .reject { |recipient| recipient.id == User.current&.id }
+      .each do |recipient|
+        notification = Notification.create!(
+          user: recipient,
+          message: message,
+          url: url,
+          referenceable: self
+        )
+        UserNotificationChannel.broadcast_to(recipient, notification)
+      end
+  end
+
+  # Авто-уведомление суперадминам при переходе в approved/client_declined
+  # (план §11.2). Ссылка ведёт на сам запрос (show), в отличие от §6.
+  def notify_superadmins_of_status
+    notify(User.superadmins.active, status_notification_message, url: show_url)
+  end
+
+  # Текст: статус + идентификация запроса (клиент + устройство), как в строке
+  # таблицы (_device_unlock_request: item.name + серийник, client.short_name).
+  def status_notification_message
+    device = [item.name, item.serial_number].reject(&:blank?).join(' ')
+    "По запросу на разблокировку статус обновлён: #{STATUS_NOTIFICATION_LABELS[status]}. " \
+      "Клиент: #{client.short_name}, устройство: #{device}"
+  end
+
+  def show_url
+    Rails.application.routes.url_helpers.device_unlock_request_path(self)
   end
 
   def archive!
