@@ -229,6 +229,8 @@ Rails.application.routes.draw do
     patch :unarchive, on: :member
     get :archived_requests, on: :collection
     post :add_comment, on: :member
+    get :approval_picker, on: :member, defaults: { format: 'js' }
+    post :notify_approval, on: :member
     get :comments, on: :member, defaults: { format: 'js' }
     get :history, on: :member, defaults: { format: 'js' }
   end
