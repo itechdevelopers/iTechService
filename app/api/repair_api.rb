@@ -21,5 +21,6 @@ class RepairApi < Grape::API
     end
 
     present :groups, repair_groups, with: Entities::RepairGroupEntity
+    present :departments, Department.real, with: Entities::RepairDepartmentEntity
   end
 end

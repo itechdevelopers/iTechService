@@ -11,7 +11,7 @@
   = f.input :ip_network
   = f.input :url
   = f.input :printer
-  = f.input :participates_in_repair_services, as: :boolean
+  = f.input :participates_in_repair_services, as: :boolean, hint: 'Если снять — филиал попадёт в выгрузку цен помеченным как «без ремонта», сайт покажет, что ремонта здесь нет.'
   = f.input :strict_repair, as: :boolean
   = f.input :archive
   .form-actions
