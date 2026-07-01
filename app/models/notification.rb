@@ -17,6 +17,7 @@ class Notification < ApplicationRecord
     'GlassStickingNotification' => 'Стикеры стекла',
     'TestingSession'           => 'Тестирование',
     'ClientRequest'            => 'Запросы клиентов',
+    'DeviceUnlockRequest'      => 'Запросы на разблокировку',
     nil                        => 'Без типа'
   }.freeze
 

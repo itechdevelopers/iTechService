@@ -39,6 +39,16 @@ class DeviceUnlockRequestPolicy < ApplicationPolicy
     true
   end
 
+  # Пикер получателей при переходе в «Требует согласования» (план §11, Цикл 11):
+  # approval_picker открывает модалку, notify_approval переводит статус + рассылает.
+  def approval_picker?
+    true
+  end
+
+  def notify_approval?
+    true
+  end
+
   # Архивация (Цикл 8) — открыта всем, как остальные предикаты этой фичи.
   def archive?
     true

@@ -37,7 +37,9 @@
           - unless r.in_progress?
             = link_to t('.in_progress_btn'), update_status_device_unlock_request_path(r, device_unlock_request: { status: :in_progress }), method: :patch, remote: true, class: 'btn btn-warning btn-small'
           - unless r.needs_approval?
-            = link_to t('.needs_approval_btn'), update_status_device_unlock_request_path(r, device_unlock_request: { status: :needs_approval }), method: :patch, remote: true, class: 'btn btn-small'
+            -# Гейт (§11.5): статус НЕ меняем по клику — открываем пикер получателей.
+            -# Перевод в needs_approval делает submit модалки (notify_approval).
+            = link_to t('.needs_approval_btn'), approval_picker_device_unlock_request_path(r, form_name: 'approval_recipients_modal'), remote: true, class: 'btn btn-small'
           - unless r.approved?
             = link_to t('.approved_btn'), update_status_device_unlock_request_path(r, device_unlock_request: { status: :approved }), method: :patch, remote: true, class: 'btn btn-success btn-small'
           - unless r.client_declined?

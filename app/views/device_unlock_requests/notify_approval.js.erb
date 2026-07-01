@@ -1,0 +1,10 @@
+// Submit пикера получателей (§11, Цикл 12). Статус уже переведён в needs_approval
+// в контроллере, уведомления (если были) разосланы — здесь только UI:
+// 1) перерисовать строку (новый цвет/бейдж + кнопки), 2) закрыть модалку,
+// 3) показать inline-flash (bootstrap_flash сломан в js — рендерим alert руками,
+//    паттерн glass_sticking/notify.js.erb).
+$('#device_unlock_request_<%= @device_unlock_request.id %>').replaceWith('<%= j render partial: 'device_unlock_request', object: @device_unlock_request, as: :device_unlock_request %>');
+$('#modal_form').modal('hide');
+
+<% flash_message = @notified_count.to_i.positive? ? t('device_unlock_requests.notify_approval.sent', count: @notified_count) : t('device_unlock_requests.notify_approval.moved') %>
+$("#flash_place").html("<div class='alert alert-success fade in'><button class='close' data-dismiss='alert'>&times;</button><%= j flash_message %></div>");

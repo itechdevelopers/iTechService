@@ -55,6 +55,12 @@ class DeviceUnlockRequestsController < ApplicationController
     @device_unlock_request = find_record DeviceUnlockRequest
 
     if @device_unlock_request.update(status_params)
+      # Авто-уведомление суперадминам при переходе в «Согласован»/«Отказ клиента»
+      # (план §11, Цикл 10). needs_approval пойдёт через пикер (Циклы 11–12).
+      if %w[approved client_declined].include?(@device_unlock_request.status)
+        @device_unlock_request.notify_superadmins_of_status
+      end
+
       respond_to do |format|
         format.js   # перерисовывает строку #device_unlock_request_<id>
         format.html { redirect_to device_unlock_requests_path, notice: t('.updated') }
@@ -78,6 +84,46 @@ class DeviceUnlockRequestsController < ApplicationController
       end
     else
       head :unprocessable_entity # пустой комментарий — молча, без перерисовки
+    end
+  end
+
+  # Пикер получателей при переходе в «Требует согласования» (план §11, Цикл 11).
+  # Кнопка «На согласование» открывает эту модалку — статус здесь НЕ меняем
+  # (гейт, реш. §11.5): перевод делает notify_approval. Список — сотрудники
+  # ТОГО ЖЕ департамента, что и запрос, сгруппируем по локациям во вью (Цикл 12).
+  def approval_picker
+    @device_unlock_request = find_record DeviceUnlockRequest
+    @available_users = approval_recipients_scope
+    # Переиспользуем общую модалку: show_modal_form рендерит партиал из
+    # params[:form_name] → _approval_recipients_modal (контейнер #modal_form
+    # создаётся на лету, если его ещё нет). Паттерн модалки комментариев (Цикл 5).
+    render 'shared/show_modal_form'
+  end
+
+  # Submit пикера: и переводит статус в needs_approval, и рассылает уведомления
+  # выбранным. Перевод статуса — ЗДЕСЬ, а не в update_status (гейт §11.5): клик
+  # по кнопке сам по себе статус не трогает, только этот submit. Пустой user_ids =
+  # «перевести без уведомления» → статус меняем, рассылки нет.
+  def notify_approval
+    @device_unlock_request = find_record DeviceUnlockRequest
+    @device_unlock_request.update(status: :needs_approval)
+
+    # Валидация скоупа: пересекаем присланные id с сотрудниками департамента
+    # запроса — защита от подмены id из чужого департамента (ср. #index priority).
+    ids = Array(params[:user_ids]).map(&:to_i) & approval_recipients_scope.ids
+    @notified_count = ids.size # для inline-flash во вью (sent vs moved)
+    if ids.any?
+      recipients = User.where(id: ids)
+      @device_unlock_request.notify(
+        recipients,
+        @device_unlock_request.status_notification_message,
+        url: @device_unlock_request.show_url
+      )
+    end
+
+    respond_to do |format|
+      format.js   # notify_approval.js.erb — перерисовка строки + закрытие модалки (Цикл 12)
+      format.html { redirect_to device_unlock_requests_path, notice: t('.moved') }
     end
   end
 
@@ -119,6 +165,15 @@ class DeviceUnlockRequestsController < ApplicationController
   end
 
   private
+
+  # Кандидаты в получатели уведомления «на согласовании» (план §11.3/§11.4):
+  # строго сотрудники департамента запроса, только действующие (.active — не
+  # уволенные), в штатном порядке (.ordered). И группы-локации, и поиск отдельного
+  # человека во вью работают внутри этого множества; на этом же множестве
+  # валидируем params[:user_ids] в notify_approval.
+  def approval_recipients_scope
+    User.in_department(@device_unlock_request.department_id).active.ordered
+  end
 
   # Счётчики для бейджей на чипах. group(:status).count в Rails 5.1 может вернуть
   # ключами либо integer-коды, либо строковые имена — нормализуем к именам enum,
