@@ -98,3 +98,13 @@
     }
   }
 }
+
+// ── Пикер получателей «На согласование» (Цикл 12) ────────────────────────────
+// #modal_form монтируется в <body>, вне блока .device-unlock-requests, поэтому
+// правило вынесено сюда (уникальный BEM-класс — не generic, не течёт на другие
+// модалки). Bootstrap 2.x задаёт .modal-body { max-height; overflow-y: auto },
+// из-за чего абсолютно-позиционированный dropdown multiselect обрезается краем
+// тела модалки. overflow: visible снимает обрезку — список раскрывается поверх.
+.device-unlock-requests__approval-modal-body {
+  overflow: visible;
+}

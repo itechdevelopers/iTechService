@@ -94,7 +94,10 @@ class DeviceUnlockRequestsController < ApplicationController
   def approval_picker
     @device_unlock_request = find_record DeviceUnlockRequest
     @available_users = approval_recipients_scope
-    respond_to(&:js) # _approval_recipients_modal (Цикл 12)
+    # Переиспользуем общую модалку: show_modal_form рендерит партиал из
+    # params[:form_name] → _approval_recipients_modal (контейнер #modal_form
+    # создаётся на лету, если его ещё нет). Паттерн модалки комментариев (Цикл 5).
+    render 'shared/show_modal_form'
   end
 
   # Submit пикера: и переводит статус в needs_approval, и рассылает уведомления
@@ -108,6 +111,7 @@ class DeviceUnlockRequestsController < ApplicationController
     # Валидация скоупа: пересекаем присланные id с сотрудниками департамента
     # запроса — защита от подмены id из чужого департамента (ср. #index priority).
     ids = Array(params[:user_ids]).map(&:to_i) & approval_recipients_scope.ids
+    @notified_count = ids.size # для inline-flash во вью (sent vs moved)
     if ids.any?
       recipients = User.where(id: ids)
       @device_unlock_request.notify(

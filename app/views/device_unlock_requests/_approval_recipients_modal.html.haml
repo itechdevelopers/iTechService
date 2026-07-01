@@ -1,0 +1,61 @@
+-# Пикер получателей уведомления при переходе в «Требует согласования» (§11, Цикл 12).
+-# Открывается кнопкой «На согласование» (GET approval_picker → shared/show_modal_form).
+-# Один bootstrap-multiselect: кликабельные заголовки-локации (выбрать всех на точке)
+-# + поиск отдельного человека. Список — строго сотрудники департамента запроса
+-# (@available_users, скоуп валидируется повторно на сервере в notify_approval).
+-# Обе submit-кнопки ведут на notify_approval, который И переводит статус, И рассылает
+-# (пустой выбор = «перевести без уведомления»). Отмена/крестик статус НЕ меняют.
+- grouped = @available_users.group_by { |u| u.location&.name.presence || t('device_unlock_requests.approval_modal.no_location') }
+- option_groups = grouped.map { |loc, users| [loc, users.map { |u| [u.short_name, u.id] }] }
+
+.modal-header
+  = button_to_close_modal
+  %h3= t('device_unlock_requests.approval_modal.title')
+
+-# overflow: visible на этом modal-body (scoped) — иначе dropdown multiselect
+-# обрезается стандартным .modal-body { overflow-y: auto } из Bootstrap 2.x.
+.modal-body.device-unlock-requests__approval-modal-body
+  = form_with url: notify_approval_device_unlock_request_path(@device_unlock_request), method: :post, local: false, id: 'approval_recipients_form' do
+    .control-group
+      = label_tag :user_ids, t('device_unlock_requests.approval_modal.members'), class: 'control-label'
+      .controls
+        = select_tag :user_ids, grouped_options_for_select(option_groups), multiple: true, class: 'input-xlarge multiselect-approval-recipients', id: 'approval_user_ids', style: 'display: none;'
+        %p.help-block= t('device_unlock_requests.approval_modal.members_help')
+
+    .modal-footer
+      = submit_tag t('device_unlock_requests.approval_modal.submit'), class: 'btn btn-primary'
+      = submit_tag t('device_unlock_requests.approval_modal.submit_without_notify'), class: 'btn', id: 'approval_submit_without_notify'
+      = link_to t('helpers.links.close'), '#', 'data-dismiss' => 'modal', class: 'btn'
+
+:javascript
+  $(function() {
+    var $select = $('#approval_user_ids');
+    if ($select.length && !$select.data('multiselect')) {
+      $select.multiselect({
+        enableClickableOptGroups: true,
+        enableCaseInsensitiveFiltering: true,
+        includeSelectAllOption: false,
+        filterPlaceholder: '#{j t('device_unlock_requests.approval_modal.filter_placeholder')}',
+        nonSelectedText: '#{j t('device_unlock_requests.approval_modal.non_selected')}',
+        nSelectedText: '#{j t('device_unlock_requests.approval_modal.n_selected')}',
+        buttonWidth: '100%',
+        maxHeight: 300,
+        templates: {
+          filter: '<div class="multiselect-filter"><div class="input-prepend"><span class="add-on"><i class="icon-search"></i></span><input class="multiselect-search" type="text" /></div></div>',
+          filterClearBtn: ''
+        },
+        onInitialized: function() {
+          $select.closest('.controls').find('.multiselect-group, .multiselect-option').each(function() {
+            $(this).attr('type', 'button');
+          });
+        }
+      });
+    }
+
+    // «Перевести без уведомления»: очищаем выбор перед submit → на сервер уйдёт
+    // пустой user_ids → статус переводится, рассылки нет (реш. §11.5).
+    $('#approval_submit_without_notify').on('click', function() {
+      $select.multiselect('deselectAll', false);
+      $select.multiselect('refresh');
+    });
+  });
