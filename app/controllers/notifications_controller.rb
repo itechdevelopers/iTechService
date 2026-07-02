@@ -30,7 +30,7 @@ class NotificationsController < ApplicationController
     authorize Notification
 
     scope = current_user.notifications.not_closed
-    @notifications = scope.page(params[:page])
+    @notifications = scope.order(created_at: :desc).page(params[:page])
     # Флаги для цвета иконки в topbar: синий — только наклейка стекла,
     # красный — только прочие, красно-синий — и то, и другое.
     @has_glass = scope.glass_sticking.exists?
