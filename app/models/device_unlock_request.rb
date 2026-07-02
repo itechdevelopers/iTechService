@@ -50,15 +50,15 @@ class DeviceUnlockRequest < ApplicationRecord
     comments.newest.first
   end
 
-  # Ядро рассылки in-app уведомлений (план §11.1): персональный Notification +
-  # ActionCable-broadcast каждому получателю. Автора действия (User.current)
-  # исключаем всегда (реш. §11.6) — суперадмин, сам сменивший статус, себе
-  # колокольчик не шлёт. Получателей передаём аргументом, НЕ через
-  # notification_recipients — иначе комментарии потянули бы уведомления (§2.4).
-  # На этот метод обопрутся Циклы 11–12 (ручной пикер получателей).
-  def notify(recipients, message, url:)
+  # Рассылает персональный Notification + ActionCable-broadcast каждому получателю.
+  # Получателей передаём аргументом, а не читаем из notification_recipients: если
+  # бы модель отвечала на этот метод, CommentsController#create_notifications начал
+  # бы слать уведомления ещё и на каждый комментарий.
+  #
+  # exclude_current_user: при true выкидывает из получателей текущего юзера.
+  def notify(recipients, message, url:, exclude_current_user: false)
     Array(recipients)
-      .reject { |recipient| recipient.id == User.current&.id }
+      .reject { |recipient| exclude_current_user && recipient.id == User.current&.id }
       .each do |recipient|
         notification = Notification.create!(
           user: recipient,
@@ -70,8 +70,22 @@ class DeviceUnlockRequest < ApplicationRecord
       end
   end
 
-  # Авто-уведомление суперадминам при переходе в approved/client_declined
-  # (план §11.2). Ссылка ведёт на сам запрос (show), в отличие от §6.
+  # Ссылка ведёт на список (index_url), а не на сам запрос: новый всплывает
+  # наверх по scope :recent. exclude_current_user не передаём, поэтому автор,
+  # если он суперадмин, тоже попадает в получателей.
+  def notify_about_creation
+    notify(User.superadmins.active, creation_notification_message, url: index_url)
+  end
+
+  def creation_notification_message
+    "Создан новый запрос на разблокировку: #{client.full_name}"
+  end
+
+  def index_url
+    Rails.application.routes.url_helpers.device_unlock_requests_path
+  end
+
+  # Ссылка ведёт на сам запрос (show_url), а не на список.
   def notify_superadmins_of_status
     notify(User.superadmins.active, status_notification_message, url: show_url)
   end
