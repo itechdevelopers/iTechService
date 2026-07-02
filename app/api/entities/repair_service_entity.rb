@@ -1,5 +1,5 @@
 class Entities::RepairServiceEntity < Grape::Entity
-  expose :id, :name, :client_info
+  expose :id, :name, :is_popular, :client_info
   expose :prices do |repair_service, options|
     Hash[options[:departments].map { |department| [department.short_name, repair_service.price(department)&.shown_price] }]
   end

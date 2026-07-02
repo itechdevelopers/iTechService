@@ -7,6 +7,7 @@
       <th>Гарантия</th>
       <th><%= RepairService.human_attribute_name(:price) %></th>
       <th><%= RepairService.human_attribute_name(:client_info) %></th>
+      <th><%= RepairService.human_attribute_name(:is_popular) %></th>
       <%= tag(:th) if(can? :manage, RepairService) %>
     </tr>
     </thead>
@@ -26,6 +27,9 @@
         <td class="warranty"><%= repair_service_warranty_display(repair_service) %></td>
         <td class="price"><%= human_currency repair_service.price(params[:department_id])&.shown_price, false %></td>
         <td class="client_info text-info" rowspan="<%= parts_qty+1 %>"><%= repair_service.client_info %></td>
+        <td class="is_popular text-center" rowspan="<%= parts_qty+1 %>">
+          <%= '✓' if repair_service.is_popular %>
+        </td>
         <% if can? :manage, RepairService %>
           <td class="btn-group" rowspan="<%= parts_qty+1 %>">
             <%= link_to_edit_small repair_service %>
