@@ -43,6 +43,9 @@ class DeviceUnlockRequestsController < ApplicationController
     @device_unlock_request.department = current_user.department
 
     if @device_unlock_request.save
+      # Событийное in-app уведомление суперадминам о новом запросе (план §6).
+      # Синхронно, без джобы — как GlassStickingController#notify.
+      @device_unlock_request.notify_about_creation
       redirect_to device_unlock_requests_path, notice: t('.created')
     else
       render :new
@@ -114,10 +117,13 @@ class DeviceUnlockRequestsController < ApplicationController
     @notified_count = ids.size # для inline-flash во вью (sent vs moved)
     if ids.any?
       recipients = User.where(id: ids)
+      # Пикер — единственный сценарий, где автора-оператора исключаем: он
+      # выбирает получателей руками и себя в списке видеть не должен (реш. 02.07).
       @device_unlock_request.notify(
         recipients,
         @device_unlock_request.status_notification_message,
-        url: @device_unlock_request.show_url
+        url: @device_unlock_request.show_url,
+        exclude_current_user: true
       )
     end
 
