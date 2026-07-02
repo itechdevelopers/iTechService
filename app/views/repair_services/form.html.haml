@@ -31,6 +31,7 @@
     = f.input :time_standard_to, label: 'Стандарт времени до (минуты)'
   = f.input :is_positive_price
   = f.input :is_body_repair
+  = f.input :is_popular
   = f.input :special_marks
   = f.input :repair_cause_ids,
     collection: RepairCauseGroup.all,
