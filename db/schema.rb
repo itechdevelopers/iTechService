@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20260702170837) do
+ActiveRecord::Schema.define(version: 20260703200350) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -2408,6 +2408,8 @@ ActiveRecord::Schema.define(version: 20260702170837) do
     t.datetime "updated_at", null: false
     t.boolean "receive_location_task_notifications", default: true, null: false
     t.boolean "receive_glass_sticking_notifications", default: true, null: false
+    t.integer "default_order_department_ids", default: [], array: true
+    t.string "default_order_statuses", default: [], array: true
     t.index ["user_id"], name: "index_user_settings_on_user_id"
   end
 
