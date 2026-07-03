@@ -319,6 +319,18 @@
             = f.input :auto_department_detection
             = f.input :receive_location_task_notifications
             = f.input :receive_glass_sticking_notifications
+            %h4 Работа с заказами
+            %small.text-muted По умолчанию — эти филиалы и статусы подставятся при заходе в «Заказы»
+            = f.input :default_order_department_ids,
+              label: 'Филиалы по умолчанию',
+              as: :select,
+              input_html: { multiple: true },
+              collection: Department.all.order(:name)
+            = f.input :default_order_statuses,
+              label: 'Статусы по умолчанию',
+              as: :select,
+              input_html: { multiple: true },
+              collection: Order::NEW_STATUSES.map { |s| [t("orders.statuses.#{s}"), s] }
             = submit_button f
 
       #notifications_tab.tab-pane

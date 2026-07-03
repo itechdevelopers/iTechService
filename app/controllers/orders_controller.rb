@@ -266,8 +266,13 @@ class OrdersController < ApplicationController
       p[:department_ids].reject! { |e| e.to_s.empty? }
       p[:statuses].reject! { |e| e.to_s.empty? }
       if request.format.html?
-        p[:department_ids] = [current_department&.id] if p[:department_ids].blank? && current_department
-        p[:statuses] = %w[current on_the_way done] if p[:statuses].blank?
+        settings = current_user&.user_settings
+        if p[:department_ids].blank?
+          p[:department_ids] = settings&.default_order_department_ids.presence || [current_department&.id].compact
+        end
+        if p[:statuses].blank?
+          p[:statuses] = settings&.default_order_statuses.presence || %w[current on_the_way done]
+        end
       end
     end
   end
