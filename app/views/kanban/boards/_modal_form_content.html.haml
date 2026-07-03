@@ -1,0 +1,16 @@
+.modal-header
+  = button_to_close_modal
+  %h3= t('kanban.boards.copy.title')
+
+= form_with url: copy_kanban_board_path(@board), method: :post, local: false, id: 'copy_board_form' do |f|
+  .modal-body
+    - if @new_board&.errors&.any?
+      .alert.alert-error= @new_board.errors.full_messages.to_sentence
+    .control-group
+      = f.label :name, t('kanban.boards.copy.name_label'), class: 'control-label'
+      .controls
+        = f.text_field :name, class: 'input-xlarge', required: true, value: @new_board&.name
+
+  .modal-footer
+    = f.submit t('kanban.boards.copy.submit'), class: 'btn btn-primary'
+    = link_to t('helpers.links.close'), '#', 'data-dismiss' => 'modal', class: 'btn'

@@ -1,0 +1,6 @@
+<% if @new_board.persisted? && @new_board.errors.empty? %>
+  $('#modal_form').modal('hide');
+  window.location = '<%= kanban_board_path(@new_board) %>';
+<% else %>
+  $('#modal_form').html('<%= j render("modal_form_content") %>');
+<% end %>

@@ -24,6 +24,9 @@
                     data: { confirm: t('.archive_confirm') } %>
       <% end %>
       <%= link_to 'Архивные карточки', archived_kanban_board_path(@board), class: 'btn btn-submit' %>
+      <% if can?(:copy, @board) %>
+        <%= link_to t('.copy_board'), copy_kanban_board_path(@board), remote: true, class: 'btn btn-submit' %>
+      <% end %>
     </h2>
 
     <div class="kanban-board-description">

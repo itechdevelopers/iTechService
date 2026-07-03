@@ -536,6 +536,8 @@ Rails.application.routes.draw do
       end
       get :sorted, on: :member, defaults: {format: :js}
       get :archived, on: :member
+      get :copy, on: :member
+      post :copy, on: :member
       patch :archive, on: :member
       patch :unarchive, on: :member
       get :archived_boards, on: :collection

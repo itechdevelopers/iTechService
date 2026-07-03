@@ -20,6 +20,10 @@ module Kanban
       read?
     end
 
+    def copy?
+      manage?
+    end
+
     def archive?
       manage?
     end

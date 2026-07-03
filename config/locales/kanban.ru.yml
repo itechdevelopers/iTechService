@@ -20,6 +20,7 @@ ru:
       show:
         archive_board: 'В архив'
         archive_confirm: 'Убрать доску в архив?'
+        copy_board: 'Скопировать доску'
         choose_sorting_type: 'Выберите вариант сортировки:'
         classic_sort: 'Классическая'
         deadline_desc_sort: 'Сроки по убыванию'
@@ -28,11 +29,16 @@ ru:
         manager_person: "Ответственный %{name}"
         add_card: 'Добавить Карточку'
         add_column: 'Добавить Колонку'
+      copy:
+        title: 'Копирование доски'
+        name_label: 'Название новой доски'
+        submit: 'Создать копию'
       created: 'Доска создана'
       updated: 'Доска изменена'
       destroyed: 'Доска удалена'
       archived: 'Доска убрана в архив'
       unarchived: 'Доска возвращена из архива'
+      copied: 'Доска скопирована'
     columns:
       edit:
         title: 'Редактирование Колонки'
