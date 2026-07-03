@@ -1,6 +1,6 @@
 module Kanban
   class BoardsController < ApplicationController
-    before_action :set_board, only: %i[edit update destroy sorted archived archive unarchive]
+    before_action :set_board, only: %i[edit update destroy sorted archived copy archive unarchive]
 
     def index
       authorize Board
@@ -71,6 +71,13 @@ module Kanban
 
     def archived
       @archived_cards = @board.archived_cards
+    end
+
+    def copy
+      return render 'shared/show_modal_form' if request.get?
+
+      @new_board = @board.duplicate_structure(params[:name], author: current_user)
+      flash[:notice] = t('.copied') if @new_board.persisted? && @new_board.errors.empty?
     end
 
     def archive
