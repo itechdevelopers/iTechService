@@ -331,6 +331,20 @@
               as: :select,
               input_html: { multiple: true },
               collection: Order::NEW_STATUSES.map { |s| [t("orders.statuses.#{s}"), s] }
+            %small.text-muted Ниже — отдельные наборы для вкладок «Запчасти», «Не запчасти» и «Архив». Если пусто, действует общий набор выше.
+            - UserSettings::SECTIONS.each do |section|
+              - section_title = section == 'archive' ? t('orders.statuses.archive') : t("orders.#{section}")
+              %h5= section_title
+              = f.input :"default_#{section}_department_ids",
+                label: "Филиалы — #{section_title}",
+                as: :select,
+                input_html: { multiple: true },
+                collection: Department.all.order(:name)
+              = f.input :"default_#{section}_statuses",
+                label: "Статусы — #{section_title}",
+                as: :select,
+                input_html: { multiple: true },
+                collection: Order::NEW_STATUSES.map { |s| [t("orders.statuses.#{s}"), s] }
             = submit_button f
 
       #notifications_tab.tab-pane

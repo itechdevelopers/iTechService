@@ -267,14 +267,45 @@ class OrdersController < ApplicationController
       p[:statuses].reject! { |e| e.to_s.empty? }
       if request.format.html?
         settings = current_user&.user_settings
+        section  = detect_order_section
         if p[:department_ids].blank?
-          p[:department_ids] = settings&.default_order_department_ids.presence || [current_department&.id].compact
+          p[:department_ids] = section_default(settings, section, :department_ids) ||
+                               settings&.default_order_department_ids.presence ||
+                               [current_department&.id].compact
         end
         if p[:statuses].blank?
-          p[:statuses] = settings&.default_order_statuses.presence || %w[current on_the_way done]
+          p[:statuses] = section_default(settings, section, :statuses) ||
+                         fallback_statuses(settings, section)
         end
       end
     end
+  end
+
+  # Which orders tab the current request belongs to, mirroring the scoping in
+  # #index but adding archive (identified by the top-level status param).
+  # @return [String, nil] section key or nil for the plain landing view
+  def detect_order_section
+    return 'archive' if params[:status] == 'archive'
+    return 'spare_parts' if current_user&.technician? || params[:kind] == 'spare_parts'
+    return 'not_spare_parts' if current_user&.marketing? || params[:kind] == 'not_spare_parts'
+
+    nil
+  end
+
+  # Section-scoped default (point 2), or nil when unset / no section.
+  def section_default(settings, section, kind)
+    return nil unless settings && section
+
+    settings.public_send("default_#{section}_#{kind}").presence
+  end
+
+  # Status fallback once the section-scoped value is empty. Archive deliberately
+  # skips the general default: a general "current/done" set would hide archived
+  # orders and make the Archive tab pointless.
+  def fallback_statuses(settings, section)
+    return %w[archive] if section == 'archive'
+
+    settings&.default_order_statuses.presence || %w[current on_the_way done]
   end
 
   def order_params
