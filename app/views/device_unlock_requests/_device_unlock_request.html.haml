@@ -14,6 +14,9 @@
     - if r.item.serial_number.present?
       %br
       %small.muted= r.item.serial_number
+    - if r.item.imei.present?
+      %br
+      %small.muted= "IMEI: #{r.item.imei}"
   %td= r.reason
   %td.device-unlock-requests__comment-cell
     - if r.last_comment

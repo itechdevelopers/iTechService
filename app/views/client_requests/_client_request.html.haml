@@ -12,6 +12,9 @@
     - if cr.item.serial_number.present?
       %br
       %small.muted= cr.item.serial_number
+    - if cr.item.imei.present?
+      %br
+      %small.muted= "IMEI: #{cr.item.imei}"
   %td.client-requests__purchase-cell
     - if cr.sold_at.present?
       %span{ class: "client-requests__usage--#{cr.usage_bucket.to_s.tr('_', '-')}" }
