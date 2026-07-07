@@ -258,13 +258,14 @@ class OrdersController < ApplicationController
 
   # @return [Hash]
   def filter_params
-    filter = params.permit(filter: [:order_number, :object_kind,
+    filter = params.permit(filter: [:order_number,
                                     :object, :customer, :user, :article,
-                                    { statuses: [], department_ids: [] }])[:filter] || { department_ids: [],
-                                                                                         statuses: [] }
+                                    { statuses: [], department_ids: [], object_kinds: [] }])[:filter] || { department_ids: [],
+                                                                                                           statuses: [], object_kinds: [] }
     filter.tap do |p|
       p[:department_ids].reject! { |e| e.to_s.empty? }
       p[:statuses].reject! { |e| e.to_s.empty? }
+      p[:object_kinds]&.reject! { |e| e.to_s.empty? }
       if request.format.html?
         settings = current_user&.user_settings
         section  = detect_order_section

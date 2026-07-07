@@ -134,8 +134,9 @@ class Order < ApplicationRecord
                orders.actual_orders
              end
 
-    if (object_kind_q = params[:object_kind]).present? && (OBJECT_KINDS.include? object_kind_q)
-      orders = orders.send object_kind_q
+    if (object_kinds_q = params[:object_kinds]).present?
+      kinds = Array(object_kinds_q) & OBJECT_KINDS
+      orders = orders.where(object_kind: kinds) if kinds.any?
     end
 
     if (number_q = params[:order_number]).present?
