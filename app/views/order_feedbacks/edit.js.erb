@@ -1,0 +1,12 @@
+<%= render template: 'shared/show_modal_form' %>
+
+$('.datetime-picker').datetimepicker({
+  language: 'ru',
+  format: 'dd.MM.yyyy hh:mm',
+  weekStart: 1,
+  maskInput: false,
+  pickDate: true,
+  pickTime: true,
+  pick12HourFormat: false,
+  pickSeconds: false
+});

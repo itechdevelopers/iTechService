@@ -1,0 +1,8 @@
+- if feedbacks.any?
+  %ul#order_feedback_notification-list
+    - feedbacks.each do |feedback|
+      %li.feedback_notification-item{ id: "order_feedback_notification-item-#{feedback.id}" }
+        = link_to edit_order_feedback_path(feedback), remote: true do
+          .city{ style: "background-color: #{feedback.city_color};" }= feedback.city_name
+          = feedback.presentation
+          .time_info= "Появилось #{time_ago_in_words(feedback.scheduled_on)} назад"

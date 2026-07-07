@@ -1,7 +1,26 @@
-var content = '<%= j(@feedbacks_list) %>';
+<%
+  sections = []
+
+  if @order_feedbacks.any?
+    sections << content_tag(:div, 'Заказы', class: 'feedback_notification-section')
+    sections << render(partial: 'order_feedbacks/list', locals: { feedbacks: @order_feedbacks })
+  end
+
+  if @feedbacks_list.present?
+    sections << content_tag(:div, 'Сервис', class: 'feedback_notification-section')
+    sections << @feedbacks_list
+  end
+
+  content = safe_join(sections)
+%>
+
+var content = '<%= j(content) %>';
+
+$link = $('#feedback_notifications-link');
+$link.attr('data-content', content);
 
 if (content !== '') {
-  $link = $('#feedback_notifications-link');
-  $link.attr('data-content', content);
   $link.addClass('active');
+} else {
+  $link.removeClass('active');
 }

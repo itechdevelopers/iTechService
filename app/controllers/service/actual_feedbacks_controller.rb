@@ -6,6 +6,7 @@ module Service
     def index
       feedbacks = FeedbacksQuery.new(policy_scope(Feedback)).actual
       @feedbacks_list = cell(Feedback::Cell::List, feedbacks).call
+      @order_feedbacks = policy_scope(OrderFeedback).actual.new_first
     end
   end
 end

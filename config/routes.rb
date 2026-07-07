@@ -323,6 +323,10 @@ Rails.application.routes.draw do
     resources :order_notes, only: %i[index create update], shallow: true, defaults: { format: :js }
   end
 
+  resources :order_feedbacks, only: %i[edit update] do
+    put :postpone, on: :member
+  end
+
   resources :infos
   resources :stolen_phones
   resources :prices
