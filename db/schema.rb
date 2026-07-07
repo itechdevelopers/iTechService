@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20260706204851) do
+ActiveRecord::Schema.define(version: 20260707120000) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -1091,6 +1091,18 @@ ActiveRecord::Schema.define(version: 20260706204851) do
     t.index ["order_id", "external_system"], name: "index_order_external_syncs_on_order_and_system", unique: true
     t.index ["order_id"], name: "index_order_external_syncs_on_order_id"
     t.index ["sync_status"], name: "index_order_external_syncs_on_sync_status"
+  end
+
+  create_table "order_feedbacks", force: :cascade do |t|
+    t.integer "order_id", null: false
+    t.datetime "scheduled_on"
+    t.text "details"
+    t.text "log"
+    t.integer "postpone_count", default: 0, null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["order_id"], name: "index_order_feedbacks_on_order_id"
+    t.index ["scheduled_on"], name: "index_order_feedbacks_on_scheduled_on"
   end
 
   create_table "order_notes", id: :serial, force: :cascade do |t|
@@ -2629,6 +2641,7 @@ ActiveRecord::Schema.define(version: 20260706204851) do
   add_foreign_key "notifications", "users"
   add_foreign_key "option_values", "option_types"
   add_foreign_key "order_external_syncs", "orders"
+  add_foreign_key "order_feedbacks", "orders"
   add_foreign_key "order_notes", "orders"
   add_foreign_key "order_notes", "users", column: "author_id"
   add_foreign_key "orders", "departments", column: "source_department_id"

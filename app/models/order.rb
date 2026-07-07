@@ -37,6 +37,7 @@ class Order < ApplicationRecord
   belongs_to :user, optional: true
   has_many :history_records, as: :object
   has_many :notes, class_name: 'OrderNote', dependent: :destroy
+  has_many :order_feedbacks, dependent: :destroy
   has_many :external_syncs, class_name: 'OrderExternalSync', dependent: :destroy
   has_one :one_c_sync, -> { where(external_system: :one_c) }, class_name: 'OrderExternalSync'
 
@@ -67,7 +68,9 @@ class Order < ApplicationRecord
     end
   end
 
+  after_create :schedule_order_feedbacks
   after_update :make_announcement, :clear_attention_if_article_added
+  after_update :deactivate_order_feedbacks, if: :feedbacks_closing_status?
   after_update_commit :trigger_one_c_deletion_on_archive, :trigger_one_c_status_update
   # Note: :check_for_sync_update removed to disable automatic 1C sync on order updates
   # Manual sync is still available via the UI button
@@ -230,6 +233,18 @@ class Order < ApplicationRecord
   end
 
   private
+
+  def schedule_order_feedbacks
+    OrderFeedback.schedule_for(self)
+  end
+
+  def feedbacks_closing_status?
+    saved_change_to_status? && status.in?(%w[done issued canceled archive])
+  end
+
+  def deactivate_order_feedbacks
+    order_feedbacks.where.not(scheduled_on: nil).update_all(scheduled_on: nil)
+  end
 
   def make_announcement
     if !changed_attributes[:status].present? && (announcement = create_announcement).present?
