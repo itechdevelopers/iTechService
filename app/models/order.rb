@@ -49,6 +49,7 @@ class Order < ApplicationRecord
 
   delegate :name, to: :department, prefix: true, allow_nil: true
   validates :customer, :department, :quantity, :object, :object_kind, presence: true
+  validates :object_kind, inclusion: { in: OBJECT_KINDS }, allow_blank: true
   validates :priority, numericality: { greater_than_or_equal_to: 0, less_than_or_equal_to: 10 }
   validates :archive_reason, inclusion: { in: ARCHIVE_REASONS }, allow_nil: true
   after_initialize :set_department
