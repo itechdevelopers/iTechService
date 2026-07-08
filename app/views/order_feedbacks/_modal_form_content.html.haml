@@ -20,6 +20,15 @@
         - else
           = order.customer_presentation
 
+    .control-group.order-feedback-dates
+      %label.control-label Заказ создан
+      .controls= order.created_at&.strftime('%d.%m.%Y')
+    .control-group.order-feedback-dates
+      %label.control-label Желаемая дата
+      .controls
+        %strong.order-feedback-desired= order.desired_date ? order.desired_date.strftime('%d.%m.%Y') : '—'
+        = desired_date_countdown(order.desired_date)
+
     - if @order_feedback.log.present?
       .feedback-logs.well.well-small= raw @order_feedback.log
 
