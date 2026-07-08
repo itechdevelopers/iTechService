@@ -10,7 +10,14 @@
   }
 }
 
-#feedback_notification-list {
+.feedback_notification-section {
+  text-align: center;
+  font-weight: bold;
+  color: #f00033;
+  padding: 6px 0 2px;
+}
+
+#feedback_notification-list, #order_feedback_notification-list {
   list-style: none;
   margin: 0 -14px;
 

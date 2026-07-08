@@ -17,9 +17,11 @@
       .control-group.optional
         = f.input :article
         #article_not_found
+      -# Departments are set only on creation; on edit they render disabled (read-only).
+      - departments_locked = !@order.new_record?
       .row-fluid
         .span6
-          = f.association :department, prompt: true, label: 'Подразделение (куда)'
+          = f.association :department, prompt: true, label: 'Подразделение (куда)', input_html: { disabled: departments_locked }
         .span6
           .control-group.select.optional
             %label.control-label.select.optional Подразделение (откуда)
@@ -27,7 +29,7 @@
               = f.select :source_department_id,
                         [["Не указано", nil]] + Department.with_one_c_code.map { |d| [d.name, d.id] },
                         { selected: @order.source_department_id || nil, include_blank: false },
-                        { class: 'input-xlarge' }
+                        { class: 'input-xlarge', disabled: departments_locked }
       = f.input :object_kind, as: :object_kind
       = f.input :object, as: :object
       = f.input :object_url, input_html: {rows: 3, class: 'input-xlarge'}

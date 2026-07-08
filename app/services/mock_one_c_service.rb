@@ -246,7 +246,14 @@ class MockOneCService
     
     Rails.logger.info "[Mock1C] Product lookup for code: #{code}, department: #{department_code}"
 
-    # Generate different mock responses based on article pattern
+    # Тестовая матрица для проверки автоподстановки «Типа объекта» на форме заказа.
+    # Order::OBJECT_KINDS = %w[device accessory soft misc spare_part] — только эти
+    # значения валидны. Если 1С прислала иной 'kind', тип НЕ подставляется, кнопка
+    # показывает «-», и заказ нельзя сохранить, пока сотрудник не выберет тип вручную.
+    #   артикул с 'iphone'  → kind 'iPhone 17 Pro' (НЕвалидный, как в бою) → сохранить нельзя
+    #   артикул с 'ipad'    → kind 'iPad Pro'      (НЕвалидный)            → сохранить нельзя
+    #   артикул с 'macbook' → kind 'device'        (валидный)             → тип «Техника» подставится
+    #   любой другой        → kind 'accessory'     (валидный)             → тип «Аксессуар» подставится
     case code.to_s.downcase
     when /iphone/
       mock_iphone_product_response(code)
@@ -262,23 +269,26 @@ class MockOneCService
   def mock_iphone_product_response(code)
     department_codes = ['00-000001', '00-000002', '00-000003']
     store_names = ['Океанский', 'Транзит Сахалин', 'Уссурийск', 'Хабаровск', 'Центральный']
-    
+
+    # Точная копия боевого ответа 1С: 'kind' — маркетинговое название модели,
+    # которого нет в Order::OBJECT_KINDS. Наличие на складе есть (stores непустой),
+    # то есть заказ выглядит «нормальным», но сохранить его нельзя без выбора типа.
     {
       success: true,
       data: {
-        'name' => "iPhone #{rand(12..15)} Pro (MOCK)",
-        'kind' => 'phone',
-        'price' => "#{rand(80000..150000)}",
+        'name' => 'iPhone 17 Pro 512GB Silver eSIM',
+        'kind' => 'iPhone 17 Pro',
+        'price' => '125900',
         'stores' => [
-          { 
-            'id' => rand(1..5), 
-            'quantity' => rand(0..10),
+          {
+            'id' => rand(1..5),
+            'quantity' => rand(1..10),
             'department_code' => department_codes.sample,
             'name' => store_names.sample,
             'reserve' => rand(0..3)
           },
-          { 
-            'id' => rand(6..10), 
+          {
+            'id' => rand(6..10),
             'quantity' => rand(0..5),
             'department_code' => department_codes.sample,
             'name' => store_names.sample,
@@ -297,7 +307,7 @@ class MockOneCService
       success: true,
       data: {
         'name' => "MacBook #{['Air', 'Pro'].sample} (MOCK)",
-        'kind' => 'laptop',
+        'kind' => 'device',
         'price' => "#{rand(120000..300000)}",
         'stores' => [
           { 
@@ -320,7 +330,7 @@ class MockOneCService
       success: true,
       data: {
         'name' => "iPad #{rand(9..11)} (MOCK)",
-        'kind' => 'tablet',
+        'kind' => 'iPad Pro',
         'price' => "#{rand(50000..100000)}",
         'stores' => [
           { 

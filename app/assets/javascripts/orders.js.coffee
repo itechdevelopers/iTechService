@@ -43,10 +43,16 @@ jQuery ->
         success: (response) ->
           if response.status == 'found'
             $('#order_object').val(response.name)
-            if response.kind != ''
-              kind_text = $('#object_kinds_list a[object_kind="' + response.kind + '"]').text()
-              $('#object_kind_value').text(kind_text)
+            kind_link = $('#object_kinds_list a[object_kind="' + response.kind + '"]')
+            if response.kind != '' and kind_link.length > 0
+              # 1С прислала известный тип — подставляем автоматически
+              $('#object_kind_value').text(kind_link.text())
               $('#order_object_kind').val(response.kind)
+            else
+              # Тип из 1С пустой или не входит в Order::OBJECT_KINDS —
+              # оставляем поле незаполненным, чтобы сотрудник выбрал вручную
+              $('#object_kind_value').text('-')
+              $('#order_object_kind').val('')
             if response.price != ''
               $('#order_approximate_price').val(response.price)
             

@@ -37,6 +37,7 @@ class Order < ApplicationRecord
   belongs_to :user, optional: true
   has_many :history_records, as: :object
   has_many :notes, class_name: 'OrderNote', dependent: :destroy
+  has_many :order_feedbacks, dependent: :destroy
   has_many :external_syncs, class_name: 'OrderExternalSync', dependent: :destroy
   has_one :one_c_sync, -> { where(external_system: :one_c) }, class_name: 'OrderExternalSync'
 
@@ -49,6 +50,7 @@ class Order < ApplicationRecord
 
   delegate :name, to: :department, prefix: true, allow_nil: true
   validates :customer, :department, :quantity, :object, :object_kind, presence: true
+  validates :object_kind, inclusion: { in: OBJECT_KINDS }, allow_blank: true
   validates :priority, numericality: { greater_than_or_equal_to: 0, less_than_or_equal_to: 10 }
   validates :archive_reason, inclusion: { in: ARCHIVE_REASONS }, allow_nil: true
   after_initialize :set_department
@@ -66,7 +68,9 @@ class Order < ApplicationRecord
     end
   end
 
+  after_create :schedule_order_feedbacks
   after_update :make_announcement, :clear_attention_if_article_added
+  after_update :deactivate_order_feedbacks, if: :feedbacks_closing_status?
   after_update_commit :trigger_one_c_deletion_on_archive, :trigger_one_c_status_update
   # Note: :check_for_sync_update removed to disable automatic 1C sync on order updates
   # Manual sync is still available via the UI button
@@ -133,8 +137,9 @@ class Order < ApplicationRecord
                orders.actual_orders
              end
 
-    if (object_kind_q = params[:object_kind]).present? && (OBJECT_KINDS.include? object_kind_q)
-      orders = orders.send object_kind_q
+    if (object_kinds_q = params[:object_kinds]).present?
+      kinds = Array(object_kinds_q) & OBJECT_KINDS
+      orders = orders.where(object_kind: kinds) if kinds.any?
     end
 
     if (number_q = params[:order_number]).present?
@@ -228,6 +233,18 @@ class Order < ApplicationRecord
   end
 
   private
+
+  def schedule_order_feedbacks
+    OrderFeedback.schedule_for(self)
+  end
+
+  def feedbacks_closing_status?
+    saved_change_to_status? && status.in?(%w[done issued canceled archive])
+  end
+
+  def deactivate_order_feedbacks
+    order_feedbacks.where.not(scheduled_on: nil).update_all(scheduled_on: nil)
+  end
 
   def make_announcement
     if !changed_attributes[:status].present? && (announcement = create_announcement).present?

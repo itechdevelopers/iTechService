@@ -1,0 +1,39 @@
+- order = @order_feedback.order
+- deadline = order.desired_date&.in_time_zone&.change(hour: 10)
+- default_next = [1.day.from_now.change(hour: 10), deadline].compact.min
+
+= simple_form_for @order_feedback, url: order_feedback_path(@order_feedback), remote: true, html: { class: 'feedback-form form-horizontal' } do |f|
+  .modal-header
+    %h3
+      = order.number
+      = button_to_close_modal
+
+  .modal-body
+    .control-group
+      %label.control-label Девайс
+      .controls= link_to order.object, order, target: :_blank
+    .control-group
+      %label.control-label Клиент
+      .controls
+        - if order.customer
+          = link_to order.customer_presentation, order.customer, target: :_blank
+        - else
+          = order.customer_presentation
+
+    - if @order_feedback.log.present?
+      .feedback-logs.well.well-small= raw @order_feedback.log
+
+    = f.input :details, label: 'Комментарий', input_html: { rows: 3, class: 'input-xlarge' }
+
+    .control-group.string.input-append.datetime-picker
+      %label.control-label{ for: 'order-feedback-schedule_on' }= t('service.feedback.form.schedule_on')
+      .controls
+        = text_field_tag :schedule_on, default_next&.strftime('%d.%m.%Y %H:%M'), id: 'order-feedback-schedule_on', data: { 'date-enddate': deadline&.strftime('%d.%m.%Y %H:%M') }
+        %span.add-on
+          %i{ data: { 'time-icon': 'icon-time', 'date-icon': 'icon-calendar' } }
+      - if deadline
+        %span.help-block= t('service.feedback.form.schedule_on_help', max_value: deadline.strftime('%d.%m.%Y %H:%M'))
+
+  .modal-footer
+    = link_to t('service.feedback.form.postpone'), postpone_order_feedback_path(@order_feedback), method: :put, remote: true, class: 'btn btn-warning'
+    = f.submit 'Перенести', class: 'btn btn-primary'

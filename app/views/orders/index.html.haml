@@ -20,10 +20,10 @@
       =f.input :user,
         input_html: { class: 'input-medium', value: @filter_params[:user] },
         placeholder: t('orders.index.search_user_placeholder')
-      =f.input :object_kind,
+      =f.input :object_kinds,
         as: :select,
-        include_blank: t("orders.object_kinds.all_kinds"),
-        selected: @filter_params[:object_kind],
+        input_html: { multiple: true },
+        selected: @filter_params[:object_kinds],
         collection: Order::OBJECT_KINDS.map {|s| [t("orders.object_kinds.#{s}"), s] }
 
       %br

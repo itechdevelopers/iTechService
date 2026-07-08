@@ -87,7 +87,7 @@ class OrdersController < ApplicationController
     @order = find_record Order
 
     respond_to do |format|
-      if @order.update_attributes(order_params)
+      if @order.update_attributes(update_order_params)
         format.html { redirect_to orders_url, notice: t('orders.updated') }
         format.json { head :no_content }
         format.js
@@ -258,13 +258,14 @@ class OrdersController < ApplicationController
 
   # @return [Hash]
   def filter_params
-    filter = params.permit(filter: [:order_number, :object_kind,
+    filter = params.permit(filter: [:order_number,
                                     :object, :customer, :user, :article,
-                                    { statuses: [], department_ids: [] }])[:filter] || { department_ids: [],
-                                                                                         statuses: [] }
+                                    { statuses: [], department_ids: [], object_kinds: [] }])[:filter] || { department_ids: [],
+                                                                                                           statuses: [], object_kinds: [] }
     filter.tap do |p|
       p[:department_ids].reject! { |e| e.to_s.empty? }
       p[:statuses].reject! { |e| e.to_s.empty? }
+      p[:object_kinds]&.reject! { |e| e.to_s.empty? }
       if request.format.html?
         settings = current_user&.user_settings
         section  = detect_order_section
@@ -310,9 +311,15 @@ class OrdersController < ApplicationController
 
   def order_params
     params.require(:order)
-          .permit(:approximate_price, :comment, :customer_id, :customer_type, :department_id, :desired_date, :model,
+          .permit(:approximate_price, :comment, :customer_id, :customer_type, :department_id, :source_department_id, :desired_date, :model,
                   :number, :object, :object_kind, :object_url, :payment_method, :picture, :prepayment, :priority, :article,
                   :quantity, :status, :user_comment, :user_id, :picture_cache, :remove_picture, :source_store_id, :archive_reason, :archive_comment)
+  end
+
+  # Source/destination departments are fixed at creation time and must not
+  # change on edit — strip them from update params to guard against tampering.
+  def update_order_params
+    order_params.except(:department_id, :source_department_id)
   end
 
   def new_order_params
