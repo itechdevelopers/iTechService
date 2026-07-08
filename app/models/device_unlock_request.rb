@@ -17,6 +17,17 @@ class DeviceUnlockRequest < ApplicationRecord
   # Без этой связи history-экшен и shared/show_history не работают.
   has_many :history_records, as: :object, dependent: :destroy
 
+  # Запомненные получатели уведомлений (план §11 → расширение). Заполняется в
+  # пикере при переходе «на согласование» (notify_approval). После этого любая
+  # активность по запросу (смена статуса, комментарии) уведомляет этот набор +
+  # суперадминов. HABTM по образцу ServiceJob#subscribers. dependent: :destroy
+  # чистит join-строки при удалении запроса (сами юзеры не трогаются).
+  has_and_belongs_to_many :subscribers,
+                          join_table: :device_unlock_request_subscriptions,
+                          association_foreign_key: :subscriber_id,
+                          class_name: 'User',
+                          dependent: :destroy
+
   audited
 
   # Workflow-статус по ТЗ: Новый → В работе → Требует согласования →
@@ -51,23 +62,19 @@ class DeviceUnlockRequest < ApplicationRecord
   end
 
   # Рассылает персональный Notification + ActionCable-broadcast каждому получателю.
-  # Получателей передаём аргументом, а не читаем из notification_recipients: если
-  # бы модель отвечала на этот метод, CommentsController#create_notifications начал
-  # бы слать уведомления ещё и на каждый комментарий.
-  #
-  # exclude_current_user: при true выкидывает из получателей текущего юзера.
-  def notify(recipients, message, url:, exclude_current_user: false)
-    Array(recipients)
-      .reject { |recipient| exclude_current_user && recipient.id == User.current&.id }
-      .each do |recipient|
-        notification = Notification.create!(
-          user: recipient,
-          message: message,
-          url: url,
-          referenceable: self
-        )
-        UserNotificationChannel.broadcast_to(recipient, notification)
-      end
+  # Получателей передаём аргументом. Автора действия НЕ исключаем ни в одном
+  # уведомлении (решение заказчика 2026-07-09): если суперадмин сам меняет статус
+  # или пишет комментарий — колокольчик приходит и ему тоже.
+  def notify(recipients, message, url:)
+    Array(recipients).uniq.each do |recipient|
+      notification = Notification.create!(
+        user: recipient,
+        message: message,
+        url: url,
+        referenceable: self
+      )
+      UserNotificationChannel.broadcast_to(recipient, notification)
+    end
   end
 
   # Ссылка ведёт на список (index_url), а не на сам запрос: новый всплывает
@@ -85,9 +92,20 @@ class DeviceUnlockRequest < ApplicationRecord
     Rails.application.routes.url_helpers.device_unlock_requests_path
   end
 
-  # Ссылка ведёт на сам запрос (show_url), а не на список.
-  def notify_superadmins_of_status
-    notify(User.superadmins.active, status_notification_message, url: show_url)
+  # Получатели уведомлений о любой активности после «на согласование»:
+  # запомненные подписчики + суперадмины (дедуп в #notify). Автор не исключается.
+  def activity_recipients
+    subscribers.to_a + User.superadmins.active.to_a
+  end
+
+  # Уведомление о смене статуса. Гейт (решение заказчика 2026-07-09): рассылаем
+  # ТОЛЬКО когда запрос уже проходил через пикер «на согласование» и подписчики
+  # записаны. Пока подписчиков нет — смена статуса молчит (в т.ч. approved/
+  # client_declined, достигнутые в обход пикера). Ссылка ведёт на сам запрос.
+  def notify_status_change
+    return if subscribers.empty?
+
+    notify(activity_recipients, status_notification_message, url: show_url)
   end
 
   # Текст: статус + идентификация запроса (клиент + устройство), как в строке

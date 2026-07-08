@@ -57,11 +57,10 @@ class DeviceUnlockRequestsController < ApplicationController
     @device_unlock_request = find_record DeviceUnlockRequest
 
     if @device_unlock_request.update(status_params)
-      # Авто-уведомление суперадминам при переходе в «Согласован»/«Отказ клиента»
-      # (план §11, Цикл 10). needs_approval пойдёт через пикер (Циклы 11–12).
-      if %w[approved client_declined].include?(@device_unlock_request.status)
-        @device_unlock_request.notify_superadmins_of_status
-      end
+      # Уведомление о смене статуса — подписчикам (выбранным в пикере) + суперадминам.
+      # Гейт внутри: молчит, пока запрос не проходил «на согласование». needs_approval
+      # идёт своим путём через пикер (notify_approval), не сюда.
+      @device_unlock_request.notify_status_change
 
       respond_to do |format|
         format.js   # перерисовывает строку #device_unlock_request_<id>
@@ -115,14 +114,11 @@ class DeviceUnlockRequestsController < ApplicationController
     ids = Array(params[:user_ids]).map(&:to_i) & approval_recipients_scope.ids
     @notified_count = ids.size # для inline-flash во вью (sent vs moved)
     if ids.any?
-      recipients = User.where(id: ids)
-      # Оператор сам выбирает получателей в пикере — себя из рассылки исключаем.
-      @device_unlock_request.notify(
-        recipients,
-        @device_unlock_request.status_notification_message,
-        url: @device_unlock_request.show_url,
-        exclude_current_user: true
-      )
+      # Запоминаем выбранных как подписчиков (replace — последний выбор побеждает),
+      # затем рассылаем аудитории (подписчики + суперадмины, автор не исключается).
+      # Пустой выбор («перевести без уведомления») набор НЕ трогает и не рассылает.
+      @device_unlock_request.subscribers = User.where(id: ids)
+      @device_unlock_request.notify_status_change
     end
 
     respond_to do |format|

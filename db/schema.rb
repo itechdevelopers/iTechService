@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20260707120000) do
+ActiveRecord::Schema.define(version: 20260709120000) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -526,6 +526,14 @@ ActiveRecord::Schema.define(version: 20260707120000) do
     t.index ["ancestry"], name: "index_device_types_on_ancestry"
     t.index ["code_1c"], name: "index_device_types_on_code_1c"
     t.index ["name"], name: "index_device_types_on_name"
+  end
+
+  create_table "device_unlock_request_subscriptions", id: false, force: :cascade do |t|
+    t.bigint "device_unlock_request_id", null: false
+    t.bigint "subscriber_id", null: false
+    t.index ["device_unlock_request_id", "subscriber_id"], name: "idx_dur_subscriptions_unique", unique: true
+    t.index ["device_unlock_request_id"], name: "idx_dur_subscriptions_on_request"
+    t.index ["subscriber_id"], name: "idx_dur_subscriptions_on_subscriber"
   end
 
   create_table "device_unlock_requests", force: :cascade do |t|
