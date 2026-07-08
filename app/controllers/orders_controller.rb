@@ -87,7 +87,7 @@ class OrdersController < ApplicationController
     @order = find_record Order
 
     respond_to do |format|
-      if @order.update_attributes(order_params)
+      if @order.update_attributes(update_order_params)
         format.html { redirect_to orders_url, notice: t('orders.updated') }
         format.json { head :no_content }
         format.js
@@ -311,9 +311,15 @@ class OrdersController < ApplicationController
 
   def order_params
     params.require(:order)
-          .permit(:approximate_price, :comment, :customer_id, :customer_type, :department_id, :desired_date, :model,
+          .permit(:approximate_price, :comment, :customer_id, :customer_type, :department_id, :source_department_id, :desired_date, :model,
                   :number, :object, :object_kind, :object_url, :payment_method, :picture, :prepayment, :priority, :article,
                   :quantity, :status, :user_comment, :user_id, :picture_cache, :remove_picture, :source_store_id, :archive_reason, :archive_comment)
+  end
+
+  # Source/destination departments are fixed at creation time and must not
+  # change on edit — strip them from update params to guard against tampering.
+  def update_order_params
+    order_params.except(:department_id, :source_department_id)
   end
 
   def new_order_params

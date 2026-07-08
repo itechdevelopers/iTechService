@@ -12,9 +12,13 @@
   .span6
     %table.attributes_table
       %tr
-        %td= Order.human_attribute_name :department
+        %td Подразделение (куда)
         %td
           %strong.text-warning= @order.department_name
+
+      %tr
+        %td Подразделение (откуда)
+        %td= @order.source_department&.name || '-'
 
       - if @order.user.present?
         %tr
