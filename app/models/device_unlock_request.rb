@@ -111,13 +111,50 @@ class DeviceUnlockRequest < ApplicationRecord
   # Текст: статус + идентификация запроса (клиент + устройство), как в строке
   # таблицы (_device_unlock_request: item.name + серийник, client.short_name).
   def status_notification_message
-    device = [item.name, item.serial_number].reject(&:blank?).join(' ')
     "По запросу на разблокировку статус обновлён: #{STATUS_NOTIFICATION_LABELS[status]}. " \
-      "Клиент: #{client.short_name}, устройство: #{device}"
+      "#{client_device_label}"
   end
 
   def show_url
     Rails.application.routes.url_helpers.device_unlock_request_path(self)
+  end
+
+  # --- Уведомления о комментариях (план §12, Цикл B) ---
+  # CommentsController#create_notifications зовёт notification_recipients/
+  # notification_message/url у commentable, когда коммент добавлен через тред на
+  # show. Определив их, включаем рассылку для треда (снимает намеренное «молчание»
+  # §2.4). Инлайн add_comment минует CommentsController → там шлём вручную через
+  # #notify_new_comment. Гейт тот же, что у статусов: пока подписчиков нет —
+  # пустой список получателей, уведомления не создаются (в т.ч. суперадминам).
+  def notification_recipients
+    return [] if subscribers.empty?
+
+    activity_recipients
+  end
+
+  def notification_message
+    "Новый комментарий по запросу на разблокировку. #{client_device_label}"
+  end
+
+  # CommentsController#create_notifications берёт ссылку из commentable.url —
+  # ведём на сам запрос (там живёт тред комментариев).
+  def url
+    show_url
+  end
+
+  # Рассылка для инлайн add_comment (минует CommentsController). Та же аудитория
+  # и гейт, что у треда; автор не исключается.
+  def notify_new_comment
+    return if subscribers.empty?
+
+    notify(activity_recipients, notification_message, url: show_url)
+  end
+
+  # Идентификация запроса в тексте уведомлений — клиент + устройство (item.name +
+  # серийник), как в строке таблицы _device_unlock_request.
+  def client_device_label
+    device = [item.name, item.serial_number].reject(&:blank?).join(' ')
+    "Клиент: #{client.short_name}, устройство: #{device}"
   end
 
   def archive!

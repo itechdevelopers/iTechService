@@ -79,6 +79,10 @@ class DeviceUnlockRequestsController < ApplicationController
     comment = @device_unlock_request.comments.build(content: params[:content], user: current_user)
 
     if comment.save
+      # Инлайн-путь минует CommentsController#create_notifications — рассылаем
+      # ту же аудиторию вручную (подписчики + суперадмины, гейт внутри метода).
+      @device_unlock_request.notify_new_comment
+
       respond_to do |format|
         format.js   # add_comment.js.erb — replaceWith строки
         format.html { redirect_to device_unlock_requests_path }
