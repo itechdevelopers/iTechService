@@ -48,6 +48,15 @@ class DeviceUnlockRequest < ApplicationRecord
   scope :active,   -> { where(archived: false) }
   scope :archived, -> { where(archived: true) }
 
+  # Порог «без движений» для stale-уведомлений (план §13).
+  STALE_AFTER = 3.days
+
+  # Кандидаты в stale-рассылку: не в архиве и давно не обновлялись. Фильтр по
+  # updated_at — безопасный СУПЕРСЕТ: свежий updated_at ⇒ была смена статуса ⇒
+  # точно не stale; старый updated_at может оказаться не-stale, если есть свежий
+  # комментарий — это досчитывает per-request #stale? в джобе.
+  scope :stale_candidates, -> { active.where('updated_at <= ?', STALE_AFTER.ago) }
+
   # Ярлыки статусов для ТЕКСТА уведомления (план §11) — намеренно отдельно от
   # локали `statuses.*` (там короткие бейджи «Согласован»): здесь падежная форма
   # под фразу «статус обновлён: …». Хардкод RU — уведомления только на русском.
@@ -155,6 +164,39 @@ class DeviceUnlockRequest < ApplicationRecord
   def client_device_label
     device = [item.name, item.serial_number].reject(&:blank?).join(' ')
     "Клиент: #{client.short_name}, устройство: #{device}"
+  end
+
+  # --- «N дней без движений» (план §13, stale-рассылка) ---
+  # Активность = смена статуса (бампает updated_at) ИЛИ комментарий (его
+  # created_at). «Последняя активность» — максимум из двух, без отдельной колонки.
+  def last_activity_at
+    [updated_at, comments.maximum(:created_at)].compact.max
+  end
+
+  def stale?
+    last_activity_at <= STALE_AFTER.ago
+  end
+
+  # Интервал «раз в 3 дня»: не пинать чаще, чем раз в STALE_AFTER. nil = ещё ни
+  # разу не пинали по текущему простою.
+  def stale_notification_due?
+    stale_notified_at.nil? || stale_notified_at <= STALE_AFTER.ago
+  end
+
+  def stale_notification_message
+    "Запрос на разблокировку 3 дня без движений. #{client_device_label}"
+  end
+
+  # Гейта по подписчикам ЗДЕСЬ НЕТ (в отличие от статусов/комментов): до пикера
+  # activity_recipients = только суперадмины, после — подписчики + суперадмины —
+  # ровно как просил заказчик. stale_notified_at пишем update_column'ом, чтобы не
+  # бампнуть updated_at (иначе сами сбросили бы таймер активности). Активность
+  # сбрасывает счётчик «сама собой»: last_activity_at уедет вперёд → #stale? = false.
+  def notify_if_stale!
+    return unless stale? && stale_notification_due?
+
+    notify(activity_recipients, stale_notification_message, url: show_url)
+    update_column(:stale_notified_at, Time.current)
   end
 
   def archive!
