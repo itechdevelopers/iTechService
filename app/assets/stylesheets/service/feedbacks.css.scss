@@ -11,6 +11,7 @@
 }
 
 .feedback_notification-section {
+  clear: both;
   text-align: center;
   font-weight: bold;
   color: #f00033;
@@ -57,6 +58,32 @@
       padding-right: 20px;
       color: #f00033;
     }
+  }
+}
+
+.order-feedback-desired {
+  font-size: 16px;
+  font-weight: bold;
+}
+
+.order-feedback-countdown {
+  margin-left: 8px;
+  padding: 1px 6px;
+  border-radius: 3px;
+  font-weight: bold;
+
+  &--ok {
+    color: #468847;
+  }
+
+  &--soon {
+    color: #ffffff;
+    background-color: #f89406;
+  }
+
+  &--overdue {
+    color: #ffffff;
+    background-color: #f00033;
   }
 }
 
