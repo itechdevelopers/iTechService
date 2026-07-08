@@ -93,3 +93,9 @@ kanban_card_deadline_reminder:
   class: 'KanbanCardDeadlineReminderJob'
   queue: 'default'
   active_job: true
+
+notify_stale_unlock_requests:
+  cron: '0 9 * * * Asia/Vladivostok'
+  class: 'NotifyStaleUnlockRequestsJob'
+  queue: 'default'
+  active_job: true

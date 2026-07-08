@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20260707120000) do
+ActiveRecord::Schema.define(version: 20260709130000) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -528,6 +528,14 @@ ActiveRecord::Schema.define(version: 20260707120000) do
     t.index ["name"], name: "index_device_types_on_name"
   end
 
+  create_table "device_unlock_request_subscriptions", id: false, force: :cascade do |t|
+    t.bigint "device_unlock_request_id", null: false
+    t.bigint "subscriber_id", null: false
+    t.index ["device_unlock_request_id", "subscriber_id"], name: "idx_dur_subscriptions_unique", unique: true
+    t.index ["device_unlock_request_id"], name: "idx_dur_subscriptions_on_request"
+    t.index ["subscriber_id"], name: "idx_dur_subscriptions_on_subscriber"
+  end
+
   create_table "device_unlock_requests", force: :cascade do |t|
     t.bigint "client_id", null: false
     t.bigint "item_id", null: false
@@ -538,6 +546,7 @@ ActiveRecord::Schema.define(version: 20260707120000) do
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.boolean "archived", default: false, null: false
+    t.datetime "stale_notified_at"
     t.index ["archived"], name: "index_device_unlock_requests_on_archived"
     t.index ["client_id"], name: "index_device_unlock_requests_on_client_id"
     t.index ["department_id"], name: "index_device_unlock_requests_on_department_id"

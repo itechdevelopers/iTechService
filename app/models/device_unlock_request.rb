@@ -17,6 +17,17 @@ class DeviceUnlockRequest < ApplicationRecord
   # Без этой связи history-экшен и shared/show_history не работают.
   has_many :history_records, as: :object, dependent: :destroy
 
+  # Запомненные получатели уведомлений (план §11 → расширение). Заполняется в
+  # пикере при переходе «на согласование» (notify_approval). После этого любая
+  # активность по запросу (смена статуса, комментарии) уведомляет этот набор +
+  # суперадминов. HABTM по образцу ServiceJob#subscribers. dependent: :destroy
+  # чистит join-строки при удалении запроса (сами юзеры не трогаются).
+  has_and_belongs_to_many :subscribers,
+                          join_table: :device_unlock_request_subscriptions,
+                          association_foreign_key: :subscriber_id,
+                          class_name: 'User',
+                          dependent: :destroy
+
   audited
 
   # Workflow-статус по ТЗ: Новый → В работе → Требует согласования →
@@ -37,6 +48,15 @@ class DeviceUnlockRequest < ApplicationRecord
   scope :active,   -> { where(archived: false) }
   scope :archived, -> { where(archived: true) }
 
+  # Порог «без движений» для stale-уведомлений (план §13).
+  STALE_AFTER = 3.days
+
+  # Кандидаты в stale-рассылку: не в архиве и давно не обновлялись. Фильтр по
+  # updated_at — безопасный СУПЕРСЕТ: свежий updated_at ⇒ была смена статуса ⇒
+  # точно не stale; старый updated_at может оказаться не-stale, если есть свежий
+  # комментарий — это досчитывает per-request #stale? в джобе.
+  scope :stale_candidates, -> { active.where('updated_at <= ?', STALE_AFTER.ago) }
+
   # Ярлыки статусов для ТЕКСТА уведомления (план §11) — намеренно отдельно от
   # локали `statuses.*` (там короткие бейджи «Согласован»): здесь падежная форма
   # под фразу «статус обновлён: …». Хардкод RU — уведомления только на русском.
@@ -51,23 +71,19 @@ class DeviceUnlockRequest < ApplicationRecord
   end
 
   # Рассылает персональный Notification + ActionCable-broadcast каждому получателю.
-  # Получателей передаём аргументом, а не читаем из notification_recipients: если
-  # бы модель отвечала на этот метод, CommentsController#create_notifications начал
-  # бы слать уведомления ещё и на каждый комментарий.
-  #
-  # exclude_current_user: при true выкидывает из получателей текущего юзера.
-  def notify(recipients, message, url:, exclude_current_user: false)
-    Array(recipients)
-      .reject { |recipient| exclude_current_user && recipient.id == User.current&.id }
-      .each do |recipient|
-        notification = Notification.create!(
-          user: recipient,
-          message: message,
-          url: url,
-          referenceable: self
-        )
-        UserNotificationChannel.broadcast_to(recipient, notification)
-      end
+  # Получателей передаём аргументом. Автора действия НЕ исключаем ни в одном
+  # уведомлении (решение заказчика 2026-07-09): если суперадмин сам меняет статус
+  # или пишет комментарий — колокольчик приходит и ему тоже.
+  def notify(recipients, message, url:)
+    Array(recipients).uniq.each do |recipient|
+      notification = Notification.create!(
+        user: recipient,
+        message: message,
+        url: url,
+        referenceable: self
+      )
+      UserNotificationChannel.broadcast_to(recipient, notification)
+    end
   end
 
   # Ссылка ведёт на список (index_url), а не на сам запрос: новый всплывает
@@ -85,21 +101,102 @@ class DeviceUnlockRequest < ApplicationRecord
     Rails.application.routes.url_helpers.device_unlock_requests_path
   end
 
-  # Ссылка ведёт на сам запрос (show_url), а не на список.
-  def notify_superadmins_of_status
-    notify(User.superadmins.active, status_notification_message, url: show_url)
+  # Получатели уведомлений о любой активности после «на согласование»:
+  # запомненные подписчики + суперадмины (дедуп в #notify). Автор не исключается.
+  def activity_recipients
+    subscribers.to_a + User.superadmins.active.to_a
+  end
+
+  # Уведомление о смене статуса. Гейт (решение заказчика 2026-07-09): рассылаем
+  # ТОЛЬКО когда запрос уже проходил через пикер «на согласование» и подписчики
+  # записаны. Пока подписчиков нет — смена статуса молчит (в т.ч. approved/
+  # client_declined, достигнутые в обход пикера). Ссылка ведёт на сам запрос.
+  def notify_status_change
+    return if subscribers.empty?
+
+    notify(activity_recipients, status_notification_message, url: show_url)
   end
 
   # Текст: статус + идентификация запроса (клиент + устройство), как в строке
   # таблицы (_device_unlock_request: item.name + серийник, client.short_name).
   def status_notification_message
-    device = [item.name, item.serial_number].reject(&:blank?).join(' ')
     "По запросу на разблокировку статус обновлён: #{STATUS_NOTIFICATION_LABELS[status]}. " \
-      "Клиент: #{client.short_name}, устройство: #{device}"
+      "#{client_device_label}"
   end
 
   def show_url
     Rails.application.routes.url_helpers.device_unlock_request_path(self)
+  end
+
+  # --- Уведомления о комментариях (план §12, Цикл B) ---
+  # CommentsController#create_notifications зовёт notification_recipients/
+  # notification_message/url у commentable, когда коммент добавлен через тред на
+  # show. Определив их, включаем рассылку для треда (снимает намеренное «молчание»
+  # §2.4). Инлайн add_comment минует CommentsController → там шлём вручную через
+  # #notify_new_comment. Гейт тот же, что у статусов: пока подписчиков нет —
+  # пустой список получателей, уведомления не создаются (в т.ч. суперадминам).
+  def notification_recipients
+    return [] if subscribers.empty?
+
+    activity_recipients
+  end
+
+  def notification_message
+    "Новый комментарий по запросу на разблокировку. #{client_device_label}"
+  end
+
+  # CommentsController#create_notifications берёт ссылку из commentable.url —
+  # ведём на сам запрос (там живёт тред комментариев).
+  def url
+    show_url
+  end
+
+  # Рассылка для инлайн add_comment (минует CommentsController). Та же аудитория
+  # и гейт, что у треда; автор не исключается.
+  def notify_new_comment
+    return if subscribers.empty?
+
+    notify(activity_recipients, notification_message, url: show_url)
+  end
+
+  # Идентификация запроса в тексте уведомлений — клиент + устройство (item.name +
+  # серийник), как в строке таблицы _device_unlock_request.
+  def client_device_label
+    device = [item.name, item.serial_number].reject(&:blank?).join(' ')
+    "Клиент: #{client.short_name}, устройство: #{device}"
+  end
+
+  # --- «N дней без движений» (план §13, stale-рассылка) ---
+  # Активность = смена статуса (бампает updated_at) ИЛИ комментарий (его
+  # created_at). «Последняя активность» — максимум из двух, без отдельной колонки.
+  def last_activity_at
+    [updated_at, comments.maximum(:created_at)].compact.max
+  end
+
+  def stale?
+    last_activity_at <= STALE_AFTER.ago
+  end
+
+  # Интервал «раз в 3 дня»: не пинать чаще, чем раз в STALE_AFTER. nil = ещё ни
+  # разу не пинали по текущему простою.
+  def stale_notification_due?
+    stale_notified_at.nil? || stale_notified_at <= STALE_AFTER.ago
+  end
+
+  def stale_notification_message
+    "Запрос на разблокировку 3 дня без движений. #{client_device_label}"
+  end
+
+  # Гейта по подписчикам ЗДЕСЬ НЕТ (в отличие от статусов/комментов): до пикера
+  # activity_recipients = только суперадмины, после — подписчики + суперадмины —
+  # ровно как просил заказчик. stale_notified_at пишем update_column'ом, чтобы не
+  # бампнуть updated_at (иначе сами сбросили бы таймер активности). Активность
+  # сбрасывает счётчик «сама собой»: last_activity_at уедет вперёд → #stale? = false.
+  def notify_if_stale!
+    return unless stale? && stale_notification_due?
+
+    notify(activity_recipients, stale_notification_message, url: show_url)
+    update_column(:stale_notified_at, Time.current)
   end
 
   def archive!
