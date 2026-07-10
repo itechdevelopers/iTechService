@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 class SendTelegramMessage
-  attr_reader :result
+  attr_reader :result, :error
 
   def self.call(**args)
     new(**args).send_message
@@ -11,6 +11,7 @@ class SendTelegramMessage
     @chat_id = chat_id
     @text = text
     @result = nil
+    @error = nil
   end
 
   def send_message
@@ -33,9 +34,11 @@ class SendTelegramMessage
       @result = :success
     rescue Telegram::Bot::Error => e
       Rails.logger.error("[SendTelegramMessage] Telegram API error: #{e.message}")
+      @error = e
       @result = "Ошибка Telegram: #{e.message}"
     rescue StandardError => e
       Rails.logger.error("[SendTelegramMessage] Exception: #{e.message}")
+      @error = e
       @result = "Ошибка отправки: #{e.message}"
     end
 

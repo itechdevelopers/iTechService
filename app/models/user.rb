@@ -872,6 +872,48 @@ class User < ApplicationRecord
     write_attribute(:wishlist, new_value)
   end
 
+  # --- Telegram personal messaging ---------------------------------------
+
+  # Whether the bot can send this employee a personal message.
+  def telegram_linked?
+    telegram_chat_id.present?
+  end
+
+  # Lazily generates and persists a unique deep-link token used in the
+  # https://t.me/<bot>?start=<token> linking flow.
+  def ensure_telegram_link_token!
+    return telegram_link_token if telegram_link_token.present?
+
+    token = loop do
+      candidate = SecureRandom.urlsafe_base64(24)
+      break candidate unless User.exists?(telegram_link_token: candidate)
+    end
+    update_column(:telegram_link_token, token)
+    token
+  end
+
+  # Deep link the employee taps to bind their Telegram account to this
+  # profile. Returns nil until TELEGRAM_BOT_USERNAME is configured.
+  def telegram_link_url
+    bot = ENV['TELEGRAM_BOT_USERNAME'].presence
+    return if bot.blank?
+
+    "https://t.me/#{bot}?start=#{ensure_telegram_link_token!}"
+  end
+
+  # Binds the numeric Telegram chat id captured from an incoming /start.
+  # Bypasses the heavy User validation/callback chain on purpose.
+  def link_telegram!(chat_id)
+    update_column(:telegram_chat_id, chat_id)
+  end
+
+  # Drops the binding when the chat becomes unreachable (bot blocked,
+  # user deactivated, chat not found) so we stop trying and the profile
+  # shows the employee as not connected again.
+  def unlink_telegram!
+    update_column(:telegram_chat_id, nil)
+  end
+
   private
 
   def normalize_telegram_username

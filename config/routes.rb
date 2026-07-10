@@ -77,6 +77,7 @@ Rails.application.routes.draw do
   end
   resources :marker_words, only: %i[index create destroy]
   resources :phone_labels, only: %i[index create destroy]
+  telegram_webhook TelegramWebhookController if ENV['TELEGRAM_BOT_TOKEN'].present?
   resources :telegram_bot_settings, only: %i[index]
   resources :telegram_chats, only: %i[new create edit update destroy]
   resources :telegram_broadcasts, except: %i[show] do

@@ -1,0 +1,10 @@
+- if user.telegram_linked?
+  %span.label.label-success= t('users.telegram_connection.connected')
+- else
+  %span.label= t('users.telegram_connection.not_connected')
+  - if can? :update_self, user
+    - if user.telegram_link_url.present?
+      = link_to t('users.telegram_connection.connect'), user.telegram_link_url, target: '_blank', rel: 'noopener', class: 'btn btn-mini btn-primary'
+      %p.help-block= t('users.telegram_connection.hint')
+    - else
+      %p.help-block= t('users.telegram_connection.not_configured')
