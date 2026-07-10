@@ -9,13 +9,11 @@ class PackageDesign < ApplicationRecord
 
   mount_uploader :image, PackageDesignUploader
 
-  # Размеры редактируются прямо в форме дизайна. Признак «размер задан» —
-  # заполненное «в коробке» (per_box_count): у реального размера штук в коробке
-  # всегда > 0, а коробок может быть 0 (нет в наличии). Числовые поля формы
-  # приходят как "0" от DB-дефолта, поэтому blank?-проверка бесполезна — нужен
-  # именно to_i.zero?. Существующие строки удаляются через чекбокс (_destroy).
+  # Размеры (свободный текст) редактируются прямо в форме дизайна динамическими
+  # строками. Пустую новую строку (без введённого размера) пропускаем; удаление
+  # существующих — через _destroy (link_to_remove_fields).
   accepts_nested_attributes_for :package_stocks, allow_destroy: true,
-                                reject_if: ->(attrs) { attrs[:id].blank? && attrs[:per_box_count].to_i.zero? }
+                                reject_if: ->(attrs) { attrs[:size].blank? }
 
   validates :name, presence: true
 

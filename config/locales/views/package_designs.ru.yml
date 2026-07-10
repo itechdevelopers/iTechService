@@ -34,10 +34,6 @@ ru:
               exceeds_available: "нельзя забрать больше, чем в наличии (%{count} кор.)"
 
   package_stocks:
-    sizes:
-      small: Маленький
-      medium: Средний
-      large: Большой
     select_label: "%{size} — в наличии %{boxes} кор."
 
   package_withdrawals:
@@ -50,6 +46,7 @@ ru:
       boxes_label: Сколько коробок взяли
       reason_label: Основание
       reason_hint: "Куда берёте пакеты (например: отправка на Сахалин)."
+      preview_alt: Картинка выбранного пакета
     create:
       created: Забор записан, остаток обновлён.
 
@@ -73,13 +70,21 @@ ru:
         per_box: Кол-во в коробке
         total: Всего штук
         threshold: Порог
+      history_title: История заборов
+      history_empty: Заборов пока не было.
+      history:
+        when: Когда
+        design: Дизайн
+        size: Размер
+        boxes: Коробок
+        who: Кто забрал
     new:
       title: Новый дизайн пакета
     edit:
       title: Редактирование дизайна
     form:
       sizes_legend: Размеры и остатки
-      remove_size: Удалить
+      add_size: Добавить размер
       image_hint: JPG, PNG или GIF. Картинку водитель увидит при выборе пакета.
     create:
       created: Дизайн пакета создан.

@@ -21,9 +21,12 @@
           %th= PackageStock.human_attribute_name :per_box_count
           %th= PackageStock.human_attribute_name :low_stock_threshold
           %th
-      %tbody
+      %tbody#package_design_stocks
         = f.simple_fields_for :package_stocks do |ff|
           = render 'package_stock_fields', f: ff
+      %tfoot
+        %tr
+          %td{ colspan: 5 }= link_to_add_fields t('.add_size'), '#package_design_stocks', f, :package_stocks
 
   .form-actions
     = submit_button f

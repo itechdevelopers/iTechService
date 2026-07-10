@@ -1,13 +1,10 @@
--# Одна строка размера. Размер фиксирован (метка + hidden), чтобы нельзя было
--# создать дубль пары дизайн+размер. Чекбокс удаления — только для сохранённых.
+-# Одна строка размера. Размер — свободный текст. Строка удаляется через
+-# link_to_remove_fields (новые убираются из DOM, сохранённые помечаются _destroy).
 %tr.package_stock.fields
   %td
     = f.hidden_field :id
-    = f.hidden_field :size
-    %strong= t("package_stocks.sizes.#{f.object.size}")
+    = f.input :size, label: false, input_html: { class: 'input-small', placeholder: PackageStock.human_attribute_name(:size) }
   %td= f.input :boxes_count, label: false, input_html: { class: 'input-mini' }
   %td= f.input :per_box_count, label: false, input_html: { class: 'input-mini' }
   %td= f.input :low_stock_threshold, label: false, input_html: { class: 'input-mini' }
-  %td
-    - if f.object.persisted?
-      = f.input :_destroy, as: :boolean, label: t('package_designs.form.remove_size')
+  %td.text-right= link_to_remove_fields f

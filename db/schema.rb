@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20260710150002) do
+ActiveRecord::Schema.define(version: 20260710160000) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -1171,7 +1171,7 @@ ActiveRecord::Schema.define(version: 20260710150002) do
 
   create_table "package_stocks", force: :cascade do |t|
     t.bigint "package_design_id", null: false
-    t.integer "size", null: false
+    t.string "size", null: false
     t.integer "boxes_count", default: 0, null: false
     t.integer "per_box_count", default: 0, null: false
     t.integer "low_stock_threshold"

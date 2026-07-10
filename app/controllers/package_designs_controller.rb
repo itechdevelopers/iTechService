@@ -6,11 +6,15 @@ class PackageDesignsController < ApplicationController
     authorize PackageDesign
     @package_designs =
       PackageDesign.ordered.includes(:package_stocks)
+    # История заборов: что/сколько/кто/когда. Ограничиваем последними 100,
+    # чтобы страница не разрасталась (полный журнал — задел на будущее).
+    @package_withdrawals =
+      PackageWithdrawal.recent.includes(:user, package_stock: :package_design).limit(100)
   end
 
   def new
     @package_design = authorize PackageDesign.new
-    build_missing_sizes(@package_design)
+    ensure_one_size_row(@package_design)
   end
 
   def create
@@ -19,14 +23,14 @@ class PackageDesignsController < ApplicationController
     if @package_design.save
       redirect_to package_designs_path, notice: t('.created')
     else
-      build_missing_sizes(@package_design)
+      ensure_one_size_row(@package_design)
       render :new
     end
   end
 
   def edit
     @package_design = find_record PackageDesign
-    build_missing_sizes(@package_design)
+    ensure_one_size_row(@package_design)
   end
 
   def update
@@ -35,7 +39,7 @@ class PackageDesignsController < ApplicationController
     if @package_design.update(package_design_params)
       redirect_to package_designs_path, notice: t('.updated')
     else
-      build_missing_sizes(@package_design)
+      ensure_one_size_row(@package_design)
       render :edit
     end
   end
@@ -48,14 +52,10 @@ class PackageDesignsController < ApplicationController
 
   private
 
-  # В форме всегда показываем ровно 3 строки размеров (по одной на enum-размер):
-  # существующие + достроенные пустые для недостающих. Так админ добавляет/убирает
-  # размеры без динамического JS, а размер строки фиксирован (дубли невозможны).
-  def build_missing_sizes(design)
-    existing = design.package_stocks.map(&:size)
-    (PackageStock.sizes.keys - existing).each do |size|
-      design.package_stocks.build(size: size)
-    end
+  # Форма стартует минимум с одной пустой строки размера; остальные админ
+  # добавляет кнопкой «Добавить размер» (link_to_add_fields).
+  def ensure_one_size_row(design)
+    design.package_stocks.build if design.package_stocks.empty?
   end
 
   def package_design_params

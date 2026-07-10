@@ -7,8 +7,7 @@ class PackageStock < ApplicationRecord
   belongs_to :package_design, inverse_of: :package_stocks
   has_many :package_withdrawals, dependent: :destroy
 
-  enum size: { small: 0, medium: 1, large: 2 }
-
+  # size — свободный текст (вводит суперадмин), не enum. Уникален в рамках дизайна.
   validates :size, presence: true
   validates :size, uniqueness: { scope: :package_design_id }
   validates :boxes_count, :per_box_count,
@@ -18,7 +17,8 @@ class PackageStock < ApplicationRecord
             numericality: { only_integer: true, greater_than_or_equal_to: 0 },
             allow_nil: true
 
-  scope :ordered, -> { order(:size) }
+  # Порядок ввода админом (свободный текст размера не отсортируешь осмысленно).
+  scope :ordered, -> { order(:id) }
 
   # Всего штук = коробки × штук в коробке (производная, не колонка).
   def total_count
@@ -32,8 +32,6 @@ class PackageStock < ApplicationRecord
 
   # Подпись пункта в выпадашке водителя: «Средний — в наличии 7 кор.».
   def select_label
-    I18n.t('package_stocks.select_label',
-           size: I18n.t("package_stocks.sizes.#{size}"),
-           boxes: boxes_count)
+    I18n.t('package_stocks.select_label', size: size, boxes: boxes_count)
   end
 end

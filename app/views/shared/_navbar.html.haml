@@ -5,7 +5,6 @@
 
       = menu_item t('.service_job'), new_service_job_path if can? :create, ServiceJob
       = menu_item t('.free_service'), new_service_free_job_path if can? :create, Service::FreeJob
-      = menu_item 'Забрать пакеты', new_package_withdrawal_path if current_user.driver? || current_user.any_admin?
 
       = drop_down t('.quick_order') do
         = menu_item t('.new_quick_order'), new_quick_order_path, class: 'navbar_new' if can? :create, QuickOrder
@@ -133,6 +132,7 @@
         = menu_item t('dismissal_reasons.index.title'), dismissal_reasons_path if can? :manage, DismissalReason
 
       = drop_down t('.misc') do
+        = menu_item 'Забрать пакеты', new_package_withdrawal_path if current_user.driver? || current_user.any_admin?
         = menu_item t('kanban.boards.index.title'), kanban_boards_path
         = menu_item t('wiki.link'), wiki_pages_path if can? :read, WikiPage
         = menu_item t('reports.title'), reports_path if can?(:manage, :report) || current_user.accessible_report_cards.exists?
