@@ -26,12 +26,36 @@ ru:
         boxes_count: Кол-во коробок
         withdrawn_on: Дата
         reason: Основание
+    errors:
+      models:
+        package_withdrawal:
+          attributes:
+            boxes_count:
+              exceeds_available: "нельзя забрать больше, чем в наличии (%{count} кор.)"
 
   package_stocks:
     sizes:
       small: Маленький
       medium: Средний
       large: Большой
+    select_label: "%{size} — в наличии %{boxes} кор."
+
+  package_withdrawals:
+    new:
+      title: Забрать пакеты
+    form:
+      no_stock: Пока нет ни одного пакета с остатками. Обратитесь к администратору.
+      package_label: Пакет
+      select_prompt: Выберите пакет
+      boxes_label: Сколько коробок взяли
+      reason_label: Основание
+      reason_hint: "Куда берёте пакеты (например: отправка на Сахалин)."
+    create:
+      created: Забор записан, остаток обновлён.
+
+  package_low_stock:
+    bell: "Пакеты на дозаказ: %{design} · %{size} — осталось %{boxes} кор. (порог %{threshold})"
+    telegram: "⚠️ <b>Пакеты на дозаказ</b>\n%{design} · %{size}: осталось %{boxes} кор. (порог %{threshold})"
 
   package_designs:
     edit_design: Изменить дизайн

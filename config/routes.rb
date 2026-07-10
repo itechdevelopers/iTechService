@@ -240,6 +240,8 @@ Rails.application.routes.draw do
 
   # Учёт пакетов. Размеры (package_stocks) редактируются вложенно в форме дизайна.
   resources :package_designs
+  # Забор пакетов водителем (форма + создание).
+  resources :package_withdrawals, only: %i[new create]
 
   resources :client_categories
 

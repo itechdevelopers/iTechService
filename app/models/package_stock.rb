@@ -29,4 +29,11 @@ class PackageStock < ApplicationRecord
   def low_stock?
     low_stock_threshold.present? && boxes_count.to_i <= low_stock_threshold
   end
+
+  # Подпись пункта в выпадашке водителя: «Средний — в наличии 7 кор.».
+  def select_label
+    I18n.t('package_stocks.select_label',
+           size: I18n.t("package_stocks.sizes.#{size}"),
+           boxes: boxes_count)
+  end
 end

@@ -1,0 +1,21 @@
+- if @designs.blank?
+  %p.muted= t('.no_stock')
+- else
+  = simple_form_for @package_withdrawal, html: { class: 'form-horizontal' } do |f|
+    = f.error_notification message: error_messages_for(@package_withdrawal)
+
+    -# Один сгруппированный список: optgroup — дизайн, пункт — строка остатка
+    -# (размер + сколько в наличии). Водитель выбирает строку, как в таблице.
+    = f.input :package_stock_id, as: :grouped_select,
+              collection: @designs, group_method: :package_stocks,
+              group_label_method: :name, label_method: :select_label, value_method: :id,
+              include_blank: false, prompt: t('.select_prompt'),
+              label: t('.package_label')
+
+    = f.input :boxes_count, label: t('.boxes_label'), input_html: { min: 1 }
+    = f.input :withdrawn_on, as: :string,
+              input_html: { type: 'date', value: (@package_withdrawal.withdrawn_on || Date.current) }
+    = f.input :reason, label: t('.reason_label'), hint: t('.reason_hint')
+
+    .form-actions
+      = submit_button f

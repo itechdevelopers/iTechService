@@ -5,6 +5,7 @@
 
       = menu_item t('.service_job'), new_service_job_path if can? :create, ServiceJob
       = menu_item t('.free_service'), new_service_free_job_path if can? :create, Service::FreeJob
+      = menu_item 'Забрать пакеты', new_package_withdrawal_path if current_user.driver? || current_user.any_admin?
 
       = drop_down t('.quick_order') do
         = menu_item t('.new_quick_order'), new_quick_order_path, class: 'navbar_new' if can? :create, QuickOrder
