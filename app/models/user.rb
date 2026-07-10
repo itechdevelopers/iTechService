@@ -907,6 +907,13 @@ class User < ApplicationRecord
     update_column(:telegram_chat_id, chat_id)
   end
 
+  # Drops the binding when the chat becomes unreachable (bot blocked,
+  # user deactivated, chat not found) so we stop trying and the profile
+  # shows the employee as not connected again.
+  def unlink_telegram!
+    update_column(:telegram_chat_id, nil)
+  end
+
   private
 
   def normalize_telegram_username
