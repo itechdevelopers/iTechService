@@ -1,0 +1,7 @@
+-# Ячейка «Дизайн»: миниатюра + название + действия админа.
+= design_cell(design)
+.package-design__actions
+  - if policy(design).edit?
+    = link_to glyph(:pencil), edit_package_design_path(design), class: 'btn btn-mini', title: t('package_designs.edit_design')
+  - if policy(design).destroy?
+    = link_to glyph(:trash), package_design_path(design), method: :delete, data: { confirm: t('package_designs.destroy_confirm') }, class: 'btn btn-mini btn-danger', title: t('helpers.links.destroy')

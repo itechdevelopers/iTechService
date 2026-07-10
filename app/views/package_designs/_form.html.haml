@@ -1,0 +1,33 @@
+= simple_form_for @package_design, html: { class: 'form-horizontal', multipart: true } do |f|
+  = f.error_notification message: error_messages_for(@package_design)
+
+  = f.input :name
+
+  - if @package_design.image?
+    = image_tag @package_design.image.thumb.url, class: 'package-design-thumb'
+  = f.input :image, as: :file, hint: t('.image_hint')
+  -# image_cache сохраняет уже загруженный файл, если форма вернулась с ошибкой.
+  = f.input :image_cache, as: :hidden
+  - unless @package_design.new_record?
+    = f.input :remove_image, as: :boolean
+
+  %fieldset
+    %legend= t('.sizes_legend')
+    %table.table.table-condensed.table-bordered.table-small
+      %thead
+        %tr
+          %th= PackageStock.human_attribute_name :size
+          %th= PackageStock.human_attribute_name :boxes_count
+          %th= PackageStock.human_attribute_name :per_box_count
+          %th= PackageStock.human_attribute_name :low_stock_threshold
+          %th
+      %tbody#package_design_stocks
+        = f.simple_fields_for :package_stocks do |ff|
+          = render 'package_stock_fields', f: ff
+      %tfoot
+        %tr
+          %td{ colspan: 5 }= link_to_add_fields t('.add_size'), '#package_design_stocks', f, :package_stocks
+
+  .form-actions
+    = submit_button f
+    = link_to t('helpers.links.cancel'), package_designs_path, class: 'btn'

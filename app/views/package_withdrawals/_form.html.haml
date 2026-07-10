@@ -1,0 +1,48 @@
+- if @designs.blank?
+  %p.muted= t('.no_stock')
+- else
+  -# Карта stock_id → URL миниатюры дизайна: нативный <select> не рендерит
+  -# картинку, поэтому показываем превью выбранного дизайна отдельным <img>.
+  - thumbs = {}
+  - @designs.each do |design|
+    - url = (design.image.thumb.url if design.image?)
+    - design.package_stocks.each { |s| thumbs[s.id] = url }
+
+  = simple_form_for @package_withdrawal, html: { class: 'form-horizontal' } do |f|
+    = f.error_notification message: error_messages_for(@package_withdrawal)
+
+    -# Один сгруппированный список: optgroup — дизайн, пункт — строка остатка
+    -# (размер + сколько в наличии). Водитель выбирает строку, как в таблице.
+    = f.input :package_stock_id, as: :grouped_select,
+              collection: @designs, group_method: :package_stocks,
+              group_label_method: :name, label_method: :select_label, value_method: :id,
+              include_blank: false, prompt: t('.select_prompt'),
+              label: t('.package_label')
+
+    .control-group#package_withdrawal_preview{ data: { thumbs: thumbs.to_json } }
+      .controls
+        %img.package-design-thumb{ style: 'display:none;', alt: t('.preview_alt') }
+
+    = f.input :boxes_count, label: t('.boxes_label'), input_html: { min: 1 }
+    = f.input :withdrawn_on, as: :string,
+              input_html: { type: 'date', value: (@package_withdrawal.withdrawn_on || Date.current) }
+    = f.input :reason, label: t('.reason_label'), hint: t('.reason_hint')
+
+    .form-actions
+      = submit_button f
+
+  :javascript
+    (function () {
+      var wrap = document.getElementById('package_withdrawal_preview');
+      var select = document.getElementById('package_withdrawal_package_stock_id');
+      if (!wrap || !select) return;
+      var thumbs = JSON.parse(wrap.getAttribute('data-thumbs') || '{}');
+      var img = wrap.querySelector('img');
+      function refresh() {
+        var url = thumbs[select.value];
+        if (url) { img.src = url; img.style.display = ''; }
+        else { img.removeAttribute('src'); img.style.display = 'none'; }
+      }
+      select.addEventListener('change', refresh);
+      refresh();
+    })();

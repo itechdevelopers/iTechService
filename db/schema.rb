@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20260710120000) do
+ActiveRecord::Schema.define(version: 20260710160000) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -1160,6 +1160,37 @@ ActiveRecord::Schema.define(version: 20260710120000) do
     t.index ["source_store_id"], name: "index_orders_on_source_store_id"
     t.index ["status"], name: "index_orders_on_status"
     t.index ["user_id"], name: "index_orders_on_user_id"
+  end
+
+  create_table "package_designs", force: :cascade do |t|
+    t.string "name", null: false
+    t.string "image"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+  end
+
+  create_table "package_stocks", force: :cascade do |t|
+    t.bigint "package_design_id", null: false
+    t.string "size", null: false
+    t.integer "boxes_count", default: 0, null: false
+    t.integer "per_box_count", default: 0, null: false
+    t.integer "low_stock_threshold"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["package_design_id", "size"], name: "index_package_stocks_on_package_design_id_and_size", unique: true
+    t.index ["package_design_id"], name: "index_package_stocks_on_package_design_id"
+  end
+
+  create_table "package_withdrawals", force: :cascade do |t|
+    t.bigint "package_stock_id", null: false
+    t.bigint "user_id", null: false
+    t.integer "boxes_count", null: false
+    t.date "withdrawn_on", null: false
+    t.string "reason", null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["package_stock_id"], name: "index_package_withdrawals_on_package_stock_id"
+    t.index ["user_id"], name: "index_package_withdrawals_on_user_id"
   end
 
   create_table "payment_types", id: :serial, force: :cascade do |t|
@@ -2658,6 +2689,9 @@ ActiveRecord::Schema.define(version: 20260710120000) do
   add_foreign_key "order_notes", "users", column: "author_id"
   add_foreign_key "orders", "departments", column: "source_department_id"
   add_foreign_key "orders", "stores", column: "source_store_id"
+  add_foreign_key "package_stocks", "package_designs"
+  add_foreign_key "package_withdrawals", "package_stocks"
+  add_foreign_key "package_withdrawals", "users"
   add_foreign_key "phone_substitutions", "service_jobs"
   add_foreign_key "phone_substitutions", "substitute_phones"
   add_foreign_key "phone_substitutions", "users", column: "issuer_id"

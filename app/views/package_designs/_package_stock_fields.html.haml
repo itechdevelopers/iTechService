@@ -1,0 +1,10 @@
+-# Одна строка размера. Размер — свободный текст. Строка удаляется через
+-# link_to_remove_fields (новые убираются из DOM, сохранённые помечаются _destroy).
+%tr.package_stock.fields
+  %td
+    = f.hidden_field :id
+    = f.input :size, label: false, input_html: { class: 'input-small', placeholder: PackageStock.human_attribute_name(:size) }
+  %td= f.input :boxes_count, label: false, input_html: { class: 'input-mini' }
+  %td= f.input :per_box_count, label: false, input_html: { class: 'input-mini' }
+  %td= f.input :low_stock_threshold, label: false, input_html: { class: 'input-mini' }
+  %td.text-right= link_to_remove_fields f

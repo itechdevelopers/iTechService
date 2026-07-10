@@ -1,0 +1,94 @@
+ru:
+  activerecord:
+    models:
+      package_design:
+        one: Дизайн пакета
+        few: Дизайна пакета
+        many: Дизайнов пакета
+      package_stock:
+        one: Остаток пакетов
+        few: Остатка пакетов
+        many: Остатков пакетов
+      package_withdrawal:
+        one: Забор пакетов
+        few: Забора пакетов
+        many: Заборов пакетов
+    attributes:
+      package_design:
+        name: Название
+        image: Картинка дизайна
+      package_stock:
+        size: Размер
+        boxes_count: Кол-во коробок
+        per_box_count: Кол-во в коробке
+        low_stock_threshold: Порог остатка
+      package_withdrawal:
+        boxes_count: Кол-во коробок
+        withdrawn_on: Дата
+        reason: Основание
+    errors:
+      models:
+        package_withdrawal:
+          attributes:
+            boxes_count:
+              exceeds_available: "нельзя забрать больше, чем в наличии (%{count} кор.)"
+
+  package_stocks:
+    select_label: "%{size} — в наличии %{boxes} кор."
+
+  package_withdrawals:
+    new:
+      title: Забрать пакеты
+    form:
+      no_stock: Пока нет ни одного пакета с остатками. Обратитесь к администратору.
+      package_label: Пакет
+      select_prompt: Выберите пакет
+      boxes_label: Сколько коробок взяли
+      reason_label: Основание
+      reason_hint: "Куда берёте пакеты (например: отправка на Сахалин)."
+      preview_alt: Картинка выбранного пакета
+    create:
+      created: Забор записан, остаток обновлён.
+
+  package_low_stock:
+    bell: "Пакеты на дозаказ: %{design} · %{size} — осталось %{boxes} кор. (порог %{threshold})"
+    telegram: "⚠️ <b>Пакеты на дозаказ</b>\n%{design} · %{size}: осталось %{boxes} кор. (порог %{threshold})"
+
+  package_designs:
+    edit_design: Изменить дизайн
+    destroy_confirm: Удалить дизайн вместе со всеми размерами и историей заборов?
+    index:
+      title: Учёт пакетов
+      add_design: Добавить дизайн
+      empty: Пока нет ни одного дизайна пакета.
+      no_sizes: Размеры не заданы
+      low_stock: дозаказ
+      columns:
+        design: Дизайн
+        size: Размер
+        boxes: Кол-во коробок
+        per_box: Кол-во в коробке
+        total: Всего штук
+        threshold: Порог
+      history_title: История заборов
+      history_empty: Заборов пока не было.
+      history:
+        when: Когда
+        design: Дизайн
+        size: Размер
+        boxes: Коробок
+        who: Кто забрал
+    new:
+      title: Новый дизайн пакета
+    edit:
+      title: Редактирование дизайна
+    form:
+      sizes_legend: Размеры и остатки
+      add_size: Добавить размер
+      image_hint: JPG, PNG или GIF. Картинку водитель увидит при выборе пакета.
+    create:
+      created: Дизайн пакета создан.
+    update:
+      updated: Дизайн пакета обновлён.
+    destroy:
+      destroyed: Дизайн пакета удалён.

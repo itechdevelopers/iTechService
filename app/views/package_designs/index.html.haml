@@ -1,0 +1,59 @@
+.page-header
+  - if policy(PackageDesign).new?
+    = link_to t('.add_design'), new_package_design_path, class: 'btn btn-success pull-right'
+  %h2= t('.title')
+
+- if @package_designs.empty?
+  %p.muted= t('.empty')
+- else
+  %table.table.table-bordered.table-condensed
+    - @package_designs.each do |design|
+      -# Один <tbody> на дизайн: шапка повторяется для каждого блока, как в
+      -# исходной гугл-табличке. Размеры — в порядке ввода (scope :ordered по id).
+      %tbody
+        %tr
+          %th= t('.columns.design')
+          %th= t('.columns.size')
+          %th= t('.columns.boxes')
+          %th= t('.columns.per_box')
+          %th= t('.columns.total')
+          %th= t('.columns.threshold')
+        - stocks = design.package_stocks.to_a
+        - if stocks.empty?
+          %tr
+            %td= render 'design_head', design: design
+            %td.muted{ colspan: 5 }= t('.no_sizes')
+        - else
+          - stocks.each_with_index do |stock, i|
+            %tr
+              - if i.zero?
+                %td{ rowspan: stocks.size }= render 'design_head', design: design
+              %td= stock.size
+              %td{ class: ('text-error' if stock.low_stock?) }
+                = stock.boxes_count
+                - if stock.low_stock?
+                  %span.label.label-important= t('.low_stock')
+              %td= stock.per_box_count
+              %td= stock.total_count
+              %td= stock.low_stock_threshold
+
+%h3= t('.history_title')
+- if @package_withdrawals.empty?
+  %p.muted= t('.history_empty')
+- else
+  %table.table.table-bordered.table-condensed
+    %thead
+      %tr
+        %th= t('.history.when')
+        %th= t('.history.design')
+        %th= t('.history.size')
+        %th= t('.history.boxes')
+        %th= t('.history.who')
+    %tbody
+      - @package_withdrawals.each do |w|
+        %tr
+          %td= l(w.withdrawn_on)
+          %td= w.package_stock.package_design.name
+          %td= w.package_stock.size
+          %td= w.boxes_count
+          %td= w.user.short_name
