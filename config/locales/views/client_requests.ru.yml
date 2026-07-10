@@ -29,7 +29,7 @@ ru:
     unarchive:
       unarchived: Запрос возвращён из архива
     client_section:
-      title: Запросы клиента
+      title: Запросы на поиск оригинального чека
     client_request:
       usage: срок
       in_progress_btn: В работу

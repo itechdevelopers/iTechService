@@ -53,7 +53,7 @@ ru:
     unarchive:
       unarchived: Запрос возвращён из архива
     client_section:
-      title: Запросы на разблокировку
+      title: Запросы на разблокировку устройства
     device_unlock_request:
       comment_placeholder: Добавить комментарий…
       comment_btn: Отправить
