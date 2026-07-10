@@ -34,8 +34,11 @@ ru:
       large: Большой
 
   package_designs:
+    edit_design: Изменить дизайн
+    destroy_confirm: Удалить дизайн вместе со всеми размерами и историей заборов?
     index:
       title: Учёт пакетов
+      add_design: Добавить дизайн
       empty: Пока нет ни одного дизайна пакета.
       no_sizes: Размеры не заданы
       low_stock: дозаказ
@@ -46,3 +49,17 @@ ru:
         per_box: Кол-во в коробке
         total: Всего штук
         threshold: Порог
+    new:
+      title: Новый дизайн пакета
+    edit:
+      title: Редактирование дизайна
+    form:
+      sizes_legend: Размеры и остатки
+      remove_size: Удалить
+      image_hint: JPG, PNG или GIF. Картинку водитель увидит при выборе пакета.
+    create:
+      created: Дизайн пакета создан.
+    update:
+      updated: Дизайн пакета обновлён.
+    destroy:
+      destroyed: Дизайн пакета удалён.

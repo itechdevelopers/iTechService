@@ -4,7 +4,7 @@
 # (её списывают заборы и по ней срабатывает порог). «Всего штук» не храним —
 # считаем на лету, чтобы нечего было «сломать» (боль исходной гугл-таблицы).
 class PackageStock < ApplicationRecord
-  belongs_to :package_design
+  belongs_to :package_design, inverse_of: :package_stocks
   has_many :package_withdrawals, dependent: :destroy
 
   enum size: { small: 0, medium: 1, large: 2 }

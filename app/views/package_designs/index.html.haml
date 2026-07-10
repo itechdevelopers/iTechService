@@ -1,4 +1,6 @@
 .page-header
+  - if policy(PackageDesign).new?
+    = link_to t('.add_design'), new_package_design_path, class: 'btn btn-success pull-right'
   %h2= t('.title')
 
 - if @package_designs.empty?
@@ -19,13 +21,13 @@
         - stocks = design.package_stocks.sort_by { |s| PackageStock.sizes[s.size] }
         - if stocks.empty?
           %tr
-            %td= design_cell(design)
+            %td= render 'design_head', design: design
             %td.muted{ colspan: 5 }= t('.no_sizes')
         - else
           - stocks.each_with_index do |stock, i|
             %tr
               - if i.zero?
-                %td{ rowspan: stocks.size }= design_cell(design)
+                %td{ rowspan: stocks.size }= render 'design_head', design: design
               %td= t("package_stocks.sizes.#{stock.size}")
               %td{ class: ('text-error' if stock.low_stock?) }
                 = stock.boxes_count

@@ -238,8 +238,8 @@ Rails.application.routes.draw do
     get :history, on: :member, defaults: { format: 'js' }
   end
 
-  # Учёт пакетов (Цикл 1: только read-only таблица для админа).
-  resources :package_designs, only: %i[index]
+  # Учёт пакетов. Размеры (package_stocks) редактируются вложенно в форме дизайна.
+  resources :package_designs
 
   resources :client_categories
 
