@@ -45,3 +45,13 @@ label.required {
   margin-right: 4px;
   color: red;
 }
+
+// Datepicker (my_date) внутри модального окна: глобальное правило
+// `.form-inline input { margin: 3px 0 }` (service_jobs.css.scss) сдвигает инпут вниз
+// относительно иконки-календаря `.add-on` в Bootstrap-2 `.input-prepend` — иконка и
+// поле перестают стыковаться. Обнуляем паразитный вертикальный отступ в контексте
+// модалки (не трогая service_jobs, где отступ задан намеренно).
+#modal_form .input-prepend input {
+  margin-top: 0;
+  margin-bottom: 0;
+}
