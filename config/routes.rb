@@ -238,6 +238,9 @@ Rails.application.routes.draw do
     get :history, on: :member, defaults: { format: 'js' }
   end
 
+  # Учёт пакетов (Цикл 1: только read-only таблица для админа).
+  resources :package_designs, only: %i[index]
+
   resources :client_categories
 
   resources :device_types, except: [:new] do

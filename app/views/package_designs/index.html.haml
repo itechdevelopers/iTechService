@@ -1,0 +1,36 @@
+.page-header
+  %h2= t('.title')
+
+- if @package_designs.empty?
+  %p.muted= t('.empty')
+- else
+  %table.table.table-bordered.table-condensed
+    - @package_designs.each do |design|
+      -# Один <tbody> на дизайн: шапка повторяется для каждого блока, как в
+      -# исходной гугл-табличке. Размеры сортируем по порядку enum (small→large).
+      %tbody
+        %tr
+          %th= t('.columns.design')
+          %th= t('.columns.size')
+          %th= t('.columns.boxes')
+          %th= t('.columns.per_box')
+          %th= t('.columns.total')
+          %th= t('.columns.threshold')
+        - stocks = design.package_stocks.sort_by { |s| PackageStock.sizes[s.size] }
+        - if stocks.empty?
+          %tr
+            %td= design_cell(design)
+            %td.muted{ colspan: 5 }= t('.no_sizes')
+        - else
+          - stocks.each_with_index do |stock, i|
+            %tr
+              - if i.zero?
+                %td{ rowspan: stocks.size }= design_cell(design)
+              %td= t("package_stocks.sizes.#{stock.size}")
+              %td{ class: ('text-error' if stock.low_stock?) }
+                = stock.boxes_count
+                - if stock.low_stock?
+                  %span.label.label-important= t('.low_stock')
+              %td= stock.per_box_count
+              %td= stock.total_count
+              %td= stock.low_stock_threshold

@@ -1,0 +1,48 @@
+ru:
+  activerecord:
+    models:
+      package_design:
+        one: Дизайн пакета
+        few: Дизайна пакета
+        many: Дизайнов пакета
+      package_stock:
+        one: Остаток пакетов
+        few: Остатка пакетов
+        many: Остатков пакетов
+      package_withdrawal:
+        one: Забор пакетов
+        few: Забора пакетов
+        many: Заборов пакетов
+    attributes:
+      package_design:
+        name: Название
+        image: Картинка дизайна
+      package_stock:
+        size: Размер
+        boxes_count: Кол-во коробок
+        per_box_count: Кол-во в коробке
+        low_stock_threshold: Порог остатка
+      package_withdrawal:
+        boxes_count: Кол-во коробок
+        withdrawn_on: Дата
+        reason: Основание
+
+  package_stocks:
+    sizes:
+      small: Маленький
+      medium: Средний
+      large: Большой
+
+  package_designs:
+    index:
+      title: Учёт пакетов
+      empty: Пока нет ни одного дизайна пакета.
+      no_sizes: Размеры не заданы
+      low_stock: дозаказ
+      columns:
+        design: Дизайн
+        size: Размер
+        boxes: Кол-во коробок
+        per_box: Кол-во в коробке
+        total: Всего штук
+        threshold: Порог
