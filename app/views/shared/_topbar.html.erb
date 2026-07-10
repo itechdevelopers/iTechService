@@ -77,6 +77,7 @@
     <%= header_link_to_quack_control %>
     <%= header_link_to_notifications %>
     <%= header_fault_button if can? :create, Fault %>
+    <%= header_merit_button if can? :create, Merit %>
     <%#= header_link_for_device_returning %>
     <%= header_link_for_coffee %>
     <%= header_link_to_announce %>

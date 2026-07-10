@@ -190,6 +190,8 @@ Rails.application.routes.draw do
 
   resources :faults, only: %i[new create]
 
+  resources :merits, only: %i[new create]
+
   resources :karmas do
     post :group, on: :collection, defaults: {format: 'js'}
     post :addtogroup, on: :collection, defaults: {format: 'js'}
