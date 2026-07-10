@@ -109,6 +109,10 @@
                     input_html: { id: :input_telegram_username }
                   = submit_button f
 
+          %dt= t('users.telegram_connection.title')
+          %dd
+            #telegram_connection_view= render 'telegram_connection', user: @user
+
           %dt= User.human_attribute_name :birthday
           %dd= @user.birthday.present? ? human_date(@user.birthday) : '-'
 

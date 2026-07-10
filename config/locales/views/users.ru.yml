@@ -127,6 +127,13 @@ ru:
     group_karma: 'Сгруппировать'
     info: 'Информация'
     telegram_username_hint: 'Только латиница, цифры и _, 5–32 символа. Без @ в начале.'
+    telegram_connection:
+      title: 'Личные уведомления (бот)'
+      connected: 'Подключено'
+      not_connected: 'Не подключено'
+      connect: 'Подключить Telegram'
+      hint: 'Нажмите кнопку, в открывшемся Telegram нажмите «Запустить», затем обновите страницу.'
+      not_configured: 'Бот не настроен (не задан TELEGRAM_BOT_USERNAME).'
     job_schedule: 'График работы'
     link: 'Пользователи'
     rating: 'Рейтинг'
