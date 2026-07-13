@@ -2,16 +2,19 @@
 
 class PackageWithdrawalsController < ApplicationController
   def new
-    @package_withdrawal = authorize PackageWithdrawal.new(withdrawn_on: Date.current)
+    authorize PackageWithdrawal.new
+    @batch = PackageWithdrawalBatch.new(withdrawn_on: Date.current)
     load_designs
   end
 
   def create
-    @package_withdrawal = authorize PackageWithdrawal.new(package_withdrawal_params)
-    @package_withdrawal.user = current_user # водитель — всегда текущий пользователь
+    authorize PackageWithdrawal.new
+    @batch = PackageWithdrawalBatch.new(batch_params)
+    @batch.user = current_user # водитель — всегда текущий пользователь
 
-    if @package_withdrawal.save
-      redirect_to new_package_withdrawal_path, notice: t('.created')
+    if @batch.save
+      redirect_to new_package_withdrawal_path,
+                  notice: t('.created', count: @batch.withdrawals.size)
     else
       load_designs
       render :new
@@ -20,15 +23,15 @@ class PackageWithdrawalsController < ApplicationController
 
   private
 
-  # Для сгруппированной выпадашки: только дизайны, у которых есть строки-остатки.
+  # Для формы: только дизайны, у которых есть строки-остатки (иначе выбирать нечего).
   def load_designs
     @designs = PackageDesign.ordered.includes(:package_stocks).select do |design|
       design.package_stocks.any?
     end
   end
 
-  def package_withdrawal_params
-    params.require(:package_withdrawal)
-          .permit(:package_stock_id, :boxes_count, :withdrawn_on, :reason)
+  def batch_params
+    params.require(:package_withdrawal_batch)
+          .permit(:withdrawn_on, :reason, lines: %i[package_stock_id boxes_count])
   end
 end

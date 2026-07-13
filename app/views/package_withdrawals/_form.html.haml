@@ -1,31 +1,52 @@
 - if @designs.blank?
   %p.muted= t('.no_stock')
 - else
-  -# Карта stock_id → URL миниатюры дизайна: нативный <select> не рендерит
-  -# картинку, поэтому показываем превью выбранного дизайна отдельным <img>.
-  - thumbs = {}
-  - @designs.each do |design|
-    - url = (design.image.thumb.url if design.image?)
-    - design.package_stocks.each { |s| thumbs[s.id] = url }
+  -# Выбор кругляшками: одна карточка = позиция «дизайн + размер». Клик выделяет
+  -# и раскрывает поле количества. «Взято» = введённое число коробок, отдельного
+  -# чекбокса нет. На перерисовке после ошибки уже введённые позиции помечены
+  -# --selected сервером, чтобы поле было видно с сохранённым значением.
+  - entered = {}
+  - @batch.withdrawals.each { |w| entered[w.package_stock_id.to_i] = w.boxes_count }
 
-  = simple_form_for @package_withdrawal, html: { class: 'form-horizontal' } do |f|
-    = f.error_notification message: error_messages_for(@package_withdrawal)
+  = simple_form_for @batch, url: package_withdrawals_path,
+                    as: :package_withdrawal_batch, html: { class: 'form-horizontal' } do |f|
+    -# Базовые ошибки контейнера (не выбрано ни одной позиции, есть ошибочные
+    -# строки). Ошибки самих полей (дата/основание) simple_form покажет инлайн.
+    - if @batch.errors[:base].any?
+      .alert.alert-error
+        %ul
+          - @batch.errors[:base].uniq.each do |msg|
+            %li= msg
 
-    -# Один сгруппированный список: optgroup — дизайн, пункт — строка остатка
-    -# (размер + сколько в наличии). Водитель выбирает строку, как в таблице.
-    = f.input :package_stock_id, as: :grouped_select,
-              collection: @designs, group_method: :package_stocks,
-              group_label_method: :name, label_method: :select_label, value_method: :id,
-              include_blank: false, prompt: t('.select_prompt'),
-              label: t('.package_label')
+    - @batch.withdrawals.select { |w| w.errors.any? }.each do |w|
+      %p.text-error
+        = "#{w.package_stock&.package_design&.name} · #{w.package_stock&.size}: #{w.errors.full_messages.to_sentence}"
 
-    .control-group#package_withdrawal_preview{ data: { thumbs: thumbs.to_json } }
-      .controls
-        %img.package-design-thumb{ style: 'display:none;', alt: t('.preview_alt') }
+    %p.muted= t('.picker_hint')
 
-    = f.input :boxes_count, label: t('.boxes_label'), input_html: { min: 1 }
+    #package_withdrawal_picker.package-withdrawal-picker
+      - @designs.each do |design|
+        - design.package_stocks.each do |stock|
+          - out_of_stock = stock.boxes_count.to_i.zero?
+          - taken = entered[stock.id].to_i
+          - selected = taken.positive?
+          %div.package-withdrawal-picker__item{ class: [('package-withdrawal-picker__item--selected' if selected), ('package-withdrawal-picker__item--disabled' if out_of_stock)].compact }
+            - if design.image?
+              = image_tag design.image.thumb.url, class: 'package-withdrawal-picker__thumb', alt: design.name
+            - else
+              %span.package-withdrawal-picker__thumb--placeholder= design.name.first
+            %span.package-withdrawal-picker__design= design.name
+            %span.package-withdrawal-picker__size= stock.size
+            %span.package-withdrawal-picker__avail
+              = out_of_stock ? t('.out_of_stock') : t('.available', count: stock.boxes_count)
+            - unless out_of_stock
+              = hidden_field_tag 'package_withdrawal_batch[lines][][package_stock_id]', stock.id
+              = number_field_tag 'package_withdrawal_batch[lines][][boxes_count]', (taken if selected),
+                                 min: 1, max: stock.boxes_count,
+                                 class: 'package-withdrawal-picker__qty', 'aria-label' => t('.qty_label')
+
     = f.input :withdrawn_on, as: :string,
-              input_html: { type: 'date', value: (@package_withdrawal.withdrawn_on || Date.current) }
+              input_html: { type: 'date', value: (@batch.withdrawn_on || Date.current) }
     = f.input :reason, label: t('.reason_label'), hint: t('.reason_hint')
 
     .form-actions
@@ -33,16 +54,32 @@
 
   :javascript
     (function () {
-      var wrap = document.getElementById('package_withdrawal_preview');
-      var select = document.getElementById('package_withdrawal_package_stock_id');
-      if (!wrap || !select) return;
-      var thumbs = JSON.parse(wrap.getAttribute('data-thumbs') || '{}');
-      var img = wrap.querySelector('img');
-      function refresh() {
-        var url = thumbs[select.value];
-        if (url) { img.src = url; img.style.display = ''; }
-        else { img.removeAttribute('src'); img.style.display = 'none'; }
-      }
-      select.addEventListener('change', refresh);
-      refresh();
+      var picker = document.getElementById('package_withdrawal_picker');
+      if (!picker) return;
+      var SEL = 'package-withdrawal-picker__item--selected';
+      var items = picker.querySelectorAll('.package-withdrawal-picker__item:not(.package-withdrawal-picker__item--disabled)');
+
+      Array.prototype.forEach.call(items, function (item) {
+        var qty = item.querySelector('.package-withdrawal-picker__qty');
+        if (!qty) return;
+
+        function select(on) {
+          if (on) {
+            item.classList.add(SEL);
+            if (!qty.value || parseInt(qty.value, 10) < 1) qty.value = 1;
+          } else {
+            item.classList.remove(SEL);
+            qty.value = '';
+          }
+        }
+
+        item.addEventListener('click', function (e) {
+          if (e.target === qty) return; // клик по самому полю не переключает выбор
+          select(!item.classList.contains(SEL));
+        });
+        qty.addEventListener('click', function (e) { e.stopPropagation(); });
+        qty.addEventListener('input', function () {
+          item.classList.toggle(SEL, parseInt(qty.value, 10) >= 1);
+        });
+      });
     })();
