@@ -12,10 +12,22 @@
 
 .feedback_notification-section {
   clear: both;
+  margin: 18px -14px 8px;
+  padding: 8px 14px;
   text-align: center;
+  font-size: 18px;
   font-weight: bold;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
   color: #f00033;
-  padding: 6px 0 2px;
+  background-color: #e4e4e4;
+  border-top: 1px solid #cfcfcf;
+  border-bottom: 1px solid #cfcfcf;
+
+  &:first-child {
+    margin-top: -9px;
+    border-top: none;
+  }
 }
 
 #feedback_notification-list, #order_feedback_notification-list {
