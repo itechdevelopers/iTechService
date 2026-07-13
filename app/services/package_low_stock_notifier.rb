@@ -40,21 +40,17 @@ class PackageLowStockNotifier
     UserNotificationChannel.broadcast_to(user, notification)
   end
 
-  def size_label
-    I18n.t("package_stocks.sizes.#{stock.size}")
-  end
-
   def bell_text
     I18n.t('package_low_stock.bell',
-           design: design.name, size: size_label,
+           design: design.name, size: stock.size,
            boxes: stock.boxes_count, threshold: stock.low_stock_threshold)
   end
 
-  # parse_mode HTML в SendTelegramMessage → динамику экранируем (memory
-  # про NotifyEmployee и HTML).
+  # parse_mode HTML в SendTelegramMessage → динамику (имя дизайна и свободный
+  # текст размера) экранируем (memory про NotifyEmployee и HTML).
   def telegram_text
     I18n.t('package_low_stock.telegram',
-           design: CGI.escapeHTML(design.name.to_s), size: size_label,
+           design: CGI.escapeHTML(design.name.to_s), size: CGI.escapeHTML(stock.size.to_s),
            boxes: stock.boxes_count, threshold: stock.low_stock_threshold)
   end
 
