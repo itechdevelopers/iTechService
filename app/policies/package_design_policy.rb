@@ -1,18 +1,20 @@
 # frozen_string_literal: true
 
-# Управление «табличкой» пакетов — админы/суперадмины. Водители сюда не ходят:
-# им в Цикле 3 будет отдельная форма забора (PackageWithdrawalPolicy).
+# «Табличка» пакетов: смотреть остатки может любой сотрудник (склад общий,
+# всем полезно знать наличие), а вести её — заводить/править дизайны и размеры —
+# только админы/суперадмины. new?/edit? наследуются из ApplicationPolicy и зовут
+# create?/update?, поэтому переопределять их отдельно не нужно.
 class PackageDesignPolicy < ApplicationPolicy
-  # Базовый ApplicationPolicy разрешает CRUD только суперадмину (manage? =
-  # superadmin?). Здесь открываем и обычным админам — они ведут склад пакетов.
+  # Просмотр — всем аутентифицированным (ApplicationPolicy уже требует user).
   def index?
-    any_admin?
+    true
   end
 
   def show?
-    any_admin?
+    true
   end
 
+  # Редактирование склада — только админы/суперадмины (any_admin? = admin|superadmin).
   def create?
     any_admin?
   end

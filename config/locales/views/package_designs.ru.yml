@@ -61,6 +61,14 @@ ru:
       reason_hint: "Куда берёте пакеты (например: отправка на Сахалин)."
     create:
       created: "Записано заборов: %{count}. Остатки обновлены."
+    history:
+      title: История заборов
+      empty: Заборов пока не было.
+      when: Когда
+      design: Дизайн
+      size: Размер
+      boxes: Коробок
+      who: Кто забрал
 
   package_low_stock:
     bell: "Пакеты на дозаказ: %{design} · %{size} — осталось %{boxes} кор. (порог %{threshold})"
@@ -82,14 +90,6 @@ ru:
         per_box: Кол-во в коробке
         total: Всего штук
         threshold: Порог
-      history_title: История заборов
-      history_empty: Заборов пока не было.
-      history:
-        when: Когда
-        design: Дизайн
-        size: Размер
-        boxes: Коробок
-        who: Кто забрал
     new:
       title: Новый дизайн пакета
     edit:

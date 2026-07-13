@@ -4,7 +4,7 @@ class PackageWithdrawalsController < ApplicationController
   def new
     authorize PackageWithdrawal.new
     @batch = PackageWithdrawalBatch.new(withdrawn_on: Date.current)
-    load_designs
+    load_form_data
   end
 
   def create
@@ -16,18 +16,30 @@ class PackageWithdrawalsController < ApplicationController
       redirect_to new_package_withdrawal_path,
                   notice: t('.created', count: @batch.withdrawals.size)
     else
-      load_designs
+      load_form_data
       render :new
     end
   end
 
   private
 
+  def load_form_data
+    load_designs
+    load_history
+  end
+
   # Для формы: только дизайны, у которых есть строки-остатки (иначе выбирать нечего).
   def load_designs
     @designs = PackageDesign.ordered.includes(:package_stocks).select do |design|
       design.package_stocks.any?
     end
+  end
+
+  # История заборов под формой — водители тоже её видят. Последние 100, как на
+  # админской «Учёт пакетов».
+  def load_history
+    @package_withdrawals =
+      PackageWithdrawal.recent.includes(:user, package_stock: :package_design).limit(100)
   end
 
   def batch_params
