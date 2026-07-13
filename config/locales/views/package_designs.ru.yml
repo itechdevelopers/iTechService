@@ -1,4 +1,16 @@
 ru:
+  activemodel:
+    attributes:
+      package_withdrawal_batch:
+        withdrawn_on: Дата
+        reason: Основание
+    errors:
+      models:
+        package_withdrawal_batch:
+          attributes:
+            base:
+              no_lines: Выберите хотя бы один пакет и укажите количество коробок.
+              invalid_line: Исправьте ошибки в выделенных строках.
   activerecord:
     models:
       package_design:
@@ -41,14 +53,14 @@ ru:
       title: Забрать пакеты
     form:
       no_stock: Пока нет ни одного пакета с остатками. Обратитесь к администратору.
-      package_label: Пакет
-      select_prompt: Выберите пакет
-      boxes_label: Сколько коробок взяли
+      picker_hint: Отметьте нужные пакеты и укажите, сколько коробок берёте.
+      available: "в наличии %{count} кор."
+      out_of_stock: нет в наличии
+      qty_label: Сколько коробок
       reason_label: Основание
       reason_hint: "Куда берёте пакеты (например: отправка на Сахалин)."
-      preview_alt: Картинка выбранного пакета
     create:
-      created: Забор записан, остаток обновлён.
+      created: "Записано заборов: %{count}. Остатки обновлены."
 
   package_low_stock:
     bell: "Пакеты на дозаказ: %{design} · %{size} — осталось %{boxes} кор. (порог %{threshold})"

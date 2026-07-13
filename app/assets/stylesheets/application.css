@@ -41,6 +41,7 @@
  *= require messages
  *= require order_notes
  *= require orders
+ *= require package_withdrawal_form
  *= require payments
  *= require product_groups
  *= require products
