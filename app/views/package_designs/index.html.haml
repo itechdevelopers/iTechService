@@ -37,23 +37,4 @@
               %td= stock.total_count
               %td= stock.low_stock_threshold
 
-%h3= t('.history_title')
-- if @package_withdrawals.empty?
-  %p.muted= t('.history_empty')
-- else
-  %table.table.table-bordered.table-condensed
-    %thead
-      %tr
-        %th= t('.history.when')
-        %th= t('.history.design')
-        %th= t('.history.size')
-        %th= t('.history.boxes')
-        %th= t('.history.who')
-    %tbody
-      - @package_withdrawals.each do |w|
-        %tr
-          %td= l(w.withdrawn_on)
-          %td= w.package_stock.package_design.name
-          %td= w.package_stock.size
-          %td= w.boxes_count
-          %td= w.user.short_name
+= render 'package_withdrawals/history', withdrawals: @package_withdrawals
