@@ -57,7 +57,7 @@ module Kanban
     end
 
     def column_params
-      params.require(:kanban_column).permit(:name, :position)
+      params.require(:kanban_column).permit(:name, :position, :done)
     end
 
     def update_notifications

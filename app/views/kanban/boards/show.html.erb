@@ -67,8 +67,13 @@
   <div class="row-fluid kanban-column-headers">
     <% @board.columns.each do |column| %>
       <div class="span2 mobile-full kanban-column-cards" data-column-id=<%= column.id %> >
-        <h4>
+        <h4<%= ' style=white-space:nowrap;'.html_safe if column.done? %>>
           <%= link_to_if can?(:edit, column), column.name, edit_kanban_column_path(column) %>
+          <% if column.done? %>
+            <span class="label label-success" style="margin-left: 8px; margin-bottom: 2px;" title="Колонка «Готово»: карточки без уведомлений о дедлайне">
+              <%= icon(:check) %> Готово
+            </span>
+          <% end %>
         </h4>
         <div class="kanban-card-container">
           <%= render partial: 'kanban/cards/card_in_column', collection: column.cards, as: :card %>

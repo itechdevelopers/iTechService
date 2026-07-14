@@ -319,6 +319,9 @@ ru:
         title: 'Тема'
         description: 'Описание'
 
+      kanban/column:
+        done: 'Готово (карточки без уведомлений о дедлайне)'
+
       kanban/board:
         background: 'Фон карточки'
         open_background_color: 'Фон для открытой доски'

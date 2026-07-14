@@ -1,6 +1,7 @@
 <%= simple_form_for(column, url: url, html: {class: 'form-horizontal'}) do |form| %>
   <%= form.input :name %>
   <%= form.input :position %>
+  <%= form.input :done, as: :boolean %>
 
   <% if column.new_record? && column.board.managers.any? %>
     <% column.board.managers.each do |manager| %>
