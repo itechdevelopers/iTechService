@@ -7,6 +7,8 @@
 #   * в сам день дедлайна   — «Сегодня дедлайн…»;
 #   * каждый день просрочки — «Просрочен дедлайн…» (пока карточка не закрыта).
 # Получатели: суперадмины (видят все дедлайны) + ответственные карточки (card.managers).
+# Ответственным, привязавшим личный Telegram (user.telegram_linked?), тот же текст
+# дублируется личным сообщением бота. Суперадминам TG не шлём — только in-app.
 # Карточки в колонках с флагом «Готово» (column.done) полностью исключаются.
 # Архивные карточки выпадают сами через default_scope в Kanban::Card.
 # Образец daily-джобы — ClientRequestPurchaseReminderJob.
@@ -37,18 +39,21 @@ class KanbanCardDeadlineReminderJob < ApplicationJob
     cards.includes(:column, :managers).find_each do |card|
       next if card.column.done?
 
-      message = build_message(card, phase)
-      recipients_for(card).each { |user| create_notification(user, card, message) }
+      message  = build_message(card, phase)
+      managers = card.managers.active.to_a
+
+      (@superadmins + managers).uniq.each do |user|
+        created = create_notification(user, card, message)
+        # Личный TG-дубль — только ответственным и только при новом уведомлении,
+        # чтобы повторный запуск cron в тот же день не задублировал сообщение.
+        notify_telegram(user, message) if created && managers.include?(user) && user.telegram_linked?
+      end
     end
   end
 
-  # Суперадмины + ответственные карточки, без дублей (суперадмин может быть и ответственным).
-  def recipients_for(card)
-    (@superadmins + card.managers.active).uniq
-  end
-
+  # Возвращает true, если уведомление создано; false — если уже уведомляли сегодня.
   def create_notification(user, card, message)
-    return if already_notified_today?(user, card)
+    return false if already_notified_today?(user, card)
 
     notification = Notification.create!(
       user: user,
@@ -57,6 +62,11 @@ class KanbanCardDeadlineReminderJob < ApplicationJob
       referenceable: card
     )
     UserNotificationChannel.broadcast_to(notification.user, notification)
+    true
+  end
+
+  def notify_telegram(user, message)
+    SendTelegramMessage.call(chat_id: user.telegram_chat_id, text: message)
   end
 
   # Идемпотентность: если cron перезапустится в тот же день, повторное
