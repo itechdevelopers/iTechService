@@ -5,12 +5,12 @@ module UsersHelper
       c += content_tag(:td, link_to(user.id, user_path(user)))
       c += content_tag(:td, link_to(user.username, user_path(user), class: "highlight", data: { color: user.city.color }))
       c += content_tag(:td) do
-        c = link_to(user_path(user)) do
-          c = ''.html_safe
-          c += image_tag user.photo.medium.url, class: :avatar if user.photo?
-          c + user.short_name
+        name_link = link_to(user_path(user)) do
+          inner = ''.html_safe
+          inner += image_tag user.photo.medium.url, class: :avatar if user.photo?
+          inner + user.short_name
         end
-        "#{c} #{senior_label_tag(user)}".html_safe
+        "#{telegram_linked_icon(user)}#{name_link} #{senior_label_tag(user)}".html_safe
       end
       c += user_achievements_tag(user)
       c += content_tag(:td, t("users.roles.#{user.role}"))
@@ -60,6 +60,16 @@ module UsersHelper
       end
       safe_join(icons)
     end
+  end
+
+  # Small Telegram glyph shown left of the name when the employee has bound
+  # their private chat to the bot (see docs/telegram-bot-feature.md).
+  def telegram_linked_icon(user)
+    return ''.html_safe unless user.telegram_linked?
+    content_tag(:i, nil,
+                class: 'fa fa-telegram has-tooltip',
+                style: 'color: #0088cc;',
+                data: { original_title: t('users.telegram_connection.connected') }) + ' '.html_safe
   end
 
   def senior_label_tag(user)
