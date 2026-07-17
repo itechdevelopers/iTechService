@@ -88,6 +88,7 @@ class TasksController < ApplicationController
     params.require(:task)
           .permit(:code, :cost, :duration, :hidden, :location_code, :name,
                   :priority, :product_id, :role, :color, :tasks_positions,
+                  :require_reception_photo,
                   service_condition_ids: [], roles: [])
   end
 end

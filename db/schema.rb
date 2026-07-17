@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20260713192031) do
+ActiveRecord::Schema.define(version: 20260716172317) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -1975,6 +1975,7 @@ ActiveRecord::Schema.define(version: 20260713192031) do
     t.bigint "repair_status_id"
     t.bigint "repair_pause_reason_id"
     t.datetime "repair_status_changed_at"
+    t.datetime "reception_photo_check_scheduled_at"
     t.index ["carrier_id"], name: "index_service_jobs_on_carrier_id"
     t.index ["case_color_id"], name: "index_service_jobs_on_case_color_id"
     t.index ["client_id"], name: "index_service_jobs_on_client_id"
@@ -2235,6 +2236,7 @@ ActiveRecord::Schema.define(version: 20260713192031) do
     t.string "color", default: ""
     t.integer "position", null: false
     t.string "roles", default: [], array: true
+    t.boolean "require_reception_photo", default: false, null: false
     t.index ["name"], name: "index_tasks_on_name"
     t.index ["product_id"], name: "index_tasks_on_product_id"
     t.index ["role"], name: "index_tasks_on_role"

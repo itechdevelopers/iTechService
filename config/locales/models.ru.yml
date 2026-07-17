@@ -616,6 +616,7 @@ ru:
         location: 'Локация'
         location_code: 'Код локации'
         name: 'Название'
+        require_reception_photo: 'Требовать фото при приёмке'
         role: 'Роль'
         roles: 'Роли'
 
