@@ -129,6 +129,7 @@ class ServiceJob < ApplicationRecord
   after_create :create_alert
   after_create :schedule_location_notifications
   after_commit :schedule_one_c_device_check, on: :create
+  after_commit :schedule_reception_photo_check, on: %i[create update]
   after_update :service_job_update_announce
   after_update :deduct_spare_parts
   after_update :clear_subscriptions_if_done_or_archived
@@ -535,6 +536,18 @@ kind: 'device_return', content: id.to_s)
     change
   end
 
+  # Есть ли среди задач приёмки хотя бы одна, помеченная как «требует фото».
+  # Публичный — используется и колбэком постановки, и ReceptionPhotoCheckJob
+  # при отложенной перепроверке.
+  def reception_photo_required?
+    device_tasks.joins(:task).where(tasks: { require_reception_photo: true }).exists?
+  end
+
+  # Раздел «Фото при приёмке» пуст (контейнера может не быть вовсе).
+  def reception_photo_absent?
+    photo_container.nil? || photo_container.reception_photos.blank?
+  end
+
   private
 
   # «Качели статуса»: закрывающая смена `in_progress → waiting` тем же юзером,
@@ -740,6 +753,19 @@ kind: 'device_return', content: id.to_s)
     location.parsed_overstay_thresholds.each do |days|
       LocationOverstayCheckJob.set(wait: days.days).perform_later(id, location.id, days)
     end
+  end
+
+  # Одноразовая проверка «есть ли фото при приёмке». Ставится через час, если
+  # среди задач работы есть помеченная (require_reception_photo) и фото приёмки
+  # ещё нет. Guard-таймстамп reception_photo_check_scheduled_at гарантирует, что
+  # даже при повторных редактированиях таймер заводится ровно один раз.
+  # Само уведомление шлёт ReceptionPhotoCheckJob, перепроверяя условие.
+  def schedule_reception_photo_check
+    return if reception_photo_check_scheduled_at.present?
+    return unless reception_photo_required? && reception_photo_absent?
+
+    update_column(:reception_photo_check_scheduled_at, Time.current)
+    ReceptionPhotoCheckJob.set(wait: 1.hour).perform_later(id)
   end
 
   def close_location_overstay_notifications_for_previous_location
