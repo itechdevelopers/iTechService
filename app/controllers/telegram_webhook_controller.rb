@@ -63,9 +63,11 @@ class TelegramWebhookController < Telegram::Bot::UpdatesController
                  reply_markup: photo_keyboard
   end
 
-  # Catches plain text messages: taps on the reply button and, when we are
-  # waiting for a manually entered ticket number, that number.
+  # Catches plain messages: sent photos, taps on the reply button and, when
+  # we are waiting for a manually entered ticket number, that number.
   def message(message)
+    return handle_photo(message['photo']) if message['photo'].present?
+
     text = message['text'].to_s.strip
 
     if session[:step] == 'awaiting_ticket'
@@ -143,6 +145,7 @@ class TelegramWebhookController < Telegram::Bot::UpdatesController
   # which photo division the upcoming photos belong to.
   def store_selected_job(job)
     session[:job_id] = job.id
+    session[:ticket] = job.ticket_number
     session.delete(:step)
     render_division_selection(job)
   end
@@ -167,7 +170,30 @@ class TelegramWebhookController < Telegram::Bot::UpdatesController
     session[:division] = division
     respond_with :message,
                  text: "Раздел «#{DIVISIONS[division]}», работа №#{job.ticket_number}. " \
-                       'Пришлите фотографии — скоро.'
+                       'Пришлите фотографии — можно несколько подряд.'
+  end
+
+  # A photo arrived. Requires a job + division already chosen in this session;
+  # the actual download + attach runs async (fetching from Telegram and
+  # uploading to storage is too slow for the webhook). Division stays in the
+  # session so the employee can keep sending photos without re-selecting.
+  def handle_photo(photo_sizes)
+    return respond_not_linked unless current_employee
+
+    job_id = session[:job_id]
+    division = session[:division]
+    unless job_id && division
+      return respond_with(:message,
+                          text: 'Сначала выберите работу и раздел: нажмите «📷 Добавить фото».')
+    end
+
+    # Telegram sends several sizes; the last is the highest resolution.
+    file_id = photo_sizes.last['file_id']
+    TelegramPhotoAttachJob.perform_later(job_id, division, file_id, current_employee.id)
+
+    respond_with :message,
+                 text: "📥 Фото принято, добавляю в раздел «#{DIVISIONS[division]}» " \
+                       "работы №#{session[:ticket]}."
   end
 
   def job_button_label(service_job)
