@@ -3,7 +3,7 @@ ru:
   notifications:
     warranty_overstay: 'Заказ №%{ticket} (купленное %{sold_date}) находится у нас более %{days} дней'
     location_overstay: 'Заказ №%{ticket} находится на локации «%{location}» более %{days} дней'
-    reception_photo_missing: 'По работе №%{ticket} отсутствуют фотографии при приёмке'
+    reception_photo_missing: 'По работе №%{ticket} отсутствуют фотографии при приёмке (%{tasks})'
     queue_inactivity: 'Талон №%{ticket} в очереди «%{queue}» ждёт уже %{waited} мин. На смене %{total} сотр., активны только %{active}. Проверьте состояние очереди.'
     repair_attention: 'Работа №%{ticket} ждёт твоего внимания — приступаешь к ремонту?'
     repair_status_flip: '%{short_name} открыл работу №%{ticket} сменой статуса и вернул «в ожидании» за %{duration}'
