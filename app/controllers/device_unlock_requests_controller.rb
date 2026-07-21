@@ -165,6 +165,10 @@ class DeviceUnlockRequestsController < ApplicationController
   def history
     @device_unlock_request = find_record DeviceUnlockRequest
     @records = @device_unlock_request.history_records.order(created_at: :desc)
+    # HistoryObserver трекает только смену status, поэтому создание запроса в
+    # history_records не попадает. Отдаём субъект создания общему партиалу, чтобы
+    # он дорисовал строку «кто/когда создал» (см. shared/_history.html.haml).
+    @history_creation = @device_unlock_request
     render 'shared/show_history'
   end
 

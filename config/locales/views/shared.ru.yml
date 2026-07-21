@@ -88,3 +88,4 @@ ru:
     history:
       date: 'Дата'
       change: 'Изменение'
+      created: 'Создание запроса'

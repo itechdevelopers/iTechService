@@ -543,6 +543,14 @@ kind: 'device_return', content: id.to_s)
     device_tasks.joins(:task).where(tasks: { require_reception_photo: true }).exists?
   end
 
+  # Названия задач-триггеров (require_reception_photo) — для текста уведомления,
+  # чтобы супер-админ сразу видел, к каким задачам относится пропущенное фото.
+  def reception_photo_task_names
+    device_tasks.joins(:task)
+                .where(tasks: { require_reception_photo: true })
+                .distinct.pluck('tasks.name')
+  end
+
   # Раздел «Фото при приёмке» пуст (контейнера может не быть вовсе).
   def reception_photo_absent?
     photo_container.nil? || photo_container.reception_photos.blank?

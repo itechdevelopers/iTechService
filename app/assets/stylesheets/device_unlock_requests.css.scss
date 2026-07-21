@@ -108,3 +108,28 @@
 .device-unlock-requests__approval-modal-body {
   overflow: visible;
 }
+
+// ── Подсказка «разблокировка от iCloud» (форма new/edit) ─────────────────────
+// _form рендерится БЕЗ обёртки .device-unlock-requests, поэтому правило —
+// самостоятельное (не вложено в блок), как и правило пикера выше. Уникальный
+// BEM-класс не течёт на generic-элементы.
+.device-unlock-requests__icloud-hint {
+  margin: 6px 0 0;
+  padding: 8px 10px;
+  border-left: 3px solid #e8772e; // оранжевый статуса needs_approval
+  background: #fbf3ec;
+  color: #555;
+  font-size: 13px;
+
+  .device-unlock-requests__icloud-hint-title {
+    margin: 0 0 4px;
+    font-weight: bold;
+  }
+
+  ol {
+    margin: 0;
+    padding-left: 18px;
+
+    li { margin-bottom: 4px; }
+  }
+}

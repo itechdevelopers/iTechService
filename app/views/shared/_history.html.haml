@@ -23,3 +23,9 @@
               = rec.object.class.human_attribute_name rec.column_name.to_s
           %td= human_history_change rec
           %td= "#{rec.user.try(:short_name)} [#{rec.user.try(:username)}]"
+      - if @history_creation
+        %tr
+          %td= human_datetime @history_creation.created_at
+          %td= t '.created'
+          %td —
+          %td= "#{@history_creation.user.try(:short_name)} [#{@history_creation.user.try(:username)}]"

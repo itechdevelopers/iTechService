@@ -50,7 +50,7 @@ class TelegramWebhookController < Telegram::Bot::UpdatesController
       respond_with :message,
                    text: '❌ Не удалось найти ваш профиль. Откройте свой профиль ' \
                          'в системе и нажмите «Подключить Telegram», либо укажите ' \
-                         'корректный ник Telegram в профиле.'
+                         'корректный ник Telegram в профиле в Айсе.'
     end
   end
 
@@ -118,10 +118,16 @@ class TelegramWebhookController < Telegram::Bot::UpdatesController
   # Inline list of the employee's active (not done, not archived) jobs plus
   # a manual-entry fallback for someone else's job or a mistaken one.
   def render_job_selection
-    jobs = current_employee.service_jobs
-                           .not_at_done.not_at_archive
-                           .order(created_at: :desc)
-                           .limit(JOB_LIST_LIMIT)
+    # Technicians don't receive devices, so they have no jobs as receiver;
+    # instead offer the jobs they themselves moved into "in repair" status.
+    scope =
+      if current_employee.technician?
+        ServiceJob.active_in_progress_for(current_employee)
+      else
+        current_employee.service_jobs.not_at_done.not_at_archive
+      end
+
+    jobs = scope.order(created_at: :desc).limit(JOB_LIST_LIMIT)
 
     buttons = jobs.map { |sj| [{ text: job_button_label(sj), callback_data: "job:#{sj.id}" }] }
     buttons << [{ text: '✏️ Ввести номер вручную', callback_data: MANUAL_ENTRY }]
@@ -153,7 +159,8 @@ class TelegramWebhookController < Telegram::Bot::UpdatesController
   def render_division_selection(job)
     buttons = DIVISIONS.map { |key, label| [{ text: label, callback_data: "div:#{key}" }] }
     respond_with :message,
-                 text: "Работа №#{job.ticket_number} (#{job.device_short_name}). " \
+                 text: "Работа №#{job.ticket_number} " \
+                       "(#{[job.device_short_name, job.client_surname.presence].compact.join(', ')}). " \
                        'В какой раздел загрузить фото?',
                  reply_markup: { inline_keyboard: buttons }
   end
@@ -197,8 +204,10 @@ class TelegramWebhookController < Telegram::Bot::UpdatesController
   end
 
   def job_button_label(service_job)
-    ["№#{service_job.ticket_number}", service_job.device_short_name.presence]
-      .compact.join(' ').truncate(60)
+    number = "№#{service_job.ticket_number}"
+    device = service_job.device_short_name.presence
+    surname = service_job.client_surname.presence
+    [[number, device].compact.join(' '), surname].compact.join(' · ').truncate(60)
   end
 
   def respond_not_linked

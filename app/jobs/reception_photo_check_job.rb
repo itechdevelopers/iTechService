@@ -20,7 +20,11 @@ class ReceptionPhotoCheckJob < ApplicationJob
     return unless service_job.reception_photo_absent?
     return if Notification.exists?(referenceable: service_job, kind: KIND)
 
-    message = I18n.t('notifications.reception_photo_missing', ticket: service_job.ticket_number)
+    message = I18n.t(
+      'notifications.reception_photo_missing',
+      ticket: service_job.ticket_number,
+      tasks: service_job.reception_photo_task_names.join(', ')
+    )
     url = Rails.application.routes.url_helpers.service_job_path(service_job)
 
     User.superadmins.active.find_each do |recipient|

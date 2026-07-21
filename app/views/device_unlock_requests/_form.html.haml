@@ -22,6 +22,14 @@
           %label.checkbox.inline
             = check_box_tag 'reason_preset_icloud', '1', false, data: { preset: t('.preset_icloud') }
             = t('.preset_icloud')
+          -# Статичная подсказка (не пресет, в textarea не пишется) — что уточнить
+          -# у клиента при разблокировке от iCloud. Видна только пока отмечена
+          -# соответствующая галочка; переключается inline-JS в конце партиала.
+          %div#icloud_hint.device-unlock-requests__icloud-hint{ style: 'display: none;' }
+            %p.device-unlock-requests__icloud-hint-title= t('.icloud_hint_title')
+            %ol
+              - t('.icloud_hint').each do |line|
+                %li= line
 
       = f.input :reason, as: :text, input_html: { rows: 5 }
       .form-actions
@@ -56,4 +64,16 @@
     }
 
     checks.forEach(function(c) { c.addEventListener('change', sync); });
+
+    // Подсказка «разблокировка от iCloud» — показываем/прячем вместе с галочкой.
+    // Независимо от пресет-логики выше: в textarea ничего не пишет.
+    var icloud = document.getElementById('reason_preset_icloud');
+    var hint = document.getElementById('icloud_hint');
+    if (icloud && hint) {
+      var toggleHint = function() {
+        hint.style.display = icloud.checked ? '' : 'none';
+      };
+      icloud.addEventListener('change', toggleHint);
+      toggleHint();
+    }
   })();
