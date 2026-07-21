@@ -50,7 +50,7 @@ class TelegramWebhookController < Telegram::Bot::UpdatesController
       respond_with :message,
                    text: '❌ Не удалось найти ваш профиль. Откройте свой профиль ' \
                          'в системе и нажмите «Подключить Telegram», либо укажите ' \
-                         'корректный ник Telegram в профиле.'
+                         'корректный ник Telegram в профиле в Айсе.'
     end
   end
 
