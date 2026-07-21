@@ -13,6 +13,23 @@ require 'tempfile'
 class TelegramPhotoAttachJob < ApplicationJob
   queue_as :default
 
+  # Connect/read to api.telegram.org can time out intermittently (notably from
+  # RU networks). These are transient: raise them so retry_on re-runs the job
+  # with backoff instead of losing the photo. Non-transient failures (no
+  # file_path, HTTP 401/404, bad file) are NOT here — those give up at once.
+  TRANSIENT_ERRORS = [Net::OpenTimeout, Net::ReadTimeout,
+                      Errno::ETIMEDOUT, Errno::ECONNRESET, SocketError].freeze
+  OPEN_TIMEOUT = 10
+  READ_TIMEOUT = 30
+
+  # retry_on takes a single exception class, so register one per transient type.
+  # After the attempts are exhausted the block runs and tells the employee.
+  TRANSIENT_ERRORS.each do |klass|
+    retry_on klass, wait: :exponentially_longer, attempts: 4 do |job, error|
+      job.send(:notify_download_giveup, error)
+    end
+  end
+
   def perform(service_job_id, division, file_id, author_id)
     service_job = ServiceJob.find_by(id: service_job_id)
     author = User.find_by(id: author_id)
@@ -48,23 +65,45 @@ class TelegramPhotoAttachJob < ApplicationJob
   end
 
   # Telegram file download is two steps: getFile -> file_path, then fetch from
-  # the /file/bot<token>/<path> endpoint. Returns a rewound Tempfile or nil.
+  # the /file/bot<token>/<path> endpoint. Returns a rewound Tempfile, or nil on
+  # a non-transient failure. Transient network errors are re-raised so the job
+  # retries (see TRANSIENT_ERRORS / retry_on).
   def download_photo(file_id)
     response = Telegram.bot.get_file(file_id: file_id)
     path = response.dig('result', 'file_path')
-    return unless path
+    unless path
+      Rails.logger.warn("[TelegramPhotoAttachJob] getFile returned no file_path: #{response.inspect}")
+      return
+    end
 
     url = "https://api.telegram.org/file/bot#{ENV['TELEGRAM_BOT_TOKEN']}/#{path}"
-    ext = File.extname(path).presence || '.jpg'
+    fetch_to_tempfile(url, File.extname(path).presence || '.jpg')
+  end
+
+  def fetch_to_tempfile(url, ext)
     tempfile = Tempfile.new(['tg_photo', ext])
     tempfile.binmode
-    URI.open(url) { |remote| IO.copy_stream(remote, tempfile) }
+    URI.open(url, open_timeout: OPEN_TIMEOUT, read_timeout: READ_TIMEOUT) do |remote|
+      IO.copy_stream(remote, tempfile)
+    end
     tempfile.rewind
     tempfile
+  rescue *TRANSIENT_ERRORS
+    tempfile&.close!
+    raise # let retry_on re-run the download with backoff
   rescue StandardError => e
     Rails.logger.error("[TelegramPhotoAttachJob] download failed: #{e.class}: #{e.message}")
     tempfile&.close!
     nil
+  end
+
+  def notify_download_giveup(error)
+    Rails.logger.error("[TelegramPhotoAttachJob] giving up after retries: #{error.class}: #{error.message}")
+    author = User.find_by(id: arguments.last)
+    return unless author
+
+    notify(author, 'Не удалось скачать фото из Telegram из-за проблем со связью. ' \
+                   'Попробуйте отправить его ещё раз.')
   end
 
   def notify(author, text)
