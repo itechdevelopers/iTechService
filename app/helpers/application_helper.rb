@@ -353,6 +353,35 @@ module ApplicationHelper
     h > 0 ? t('hour_min', hour: h, min: m) : t('min', min: m)
   end
 
+  # Длительность в секундах → «2 дня 4 часа 15 минут» (гранулярность — минуты,
+  # русская плюрализация). Ноль/пусто → nil (вью решает, показать ли прочерк).
+  def human_repair_duration(total_seconds)
+    return nil if total_seconds.nil?
+
+    total = total_seconds.to_i
+    days  = total / 86_400
+    hours = (total % 86_400) / 3600
+    mins  = (total % 3600) / 60
+
+    parts = []
+    parts << "#{days} #{ru_plural(days, 'день', 'дня', 'дней')}"       if days.positive?
+    parts << "#{hours} #{ru_plural(hours, 'час', 'часа', 'часов')}"    if hours.positive?
+    parts << "#{mins} #{ru_plural(mins, 'минута', 'минуты', 'минут')}" if mins.positive?
+    parts.empty? ? "0 #{ru_plural(0, 'минута', 'минуты', 'минут')}" : parts.join(' ')
+  end
+
+  # Русская форма слова по числу: one (1), few (2–4), many (0, 5–20, 11–14 → many).
+  def ru_plural(number, one, few, many)
+    n = number.abs % 100
+    return many if n.between?(11, 14)
+
+    case n % 10
+    when 1      then one
+    when 2, 3, 4 then few
+    else many
+    end
+  end
+
   def human_percent(value)
     value.nil? ? '-' : number_to_percentage(value, precision: 0)
   end
