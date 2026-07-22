@@ -89,3 +89,6 @@ ru:
       date: 'Дата'
       change: 'Изменение'
       created: 'Создание запроса'
+    user_subscriptions:
+      in_progress_devices: 'В процессе ремонта'
+      favorite_devices: 'Избранное'
