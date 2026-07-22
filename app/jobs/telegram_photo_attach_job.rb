@@ -18,7 +18,8 @@ class TelegramPhotoAttachJob < ApplicationJob
   # with backoff instead of losing the photo. Non-transient failures (no
   # file_path, HTTP 401/404, bad file) are NOT here — those give up at once.
   TRANSIENT_ERRORS = [Net::OpenTimeout, Net::ReadTimeout,
-                      Errno::ETIMEDOUT, Errno::ECONNRESET, SocketError].freeze
+                      Errno::ETIMEDOUT, Errno::ECONNRESET, SocketError,
+                      HTTPClient::ConnectTimeoutError].freeze
   OPEN_TIMEOUT = 10
   READ_TIMEOUT = 30
 
@@ -42,11 +43,22 @@ class TelegramPhotoAttachJob < ApplicationJob
     end
 
     container = photo_container_for(service_job)
-    result = container.add_photos(division, [tempfile], author_name: author.short_name)
+
+    result = container.with_lock do
+      container.reload
+      container.add_photos(
+        division,
+        [tempfile],
+        author_name: author.short_name
+      )
+    end
 
     if result[:added].zero?
-      notify(author, "В этом разделе уже #{PhotoContainer::PHOTOS_PER_DIVISION_LIMIT} фото — " \
+      notify(author, "❌ В этом разделе уже #{PhotoContainer::PHOTOS_PER_DIVISION_LIMIT} фото — " \
                      "больше добавить нельзя. Фото по работе №#{service_job.ticket_number} не сохранено.")
+    else
+      notify(author, "✅ Фото сохранено в раздел «#{division_label(division)}» " \
+                     "работы №#{service_job.ticket_number}.")
     end
   ensure
     tempfile&.close!
@@ -54,13 +66,21 @@ class TelegramPhotoAttachJob < ApplicationJob
 
   private
 
+  def division_label(division)
+    {
+      'reception' => 'Фото при приёмке',
+      'in_operation' => 'Фото в процессе ремонта',
+      'completed' => 'Фото готового устройства'
+    }.fetch(division, division)
+  end
+
   # Finds or creates the job's photo container, mirroring
   # ServiceJobs::PhotosController#set_photo_container.
   def photo_container_for(service_job)
     return service_job.photo_container if service_job.photo_container
 
     container = PhotoContainer.create!
-    service_job.update!(photo_container: container)
+    service_job.update_column(:photo_container_id, container.id)
     container
   end
 
@@ -108,5 +128,9 @@ class TelegramPhotoAttachJob < ApplicationJob
 
   def notify(author, text)
     NotifyEmployee.call(user: author, text: CGI.escapeHTML(text))
+  rescue StandardError => e
+    Rails.logger.error(
+      "[TelegramPhotoAttachJob] notification failed: #{e.class}: #{e.message}"
+    )
   end
 end
