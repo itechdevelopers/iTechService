@@ -528,6 +528,14 @@ class ServiceJobsController < ApplicationController
     respond_to(&:js)
   end
 
+  # «Ход ремонта»: read-only модалка с полным таймлайном ремонта. device_task_id
+  # задаёт контекст паспорта (виды/мастер по задаче); сам таймлайн — по работе.
+  def repair_passport
+    @service_job = find_record ServiceJob
+    @device_task = @service_job.device_tasks.find_by(id: params[:device_task_id])
+    respond_to(&:js)
+  end
+
   # «Строгий ремонт»: клик по «глазу» = осознанный просмотр. Создаём маркер
   # внимания (как делал бы пассивный enqueue на открытии) и планируем догонялку
   # через attention_timeout_seconds. Ответ (reveal.js.erb) снимает вуаль; модалку

@@ -22,4 +22,4 @@
     %span.repair-passport__field
       %span.repair-passport__label= t('.total_time')
       = has_timeline ? human_repair_duration(passport.total_seconds) : t('.dash')
-  %span.repair-passport__book{title: t('.progress')}= glyph('book')
+  = link_to glyph('book'), repair_passport_service_job_path(service_job, device_task_id: device_task.id), remote: true, class: 'repair-passport__book', title: t('.progress')

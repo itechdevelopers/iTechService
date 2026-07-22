@@ -16,6 +16,21 @@ ru:
       total_time: 'Итоговое время ремонта:'
       progress: 'Ход ремонта'
       dash: '—'
+    repair_progress:
+      title: 'Ход ремонта'
+      empty: 'Нет данных о ходе ремонта.'
+      total_active: 'Активный ремонт:'
+      total_pause: 'На паузе:'
+      total: 'Всего в ремонте:'
+      events:
+        accepted: 'Принято и перемещено на локацию ремонт'
+        started: 'Взяли в ремонт'
+        resumed: 'Продолжили ремонт'
+        paused: 'Пауза'
+        completed: 'Завершили ремонт'
+      durations:
+        lay: 'Устройство лежало: %{value}'
+        pause: 'На паузе: %{value}'
     security_codes:
       none: 'Нет пароля'
       not_provided: 'Не дают пароль'

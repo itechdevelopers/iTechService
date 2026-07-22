@@ -1,0 +1,28 @@
+- passport = RepairPassport.new(service_job, device_task)
+.repair-status-widget-modal.repair-progress-modal{ id: "repair_progress_modal_#{service_job.id}", tabindex: -1, role: 'dialog' }
+  .repair-status-widget-modal__dialog.repair-progress-modal__dialog
+    .repair-status-widget-modal__header
+      %h4= t('.title')
+      %button.repair-status-widget-modal__close{ type: 'button', 'aria-label': 'Close', data: { repair_status_widget_modal_close_for: service_job.id } } ×
+    .repair-status-widget-modal__body
+      - if passport.present?
+        %ul.repair-progress
+          - passport.timeline.each do |event|
+            %li.repair-progress__event{ class: "repair-progress__event--#{event.kind}" }
+              %span.repair-progress__time= l(event.at, format: :date_time)
+              %span.repair-progress__label= repair_progress_event_label(event)
+              - note = repair_progress_duration_note(event)
+              - if note.present?
+                %span.repair-progress__note= note
+        .repair-progress__totals
+          %div
+            %span.repair-progress__totals-label= t('.total_active')
+            = human_repair_duration(passport.totals[:active_seconds])
+          %div
+            %span.repair-progress__totals-label= t('.total_pause')
+            = human_repair_duration(passport.totals[:pause_seconds])
+          %div.repair-progress__totals--grand
+            %span.repair-progress__totals-label= t('.total')
+            = human_repair_duration(passport.totals[:total_seconds])
+      - else
+        .repair-progress__empty= t('.empty')

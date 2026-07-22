@@ -40,8 +40,84 @@
     font-size: 20px;
     color: #555;
 
+    &,
+    &:link,
+    &:visited {
+      color: #555;
+      text-decoration: none;
+    }
+
     &:hover {
       color: #d9534f;
     }
+  }
+}
+
+// «Ход ремонта» — модалка (переиспользует хром .repair-status-widget-modal).
+.repair-progress-modal__dialog {
+  width: 560px;
+}
+
+.repair-progress {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+
+  &__event {
+    padding: 8px 0;
+    border-bottom: 1px solid #f0f0f0;
+
+    &:last-child {
+      border-bottom: 0;
+    }
+  }
+
+  &__time {
+    color: #999;
+    font-size: 12px;
+    margin-right: 8px;
+    white-space: nowrap;
+  }
+
+  &__label {
+    font-weight: 600;
+  }
+
+  &__event--paused &__label {
+    color: #d9534f;
+  }
+
+  &__event--completed &__label {
+    color: #468847;
+  }
+
+  &__note {
+    display: block;
+    margin: 2px 0 0 0;
+    padding-left: 12px;
+    color: #777;
+    font-size: 12px;
+    font-style: italic;
+  }
+
+  &__totals {
+    margin-top: 12px;
+    padding-top: 12px;
+    border-top: 2px solid #eee;
+    line-height: 1.7;
+  }
+
+  &__totals-label {
+    font-weight: 600;
+    margin-right: 6px;
+  }
+
+  &__totals--grand {
+    font-weight: 700;
+  }
+
+  &__empty {
+    color: #999;
+    font-style: italic;
   }
 }
