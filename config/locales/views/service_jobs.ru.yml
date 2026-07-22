@@ -7,6 +7,15 @@ ru:
         question: 'Вы открыли суть задачи. Берёте устройство в работу?'
         confirm: 'Да, беру в работу'
         decline: 'Нет'
+    repair_passport:
+      title: 'Паспорт ремонта:'
+      repair_kinds: 'Вид ремонта:'
+      master: 'Мастер:'
+      active_time: 'Активное время работы:'
+      pause: 'Пауза:'
+      total_time: 'Итоговое время ремонта:'
+      progress: 'Ход ремонта'
+      dash: '—'
     security_codes:
       none: 'Нет пароля'
       not_provided: 'Не дают пароль'

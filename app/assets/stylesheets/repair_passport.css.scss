@@ -1,0 +1,47 @@
+// Блок «Паспорт ремонта» под закрытой ремонт-задачей в таблице задач ServiceJob.
+// BEM, уникальный префикс — не задевает общие .table/.btn селекторы.
+
+.repair-passport-row td {
+  background: none;
+}
+
+.repair-passport {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 8px 10px;
+  border: 2px solid #d9534f;
+  border-radius: 4px;
+  background: #fff;
+
+  &__body {
+    flex: 1 1 auto;
+    line-height: 1.6;
+  }
+
+  &__title {
+    color: #d9534f;
+    font-weight: bold;
+    margin-right: 8px;
+  }
+
+  &__field {
+    margin-right: 12px;
+  }
+
+  &__label {
+    font-weight: bold;
+  }
+
+  &__book {
+    flex: 0 0 auto;
+    cursor: pointer;
+    font-size: 20px;
+    color: #555;
+
+    &:hover {
+      color: #d9534f;
+    }
+  }
+}
