@@ -2,6 +2,34 @@
 module ServiceJobsHelper
   TG_URL = 'https://t.me/'
 
+  # «Ход ремонта»: событие таймлайна → человекочитаемая строка.
+  # Для взятия в работу дописываем имя мастера, для паузы — её вид.
+  def repair_progress_event_label(event)
+    case event.kind
+    when :accepted
+      t('service_jobs.repair_progress.events.accepted')
+    when :started
+      [t('service_jobs.repair_progress.events.started'), event.user&.short_name].compact.join(' — ')
+    when :resumed
+      t('service_jobs.repair_progress.events.resumed')
+    when :paused
+      [t('service_jobs.repair_progress.events.paused'), event.reason_name].compact.join(' — ')
+    when :completed
+      t('service_jobs.repair_progress.events.completed')
+    end
+  end
+
+  # Подстрочная длительность под событием: только «сколько лежало» (accepted)
+  # и «сколько на паузе» (paused); под остальными — ничего.
+  def repair_progress_duration_note(event)
+    return if event.duration.to_i <= 0
+
+    key = { accepted: 'lay', paused: 'pause' }[event.kind]
+    return if key.nil?
+
+    t("service_jobs.repair_progress.durations.#{key}", value: human_repair_duration(event.duration))
+  end
+
   # «Строгий ремонт»: предикат — нужно ли прятать чувствительный контент работы
   # от текущего пользователя. Прячем только для технарей на repair-локациях,
   # в филиалах со strict_repair и пока работу никто не взял (repair_status.waiting?).

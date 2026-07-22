@@ -23,6 +23,10 @@
         %td{style: "background:none; display: flex; flex-direction: column;"}
           = history_link_to history_device_task_path(service_job, device_task)
           = policy(device_task).edit? ? link_to_edit_device_task_colored(device_task) : nil
+      - if device_task.is_repair? && device_task.done?
+        %tr.repair-passport-row
+          %td{colspan: 7}
+            = render 'repair_passport', service_job: service_job, device_task: device_task
   %tfoot
     %tr
       %td{colspan: 3}= t 'total'

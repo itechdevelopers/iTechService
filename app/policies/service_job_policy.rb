@@ -120,4 +120,7 @@ class ServiceJobPolicy < CommonPolicy
   def task_history?; read?; end
 
   def movement_history?; read?; end
+
+  # «Ход ремонта» — read-only таймлайн, доступен всем, кто видит работу.
+  def repair_passport?; read?; end
 end

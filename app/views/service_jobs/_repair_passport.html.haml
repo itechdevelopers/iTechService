@@ -1,0 +1,25 @@
+- passport = RepairPassport.new(service_job, device_task)
+- has_timeline = passport.present?
+.repair-passport
+  .repair-passport__body
+    %span.repair-passport__title= t('.title')
+    %span.repair-passport__field
+      %span.repair-passport__label= t('.repair_kinds')
+      = passport.repair_kinds.presence&.join(', ') || t('.dash')
+    %span.repair-passport__field
+      %span.repair-passport__label= t('.master')
+      = passport.masters.map(&:short_name).presence&.join(', ') || t('.dash')
+    %span.repair-passport__field
+      %span.repair-passport__label= t('.active_time')
+      = has_timeline ? human_repair_duration(passport.active_seconds) : t('.dash')
+    %span.repair-passport__field
+      %span.repair-passport__label= t('.pause')
+      - pauses = passport.pauses_by_reason
+      - if has_timeline && pauses.any?
+        = pauses.map { |p| "#{p.reason_name} #{human_repair_duration(p.seconds)}" }.join('; ')
+      - else
+        = t('.dash')
+    %span.repair-passport__field
+      %span.repair-passport__label= t('.total_time')
+      = has_timeline ? human_repair_duration(passport.total_seconds) : t('.dash')
+  = link_to glyph('book'), repair_passport_service_job_path(service_job, device_task_id: device_task.id), remote: true, class: 'repair-passport__book', title: t('.progress')
