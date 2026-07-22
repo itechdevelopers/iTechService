@@ -1,10 +1,28 @@
-- if user_signed_in? && current_user.subscribed_service_jobs.any?
+- if show_repair_top_bar?
   .subscriptions-bar
-    - current_user.subscribed_service_jobs.includes(:client).each do |service_job|
-      = link_to service_job_path(service_job), class: 'subscription-block' do
-        .subscription-device
-          = truncate(service_job.decorate.device_name, length: 20)
-        .subscription-client
-          = truncate(service_job.client&.presentation || '-', length: 20)
-        .subscription-ticket
-          = service_job.ticket_number
+    - in_progress_jobs = user_in_progress_service_jobs
+    - if in_progress_jobs.any?
+      .subscriptions-group.subscriptions-group--in-progress
+        .subscriptions-group__label= t('.in_progress_devices')
+        .subscriptions-group__list
+          - in_progress_jobs.each do |service_job|
+            = link_to service_job_path(service_job), class: 'subscription-block subscription-block--in-progress' do
+              .subscription-device
+                = truncate(service_job.decorate.device_name, length: 20)
+              .subscription-client
+                = truncate(service_job.client&.presentation || '-', length: 20)
+              .subscription-ticket
+                = service_job.ticket_number
+    - favorite_jobs = user_favorite_service_jobs
+    - if favorite_jobs.any?
+      .subscriptions-group.subscriptions-group--favorites
+        .subscriptions-group__label= t('.favorite_devices')
+        .subscriptions-group__list
+          - favorite_jobs.each do |service_job|
+            = link_to service_job_path(service_job), class: 'subscription-block' do
+              .subscription-device
+                = truncate(service_job.decorate.device_name, length: 20)
+              .subscription-client
+                = truncate(service_job.client&.presentation || '-', length: 20)
+              .subscription-ticket
+                = service_job.ticket_number

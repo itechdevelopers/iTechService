@@ -455,4 +455,31 @@ module ApplicationHelper
   def user_has_subscriptions?
     user_signed_in? && current_user.subscribed_service_jobs.any?
   end
+
+  # Devices the current user is actively repairing right now — the jobs they
+  # last moved into "in_progress" status. No role coupling: works for anyone
+  # who runs repairs, not only technicians. Memoized per request because the
+  # top-bar partial renders on every page from the layout.
+  def user_in_progress_service_jobs
+    return ServiceJob.none unless user_signed_in?
+
+    @user_in_progress_service_jobs ||=
+      ServiceJob.active_in_progress_for(current_user).includes(:client).to_a
+  end
+
+  # Starred/subscribed devices, minus any already shown in the "in progress"
+  # section so a device never appears twice in the top bar.
+  def user_favorite_service_jobs
+    return ServiceJob.none unless user_signed_in?
+
+    @user_favorite_service_jobs ||= begin
+      in_progress_ids = user_in_progress_service_jobs.map(&:id)
+      current_user.subscribed_service_jobs.includes(:client)
+                  .reject { |service_job| in_progress_ids.include?(service_job.id) }
+    end
+  end
+
+  def show_repair_top_bar?
+    user_signed_in? && (user_in_progress_service_jobs.any? || user_favorite_service_jobs.any?)
+  end
 end
