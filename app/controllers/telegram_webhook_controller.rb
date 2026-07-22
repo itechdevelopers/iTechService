@@ -118,11 +118,13 @@ class TelegramWebhookController < Telegram::Bot::UpdatesController
   # Inline list of the employee's active (not done, not archived) jobs plus
   # a manual-entry fallback for someone else's job or a mistaken one.
   def render_job_selection
-    # Technicians don't receive devices, so they have no jobs as receiver;
-    # instead offer the jobs they themselves moved into "in repair" status.
+    # Whoever is actively repairing right now (e.g. a technician, but also an
+    # admin standing in) has no jobs as receiver, so offer the jobs they moved
+    # into "in repair" status. Everyone else falls back to their received jobs.
+    in_progress = ServiceJob.active_in_progress_for(current_employee)
     scope =
-      if current_employee.technician?
-        ServiceJob.active_in_progress_for(current_employee)
+      if in_progress.exists?
+        in_progress
       else
         current_employee.service_jobs.not_at_done.not_at_archive
       end
