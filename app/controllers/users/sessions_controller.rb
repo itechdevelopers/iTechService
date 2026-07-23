@@ -17,6 +17,11 @@ class Users::SessionsController < Devise::SessionsController
         user.save
       end
 
+      scheduled_department = user.scheduled_department_for_today
+      if scheduled_department.present? && scheduled_department != user.department
+        return redirect_to schedule_prompt_user_department_path
+      end
+
       if (location = after_sign_in_path_for(user))
         respond_with resource, location: location
         return

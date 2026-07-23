@@ -466,6 +466,17 @@ class User < ApplicationRecord
     @current_duty_day ||= duty_days.today.first
   end
 
+  # Подразделение, где сотрудник должен быть сегодня по расписанию смен.
+  # Учитываем только рабочие смены (у нерабочих department обнуляется).
+  def scheduled_department_for_today
+    ScheduleEntry
+      .where(user_id: id, date: Date.current)
+      .joins(:occupation_type)
+      .where(occupation_types: { counts_as_working: true })
+      .order(:id)
+      .first&.department
+  end
+
   def is_work_day?(day)
     day = day.respond_to?(:wday) ? day.wday : day.to_i
     if (schedule_day = schedule_days.find_by_day(day)).present?

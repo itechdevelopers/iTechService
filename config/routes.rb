@@ -47,7 +47,10 @@ Rails.application.routes.draw do
       post 'sign_in_technical', to: 'sessions#sign_in_technical'
       get 'technical_login', to: 'sessions#new_technical_login', as: 'new_technical_login'
     end
-    resource :departments, only: %i[edit update], as: :department
+    resource :departments, only: %i[edit update], as: :department do
+      get :schedule_prompt
+      patch :schedule_change
+    end
   end
 
   namespace :service do

@@ -14,4 +14,17 @@ class Users::DepartmentsController < ApplicationController
     change_user_department current_user, department
     redirect_to root_path
   end
+
+  def schedule_prompt
+    @scheduled_department = current_user.scheduled_department_for_today
+    if @scheduled_department.blank? || @scheduled_department == current_user.department
+      redirect_to root_path
+    end
+  end
+
+  def schedule_change
+    department = current_user.scheduled_department_for_today
+    change_user_department current_user, department if department.present?
+    redirect_to root_path
+  end
 end

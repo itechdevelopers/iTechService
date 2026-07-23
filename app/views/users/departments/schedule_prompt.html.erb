@@ -1,0 +1,9 @@
+<h1>Смена подразделения</h1>
+<p>
+  Согласно расписанию сегодня ты должен быть в подразделении
+  «<%= @scheduled_department.name %>». Поменять тебе подразделение?
+</p>
+<div class="form-actions">
+  <%= button_to 'Да', schedule_change_user_department_path, method: :patch, class: 'btn btn-primary' %>
+  <%= link_to 'Нет', root_path, class: 'btn' %>
+</div>
