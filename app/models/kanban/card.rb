@@ -30,6 +30,8 @@ class Kanban::Card < ApplicationRecord
   audited
   has_associated_audits
 
+  after_update_commit :notify_column_change
+
   def url
     Rails.application.routes.url_helpers.kanban_card_path(self)
   end
@@ -48,5 +50,20 @@ class Kanban::Card < ApplicationRecord
 
   def unarchive!
     update!(archived: false)
+  end
+
+  private
+
+  # Fires on any update; only column moves are relevant. Covers both the
+  # drag-drop path (CardsController#update_card_columns) and the edit form —
+  # both funnel through a single `update(column_id:)`.
+  def notify_column_change
+    return unless previous_changes.key?('column_id')
+
+    old_id, new_id = previous_changes['column_id']
+    event = Kanban::Column.find_by(id: new_id)&.done? ? 'card_done' : 'card_moved'
+    KanbanCardActivityNotificationJob.perform_later(
+      event, id, User.current&.id, from_column_id: old_id, to_column_id: new_id
+    )
   end
 end

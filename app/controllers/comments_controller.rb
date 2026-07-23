@@ -112,6 +112,20 @@ class CommentsController < ApplicationController
       end
 
     end
+
+    notify_kanban_card_activity
+  end
+
+  # п.2/3 — personal Telegram DM to the card author and its managers, on top of
+  # the in-app bell above. Suppressed once the card sits in a "done" column.
+  def notify_kanban_card_activity
+    commentable = @comment.commentable
+    return unless commentable.is_a?(Kanban::Card)
+    return if commentable.column&.done?
+
+    KanbanCardActivityNotificationJob.perform_later(
+      'comment_added', commentable.id, current_user&.id, comment_id: @comment.id
+    )
   end
 
   def update_notifications
