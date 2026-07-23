@@ -1,4 +1,6 @@
 class Kanban::Board < ApplicationRecord
+  mount_uploader :background_image, KanbanBackgroundUploader
+
   scope :active, -> { where(archived: false) }
   scope :archived, -> { where(archived: true) }
 
