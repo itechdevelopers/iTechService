@@ -76,7 +76,13 @@ module Kanban
     def copy
       return render 'shared/show_modal_form' if request.get?
 
-      @new_board = @board.duplicate_structure(params[:name], author: current_user)
+      @new_board = @board.duplicate_structure(
+        params[:name],
+        author: current_user,
+        copy_cards: params[:copy_cards] == '1',
+        copy_design: params[:copy_design] == '1',
+        copy_responsible: params[:copy_responsible] == '1'
+      )
       flash[:notice] = t('.copied') if @new_board.persisted? && @new_board.errors.empty?
     end
 

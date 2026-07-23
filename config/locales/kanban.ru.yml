@@ -32,6 +32,10 @@ ru:
       copy:
         title: 'Копирование доски'
         name_label: 'Название новой доски'
+        what_to_copy: 'Что скопировать'
+        copy_cards: 'Карточки с описанием'
+        copy_design: 'Дизайн доски'
+        copy_responsible: 'Ответственных'
         submit: 'Создать копию'
       created: 'Доска создана'
       updated: 'Доска изменена'
