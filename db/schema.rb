@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20260716172317) do
+ActiveRecord::Schema.define(version: 20260723173150) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -879,6 +879,8 @@ ActiveRecord::Schema.define(version: 20260716172317) do
     t.integer "auto_add_department_ids", default: [], array: true
     t.bigint "telegram_chat_id"
     t.boolean "archived", default: false, null: false
+    t.boolean "card_white_background", default: false, null: false
+    t.string "background_image"
     t.index ["allowed_user_ids"], name: "index_kanban_boards_on_allowed_user_ids"
     t.index ["archived"], name: "index_kanban_boards_on_archived"
     t.index ["auto_add_department_ids"], name: "index_kanban_boards_on_auto_add_department_ids", using: :gin

@@ -5,6 +5,19 @@
   <%= form.input :card_font_color, as: :color %>
   <%= form.input :card_font_size %>
   <%= form.input :open_card_font_size %>
+  <%= form.input :card_white_background, as: :boolean,
+        label: 'Белый фон карточек (чёрный текст)',
+        hint: 'Карточки станут белыми с чёрным текстом — читаемо поверх цветного фона или картинки.' %>
+  <%= form.input :background_image, as: :file,
+        label: 'Картинка на фон доски',
+        hint: 'Заполняет фон доски целиком (может обрезаться по краям). Перекрывает цвет фона.' %>
+  <%= form.hidden_field :background_image_cache %>
+  <% if board.background_image? %>
+    <div class="control-group kanban-background-preview">
+      <%= image_tag board.background_image.file.authenticated_url(expires_in: 600), style: 'max-height: 80px;' %>
+      <%= form.input :remove_background_image, as: :boolean, label: 'Удалить картинку' %>
+    </div>
+  <% end %>
   <%= form.input :outer_annotation %>
   <%= form.input :inner_annotation %>
   <%= form.association :telegram_chat,

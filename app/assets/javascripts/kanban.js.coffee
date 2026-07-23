@@ -57,12 +57,25 @@ jQuery ->
     $board = $(this)
     backgroundColor = $board.data('background') || '#ffffff'
     $board.css 'background-color', backgroundColor
+    bgImage = $board.data('bg-image')
+    if bgImage && bgImage.toString().trim() != ''
+      $board.css
+        'background-image': "url(#{bgImage})"
+        'background-size': 'cover'
+        'background-position': 'center'
+        'background-repeat': 'no-repeat'
     fontColor = $board.data('font-color')
     if fontColor && fontColor.trim() != ''
       $board.find('.kanban-card a').css 'color', fontColor
     fontSize = $board.data('font-size')
     if fontSize && fontSize.toString().trim() != ''
       $board.find('.kanban-card a').css 'font-size', "#{fontSize}px"
+    # White-card mode is a readable "package": white background + black text.
+    # Applied last so it wins over card_font_color set above.
+    whiteCards = $board.data('white-cards')
+    if whiteCards == true || whiteCards == 'true'
+      $board.find('.kanban-card').css 'background-color', '#ffffff'
+      $board.find('.kanban-card a').css 'color', '#000000'
 
   $('.kanban-card-content').each ->
     $card = $(this)

@@ -1,7 +1,9 @@
 <div class="kanban-board"
-     data-background=<%= @board.open_background_color %>
-     data-font-color=<%= @board.card_font_color %>
-     data-font-size=<%= @board.card_font_size %>
+     data-background="<%= @board.open_background_color %>"
+     data-font-color="<%= @board.card_font_color %>"
+     data-font-size="<%= @board.card_font_size %>"
+     data-white-cards="<%= @board.card_white_background %>"
+     data-bg-image="<%= @board.background_image? ? @board.background_image.file.authenticated_url(expires_in: 3600) : '' %>"
 >
   <div class="page-header">
     <h2>
