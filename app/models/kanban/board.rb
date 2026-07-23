@@ -39,22 +39,38 @@ class Kanban::Board < ApplicationRecord
     update!(archived: false)
   end
 
-  # Creates a fresh board with the given name replicating only the structure —
-  # columns and cards (name + content). Comments, positions, deadlines, photos,
-  # managers and access are intentionally not copied: the copy is a blank
-  # template meant to be re-assigned from scratch. Runs in a transaction so a
-  # failure anywhere leaves no half-built board. On validation failure (most
-  # likely a blank or duplicate name) the returned board carries the errors and
-  # is not persisted.
-  def duplicate_structure(new_name, author:)
+  # "Look & feel" columns copied when `copy_design` is on. Kept as a single list
+  # so adding a design field means editing one place. `background_image` is a
+  # plain string column on master (no CarrierWave mount here yet), so it is
+  # copied as a scalar like the rest.
+  DESIGN_ATTRS = %w[background background_image open_background_color card_font_color
+                    card_font_size open_card_font_size card_white_background].freeze
+
+  # Creates a fresh board with the given name, always replicating the column
+  # skeleton. What else comes along is toggled by the flags:
+  #   copy_cards       — card name + content (author = the person copying)
+  #   copy_design      — DESIGN_ATTRS (colors, fonts, background)
+  #   copy_responsible — board managers, plus each card's managers when cards
+  #                      are copied too; fired users (not User.active) are
+  #                      silently dropped
+  # Comments, positions, deadlines, photos and access (allowed_user_ids) are
+  # never copied. Runs in a transaction so a failure leaves no half-built board.
+  # On validation failure (usually a blank or duplicate name) the returned board
+  # carries the errors and is not persisted.
+  def duplicate_structure(new_name, author:, copy_cards: true, copy_design: false, copy_responsible: false)
     new_board = Kanban::Board.new(name: new_name)
+    new_board.assign_attributes(attributes.slice(*DESIGN_ATTRS)) if copy_design
     begin
       transaction do
         new_board.save!
+        new_board.managers = managers.merge(User.active) if copy_responsible
         columns.ordered.each do |column|
           new_column = new_board.columns.create!(name: column.name)
+          next unless copy_cards
+
           column.cards.ordered.each do |card|
-            new_column.cards.create!(name: card.name, content: card.content, author: author)
+            new_card = new_column.cards.create!(name: card.name, content: card.content, author: author)
+            new_card.managers = card.managers.merge(User.active) if copy_responsible
           end
         end
       end

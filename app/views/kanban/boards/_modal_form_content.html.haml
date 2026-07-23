@@ -10,6 +10,18 @@
       = f.label :name, t('kanban.boards.copy.name_label'), class: 'control-label'
       .controls
         = f.text_field :name, class: 'input-xlarge', required: true, value: @new_board&.name
+    .control-group
+      = f.label :what_to_copy, t('kanban.boards.copy.what_to_copy'), class: 'control-label'
+      .controls
+        %label.checkbox
+          = check_box_tag :copy_cards, '1', true
+          = t('kanban.boards.copy.copy_cards')
+        %label.checkbox
+          = check_box_tag :copy_design, '1', false
+          = t('kanban.boards.copy.copy_design')
+        %label.checkbox
+          = check_box_tag :copy_responsible, '1', false
+          = t('kanban.boards.copy.copy_responsible')
 
   .modal-footer
     = f.submit t('kanban.boards.copy.submit'), class: 'btn btn-primary'
