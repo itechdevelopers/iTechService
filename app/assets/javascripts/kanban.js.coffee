@@ -59,11 +59,15 @@ jQuery ->
     $board.css 'background-color', backgroundColor
     bgImage = $board.data('bg-image')
     if bgImage && bgImage.toString().trim() != ''
+      # Tile the image at its natural size instead of stretching it to fill.
+      # `cover` scaled portrait/low-res uploads up and cropped them, which read
+      # as "stretched"; `repeat` + `auto` always shows the image 1:1, so it can
+      # never distort — at the cost of visible seams for non-tileable photos.
       $board.css
         'background-image': "url(#{bgImage})"
-        'background-size': 'cover'
-        'background-position': 'center'
-        'background-repeat': 'no-repeat'
+        'background-repeat': 'repeat'
+        'background-size': 'auto'
+        'background-position': 'top left'
     fontColor = $board.data('font-color')
     if fontColor && fontColor.trim() != ''
       $board.find('.kanban-card a').css 'color', fontColor
