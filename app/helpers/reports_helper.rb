@@ -15,6 +15,21 @@ module ReportsHelper
     rest.zero? ? "#{minutes} мин" : "#{minutes} мин #{rest} с"
   end
 
+  # Длительность в секундах → «X ч Y мин» (часы+минуты; секунды только для < 1 мин).
+  # Для отчётов про время в статусе «в процессе ремонта».
+  def human_report_duration(seconds)
+    seconds = seconds.to_f.round
+    return '—' if seconds <= 0
+
+    hours = seconds / 3600
+    minutes = (seconds % 3600) / 60
+    parts = []
+    parts << "#{hours} ч" if hours.positive?
+    parts << "#{minutes} мин" if minutes.positive?
+    parts << "#{seconds} с" if parts.empty?
+    parts.join(' ')
+  end
+
   def report_names
     %w[
       device_groups

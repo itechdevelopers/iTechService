@@ -1,0 +1,21 @@
+%table#repair_works_duration_report.table.table-bordered.table-hover
+  %caption= report_title report
+  %thead
+    %tr
+      %th.center= t '.work'
+      %th.center= t '.quantity'
+      %th.center= t '.median'
+      %th.center= t '.average'
+  %tbody
+    - report.result[:data].each do |row|
+      %tr.detailable
+        %td.name= row[:name]
+        %td.number= row[:count]
+        %td.number= human_report_duration(row[:median])
+        %td.number= human_report_duration(row[:average])
+      - row[:works].each do |work|
+        %tr.details
+          %td.name
+            = link_to work[:service_job_presentation], service_job_path(work[:service_job_id]), target: '_blank'
+          %td= work[:performer]
+          %td.number{colspan: 2}= human_report_duration(work[:seconds])
