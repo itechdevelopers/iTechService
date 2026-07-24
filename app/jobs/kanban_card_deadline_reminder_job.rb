@@ -8,7 +8,9 @@
 #   * каждый день просрочки — «Просрочен дедлайн…» (пока карточка не закрыта).
 # Получатели: суперадмины (видят все дедлайны) + ответственные карточки (card.managers).
 # Ответственным, привязавшим личный Telegram (user.telegram_linked?), тот же текст
-# дублируется личным сообщением бота. Суперадминам TG не шлём — только in-app.
+# дублируется личным сообщением бота — со ссылкой на карточку в конце (в in-app
+# ссылка живёт в отдельной колонке notification.url, в TG её надо встроить в текст).
+# Суперадминам TG не шлём — только in-app.
 # Карточки в колонках с флагом «Готово» (column.done) полностью исключаются.
 # Архивные карточки выпадают сами через default_scope в Kanban::Card.
 # Образец daily-джобы — ClientRequestPurchaseReminderJob.
@@ -46,7 +48,7 @@ class KanbanCardDeadlineReminderJob < ApplicationJob
         created = create_notification(user, card, message)
         # Личный TG-дубль — только ответственным и только при новом уведомлении,
         # чтобы повторный запуск cron в тот же день не задублировал сообщение.
-        notify_telegram(user, message) if created && managers.include?(user) && user.telegram_linked?
+        notify_telegram(user, card, message) if created && managers.include?(user) && user.telegram_linked?
       end
     end
   end
@@ -65,8 +67,13 @@ class KanbanCardDeadlineReminderJob < ApplicationJob
     true
   end
 
-  def notify_telegram(user, message)
-    SendTelegramMessage.call(chat_id: user.telegram_chat_id, text: message)
+  # Тот же текст, что и in-app, плюс встроенная HTML-ссылка на карточку.
+  # Экранируем message: SendTelegramMessage шлёт с parse_mode HTML, а название
+  # карточки/доски может содержать <, >, & — без escape они бы сломали разбор.
+  def notify_telegram(user, card, message)
+    url  = Rails.application.routes.url_helpers.kanban_card_url(card)
+    text = "#{CGI.escapeHTML(message)}\n\n<a href=\"#{url}\">Перейти на карточку</a>"
+    SendTelegramMessage.call(chat_id: user.telegram_chat_id, text: text)
   end
 
   # Идемпотентность: если cron перезапустится в тот же день, повторное
