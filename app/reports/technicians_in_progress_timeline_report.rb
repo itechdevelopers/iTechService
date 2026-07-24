@@ -19,8 +19,11 @@ class TechniciansInProgressTimelineReport < BaseReport
   end
 
   def call
+    # Окно — суточный `period` из BaseReport (в OS-зоне, как во всех отчётах). Свой
+    # `day.beginning_of_day` (в Time.zone) давал бы окно в другой временной зоне, чем
+    # то, что использует остальная отчётная система, и работы у границы суток выпадали.
     day = start_date.to_time(:local).to_date
-    window = day.beginning_of_day..day.end_of_day
+    window = period
 
     planned_hours, scheduled_users = scheduled_technicians(day)
 
