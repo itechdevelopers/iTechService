@@ -233,6 +233,17 @@ ru:
       other_than: "должно отличаться от %{count}"
       extension_whitelist_error: "недопустимый тип файла. Разрешены: %{allowed_types}"
       extension_allowlist_error: "недопустимый тип файла. Разрешены: %{allowed_types}"
+      extension_denylist_error: "недопустимый тип файла. Запрещены: %{prohibited_types}"
+      content_type_allowlist_error: "недопустимое содержимое файла. Разрешены: %{allowed_types}"
+      content_type_denylist_error: "недопустимое содержимое файла"
+      carrierwave_processing_error: "не удалось обработать файл"
+      carrierwave_integrity_error: "имеет недопустимый тип файла"
+      carrierwave_download_error: "не удалось загрузить"
+      rmagick_processing_error: "не удалось обработать изображение — возможно, это не изображение или формат не поддерживается"
+      mini_magick_processing_error: "не удалось обработать изображение — возможно, файл повреждён, это не изображение или формат не поддерживается (например, HEIC). Исходная ошибка: %{e}"
+      vips_processing_error: "не удалось обработать изображение — возможно, это не изображение или формат не поддерживается. Исходная ошибка: %{e}"
+      min_size_error: "размер файла должен быть больше %{min_size}"
+      max_size_error: "размер файла должен быть меньше %{max_size}"
     template:
       body: ! 'Проблемы возникли со следующими полями:'
       header:
