@@ -30,6 +30,13 @@ module ReportsHelper
     parts.join(' ')
   end
 
+  # Плановые часы (Float) → «8 ч» / «8,5 ч» (запятая — десятичный разделитель).
+  def report_hours(hours)
+    value = hours.to_f
+    formatted = (value % 1).zero? ? value.to_i.to_s : value.round(1).to_s.tr('.', ',')
+    "#{formatted} ч"
+  end
+
   def report_names
     %w[
       device_groups

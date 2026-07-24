@@ -3,10 +3,10 @@
 class ReportsController < ApplicationController
 
   INDENT_JOBS = %w[users repair_jobs device_orders orders_statuses technicians_jobs technicians_difficult_jobs
-                   repair_works_duration repairers sales quick_orders free_jobs users_jobs mac_service
-                   warranty_repair_parts margin body_repair_jobs repair_parts done_tasks done_tasks_copy
-                   contractors_defected_spare_parts defected_spare_parts spare_part_movements client_reviews
-                   repeated_repair].freeze
+                   repair_works_duration technicians_in_progress_timeline repairers sales quick_orders free_jobs
+                   users_jobs mac_service warranty_repair_parts margin body_repair_jobs repair_parts done_tasks
+                   done_tasks_copy contractors_defected_spare_parts defected_spare_parts spare_part_movements
+                   client_reviews repeated_repair].freeze
 
   BOOTSTRAP4 = %w[done_tasks_copy]
 

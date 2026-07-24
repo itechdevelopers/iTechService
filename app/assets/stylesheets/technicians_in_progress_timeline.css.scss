@@ -1,0 +1,117 @@
+// Отчёт «Отслеживание статуса "В процессе ремонта" технических специалистов».
+// BEM-блок .tech-timeline — уникальный префикс, чтобы не задеть общие селекторы
+// (см. CONTEXT.md → CSS: BEM Naming & Separate Stylesheets).
+.tech-timeline {
+  &__caption {
+    margin: 12px 0;
+    font-size: 18px;
+    font-weight: bold;
+  }
+
+  &__empty {
+    padding: 12px;
+    color: #888;
+  }
+
+  &__table {
+    width: 100%;
+    border-collapse: collapse;
+  }
+
+  &__th {
+    padding: 6px 10px;
+    text-align: left;
+    font-weight: bold;
+    border-bottom: 2px solid #ddd;
+
+    &--money {
+      text-align: right;
+    }
+  }
+
+  &__row {
+    border-bottom: 1px solid #eee;
+  }
+
+  &__name {
+    padding: 8px 10px;
+    white-space: nowrap;
+    vertical-align: middle;
+  }
+
+  &__person {
+    display: block;
+    font-weight: bold;
+  }
+
+  &__summary {
+    display: block;
+    font-size: 12px;
+    color: #666;
+  }
+
+  &__badge {
+    display: inline-block;
+    margin-left: 6px;
+    padding: 0 6px;
+    font-size: 11px;
+    color: #a94442;
+    background: #f2dede;
+    border-radius: 3px;
+  }
+
+  &__bar-cell {
+    width: 70%;
+    padding: 8px 10px;
+    vertical-align: middle;
+  }
+
+  &__money-cell {
+    padding: 8px 10px;
+    text-align: right;
+    white-space: nowrap;
+    font-weight: bold;
+  }
+
+  &__bar {
+    display: flex;
+    width: 100%;
+    height: 26px;
+    background: #f3f3f3;
+    border: 1px solid #e2e2e2;
+    border-radius: 4px;
+    overflow: hidden;
+  }
+
+  &__seg {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height: 100%;
+    min-width: 2px;
+    overflow: hidden;
+    color: #fff;
+    font-size: 11px;
+    text-decoration: none;
+    border-right: 1px solid rgba(255, 255, 255, 0.5);
+
+    &:hover {
+      opacity: 0.85;
+      color: #fff;
+    }
+  }
+
+  &__seg-text {
+    padding: 0 4px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  &__seg--0 { background: #4e79a7; }
+  &__seg--1 { background: #59a14f; }
+  &__seg--2 { background: #e15759; }
+  &__seg--3 { background: #f28e2b; }
+  &__seg--4 { background: #b07aa1; }
+  &__seg--5 { background: #76b7b2; }
+}
