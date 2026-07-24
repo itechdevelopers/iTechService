@@ -1,0 +1,29 @@
+.tech-timeline
+  %h3.tech-timeline__caption= report_title report
+  - if report.result[:rows].blank?
+    %p.tech-timeline__empty= t '.no_data'
+  - else
+    %table.tech-timeline__table
+      %thead
+        %tr
+          %th.tech-timeline__th= t '.technician'
+          %th.tech-timeline__th= t '.timeline'
+          %th.tech-timeline__th.tech-timeline__th--money= t '.money'
+      %tbody
+        - report.result[:rows].each do |row|
+          %tr.tech-timeline__row
+            %td.tech-timeline__name
+              %span.tech-timeline__person= row[:name]
+              %span.tech-timeline__summary
+                = human_report_duration(row[:in_progress_seconds])
+                = t '.of'
+                = report_hours(row[:planned_hours])
+                - unless row[:scheduled]
+                  %span.tech-timeline__badge= t '.off_schedule'
+            %td.tech-timeline__bar-cell
+              .tech-timeline__bar
+                - row[:segments].each_with_index do |seg, i|
+                  - width = row[:bar_base_seconds].positive? ? [seg[:seconds] / row[:bar_base_seconds] * 100, 100].min : 0
+                  = link_to service_job_path(seg[:job_id]), target: '_blank', class: "tech-timeline__seg tech-timeline__seg--#{i % 6}", style: "width: #{width.round(2)}%", title: "#{seg[:ticket]} · #{human_report_duration(seg[:seconds])} · #{human_currency(seg[:money], false)}" do
+                    %span.tech-timeline__seg-text= seg[:ticket]
+            %td.tech-timeline__money-cell= human_currency(row[:money], false)
