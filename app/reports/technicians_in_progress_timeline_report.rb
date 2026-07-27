@@ -9,7 +9,11 @@
 # Развилки (согласовано, см. docs/technicians-in-progress-reports-feature.md):
 # - Ширина полосы = плановые часы смены (ScheduleEntry); незаполненный хвост = время
 #   «не в ремонте». Если графика нет — база полосы = само in_progress-время.
-# - Строки = все технари из графика за день + те, у кого было in_progress-время.
+# - Смена в графике за день — обязательное условие для ЛЮБОЙ строки.
+# - Основная секция (`:rows`) = технари в графике И привязанные (users.location_id)
+#   к локации «Ремонт» (code 'repair').
+# - Дополнительная секция (`:extra_rows`) = технари в графике И с in_progress-временем,
+#   но НЕ привязанные к «Ремонту» — «сделали ремонт вне своей локации».
 # - Деньги: маржу работ заявки, завершённых в этот день, получает технарь с
 #   наибольшим in_progress-временем по этой заявке (одна заявка → один получатель,
 #   без задвоения между технарями).
@@ -36,14 +40,22 @@ class TechniciansInProgressTimelineReport < BaseReport
     job_margin = job_margins(involved_job_ids, window)
     job_earner = dominant_earner(seconds_by_user_job)
 
-    user_ids = (planned_hours.keys + seconds_by_user_job.keys).uniq
-    users = scheduled_users.merge(load_users(user_ids - scheduled_users.keys))
+    # Универсум строк — только сотрудники со сменой в графике за этот день.
+    # Основная секция — привязанные к «Ремонту»; дополнительная — вне «Ремонта», но
+    # накопившие in_progress-время. Смена обязательна для обеих.
+    scheduled_ids = scheduled_users.keys
+    repair_ids = repair_location_user_ids
+    main_ids = scheduled_ids & repair_ids
+    extra_ids = (scheduled_ids & seconds_by_user_job.keys) - repair_ids
+
+    build = lambda do |uid|
+      build_row(uid, scheduled_users[uid], planned_hours[uid] || 0.0,
+                seconds_by_user_job[uid] || {}, job_ticket, job_margin, job_earner)
+    end
 
     result[:day] = day
-    result[:rows] = user_ids.map do |uid|
-      build_row(uid, users[uid], planned_hours[uid] || 0.0,
-                seconds_by_user_job[uid] || {}, job_ticket, job_margin, job_earner)
-    end.sort_by { |row| row[:name].to_s }
+    result[:rows] = main_ids.map(&build).sort_by { |row| row[:name].to_s }
+    result[:extra_rows] = extra_ids.map(&build).sort_by { |row| row[:name].to_s }
     result
   end
 
@@ -127,9 +139,12 @@ class TechniciansInProgressTimelineReport < BaseReport
     margins
   end
 
-  def load_users(user_ids)
-    return {} if user_ids.empty?
-
-    User.where(id: user_ids).index_by(&:id)
+  # ID активных сотрудников, привязанных (users.location_id) к локации «Ремонт»
+  # выбранных подразделений. Только code 'repair' — repairmac/repair_notebooks на
+  # проде не используются (см. Location::CODES, решение заказчика 27.07.2026).
+  def repair_location_user_ids
+    scope = Location.repair
+    scope = scope.in_department(department_ids) if department_ids.any?
+    User.active.located_at(scope.pluck(:id)).pluck(:id)
   end
 end
