@@ -12,7 +12,8 @@ class QuackControlController < ApplicationController
     @next_month = @month < current_month ? @month.next_month : nil
 
     query = QuackControlQuery.new(@month)
-    @rows = query.rows
+    @primary_rows = query.primary_rows
+    @extended_rows = query.extended_rows
     @total = query.total
     @decades = query.decade_counts
     # Сравнение с прошлым месяцем показываем только для ЗАВЕРШЁННЫХ месяцев.

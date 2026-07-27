@@ -76,6 +76,27 @@
     padding: 24px 0;
   }
 
+  // Расширенная часть — сотрудники не с ремонтной локации. Нативный <details>:
+  // раскрытие без JS, стрелку рисует сам браузер через маркер <summary>.
+  &__extended {
+    margin-top: 8px;
+  }
+
+  &__extended-toggle {
+    cursor: pointer;
+    color: #666;
+    font-size: 13px;
+    padding: 6px 0;
+    user-select: none;
+  }
+
+  &__extended-hint {
+    color: #aaa;
+    font-size: 12px;
+    font-style: italic;
+    margin: 4px 0 8px;
+  }
+
   // Сводка по месяцу: 3 декады + итог «Всего за месяц» (без рамок — просто числа).
   &__summary {
     display: flex;

@@ -7,9 +7,11 @@
 # (`notified_at` присутствует), а работа так и не была взята (`processed_action`
 # не 'started', включая NULL = проигнорировал). Период фильтруется по `viewed_at`.
 #
-# Строки = активные сотрудники (любая роль) на текущей ремонтной локации
-# (code repair*) + те, у кого за период был хотя бы один засчитанный маркер
-# (на случай ухода с ремонта). Сортировка: count desc, затем имя.
+# Строки разделены на две группы (обе — активные сотрудники любой роли):
+#   primary_rows  — те, кто СЕЙЧАС на ремонтной локации (code repair*), включая 0;
+#   extended_rows — НЕ на ремонте, но с ≥1 засчитанным маркером за период
+#                   (ушедшие с ремонта / зашедшие «мимо»); в UI изначально скрыты.
+# Сортировка в обеих группах: count desc, затем имя.
 class QuackControlQuery
   # @param month [Date] любой день внутри нужного месяца (по умолчанию текущий)
   def initialize(month = Date.current)
@@ -17,14 +19,15 @@ class QuackControlQuery
     @month_end = month.end_of_month.end_of_day
   end
 
-  # @return [Array<Hash>] [{ user: User, count: Integer }, ...]
-  def rows
-    counts = marker_counts
-    users = relevant_users(counts.keys).index_by(&:id)
+  # @return [Array<Hash>] активные на ремонтной локации (включая 0) — основная таблица
+  def primary_rows
+    build_rows(repair_users)
+  end
 
-    users.values
-         .map { |user| { user: user, count: counts.fetch(user.id, 0) } }
-         .sort_by { |row| [-row[:count], row[:user].short_name.to_s.downcase] }
+  # @return [Array<Hash>] активные НЕ на ремонте, но с ≥1 маркером — расширенная (скрытая) часть
+  def extended_rows
+    extended_ids = counts.keys - repair_users.map(&:id)
+    build_rows(User.active.where(id: extended_ids))
   end
 
   # @return [Integer] всего засчитанных маркеров за месяц (сумма по всем технарям)
@@ -55,20 +58,21 @@ class QuackControlQuery
   end
 
   # { user_id => count } — та же метрика, сгруппированная по технарю
-  def marker_counts
-    base_scope.group(:user_id).count
-  end
-
-  # Активные сотрудники (любая роль): и текущие на ремонте, и «нагрешившие» за период.
-  def relevant_users(user_ids_with_markers)
-    User.active.where(id: repair_location_user_ids | user_ids_with_markers)
+  def counts
+    @counts ||= base_scope.group(:user_id).count
   end
 
   # Активные сотрудники, чья текущая локация — любая ремонтная (code LIKE 'repair%')
-  def repair_location_user_ids
-    User.active
-        .joins(:location)
-        .where("locations.code LIKE ?", 'repair%')
-        .pluck(:id)
+  def repair_users
+    @repair_users ||= User.active
+                          .joins(:location)
+                          .where("locations.code LIKE ?", 'repair%')
+                          .to_a
+  end
+
+  # Общий билдер: собирает [{ user:, count: }] и сортирует count desc, затем имя.
+  def build_rows(users)
+    users.map { |user| { user: user, count: counts.fetch(user.id, 0) } }
+         .sort_by { |row| [-row[:count], row[:user].short_name.to_s.downcase] }
   end
 end
