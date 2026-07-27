@@ -29,11 +29,16 @@ class TechniciansInProgressTimelineReport < BaseReport
     day = start_date.to_time(:local).to_date
     window = period
 
-    planned_hours, scheduled_users = scheduled_technicians(day)
+    planned_hours, scheduled_users, shift_windows = scheduled_technicians(day)
 
     job_ids = candidate_job_ids(window)
     durations = InProgressDurationService.call(service_job_ids: job_ids, window: window)
-    seconds_by_user_job = aggregate_seconds(durations.all_segments)
+    # Реальное рабочее время: каждый сегмент in_progress обрезаем по окну смены его
+    # автора. Так ночь и простой после ухода (device остаётся в in_progress, но никто
+    # не работает) не попадают в зачёт. Заявка, начатая вчера и закрытая сегодня,
+    # разбивается по сменам: вчерашняя часть — вчера, сегодняшняя — сегодня.
+    # Деньги при этом уходят в день закрытия работы (см. job_margins).
+    seconds_by_user_job = shift_clipped_seconds(durations.all_segments, shift_windows)
 
     involved_job_ids = seconds_by_user_job.values.flat_map(&:keys).uniq
     job_ticket = ServiceJob.where(id: involved_job_ids).pluck(:id, :ticket_number).to_h
@@ -81,7 +86,8 @@ class TechniciansInProgressTimelineReport < BaseReport
     }
   end
 
-  # Рабочие смены за день → user_id => суммарные плановые часы, и user_id => User.
+  # Рабочие смены за день → планов. часы (user_id => часы), объекты (user_id => User)
+  # и окна смен (user_id => [Range<Time>, ...]) для обрезки in_progress-времени.
   def scheduled_technicians(day)
     scope = ScheduleEntry.where(date: day)
                          .joins(:occupation_type).where(occupation_types: { counts_as_working: true })
@@ -90,11 +96,28 @@ class TechniciansInProgressTimelineReport < BaseReport
 
     planned = Hash.new(0.0)
     users = {}
+    windows = Hash.new { |hash, key| hash[key] = [] }
+    midnight = Time.zone.local(day.year, day.month, day.day)
     scope.each do |entry|
       planned[entry.user_id] += entry.effective_duration_hours
       users[entry.user_id] ||= entry.user
+      window = shift_window(entry, midnight)
+      windows[entry.user_id] << window if window
     end
-    [planned, users]
+    [planned, users, windows]
+  end
+
+  # Конкретное окно смены (Range<Time>) на дату. Строим в `Time.zone` (город пользователя,
+  # напр. Владивосток) — в той же зоне грузятся `changed_at` сегментов, поэтому пересечение
+  # корректно. НЕ через `to_time(:local)`: OS-зона машины может отличаться от Time.zone
+  # (на dev расходится на 7 ч), и окно уехало бы мимо сегментов. См. паттерн
+  # ScheduleEntry#schedule_today_finalization (Time.zone.local(...) + seconds).
+  def shift_window(entry, midnight)
+    start_seconds = entry.effective_start_seconds
+    end_seconds = entry.effective_end_seconds
+    return nil unless start_seconds && end_seconds && end_seconds > start_seconds
+
+    (midnight + start_seconds.seconds)..(midnight + end_seconds.seconds)
   end
 
   # Заявки-кандидаты: по подразделению со сменой в in_progress, попадающей в окно.
@@ -111,9 +134,18 @@ class TechniciansInProgressTimelineReport < BaseReport
     scope.distinct.pluck(:service_job_id)
   end
 
-  def aggregate_seconds(segments)
+  # user_id => { service_job_id => секунды }, где каждый сегмент in_progress обрезан по
+  # окну(ам) смены его автора. Сегмент целиком вне смены (ночь / после ухода) даёт 0 и
+  # отсеивается. Заявка через полночь даёт по сегменту на каждый день → время делится.
+  def shift_clipped_seconds(segments, shift_windows)
     result = Hash.new { |hash, key| hash[key] = Hash.new(0.0) }
-    segments.each { |seg| result[seg.user_id][seg.service_job_id] += seg.seconds }
+    segments.each do |seg|
+      shift_windows[seg.user_id].each do |window|
+        low = [seg.started_at, window.begin].max
+        high = [seg.ended_at, window.end].min
+        result[seg.user_id][seg.service_job_id] += (high - low).to_f if high > low
+      end
+    end
     result
   end
 
