@@ -18,19 +18,32 @@
     - else
       %span.quack-control__month-link.quack-control__month-link--disabled= t('.nav.next')
 
-  - if @rows.empty?
+  - if @primary_rows.empty? && @extended_rows.empty?
     %p.quack-control__empty= t('.empty')
   - else
-    %table.quack-control__table.table
-      %thead
-        %tr
-          %th.quack-control__col-name= t('.columns.technician')
-          %th.quack-control__col-count= t('.columns.count')
-      %tbody
-        - @rows.each do |row|
-          %tr.quack-control__row{ class: ('quack-control__row--clean' if row[:count].zero?) }
-            %td.quack-control__cell-name= row[:user].short_name
-            %td.quack-control__cell-count= row[:count]
+    - if @primary_rows.any?
+      %table.quack-control__table.table
+        %thead
+          %tr
+            %th.quack-control__col-name= t('.columns.technician')
+            %th.quack-control__col-count= t('.columns.count')
+        %tbody
+          - @primary_rows.each do |row|
+            %tr.quack-control__row{ class: ('quack-control__row--clean' if row[:count].zero?) }
+              %td.quack-control__cell-name= row[:user].short_name
+              %td.quack-control__cell-count= row[:count]
+
+    - if @extended_rows.any?
+      %details.quack-control__extended
+        %summary.quack-control__extended-toggle
+          = t('.extended.toggle', count: @extended_rows.size)
+        %p.quack-control__extended-hint= t('.extended.hint')
+        %table.quack-control__table.table
+          %tbody
+            - @extended_rows.each do |row|
+              %tr.quack-control__row
+                %td.quack-control__cell-name= row[:user].short_name
+                %td.quack-control__cell-count= row[:count]
 
   .quack-control__summary
     - decade_labels = ['1–10', '11–20', "21–#{@month.end_of_month.day}"]
