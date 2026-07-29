@@ -570,6 +570,17 @@ class ServiceJobsController < ApplicationController
     end
   end
 
+  # Переключает флаг исключения работы из отчётов о времени ремонта. Доступ —
+  # только админам (ServiceJobPolicy#toggle_report_exclusion?). Возвращает на
+  # страницу работы с уведомлением о новом состоянии.
+  def toggle_report_exclusion
+    @service_job = find_record ServiceJob
+    authorize @service_job
+    @service_job.update!(excluded_from_reports: !@service_job.excluded_from_reports)
+    key = @service_job.excluded_from_reports ? 'excluded' : 'included'
+    redirect_to service_job_path(@service_job), notice: t("service_jobs.report_exclusion.#{key}")
+  end
+
   private
 
   def make_review_url

@@ -291,6 +291,7 @@ Rails.application.routes.draw do
     get :testing_prompt, on: :member, defaults: { format: 'js' }
     get :repair_passport, on: :member, defaults: { format: 'js' }
     put :archive, on: :member, defaults: { format: 'js' }
+    patch :toggle_report_exclusion, on: :member
     get :new_v2, on: :collection
     post :create_v2, on: :collection
     post :preview_work_order, on: :collection

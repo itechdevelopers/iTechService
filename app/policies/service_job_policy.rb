@@ -123,4 +123,10 @@ class ServiceJobPolicy < CommonPolicy
 
   # «Ход ремонта» — read-only таймлайн, доступен всем, кто видит работу.
   def repair_passport?; read?; end
+
+  # Исключение работы из отчётов о времени ремонта — только админам (решение
+  # заказчика 29.07.2026). См. docs/repair-time-standards-feature.md.
+  def toggle_report_exclusion?
+    any_admin?
+  end
 end
