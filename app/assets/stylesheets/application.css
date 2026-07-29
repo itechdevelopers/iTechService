@@ -33,6 +33,7 @@
  *= require duty_schedule
  *= require device_tasks
  *= require repair_passport
+ *= require repair_time_standards
  *= require device_types
  *= require gift_certificates
  *= require infos

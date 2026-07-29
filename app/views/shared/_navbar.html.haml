@@ -14,6 +14,7 @@
       = drop_down t('.service') do
         = menu_item t('service_jobs.link', default: 'Service jobs'), service_jobs_path if can? :read, ServiceJob
         = menu_item t('repair_services.index.title'), repair_services_path if can? :read, RepairService
+        = menu_item t('repair_time_standards.index.title'), repair_time_standards_path if policy(:repair_time_standard).index?
         = menu_item t('movement_acts.defect_link'), make_defect_sp_movement_acts_path if can? :make_defect_sp, MovementAct
         = menu_item t('.repair_return'), new_service_repair_return_path
         = menu_item t('.repair_returns'), service_repair_returns_path if policy(Service::RepairReturn).index?

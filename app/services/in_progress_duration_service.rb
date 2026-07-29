@@ -54,6 +54,15 @@ class InProgressDurationService
   def build_segments
     return {} if @service_job_ids.empty?
 
+    # Завершение берём из device_task.done_at (как Отчёт 1), а не из service_jobs.done_at:
+    # на проде обе колонки совпадают, но device_task.done_at — единый источник (Отчёт 1
+    # фильтрует по нему), а в dev service_jobs.done_at бывает stale (бэкфилл статусов).
+    # Максимум по задачам заявки = момент, когда последняя работа закрыта → дальше
+    # in_progress невозможен.
+    done_at_by_job = DeviceTask.where(service_job_id: @service_job_ids)
+                               .where.not(done_at: nil)
+                               .group(:service_job_id)
+                               .maximum(:done_at)
     result = Hash.new { |h, k| h[k] = [] }
     changes = RepairStatusChange
               .where(service_job_id: @service_job_ids)
@@ -67,6 +76,12 @@ class InProgressDurationService
         started = change.changed_at
         succeeding = job_changes[index + 1]
         ended = succeeding ? succeeding.changed_at : @now
+        # in_progress не может тянуться дальше завершения работы. Незакрытый интервал
+        # (нет смены статуса после in_progress) иначе убегает в `now` и раздувает время
+        # у давно завершённых заявок. Обрезаем конец по done_at; если done_at раньше
+        # старта (битые/бэкфилл-данные) — интервал вырождается и отсеивается в clip.
+        done_at = done_at_by_job[job_id]
+        ended = [ended, done_at].min if done_at
 
         segment = clip(job_id, started, ended, change.user_id)
         result[job_id] << segment if segment

@@ -526,6 +526,8 @@ Rails.application.routes.draw do
     patch 'post', on: :member
   end
 
+  resources :repair_time_standards, only: %i[index show]
+
   resources :repair_services do
     get :choose, on: :collection, defaults: {format: :js}
     get :select, on: :member, defaults: {format: :js}

@@ -29,7 +29,14 @@ module RepairGroupsHelper
       nested_list = content_tag(:ul, nested_repair_groups_list(sub_repair_groups, current_id, options))
       options[:group] = repair_group.id
 
-      path = if params[:action] == 'archived'
+      # `tree_path` (proc gid → url) позволяет переиспользовать дерево на других
+      # страницах (напр. «Временные нормативы»), не завязываясь на repair_services.
+      # Ссылки всегда remote: true — дерево это jstree-виджет, клик по узлу грузит
+      # таблицу через Rails UJS (см. repair_groups.js.coffee); полная перезагрузка
+      # jstree недоступна.
+      path = if options[:tree_path]
+               options[:tree_path].call(repair_group.id)
+             elsif params[:action] == 'archived'
                archived_repair_services_path(options)
              else
                repair_services_path(options)
