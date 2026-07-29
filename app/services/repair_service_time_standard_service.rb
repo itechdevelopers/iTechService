@@ -36,7 +36,9 @@ class RepairServiceTimeStandardService
     return {} if rows.empty?
 
     job_ids = rows.map(&:last).uniq
-    durations = InProgressDurationService.call(service_job_ids: job_ids)
+    # clip_to_shifts: время пересекается со сменой автора; образец без графика за свой
+    # день отбрасывается (Вариант A). См. docs/repair-time-standards-feature.md.
+    durations = InProgressDurationService.call(service_job_ids: job_ids, clip_to_shifts: true)
 
     # Только заявки с реально отслеженным in_progress-временем (эра статусов).
     measured = rows.select { |(_sid, jid)| durations.seconds_for(jid).positive? }

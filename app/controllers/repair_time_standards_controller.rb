@@ -46,7 +46,9 @@ class RepairTimeStandardsController < ApplicationController
               .distinct
               .pluck('device_tasks.service_job_id')
 
-    durations = InProgressDurationService.call(service_job_ids: job_ids)
+    # clip_to_shifts: те же правила, что и в нормативе — иначе времена в списке не сойдутся
+    # с медианой на индексе, а заявки вне смены (0) должны выпасть.
+    durations = InProgressDurationService.call(service_job_ids: job_ids, clip_to_shifts: true)
     works_per_job = DeviceTask.where(service_job_id: job_ids)
                               .joins(:repair_tasks)
                               .group('device_tasks.service_job_id')

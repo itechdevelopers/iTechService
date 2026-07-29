@@ -21,14 +21,19 @@ class InProgressDurationService
     new(**kwargs).call
   end
 
-  def initialize(service_job_ids:, window: nil, now: Time.current)
+  def initialize(service_job_ids:, window: nil, now: Time.current, clip_to_shifts: false)
     @service_job_ids = Array(service_job_ids).uniq
     @window = window
     @now = now
+    @clip_to_shifts = clip_to_shifts
   end
 
   def call
     @segments_by_job = build_segments
+    # Обрезка по сменам автора (нормативы + Отчёт 1): ночь/простой вне смены не
+    # засчитываются, сегмент без графика за свой день отбрасывается (Вариант A).
+    # Отчёт 2 не включает флаг — у него своя суточная обрезка.
+    @segments_by_job = regroup(InProgressShiftClipper.call(all_segments)) if @clip_to_shifts
     self
   end
 
@@ -46,6 +51,13 @@ class InProgressDurationService
   end
 
   private
+
+  # Список сегментов → { service_job_id => [Segment, ...] }.
+  def regroup(segments)
+    result = Hash.new { |hash, key| hash[key] = [] }
+    segments.each { |segment| result[segment.service_job_id] << segment }
+    result
+  end
 
   def in_progress_id
     @in_progress_id ||= RepairStatus.by_code(RepairStatus::IN_PROGRESS).id
