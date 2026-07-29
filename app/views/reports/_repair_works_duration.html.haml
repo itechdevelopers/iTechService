@@ -19,3 +19,5 @@
             = link_to work[:service_job_presentation], service_job_path(work[:service_job_id]), target: '_blank'
           %td= work[:performer]
           %td.number{colspan: 2}= human_report_duration(work[:seconds])
+
+= render 'reports/excluded_jobs_footnote', jobs: report.result[:excluded_jobs]

@@ -32,3 +32,4 @@
                     = link_to service_job_path(seg[:job_id]), target: '_blank', class: "tech-timeline__seg tech-timeline__seg--#{i % 6}", style: "width: #{width.round(2)}%", title: "#{seg[:ticket]} · #{human_report_duration(seg[:seconds])} · #{human_currency(seg[:money], false)}" do
                       %span.tech-timeline__seg-text= seg[:ticket]
               %td.tech-timeline__money-cell= human_currency(row[:money], false)
+  = render 'reports/excluded_jobs_footnote', jobs: report.result[:excluded_jobs]

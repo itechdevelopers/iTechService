@@ -17,6 +17,14 @@ class RepairWorksDurationReport < BaseReport
             .where(device_tasks: { done_at: period })
             .to_a
 
+    # Работы, вручную помеченные «Не включать в отчёты», в расчёт не идут — их
+    # заявки уходят в сноску внизу (excluded_from_reports, решение 29.07.2026).
+    tasks, excluded_tasks = tasks.partition do |task|
+      job = task.service_job
+      job.nil? || !job.excluded_from_reports?
+    end
+    result[:excluded_jobs] = excluded_jobs_footnote(excluded_tasks)
+
     job_ids = tasks.filter_map { |task| task.service_job&.id }.uniq
     durations = InProgressDurationService.call(service_job_ids: job_ids)
     works_per_job = works_count_per_job(job_ids)
@@ -44,6 +52,14 @@ class RepairWorksDurationReport < BaseReport
   end
 
   private
+
+  # Уникальные исключённые заявки → [{ id:, presentation: }] для сноски.
+  def excluded_jobs_footnote(excluded_tasks)
+    excluded_tasks.filter_map(&:service_job)
+                  .uniq(&:id)
+                  .map { |job| { id: job.id, presentation: job.presentation } }
+                  .sort_by { |job| job[:presentation].to_s }
+  end
 
   def build_row(group)
     durations = group[:works].map { |work| work[:seconds] }

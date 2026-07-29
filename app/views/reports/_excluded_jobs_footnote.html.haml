@@ -1,0 +1,10 @@
+-# Сноска со списком работ, вручную исключённых из отчёта (excluded_from_reports).
+-# Локальная переменная `jobs` = [{ id:, presentation: }]. Пусто → ничего не рисуем.
+- if jobs.present?
+  .report-excluded-note.muted
+    %p
+      %strong= t('reports.excluded_jobs.title')
+    %p.help-block= t('reports.excluded_jobs.hint')
+    %ul
+      - jobs.each do |job|
+        %li= link_to job[:presentation], service_job_path(job[:id]), target: '_blank'
