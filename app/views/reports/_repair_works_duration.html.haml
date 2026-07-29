@@ -20,4 +20,7 @@
           %td= work[:performer]
           %td.number{colspan: 2}= human_report_duration(work[:seconds])
 
+- if report.result[:multi_task_count].to_i.positive?
+  %p.muted= t('.multi_task_note', count: report.result[:multi_task_count])
+
 = render 'reports/excluded_jobs_footnote', jobs: report.result[:excluded_jobs]
