@@ -1,5 +1,13 @@
 module ReportsHelper
 
+  # Отклонение факт − Σ нормативов в секундах → «+2 ч 5 мин» / «−1 ч» / «0».
+  def human_report_deviation(seconds)
+    rounded = seconds.to_f.round
+    return '0' if rounded.zero?
+
+    "#{rounded.positive? ? '+' : '−'}#{human_report_duration(rounded.abs)}"
+  end
+
   def report_title(report)
     t("reports.#{report.is_a?(String) ? report : report.name}.title")
   end

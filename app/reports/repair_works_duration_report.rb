@@ -32,8 +32,9 @@ class RepairWorksDurationReport < BaseReport
     durations = InProgressDurationService.call(service_job_ids: job_ids, clip_to_shifts: true)
     works_per_job = works_count_per_job(job_ids)
 
-    # Многозадачные заявки — вне поштучной статистики, только счётчик для сноски.
-    result[:multi_task_count] = job_ids.count { |jid| (works_per_job[jid] || 1) > 1 }
+    # Многозадачные заявки — вне поштучной статистики; для них отдельная секция:
+    # общее время vs сумма нормативов их видов + отклонение (Цикл 6).
+    result[:multi_task_rows] = build_multi_task_rows(tasks, works_per_job, durations)
 
     groups = {}
     tasks.each do |task|
@@ -59,6 +60,38 @@ class RepairWorksDurationReport < BaseReport
   end
 
   private
+
+  # Секция многозадачных заявок: по каждой — общее (обрезанное по смене) время в
+  # ремонте, разбивка по видам с медианой из нормативов (всё время), сумма нормативов
+  # и отклонение факт − Σ. Виды без норматива дают median: nil (Σ по имеющимся).
+  def build_multi_task_rows(tasks, works_per_job, durations)
+    multi = tasks.select { |task| task.service_job && (works_per_job[task.service_job.id] || 1) > 1 }
+    return [] if multi.empty?
+
+    norms = RepairServiceTimeStandardService.call(repair_service_ids: multi.map(&:repair_service_id).compact.uniq)
+
+    rows = multi.group_by { |task| task.service_job.id }.filter_map do |job_id, job_tasks|
+      total = durations.seconds_for(job_id)
+      next if total <= 0 # вся заявка вне смены → пропускаем
+
+      breakdown = job_tasks.map do |task|
+        stat = task.repair_service_id && norms[task.repair_service_id]
+        { name: task.name.presence || no_service_label, median: stat&.median }
+      end
+      present = breakdown.filter_map { |item| item[:median] }
+      sum_medians = present.sum
+      {
+        job_id: job_id,
+        presentation: job_tasks.first.service_job.presentation,
+        total_seconds: total,
+        breakdown: breakdown,
+        sum_medians: sum_medians,
+        deviation: total - sum_medians,
+        incomplete: present.size < breakdown.size
+      }
+    end
+    rows.sort_by { |row| -row[:total_seconds] }
+  end
 
   # Уникальные исключённые заявки → [{ id:, presentation: }] для сноски.
   def excluded_jobs_footnote(excluded_tasks)
