@@ -1,0 +1,30 @@
+%h3= @repair_group.name
+%table.table.table-bordered.table-hover.repair-time-standards
+  %thead
+    %tr
+      %th= t('.work')
+      %th.center= t('.median')
+      %th.center= t('.average')
+      %th.center= t('.samples')
+      %th.center= t('.manual_standard')
+  %tbody
+    - if @repair_services.empty?
+      %tr
+        %td.muted{colspan: 5}= t('.empty_group')
+    - @repair_services.each do |repair_service|
+      - stat = @stats[repair_service.id]
+      %tr
+        %td= repair_service.name
+        %td.center= human_report_duration(stat&.median)
+        %td.center= human_report_duration(stat&.average)
+        %td.center.repair-time-standards__count{class: time_standard_confidence_class(stat&.sample_count)}
+          - if stat
+            = link_to "#{stat.sample_count} / #{stat.total_count}", repair_time_standard_path(repair_service), target: '_blank'
+          - else
+            = '—'
+        %td.center= repair_service.time_standard.present? ? human_report_duration(repair_service.time_standard * 60) : '—'
+
+.repair-time-standards__legend
+  %span.repair-time-standards__legend-title= t('.legend_title')
+  - RepairTimeStandardsHelper::CONFIDENCE_TIERS.reverse_each do |min, name|
+    %span.repair-time-standards__legend-item{class: "repair-time-standards__count--#{name}"}= t('.legend_from', count: min)

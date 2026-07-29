@@ -1,0 +1,15 @@
+.page-header
+  %h1
+    = t('.title')
+    %small= t('.subtitle')
+
+.row-fluid
+  .span4
+    #repair_groups.readonly
+      = repair_groups_trees_tag @repair_groups, params[:group], tree_path: ->(gid) { repair_time_standards_path(group: gid) }
+  .span8
+    #resource_table
+      - if @repair_group
+        = render 'table'
+      - else
+        %p.muted= t('.choose_group')

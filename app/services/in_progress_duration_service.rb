@@ -21,14 +21,19 @@ class InProgressDurationService
     new(**kwargs).call
   end
 
-  def initialize(service_job_ids:, window: nil, now: Time.current)
+  def initialize(service_job_ids:, window: nil, now: Time.current, clip_to_shifts: false)
     @service_job_ids = Array(service_job_ids).uniq
     @window = window
     @now = now
+    @clip_to_shifts = clip_to_shifts
   end
 
   def call
     @segments_by_job = build_segments
+    # Обрезка по сменам автора (нормативы + Отчёт 1): ночь/простой вне смены не
+    # засчитываются, сегмент без графика за свой день отбрасывается (Вариант A).
+    # Отчёт 2 не включает флаг — у него своя суточная обрезка.
+    @segments_by_job = regroup(InProgressShiftClipper.call(all_segments)) if @clip_to_shifts
     self
   end
 
@@ -47,6 +52,13 @@ class InProgressDurationService
 
   private
 
+  # Список сегментов → { service_job_id => [Segment, ...] }.
+  def regroup(segments)
+    result = Hash.new { |hash, key| hash[key] = [] }
+    segments.each { |segment| result[segment.service_job_id] << segment }
+    result
+  end
+
   def in_progress_id
     @in_progress_id ||= RepairStatus.by_code(RepairStatus::IN_PROGRESS).id
   end
@@ -54,6 +66,15 @@ class InProgressDurationService
   def build_segments
     return {} if @service_job_ids.empty?
 
+    # Завершение берём из device_task.done_at (как Отчёт 1), а не из service_jobs.done_at:
+    # на проде обе колонки совпадают, но device_task.done_at — единый источник (Отчёт 1
+    # фильтрует по нему), а в dev service_jobs.done_at бывает stale (бэкфилл статусов).
+    # Максимум по задачам заявки = момент, когда последняя работа закрыта → дальше
+    # in_progress невозможен.
+    done_at_by_job = DeviceTask.where(service_job_id: @service_job_ids)
+                               .where.not(done_at: nil)
+                               .group(:service_job_id)
+                               .maximum(:done_at)
     result = Hash.new { |h, k| h[k] = [] }
     changes = RepairStatusChange
               .where(service_job_id: @service_job_ids)
@@ -67,6 +88,12 @@ class InProgressDurationService
         started = change.changed_at
         succeeding = job_changes[index + 1]
         ended = succeeding ? succeeding.changed_at : @now
+        # in_progress не может тянуться дальше завершения работы. Незакрытый интервал
+        # (нет смены статуса после in_progress) иначе убегает в `now` и раздувает время
+        # у давно завершённых заявок. Обрезаем конец по done_at; если done_at раньше
+        # старта (битые/бэкфилл-данные) — интервал вырождается и отсеивается в clip.
+        done_at = done_at_by_job[job_id]
+        ended = [ended, done_at].min if done_at
 
         segment = clip(job_id, started, ended, change.user_id)
         result[job_id] << segment if segment

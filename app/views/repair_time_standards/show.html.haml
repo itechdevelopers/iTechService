@@ -1,0 +1,32 @@
+.page-header
+  %h1
+    = @repair_service.name
+    %small= t('.subtitle')
+
+- if @stat
+  %p.muted
+    %strong= "#{t('.median')}:"
+    = human_report_duration(@stat.median)
+    &middot;
+    %strong= "#{t('.samples')}:"
+    = "#{@stat.sample_count} / #{@stat.total_count}"
+
+%table.table.table-bordered.table-hover.repair-time-standards
+  %thead
+    %tr
+      %th= t('.ticket')
+      %th.center= t('.time')
+      %th.center= t('.kinds_on_job')
+  %tbody
+    - if @jobs.empty?
+      %tr
+        %td.muted{colspan: 3}= t('.empty')
+    - @jobs.each do |row|
+      %tr{class: ('repair-time-standards__row--multi' unless row[:single])}
+        %td= link_to(row[:presentation].presence || row[:ticket] || row[:id], service_job_path(row[:id]), target: '_blank')
+        %td.center= human_report_duration(row[:seconds])
+        %td.center
+          - if row[:single]
+            %span.label.label-success= t('.single')
+          - else
+            = t('.multi', count: row[:works_on_job])

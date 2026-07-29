@@ -32,6 +32,13 @@ class TechniciansInProgressTimelineReport < BaseReport
     planned_hours, scheduled_users, shift_windows = scheduled_technicians(day)
 
     job_ids = candidate_job_ids(window)
+    # Вручную исключённые заявки (excluded_from_reports) убираем из расчёта и
+    # уводим в сноску внизу (решение 29.07.2026).
+    excluded_jobs = ServiceJob.where(id: job_ids, excluded_from_reports: true)
+                              .order(:ticket_number).to_a
+    job_ids -= excluded_jobs.map(&:id)
+    result[:excluded_jobs] = excluded_jobs.map { |job| { id: job.id, presentation: job.presentation } }
+
     durations = InProgressDurationService.call(service_job_ids: job_ids, window: window)
     # Реальное рабочее время: каждый сегмент in_progress обрезаем по окну смены его
     # автора. Так ночь и простой после ухода (device остаётся в in_progress, но никто

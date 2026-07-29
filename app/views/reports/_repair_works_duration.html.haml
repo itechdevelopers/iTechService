@@ -19,3 +19,31 @@
             = link_to work[:service_job_presentation], service_job_path(work[:service_job_id]), target: '_blank'
           %td= work[:performer]
           %td.number{colspan: 2}= human_report_duration(work[:seconds])
+
+- multi_rows = report.result[:multi_task_rows]
+- if multi_rows.present?
+  %h4= t('.multi_task_title')
+  %table.table.table-bordered.table-hover
+    %thead
+      %tr
+        %th.center= t '.multi_job'
+        %th.center= t '.multi_total'
+        %th.center= t '.multi_deviation'
+    %tbody
+      - multi_rows.each do |mrow|
+        %tr.detailable
+          %td.name= link_to mrow[:presentation], service_job_path(mrow[:job_id]), target: '_blank'
+          %td.number= human_report_duration(mrow[:total_seconds])
+          %td.number
+            = human_report_deviation(mrow[:deviation])
+            - if mrow[:incomplete]
+              %span.muted{title: t('.incomplete_hint')} ≈
+        - mrow[:breakdown].each do |item|
+          %tr.details
+            %td.name= "— #{item[:name]}"
+            %td.number{colspan: 2}= item[:median] ? human_report_duration(item[:median]) : t('.no_norm')
+        %tr.details
+          %td.name= t('.multi_sum')
+          %td.number{colspan: 2}= human_report_duration(mrow[:sum_medians])
+
+= render 'reports/excluded_jobs_footnote', jobs: report.result[:excluded_jobs]

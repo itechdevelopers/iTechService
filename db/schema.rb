@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20260723173150) do
+ActiveRecord::Schema.define(version: 20260729064947) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -1978,12 +1978,14 @@ ActiveRecord::Schema.define(version: 20260723173150) do
     t.bigint "repair_pause_reason_id"
     t.datetime "repair_status_changed_at"
     t.datetime "reception_photo_check_scheduled_at"
+    t.boolean "excluded_from_reports", default: false, null: false
     t.index ["carrier_id"], name: "index_service_jobs_on_carrier_id"
     t.index ["case_color_id"], name: "index_service_jobs_on_case_color_id"
     t.index ["client_id"], name: "index_service_jobs_on_client_id"
     t.index ["department_id"], name: "index_service_jobs_on_department_id"
     t.index ["device_type_id"], name: "index_service_jobs_on_device_type_id"
     t.index ["done_at"], name: "index_service_jobs_on_done_at"
+    t.index ["excluded_from_reports"], name: "index_service_jobs_excluded_from_reports", where: "excluded_from_reports"
     t.index ["imei"], name: "index_service_jobs_on_imei"
     t.index ["initial_department_id"], name: "index_service_jobs_on_initial_department_id"
     t.index ["item_id"], name: "index_service_jobs_on_item_id"

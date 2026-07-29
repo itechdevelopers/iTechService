@@ -17,6 +17,13 @@
     = link_to icon_tag(:print) + t('tickets.link'), service_job_path(@service_job, format: 'pdf', print: true), class: 'btn btn-primary', target: '_blank', id: 'print_service_job_ticket'
     = link_to icon_tag('eye') + t('tickets.link'), service_job_path(@service_job, format: 'pdf'), class: 'btn btn-info pull-right', target: '_blank', id: 'show_service_job_ticket'
 
+  - if policy(@service_job).toggle_report_exclusion?
+    - if @service_job.excluded_from_reports
+      = link_to t('service_jobs.report_exclusion.include_action'), toggle_report_exclusion_service_job_path(@service_job), method: :patch, class: 'btn btn-warning'
+      %span.label.label-warning= t('service_jobs.report_exclusion.badge')
+    - else
+      = link_to t('service_jobs.report_exclusion.exclude_action'), toggle_report_exclusion_service_job_path(@service_job), method: :patch, class: 'btn'
+
   .repair-status-widget__inline-slot= render 'repair_status_widget', service_job: @service_job
 
   = new_sms_notification_link(@service_job) if @service_job.at_done?

@@ -1,5 +1,11 @@
 ru:
   service_jobs:
+    report_exclusion:
+      exclude_action: 'Не включать в отчёты'
+      include_action: 'Вернуть в отчёты'
+      excluded: 'Работа исключена из отчётов о времени ремонта.'
+      included: 'Работа возвращена в отчёты о времени ремонта.'
+      badge: 'Исключена из отчётов'
     strict_repair:
       reveal: 'Показать'
       take_to_work:
