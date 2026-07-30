@@ -231,6 +231,7 @@ Rails.application.routes.draw do
 
   resources :device_unlock_requests do
     patch :update_status, on: :member
+    patch :update_cost, on: :member
     patch :archive, on: :member
     patch :unarchive, on: :member
     get :archived_requests, on: :collection

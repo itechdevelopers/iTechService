@@ -71,6 +71,22 @@ class DeviceUnlockRequestsController < ApplicationController
     end
   end
 
+  # Инлайн-редактирование себестоимости разблокировки прямо из строки таблицы
+  # (Цикл 2). find_record авторизует через update_cost? (→ superadmin?), так что
+  # не-суперадмин сюда не пройдёт. Пустое значение → nil (себестоимость снята).
+  def update_cost
+    @device_unlock_request = find_record DeviceUnlockRequest
+
+    if @device_unlock_request.update(cost_params)
+      respond_to do |format|
+        format.js   # update_cost.js.erb — replaceWith строки (паттерн update_status)
+        format.html { redirect_to device_unlock_requests_path }
+      end
+    else
+      head :unprocessable_entity
+    end
+  end
+
   # Инлайн-добавление комментария прямо из строки таблицы (Цикл 4). НЕ через
   # CommentsController: создаём Comment и перерисовываем строку (паттерн
   # update_status), чтобы новый «последний комментарий» сразу появился в ячейке.
@@ -200,5 +216,10 @@ class DeviceUnlockRequestsController < ApplicationController
 
   def status_params
     params.require(:device_unlock_request).permit(:status)
+  end
+
+  # Пустая строка из поля → nil (снятие себестоимости), иначе целое число рублей.
+  def cost_params
+    params.require(:device_unlock_request).permit(:unlock_cost)
   end
 end

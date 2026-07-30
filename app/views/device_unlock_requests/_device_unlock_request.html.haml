@@ -17,6 +17,21 @@
     - if r.item.imei.present?
       %br
       %small.muted= "IMEI: #{r.item.imei}"
+    -# Себестоимость разблокировки (Цикл 2). Блок целиком под гейтом update_cost?
+    -# → только суперадмин и видит, и правит (display = edit-аудитория). В архиве —
+    -# read-only показ значения; в активной строке — инлайн-форма (пустое → nil).
+    - if policy(r).update_cost?
+      .device-unlock-requests__cost
+        - if archived
+          - if r.unlock_cost.present?
+            %small.muted= t('.cost_label')
+            %strong= "#{number_with_delimiter(r.unlock_cost)} ₽"
+        - else
+          = form_tag update_cost_device_unlock_request_path(r), method: :patch, remote: true, class: 'device-unlock-requests__cost-form' do
+            %span.device-unlock-requests__cost-label= t('.cost_label')
+            = number_field_tag 'device_unlock_request[unlock_cost]', r.unlock_cost, min: 0, id: "duq_cost_#{r.id}", placeholder: t('.cost_placeholder'), class: 'device-unlock-requests__cost-input'
+            %span.muted ₽
+            = submit_tag t('.cost_btn'), class: 'btn btn-mini'
   %td= r.reason
   %td.device-unlock-requests__comment-cell
     - if r.last_comment

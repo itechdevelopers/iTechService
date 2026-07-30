@@ -63,6 +63,9 @@ ru:
     device_unlock_request:
       comment_placeholder: Добавить комментарий…
       comment_btn: Отправить
+      cost_label: "Себестоимость:"
+      cost_placeholder: "0"
+      cost_btn: OK
       comments_link_title: Показать все комментарии
       new_request_btn: Новый
       in_progress_btn: В работу

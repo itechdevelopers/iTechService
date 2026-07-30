@@ -85,6 +85,28 @@
     margin-left: 4px;
   }
 
+  // ── Инлайн-себестоимость в ячейке устройства (Цикл 2, только суперадмин) ────
+  // Отделяем от строк устройства сверху; поле узкое, подпись/₽/кнопка в строку.
+  &__cost {
+    margin-top: 6px;
+    padding-top: 6px;
+    border-top: 1px dashed #ddd;
+  }
+
+  &__cost-label {
+    margin-right: 4px;
+    font-size: 12px;
+    color: #777;
+  }
+
+  &__cost-input {
+    width: 70px;
+    height: auto;
+    padding: 2px 4px;
+    margin: 0 2px;
+    font-size: 12px;
+  }
+
   // ── Инлайн-добавление комментария в ячейке «последний» (Цикл 4) ────────────
   .device-unlock-requests__last-comment { margin-bottom: 6px; }
 
