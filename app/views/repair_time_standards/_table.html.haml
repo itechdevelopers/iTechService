@@ -6,7 +6,9 @@
       %th.center= t('.median')
       %th.center= t('.average')
       %th.center= t('.samples')
-      %th.center= t('.manual_standard')
+      %th.center
+        = t('.manual_standard')
+        %span.repair-time-standards__hint{title: t('.manual_standard_hint')} *
   %tbody
     - if @repair_services.empty?
       %tr

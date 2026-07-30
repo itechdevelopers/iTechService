@@ -29,3 +29,9 @@
 }
 
 .repair-time-standards__row--multi { color: #999; }
+
+// Звёздочка-подсказка в заголовке «Ручной норматив» (нативный tooltip по title).
+.repair-time-standards__hint {
+  cursor: help;
+  color: #888;
+}

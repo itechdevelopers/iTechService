@@ -10,6 +10,7 @@ ru:
       average: 'Среднее'
       samples: 'Образцов / всего'
       manual_standard: 'Ручной норматив'
+      manual_standard_hint: 'Данные, которые вводили вручную на основании своих ощущений и опыта'
       empty_group: 'В этой группе нет видов ремонта.'
       legend_title: 'Достоверность (образцов):'
       legend_from: 'от %{count}'
