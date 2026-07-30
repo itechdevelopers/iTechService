@@ -31,7 +31,7 @@
     if ($host.length === 0) {
       $host = $('<div id="repair_status_widget_modal_host"></div>').appendTo('body');
     }
-    $host.append("<%= j render('displace_confirm_modal', target: @displace_confirm_target, new_for: @displace_new_for) %>");
+    $host.append("<%= j render('displace_confirm_modal', target: @displace_confirm_target, new_for: @displace_new_for, url: (@seize_flow ? seize_repair_service_job_path(@displace_new_for) : repair_status_service_job_path(@displace_new_for))) %>");
     var $modal = $('#displace_confirm_modal_<%= @displace_new_for.id %>');
     $modal.on('click', '[data-repair-status-widget-modal-close-for]', function(e) {
       e.preventDefault();

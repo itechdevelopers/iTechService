@@ -1,6 +1,6 @@
 .repair-status-widget-modal{ id: "displace_confirm_modal_#{new_for.id}", tabindex: -1, role: 'dialog' }
   .repair-status-widget-modal__dialog
-    = form_with url: repair_status_service_job_path(new_for),
+    = form_with url: local_assigns.fetch(:url, repair_status_service_job_path(new_for)),
                 method: :patch,
                 local: false,
                 html: { id: "displace_confirm_form_#{new_for.id}", class: 'repair-status-widget-modal__form' } do

@@ -5,10 +5,17 @@
 - displaced_by_sj = (current_reason&.urgent_repair? ? service_job.current_displaced_by_service_job : nil)
 - gluing_hours = (current_reason&.gluing? ? service_job.current_gluing_hours : nil)
 - in_progress_user = (current_status.in_progress? ? service_job.current_in_progress_user : nil)
+- seized_by_other = in_progress_user.present? && in_progress_user != current_user
 - selectable_statuses = RepairStatus.active.ordered.where.not(code: RepairStatus::COMPLETED)
 
 .repair-status-widget{ data: { 'repair-status-sj-id': service_job.id } }
-  - if can?(:update_repair_status, service_job)
+  - if seized_by_other && can?(:update_repair_status, service_job)
+    %span.repair-status-badge.repair-status-badge--in_progress{ style: ("background: #{current_status.color};" if current_status.color.present?) }
+      = current_status.name
+      %span.repair-status-badge__reason= in_progress_user.short_name
+    = link_to seize_repair_service_job_path(service_job), method: :patch, remote: true, class: 'btn btn-small repair-status-widget__seize-btn' do
+      = t('service_jobs.repair_status.seize', default: 'Забрать устройство у другого технического специалиста')
+  - elsif can?(:update_repair_status, service_job)
     .btn-group
       %a.repair-status-badge{ class: "repair-status-badge--#{current_status.code}", data: { toggle: 'dropdown' }, href: '#', style: ("background: #{current_status.color};" if current_status.color.present?) }
         = current_status.name
