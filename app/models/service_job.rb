@@ -502,11 +502,14 @@ kind: 'device_return', content: id.to_s)
       &.then { |id| User.find_by(id: id) }
   end
 
-  def change_repair_status!(new_status, user:, pause_reason: nil, displaced_by: nil, gluing_hours: nil, changed_at: nil)
+  # force: пропустить idempotency guard. Нужен для «перехвата» ремонта: заявка уже
+  # in_progress под прежним техником, но новая in_progress-запись под другим user
+  # закрывает его интервал и открывает свой (InProgressDurationService делит время сам).
+  def change_repair_status!(new_status, user:, pause_reason: nil, displaced_by: nil, gluing_hours: nil, changed_at: nil, force: false)
     pause_reason = nil unless new_status.paused?
     displaced_by = nil unless pause_reason&.urgent_repair?
     gluing_hours = nil unless pause_reason&.gluing?
-    return if repair_status_id == new_status.id && repair_pause_reason_id == pause_reason&.id
+    return if !force && repair_status_id == new_status.id && repair_pause_reason_id == pause_reason&.id
 
     changed_at ||= Time.zone.now
     now = Time.zone.now

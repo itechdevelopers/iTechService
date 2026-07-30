@@ -513,6 +513,43 @@ class ServiceJobsController < ApplicationController
     respond_to(&:js)
   end
 
+  # «Забрать устройство у другого технического специалиста». Валиден, только если
+  # устройство сейчас in_progress у ДРУГОГО техника. Перехват = новая in_progress-запись
+  # под current_user (force обходит идемпотентность); прежний владелец получает свой
+  # интервал до этого момента, текущий — после. Если у перехватчика уже есть свой
+  # активный ремонт — как при обычном старте предлагаем поставить его на паузу.
+  def seize_repair
+    @service_job = find_record ServiceJob
+    in_progress = RepairStatus.by_code(RepairStatus::IN_PROGRESS)
+    current_owner = @service_job.current_in_progress_user
+
+    unless @service_job.repair_status&.in_progress? && current_owner && current_owner != current_user
+      @repair_status_error = t('service_jobs.repair_status.seize_invalid',
+                               default: 'Устройство уже не в работе у другого специалиста')
+      render 'update_repair_status'
+      return
+    end
+
+    active = ServiceJob.active_in_progress_for(current_user).where.not(id: @service_job.id).first
+    if active && params[:force_displace_active].blank?
+      @displace_confirm_target = active
+      @displace_new_for = @service_job
+      render 'update_repair_status'
+      return
+    end
+
+    ServiceJob.transaction do
+      if active
+        urgent = RepairPauseReason.find_by(code: RepairPauseReason::URGENT_REPAIR)
+        paused = RepairStatus.by_code(RepairStatus::PAUSED)
+        active.change_repair_status!(paused, user: current_user, pause_reason: urgent, displaced_by: @service_job)
+        @displaced_active = active
+      end
+      @service_job.change_repair_status!(in_progress, user: current_user, force: true)
+    end
+    render 'update_repair_status'
+  end
+
   def displaced_by_prompt
     @service_job = find_record ServiceJob
     respond_to(&:js)
