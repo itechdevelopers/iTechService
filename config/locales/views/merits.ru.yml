@@ -1,5 +1,7 @@
 ru:
   merits:
+    modal_form_content:
+      select_employee: 'Выберите сотрудника'
     index:
       title: 'Плюсы'
     new:

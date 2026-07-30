@@ -1,5 +1,7 @@
 ru:
   faults:
+    modal_form_content:
+      select_employee: 'Выберите сотрудника'
     index:
       title: 'Минусы'
     new:

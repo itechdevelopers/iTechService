@@ -4,7 +4,11 @@
   font-weight: normal;
 }
 
-.custom_select {
+// Scoped under the wrapper: SimpleForm also stamps the input-type class
+// `custom_select` onto the surrounding .control-group, so an unscoped
+// `.custom_select` rule would turn the whole form row into a flex column
+// and break Bootstrap's horizontal label/controls layout.
+.custom-select-wrapper .custom_select {
   position: relative;
   display: flex;
   flex-direction: column;
@@ -39,7 +43,7 @@
   }
 }
 
-.custom_select.open .custom-options {
+.custom-select-wrapper .custom_select.open .custom-options {
   opacity: 1;
   visibility: visible;
   pointer-events: all;

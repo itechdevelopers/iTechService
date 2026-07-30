@@ -6,7 +6,7 @@
   .modal-body
     - if @form.errors.any?
       .alert.alert-error= @form.errors.full_messages.join('. ')
-    = f.input :causer_id, collection: fault_causers_collection, label_method: :short_name, as: :select, label: Fault.human_attribute_name(:causer)
+    = f.input :causer_id, collection: fault_causers_collection, label_method: :short_name, color_method: :department_color, as: :custom_select, prompt: t('.select_employee'), label: Fault.human_attribute_name(:causer)
     = f.input :date, as: :my_date
     = f.input :kind_id, collection: fault_kinds_collection, as: :select, label: Fault.human_attribute_name(:kind), input_html: {data: fault_kinds_data}, hint: (@form.description || '')
     = f.input :penalty, wrapper_html: {class: 'hidden'}

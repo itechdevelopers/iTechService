@@ -524,6 +524,13 @@ class User < ApplicationRecord
     color.blank? ? '#ffffff' : color
   end
 
+  # Department's color (delegated to its city). Used to tint employee options
+  # in plus/minus dropdowns so same-named staff from different departments
+  # are told apart. Not the personal `color` column above.
+  def department_color
+    department&.color
+  end
+
   def upcoming_birthday?
     if birthday.present?
       today = Date.current
