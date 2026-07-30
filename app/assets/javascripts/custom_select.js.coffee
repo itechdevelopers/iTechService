@@ -1,5 +1,28 @@
-$ ->
-  $('.custom-select-wrapper').each ->
+# Picks black or white text for a given background so options stay readable
+# on dark department colors. Returns '' for a blank color (leave CSS default).
+contrastColor = (hex) ->
+  return '' unless hex
+  c = hex.toString().replace('#', '')
+  c = c.split('').map((ch) -> ch + ch).join('') if c.length == 3
+  return '' unless c.length == 6
+  r = parseInt(c.substr(0, 2), 16)
+  g = parseInt(c.substr(2, 2), 16)
+  b = parseInt(c.substr(4, 2), 16)
+  luminance = (0.299 * r + 0.587 * g + 0.114 * b) / 255
+  if luminance > 0.6 then '#000000' else '#ffffff'
+
+# Applies a background color plus a contrasting text color to an element.
+paintOption = ($el, color) ->
+  $el.css
+    'background-color': color or ''
+    'color': contrastColor(color)
+
+# Syncs each custom-select trigger (text + color) with its hidden field's
+# current value. Exposed globally so AJAX-injected content (e.g. modal forms)
+# can re-init after render — the document-ready pass below only covers the
+# markup present on first page load.
+window.initCustomSelects = (context = document) ->
+  $('.custom-select-wrapper', context).each ->
     $wrapper = $(this)
     $hiddenInput = $wrapper.find('input[type="hidden"]')
     selectedValue = $hiddenInput.val()
@@ -15,10 +38,13 @@ $ ->
 
         $trigger = $wrapper.find('.custom-select__trigger')
         $span = $trigger.find('span')
-        $trigger.css('background-color', optionColor)
+        paintOption($trigger, optionColor)
         $span.text(optionText)
       else
         $option.removeClass('selected')
+
+$ ->
+  initCustomSelects()
 
   $(document).on 'click', '.custom-select__trigger', (event) ->
     event.stopPropagation()
@@ -29,8 +55,7 @@ $ ->
     if select.hasClass('open')
       select.find('.custom-option.selected').addClass('hover')
       select.find('.custom-option').each ->
-        color = $(this).data('color')
-        $(this).css('background-color', color) if color
+        paintOption($(this), $(this).data('color'))
     else
       select.find('.custom-option').removeClass('hover')
 
@@ -44,7 +69,7 @@ $ ->
     selectedColor = $(this).data('color')
 
     trigger.find('span').html($(this).html())
-    trigger.css('background-color', selectedColor)
+    paintOption(trigger, selectedColor)
     select.find('.custom-option').removeClass('selected')
     hiddenInput
       .val(selectedValue)

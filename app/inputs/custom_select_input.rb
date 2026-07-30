@@ -45,15 +45,22 @@ class CustomSelectInput < SimpleForm::Inputs::Base
   end
 
   def item_label(item)
+    method = @options[:label_method]
+    return item.public_send(method).to_s if method
+
     item.try(:name) || item.to_s
   end
 
   def item_value(item)
+    method = @options[:value_method]
+    return item.public_send(method).to_s if method
+
     item.try(:id) || item.to_s
   end
 
   def item_color(item)
-    item.try(:color) || ''
+    method = @options[:color_method] || :color
+    item.try(method) || ''
   end
 
   def placeholder_text
