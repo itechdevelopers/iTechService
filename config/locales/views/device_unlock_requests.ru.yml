@@ -68,6 +68,8 @@ ru:
       in_progress_btn: В работу
       needs_approval_btn: На согласование
       approved_btn: Согласован
+      done_btn: Готово
+      failed_btn: Не получилось
       client_declined_btn: Отказ клиента
       archive_btn: В архив
       archive_confirm: Убрать запрос в архив?
@@ -77,6 +79,8 @@ ru:
       in_progress: В работе
       needs_approval: Требует согласования
       approved: Согласован
+      done: Готово
+      failed: Не получилось
       client_declined: Отказ от клиента
   activerecord:
     models:

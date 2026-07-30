@@ -32,11 +32,18 @@ class DeviceUnlockRequest < ApplicationRecord
 
   # Workflow-статус по ТЗ: Новый → В работе → Требует согласования →
   # Согласован → Отказ от клиента. Цвет строки/бейджа в таблице (Цикл 2).
+  # Порядок КЛЮЧЕЙ в этом хеше определяет порядок чипов-фильтров и кнопок статуса
+  # в UI (обход по .statuses.keys). Коды (значения) стабильны — их менять нельзя,
+  # в БД уже лежат записи. Поэтому done:5/failed:6 вписаны ПЕРЕД client_declined:4
+  # (логичный workflow «Согласован → Готово/Не получилось → Отказ клиента»), но
+  # код client_declined остаётся 4.
   enum status: {
     new_request:     0,
     in_progress:     1,
     needs_approval:  2,
     approved:        3,
+    done:            5,  # Готово — разблокировка получилась (финальный успех)
+    failed:          6,  # Не получилось — с нашей стороны (гарантий никто не даёт)
     client_declined: 4
   }
 
@@ -63,6 +70,8 @@ class DeviceUnlockRequest < ApplicationRecord
   STATUS_NOTIFICATION_LABELS = {
     'needs_approval'  => 'на согласовании',
     'approved'        => 'согласован',
+    'done'            => 'готово',
+    'failed'          => 'не получилось',
     'client_declined' => 'отказ клиента'
   }.freeze
 
