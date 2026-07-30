@@ -520,6 +520,7 @@ class ServiceJobsController < ApplicationController
   # активный ремонт — как при обычном старте предлагаем поставить его на паузу.
   def seize_repair
     @service_job = find_record ServiceJob
+    @seize_flow = true
     in_progress = RepairStatus.by_code(RepairStatus::IN_PROGRESS)
     current_owner = @service_job.current_in_progress_user
 
