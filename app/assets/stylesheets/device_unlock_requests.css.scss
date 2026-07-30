@@ -8,6 +8,8 @@
   .device-unlock-requests__row--in-progress > td    { background-color: #fcf6e9; }
   .device-unlock-requests__row--needs-approval > td  { background-color: #fdf1e7; }
   .device-unlock-requests__row--approved > td        { background-color: #f1f8f1; }
+  .device-unlock-requests__row--done > td            { background-color: #e8f5e9; }
+  .device-unlock-requests__row--failed > td          { background-color: #f3f4f5; }
   .device-unlock-requests__row--client-declined > td { background-color: #fdf3f3; }
 
   // ── Бейдж статуса (5 цветов по ТЗ) ────────────────────────────────────────
@@ -15,6 +17,8 @@
   .device-unlock-requests__status--in-progress     { background-color: #f0ad4e; } // жёлтый
   .device-unlock-requests__status--needs-approval  { background-color: #e8772e; } // оранжевый
   .device-unlock-requests__status--approved        { background-color: #5cb85c; } // зелёный
+  .device-unlock-requests__status--done            { background-color: #2e7d32; } // тёмно-зелёный (успех)
+  .device-unlock-requests__status--failed          { background-color: #6c757d; } // серый (не вышло с нашей стороны)
   .device-unlock-requests__status--client-declined { background-color: #d9534f; } // красный
 
   .device-unlock-requests__status-cell { white-space: nowrap; }
@@ -55,6 +59,8 @@
   .device-unlock-requests__chip--in-progress.is-active     { background: #f0ad4e; border-color: #f0ad4e; color: #fff; }
   .device-unlock-requests__chip--needs-approval.is-active  { background: #e8772e; border-color: #e8772e; color: #fff; }
   .device-unlock-requests__chip--approved.is-active        { background: #5cb85c; border-color: #5cb85c; color: #fff; }
+  .device-unlock-requests__chip--done.is-active            { background: #2e7d32; border-color: #2e7d32; color: #fff; }
+  .device-unlock-requests__chip--failed.is-active          { background: #6c757d; border-color: #6c757d; color: #fff; }
   .device-unlock-requests__chip--client-declined.is-active { background: #d9534f; border-color: #d9534f; color: #fff; }
 
   &__chip-reset {
@@ -77,6 +83,28 @@
   &__archive-btn {
     margin-top: 6px;
     margin-left: 4px;
+  }
+
+  // ── Инлайн-себестоимость в ячейке устройства (Цикл 2, только суперадмин) ────
+  // Отделяем от строк устройства сверху; поле узкое, подпись/₽/кнопка в строку.
+  &__cost {
+    margin-top: 6px;
+    padding-top: 6px;
+    border-top: 1px dashed #ddd;
+  }
+
+  &__cost-label {
+    margin-right: 4px;
+    font-size: 12px;
+    color: #777;
+  }
+
+  &__cost-input {
+    width: 70px;
+    height: auto;
+    padding: 2px 4px;
+    margin: 0 2px;
+    font-size: 12px;
   }
 
   // ── Инлайн-добавление комментария в ячейке «последний» (Цикл 4) ────────────

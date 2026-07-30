@@ -49,6 +49,14 @@ class DeviceUnlockRequestPolicy < ApplicationPolicy
     true
   end
 
+  # Себестоимость разблокировки — редактируют И видят ТОЛЬКО суперадмины
+  # (решение заказчика 2026-07-30). Этот же предикат гейтит и показ значения
+  # в строке (display = edit-аудитория, отдельного view-права не заводим).
+  # superadmin? — приватный хелпер ApplicationPolicy (user.superadmin?).
+  def update_cost?
+    superadmin?
+  end
+
   # Архивация (Цикл 8) — открыта всем, как остальные предикаты этой фичи.
   def archive?
     true
