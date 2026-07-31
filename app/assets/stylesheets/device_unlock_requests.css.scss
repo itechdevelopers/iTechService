@@ -137,6 +137,67 @@
   overflow: visible;
 }
 
+// ── Мобильная адаптация пикера «На согласование» (iPhone) ────────────────────
+// Общий #modal_form зашит как .modal.large (width:1000px; margin-left:-500px),
+// поэтому на телефоне модалка уезжает за оба края экрана. Маркер-класс
+// .device-unlock-requests__approval-modal вешает inline-JS партиала (снимает по
+// 'hidden'), что позволяет переверстать ТОЛЬКО этот диалог, не трогая generic
+// .modal (CONTEXT.md). Правила заскоуплены под #modal_form + маркер.
+@media (max-width: 767px) {
+  #modal_form.device-unlock-requests__approval-modal {
+    top: 12px;
+    left: 12px;
+    right: 12px;
+    width: auto;
+    margin-left: 0;
+
+    // Кнопки футера в столбик на всю ширину — надёжные тач-цели вместо
+    // переносящегося вправо ряда (Bootstrap 2.x выравнивает их inline-справа).
+    .modal-footer {
+      text-align: left;
+
+      .btn {
+        display: block;
+        width: 100%;
+        margin: 0 0 8px;
+        padding: 10px 12px;
+        box-sizing: border-box;
+        font-size: 15px;
+
+        &:last-child { margin-bottom: 0; }
+      }
+    }
+
+    // Кнопка multiselect на всю ширину — тач-цель вместо схлопнутой «Выбе…».
+    // davidstutz кладёт .btn-group (inline width:100%) внутрь span-обёртки
+    // .multiselect-native-select, которая на телефоне схлопывается до ~67px, из-за
+    // чего 100% кнопки резолвится в те же 67px. Растягиваем всю цепочку.
+    .multiselect-native-select,
+    .multiselect-native-select .btn-group {
+      display: block;
+      width: 100%;
+    }
+
+    .multiselect.btn {
+      width: 100%;
+      box-sizing: border-box;
+      text-align: left;
+    }
+
+    // Крупнее строки multiselect и поле поиска — под палец, не под курсор.
+    .multiselect-container > li > a {
+      padding-top: 8px;
+      padding-bottom: 8px;
+    }
+
+    .multiselect-filter .multiselect-search {
+      height: auto;
+      padding: 8px 10px;
+      font-size: 15px;
+    }
+  }
+}
+
 // ── Подсказка «разблокировка от iCloud» (форма new/edit) ─────────────────────
 // _form рендерится БЕЗ обёртки .device-unlock-requests, поэтому правило —
 // самостоятельное (не вложено в блок), как и правило пикера выше. Уникальный

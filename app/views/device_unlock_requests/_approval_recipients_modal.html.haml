@@ -29,6 +29,13 @@
 
 :javascript
   $(function() {
+    // #modal_form — общий контейнер (.modal.large = 1000px, вне экрана на iPhone).
+    // Помечаем ТОЛЬКО эту модалку уникальным классом, чтобы мобильные правила в
+    // device_unlock_requests.css.scss не задели прочие модалки (CONTEXT.md). Снимаем
+    // по 'hidden' (Bootstrap 2.x, без namespace), иначе класс протечёт на след. модалку.
+    $('#modal_form').addClass('device-unlock-requests__approval-modal')
+      .one('hidden', function() { $(this).removeClass('device-unlock-requests__approval-modal'); });
+
     var $select = $('#approval_user_ids');
     if ($select.length && !$select.data('multiselect')) {
       $select.multiselect({
