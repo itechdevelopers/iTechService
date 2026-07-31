@@ -99,3 +99,9 @@ notify_stale_unlock_requests:
   class: 'NotifyStaleUnlockRequestsJob'
   queue: 'default'
   active_job: true
+
+repair_master_day_off_notification:
+  cron: '0 11 * * * Asia/Vladivostok'
+  class: 'RepairMasterDayOffNotificationJob'
+  queue: 'default'
+  active_job: true
