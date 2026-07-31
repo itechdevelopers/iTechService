@@ -24,6 +24,7 @@ ru:
       view_quick_orders_and_free_jobs_everywhere: 'Просмотр бесплатного сервиса и быстрых заказов на всех подразделениях'
       view_repair_parts: 'Смотреть запчасти устройства'
       view_reports: 'Смотреть отчёты'
+      view_unlock_cost: 'Видеть себестоимость разблокировки'
       show_spare_parts_qty: 'Показывать количество запчастей в видах ремонта'
       show_spare_parts_qty_on_reception: 'Видеть количество запчастей при приёмке'
       request_review: Запрашивать оценку у клиента
