@@ -6,11 +6,10 @@
 #   * за день до дедлайна   — «Завтра дедлайн…»;
 #   * в сам день дедлайна   — «Сегодня дедлайн…»;
 #   * каждый день просрочки — «Просрочен дедлайн…» (пока карточка не закрыта).
-# Получатели: суперадмины (видят все дедлайны) + ответственные карточки (card.managers).
+# Получатели: ответственные карточки (card.managers).
 # Ответственным, привязавшим личный Telegram (user.telegram_linked?), тот же текст
 # дублируется личным сообщением бота — со ссылкой на карточку в конце (в in-app
 # ссылка живёт в отдельной колонке notification.url, в TG её надо встроить в текст).
-# Суперадминам TG не шлём — только in-app.
 # Карточки в колонках с флагом «Готово» (column.done) полностью исключаются.
 # Архивные карточки выпадают сами через default_scope в Kanban::Card.
 # Образец daily-джобы — ClientRequestPurchaseReminderJob.
@@ -18,8 +17,6 @@ class KanbanCardDeadlineReminderJob < ApplicationJob
   queue_as :default
 
   def perform
-    @superadmins = User.superadmins.active.to_a
-
     notify_cards(cards_with_deadline(Date.current.tomorrow), :tomorrow)
     notify_cards(cards_with_deadline(Date.current), :today)
     notify_cards(overdue_cards, :overdue)
@@ -44,11 +41,11 @@ class KanbanCardDeadlineReminderJob < ApplicationJob
       message  = build_message(card, phase)
       managers = card.managers.active.to_a
 
-      (@superadmins + managers).uniq.each do |user|
+      managers.each do |user|
         created = create_notification(user, card, message)
-        # Личный TG-дубль — только ответственным и только при новом уведомлении,
-        # чтобы повторный запуск cron в тот же день не задублировал сообщение.
-        notify_telegram(user, card, message) if created && managers.include?(user) && user.telegram_linked?
+        # Личный TG-дубль — только при новом уведомлении, чтобы повторный запуск
+        # cron в тот же день не задублировал сообщение.
+        notify_telegram(user, card, message) if created && user.telegram_linked?
       end
     end
   end
