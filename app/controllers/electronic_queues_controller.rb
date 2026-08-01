@@ -148,10 +148,13 @@ class ElectronicQueuesController < ApplicationController
     end
     @alert_setting = @electronic_queue.inactivity_alert_setting || @electronic_queue.build_inactivity_alert_setting
     @available_schedule_groups = ScheduleGroup.where(city_id: @electronic_queue.department.city_id).order(:name)
+    @available_occupation_types = OccupationType.where(counts_as_working: true)
   end
 
   def save_inactivity_settings
-    setting_params = params.require(:alert_setting).permit(:schedule_group_id, :min_unattended_seconds)
+    setting_params = params.require(:alert_setting)
+                           .permit(:schedule_group_id, :min_unattended_seconds, occupation_type_ids: [])
+    setting_params[:occupation_type_ids] = Array(setting_params[:occupation_type_ids]).reject(&:blank?)
 
     ActiveRecord::Base.transaction do
       setting = @electronic_queue.inactivity_alert_setting || @electronic_queue.build_inactivity_alert_setting

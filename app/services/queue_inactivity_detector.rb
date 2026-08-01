@@ -95,14 +95,23 @@ class QueueInactivityDetector
       today = now_in_city.to_date
       seconds = now_in_city.seconds_since_midnight
 
-      ScheduleEntry
-        .where(schedule_group: schedule_group, user_id: active_member_ids, date: today)
-        .joins(:occupation_type).where(occupation_types: { counts_as_working: true })
+      scope = ScheduleEntry
+              .where(schedule_group: schedule_group, user_id: active_member_ids, date: today)
+              .joins(:occupation_type).where(occupation_types: { counts_as_working: true })
+      scope = scope.where(occupation_type_id: counted_occupation_type_ids) if counted_occupation_type_ids.any?
+
+      scope
         .includes(:shift)
         .select { |e| e.covers_time?(seconds) }
         .map(&:user_id)
         .uniq
     end
+  end
+
+  # Занятости, выбранные в настройке контроля неактивности.
+  # Пусто — считаем всех, у кого occupation_type.counts_as_working (обратная совместимость).
+  def counted_occupation_type_ids
+    @counted_occupation_type_ids ||= alert_setting.occupation_type_ids
   end
 
   def active_users

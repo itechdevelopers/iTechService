@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20260730185141) do
+ActiveRecord::Schema.define(version: 20260801070619) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -1063,6 +1063,13 @@ ActiveRecord::Schema.define(version: 20260730185141) do
     t.datetime "updated_at", null: false
     t.boolean "is_day_off", default: false, null: false
     t.boolean "is_other_work", default: false, null: false
+  end
+
+  create_table "occupation_types_queue_inactivity_alert_settings", id: false, force: :cascade do |t|
+    t.bigint "occupation_type_id", null: false
+    t.bigint "queue_inactivity_alert_setting_id", null: false
+    t.index ["occupation_type_id"], name: "idx_qias_occupation_types_occ_type_id"
+    t.index ["queue_inactivity_alert_setting_id", "occupation_type_id"], name: "idx_qias_occupation_types_unique", unique: true
   end
 
   create_table "option_types", id: :serial, force: :cascade do |t|
