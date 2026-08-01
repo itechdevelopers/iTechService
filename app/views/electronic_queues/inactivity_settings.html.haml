@@ -1,6 +1,7 @@
 - alert_input = params[:alert_setting] || {}
 - min_unattended_value = alert_input[:min_unattended_seconds] || @alert_setting.min_unattended_seconds
 - selected_group_id = alert_input[:schedule_group_id] || @alert_setting.schedule_group_id
+- selected_occupation_type_ids = (alert_input[:occupation_type_ids] || @alert_setting.occupation_type_ids).map(&:to_s)
 - thresholds_input = params[:thresholds] || {}
 
 .page-header
@@ -17,6 +18,16 @@
                    include_blank: t('.schedule_group_blank'),
                    id: 'alert_setting_schedule_group_id'
       %p.help-block= t('.schedule_group_hint')
+
+  .control-group
+    = label_tag 'alert_setting_occupation_types', t('.occupation_types'), class: 'control-label'
+    .controls
+      = hidden_field_tag 'alert_setting[occupation_type_ids][]', ''
+      - @available_occupation_types.each do |occupation_type|
+        %label.checkbox.inline{ style: 'margin-right: 16px;' }
+          = check_box_tag 'alert_setting[occupation_type_ids][]', occupation_type.id, selected_occupation_type_ids.include?(occupation_type.id.to_s)
+          = occupation_type.name
+      %p.help-block= t('.occupation_types_hint')
 
   .control-group
     = label_tag 'alert_setting_min_unattended_seconds', t('.min_unattended_seconds'), class: 'control-label required'
