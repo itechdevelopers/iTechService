@@ -67,6 +67,20 @@
     var isDragging = false;
     var offsetX, offsetY;
 
+    // Keep the widget within the viewport. No-op while hidden (offset* === 0),
+    // so it's safe to call on restore, on show() and on window resize.
+    function clampToViewport() {
+      if (!widget.offsetWidth || !widget.offsetHeight) return;
+      var left = parseInt(widget.style.left, 10);
+      var top = parseInt(widget.style.top, 10);
+      if (isNaN(left) || isNaN(top)) return;
+      left = Math.max(0, Math.min(left, window.innerWidth - widget.offsetWidth));
+      top = Math.max(0, Math.min(top, window.innerHeight - widget.offsetHeight));
+      widget.style.left = left + 'px';
+      widget.style.top = top + 'px';
+      widget.style.marginLeft = '0';
+    }
+
     var savedPos = localStorage.getItem('elqueueWidgetPosition');
     if (savedPos) {
       try {
@@ -74,8 +88,11 @@
         widget.style.top = pos.top + 'px';
         widget.style.left = pos.left + 'px';
         widget.style.marginLeft = '0';
+        clampToViewport();
       } catch(e) {}
     }
+
+    window.addEventListener('resize', clampToViewport);
 
     header.addEventListener('mousedown', function(e) {
       isDragging = true;
@@ -124,6 +141,7 @@
         calledAt = new Date(data.ticket_called_at);
         startTimer();
         widget.style.display = 'block';
+        clampToViewport();
       },
 
       hide: function() {
