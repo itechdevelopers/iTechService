@@ -38,6 +38,11 @@
         </span>
       <% end %>
 
+      <% if @board.money_tracking %>
+        <%= link_to t('.money_total', amount: number_to_currency(@board.money_total, unit: '₽', format: '%n %u', delimiter: ' ', precision: 0)),
+                    report_kanban_board_path(@board), class: 'kanban-board-money-total' %>
+      <% end %>
+
       <span class="sort-kanban-board">
         <%= form_with url: sorted_kanban_board_path(board: @board), method: :get, local: false do |form| %>
           <div class="form-group">

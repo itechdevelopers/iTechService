@@ -29,6 +29,12 @@ ru:
         manager_person: "Ответственный %{name}"
         add_card: 'Добавить Карточку'
         add_column: 'Добавить Колонку'
+        money_total: 'Количество денег на доске: %{amount}'
+      report:
+        title: 'Отчёт по деньгам — %{board}'
+        empty: 'По карточкам этой доски суммы ещё не заводились.'
+        card_subtotal: 'Итого по карточке'
+        grand_total: 'Всего по доске'
       copy:
         title: 'Копирование доски'
         name_label: 'Название новой доски'

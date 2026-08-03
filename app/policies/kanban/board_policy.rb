@@ -8,6 +8,10 @@ module Kanban
       superadmin? || record.allowed_user_ids.include?(user.id)
     end
 
+    def report?
+      show?
+    end
+
     def sorted?
       read?
     end

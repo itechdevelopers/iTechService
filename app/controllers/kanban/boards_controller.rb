@@ -69,6 +69,10 @@ module Kanban
       end
     end
 
+    def report
+      @board = find_record(Board.includes(columns: {cards: :money_entries}))
+    end
+
     def archived
       @archived_cards = @board.archived_cards
     end

@@ -556,6 +556,7 @@ Rails.application.routes.draw do
         end
       end
       get :sorted, on: :member, defaults: {format: :js}
+      get :report, on: :member
       get :archived, on: :member
       get :copy, on: :member
       post :copy, on: :member
