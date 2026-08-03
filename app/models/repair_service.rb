@@ -19,6 +19,7 @@ class RepairService < ApplicationRecord
   scope :not_archived, -> { where(archived: false) }
 
   belongs_to :repair_group, optional: true
+  belongs_to :repair_service_mark, optional: true
   has_many :spare_parts, dependent: :destroy
   has_many :store_items, through: :spare_parts
   has_many :prices, class_name: 'RepairPrice', inverse_of: :repair_service, dependent: :destroy
