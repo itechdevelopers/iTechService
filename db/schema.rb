@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20260803120001) do
+ActiveRecord::Schema.define(version: 20260803195257) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -2009,6 +2009,7 @@ ActiveRecord::Schema.define(version: 20260803120001) do
     t.datetime "repair_status_changed_at"
     t.datetime "reception_photo_check_scheduled_at"
     t.boolean "excluded_from_reports", default: false, null: false
+    t.datetime "reception_photo_fault_issued_at"
     t.index ["carrier_id"], name: "index_service_jobs_on_carrier_id"
     t.index ["case_color_id"], name: "index_service_jobs_on_case_color_id"
     t.index ["client_id"], name: "index_service_jobs_on_client_id"
