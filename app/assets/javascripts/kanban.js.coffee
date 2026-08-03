@@ -30,6 +30,26 @@ jQuery ->
   $(document).on 'change', '.kanban-manager-checkbox', ->
     toggleEmailWarning(this)
 
+  # Money entries: clone the inert <template> row, giving it a unique index so
+  # Rails treats it as a brand-new nested record on submit.
+  $(document).on 'click', '.add-money-entry', (event) ->
+    event.preventDefault()
+    $controls = $(this).closest('.controls')
+    template = $controls.find('.money-entry-template').html()
+    newIndex = new Date().getTime()
+    $controls.find('.kanban-money-entries').append(template.replace(/NEW_RECORD/g, newIndex))
+
+  # Persisted rows carry a hidden [id] field — flag them for destruction and
+  # hide. Unsaved rows have no id, so just drop them from the DOM.
+  $(document).on 'click', '.remove-money-entry', (event) ->
+    event.preventDefault()
+    $row = $(this).closest('.kanban-money-entry')
+    if $row.find('input[name*="[id]"]').length
+      $row.find('.money-entry-destroy').val('1')
+      $row.hide()
+    else
+      $row.remove()
+
   $(".check-all-users").on "click", (event) ->
     event.preventDefault()
     $(this).closest(".kanban-user-choice").find(":checkbox").prop "checked", true

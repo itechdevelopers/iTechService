@@ -84,7 +84,8 @@ module Kanban
 
     def card_params
       params.require(:kanban_card).permit(:content, :column_id, :deadline, :name, :cards_positions,
-        manager_ids: [], photos: [])
+        manager_ids: [], photos: [],
+        money_entries_attributes: %i[id reason amount _destroy])
     end
 
     def update_notifications

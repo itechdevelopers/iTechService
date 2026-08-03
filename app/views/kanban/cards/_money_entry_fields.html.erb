@@ -1,0 +1,6 @@
+<div class="kanban-money-entry">
+  <%= f.text_field :reason, placeholder: 'Основание (напр. Ведущий)', class: 'money-entry-reason' %>
+  <%= f.number_field :amount, placeholder: 'Сумма, ₽', class: 'money-entry-amount', min: 1, step: 1 %>
+  <%= f.hidden_field :_destroy, class: 'money-entry-destroy' %>
+  <%= link_to '×', '#', class: 'btn btn-small btn-danger remove-money-entry', title: 'Удалить строку' %>
+</div>

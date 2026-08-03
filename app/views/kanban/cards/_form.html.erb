@@ -3,6 +3,27 @@
   <%= form.input :content %>
   <%= form.association :column, collection: Kanban::Column.in_board(card.board), include_blank: false %>
   <%= form.input :deadline, as: :my_date %>
+
+  <% if card.board.money_tracking %>
+    <div class="control-group kanban-money">
+      <%= form.label :money_entries, 'Деньги (основание и сумма)', class: 'control-label' %>
+      <div class="controls">
+        <% card.money_entries.build if card.money_entries.empty? %>
+        <div class="kanban-money-entries">
+          <%= form.simple_fields_for :money_entries do |mf| %>
+            <%= render 'kanban/cards/money_entry_fields', f: mf %>
+          <% end %>
+        </div>
+        <%= link_to '+ Добавить сумму', '#', class: 'btn btn-small add-money-entry' %>
+        <template class="money-entry-template">
+          <%= form.simple_fields_for :money_entries, Kanban::MoneyEntry.new, child_index: 'NEW_RECORD' do |mf| %>
+            <%= render 'kanban/cards/money_entry_fields', f: mf %>
+          <% end %>
+        </template>
+      </div>
+    </div>
+  <% end %>
+
   <%= form.input :photos, as: :file, input_html: { multiple: true } %>
   <div>
     <% @card.photos.each do |photo| %>

@@ -18,6 +18,23 @@
       </div>
       <small><%= @card.author_presentation %> [<%= l @card.created_at, format: :date_time %>]</small>
     </blockquote>
+
+    <% if @card.board.money_tracking && @card.money_entries.any? %>
+      <table class="table table-condensed kanban-money-list">
+        <tbody>
+          <% @card.money_entries.each do |entry| %>
+            <tr>
+              <td><%= entry.reason %></td>
+              <td class="kanban-money-amount"><%= number_to_currency entry.amount, unit: '₽', format: '%n %u', delimiter: ' ', precision: 0 %></td>
+            </tr>
+          <% end %>
+          <tr class="kanban-money-total-row">
+            <th>Итого</th>
+            <th class="kanban-money-amount"><%= number_to_currency @card.money_total, unit: '₽', format: '%n %u', delimiter: ' ', precision: 0 %></th>
+          </tr>
+        </tbody>
+      </table>
+    <% end %>
     <div>
       <% @card.photos.each do |photo| %>
         <div class="kanban-photo">

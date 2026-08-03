@@ -26,6 +26,15 @@ class Kanban::Board < ApplicationRecord
     columns.ordered.first
   end
 
+  # Sum of every money entry on this board's *active* cards. The join through
+  # :card carries Kanban::Card's default_scope (archived: false), so archived
+  # cards drop out automatically — matching what the board itself displays.
+  def money_total
+    Kanban::MoneyEntry.joins(card: :column)
+                      .where(kanban_columns: {board_id: id})
+                      .sum(:amount)
+  end
+
   def archived_cards
     Kanban::Card.unscoped
                 .joins(:column)
