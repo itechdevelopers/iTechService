@@ -69,6 +69,10 @@ module Kanban
       end
     end
 
+    def report
+      @board = find_record(Board.includes(columns: {cards: :money_entries}))
+    end
+
     def archived
       @archived_cards = @board.archived_cards
     end
@@ -109,6 +113,7 @@ module Kanban
     def board_params
       params.require(:kanban_board).permit(:name, :background, :sort_order, :open_background_color, :card_font_color, :outer_annotation, :inner_annotation, :open_card_font_size, :card_font_size,
                                            :card_white_background, :background_image, :background_image_cache, :remove_background_image,
+                                           :money_tracking,
                                            :telegram_chat_id, manager_ids: [], allowed_user_ids: [], auto_add_department_ids: [])
     end
   end

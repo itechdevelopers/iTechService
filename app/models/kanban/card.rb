@@ -15,6 +15,8 @@ class Kanban::Card < ApplicationRecord
                           join_table: :kanban_cards_users,
                           association_foreign_key: :user_id,
                           foreign_key: :kanban_card_id
+  has_many :money_entries, class_name: 'Kanban::MoneyEntry', inverse_of: :card, dependent: :destroy
+  accepts_nested_attributes_for :money_entries, allow_destroy: true, reject_if: :all_blank
 
   mount_uploaders :photos, KanbanPhotoUploader
 
@@ -34,6 +36,10 @@ class Kanban::Card < ApplicationRecord
 
   def url
     Rails.application.routes.url_helpers.kanban_card_path(self)
+  end
+
+  def money_total
+    money_entries.sum(:amount)
   end
 
   def notification_recipients

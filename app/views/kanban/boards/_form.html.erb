@@ -18,6 +18,9 @@
       <%= form.input :remove_background_image, as: :boolean, label: 'Удалить картинку' %>
     </div>
   <% end %>
+  <%= form.input :money_tracking, as: :boolean,
+        label: 'Нужны ли тут деньги? :)',
+        hint: 'Внутри каждой карточки появится возможность добавлять суммы (основание + сумма), а на доске — общий итог с отчётом по карточкам.' %>
   <%= form.input :outer_annotation %>
   <%= form.input :inner_annotation %>
   <%= form.association :telegram_chat,

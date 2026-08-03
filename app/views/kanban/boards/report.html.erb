@@ -1,0 +1,40 @@
+<% money_format = ->(amount) { number_to_currency(amount, unit: '₽', format: '%n %u', delimiter: ' ', precision: 0) } %>
+
+<div class="page-header">
+  <h2>
+    <%= link_back_to kanban_board_path(@board) %>
+    <%= t('.title', board: @board.name) %>
+  </h2>
+</div>
+
+<div class="kanban-money-report">
+  <% cards_with_money = @board.columns.flat_map { |column| column.cards.ordered.to_a }.select { |card| card.money_entries.any? } %>
+
+  <% if cards_with_money.empty? %>
+    <p class="muted"><%= t('.empty') %></p>
+  <% else %>
+    <% cards_with_money.each do |card| %>
+      <div class="kanban-money-report__category">
+        <h4><%= link_to card.name, kanban_card_path(card) %></h4>
+        <table class="table table-condensed">
+          <tbody>
+            <% card.money_entries.each do |entry| %>
+              <tr>
+                <td><%= entry.reason %></td>
+                <td class="kanban-money-amount"><%= money_format.call(entry.amount) %></td>
+              </tr>
+            <% end %>
+            <tr class="kanban-money-total-row">
+              <th><%= t('.card_subtotal') %></th>
+              <th class="kanban-money-amount"><%= money_format.call(card.money_total) %></th>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    <% end %>
+
+    <div class="kanban-money-report__grand-total">
+      <strong><%= t('.grand_total') %>: <%= money_format.call(@board.money_total) %></strong>
+    </div>
+  <% end %>
+</div>

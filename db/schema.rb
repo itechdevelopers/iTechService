@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20260803085513) do
+ActiveRecord::Schema.define(version: 20260803120001) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -882,6 +882,7 @@ ActiveRecord::Schema.define(version: 20260803085513) do
     t.boolean "archived", default: false, null: false
     t.boolean "card_white_background", default: false, null: false
     t.string "background_image"
+    t.boolean "money_tracking", default: false, null: false
     t.index ["allowed_user_ids"], name: "index_kanban_boards_on_allowed_user_ids"
     t.index ["archived"], name: "index_kanban_boards_on_archived"
     t.index ["auto_add_department_ids"], name: "index_kanban_boards_on_auto_add_department_ids", using: :gin
@@ -922,6 +923,15 @@ ActiveRecord::Schema.define(version: 20260803085513) do
     t.datetime "updated_at", null: false
     t.boolean "done", default: false, null: false
     t.index ["board_id"], name: "index_kanban_columns_on_board_id"
+  end
+
+  create_table "kanban_money_entries", force: :cascade do |t|
+    t.bigint "card_id", null: false
+    t.string "reason", null: false
+    t.integer "amount", null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["card_id"], name: "index_kanban_money_entries_on_card_id"
   end
 
   create_table "karma_groups", id: :serial, force: :cascade do |t|
@@ -2703,6 +2713,7 @@ ActiveRecord::Schema.define(version: 20260803085513) do
   add_foreign_key "kanban_cards_users", "kanban_cards"
   add_foreign_key "kanban_cards_users", "users"
   add_foreign_key "kanban_columns", "kanban_boards", column: "board_id"
+  add_foreign_key "kanban_money_entries", "kanban_cards", column: "card_id"
   add_foreign_key "lost_devices", "service_jobs"
   add_foreign_key "merits", "faults"
   add_foreign_key "merits", "users", column: "issued_by_id"
