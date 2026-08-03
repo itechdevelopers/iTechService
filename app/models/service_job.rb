@@ -597,6 +597,41 @@ kind: 'device_return', content: id.to_s)
     end
   end
 
+  # Автоматически выставляет создателю работы минус за отсутствие фото при
+  # приёмке. Идемпотентно: guard reception_photo_fault_issued_at не даёт
+  # продублировать минус при перезапуске джоба. Возвращает созданный Fault
+  # либо nil, если минус не выставлен (уже выставлен / нет создателя / тип
+  # задачи не сопоставлен с FaultKind). issued_by не заполняется — минус
+  # системный (см. docs/reception-photo-reminder-and-auto-fault-feature.md).
+  def issue_reception_photo_fault!
+    return if reception_photo_fault_issued_at.present?
+    return if user.nil?
+
+    kind = reception_photo_fault_kind
+    return if kind.nil?
+
+    fault = Fault.create!(
+      causer: user,
+      kind: kind,
+      date: Date.current,
+      comment: I18n.t('faults.reception_photo_auto_comment', ticket: ticket_number),
+      penalty: reception_photo_fault_penalty(kind)
+    )
+    update_column(:reception_photo_fault_issued_at, Time.current)
+    fault
+  end
+
+  # Ступень штрафа по правилам Fault::Create#calculate_penalty: у финансовых
+  # видов не считается (nil); иначе по числу уже активных необменянных минусов
+  # того же вида у сотрудника на сегодня выбираем элемент из kind.penalties.
+  def reception_photo_fault_penalty(kind)
+    return if kind.financial?
+
+    today = Date.current
+    count = Fault.active.not_exchanged.by_causer(user_id).by_kind(kind).on_date(today).count
+    count < kind.penalties.length ? kind.penalties[count] : kind.penalties[-1]
+  end
+
   private
 
   # «Качели статуса»: закрывающая смена `in_progress → waiting` тем же юзером,
