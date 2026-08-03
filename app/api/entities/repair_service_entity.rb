@@ -9,6 +9,10 @@ class Entities::RepairServiceEntity < Grape::Entity
   expose :spare_parts do |repair_service, options|
     get_cached_spare_parts(repair_service, options[:departments])
   end
+  expose :mark do |repair_service, options|
+    mark = repair_service.repair_service_mark
+    { id: mark.id, name: mark.name } if mark
+  end
 
   private
 

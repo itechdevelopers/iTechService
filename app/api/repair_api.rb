@@ -14,7 +14,7 @@ class RepairApi < Grape::API
     if params[:group_id].present?
       repair_group = RepairGroup.find(params[:group_id])
       repair_groups = repair_group.children
-      repair_services = repair_group.repair_services.includes(:prices, :spare_parts, :store_items)
+      repair_services = repair_group.repair_services.includes(:prices, :spare_parts, :store_items, :repair_service_mark)
       present :repair_services, repair_services, with: Entities::RepairServiceEntity, departments: departments
     else
       repair_groups = RepairGroup.roots

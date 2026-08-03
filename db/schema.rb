@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20260801070619) do
+ActiveRecord::Schema.define(version: 20260803085513) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -1587,6 +1587,16 @@ ActiveRecord::Schema.define(version: 20260801070619) do
     t.index ["repair_service_id"], name: "index_repair_prices_on_repair_service_id"
   end
 
+  create_table "repair_service_marks", force: :cascade do |t|
+    t.string "name", null: false
+    t.string "title"
+    t.string "code"
+    t.integer "position"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["code"], name: "index_repair_service_marks_on_code", unique: true
+  end
+
   create_table "repair_services", id: :serial, force: :cascade do |t|
     t.integer "repair_group_id"
     t.string "name", limit: 255
@@ -1604,7 +1614,9 @@ ActiveRecord::Schema.define(version: 20260801070619) do
     t.integer "time_standard_from"
     t.integer "time_standard_to"
     t.boolean "is_popular", default: false, null: false
+    t.bigint "repair_service_mark_id"
     t.index ["repair_group_id"], name: "index_repair_services_on_repair_group_id"
+    t.index ["repair_service_mark_id"], name: "index_repair_services_on_repair_service_mark_id"
   end
 
   create_table "repair_status_changes", force: :cascade do |t|
@@ -2727,6 +2739,7 @@ ActiveRecord::Schema.define(version: 20260801070619) do
   add_foreign_key "repair_attention_markers", "users", column: "processed_by_id"
   add_foreign_key "repair_prices", "departments"
   add_foreign_key "repair_prices", "repair_services"
+  add_foreign_key "repair_services", "repair_service_marks"
   add_foreign_key "repair_status_changes", "repair_pause_reasons"
   add_foreign_key "repair_status_changes", "repair_statuses", column: "from_status_id"
   add_foreign_key "repair_status_changes", "repair_statuses", column: "to_status_id"
