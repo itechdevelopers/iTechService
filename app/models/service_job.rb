@@ -539,24 +539,97 @@ kind: 'device_return', content: id.to_s)
     change
   end
 
+  # Категория задачи-триггера → имя типа минуса (FaultKind.name). Приоритет у
+  # «сервисный центр» — более строгий тип. Имена должны точно совпадать с
+  # прод-записями fault_kinds (в dev-сидах имена — плейсхолдеры).
+  RECEPTION_PHOTO_FAULT_KIND_NAMES = {
+    service_center: 'Грубые нарушения',
+    repair: 'Не выполнение обязанностей сотрудника магазина'
+  }.freeze
+
+  # Задачи приёмки, помеченные как «требуют фото». Единый источник для проверки
+  # обязательности, списка имён и выбора типа минуса.
+  def reception_photo_device_tasks
+    device_tasks.joins(:task).where(tasks: { require_reception_photo: true })
+  end
+
   # Есть ли среди задач приёмки хотя бы одна, помеченная как «требует фото».
-  # Публичный — используется и колбэком постановки, и ReceptionPhotoCheckJob
-  # при отложенной перепроверке.
+  # Публичный — используется и колбэком постановки, и джобами при перепроверке.
   def reception_photo_required?
-    device_tasks.joins(:task).where(tasks: { require_reception_photo: true }).exists?
+    reception_photo_device_tasks.exists?
   end
 
   # Названия задач-триггеров (require_reception_photo) — для текста уведомления,
   # чтобы супер-админ сразу видел, к каким задачам относится пропущенное фото.
   def reception_photo_task_names
-    device_tasks.joins(:task)
-                .where(tasks: { require_reception_photo: true })
-                .distinct.pluck('tasks.name')
+    reception_photo_device_tasks.distinct.pluck('tasks.name')
   end
 
   # Раздел «Фото при приёмке» пуст (контейнера может не быть вовсе).
   def reception_photo_absent?
     photo_container.nil? || photo_container.reception_photos.blank?
+  end
+
+  # Категория задачи-триггера для выбора типа минуса: :service_center | :repair | nil.
+  # «сервисный центр» имеет приоритет над «Ремонт» (см. RECEPTION_PHOTO_FAULT_KIND_NAMES).
+  def reception_photo_fault_category
+    tasks = reception_photo_device_tasks.includes(task: :product)
+    return :service_center if tasks.any?(&:service_center?)
+    return :repair if tasks.any?(&:is_repair?)
+
+    nil
+  end
+
+  # Тип минуса (FaultKind) для авто-наказания за отсутствие фото при приёмке.
+  # Возвращает nil, если задача не относится ни к «сервисный центр», ни к
+  # «Ремонт», либо FaultKind с нужным именем не заведён — в этом случае минус
+  # не ставится (см. решение в docs/reception-photo-reminder-and-auto-fault-feature.md).
+  def reception_photo_fault_kind
+    name = RECEPTION_PHOTO_FAULT_KIND_NAMES[reception_photo_fault_category]
+    return if name.nil?
+
+    FaultKind.find_by(name: name).tap do |kind|
+      if kind.nil?
+        Rails.logger.warn(
+          "[ReceptionPhoto] FaultKind '#{name}' not found — skipping auto-fault for service_job ##{id}"
+        )
+      end
+    end
+  end
+
+  # Автоматически выставляет создателю работы минус за отсутствие фото при
+  # приёмке. Идемпотентно: guard reception_photo_fault_issued_at не даёт
+  # продублировать минус при перезапуске джоба. Возвращает созданный Fault
+  # либо nil, если минус не выставлен (уже выставлен / нет создателя / тип
+  # задачи не сопоставлен с FaultKind). issued_by не заполняется — минус
+  # системный (см. docs/reception-photo-reminder-and-auto-fault-feature.md).
+  def issue_reception_photo_fault!
+    return if reception_photo_fault_issued_at.present?
+    return if user.nil?
+
+    kind = reception_photo_fault_kind
+    return if kind.nil?
+
+    fault = Fault.create!(
+      causer: user,
+      kind: kind,
+      date: Date.current,
+      comment: I18n.t('faults.reception_photo_auto_comment', ticket: ticket_number),
+      penalty: reception_photo_fault_penalty(kind)
+    )
+    update_column(:reception_photo_fault_issued_at, Time.current)
+    fault
+  end
+
+  # Ступень штрафа по правилам Fault::Create#calculate_penalty: у финансовых
+  # видов не считается (nil); иначе по числу уже активных необменянных минусов
+  # того же вида у сотрудника на сегодня выбираем элемент из kind.penalties.
+  def reception_photo_fault_penalty(kind)
+    return if kind.financial?
+
+    today = Date.current
+    count = Fault.active.not_exchanged.by_causer(user_id).by_kind(kind).on_date(today).count
+    count < kind.penalties.length ? kind.penalties[count] : kind.penalties[-1]
   end
 
   private
@@ -766,16 +839,20 @@ kind: 'device_return', content: id.to_s)
     end
   end
 
-  # Одноразовая проверка «есть ли фото при приёмке». Ставится через час, если
-  # среди задач работы есть помеченная (require_reception_photo) и фото приёмки
-  # ещё нет. Guard-таймстамп reception_photo_check_scheduled_at гарантирует, что
-  # даже при повторных редактированиях таймер заводится ровно один раз.
-  # Само уведомление шлёт ReceptionPhotoCheckJob, перепроверяя условие.
+  # Одноразовая постановка контроля «фото при приёмке». Ставится, если среди
+  # задач работы есть помеченная (require_reception_photo) и фото приёмки ещё
+  # нет. Guard-таймстамп reception_photo_check_scheduled_at гарантирует, что
+  # даже при повторных редактированиях таймеры заводятся ровно один раз.
+  # Взводим сразу два джоба под одним guard'ом (условие постановки у них общее):
+  #   +30 мин — ReceptionPhotoReminderJob: напоминание создателю работы;
+  #   +60 мин — ReceptionPhotoCheckJob: авто-минус + надзорное уведомление.
+  # Каждый джоб перепроверяет актуальное условие в момент срабатывания.
   def schedule_reception_photo_check
     return if reception_photo_check_scheduled_at.present?
     return unless reception_photo_required? && reception_photo_absent?
 
     update_column(:reception_photo_check_scheduled_at, Time.current)
+    ReceptionPhotoReminderJob.set(wait: 30.minutes).perform_later(id)
     ReceptionPhotoCheckJob.set(wait: 1.hour).perform_later(id)
   end
 

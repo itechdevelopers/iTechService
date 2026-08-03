@@ -4,12 +4,19 @@ ru:
     warranty_overstay: 'Заказ №%{ticket} (купленное %{sold_date}) находится у нас более %{days} дней'
     location_overstay: 'Заказ №%{ticket} находится на локации «%{location}» более %{days} дней'
     reception_photo_missing: 'По работе №%{ticket} отсутствуют фотографии при приёмке (%{tasks})'
+    reception_photo_reminder: 'Прошло пол часа как ты принял устройство в айс (работа №%{ticket}), но фотки не добавил. А надо бы…'
+    reception_photo_fault: 'Тебе автоматически выставлен минус за отсутствие фотографий при приёмке по работе №%{ticket}. Минус может быть опротестован отдельно у руководителей.'
+    reception_photo_supervisor_penalized: '%{employee} не добавил фотографии к работе №%{ticket} (%{tasks}) в течение часа. Минус автоматически выставлен.'
+    reception_photo_supervisor_not_penalized: '%{employee} не добавил фотографии к работе №%{ticket} (%{tasks}) в течение часа. Минус не выставлен (тип задачи не сопоставлен).'
     queue_inactivity: 'Талон №%{ticket} в очереди «%{queue}» ждёт уже %{waited} мин. На смене %{total} сотр., активны только %{active}. Проверьте состояние очереди.'
     repair_attention: 'Работа №%{ticket} ждёт твоего внимания — приступаешь к ремонту?'
     repair_status_flip: '%{short_name} открыл работу №%{ticket} сменой статуса и вернул «в ожидании» за %{duration}'
     repair_gluing: 'Устройство по талону №%{ticket} на проклейке уже %{hours} ч — пора забирать.'
     testing_to_test: 'Устройство по талону №%{ticket} ждёт тестирования.'
     testing_returned: 'Устройство по талону №%{ticket} вернулось с тестирования.'
+
+  faults:
+    reception_photo_auto_comment: 'Выставлен минус автоматически за отсутствие фотографий к работе №%{ticket}. Минус может быть опротестован отдельно у руководителей.'
 
   repair_attention:
     sign_in_then_click_again: 'Войдите в АИС и кликните ссылку из Telegram снова.'
