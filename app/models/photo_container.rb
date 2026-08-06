@@ -2,12 +2,13 @@ class PhotoContainer < ApplicationRecord
   include Auditable
   has_one :service_job
 
-  PHOTO_DIVISIONS = %w[reception in_operation completed].freeze
+  PHOTO_DIVISIONS = %w[reception in_operation completed breakage].freeze
   PHOTOS_PER_DIVISION_LIMIT = 15
 
   mount_uploaders :reception_photos, ServiceJobPhotoUploader
   mount_uploaders :in_operation_photos, ServiceJobPhotoUploader
   mount_uploaders :completed_photos, ServiceJobPhotoUploader
+  mount_uploaders :breakage_photos, ServiceJobPhotoUploader
   audited associated_with: :service_job
 
   # Appends files to a photo division, mirroring ServiceJobs::PhotosController:

@@ -15,6 +15,9 @@ module ServiceJobs
       when "completed"
         @photos = @photo_container.completed_photos
         @photos_data = @photo_container.completed_photos_meta_data
+      when "breakage"
+        @photos = @photo_container.breakage_photos
+        @photos_data = @photo_container.breakage_photos_meta_data
       end
       @chosen_photo_id = params[:id].to_i
       @modal = "photos-#{params[:division]}-#{@chosen_photo_id}"
@@ -37,6 +40,8 @@ module ServiceJobs
         return unless add_photos_to_container("in_operation")
       when "completed"
         return unless add_photos_to_container("completed")
+      when "breakage"
+        return unless add_photos_to_container("breakage")
       end
       @photo_container.save!
       redirect_to service_job_url(@service_job)
@@ -54,6 +59,9 @@ module ServiceJobs
       when "completed"
         deleted_photo = @photo_container.completed_photos.delete_at(params[:id].to_i)
         @photo_container.completed_photos_meta_data.delete_at(params[:id].to_i)
+      when "breakage"
+        deleted_photo = @photo_container.breakage_photos.delete_at(params[:id].to_i)
+        @photo_container.breakage_photos_meta_data.delete_at(params[:id].to_i)
       end
       @photo_container.save!
       redirect_to service_job_url(@service_job)

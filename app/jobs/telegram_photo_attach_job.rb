@@ -70,7 +70,8 @@ class TelegramPhotoAttachJob < ApplicationJob
     {
       'reception' => 'Фото при приёмке',
       'in_operation' => 'Фото в процессе ремонта',
-      'completed' => 'Фото готового устройства'
+      'completed' => 'Фото готового устройства',
+      'breakage' => 'Фото поломки и работы'
     }.fetch(division, division)
   end
 

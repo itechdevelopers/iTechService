@@ -135,6 +135,7 @@ class User < ApplicationRecord
   has_many :service_jobs, lambda {
                             includes(:client, :features, department: :city, item: { product: :product_group })
                           }, inverse_of: :user
+  has_many :breakage_reports, inverse_of: :user
   has_many :karmas, dependent: :destroy, inverse_of: :user
   has_many :karma_groups, through: :karmas
   has_many :bonuses, through: :karma_groups

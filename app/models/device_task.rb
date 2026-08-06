@@ -29,6 +29,7 @@ class DeviceTask < ApplicationRecord
   has_many :history_records, as: :object
   has_many :repair_tasks, inverse_of: :device_task
   has_many :repair_parts, through: :repair_tasks
+  has_many :breakage_reports, inverse_of: :device_task, dependent: :destroy
   has_one :sale_item, inverse_of: :device_task
 
   delegate :name, :role, :code, :is_important?, :is_repair?, :mac_service?, :service_center?, :engraving?,
@@ -45,6 +46,12 @@ class DeviceTask < ApplicationRecord
     attr['tech_notice'].blank? && attr['location_id'].blank? && attr['client_notified'].blank?
   }
   accepts_nested_attributes_for :repair_tasks, allow_destroy: true
+  accepts_nested_attributes_for :breakage_reports,
+                                allow_destroy: true,
+                                reject_if: lambda { |attrs|
+                                  attrs['id'].blank? && attrs['circumstances'].blank? &&
+                                    attrs['resolution'].blank? && attrs['item_id'].blank?
+                                }
 
   validates :task, :cost, presence: true
   validates :cost, numericality: true

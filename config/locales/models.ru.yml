@@ -10,6 +10,7 @@ ru:
       #ckeditor/picture: ckeditor/picture
       batch: 'Партия'
       brand: 'Бренд'
+      breakage_report: 'Отчёт о поломке'
       carrier: 'Оператор'
       case_color: 'Цвет чехла'
       cash_drawer: 'Касса'
@@ -97,6 +98,14 @@ ru:
 
       batch:
         product: :activerecord.models.product
+
+      breakage_report:
+        circumstances: 'Обстоятельства поломки'
+        resolution: 'Как решён вопрос'
+        item: 'Запчасть взамен сломанной'
+        item_id: 'Запчасть взамен сломанной'
+        part_price: 'Стоимость запчасти'
+        user: 'Кто сломал'
 
       cash_operation:
         value: 'Сумма'
@@ -212,6 +221,9 @@ ru:
         ticket_number: 'Номер талона'
         user: :activerecord.models.user
         user_id: :activerecord.models.user
+
+      device_task/breakage_reports:
+        item_id: 'Запчасть взамен сломанной'
 
       device_task:
         cost: 'Стоимость'
@@ -736,6 +748,10 @@ ru:
 
     errors:
       models:
+        breakage_report:
+          attributes:
+            item_id:
+              insufficient: 'отсутствует на складе "%{store}"'
         client_request:
           attributes:
             client:

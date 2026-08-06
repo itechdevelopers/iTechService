@@ -66,6 +66,16 @@ class ServiceJobsController < ApplicationController
     respond_to(&:js)
   end
 
+  def breakage_report
+    @service_job = find_record ServiceJob
+    @breakage_report = @service_job.breakage_reports.first
+    @modal = "breakage-report-#{@service_job.id}"
+    # show_modal_form renders '<controller>/_modal_form_content' by default,
+    # and that name is already taken by the service job form.
+    params[:form_name] = 'breakage_report_modal_content'
+    render 'shared/show_modal_form'
+  end
+
   def show
     if params[:find] == 'ticket'
       @service_job = authorize ServiceJob.find_by_ticket_number(params[:id])
@@ -732,6 +742,8 @@ class ServiceJobsController < ApplicationController
       @qr_link = generate_svg_qr(new_service_job_photo_url(@service_job, division: "in_operation"))
     when "completed"
       @qr_link = generate_svg_qr(new_service_job_photo_url(@service_job, division: "completed"))
+    when "breakage"
+      @qr_link = generate_svg_qr(new_service_job_photo_url(@service_job, division: "breakage"))
     end
   end
 

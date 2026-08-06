@@ -45,18 +45,21 @@ ru:
       title_reception: "Фото при приёмке"
       title_in_operation: "Фото хода работы"
       title_completed: "Фото готового устройства"
+      title_breakage: "Фото поломки и работы"
       add_photo: "Добавить фото"
 
       new:
         reception: "Фото при приёмке"
         in_operation: "Фото хода работы"
         completed: "Фото готового устройства"
+        breakage: "Фото поломки и работы"
         submit-photos: "Загрузить фото"
 
       modal_form_content:
         title_reception: "Загруженные фото (приёмка)"
         title_in_operation: "Загруженные фото (ход работы)"
         title_completed: "Загруженные фото (готовое устройство)"
+        title_breakage: "Загруженные фото (поломка при ремонте)"
 
     edit:
       title: 'Редактирование Работы'

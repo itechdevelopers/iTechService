@@ -8,8 +8,11 @@
 #   /start          -> fallback match by users.telegram_username (from.username)
 #
 # Once linked, the employee can attach photos to a service job over chat.
-# The entry point is the persistent "📷 Добавить фото" reply button, shown
-# after linking and by the /photo command; only linked employees may proceed.
+# Two entry points live on the persistent reply keyboard, shown after linking
+# and by the /photo command; only linked employees may proceed:
+#   "📷 Добавить фото" -> pick any active job, then pick a photo division
+#   "🔧 Я сломал"      -> pick one of your own breakage reports; the division
+#                         is implied, so photos go straight to «breakage»
 #
 # Conversation state (chosen job, "awaiting a ticket number" step) is kept in
 # a dedicated file-backed session store — see the session_store config below.
@@ -26,6 +29,7 @@ class TelegramWebhookController < Telegram::Bot::UpdatesController
   ]
 
   PHOTO_BUTTON = '📷 Добавить фото'
+  BREAKAGE_BUTTON = '🔧 Я сломал'
   MANUAL_ENTRY = 'manual'
   # How many of the employee's recent active jobs to offer as buttons; the
   # rest are reachable via manual ticket-number entry.
@@ -36,6 +40,10 @@ class TelegramWebhookController < Telegram::Bot::UpdatesController
     'in_operation' => 'Фото в процессе ремонта',
     'completed'    => 'Фото готового устройства'
   }.freeze
+  # Breakage photos are reached through their own button, not through the
+  # division picker — the job is already known to be a breakage report.
+  BREAKAGE_DIVISION = 'breakage'
+  DIVISION_LABELS = DIVISIONS.merge(BREAKAGE_DIVISION => 'Фото поломки и работы').freeze
 
   def start!(token = nil, *)
     user = find_user(token)
@@ -59,7 +67,8 @@ class TelegramWebhookController < Telegram::Bot::UpdatesController
     return respond_not_linked unless current_employee
 
     respond_with :message,
-                 text: 'Нажмите кнопку ниже, чтобы добавить фото к работе.',
+                 text: 'Нажмите кнопку ниже, чтобы добавить фото к работе ' \
+                       'или к своей отметке «Я сломал».',
                  reply_markup: photo_keyboard
   end
 
@@ -74,9 +83,12 @@ class TelegramWebhookController < Telegram::Bot::UpdatesController
       return current_employee ? handle_ticket_input(text) : respond_not_linked
     end
 
-    return unless text == PHOTO_BUTTON
-
-    current_employee ? render_job_selection : respond_not_linked
+    case text
+    when PHOTO_BUTTON
+      current_employee ? render_job_selection : respond_not_linked
+    when BREAKAGE_BUTTON
+      current_employee ? render_breakage_selection : respond_not_linked
+    end
   end
 
   # Handles inline-keyboard taps: picking a job or requesting manual entry.
@@ -91,6 +103,10 @@ class TelegramWebhookController < Telegram::Bot::UpdatesController
       answer_callback_query(nil)
       job = ServiceJob.find_by(id: data.split(':', 2).last)
       job ? store_selected_job(job) : respond_with(:message, text: 'Работа не найдена.')
+    elsif data.start_with?('brk:')
+      answer_callback_query(nil)
+      job = ServiceJob.find_by(id: data.split(':', 2).last)
+      job ? store_breakage_job(job) : respond_with(:message, text: 'Работа не найдена.')
     elsif data.start_with?('div:')
       answer_callback_query(nil)
       select_division(data.split(':', 2).last)
@@ -138,6 +154,41 @@ class TelegramWebhookController < Telegram::Bot::UpdatesController
     respond_with :message, text: text, reply_markup: { inline_keyboard: buttons }
   end
 
+  # Jobs where this employee has ticked «Я сломал» in the system. The division
+  # is implied, so picking a job here goes straight to "send the photos".
+  def render_breakage_selection
+    reports = BreakageReport.where(user: current_employee)
+                            .includes(:service_job)
+                            .newest_first
+                            .limit(JOB_LIST_LIMIT)
+
+    if reports.empty?
+      return respond_with :message,
+                          text: 'У вас нет отметок «Я сломал». Отметьте поломку в работе, ' \
+                                'а затем возвращайтесь сюда за фотографиями.'
+    end
+
+    buttons = reports.map do |report|
+      [{ text: job_button_label(report.service_job), callback_data: "brk:#{report.service_job_id}" }]
+    end
+
+    respond_with :message,
+                 text: 'Выберите работу, к которой добавить фото поломки:',
+                 reply_markup: { inline_keyboard: buttons }
+  end
+
+  def store_breakage_job(job)
+    session[:job_id] = job.id
+    session[:ticket] = job.ticket_number
+    session[:division] = BREAKAGE_DIVISION
+    session.delete(:step)
+
+    respond_with :message,
+                 text: "Работа №#{job.ticket_number} " \
+                       "(#{[job.device_short_name, job.client_surname.presence].compact.join(', ')}). " \
+                       'Пришлите фотографии поломки и работы — можно несколько подряд.'
+  end
+
   def handle_ticket_input(text)
     job = ServiceJob.find_by_ticket_number(text)
     if job
@@ -155,6 +206,9 @@ class TelegramWebhookController < Telegram::Bot::UpdatesController
     session[:job_id] = job.id
     session[:ticket] = job.ticket_number
     session.delete(:step)
+    # Drop the previous division: otherwise a photo sent before tapping a
+    # division button would land in whatever was chosen last (e.g. «breakage»).
+    session.delete(:division)
     render_division_selection(job)
   end
 
@@ -201,7 +255,7 @@ class TelegramWebhookController < Telegram::Bot::UpdatesController
     TelegramPhotoAttachJob.perform_later(job_id, division, file_id, current_employee.id)
 
     respond_with :message,
-                 text: "📥 Фото принято, добавляю в раздел «#{DIVISIONS[division]}» " \
+                 text: "📥 Фото принято, добавляю в раздел «#{DIVISION_LABELS[division]}» " \
                        "работы №#{session[:ticket]}."
   end
 
@@ -219,6 +273,6 @@ class TelegramWebhookController < Telegram::Bot::UpdatesController
   end
 
   def photo_keyboard
-    { keyboard: [[{ text: PHOTO_BUTTON }]], resize_keyboard: true }
+    { keyboard: [[{ text: PHOTO_BUTTON }], [{ text: BREAKAGE_BUTTON }]], resize_keyboard: true }
   end
 end

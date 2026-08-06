@@ -1,0 +1,55 @@
+// Badge in the service job header — the customer's mockup asks for a red
+// outlined «Я сломал» marker next to the report-exclusion button.
+.breakage-report__badge {
+  display: inline-block;
+  padding: 4px 14px;
+  border: 2px solid #d9331a;
+  border-radius: 4px;
+  color: #d9331a;
+  font-weight: bold;
+  vertical-align: middle;
+  cursor: pointer;
+
+  &:hover, &:focus {
+    color: #fff;
+    background-color: #d9331a;
+    text-decoration: none;
+  }
+}
+
+.breakage-report-card {
+  &__title {
+    color: #d9331a;
+    font-weight: bold;
+  }
+
+  // Single column: full-width label above its value, so long labels like
+  // «Запчасть взамен сломанной» are not squeezed into a narrow gutter.
+  dt {
+    width: auto;
+    float: none;
+    text-align: left;
+    color: #777;
+    font-weight: normal;
+  }
+
+  dd {
+    margin-left: 0;
+    margin-bottom: 10px;
+    white-space: pre-line;
+  }
+}
+
+// Spare part suggestions with a zero remainder: shown on purpose so the
+// technician sees there is nothing left, but not selectable.
+.breakage-report__suggestion--empty {
+  a {
+    color: #999;
+    cursor: not-allowed;
+  }
+
+  a:after {
+    content: " — нет на складе";
+    color: #b94a48;
+  }
+}

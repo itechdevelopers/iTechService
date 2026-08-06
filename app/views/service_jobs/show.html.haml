@@ -24,6 +24,10 @@
     - else
       = link_to t('service_jobs.report_exclusion.exclude_action'), toggle_report_exclusion_service_job_path(@service_job), method: :patch, class: 'btn'
 
+  - if @service_job.breakage_reports.any?
+    = link_to t('breakage_reports.badge'), breakage_report_service_job_path(@service_job),
+              remote: true, class: 'breakage-report__badge'
+
   .repair-status-widget__inline-slot= render 'repair_status_widget', service_job: @service_job
 
   = new_sms_notification_link(@service_job) if @service_job.at_done?
@@ -193,6 +197,10 @@
     = render 'photos', division: :in_operation
     %hr
     = render 'photos', division: :completed
+
+    - if @service_job.breakage_reports.any?
+      %hr
+      = render 'photos', division: :breakage
 
     - if @available_check_lists.any?
       %hr

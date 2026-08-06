@@ -1,0 +1,21 @@
+.breakage-report-card
+  %dl
+    %dt= BreakageReport.human_attribute_name :circumstances
+    %dd= report.circumstances
+    %dt= BreakageReport.human_attribute_name :resolution
+    %dd= report.resolution
+    %dt= BreakageReport.human_attribute_name :item
+    %dd
+      - if report.item.present?
+        = report.item_presentation
+        - if report.part_price.present?
+          = "— #{human_currency report.part_price}"
+        - if report.deduction_act.present?
+          = link_to t('breakage_reports.deduction_act', id: report.deduction_act_id),
+                    deduction_act_path(report.deduction_act_id), target: '_blank'
+      - else
+        = '-'
+    %dt= BreakageReport.human_attribute_name :user
+    %dd
+      = report.user&.short_name
+      %small.muted= l report.created_at, format: :short

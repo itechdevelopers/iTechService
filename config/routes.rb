@@ -279,6 +279,7 @@ Rails.application.routes.draw do
     get :check_imei, on: :collection
     get :movement_history, on: :member
     get :show_qr, on: :member, defaults: { format: 'js' }
+    get :breakage_report, on: :member, defaults: { format: 'js' }
     get :quick_search, on: :collection
     get :work_order, on: :member
     get :completion_act, on: :member
@@ -452,6 +453,7 @@ Rails.application.routes.draw do
 
   resources :items do
     get :autocomplete, on: :collection
+    get :spare_parts_autocomplete, on: :collection, defaults: {format: :json}
     get :check_status, on: :member, defaults: {format: :json}
     get :check_1c_status, on: :member, defaults: {format: :json}
     get :check_1c_status_by_sn, on: :collection, defaults: {format: :json}

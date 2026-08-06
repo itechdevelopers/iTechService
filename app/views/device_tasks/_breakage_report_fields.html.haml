@@ -1,0 +1,26 @@
+.fields.well.well-small.breakage-report__fields{class: ('hidden' unless f.object.persisted?)}
+  - if f.object.errors.any?
+    %p.text-error= f.object.errors.full_messages.join('. ')
+  = f.input :circumstances, as: :text, required: true,
+            input_html: { rows: 3, class: 'input-block-level',
+                          placeholder: t('device_tasks.breakage_reports.circumstances_hint') }
+  = f.input :resolution, as: :text, required: true,
+            input_html: { rows: 2, class: 'input-block-level',
+                          placeholder: t('device_tasks.breakage_reports.resolution_hint') }
+  .control-group
+    %label.control-label= BreakageReport.human_attribute_name :item
+    .controls
+      = text_field_tag :breakage_item_search, f.object.item_presentation,
+                       class: 'breakage-report__item-search input-xlarge',
+                       placeholder: t('device_tasks.breakage_reports.item_placeholder'),
+                       autocomplete: 'off', name: nil
+      = f.hidden_field :item_id, class: 'breakage-report__item-id'
+      - if f.object.part_price.present?
+        %span.help-inline
+          = BreakageReport.human_attribute_name :part_price
+          = human_currency f.object.part_price
+      - if f.object.deduction_act.present?
+        %span.help-inline
+          = link_to t('breakage_reports.deduction_act', id: f.object.deduction_act_id),
+                    deduction_act_path(f.object.deduction_act_id), target: '_blank'
+      %span.help-block= t('breakage_reports.write_off_hint')
