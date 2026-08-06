@@ -1,0 +1,10 @@
+.modal-header
+  %a.close{'data-dismiss' => 'modal', href: '#'}
+    %i.fa.fa-times-circle
+  %h3.breakage-report-card__title= t('breakage_reports.badge')
+
+.modal-body
+  = render 'breakage_report', report: @breakage_report
+
+.modal-footer
+  = link_to t('helpers.links.close'), '#', 'data-dismiss' => 'modal', class: 'btn'

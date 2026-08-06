@@ -19,6 +19,10 @@ class ServiceJobPolicy < CommonPolicy
     read?
   end
 
+  def breakage_report?
+    read?
+  end
+
   def update?
     (same_department? || able_to?(:access_all_departments)) &&
       any_manager?(:software, :media, :universal, :technician, :engraver, :api, :supervisor)

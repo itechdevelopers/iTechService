@@ -174,7 +174,8 @@ jQuery ->
     imei = $(this).parent().find('input').val()
     this.setAttribute('href', "http://iunlocker.net/check_imei.php?imei=#{imei}")
 
-  $('.change-to-qr').on 'click', (event) ->
+  # Delegated: the breakage photo block also lives inside an AJAX-loaded modal.
+  $(document).on 'click', '.change-to-qr', (event) ->
     event.preventDefault()
     linkElement = $(this)
     idValue = linkElement.attr('id')
