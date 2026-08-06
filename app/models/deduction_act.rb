@@ -56,6 +56,22 @@ class DeductionAct < ApplicationRecord
     end
   end
 
+  # Mirrors MovementAct#unpost: returns the written-off quantities back to the
+  # store. Not exposed in the UI — used when an automatic write-off has to be
+  # redone (e.g. the spare part in a breakage report was replaced).
+  def unpost
+    return false unless is_posted?
+
+    transaction do
+      deduction_items.each do |deduction_item|
+        store_item = StoreItem.where(item_id: deduction_item.item_id, store_id: store_id).first_or_initialize
+        store_item.quantity = (store_item.quantity || 0) + deduction_item.quantity
+        store_item.save!
+      end
+      update_attribute :status, 0
+    end
+  end
+
   private
 
   def set_user

@@ -70,12 +70,14 @@ class ItemsController < ApplicationController
     @items = if store.blank? || term.blank?
                Item.none
              else
+               # Out-of-stock parts stay in the list on purpose — the technician
+               # must see that the remainder is zero instead of an empty dropdown.
                policy_scope(Item).joins(:store_items, :product)
                                  .where(store_items: { store_id: store.id })
-                                 .where('store_items.quantity > 0')
                                  .where('LOWER(products.name) LIKE :folded OR products.name LIKE :raw',
                                         folded: "%#{term.mb_chars.downcase}%", raw: "%#{term}%")
                                  .select('items.*, store_items.quantity AS available_quantity')
+                                 .order('store_items.quantity DESC')
                                  .limit(20)
              end
 

@@ -48,7 +48,10 @@ class DeviceTask < ApplicationRecord
   accepts_nested_attributes_for :repair_tasks, allow_destroy: true
   accepts_nested_attributes_for :breakage_reports,
                                 allow_destroy: true,
-                                reject_if: ->(attrs) { attrs['id'].blank? && attrs['circumstances'].blank? }
+                                reject_if: lambda { |attrs|
+                                  attrs['id'].blank? && attrs['circumstances'].blank? &&
+                                    attrs['resolution'].blank? && attrs['item_id'].blank?
+                                }
 
   validates :task, :cost, presence: true
   validates :cost, numericality: true

@@ -107,11 +107,19 @@
         #repair_tasks= f.simple_fields_for(:repair_tasks) { |ff| render 'repair_task_fields', f: ff }
 
         .breakage-report
-          %label.checkbox.breakage-report__label
-            = check_box_tag :breakage_report_toggle, '1', @device_task.breakage_reports.any?(&:persisted?),
-                            class: 'breakage-report__toggle', name: nil
-            %strong= t('device_tasks.breakage_reports.toggle')
-          = f.simple_fields_for(:breakage_reports) { |ff| render 'breakage_report_fields', f: ff }
+          - foreign_report = @device_task.service_job.breakage_reports.detect { |r| r.device_task_id != @device_task.id }
+          - if foreign_report.present?
+            .alert.alert-info
+              %strong= t('device_tasks.breakage_reports.toggle')
+              = t('breakage_reports.reported_in_another_task', task: foreign_report.device_task&.task_name)
+              %br
+              = foreign_report.circumstances
+          - else
+            %label.checkbox.breakage-report__label
+              = check_box_tag :breakage_report_toggle, '1', @device_task.breakage_reports.any?(&:persisted?),
+                              class: 'breakage-report__toggle', name: nil
+              %strong= t('device_tasks.breakage_reports.toggle')
+            = f.simple_fields_for(:breakage_reports) { |ff| render 'breakage_report_fields', f: ff }
 
         #device-task-check-lists{data: { 'device-task-id': @device_task.id, 'check-lists-url': check_lists_device_task_path(@device_task) }}
           = render 'check_lists_block'

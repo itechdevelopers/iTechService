@@ -19,11 +19,19 @@ $(document).on 'focus', '.breakage-report__item-search', ->
     open: ->
       $(this).autocomplete('widget').css('z-index', 1060)
     select: (event, ui) ->
+      # Out-of-stock parts are listed so the technician sees the zero remainder,
+      # but picking one is a no-op: the write-off would fail anyway.
+      return false if ui.item.available < 1
       $(this).val(ui.item.label)
       $(this).siblings('.breakage-report__item-id').val(ui.item.value)
       false
     focus: (event, ui) ->
+      return false if ui.item.available < 1
       $(this).val(ui.item.label)
       false
     change: (event, ui) ->
       $(this).siblings('.breakage-report__item-id').val('') unless ui.item
+
+  $(this).autocomplete('instance')._renderItem = (ul, item) ->
+    classes = if item.available < 1 then 'breakage-report__suggestion--empty' else ''
+    $("<li class='#{classes}'>").append($('<a>').text(item.label)).appendTo(ul)

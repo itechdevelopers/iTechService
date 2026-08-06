@@ -61,10 +61,14 @@ class DeviceTasksController < ApplicationController
     end
   end
 
-  # A blank report is always present in the form: the «Я сломал» checkbox just
-  # unhides it, and nested attributes drop it when circumstances stay empty.
+  # One report per service job: an existing one is edited in place, a blank one
+  # is built only when the job has none. The «Я сломал» checkbox just unhides
+  # the block — nested attributes drop it while the fields stay empty.
   def build_breakage_report
-    @device_task.breakage_reports.build if @device_task.breakage_reports.none?(&:new_record?)
+    return if @device_task.service_job.breakage_reports.any?
+    return if @device_task.breakage_reports.any?(&:new_record?)
+
+    @device_task.breakage_reports.build
   end
 
   def device_task_params

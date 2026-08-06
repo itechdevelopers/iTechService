@@ -1,0 +1,13 @@
+// Spare part suggestions with a zero remainder: shown on purpose so the
+// technician sees there is nothing left, but not selectable.
+.breakage-report__suggestion--empty {
+  a {
+    color: #999;
+    cursor: not-allowed;
+  }
+
+  a:after {
+    content: " — нет на складе";
+    color: #b94a48;
+  }
+}

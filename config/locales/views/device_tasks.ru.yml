@@ -7,8 +7,8 @@ ru:
 
     breakage_reports:
       toggle: "Я сломал"
-      circumstances_hint: "Какие обстоятельства поломки, как решил вопрос"
-      resolution_hint: "Как решили вопрос (необязательно)"
+      circumstances_hint: "При каких обстоятельствах сломали"
+      resolution_hint: "Как решили вопрос"
       item_placeholder: "Начните вводить название запчасти"
 
     repair_task_fields:
