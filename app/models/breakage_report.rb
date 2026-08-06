@@ -30,8 +30,12 @@ class BreakageReport < ApplicationRecord
 
   audited associated_with: :service_job
 
+  # Item#presentation joins name/serial/imei unconditionally, which leaves
+  # trailing slashes for spare parts — they carry neither.
   def item_presentation
-    item&.presentation
+    return if item.blank?
+
+    [item.name, item.serial_number.presence].compact.join(' / ')
   end
 
   # Branch spare parts store the part is written off from.

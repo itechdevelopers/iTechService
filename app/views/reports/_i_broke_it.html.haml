@@ -1,0 +1,43 @@
+%table#i_broke_it_report.table.table-bordered.table-hover
+  %caption= report_title(report)
+
+  %thead
+    %tr
+      %th= t('reports.i_broke_it.employee')
+      %th= t('reports.i_broke_it.date')
+      %th= t('reports.i_broke_it.ticket_number')
+      %th= t('reports.i_broke_it.device')
+      %th= t('reports.i_broke_it.part')
+      %th= t('reports.i_broke_it.part_price')
+
+  %tbody
+    - if report.result[:groups].blank?
+      %tr
+        %td.muted{colspan: 6}= t('reports.i_broke_it.empty')
+
+    - report.result[:groups].each do |group|
+      - group[:rows].each_with_index do |row, index|
+        %tr
+          - if index.zero?
+            %td{rowspan: group[:rows].size}
+              %strong= group[:user]
+              %br
+              %small.muted= t('reports.i_broke_it.jobs_count', count: group[:rows].size)
+          %td= l row.date, format: :date_short
+          %td
+            - if row.job_id.present?
+              = link_to row.ticket_number, service_job_path(row.job_id), target: '_blank'
+            - else
+              = row.ticket_number
+          %td= row.device
+          %td= row.part || '-'
+          %td= row.part_price.present? ? human_currency(row.part_price) : '-'
+      %tr.info
+        %td{colspan: 5}= t('reports.i_broke_it.employee_total', employee: group[:user])
+        %td= human_currency group[:total]
+
+  - if report.result[:groups].present?
+    %tfoot
+      %tr
+        %th{colspan: 5}= t('reports.i_broke_it.total')
+        %th= human_currency report.result[:total]

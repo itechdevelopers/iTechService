@@ -147,6 +147,22 @@ ru:
       without_payment: 'без оплаты'
       without_service_group: 'Без указания услуги'
       without_service: '—'
+    i_broke_it:
+      title: 'Я сломал'
+      employee: 'Сотрудник'
+      date: 'Дата'
+      ticket_number: 'Номер работы'
+      device: 'Устройство'
+      part: 'Запчасть взамен сломанной'
+      part_price: 'Стоимость запчасти'
+      jobs_count:
+        one: '%{count} работа'
+        few: '%{count} работы'
+        many: '%{count} работ'
+        other: '%{count} работы'
+      employee_total: 'Итого по сотруднику «%{employee}»'
+      total: 'Итого за период'
+      empty: 'За выбранный период отметок «Я сломал» нет'
     repair_parts:
       title: 'Отчёт по запчастям'
     repairers:
