@@ -5,6 +5,7 @@ class DeviceTasksController < ApplicationController
 
   def edit
     @device_task = find_record DeviceTask
+    build_breakage_report
     @modal = "device-task-#{@device_task.id}"
     render 'shared/show_modal_form'
   end
@@ -38,7 +39,10 @@ class DeviceTasksController < ApplicationController
                                          original_location_id != current_location_id
         render('update')
       end
-      m.failure { |_| render('shared/show_modal_form') }
+      m.failure do |_|
+        build_breakage_report
+        render('shared/show_modal_form')
+      end
     end
   end
 
@@ -57,9 +61,17 @@ class DeviceTasksController < ApplicationController
     end
   end
 
+  # A blank report is always present in the form: the «Я сломал» checkbox just
+  # unhides it, and nested attributes drop it when circumstances stay empty.
+  def build_breakage_report
+    @device_task.breakage_reports.build if @device_task.breakage_reports.none?(&:new_record?)
+  end
+
   def device_task_params
     params.require(:device_task)
-          .permit(:comment, :cost, :done, :done_at, :performer_id, :service_job_id, :task_id, :user_comment, check_list_responses_attributes: [:id, :check_list_id, responses: {}, comments: {}])
+          .permit(:comment, :cost, :done, :done_at, :performer_id, :service_job_id, :task_id, :user_comment,
+                  breakage_reports_attributes: %i[id circumstances resolution item_id],
+                  check_list_responses_attributes: [:id, :check_list_id, responses: {}, comments: {}])
           .tap do |p|
       if params[:device_task][:service_job_attributes]
         # Explicitly whitelist service job attributes for security

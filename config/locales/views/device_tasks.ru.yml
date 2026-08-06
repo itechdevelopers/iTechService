@@ -5,6 +5,12 @@ ru:
       already_done: "Задача уже выполнена"
       insufficient_spare_parts: 'На складе "%{store}" недостаточно запчастей "%{spare_part}"'
 
+    breakage_reports:
+      toggle: "Я сломал"
+      circumstances_hint: "Какие обстоятельства поломки, как решил вопрос"
+      resolution_hint: "Как решили вопрос (необязательно)"
+      item_placeholder: "Начните вводить название запчасти"
+
     repair_task_fields:
       spare_part: "Запчасть (кол-во)"
       warranty: "Гарантия"

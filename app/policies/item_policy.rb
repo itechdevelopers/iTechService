@@ -1,6 +1,8 @@
 class ItemPolicy < CommonPolicy
   def autocomplete?; read?; end
 
+  def spare_parts_autocomplete?; read?; end
+
   def select?; read?; end
 
   def check_status?; read?; end

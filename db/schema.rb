@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20260803195257) do
+ActiveRecord::Schema.define(version: 20260806141454) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -140,6 +140,24 @@ ActiveRecord::Schema.define(version: 20260803195257) do
     t.string "logo"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+  end
+
+  create_table "breakage_reports", force: :cascade do |t|
+    t.bigint "service_job_id", null: false
+    t.bigint "device_task_id"
+    t.bigint "user_id", null: false
+    t.bigint "item_id"
+    t.decimal "part_price", precision: 10, scale: 2
+    t.text "circumstances", null: false
+    t.text "resolution"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.bigint "deduction_act_id"
+    t.index ["deduction_act_id"], name: "index_breakage_reports_on_deduction_act_id"
+    t.index ["device_task_id"], name: "index_breakage_reports_on_device_task_id"
+    t.index ["item_id"], name: "index_breakage_reports_on_item_id"
+    t.index ["service_job_id"], name: "index_breakage_reports_on_service_job_id"
+    t.index ["user_id"], name: "index_breakage_reports_on_user_id"
   end
 
   create_table "call_transcriptions", force: :cascade do |t|
@@ -1275,6 +1293,8 @@ ActiveRecord::Schema.define(version: 20260803195257) do
     t.string "reception_photos_meta_data", default: [], array: true
     t.string "in_operation_photos_meta_data", default: [], array: true
     t.string "completed_photos_meta_data", default: [], array: true
+    t.string "breakage_photos", default: [], array: true
+    t.string "breakage_photos_meta_data", default: [], array: true
   end
 
   create_table "plans", force: :cascade do |t|
@@ -2667,6 +2687,11 @@ ActiveRecord::Schema.define(version: 20260803195257) do
   add_foreign_key "birthday_greeting_gifs", "birthday_greetings"
   add_foreign_key "birthday_greeting_variants", "birthday_greetings"
   add_foreign_key "birthday_greetings", "telegram_chats"
+  add_foreign_key "breakage_reports", "deduction_acts"
+  add_foreign_key "breakage_reports", "device_tasks"
+  add_foreign_key "breakage_reports", "items"
+  add_foreign_key "breakage_reports", "service_jobs"
+  add_foreign_key "breakage_reports", "users"
   add_foreign_key "call_transcriptions", "clients"
   add_foreign_key "cashier_schedule_entries", "departments"
   add_foreign_key "cashier_schedule_entries", "users"
