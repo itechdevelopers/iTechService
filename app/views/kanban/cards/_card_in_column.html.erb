@@ -9,5 +9,10 @@
         <%= t(".deadline", date: card.deadline.strftime("%d.%m.%Y")) %>
       </div>
     <% end %>
+    <% if local_assigns[:money_tracking] && card.money_entries.any? %>
+      <div class="kanban-card-money">
+        <%= t(".money", amount: number_to_currency(card.money_total, unit: '₽', format: '%n %u', delimiter: ' ', precision: 0)) %>
+      </div>
+    <% end %>
   </div>
 </div>
