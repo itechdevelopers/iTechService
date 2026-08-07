@@ -8,7 +8,7 @@
       .alert.alert-error= @form.errors.full_messages.join('. ')
     = f.input :recipient_id, collection: merit_recipients_collection, label_method: :short_name, color_method: :department_color, as: :custom_select, searchable: true, prompt: t('.select_employee'), label: Merit.human_attribute_name(:recipient)
     = f.input :date, as: :my_date
-    = f.input :comment, as: :text
+    = f.input :comment, as: :text, input_html: { rows: 6, class: 'merit-fault-form__comment' }
     = f.input :issued_by_id, as: :hidden, input_html: { value: current_user.id }
 
   .modal-footer= submit_button f
