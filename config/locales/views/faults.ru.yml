@@ -1,4 +1,10 @@
 ru:
+  fault_notification:
+    bell: 'Тебе выставлен минус «%{kind}» от %{issuer}. Комментарий: %{comment}'
+    bell_with_penalty: 'Тебе выставлен минус «%{kind}» (штраф %{penalty}) от %{issuer}. Комментарий: %{comment}'
+    telegram: "➖ <b>Тебе выставлен минус</b>\nТип: %{kind}\nОт кого: %{issuer}\nКомментарий: %{comment}\n\n<a href=\"%{url}\">Открыть в АИС</a>"
+    telegram_with_penalty: "➖ <b>Тебе выставлен минус</b>\nТип: %{kind}\nШтраф: %{penalty}\nОт кого: %{issuer}\nКомментарий: %{comment}\n\n<a href=\"%{url}\">Открыть в АИС</a>"
+
   faults:
     modal_form_content:
       select_employee: 'Выберите сотрудника'

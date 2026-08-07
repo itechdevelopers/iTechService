@@ -38,8 +38,10 @@ class Kanban::Card < ApplicationRecord
     Rails.application.routes.url_helpers.kanban_card_path(self)
   end
 
+  # Sums in Ruby when the association is already preloaded — board and report
+  # pages render dozens of cards and would otherwise fire a SUM per card.
   def money_total
-    money_entries.sum(:amount)
+    money_entries.loaded? ? money_entries.sum(&:amount) : money_entries.sum(:amount)
   end
 
   def notification_recipients

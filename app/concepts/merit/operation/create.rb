@@ -14,4 +14,14 @@ class Merit::Create < BaseOperation
   step Contract::Validate(key: :merit)
   failure :contract_invalid!
   step Contract::Persist()
+  step :notify_recipient
+
+  private
+
+  def notify_recipient(options)
+    MeritFaultNotifier.call(options['model'])
+    # Явный true: шаг идёт последним, и падение на falsy-возврат увело бы
+    # успешно сохранённый плюс на failure-track.
+    true
+  end
 end

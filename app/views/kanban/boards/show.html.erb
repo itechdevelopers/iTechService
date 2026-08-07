@@ -83,7 +83,8 @@
           <% end %>
         </h4>
         <div class="kanban-card-container">
-          <%= render partial: 'kanban/cards/card_in_column', collection: column.cards, as: :card %>
+          <%= render partial: 'kanban/cards/card_in_column', collection: column.cards, as: :card,
+                     locals: { money_tracking: @board.money_tracking } %>
         </div>
       </div>
     <% end %>

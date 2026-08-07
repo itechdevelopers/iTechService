@@ -77,3 +77,4 @@ ru:
       card_in_column:
         manager_person: "Ответственный %{name}"
         deadline: "Сделать до %{date}"
+        money: "Деньги: %{amount}"

@@ -12,6 +12,16 @@
   }
 }
 
+// Поле комментария в модалках плюса и минуса. Bootstrap 2 задаёт textarea
+// ширину 206px (селектор по тегу), поэтому в модалке шириной 1000px поле
+// выглядело крошечным. Свой класс перебивает по специфичности.
+.merit-fault-form__comment {
+  width: 640px;
+  max-width: 100%;
+  min-height: 120px;
+  resize: vertical;
+}
+
 .merit__exchanged-label,
 .fault__exchanged-label {
   display: inline-block;

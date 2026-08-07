@@ -20,8 +20,30 @@ class CustomSelectInput < SimpleForm::Inputs::Base
 
   def select_options_container
     @builder.template.content_tag(:div, class: 'custom-options') do
-      default_option + select_options
+      search_field + default_option + select_options
     end
+  end
+
+  # Free-text filter over the options, opt-in per form via `searchable: true`.
+  # The field carries no `name`, so it never reaches params — filtering is
+  # purely client-side over the already rendered options.
+  def search_field
+    return ''.html_safe unless searchable?
+
+    @builder.template.content_tag(:div, class: 'custom-select__search') do
+      @builder.template.tag(:input, type: 'text',
+                                    class: 'custom-select__search-input',
+                                    placeholder: search_placeholder,
+                                    autocomplete: 'off')
+    end
+  end
+
+  def searchable?
+    @options[:searchable].present?
+  end
+
+  def search_placeholder
+    @options[:search_placeholder] || I18n.t('helpers.placeholders.search')
   end
 
   def default_option

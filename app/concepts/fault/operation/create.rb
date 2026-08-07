@@ -15,8 +15,16 @@ class Fault::Create < BaseOperation
   step :calculate_penalty
   failure :contract_invalid!
   step Contract::Persist()
+  step :notify_causer
 
   private
+
+  # Явный true: шаг идёт последним, и падение на falsy-возврат увело бы
+  # успешно сохранённый минус на failure-track.
+  def notify_causer(options)
+    MeritFaultNotifier.call(options['model'])
+    true
+  end
 
   def calculate_penalty(options)
     kind = FaultKind.find(options['contract.default'].kind_id)

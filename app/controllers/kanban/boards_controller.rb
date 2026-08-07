@@ -13,7 +13,7 @@ module Kanban
     end
 
     def show
-      @board = find_record(Board.includes(columns: :cards))
+      @board = find_record(Board.includes(columns: {cards: :money_entries}))
     end
 
     def new
@@ -62,7 +62,10 @@ module Kanban
       authorize Board
       sort_type = params[:sort_order] || "classic"
       @rendered_columns = @board.columns.map do |column|
-        render_to_string(partial: "kanban/cards/card_in_column", collection: sorted_columns(column.cards, sort_type), as: :card)
+        render_to_string(partial: "kanban/cards/card_in_column",
+                         collection: sorted_columns(column.cards.includes(:money_entries), sort_type),
+                         as: :card,
+                         locals: {money_tracking: @board.money_tracking})
       end
       respond_to do |format|
         format.js
@@ -74,7 +77,7 @@ module Kanban
     end
 
     def archived
-      @archived_cards = @board.archived_cards
+      @archived_cards = @board.archived_cards.includes(:money_entries)
     end
 
     def copy
