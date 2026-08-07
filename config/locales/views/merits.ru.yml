@@ -1,4 +1,8 @@
 ru:
+  merit_notification:
+    bell: 'Тебе выставлен плюс от %{issuer}. Комментарий: %{comment}'
+    telegram: "➕ <b>Тебе выставлен плюс</b>\nОт кого: %{issuer}\nКомментарий: %{comment}\n\n<a href=\"%{url}\">Открыть в АИС</a>"
+
   merits:
     modal_form_content:
       select_employee: 'Выберите сотрудника'

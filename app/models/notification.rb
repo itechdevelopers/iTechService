@@ -18,6 +18,8 @@ class Notification < ApplicationRecord
     'TestingSession'           => 'Тестирование',
     'ClientRequest'            => 'Запросы клиентов',
     'DeviceUnlockRequest'      => 'Запросы на разблокировку',
+    'Merit'                    => 'Плюсы',
+    'Fault'                    => 'Минусы',
     nil                        => 'Без типа'
   }.freeze
 
