@@ -1,6 +1,6 @@
 - if @products.present? and @products.any?
   :plain
-    $('#resource_table').html("#{j(render('products/small_table'))}");
+    productChooseScope().find('#resource_table').html("#{j(render('products/small_table'))}");
 - if @items.any? and @products.one?
   :plain
     $('#product_items_table').html("#{j(render('products/items_table'))}");

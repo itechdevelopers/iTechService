@@ -9,7 +9,7 @@ ru:
       toggle: "Я сломал"
       circumstances_hint: "При каких обстоятельствах сломали"
       resolution_hint: "Как решили вопрос"
-      item_placeholder: "Начните вводить название запчасти"
+      choose_item: "Выбрать запчасть"
 
     repair_task_fields:
       spare_part: "Запчасть (кол-во)"

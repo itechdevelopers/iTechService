@@ -8,6 +8,16 @@
     - parent_input_id = params[:parent_input_id] || 'order_object'
     $("##{parent_input_id}").val("#{j(@product.name.html_safe)}");
     hideModal();
+  - elsif params[:form] == 'breakage_report'
+    -# Spare parts are not feature-accounted, so a product has exactly one item
+    -# and its remainder equals the product's remainder in the branch store.
+    - input_id = params[:parent_input_id]
+    -# A single search hit reaches here through items#index, which leaves @store unset.
+    - store = @store || Store.find_by(id: params[:store_id])
+    - label = store.present? ? t('breakage_reports.item_with_remainder', name: @item.name, quantity: @item.quantity_in_store(store)) : @item.name
+    $("##{input_id}").val("#{@item.id}");
+    $("##{input_id}_presentation").text("#{j label}");
+    $('.product-choose-inline').parent().slideUp(function () { $(this).empty(); });
   - elsif params[:form] == 'print_tags'
     $('#print_tags_form').attr('action', "#{item_path(@item, format: 'pdf')}");
     $('#product_name').text("#{@item.name}");

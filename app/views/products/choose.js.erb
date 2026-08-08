@@ -1,3 +1,12 @@
+<% if params[:container].present? %>
+// The caller is already inside #modal_form, so the picker goes into a panel of
+// its own instead of a second modal window.
+var $container = $('<%= j params[:container] %>');
+$container.html("<%= j(render('products/choose_inline_form')) %>");
+product_groups_tree_readonly('<%= j params[:container] %> #product_groups');
+$container.slideDown();
+
+<% else %>
 store_id = $('form [id$=store_id]').val();
 
 if ($('#modal_form').length == 0) {
@@ -18,4 +27,5 @@ $("#modal_form").modal('show');
 
 <% if @product.present? %>
 $('#product_choose_form').submit();
+<% end %>
 <% end %>

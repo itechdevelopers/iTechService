@@ -1,0 +1,8 @@
+-# Same picker as products/_choose_form, rendered into a panel on the page instead
+-# of a modal window. Used when the caller already sits inside #modal_form.
+-# It is a div, not a form: the caller's own form wraps it, and a nested <form>
+-# is invalid HTML that the browser silently drops. The hidden inputs are still
+-# serialized by hand in products.js.coffee.
+#product_choose_form.product-choose-inline{ data: { url: select_products_path } }
+  = link_to t('done'), '#', class: 'btn btn-primary btn-small product-choose-inline__close'
+  = render 'products/choose_fields'

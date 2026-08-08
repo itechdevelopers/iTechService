@@ -38,9 +38,11 @@ class BreakageReport < ApplicationRecord
     [item.name, item.serial_number.presence].compact.join(' / ')
   end
 
-  # Branch spare parts store the part is written off from.
+  # Branch spare parts store the part is written off from. On an unsaved report
+  # built inside the task form service_job is still blank — set_service_job runs
+  # only before validation — so the task's own job answers for it.
   def write_off_store
-    service_job&.department&.spare_parts_store
+    (service_job || device_task&.service_job)&.department&.spare_parts_store
   end
 
   private
