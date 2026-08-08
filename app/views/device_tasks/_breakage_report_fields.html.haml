@@ -10,11 +10,18 @@
   .control-group
     %label.control-label= BreakageReport.human_attribute_name :item
     .controls
-      = text_field_tag :breakage_item_search, f.object.item_presentation,
-                       class: 'breakage-report__item-search input-xlarge',
-                       placeholder: t('device_tasks.breakage_reports.item_placeholder'),
-                       autocomplete: 'off', name: nil
-      = f.hidden_field :item_id, class: 'breakage-report__item-id'
+      -# Same picker technicians already use for repair service spare parts:
+      -# groups tree plus search. It renders inline because the task form itself
+      -# occupies #modal_form.
+      = f.hidden_field :item_id, id: 'breakage_report_item_id'
+      %span#breakage_report_item_id_presentation.breakage-report__item
+        = f.object.item_presentation
+      = link_to t('device_tasks.breakage_reports.choose_item'),
+                choose_products_path(form: 'breakage_report', store_kind: 'spare_parts', is_product_only: false,
+                                     store_id: f.object.write_off_store&.id,
+                                     container: '#breakage_item_choose_container',
+                                     parent_input_id: 'breakage_report_item_id'),
+                remote: true, class: 'btn btn-small'
       - if f.object.part_price.present?
         %span.help-inline
           = BreakageReport.human_attribute_name :part_price
@@ -24,3 +31,6 @@
           = link_to t('breakage_reports.deduction_act', id: f.object.deduction_act_id),
                     deduction_act_path(f.object.deduction_act_id), target: '_blank'
       %span.help-block= t('breakage_reports.write_off_hint')
+
+  -# Full width: inside .controls the group tree gets a quarter of a column.
+  #breakage_item_choose_container.breakage-report__item-choose.hide

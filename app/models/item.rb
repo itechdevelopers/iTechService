@@ -51,12 +51,32 @@ class Item < ApplicationRecord
     }
   end
 
+  # Name of the Russian collation this database provides, or nil when it has
+  # none. Both databases are created with the C collation, where lower() and
+  # ILIKE leave Cyrillic untouched and a search for «батарея» never matches
+  # «Батарея». An explicit collation fixes that, but glibc spells it
+  # ru_RU.utf8 and macOS ru_RU.UTF-8 — User.search hardcodes the server
+  # spelling and has to be edited by hand to run locally, so ask the database
+  # instead.
+  def self.russian_collation
+    return @russian_collation if defined?(@russian_collation)
+
+    @russian_collation = connection.select_value(
+      "SELECT collname FROM pg_collation WHERE collname IN ('ru_RU.utf8', 'ru_RU.UTF-8') LIMIT 1"
+    )
+  end
+
   def self.search(params)
     items = Item.all
 
     unless (q = params[:q]).blank?
+      collation = russian_collation
+      name_match = collation ? %(products.name ILIKE :ql COLLATE "#{collation}") : 'LOWER(products.name) LIKE :ql'
+      term = collation ? "%#{q}%" : "%#{q.mb_chars.downcase}%"
+
       items = items.includes(:features, :product).where(
-        'features.value = :q OR products.code = :q OR items.barcode_num = :q OR LOWER(products.name) LIKE :ql', q: q, ql: "%#{q.mb_chars.downcase}%"
+        "features.value = :q OR products.code = :q OR items.barcode_num = :q OR #{name_match}",
+        q: q, ql: term
       ).references(:features)
     end
 

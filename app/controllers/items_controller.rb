@@ -59,31 +59,6 @@ class ItemsController < ApplicationController
     end
   end
 
-  # Spare parts available in the current branch store. Unlike #autocomplete it
-  # doesn't go through Item.filter — that one INNER JOINs features, so parts
-  # without characteristics (the usual case) are never found.
-  def spare_parts_autocomplete
-    authorize Item, :autocomplete?
-    store = current_user.department&.spare_parts_store
-    term = params[:term].to_s.strip
-
-    @items = if store.blank? || term.blank?
-               Item.none
-             else
-               # Out-of-stock parts stay in the list on purpose — the technician
-               # must see that the remainder is zero instead of an empty dropdown.
-               policy_scope(Item).joins(:store_items, :product)
-                                 .where(store_items: { store_id: store.id })
-                                 .where('LOWER(products.name) LIKE :folded OR products.name LIKE :raw',
-                                        folded: "%#{term.mb_chars.downcase}%", raw: "%#{term}%")
-                                 .select('items.*, store_items.quantity AS available_quantity')
-                                 .order('store_items.quantity DESC')
-                                 .limit(20)
-             end
-
-    respond_to(&:json)
-  end
-
   def show
     @item = find_record Item
 

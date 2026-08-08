@@ -4,10 +4,11 @@
   hideModal();
 - else
   :plain
-    $("#resource_table").html("#{j(render(params[:table_name] || 'products/table'))}");
+    var $scope = productChooseScope();
+    $scope.find("#resource_table").html("#{j(render(params[:table_name] || 'products/table'))}");
 
     // Update search form's hidden group field
-    var $searchForm = $('#search_form');
+    var $searchForm = $scope.find('#search_form');
     var $groupField = $searchForm.find('input[name="group"]');
     if ($groupField.length > 0) {
       $groupField.val("#{@product_group.id}");

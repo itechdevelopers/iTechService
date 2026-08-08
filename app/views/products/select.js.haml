@@ -8,6 +8,11 @@
     - parent_input_id = params[:parent_input_id] || 'order_object'
     $("##{parent_input_id}").val("#{j(@product.name.html_safe)}");
     hideModal();
+  - elsif params[:form] == 'breakage_report'
+    - input_id = params[:parent_input_id]
+    $("##{input_id}").val("#{@item.id}");
+    $("##{input_id}_presentation").text("#{j @item.name}");
+    $('.product-choose-inline').parent().slideUp(function () { $(this).empty(); });
   - elsif params[:form] == 'print_tags'
     $('#print_tags_form').attr('action', "#{item_path(@item, format: 'pdf')}");
     $('#product_name').text("#{@item.name}");

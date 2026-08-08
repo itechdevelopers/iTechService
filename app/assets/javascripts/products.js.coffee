@@ -25,26 +25,53 @@ $(document).on 'keyup', '#product_choose_form #item_search_field', ->
       product_group_id: $('#selected_product_group').val(),
       choose: true,
       form: $('#modal_form #form').val(),
-      association: $('#modal_form #association').val()
+      association: $('#modal_form #association').val(),
+      # A single hit is selected right away by products/select, which needs to
+      # know where to put it.
+      parent_input_id: $('#product_choose_form #parent_input_id').val()
   ), 500
 
 $(document).on 'click', '#product_choose_form #clear_product_search_field', ->
   $('#product_choose_form #product_search_field').val('')
   $.get '/products.js', choose: true
 
+# Neither #resource_table nor #search_form is unique: the repair service picker
+# renders both above the product picker inside the same task modal, and the
+# products index page has its own pair. Whatever the product picker triggers has
+# to land inside the picker, not in the first match in the document.
+window.productChooseScope = ->
+  $picker = $('#product_choose_form')
+  if $picker.length then $picker else $(document)
+
+# The inline picker has no modal chrome to dismiss it — the «Готово» link folds
+# the panel it was rendered into.
+$(document).on 'click', '.product-choose-inline__close', (event)->
+  event.preventDefault()
+  $(this).closest('.product-choose-inline').parent().slideUp -> $(this).empty()
+
 $(document).on 'click', '#product_choose_form #clear_item_search_field', ->
   $('#product_choose_form #item_search_field').val('')
+
+# Inline the picker is a div, not a form (see products/_choose_inline_form), so
+# its hidden inputs are posted by hand.
+submitProductChoose = ($form)->
+  return $form.submit() if $form.is('form')
+  $.ajax
+    url: $form.data('url')
+    type: 'POST'
+    dataType: 'script'
+    data: $form.find('input').serialize()
 
 $(document).on 'click', '#product_choose_form .product_row', ->
   $form = $('#product_choose_form')
   $('#product_id', $form).removeAttr('disabled').val($(this).data('product'))
   $('#item_id', $form).attr('disabled', true)
-  $form.submit()
+  submitProductChoose($form)
 
 $(document).on 'click', '#product_choose_form .item_row', ->
   $form = $('#product_choose_form')
   $('#item_id', $form).removeAttr('disabled').val($(this).data('item'))
-  $form.submit()
+  submitProductChoose($form)
 
 $(document).on 'click', '#product_choose_form #add_product_item', ->
   $('#product_choose_form #selected_item').attr('disabled', true).val('')

@@ -40,16 +40,40 @@
   }
 }
 
-// Spare part suggestions with a zero remainder: shown on purpose so the
-// technician sees there is nothing left, but not selectable.
-.breakage-report__suggestion--empty {
-  a {
-    color: #999;
-    cursor: not-allowed;
+// Part chosen in the picker, shown next to the «Выбрать запчасть» button.
+.breakage-report__item {
+  display: inline-block;
+  margin-right: 10px;
+  font-weight: bold;
+}
+
+// Panel the product picker is rendered into: it replaces a modal window, so it
+// needs the vertical breathing room a .modal-body would have given it.
+.breakage-report__item-choose {
+  margin-top: 10px;
+  padding-top: 10px;
+  border-top: 1px solid #ddd;
+
+  #resource_table {
+    max-height: 320px;
+    overflow-y: auto;
   }
 
-  a:after {
-    content: " — нет на складе";
-    color: #b94a48;
+  // The jstree apple theme paints itself white, which reads as a panel of its
+  // own inside the well. The repair service picker kills it the same way —
+  // see #repair_services_choose_form_container in device_tasks.css.scss.
+  #product_groups {
+    max-height: 320px;
+    overflow-y: auto;
+    background: transparent;
+  }
+
+  // .input-xxlarge is sized for the modal the picker usually lives in; here it
+  // has to match the repair service search field right above it.
+  // Bootstrap 2 sizes inputs content-box, so this is 236px wide with padding —
+  // the same box as the repair service search field.
+  #item_search_field {
+    width: 206px;
+    font-size: 13px;
   }
 }
