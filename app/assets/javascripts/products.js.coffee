@@ -27,8 +27,7 @@ $(document).on 'keyup', '#product_choose_form #item_search_field', ->
       form: $('#modal_form #form').val(),
       association: $('#modal_form #association').val(),
       # A single hit is selected right away by products/select, which needs to
-      # know where to put it and which store the remainder is counted in.
-      store_id: $('#product_choose_form #store_id').val(),
+      # know where to put it.
       parent_input_id: $('#product_choose_form #parent_input_id').val()
   ), 500
 
