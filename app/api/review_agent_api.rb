@@ -89,6 +89,11 @@ class ReviewAgentApi < Grape::API
       end
 
       if review.save
+        # Уведомляем только о ПЕРВОМ появлении негатива: агент шлёт отзывы
+        # текущего месяца на каждом прогоне, а колокольчик и Телеграм не должны
+        # звенеть по одному отзыву снова и снова.
+        review.notify_about_creation if new_record && review.negative?
+
         status(new_record ? 201 : 200)
         present review, with: Entities::GisReviewEntity
       else

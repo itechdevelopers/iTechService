@@ -248,6 +248,8 @@ Rails.application.routes.draw do
     patch :update_status, on: :member
     post :add_comment, on: :member
     get :comments, on: :member, defaults: { format: 'js' }
+    get :assignment, on: :collection
+    patch :assign, on: :member
   end
 
   # Учёт пакетов. Размеры (package_stocks) редактируются вложенно в форме дизайна.

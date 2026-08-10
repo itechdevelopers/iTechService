@@ -49,4 +49,67 @@ class GisReview < ApplicationRecord
   def negative?
     NEGATIVE_STATUSES.include?(status)
   end
+
+  # Кандидаты на привязку: сотрудники локации «Бар» ВСЕХ филиалов города отзыва —
+  # ровно то множество, которое агент получает через API и в котором ищет имя.
+  # Если город не распознался, сужать не по чему — отдаём бар целиком.
+  def employee_candidates
+    locations = city_id.present? ? Location.bar.in_city(city_id) : Location.bar
+    User.active.located_at(locations).order(:surname, :name)
+  end
+
+  # --- Уведомления о новом негативном отзыве (заказчик: «отправляем суперадминам
+  # отзыв в айс и тг бот. Текст, филиал») ---
+  # Зовётся из ReviewAgentApi только при СОЗДАНИИ негативного отзыва: агент
+  # пере-присылает отзывы месяца на каждом прогоне, и без этого гейта суперадмины
+  # получали бы одно и то же уведомление круглые сутки.
+  def notify_about_creation
+    User.superadmins.active.each do |recipient|
+      notification = Notification.create!(
+        user: recipient,
+        message: creation_notification_message,
+        url: index_path,
+        referenceable: self
+      )
+      UserNotificationChannel.broadcast_to(recipient, notification)
+      NotifyEmployeeJob.perform_later(recipient.id, telegram_text)
+    end
+  end
+
+  def creation_notification_message
+    "Новый негативный отзыв 2ГИС (#{rating}★), #{branch_label}: #{text}"
+  end
+
+  # HTML-разметка: SendTelegramMessage шлёт с parse_mode HTML, поэтому текст
+  # отзыва и название филиала экранируем — в них бывают <, > и &.
+  def telegram_text
+    [
+      "<b>Новый негативный отзыв 2ГИС (#{rating}★)</b>",
+      CGI.escapeHTML(branch_label),
+      CGI.escapeHTML(text.to_s),
+      %(<a href="#{index_url}">Открыть негативные отзывы</a>)
+    ].join("\n\n")
+  end
+
+  # Город + филиал: филиал агент шлёт не всегда, город есть всегда.
+  def branch_label
+    [city_name, branch_name].reject(&:blank?).join(', ')
+  end
+
+  def index_path
+    Rails.application.routes.url_helpers.gis_reviews_path
+  end
+
+  # Абсолютная ссылка для Телеграма. Хост берём с тем же фолбэком, что и
+  # reception_photo_check_job: в dev routes.default_url_options не задан, и
+  # обычный _url-хелпер там падает с «Missing host to link to».
+  def index_url
+    Rails.application.routes.url_helpers.gis_reviews_url(host: app_host)
+  end
+
+  def app_host
+    ENV['SERVER_HOST'].presence ||
+      Rails.application.routes.default_url_options[:host].presence ||
+      'localhost:3000'
+  end
 end

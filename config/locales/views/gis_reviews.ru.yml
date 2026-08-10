@@ -27,6 +27,20 @@ ru:
       empty: Комментариев пока нет
     update_status:
       updated: Статус отзыва обновлён
+    assignment:
+      title: Отзывы 2ГИС — привязка сотрудников
+      hint: Здесь отзывы, в которых агент не смог определить сотрудника, и уже привязанные — их может перекинуть на другого сотрудника суперадмин.
+      filter_label: 'Статус:'
+      filter_reset: Сбросить
+      empty: Отзывов для привязки нет
+    assignment_row:
+      select_employee: — выберите сотрудника —
+      assign_btn: Привязать
+      reassign_btn: Переназначить
+      assigned_by: 'привязал: %{name}'
+      reassign_superadmin_only: Переназначить может только суперадмин
+    assign:
+      updated: Отзыв привязан
 
   activerecord:
     models:

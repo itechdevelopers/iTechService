@@ -91,4 +91,21 @@
 
     .btn { margin-right: 4px; }
   }
+
+  // ── Страница привязки сотрудников ─────────────────────────────────────────
+  .gis-reviews__row--need-assignment > td { background-color: #f4f8fb; }
+  .gis-reviews__row--assigned > td        { background-color: #f1f8f1; }
+
+  .gis-reviews__chip--need-assignment.is-active { background: #2f96b4; border-color: #2f96b4; color: #fff; }
+  .gis-reviews__chip--assigned.is-active        { background: #5cb85c; border-color: #5cb85c; color: #fff; }
+
+  &__assign-cell { min-width: 220px; }
+
+  &__assigned-to { margin-bottom: 6px; }
+
+  &__assign-select {
+    width: 100%;
+    box-sizing: border-box;
+    margin-bottom: 4px;
+  }
 }
