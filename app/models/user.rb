@@ -67,6 +67,7 @@ class User < ApplicationRecord
     view_bad_review_announcements
     work_with_electronic_queues
     manage_schedules
+    manage_negative_reviews
   ].freeze
 
   ACTIVITIES = %w[free fast long mac].freeze

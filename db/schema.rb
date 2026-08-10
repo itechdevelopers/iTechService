@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20260806141454) do
+ActiveRecord::Schema.define(version: 20260810120000) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -792,6 +792,30 @@ ActiveRecord::Schema.define(version: 20260806141454) do
     t.integer "department_id"
     t.index ["department_id"], name: "index_gift_certificates_on_department_id"
     t.index ["number"], name: "index_gift_certificates_on_number"
+  end
+
+  create_table "gis_reviews", force: :cascade do |t|
+    t.string "external_review_id", null: false
+    t.string "city_name", null: false
+    t.bigint "city_id"
+    t.string "branch_code"
+    t.string "branch_name"
+    t.string "branch_2gis_id"
+    t.integer "rating", null: false
+    t.string "author"
+    t.datetime "reviewed_at", null: false
+    t.text "text"
+    t.bigint "user_id"
+    t.bigint "assigned_by_id"
+    t.integer "status", default: 1, null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["assigned_by_id"], name: "index_gis_reviews_on_assigned_by_id"
+    t.index ["city_id"], name: "index_gis_reviews_on_city_id"
+    t.index ["external_review_id"], name: "index_gis_reviews_on_external_review_id", unique: true
+    t.index ["status"], name: "index_gis_reviews_on_status"
+    t.index ["user_id", "reviewed_at"], name: "index_gis_reviews_on_user_id_and_reviewed_at"
+    t.index ["user_id"], name: "index_gis_reviews_on_user_id"
   end
 
   create_table "glass_sticking_notifications", force: :cascade do |t|
@@ -2728,6 +2752,9 @@ ActiveRecord::Schema.define(version: 20260806141454) do
   add_foreign_key "faults", "users", column: "issued_by_id"
   add_foreign_key "find_my_device_checks", "service_jobs"
   add_foreign_key "find_my_device_checks", "users"
+  add_foreign_key "gis_reviews", "cities"
+  add_foreign_key "gis_reviews", "users"
+  add_foreign_key "gis_reviews", "users", column: "assigned_by_id"
   add_foreign_key "glass_sticking_notifications", "departments"
   add_foreign_key "glass_sticking_notifications", "users", column: "recipient_id"
   add_foreign_key "glass_sticking_notifications", "users", column: "sender_id"
