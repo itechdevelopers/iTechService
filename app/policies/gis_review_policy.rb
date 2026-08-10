@@ -13,7 +13,25 @@ class GisReviewPolicy < ApplicationPolicy
     user.api?
   end
 
-  # Остальные предикаты (index?, update_status?, assign?, reassign?) появятся
-  # вместе с экшенами в циклах 2–3. Дефолты ApplicationPolicy отдают их
-  # суперадмину, так что «дыры» до тех пор нет.
+  # Страница негативных отзывов и работа с ними: суперадмин ИЛИ обладатель права
+  # «Работа с негативными отзывами 2ГИС» (заказчик просил отдельное право сверх
+  # суперадминов).
+  def index?
+    superadmin? || able_to?(:manage_negative_reviews)
+  end
+
+  def update_status?
+    index?
+  end
+
+  def add_comment?
+    index?
+  end
+
+  def comments?
+    index?
+  end
+
+  # Привязка сотрудника к неопределённому отзыву и переброс на другого появятся
+  # в цикле 3 (reassign? — только суперадмин, как просил заказчик).
 end

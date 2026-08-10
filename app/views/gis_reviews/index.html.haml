@@ -1,0 +1,32 @@
+.page-header
+  %h2= t('.title')
+
+-# Чипы — фильтр-отсев по статусу обработки (можно выбрать несколько).
+-# Клик по активному чипу снимает его; «Сбросить» возвращает весь список.
+.gis-reviews
+  .gis-reviews__filters
+    %span.gis-reviews__filters-label= t('.filter_label')
+    - @statuses.each do |st|
+      - active = @selected_statuses.include?(st)
+      - next_statuses = (active ? @selected_statuses - [st] : @selected_statuses + [st])
+      = link_to gis_reviews_path(status: next_statuses.presence), class: "gis-reviews__chip gis-reviews__chip--#{st.tr('_', '-')} #{'is-active' if active}" do
+        = t("gis_reviews.statuses.#{st}")
+        %span.gis-reviews__chip-count= @status_counts[st]
+    - if @selected_statuses.any?
+      = link_to t('.filter_reset'), gis_reviews_path, class: 'gis-reviews__chip-reset'
+
+%table#gis_reviews_table.table.table-hover.table-bordered.gis-reviews
+  %thead
+    %tr
+      %th= t('.columns.reviewed_at')
+      %th= t('.columns.branch')
+      %th= GisReview.human_attribute_name(:rating)
+      %th= GisReview.human_attribute_name(:author)
+      %th= GisReview.human_attribute_name(:text)
+      %th= t('.columns.last_comment')
+      %th= GisReview.human_attribute_name(:status)
+  %tbody
+    - if @gis_reviews.empty?
+      %tr
+        %td{ colspan: 7 }= t('.empty')
+    = render partial: 'gis_review', collection: @gis_reviews, as: :gis_review

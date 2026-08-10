@@ -34,6 +34,7 @@
             %ul.dropdown-menu
               = menu_item t('.receipt_search_request'), client_requests_path if policy(ClientRequest).index?
               = menu_item t('.device_unlock_request'), device_unlock_requests_path if policy(DeviceUnlockRequest).index?
+        = menu_item t('gis_reviews.index.title'), gis_reviews_path if policy(GisReview).index?
         - if can? :manage, TaskTemplate
           = drop_down_divider
           = menu_item t('task_templates.index.title'), task_templates_path

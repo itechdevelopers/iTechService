@@ -1,0 +1,3 @@
+// Перерисовываем только изменённую строку — цвет строки, бейдж и набор кнопок
+// обновляются без перезагрузки (паттерн device_unlock_requests).
+$('#gis_review_<%= @gis_review.id %>').replaceWith('<%= j render partial: 'gis_review', object: @gis_review, as: :gis_review %>');

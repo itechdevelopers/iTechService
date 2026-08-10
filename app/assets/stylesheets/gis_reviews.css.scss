@@ -1,0 +1,94 @@
+// Стили фичи «Отзывы 2ГИС». BEM, всё под собственным блоком .gis-reviews;
+// generic-селекторы (.label, .table) НЕ трогаем (CONTEXT.md).
+// Палитра согласована с device_unlock_requests.css.scss.
+
+.gis-reviews {
+  // ── Заливка строки по статусу обработки ───────────────────────────────────
+  .gis-reviews__row--negative-new > td         { background-color: #fdf3f3; }
+  .gis-reviews__row--negative-in-progress > td { background-color: #fcf6e9; }
+  .gis-reviews__row--negative-resolved > td    { background-color: #f1f8f1; }
+
+  // ── Бейдж статуса ─────────────────────────────────────────────────────────
+  .gis-reviews__status--negative-new         { background-color: #d9534f; } // красный — новый негатив
+  .gis-reviews__status--negative-in-progress { background-color: #f0ad4e; } // жёлтый — в работе
+  .gis-reviews__status--negative-resolved    { background-color: #5cb85c; } // зелёный — решён
+  .gis-reviews__status--assigned             { background-color: #5cb85c; }
+  .gis-reviews__status--need-assignment      { background-color: #2f96b4; }
+
+  .gis-reviews__status-cell { white-space: nowrap; }
+
+  // ── Чипы-фильтры по статусу ───────────────────────────────────────────────
+  &__filters {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 12px;
+  }
+
+  &__filters-label { font-weight: bold; }
+
+  &__chip {
+    display: inline-block;
+    padding: 4px 10px;
+    border: 1px solid #ccc;
+    border-radius: 12px;
+    background: #f5f5f5;
+    color: #555;
+    font-size: 12px;
+    line-height: 1.4;
+    text-decoration: none;
+
+    &:hover { text-decoration: none; opacity: 0.85; }
+  }
+
+  &__chip-count {
+    margin-left: 6px;
+    font-weight: bold;
+  }
+
+  .gis-reviews__chip--negative-new.is-active         { background: #d9534f; border-color: #d9534f; color: #fff; }
+  .gis-reviews__chip--negative-in-progress.is-active { background: #f0ad4e; border-color: #f0ad4e; color: #fff; }
+  .gis-reviews__chip--negative-resolved.is-active    { background: #5cb85c; border-color: #5cb85c; color: #fff; }
+
+  &__chip-reset {
+    font-size: 12px;
+    color: #777;
+  }
+
+  // ── Оценка ────────────────────────────────────────────────────────────────
+  &__rating-cell { white-space: nowrap; }
+
+  &__stars {
+    color: #f0ad4e;
+    font-size: 16px;
+    letter-spacing: 1px;
+  }
+
+  // ── Текст и комментарии ───────────────────────────────────────────────────
+  &__text-cell { min-width: 240px; }
+
+  &__comment-cell { min-width: 220px; }
+
+  &__last-comment {
+    margin-bottom: 6px;
+    padding: 4px 6px;
+    background: #fff;
+    border-left: 3px solid #ccc;
+    font-size: 12px;
+  }
+
+  &__comments-link { margin-left: 4px; }
+
+  &__comment-input {
+    width: 100%;
+    box-sizing: border-box;
+    margin-bottom: 4px;
+  }
+
+  &__actions {
+    margin-top: 6px;
+
+    .btn { margin-right: 4px; }
+  }
+}

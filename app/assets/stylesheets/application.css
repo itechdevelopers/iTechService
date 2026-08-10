@@ -86,4 +86,5 @@
  *= require strict_repair
  *= require technicians_in_progress_timeline
  *= require breakage_report
+ *= require gis_reviews
  */
