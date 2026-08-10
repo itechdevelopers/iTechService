@@ -1,0 +1,3 @@
+// Перерисовываем строку: в ячейке «последний комментарий» появляется только что
+// добавленный текст, инлайн-форма очищается.
+$('#gis_review_<%= @gis_review.id %>').replaceWith('<%= j render partial: 'gis_review', object: @gis_review, as: :gis_review %>');

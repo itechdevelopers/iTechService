@@ -1,0 +1,34 @@
+-# Строка таблицы негативного отзыва 2ГИС. r — экземпляр GisReview.
+- r = gis_review
+- status_mod = r.status.tr('_', '-')
+%tr.gis-reviews__row{ class: "gis-reviews__row--#{status_mod}", id: "gis_review_#{r.id}" }
+  %td= human_datetime r.reviewed_at
+  %td
+    = r.city_name
+    - if r.branch_name.present?
+      %br
+      %small.muted= r.branch_name
+  %td.gis-reviews__rating-cell
+    -# Заполненные и пустые звёзды: оценка читается взглядом, без счёта цифр.
+    %span.gis-reviews__stars= '★' * r.rating + '☆' * (5 - r.rating)
+  %td= r.author
+  %td.gis-reviews__text-cell= r.text
+  %td.gis-reviews__comment-cell
+    - if r.last_comment
+      .gis-reviews__last-comment
+        = r.last_comment.content
+        = link_to glyph('clock-o'), comments_gis_review_path(r, form_name: 'comments_modal'), remote: true, class: 'gis-reviews__comments-link', title: t('.comments_link_title')
+    - if policy(r).add_comment?
+      = form_tag add_comment_gis_review_path(r), method: :post, remote: true, class: 'gis-reviews__comment-form' do
+        = text_area_tag :content, nil, rows: 3, id: "gis_review_comment_content_#{r.id}", placeholder: t('.comment_placeholder'), class: 'gis-reviews__comment-input'
+        = submit_tag t('.comment_btn'), class: 'btn btn-small'
+  %td.gis-reviews__status-cell
+    %span.label{ class: "gis-reviews__status--#{status_mod}" }= t("gis_reviews.statuses.#{r.status}")
+    - if policy(r).update_status?
+      .gis-reviews__actions
+        - unless r.negative_new?
+          = link_to t('.negative_new_btn'), update_status_gis_review_path(r, gis_review: { status: :negative_new }), method: :patch, remote: true, class: 'btn btn-info btn-small'
+        - unless r.negative_in_progress?
+          = link_to t('.negative_in_progress_btn'), update_status_gis_review_path(r, gis_review: { status: :negative_in_progress }), method: :patch, remote: true, class: 'btn btn-warning btn-small'
+        - unless r.negative_resolved?
+          = link_to t('.negative_resolved_btn'), update_status_gis_review_path(r, gis_review: { status: :negative_resolved }), method: :patch, remote: true, class: 'btn btn-success btn-small'

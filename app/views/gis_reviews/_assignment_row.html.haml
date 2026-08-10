@@ -1,0 +1,32 @@
+-# Строка страницы привязки. r — GisReview, candidates — сотрудники бара его города.
+- r = gis_review
+- status_mod = r.status.tr('_', '-')
+-# Привязать может любой с доступом к странице; перекинуть уже привязанный — только суперадмин.
+- can_edit = r.user_id.present? ? policy(r).reassign? : policy(r).assign?
+%tr.gis-reviews__row{ class: "gis-reviews__row--#{status_mod}", id: "gis_review_assignment_#{r.id}" }
+  %td= human_datetime r.reviewed_at
+  %td
+    = r.city_name
+    - if r.branch_name.present?
+      %br
+      %small.muted= r.branch_name
+  %td.gis-reviews__rating-cell
+    %span.gis-reviews__stars= '★' * r.rating + '☆' * (5 - r.rating)
+  %td= r.author
+  %td.gis-reviews__text-cell= r.text
+  %td.gis-reviews__assign-cell
+    - if r.user
+      .gis-reviews__assigned-to
+        %strong= r.user.short_name
+        - if r.assigned_by
+          %br
+          %small.muted= t('.assigned_by', name: r.assigned_by.short_name)
+    - if can_edit
+      = form_tag assign_gis_review_path(r), method: :patch, remote: true, class: 'gis-reviews__assign-form' do
+        = select_tag :user_id,
+          options_from_collection_for_select(Array(candidates), :id, :short_name, r.user_id),
+          include_blank: t('.select_employee'),
+          class: 'gis-reviews__assign-select'
+        = submit_tag(r.user_id.present? ? t('.reassign_btn') : t('.assign_btn'), class: 'btn btn-small btn-primary')
+    - elsif r.user_id.present?
+      %small.muted= t('.reassign_superadmin_only')

@@ -43,6 +43,7 @@ ru:
       glass_sticking: 'Доступ к функционалу «Наклейка стекла»'
       listen_all_transcriptions: 'Прослушивать все транскрибированные диалоги'
       work_with_receipt_search_requests: 'Работа с запросами на поиск чека'
+      manage_negative_reviews: 'Работа с негативными отзывами 2ГИС'
     activities:
       free: Бесплатные
       fast: Быстрые

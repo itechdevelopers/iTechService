@@ -34,6 +34,12 @@
             %ul.dropdown-menu
               = menu_item t('.receipt_search_request'), client_requests_path if policy(ClientRequest).index?
               = menu_item t('.device_unlock_request'), device_unlock_requests_path if policy(DeviceUnlockRequest).index?
+        - if policy(GisReview).index?
+          %li.dropdown-submenu.navbar-gis-reviews-submenu
+            %a{ href: '#', tabindex: '-1' }= t('.gis_reviews_group')
+            %ul.dropdown-menu
+              = menu_item t('gis_reviews.index.title'), gis_reviews_path
+              = menu_item t('.gis_reviews_assignment'), assignment_gis_reviews_path
         - if can? :manage, TaskTemplate
           = drop_down_divider
           = menu_item t('task_templates.index.title'), task_templates_path

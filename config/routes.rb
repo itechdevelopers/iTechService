@@ -242,6 +242,18 @@ Rails.application.routes.draw do
     get :history, on: :member, defaults: { format: 'js' }
   end
 
+  # Отзывы 2ГИС. Создаёт их только парсер-агент через ReviewAgentApi, поэтому
+  # ни new/create, ни destroy тут нет — только просмотр и обработка.
+  resources :gis_reviews, only: %i[index] do
+    patch :update_status, on: :member
+    post :add_comment, on: :member
+    get :comments, on: :member, defaults: { format: 'js' }
+    get :assignment, on: :collection
+    patch :assign, on: :member
+    # Вкладка «Отзывы 2ГИС» в профиле сотрудника — грузится AJAX'ом при клике.
+    get :employee, on: :collection
+  end
+
   # Учёт пакетов. Размеры (package_stocks) редактируются вложенно в форме дизайна.
   resources :package_designs
   # Забор пакетов водителем (форма + создание).

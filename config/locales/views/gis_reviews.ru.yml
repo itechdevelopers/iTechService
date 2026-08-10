@@ -1,0 +1,62 @@
+ru:
+  gis_reviews:
+    statuses:
+      assigned: Привязан
+      need_assignment: Требует привязки
+      negative_new: Новый
+      negative_in_progress: В процессе решения
+      negative_resolved: Решён
+    index:
+      title: Негативные отзывы 2ГИС
+      filter_label: 'Статус:'
+      filter_reset: Сбросить
+      empty: Негативных отзывов нет
+      columns:
+        reviewed_at: Дата отзыва
+        branch: Филиал
+        last_comment: Последний комментарий
+    gis_review:
+      comment_placeholder: Добавить комментарий…
+      comment_btn: Отправить
+      comments_link_title: Все комментарии
+      negative_new_btn: Новый
+      negative_in_progress_btn: В работу
+      negative_resolved_btn: Решён
+    comments_modal:
+      title: Комментарии по отзыву
+      empty: Комментариев пока нет
+    update_status:
+      updated: Статус отзыва обновлён
+    assignment:
+      title: Отзывы 2ГИС — привязка сотрудников
+      hint: Здесь отзывы, в которых агент не смог определить сотрудника, и уже привязанные — их может перекинуть на другого сотрудника суперадмин.
+      filter_label: 'Статус:'
+      filter_reset: Сбросить
+      empty: Отзывов для привязки нет
+    assignment_row:
+      select_employee: — выберите сотрудника —
+      assign_btn: Привязать
+      reassign_btn: Переназначить
+      assigned_by: 'привязал: %{name}'
+      reassign_superadmin_only: Переназначить может только суперадмин
+    assign:
+      updated: Отзыв привязан
+    user_tab:
+      title: Отзывы 2ГИС
+    user_table:
+      total: 'Всего отзывов: %{count}.'
+      in_period: 'За выбранный период: %{count}.'
+
+  activerecord:
+    models:
+      gis_review: Отзыв 2ГИС
+    attributes:
+      gis_review:
+        rating: Оценка
+        author: Автор
+        text: Текст отзыва
+        status: Статус
+        reviewed_at: Дата отзыва
+        city_name: Город
+        branch_name: Филиал
+        user: Сотрудник

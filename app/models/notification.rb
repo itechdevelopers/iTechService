@@ -18,6 +18,7 @@ class Notification < ApplicationRecord
     'TestingSession'           => 'Тестирование',
     'ClientRequest'            => 'Запросы клиентов',
     'DeviceUnlockRequest'      => 'Запросы на разблокировку',
+    'GisReview'                => 'Отзывы 2ГИС',
     'Merit'                    => 'Плюсы',
     'Fault'                    => 'Минусы',
     nil                        => 'Без типа'

@@ -1,0 +1,31 @@
+.page-header
+  %h2= t('.title')
+  %p.muted= t('.hint')
+
+.gis-reviews
+  .gis-reviews__filters
+    %span.gis-reviews__filters-label= t('.filter_label')
+    - @statuses.each do |st|
+      - active = @selected_statuses.include?(st)
+      - next_statuses = (active ? @selected_statuses - [st] : @selected_statuses + [st])
+      = link_to assignment_gis_reviews_path(status: next_statuses.presence), class: "gis-reviews__chip gis-reviews__chip--#{st.tr('_', '-')} #{'is-active' if active}" do
+        = t("gis_reviews.statuses.#{st}")
+        %span.gis-reviews__chip-count= @status_counts[st]
+    - if @selected_statuses.any?
+      = link_to t('.filter_reset'), assignment_gis_reviews_path, class: 'gis-reviews__chip-reset'
+
+%table#gis_reviews_assignment_table.table.table-hover.table-bordered.gis-reviews
+  %thead
+    %tr
+      %th= t('gis_reviews.index.columns.reviewed_at')
+      %th= t('gis_reviews.index.columns.branch')
+      %th= GisReview.human_attribute_name(:rating)
+      %th= GisReview.human_attribute_name(:author)
+      %th= GisReview.human_attribute_name(:text)
+      %th= GisReview.human_attribute_name(:user)
+  %tbody
+    - if @gis_reviews.empty?
+      %tr
+        %td{ colspan: 6 }= t('.empty')
+    - @gis_reviews.each do |review|
+      = render 'assignment_row', gis_review: review, candidates: @candidates_by_city_id[review.city_id]

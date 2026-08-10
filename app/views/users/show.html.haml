@@ -22,6 +22,9 @@
       - if current_user.able_to?(:show_reviews)
         %li= link_to 'Отзывы клиентов', "#reviews_tab", 'data-toggle' => 'tab', id: "a_reviews_tab",
           onclick: "$('#b_users_reviews_search_form').click();"
+      - if policy(@user).gis_reviews?
+        %li= link_to t('gis_reviews.user_tab.title'), "#gis_reviews_tab", 'data-toggle' => 'tab', id: "a_gis_reviews_tab",
+          onclick: "$('#b_users_gis_reviews_search_form').click();"
       %li.active= link_to t("users.info"), "#info_tab", 'data-toggle' => 'tab'
       %li= link_to t('users.schedule'), '#schedule_tab', 'data-toggle' => 'tab'
       %li.user-fautls= link_to t('faults.index.title'), '#faults_tab', class: 'user-faults-link', data: {toggle: 'tab', source: user_faults_path(@user)}
@@ -79,6 +82,10 @@
       - if current_user.able_to?(:show_reviews)
         #reviews_tab.tab-pane
           =render partial: 'reviews/user_filter_form', locals: { user: @user }
+
+      - if policy(@user).gis_reviews?
+        #gis_reviews_tab.tab-pane
+          = render partial: 'gis_reviews/user_filter_form', locals: { user: @user }
 
       #info_tab.tab-pane.active
         %dl.dl-horizontal

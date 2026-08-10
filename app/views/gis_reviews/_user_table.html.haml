@@ -1,0 +1,33 @@
+-# Таблица отзывов сотрудника (вкладка профиля). Рендерится через shared/index
+-# в контейнер #gis_reviews_user_table.
+.gis-reviews
+  %p.muted
+    = t('gis_reviews.user_table.total', count: @total_count)
+    = t('gis_reviews.user_table.in_period', count: @gis_reviews.total_count) if @gis_reviews.respond_to?(:total_count)
+
+  - if @gis_reviews.any?
+    %table.table.table-hover.gis-reviews
+      %thead
+        %tr
+          %th= t('gis_reviews.index.columns.reviewed_at')
+          %th= t('gis_reviews.index.columns.branch')
+          %th= GisReview.human_attribute_name(:rating)
+          %th= GisReview.human_attribute_name(:author)
+          %th= GisReview.human_attribute_name(:text)
+      %tbody
+        - @gis_reviews.each do |review|
+          %tr
+            %td= human_datetime review.reviewed_at
+            %td
+              = review.city_name
+              - if review.branch_name.present?
+                %br
+                %small.muted= review.branch_name
+            %td.gis-reviews__rating-cell
+              %span.gis-reviews__stars= '★' * review.rating + '☆' * (5 - review.rating)
+            %td= review.author
+            %td.gis-reviews__text-cell= review.text
+
+    = paginate @gis_reviews, remote: true
+  - else
+    = render 'shared/empty'
