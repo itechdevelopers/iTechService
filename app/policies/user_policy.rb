@@ -99,6 +99,13 @@ class UserPolicy < BasePolicy
     any_admin?
   end
 
+  # Вкладка «Отзывы 2ГИС» в профиле: свои отзывы сотрудник видит всегда (в этом
+  # и смысл — показать человеку, что его хвалят), чужие — суперадмин или
+  # обладатель права «Работа с негативными отзывами 2ГИС».
+  def gis_reviews?
+    owner? || superadmin? || able_to?(:manage_negative_reviews)
+  end
+
   private
 
   def owner?

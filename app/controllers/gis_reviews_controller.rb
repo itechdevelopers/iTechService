@@ -104,7 +104,30 @@ class GisReviewsController < ApplicationController
     end
   end
 
+  # Вкладка «Отзывы 2ГИС» в профиле сотрудника: его отзывы помесячно.
+  # Авторизуем по ЮЗЕРУ, а не по GisReview: свои отзывы сотрудник видит всегда,
+  # чужие — только суперадмин или обладатель права (UserPolicy#gis_reviews?).
+  def employee
+    @user = User.find(filter_params[:user_id])
+    authorize @user, :gis_reviews?
+
+    # Всего у сотрудника — для подписи над таблицей; выборка ниже уже с фильтром.
+    @total_count = GisReview.where(user_id: @user.id).count
+
+    scope = GisReviewFilter.call(collection: GisReview.all, filter: filter_params).collection
+    @gis_reviews = paginate(scope.recent)
+    @table_name = 'user_table'
+
+    respond_to do |format|
+      format.js { render 'shared/index', locals: { resource_table_id: 'gis_reviews_user_table' } }
+    end
+  end
+
   private
+
+  def filter_params
+    params.require(:filter).permit(:user_id, :month, :year)
+  end
 
   # Кандидаты считаются ОДИН раз на город, а не на строку: иначе страница на
   # полсотни отзывов выдаёт полсотни одинаковых селектов сотрудников.

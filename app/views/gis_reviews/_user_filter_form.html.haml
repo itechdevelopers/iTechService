@@ -1,0 +1,16 @@
+-# Помесячный фильтр отзывов сотрудника во вкладке профиля. Форма submit'ится
+-# кликом по самой вкладке (onclick в users/show), поэтому таблица грузится
+-# только когда вкладку действительно открыли.
+- form_id = :users_gis_reviews_search_form
+= simple_form_for :filter, url: employee_gis_reviews_path, wrapper: :search_inputs,
+    method: 'get', html: { class: 'form-search', id: form_id }, remote: true do |f|
+  = f.hidden_field :user_id, value: user.id
+  = f.input :month, collection: (1..12).map { |i| [I18n.t('date.month_names')[i], i] },
+    selected: Date.current.month, include_blank: true, label: false
+  - year = Date.current.year
+  = f.input :year, collection: (0..2).map { |i| year - i }, selected: year, label: false
+  = f.button :submit, 'Найти', id: 'b_users_gis_reviews_search_form'
+
+#gis_reviews_user_table
+
+= render partial: 'shared/search_form', locals: { form_id: form_id }

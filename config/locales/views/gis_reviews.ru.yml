@@ -41,6 +41,11 @@ ru:
       reassign_superadmin_only: Переназначить может только суперадмин
     assign:
       updated: Отзыв привязан
+    user_tab:
+      title: Отзывы 2ГИС
+    user_table:
+      total: 'Всего отзывов: %{count}.'
+      in_period: 'За выбранный период: %{count}.'
 
   activerecord:
     models:
