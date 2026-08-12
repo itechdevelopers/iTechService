@@ -1,3 +1,9 @@
+<%# The hidden #modal_form keeps its markup after saving, and show_modal_form.js
+    reuses it as-is while data('modalName') matches. Dropping the mark forces a
+    re-render on the next edit, so nested repair task / check list fields come
+    back with their new ids instead of being posted again as new records. %>
+$("#modal_form").removeData("modalName");
+
 <% if @service_job_location_changed %>
   <%# Service job location changed - remove from actual tasks table %>
   hideModal();
