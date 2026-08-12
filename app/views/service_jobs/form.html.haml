@@ -135,7 +135,7 @@
       = render @service_job.new_record? ? 'device_tasks_fields' : 'device_tasks', f: f
 
       .form-actions
-        = submit_button f
+        = submit_button f, data: { disable_with: @service_job.new_record? ? 'Создаём…' : 'Сохраняем…' }
 
   .span6
     = secondary_form_container

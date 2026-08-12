@@ -5,6 +5,11 @@ class ServiceJobsController < ApplicationController
   include CheckListsHelper
   include ElectronicQueueStrictMode
 
+  # How far back to look for an identical job before treating a submission as a
+  # repeat of the previous one. A double-clicked button lands within
+  # milliseconds; a retried request after a network hiccup, within seconds.
+  DUPLICATE_WINDOW = 60.seconds
+
   before_action :enforce_electronic_queue_strict_mode, only: %i[new create]
 
   helper_method :sort_column, :sort_direction
@@ -171,6 +176,10 @@ class ServiceJobsController < ApplicationController
     @service_job = authorize ServiceJob.new(service_job_params)
     @service_job.initial_department = current_user.department
 
+    if (existing = recent_duplicate_of(@service_job))
+      return respond_with_duplicate(existing)
+    end
+
     respond_to do |format|
       if @service_job.save
         create_phone_substitution if @service_job.phone_substituted?
@@ -193,6 +202,10 @@ class ServiceJobsController < ApplicationController
   def create_v2
     @service_job = authorize ServiceJob.new(service_job_params), :create_v2?
     @service_job.initial_department = current_user.department
+
+    if (existing = recent_duplicate_of(@service_job))
+      return respond_with_duplicate(existing)
+    end
 
     respond_to do |format|
       if @service_job.save
@@ -754,6 +767,31 @@ class ServiceJobsController < ApplicationController
   def prepare_check_list_data
     @available_check_lists = available_check_lists_for('ServiceJob')
     @check_list_responses_hash = check_list_responses_hash_for(@service_job, 'ServiceJob')
+  end
+
+  # Two identical POSTs (double-clicked submit, retried request) both go through:
+  # the ticket number is generated at random, so the second one passes the
+  # uniqueness check and a twin job appears. Match on the whole identifying set
+  # rather than the client alone — one client handing over two devices at once is
+  # legitimate and must not be blocked, and those jobs differ by device fields.
+  def recent_duplicate_of(service_job)
+    ServiceJob.where(user_id: service_job.user_id,
+                     client_id: service_job.client_id,
+                     item_id: service_job.item_id,
+                     device_type_id: service_job.device_type_id,
+                     serial_number: service_job.serial_number,
+                     imei: service_job.imei,
+                     claimed_defect: service_job.claimed_defect)
+              .where('service_jobs.created_at > ?', DUPLICATE_WINDOW.ago)
+              .order(created_at: :desc)
+              .first
+  end
+
+  def respond_with_duplicate(existing)
+    respond_to do |format|
+      format.html { redirect_to existing, alert: t('service_jobs.duplicate_prevented') }
+      format.json { render json: existing, status: :ok, location: existing }
+    end
   end
 
   def service_job_params

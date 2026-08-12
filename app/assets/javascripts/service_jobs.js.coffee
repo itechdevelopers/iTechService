@@ -280,6 +280,15 @@ isSoldByUs = ($form) ->
 getEntityName = ($form) ->
   if $form.data('sold-by-us') == true then 'задачу' else 'работу'
 
+# The submit interceptor cancels the original submit and re-triggers it from an
+# ajax callback. A callback from an abandoned attempt (modal dismissed while the
+# request was still in flight) arrives anyway, so without this latch two
+# callbacks could each submit the form and create two service jobs.
+submitFormOnce = ($form) ->
+  return if $form.data('findMySubmitting')
+  $form.data('findMySubmitting', true)
+  $form[0].submit()
+
 # Build and show Find My modal
 showFindMyModal = ($form, imei) ->
   entity = getEntityName($form)
@@ -328,6 +337,12 @@ showFindMyModal = ($form, imei) ->
   # Show modal
   $modal.modal('show')
 
+  # UJS disables the submit button on every submit event — including the one we
+  # cancelled to open this modal. Without re-enabling it here, dismissing the
+  # check would leave the form unusable until a page reload.
+  $modal.off('hidden.findMy').on 'hidden.findMy', ->
+    $.rails.enableFormElements($form) unless $form.data('findMySubmitting')
+
   # Handle "Продолжить" click
   $btn.off('click').on 'click', ->
     $btn.prop('disabled', true).text('Проверка...')
@@ -340,8 +355,8 @@ showFindMyModal = ($form, imei) ->
       success: (data) ->
         if data.success
           # Find My is OFF (or check disabled on server) — submit the form
+          submitFormOnce($form)
           $modal.modal('hide')
-          $form[0].submit()
         else
           if data.blocked || data.locked
             $btn.text('Заблокировано').addClass('btn-danger')
@@ -351,12 +366,12 @@ showFindMyModal = ($form, imei) ->
             $modal.find('#find_my_modal_message').hide()
           else
             # API error — graceful degradation, allow submission
+            submitFormOnce($form)
             $modal.modal('hide')
-            $form[0].submit()
       error: ->
         # Network error — graceful degradation, allow submission
+        submitFormOnce($form)
         $modal.modal('hide')
-        $form[0].submit()
 
 # ========== Repair Selection Functions (Cascading) ==========
 
