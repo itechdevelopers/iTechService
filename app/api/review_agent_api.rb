@@ -9,7 +9,28 @@ class ReviewAgentApi < Grape::API
   version 'v1', using: :path
   before { authenticate! }
 
+  helpers do
+    # ВАЖНО: именно Rails.logger, а не хелпер `logger` из app/api/api.rb — тот
+    # отдаёт Grape::API.logger, отдельный Logger в stdout процесса, и его записи
+    # в production.log не попадают. Тот же приём, что в TranscriptionApi.
+    def log_agent(message)
+      Rails.logger.info("[ReviewAgentApi] #{message}")
+    end
+
+    def warn_agent(message)
+      Rails.logger.warn("[ReviewAgentApi] #{message}")
+    end
+
+    # Отказ агенту — всегда с записью в лог: без неё «агент прислал, но у вас
+    # ничего не появилось» невозможно разобрать постфактум.
+    def agent_error!(detail, code)
+      warn_agent("#{code} #{detail}")
+      error!({ status: code, detail: detail }, code)
+    end
+  end
+
   rescue_from Grape::Exceptions::ValidationErrors do |e|
+    Rails.logger.warn("[ReviewAgentApi] 400 #{e.message}")
     error!({ status: 400, detail: e.message }, 400)
   end
 
@@ -20,13 +41,15 @@ class ReviewAgentApi < Grape::API
     end
     get 'employees' do
       authorize :list_employees, GisReview
+      log_agent("GET employees city=#{params[:city].inspect}")
 
       # Сотрудники отдаются по ГОРОДУ, а не по филиалу: человек сегодня работает
       # на Океанском, завтра на Русской, и агент не должен об этом знать.
       city = City.find_by(name: params[:city])
-      error!({ status: 404, detail: "Город не найден: #{params[:city]}" }, 404) if city.nil?
+      agent_error!("Город не найден: #{params[:city]}", 404) if city.nil?
 
       employees = User.active.located_at(Location.bar.in_city(city)).order(:surname, :name)
+      log_agent("GET employees city=#{city.name.inspect} → отдано #{employees.size}")
 
       { city: city.name, employees: employees.map { |u| { id: u.id, name: u.short_name } } }
     end
@@ -47,6 +70,9 @@ class ReviewAgentApi < Grape::API
     end
     post 'reviews' do
       authorize :create, GisReview
+      # Тело пишем целиком (как TranscriptionApi): при разборе «агент прислал,
+      # а у нас не так» иначе нечего сопоставлять.
+      log_agent("POST reviews #{declared(params, include_missing: false).to_json}")
 
       review = GisReview.find_or_initialize_by(external_review_id: params[:external_review_id])
       new_record = review.new_record?
@@ -54,9 +80,7 @@ class ReviewAgentApi < Grape::API
       employee = nil
       if params[:employee_id].present?
         employee = User.find_by(id: params[:employee_id])
-        if employee.nil?
-          error!({ status: 422, detail: "Сотрудник не найден: #{params[:employee_id]}" }, 422)
-        end
+        agent_error!("Сотрудник не найден: #{params[:employee_id]}", 422) if employee.nil?
       end
 
       # Отзыв с незнакомым городом всё равно сохраняем: у агента нет очереди
@@ -64,7 +88,7 @@ class ReviewAgentApi < Grape::API
       # Связь остаётся пустой, расхождение видно в логе.
       city = City.find_by(name: params[:city])
       if city.nil?
-        logger.warn("[ReviewAgentApi] Город не найден: #{params[:city]} (отзыв #{params[:external_review_id]})")
+        warn_agent("Город не найден: #{params[:city]} (отзыв #{params[:external_review_id]}) — сохраняем без привязки к городу")
       end
 
       review.assign_attributes(
@@ -94,14 +118,18 @@ class ReviewAgentApi < Grape::API
         # звенеть по одному отзыву снова и снова.
         review.notify_about_creation if new_record && review.negative?
 
+        log_agent(
+          "POST reviews → #{new_record ? 'создан' : 'обновлён'} ##{review.id} " \
+          "(#{review.external_review_id}), статус #{review.status}, сотрудник #{review.user_id.inspect}"
+        )
         status(new_record ? 201 : 200)
         present review, with: Entities::GisReviewEntity
       else
-        error!({ status: 422, detail: review.errors.full_messages.to_sentence }, 422)
+        agent_error!(review.errors.full_messages.to_sentence, 422)
       end
     rescue ActiveRecord::RecordNotUnique
       # Два одновременных прогона агента с одним и тем же отзывом.
-      error!({ status: 409, detail: 'Отзыв с таким external_review_id уже существует' }, 409)
+      agent_error!('Отзыв с таким external_review_id уже существует', 409)
     end
 
     desc 'Проставить сотрудника отзыву, который агент определил позже'
@@ -116,21 +144,22 @@ class ReviewAgentApi < Grape::API
     patch 'reviews/:external_review_id/employee',
           requirements: { external_review_id: %r{[^/]+} } do
       authorize :update_employee, GisReview
+      log_agent("PATCH employee review=#{params[:external_review_id]} employee_id=#{params[:employee_id].inspect}")
 
       review = GisReview.find_by(external_review_id: params[:external_review_id])
-      if review.nil?
-        error!({ status: 404, detail: "Отзыв не найден: #{params[:external_review_id]}" }, 404)
-      end
+      agent_error!("Отзыв не найден: #{params[:external_review_id]}", 404) if review.nil?
 
       # Негатив живёт своей веткой — сотрудник там не проставляется.
-      if review.negative?
-        error!({ status: 422, detail: 'Негативный отзыв нельзя привязать к сотруднику' }, 422)
-      end
+      agent_error!('Негативный отзыв нельзя привязать к сотруднику', 422) if review.negative?
 
       # Главный гейт: assigned_by заполняется ТОЛЬКО при привязке через
       # интерфейс, из API остаётся пустым. Значит непустое значение = отзыва
       # уже касался человек, и прогон агента не должен отменять его решение.
       if review.assigned_by.present?
+        warn_agent(
+          "409 отзыв #{review.external_review_id} уже привязан вручную " \
+          "(#{review.assigned_by.short_name}) — заявку агента игнорируем"
+        )
         error!({
           status: 409,
           detail: 'Отзыв уже привязан вручную',
@@ -144,12 +173,14 @@ class ReviewAgentApi < Grape::API
         # бара города отзыва. Чужой город отклоняем.
         employee = review.employee_candidates.find_by(id: params[:employee_id])
         if employee.nil?
-          error!({ status: 422, detail: "Сотрудник не найден среди кандидатов отзыва: #{params[:employee_id]}" }, 422)
+          agent_error!("Сотрудник не найден среди кандидатов отзыва: #{params[:employee_id]}", 422)
         end
 
         review.update!(user: employee, status: :assigned)
+        log_agent("PATCH employee → отзыв ##{review.id} привязан к #{employee.short_name} (##{employee.id})")
       else
         review.update!(user: nil, status: :need_assignment)
+        log_agent("PATCH employee → с отзыва ##{review.id} снята привязка")
       end
 
       present review, with: Entities::GisReviewEntity
