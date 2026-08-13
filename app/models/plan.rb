@@ -1,5 +1,7 @@
 class Plan < ApplicationRecord
-  METRICS = User::ACTIVITIES
+  # Планы ставятся только по метрикам месячной сводки; `reviews` из ACTIVITIES
+  # сюда не входит (см. User::STATISTICS_ACTIVITIES).
+  METRICS = User::STATISTICS_ACTIVITIES
 
   belongs_to :city
 

@@ -70,7 +70,16 @@ class User < ApplicationRecord
     manage_negative_reviews
   ].freeze
 
-  ACTIVITIES = %w[free fast long mac].freeze
+  # ВНИМАНИЕ: порядок задаёт биты в activities_mask (см. #activities=), поэтому
+  # новые активности дописываем ТОЛЬКО В КОНЕЦ — вставка в середину сдвинула бы
+  # маски всех существующих пользователей.
+  ACTIVITIES = %w[free fast long mac reviews].freeze
+
+  # Активности, по которым строится сводка «Статистика персонала» и планы.
+  # `reviews` туда не входит: отзывы 2ГИС считаются иначе (за всё время, а не за
+  # месяц) и своей сводной страницы пока не имеют — иконка в topbar ведёт
+  # в профиль сотрудника.
+  STATISTICS_ACTIVITIES = %w[free fast long mac].freeze
   UNIFORM_SEX = %w[мужская женская].freeze
   UNIFORM_SIZE = %w[XS S M L XL XXL XXXL].freeze
 
@@ -737,6 +746,18 @@ class User < ApplicationRecord
     DeviceTask.where(performer_id: id, done_at: period)
               .includes(:task).where(done_at: period, task: Task.mac_service)
               .size
+  end
+
+  # Отзывы 2ГИС считаем ЗА ВСЁ ВРЕМЯ (решение заказчика) — в отличие от соседних
+  # счётчиков в topbar, которые ограничены `period` (текущий месяц). Покрывается
+  # индексом [user_id, reviewed_at] из миграции gis_reviews.
+  # Мемоизация через defined?, а не ||=: topbar спрашивает счётчик дважды
+  # (условие показа + само значение), а ||= повторял бы запрос при нуле — то есть
+  # ровно у тех, у кого отзывов ещё нет.
+  def gis_reviews_count
+    return @gis_reviews_count if defined?(@gis_reviews_count)
+
+    @gis_reviews_count = GisReview.where(user_id: id).count
   end
 
   def update_authentication_token

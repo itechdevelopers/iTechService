@@ -5,7 +5,9 @@
 # worst → best (ascending by count) so the leaderboard nudges
 # under-performers at the top.
 class EmployeeStatisticsQuery
-  ALLOWED_METRICS = User::ACTIVITIES
+  # Не User::ACTIVITIES: там есть `reviews`, у которого нет месячной сводки.
+  # Бит маски ниже по-прежнему считается по полному списку ACTIVITIES.
+  ALLOWED_METRICS = User::STATISTICS_ACTIVITIES
 
   def initialize(metric:, month:, city_id:)
     raise ArgumentError, "metric #{metric.inspect} not in #{ALLOWED_METRICS}" unless ALLOWED_METRICS.include?(metric.to_s)

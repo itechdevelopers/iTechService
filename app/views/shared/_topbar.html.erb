@@ -60,6 +60,19 @@
         </div>
       <% end %>
     <% end %>
+    <%# Отзывы 2ГИС — за всё время, в отличие от соседей выше (у них текущий месяц).
+        Ведём в профиль на вкладку с отзывами, а не в personnel_statistics: та
+        страница построена вокруг STATISTICS_ACTIVITIES, отзывов в ней нет. %>
+    <% if current_user.acts_to?(:reviews) %>
+      <%= link_to user_path(current_user, anchor: 'gis_reviews_tab') do %>
+        <div class="statistics__item">
+          <%= image_tag('gis_reviews_icon.png', width: '60') %>
+          <span class="statistics__value">
+            <%= current_user.gis_reviews_count %>
+          </span>
+        </div>
+      <% end %>
+    <% end %>
   </span>
   <div id="quick_search_form">
     <%= form_tag quick_search_service_jobs_path, method: :get, remote: true, id: 'service_jobs_quick_search_form', class: 'form-search' do %>

@@ -103,5 +103,56 @@ class ReviewAgentApi < Grape::API
       # Два одновременных прогона агента с одним и тем же отзывом.
       error!({ status: 409, detail: 'Отзыв с таким external_review_id уже существует' }, 409)
     end
+
+    desc 'Проставить сотрудника отзыву, который агент определил позже'
+    params do
+      requires :external_review_id, type: String
+      # nil — снять привязку и вернуть отзыв в очередь ручного разбора.
+      optional :employee_id, type: Integer
+    end
+    # Адресуемся по external_review_id, а не по нашему id: внутренний
+    # идентификатор агент может не хранить, внешний у него есть всегда.
+    # requirements — иначе точка в идентификаторе была бы съедена как формат.
+    patch 'reviews/:external_review_id/employee',
+          requirements: { external_review_id: %r{[^/]+} } do
+      authorize :update_employee, GisReview
+
+      review = GisReview.find_by(external_review_id: params[:external_review_id])
+      if review.nil?
+        error!({ status: 404, detail: "Отзыв не найден: #{params[:external_review_id]}" }, 404)
+      end
+
+      # Негатив живёт своей веткой — сотрудник там не проставляется.
+      if review.negative?
+        error!({ status: 422, detail: 'Негативный отзыв нельзя привязать к сотруднику' }, 422)
+      end
+
+      # Главный гейт: assigned_by заполняется ТОЛЬКО при привязке через
+      # интерфейс, из API остаётся пустым. Значит непустое значение = отзыва
+      # уже касался человек, и прогон агента не должен отменять его решение.
+      if review.assigned_by.present?
+        error!({
+          status: 409,
+          detail: 'Отзыв уже привязан вручную',
+          assigned_by: review.assigned_by.short_name,
+          assigned_at: review.updated_at
+        }, 409)
+      end
+
+      if params[:employee_id].present?
+        # Кандидаты те же, что в интерфейсе и в методе employees — сотрудники
+        # бара города отзыва. Чужой город отклоняем.
+        employee = review.employee_candidates.find_by(id: params[:employee_id])
+        if employee.nil?
+          error!({ status: 422, detail: "Сотрудник не найден среди кандидатов отзыва: #{params[:employee_id]}" }, 422)
+        end
+
+        review.update!(user: employee, status: :assigned)
+      else
+        review.update!(user: nil, status: :need_assignment)
+      end
+
+      present review, with: Entities::GisReviewEntity
+    end
   end
 end

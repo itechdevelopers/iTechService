@@ -13,6 +13,12 @@ class GisReviewPolicy < ApplicationPolicy
     user.api?
   end
 
+  # PATCH .../reviews/:external_review_id/employee — агент доносит сотрудника,
+  # которого не смог определить при первой отправке.
+  def update_employee?
+    user.api?
+  end
+
   # Страница негативных отзывов и работа с ними: суперадмин ИЛИ обладатель права
   # «Работа с негативными отзывами 2ГИС» (заказчик просил отдельное право сверх
   # суперадминов).

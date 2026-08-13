@@ -398,6 +398,13 @@
 
 :javascript
   $(document).ready(function() {
+    // Открыть вкладку, указанную в хэше ссылки (иконка отзывов в topbar ведёт
+    // на #gis_reviews_tab). Сам якорь вкладку не переключает — Bootstrap 2.x
+    // реагирует только на клик, а содержимое вкладки грузится AJAX'ом в onclick.
+    if (window.location.hash) {
+      $('.nav-tabs a[href="' + window.location.hash + '"]').click();
+    }
+
     // Toggle capability group items visibility (delegated event for AJAX updates)
     $(document).on('click', '.capability-group-header', function() {
       var $group = $(this).closest('.capability-group');

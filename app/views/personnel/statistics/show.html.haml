@@ -19,7 +19,7 @@
 
 .employee-statistics
   %ul.nav.nav-tabs.employee-statistics__tabs
-    - User::ACTIVITIES.each do |m|
+    - User::STATISTICS_ACTIVITIES.each do |m|
       %li{ class: "employee-statistics__tab--#{m} #{'active' if m == @metric}" }
         = link_to t("personnel.statistics.metrics.#{m}"),
                   personnel_statistics_path(metric: m, month: @month.to_s, city_id: @city.id)
