@@ -12,6 +12,9 @@ class GisReview < ApplicationRecord
   belongs_to :assigned_by, class_name: 'User', optional: true
 
   has_many :comments, as: :commentable, dependent: :destroy
+  # Заявки сотрудников «этот отзыв мой». Не удаляются вместе с отзывом только
+  # потому, что отзывы у нас и не удаляются — это история привязок.
+  has_many :claims, class_name: 'GisReviewClaim', dependent: :destroy
   # Иначе удаление отзыва (например, схлопывание дубля) оставляет в колокольчике
   # уведомления, ведущие в никуда.
   has_many :notifications, as: :referenceable, dependent: :destroy
@@ -55,10 +58,9 @@ class GisReview < ApplicationRecord
     where(reviewed_at: date.beginning_of_month.beginning_of_day..date.end_of_month.end_of_day)
   }
 
-  # Площадка из префикса идентификатора. По контракту (2026-08-14) источник
-  # истины — поле `source`, а префикс агент оставляет как вторую линию защиты от
-  # коллизий. Разбор нужен для запросов без `source` и для отзывов, приехавших
-  # до перехода на новый контракт.
+  # Площадка из префикса идентификатора. Источник истины — поле `source`;
+  # разбор префикса нужен для запросов без него и для отзывов, сохранённых
+  # до появления поля.
   def self.source_from_external_id(external_review_id)
     prefix = external_review_id.to_s.split(':', 2).first
     SOURCES.include?(prefix) ? prefix : '2gis'
@@ -106,8 +108,6 @@ class GisReview < ApplicationRecord
     User.active.located_at(locations).order(:surname, :name)
   end
 
-  # --- Уведомления о новом негативном отзыве (заказчик: «отправляем суперадминам
-  # отзыв в айс и тг бот. Текст, филиал») ---
   # Зовётся из ReviewAgentApi только при СОЗДАНИИ негативного отзыва: агент
   # пере-присылает отзывы месяца на каждом прогоне, и без этого гейта суперадмины
   # получали бы одно и то же уведомление круглые сутки.
@@ -146,6 +146,13 @@ class GisReview < ApplicationRecord
 
   def source_label
     SOURCE_LABELS.fetch(source, source)
+  end
+
+  # Короткая подпись отзыва для уведомлений: площадка, филиал и начало текста —
+  # чтобы человек узнал отзыв, не открывая страницу.
+  def short_label
+    snippet = text.to_s.truncate(80)
+    [source_label, branch_label, snippet].reject(&:blank?).join(', ')
   end
 
   # Звёзды для таблиц. nil — отзыв без оценки (VL.ru такое разрешает), вью

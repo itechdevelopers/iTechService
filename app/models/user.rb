@@ -127,6 +127,8 @@ class User < ApplicationRecord
   }
 
   belongs_to :location, optional: true
+  # Заявки «этот отзыв мой» на отзывы с площадок.
+  has_many :gis_review_claims, dependent: :destroy
   belongs_to :department, optional: true
   belongs_to :service_job_sorting, optional: true
   belongs_to :dismissal_reason, optional: true
@@ -748,9 +750,9 @@ class User < ApplicationRecord
               .size
   end
 
-  # Отзывы 2ГИС считаем ЗА ВСЁ ВРЕМЯ (решение заказчика) — в отличие от соседних
-  # счётчиков в topbar, которые ограничены `period` (текущий месяц). Покрывается
-  # индексом [user_id, reviewed_at] из миграции gis_reviews.
+  # Считаем ЗА ВСЁ ВРЕМЯ — в отличие от соседних счётчиков в topbar, которые
+  # ограничены `period` (текущий месяц). Покрывается индексом
+  # [user_id, reviewed_at].
   # Мемоизация через defined?, а не ||=: topbar спрашивает счётчик дважды
   # (условие показа + само значение), а ||= повторял бы запрос при нуле — то есть
   # ровно у тех, у кого отзывов ещё нет.

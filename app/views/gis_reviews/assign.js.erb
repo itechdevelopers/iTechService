@@ -2,4 +2,4 @@
 // «Переназначить», статус (и цвет строки) обновляются. Строка НЕ исчезает, даже
 // если активен фильтр «Требует привязки» — так виден результат действия;
 // в свою группу она уедет при следующей загрузке страницы.
-$('#gis_review_assignment_<%= @gis_review.id %>').replaceWith('<%= j render partial: 'assignment_row', locals: { gis_review: @gis_review, candidates: @gis_review.employee_candidates } %>');
+$('#gis_review_assignment_<%= @gis_review.id %>').replaceWith('<%= j render partial: 'assignment_row', locals: { gis_review: @gis_review, candidates: @gis_review.employee_candidates, my_claim: current_user.gis_review_claims.find_by(gis_review_id: @gis_review.id) } %>');

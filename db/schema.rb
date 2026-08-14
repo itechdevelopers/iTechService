@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20260814120000) do
+ActiveRecord::Schema.define(version: 20260815120000) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -792,6 +792,22 @@ ActiveRecord::Schema.define(version: 20260814120000) do
     t.integer "department_id"
     t.index ["department_id"], name: "index_gift_certificates_on_department_id"
     t.index ["number"], name: "index_gift_certificates_on_number"
+  end
+
+  create_table "gis_review_claims", force: :cascade do |t|
+    t.bigint "gis_review_id", null: false
+    t.bigint "user_id", null: false
+    t.integer "status", default: 0, null: false
+    t.bigint "resolved_by_id"
+    t.datetime "resolved_at"
+    t.text "comment"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["gis_review_id", "user_id"], name: "index_gis_review_claims_on_gis_review_id_and_user_id", unique: true
+    t.index ["gis_review_id"], name: "index_gis_review_claims_on_gis_review_id"
+    t.index ["resolved_by_id"], name: "index_gis_review_claims_on_resolved_by_id"
+    t.index ["status"], name: "index_gis_review_claims_on_status"
+    t.index ["user_id"], name: "index_gis_review_claims_on_user_id"
   end
 
   create_table "gis_reviews", force: :cascade do |t|
@@ -2756,6 +2772,9 @@ ActiveRecord::Schema.define(version: 20260814120000) do
   add_foreign_key "faults", "users", column: "issued_by_id"
   add_foreign_key "find_my_device_checks", "service_jobs"
   add_foreign_key "find_my_device_checks", "users"
+  add_foreign_key "gis_review_claims", "gis_reviews"
+  add_foreign_key "gis_review_claims", "users"
+  add_foreign_key "gis_review_claims", "users", column: "resolved_by_id"
   add_foreign_key "gis_reviews", "cities"
   add_foreign_key "gis_reviews", "departments"
   add_foreign_key "gis_reviews", "users"
