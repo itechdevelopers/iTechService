@@ -40,6 +40,7 @@
             %ul.dropdown-menu
               = menu_item t('gis_reviews.index.title'), gis_reviews_path
               = menu_item t('.gis_reviews_assignment'), assignment_gis_reviews_path
+              = menu_item t('gis_reviews.statistics.title'), statistics_gis_reviews_path
         - if can? :manage, TaskTemplate
           = drop_down_divider
           = menu_item t('task_templates.index.title'), task_templates_path

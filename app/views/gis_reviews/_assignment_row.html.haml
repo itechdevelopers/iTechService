@@ -6,12 +6,16 @@
 %tr.gis-reviews__row{ class: "gis-reviews__row--#{status_mod}", id: "gis_review_assignment_#{r.id}" }
   %td= human_datetime r.reviewed_at
   %td
+    %span.gis-reviews__source{ class: "gis-reviews__source--#{r.source.tr('_', '-')}" }= r.source_label
     = r.city_name
     - if r.branch_name.present?
       %br
       %small.muted= r.branch_name
   %td.gis-reviews__rating-cell
-    %span.gis-reviews__stars= '★' * r.rating + '☆' * (5 - r.rating)
+    - if r.stars
+      %span.gis-reviews__stars= r.stars
+    - else
+      %span.muted= t('gis_reviews.no_rating')
   %td= r.author
   %td.gis-reviews__text-cell= r.text
   %td.gis-reviews__assign-cell

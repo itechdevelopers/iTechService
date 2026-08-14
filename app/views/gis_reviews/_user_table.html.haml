@@ -19,12 +19,16 @@
           %tr
             %td= human_datetime review.reviewed_at
             %td
+              %span.gis-reviews__source{ class: "gis-reviews__source--#{review.source.tr('_', '-')}" }= review.source_label
               = review.city_name
               - if review.branch_name.present?
                 %br
                 %small.muted= review.branch_name
             %td.gis-reviews__rating-cell
-              %span.gis-reviews__stars= '★' * review.rating + '☆' * (5 - review.rating)
+              - if review.stars
+                %span.gis-reviews__stars= review.stars
+              - else
+                %span.muted= t('gis_reviews.no_rating')
             %td= review.author
             %td.gis-reviews__text-cell= review.text
 

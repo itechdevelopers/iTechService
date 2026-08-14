@@ -250,8 +250,9 @@ Rails.application.routes.draw do
     get :comments, on: :member, defaults: { format: 'js' }
     get :assignment, on: :collection
     patch :assign, on: :member
-    # Вкладка «Отзывы 2ГИС» в профиле сотрудника — грузится AJAX'ом при клике.
+    # Вкладка «Отзывы» в профиле сотрудника — грузится AJAX'ом при клике.
     get :employee, on: :collection
+    get :statistics, on: :collection
   end
 
   # Учёт пакетов. Размеры (package_stocks) редактируются вложенно в форме дизайна.

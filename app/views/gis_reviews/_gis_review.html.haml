@@ -4,13 +4,18 @@
 %tr.gis-reviews__row{ class: "gis-reviews__row--#{status_mod}", id: "gis_review_#{r.id}" }
   %td= human_datetime r.reviewed_at
   %td
+    %span.gis-reviews__source{ class: "gis-reviews__source--#{r.source.tr('_', '-')}" }= r.source_label
     = r.city_name
     - if r.branch_name.present?
       %br
       %small.muted= r.branch_name
   %td.gis-reviews__rating-cell
     -# Заполненные и пустые звёзды: оценка читается взглядом, без счёта цифр.
-    %span.gis-reviews__stars= '★' * r.rating + '☆' * (5 - r.rating)
+    -# Оценки может не быть вовсе (VL.ru её не требует) — тогда прочерк.
+    - if r.stars
+      %span.gis-reviews__stars= r.stars
+    - else
+      %span.muted= t('gis_reviews.no_rating')
   %td= r.author
   %td.gis-reviews__text-cell= r.text
   %td.gis-reviews__comment-cell

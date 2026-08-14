@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20260810120000) do
+ActiveRecord::Schema.define(version: 20260814120000) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -800,8 +800,8 @@ ActiveRecord::Schema.define(version: 20260810120000) do
     t.bigint "city_id"
     t.string "branch_code"
     t.string "branch_name"
-    t.string "branch_2gis_id"
-    t.integer "rating", null: false
+    t.string "platform_branch_id"
+    t.integer "rating"
     t.string "author"
     t.datetime "reviewed_at", null: false
     t.text "text"
@@ -810,9 +810,13 @@ ActiveRecord::Schema.define(version: 20260810120000) do
     t.integer "status", default: 1, null: false
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.string "source", default: "2gis", null: false
+    t.bigint "department_id"
     t.index ["assigned_by_id"], name: "index_gis_reviews_on_assigned_by_id"
     t.index ["city_id"], name: "index_gis_reviews_on_city_id"
-    t.index ["external_review_id"], name: "index_gis_reviews_on_external_review_id", unique: true
+    t.index ["department_id"], name: "index_gis_reviews_on_department_id"
+    t.index ["source", "external_review_id"], name: "index_gis_reviews_on_source_and_external_review_id", unique: true
+    t.index ["source"], name: "index_gis_reviews_on_source"
     t.index ["status"], name: "index_gis_reviews_on_status"
     t.index ["user_id", "reviewed_at"], name: "index_gis_reviews_on_user_id_and_reviewed_at"
     t.index ["user_id"], name: "index_gis_reviews_on_user_id"
@@ -2753,6 +2757,7 @@ ActiveRecord::Schema.define(version: 20260810120000) do
   add_foreign_key "find_my_device_checks", "service_jobs"
   add_foreign_key "find_my_device_checks", "users"
   add_foreign_key "gis_reviews", "cities"
+  add_foreign_key "gis_reviews", "departments"
   add_foreign_key "gis_reviews", "users"
   add_foreign_key "gis_reviews", "users", column: "assigned_by_id"
   add_foreign_key "glass_sticking_notifications", "departments"

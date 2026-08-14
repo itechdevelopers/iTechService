@@ -14,7 +14,7 @@ module Personnel
     private
 
     def resolve_metric(value)
-      User::ACTIVITIES.include?(value.to_s) ? value.to_s : 'long'
+      User::STATISTICS_ACTIVITIES.include?(value.to_s) ? value.to_s : 'long'
     end
 
     def resolve_month(value)

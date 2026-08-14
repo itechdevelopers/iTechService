@@ -8,9 +8,13 @@
 class GisReview < ApplicationRecord
   belongs_to :user, optional: true
   belongs_to :city, optional: true
+  belongs_to :department, optional: true
   belongs_to :assigned_by, class_name: 'User', optional: true
 
   has_many :comments, as: :commentable, dependent: :destroy
+  # Иначе удаление отзыва (например, схлопывание дубля) оставляет в колокольчике
+  # уведомления, ведущие в никуда.
+  has_many :notifications, as: :referenceable, dependent: :destroy
 
   audited
 
@@ -35,12 +39,56 @@ class GisReview < ApplicationRecord
 
   NEGATIVE_STATUSES = %w[negative_new negative_in_progress negative_resolved].freeze
 
+  # Площадки, с которых агент собирает отзывы. Идентификатор отзыва уникален
+  # только В ПРЕДЕЛАХ площадки — у 2ГИС и Яндекса нумерация независимая.
+  SOURCES = %w[2gis yandex vl_ru].freeze
+
+  SOURCE_LABELS = {
+    '2gis'   => '2ГИС',
+    'yandex' => 'Яндекс',
+    'vl_ru'  => 'VL.ru'
+  }.freeze
+
   scope :negative, -> { where(status: NEGATIVE_STATUSES) }
   scope :recent,   -> { order(reviewed_at: :desc) }
+  scope :in_month, lambda { |date|
+    where(reviewed_at: date.beginning_of_month.beginning_of_day..date.end_of_month.end_of_day)
+  }
 
-  validates :external_review_id, presence: true, uniqueness: true
+  # Площадка из префикса идентификатора. По контракту (2026-08-14) источник
+  # истины — поле `source`, а префикс агент оставляет как вторую линию защиты от
+  # коллизий. Разбор нужен для запросов без `source` и для отзывов, приехавших
+  # до перехода на новый контракт.
+  def self.source_from_external_id(external_review_id)
+    prefix = external_review_id.to_s.split(':', 2).first
+    SOURCES.include?(prefix) ? prefix : '2gis'
+  end
+
+  # Идентификатор БЕЗ префикса площадки: префикс — транспортная деталь, площадка
+  # хранится в отдельной колонке. Иначе один и тот же отзыв 2ГИС, приехавший до
+  # смены контракта как «265062064» и после как «2gis:265062064», стал бы двумя
+  # разными записями — и все уже разобранные отзывы задвоились бы.
+  def self.strip_source_prefix(external_review_id)
+    prefix, rest = external_review_id.to_s.split(':', 2)
+    return external_review_id if rest.blank? || !SOURCES.include?(prefix)
+
+    rest
+  end
+
+  # Подразделение по коду филиала от агента. Коды сверены на проде: совпадают
+  # с departments.code для всех шести филиалов и одинаковы у всех площадок.
+  def self.department_for(branch_code)
+    return nil if branch_code.blank?
+
+    Department.find_by(code: branch_code)
+  end
+
+  validates :external_review_id, presence: true, uniqueness: { scope: :source }
   validates :city_name, :reviewed_at, presence: true
-  validates :rating, presence: true, inclusion: { in: 1..5 }
+  # Оценка необязательна: VL.ru разрешает отзыв без звёзд, и агент их не
+  # додумывает. Проверяем только диапазон, когда оценка есть.
+  validates :rating, inclusion: { in: 1..5 }, allow_nil: true
+  validates :source, presence: true, inclusion: { in: SOURCES }
 
   def last_comment
     comments.newest.first
@@ -77,14 +125,14 @@ class GisReview < ApplicationRecord
   end
 
   def creation_notification_message
-    "Новый негативный отзыв 2ГИС (#{rating}★), #{branch_label}: #{text}"
+    "Новый негативный отзыв #{source_label} (#{rating_label}), #{branch_label}: #{text}"
   end
 
   # HTML-разметка: SendTelegramMessage шлёт с parse_mode HTML, поэтому текст
   # отзыва и название филиала экранируем — в них бывают <, > и &.
   def telegram_text
     [
-      "<b>Новый негативный отзыв 2ГИС (#{rating}★)</b>",
+      "<b>Новый негативный отзыв #{source_label} (#{rating_label})</b>",
       CGI.escapeHTML(branch_label),
       CGI.escapeHTML(text.to_s),
       %(<a href="#{index_url}">Открыть негативные отзывы</a>)
@@ -94,6 +142,23 @@ class GisReview < ApplicationRecord
   # Город + филиал: филиал агент шлёт не всегда, город есть всегда.
   def branch_label
     [city_name, branch_name].reject(&:blank?).join(', ')
+  end
+
+  def source_label
+    SOURCE_LABELS.fetch(source, source)
+  end
+
+  # Звёзды для таблиц. nil — отзыв без оценки (VL.ru такое разрешает), вью
+  # покажет прочерк: рисовать пять пустых звёзд было бы враньём, это не «ноль».
+  def stars
+    return nil if rating.blank?
+
+    '★' * rating + '☆' * (5 - rating)
+  end
+
+  # Оценка в тексте уведомлений.
+  def rating_label
+    rating.present? ? "#{rating}★" : 'без оценки'
   end
 
   def index_path
