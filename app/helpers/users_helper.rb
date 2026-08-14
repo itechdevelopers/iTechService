@@ -1,4 +1,12 @@
 module UsersHelper
+  # Optgroup label for the location filter. The city is only worth showing while
+  # the branch tabs are not narrowing it down already.
+  def location_filter_group_name(location)
+    return location.department_name.to_s if params[:city].present?
+
+    [location.city&.name, location.department_name].reject(&:blank?).join(' — ')
+  end
+
   def user_row_tag(user)
     content_tag(:tr, id: "user_row_#{user.id}", class: user.is_fired? ? 'user_row error' : 'user_row') do
       c = ''.html_safe

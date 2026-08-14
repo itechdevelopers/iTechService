@@ -302,6 +302,9 @@ jQuery ->
     $.get form.attr('action'), form.serialize(), null, 'script'
     false
 
+  $(document).on 'change', '#users_location_filter', ->
+    $('#search_form').submit()
+
 window.App ||= {}
 App.utils ||= {}
 App.utils.getContrastColor = (hexcolor) ->

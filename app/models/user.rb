@@ -269,6 +269,8 @@ class User < ApplicationRecord
                    .where('cities.name = ?', params[:city])
     end
 
+    users = users.where(location_id: params[:location_id]) if params[:location_id].present?
+
     unless (q_name = params[:name]&.strip).blank?
       # users = users.where(
       #   "username ILIKE :q COLLATE \"ru_RU.UTF-8\" OR
@@ -294,6 +296,19 @@ class User < ApplicationRecord
         .pluck('cities.name')
         .sort
     end
+  end
+
+  # Locations users are actually assigned to, ordered by department. The currently
+  # selected one is kept even if it falls out of the scope, so it never silently
+  # disappears from the filter while still being applied.
+  def self.available_locations(city: nil, all: false, selected_id: nil)
+    scope = all.present? ? User.all : User.active
+    locations = Location.where(id: scope.select(:location_id))
+    locations = locations.joins(department: :city).where(cities: { name: city }) if city.present?
+
+    ids = locations.pluck(:id)
+    ids |= [selected_id.to_i] if selected_id.present?
+    Location.where(id: ids).includes(department: :city).sort_by { |l| [l.department_name.to_s, l.short_name] }
   end
 
   def self.oncoming_salary
