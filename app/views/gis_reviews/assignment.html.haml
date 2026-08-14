@@ -3,6 +3,8 @@
   %p.muted= t('.hint')
 
 .gis-reviews
+  = render 'month_summary', stats: @stats, stats_month: @month
+
   .gis-reviews__filters
     %span.gis-reviews__filters-label= t('.filter_label')
     - @statuses.each do |st|

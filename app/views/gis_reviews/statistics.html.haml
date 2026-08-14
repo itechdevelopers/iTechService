@@ -1,0 +1,54 @@
+.page-header
+  %h2= t('.title')
+
+.gis-reviews
+  -# Фильтры: месяц и площадка. Обычная GET-форма — страница читающая,
+  -# перезагрузка тут дешевле AJAX-обвязки.
+  = form_tag statistics_gis_reviews_path, method: :get, class: 'form-inline gis-reviews__stats-filters' do
+    = label_tag :month, t('.month'), class: 'gis-reviews__stats-label'
+    = text_field_tag :month, @month.strftime('%Y-%m'), class: 'input-small', placeholder: '2026-08'
+    = label_tag :source, t('.source'), class: 'gis-reviews__stats-label'
+    = select_tag :source,
+      options_for_select([[t('.all_sources'), '']] + GisReview::SOURCES.map { |s| [GisReview::SOURCE_LABELS[s], s] }, @source),
+      class: 'input-medium'
+    = submit_tag t('.apply'), class: 'btn', name: nil
+
+  .gis-reviews__stats-total
+    = t('.total_label')
+    %strong= @stats[:total]
+    -# Именительный падеж («Август 2026», не «августа»): общий хелпер
+    -# Personnel::StatisticsHelper, тот же, что на статистике персонала.
+    %small.muted= nominative_month_year(@month)
+
+  - if @stats[:total].zero?
+    = render 'shared/empty'
+  - else
+    %table.table.table-bordered.gis-reviews__stats-table
+      %thead
+        %tr
+          %th= t('.city')
+          %th= t('.department')
+          %th.gis-reviews__stats-count= t('.count')
+      %tbody
+        - @stats[:by_city].each do |city_row|
+          %tr.gis-reviews__stats-city-row
+            %td{ rowspan: city_row.departments.size + 1 }
+              %strong= city_row.city_name
+            %td
+              %em= t('.city_total')
+            %td.gis-reviews__stats-count
+              %strong= city_row.count
+          - city_row.departments.each do |department|
+            %tr
+              %td= department.name
+              %td.gis-reviews__stats-count= department.count
+
+    %h4= t('.by_source')
+    %table.table.table-bordered.gis-reviews__stats-table
+      %tbody
+        - @stats[:by_source].each do |source, count|
+          %tr
+            %td
+              %span.gis-reviews__source{ class: "gis-reviews__source--#{source.tr('_', '-')}" }
+                = GisReview::SOURCE_LABELS.fetch(source, source)
+            %td.gis-reviews__stats-count= count

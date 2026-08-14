@@ -56,6 +56,67 @@
     color: #777;
   }
 
+  // ── Сводка за месяц над таблицей привязки ─────────────────────────────────
+  &__summary {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: baseline;
+    gap: 14px;
+    margin-bottom: 12px;
+    padding: 8px 12px;
+    background: #f7f7f7;
+    border: 1px solid #e3e3e3;
+    border-radius: 4px;
+    font-size: 13px;
+  }
+
+  &__summary-month {
+    font-weight: bold;
+    text-transform: capitalize;
+  }
+
+  &__summary-total strong,
+  &__summary-city strong { margin-left: 4px; }
+
+  &__summary-link { margin-left: auto; }
+
+  // ── Страница статистики ───────────────────────────────────────────────────
+  &__stats-filters { margin-bottom: 14px; }
+
+  &__stats-label { margin-right: 4px; margin-left: 10px; }
+
+  &__stats-total {
+    margin-bottom: 12px;
+    font-size: 16px;
+
+    strong { margin: 0 6px; font-size: 20px; }
+  }
+
+  &__stats-table { max-width: 720px; }
+
+  &__stats-count { text-align: right; }
+
+  &__stats-city-row > td { background: #f7f7f7; }
+
+  // ── Бейдж площадки (2ГИС / Яндекс / VL.ru) ────────────────────────────────
+  // Фирменные цвета площадок: отзыв должен быть узнаваем с одного взгляда —
+  // сотрудник пойдёт искать его именно там, где он оставлен.
+  &__source {
+    display: inline-block;
+    margin-right: 6px;
+    padding: 1px 6px;
+    border-radius: 3px;
+    color: #fff;
+    font-size: 11px;
+    line-height: 1.5;
+    white-space: nowrap;
+    vertical-align: baseline;
+  }
+
+  .gis-reviews__source--2gis   { background-color: #38ad46; } // зелёный 2ГИС
+  .gis-reviews__source--yandex { background-color: #fc3f1d; } // красный Яндекс
+  .gis-reviews__source--vl-ru  { background-color: #2f6fb4; } // синий VL.ru
+
   // ── Оценка ────────────────────────────────────────────────────────────────
   &__rating-cell { white-space: nowrap; }
 

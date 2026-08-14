@@ -72,6 +72,21 @@ class GisReviewsController < ApplicationController
     scope = scope.where(status: @selected_statuses) if @selected_statuses.any?
     @gis_reviews = scope
     @candidates_by_city_id = candidates_by_city_id(@gis_reviews)
+
+    # Сводка за текущий месяц над таблицей — заказчик прислал скриншот этой
+    # страницы с просьбой показывать «количество отзывов по филиалам и за месяц».
+    @month = Date.current
+    @stats = GisReviewStatsQuery.new(month: @month).call
+  end
+
+  # Полная статистика: всего → города → подразделения, отдельно разбивка по
+  # площадкам. Месяц и площадка задаются параметрами.
+  def statistics
+    authorize GisReview
+
+    @month = parse_month(params[:month])
+    @source = params[:source].presence_in(GisReview::SOURCES)
+    @stats = GisReviewStatsQuery.new(month: @month, source: @source).call
   end
 
   # Привязка сотрудника к отзыву и переброс на другого — один экшен: разница
@@ -127,6 +142,13 @@ class GisReviewsController < ApplicationController
 
   def filter_params
     params.require(:filter).permit(:user_id, :month, :year)
+  end
+
+  # Месяц из строки «2026-08»; мусор и отсутствие параметра → текущий месяц.
+  def parse_month(value)
+    Date.parse("#{value}-01")
+  rescue ArgumentError, TypeError
+    Date.current
   end
 
   # Кандидаты считаются ОДИН раз на город, а не на строку: иначе страница на

@@ -61,7 +61,7 @@ ru:
       current_quick_orders: 'Текущие'
       data_migration: 'Миграция данных'
       device_unlock_request: 'Запрос на разблокировку'
-      gis_reviews_group: 'Отзывы 2ГИС'
+      gis_reviews_group: 'Отзывы'
       gis_reviews_assignment: 'Привязка сотрудников'
       directory: 'Каталог'
       employees: 'Сотрудники'

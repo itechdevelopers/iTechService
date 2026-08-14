@@ -7,7 +7,7 @@ ru:
       negative_in_progress: В процессе решения
       negative_resolved: Решён
     index:
-      title: Негативные отзывы 2ГИС
+      title: Негативные отзывы
       filter_label: 'Статус:'
       filter_reset: Сбросить
       empty: Негативных отзывов нет
@@ -28,7 +28,7 @@ ru:
     update_status:
       updated: Статус отзыва обновлён
     assignment:
-      title: Отзывы 2ГИС — привязка сотрудников
+      title: Отзывы — привязка сотрудников
       hint: Здесь отзывы, в которых агент не смог определить сотрудника, и уже привязанные — их может перекинуть на другого сотрудника суперадмин.
       filter_label: 'Статус:'
       filter_reset: Сбросить
@@ -41,8 +41,25 @@ ru:
       reassign_superadmin_only: Переназначить может только суперадмин
     assign:
       updated: Отзыв привязан
+    no_rating: без оценки
+    summary:
+      total: 'Всего за месяц:'
+      details: Подробная статистика →
+    statistics:
+      title: Статистика отзывов
+      month: 'Месяц:'
+      source: 'Площадка:'
+      all_sources: Все площадки
+      apply: Показать
+      total_label: 'Всего отзывов:'
+      city: Город
+      department: Филиал
+      count: Отзывов
+      city_total: всего по городу
+      by_source: Разбивка по площадкам
+      unknown_department: Филиал не определён
     user_tab:
-      title: Отзывы 2ГИС
+      title: Отзывы
     user_table:
       total: 'Всего отзывов: %{count}.'
       in_period: 'За выбранный период: %{count}.'

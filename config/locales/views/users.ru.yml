@@ -43,13 +43,13 @@ ru:
       glass_sticking: 'Доступ к функционалу «Наклейка стекла»'
       listen_all_transcriptions: 'Прослушивать все транскрибированные диалоги'
       work_with_receipt_search_requests: 'Работа с запросами на поиск чека'
-      manage_negative_reviews: 'Работа с негативными отзывами 2ГИС'
+      manage_negative_reviews: 'Работа с негативными отзывами'
     activities:
       free: Бесплатные
       fast: Быстрые
       long: Длинные
       mac: Обновление и восстановление Mac os-устройства
-      reviews: Отзывы 2ГИС
+      reviews: Отзывы (площадки)
     index:
       title: 'Пользователи'
     edit:

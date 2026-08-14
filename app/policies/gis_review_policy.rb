@@ -44,6 +44,10 @@ class GisReviewPolicy < ApplicationPolicy
     index?
   end
 
+  def statistics?
+    index?
+  end
+
   def assign?
     index?
   end

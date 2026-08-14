@@ -21,6 +21,12 @@ class ReviewAgentApi < Grape::API
       Rails.logger.warn("[ReviewAgentApi] #{message}")
     end
 
+    # Всё, что реально прислал агент, включая поля, которых нет в нашем
+    # контракте. route_info — служебный ключ Grape, в логе он бесполезен.
+    def loggable_params
+      params.to_hash.except('route_info')
+    end
+
     # Отказ агенту — всегда с записью в лог: без неё «агент прислал, но у вас
     # ничего не появилось» невозможно разобрать постфактум.
     def agent_error!(detail, code)
@@ -58,11 +64,21 @@ class ReviewAgentApi < Grape::API
     params do
       requires :external_review_id, type: String
       requires :city,               type: String
-      requires :rating,             type: Integer, values: 1..5
+      # VL.ru разрешает отзыв без оценки — по контракту от 2026-08-14 rating
+      # допускает null, и агент не додумывает звёзды по тексту.
+      optional :rating,             type: Integer, values: 1..5
       requires :date,               type: DateTime
       requires :status,             type: String, values: GisReview::AGENT_STATUSES.keys
+      # Площадка — источник истины по контракту. Поле опциональное для запросов,
+      # отправленных до перехода на новый контракт: тогда выводим из префикса.
+      optional :source,             type: String, values: GisReview::SOURCES
       optional :branch_code,        type: String
       optional :branch_name,        type: String
+      # Идентификатор филиала на площадке: id фирмы 2ГИС, businessId Яндекса,
+      # id филиала VL.ru. Старые имена принимаем тоже — у агента переход
+      # постепенный, а ломать приём из-за переименования поля незачем.
+      optional :platform_branch_id, type: String
+      optional :branch_external_id, type: String
       optional :branch_2gis_id,     type: String
       optional :author,             type: String
       optional :text,               type: String
@@ -70,11 +86,21 @@ class ReviewAgentApi < Grape::API
     end
     post 'reviews' do
       authorize :create, GisReview
-      # Тело пишем целиком (как TranscriptionApi): при разборе «агент прислал,
-      # а у нас не так» иначе нечего сопоставлять.
-      log_agent("POST reviews #{declared(params, include_missing: false).to_json}")
+      # Пишем СЫРЫЕ params, а не declared: declared оставляет только объявленные
+      # поля, и если агент начнёт слать что-то новое (например, площадку отзыва),
+      # мы этого в логе не увидим — а именно по логу и придётся выяснять, что
+      # он уже умеет присылать.
+      log_agent("POST reviews #{loggable_params.to_json}")
 
-      review = GisReview.find_or_initialize_by(external_review_id: params[:external_review_id])
+      # Ищем по ПАРЕ (площадка, идентификатор): у разных площадок нумерация
+      # независимая, и один и тот же id — это разные отзывы.
+      # Префикс площадки из идентификатора срезаем: он транспортная деталь, а
+      # площадка живёт в source. Иначе отзыв 2ГИС, приехавший до смены контракта
+      # как «265062064» и после как «2gis:265062064», задвоился бы.
+      source = params[:source].presence ||
+               GisReview.source_from_external_id(params[:external_review_id])
+      external_id = GisReview.strip_source_prefix(params[:external_review_id])
+      review = GisReview.find_or_initialize_by(source: source, external_review_id: external_id)
       new_record = review.new_record?
 
       employee = nil
@@ -91,16 +117,24 @@ class ReviewAgentApi < Grape::API
         warn_agent("Город не найден: #{params[:city]} (отзыв #{params[:external_review_id]}) — сохраняем без привязки к городу")
       end
 
+      department = GisReview.department_for(params[:branch_code])
+      if department.nil? && params[:branch_code].present?
+        warn_agent("Подразделение не найдено по коду филиала #{params[:branch_code].inspect} (отзыв #{params[:external_review_id]})")
+      end
+
       review.assign_attributes(
-        city_name:      params[:city],
-        city:           city,
-        branch_code:    params[:branch_code],
-        branch_name:    params[:branch_name],
-        branch_2gis_id: params[:branch_2gis_id],
-        rating:         params[:rating],
-        author:         params[:author],
-        reviewed_at:    params[:date],
-        text:           params[:text]
+        city_name:          params[:city],
+        city:               city,
+        department:         department,
+        branch_code:        params[:branch_code],
+        branch_name:        params[:branch_name],
+        platform_branch_id: params[:platform_branch_id].presence ||
+                            params[:branch_external_id].presence ||
+                            params[:branch_2gis_id],
+        rating:             params[:rating],
+        author:             params[:author],
+        reviewed_at:        params[:date],
+        text:               params[:text]
       )
 
       # Статус и сотрудника выставляем ТОЛЬКО при создании: агент пере-присылает
@@ -120,7 +154,8 @@ class ReviewAgentApi < Grape::API
 
         log_agent(
           "POST reviews → #{new_record ? 'создан' : 'обновлён'} ##{review.id} " \
-          "(#{review.external_review_id}), статус #{review.status}, сотрудник #{review.user_id.inspect}"
+          "(#{review.source}:#{review.external_review_id}), статус #{review.status}, " \
+          "сотрудник #{review.user_id.inspect}, подразделение #{review.department_id.inspect}"
         )
         status(new_record ? 201 : 200)
         present review, with: Entities::GisReviewEntity
@@ -135,6 +170,8 @@ class ReviewAgentApi < Grape::API
     desc 'Проставить сотрудника отзыву, который агент определил позже'
     params do
       requires :external_review_id, type: String
+      # Как и в POST: не прислали — выводим площадку из префикса идентификатора.
+      optional :source, type: String, values: GisReview::SOURCES
       # nil — снять привязку и вернуть отзыв в очередь ручного разбора.
       optional :employee_id, type: Integer
     end
@@ -146,8 +183,11 @@ class ReviewAgentApi < Grape::API
       authorize :update_employee, GisReview
       log_agent("PATCH employee review=#{params[:external_review_id]} employee_id=#{params[:employee_id].inspect}")
 
-      review = GisReview.find_by(external_review_id: params[:external_review_id])
-      agent_error!("Отзыв не найден: #{params[:external_review_id]}", 404) if review.nil?
+      source = params[:source].presence ||
+               GisReview.source_from_external_id(params[:external_review_id])
+      external_id = GisReview.strip_source_prefix(params[:external_review_id])
+      review = GisReview.find_by(source: source, external_review_id: external_id)
+      agent_error!("Отзыв не найден: #{source}:#{external_id}", 404) if review.nil?
 
       # Негатив живёт своей веткой — сотрудник там не проставляется.
       agent_error!('Негативный отзыв нельзя привязать к сотруднику', 422) if review.negative?

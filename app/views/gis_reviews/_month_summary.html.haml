@@ -1,0 +1,18 @@
+-# Компактная сводка за месяц над таблицей: всего и по филиалам, сгруппировано
+-# по городам. Полная версия — на странице статистики (ссылка справа).
+.gis-reviews__summary
+  %span.gis-reviews__summary-month= nominative_month_year(stats_month)
+  %span.gis-reviews__summary-total
+    = t('gis_reviews.summary.total')
+    %strong= stats[:total]
+  - stats[:by_city].each do |city_row|
+    %span.gis-reviews__summary-city
+      = city_row.city_name
+      %strong= city_row.count
+      - if city_row.departments.size > 1 || city_row.departments.first&.count != city_row.count
+        %small.muted
+          = '('
+          = city_row.departments.map { |d| "#{d.name} #{d.count}" }.join(', ')
+          = ')'
+  - if policy(GisReview).statistics?
+    = link_to t('gis_reviews.summary.details'), statistics_gis_reviews_path, class: 'gis-reviews__summary-link'
