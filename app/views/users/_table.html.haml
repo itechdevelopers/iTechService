@@ -19,5 +19,9 @@
               = form.hidden_field :all, value: true
           %span.add-on.btn.clear_search_input
             %i.icon-remove
+        = f.fields_for 'query' do |form|
+          - locations = User.available_locations(city: params[:city], all: params[:all], selected_id: params[:location_id])
+          - grouped_locations = locations.group_by { |location| location_filter_group_name(location) }.map { |group, locs| [group, locs.map { |l| [l.short_name, l.id] }] }
+          = form.select :location_id, grouped_options_for_select(grouped_locations, params[:location_id].to_i), { include_blank: 'Все локации' }, class: 'input-medium users-location-filter__select', id: 'users_location_filter'
 
 #users_table= render 'users_table'

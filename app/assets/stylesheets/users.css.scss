@@ -390,3 +390,9 @@ form.user_form{
     padding: 3px 8px;
   }
 }
+
+/* Location filter next to the user search field */
+.users-location-filter__select {
+  margin-left: 5px;
+  vertical-align: top;
+}
