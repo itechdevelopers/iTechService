@@ -1,0 +1,54 @@
+.page-header
+  %h2= t('.title')
+  %p.muted= t('.hint')
+  = link_to t('.queue_link'), claims_gis_reviews_path, class: 'btn'
+
+.gis-reviews
+  = form_tag claims_history_gis_reviews_path, method: :get, class: 'form-inline gis-reviews__stats-filters' do
+    = label_tag :status, t('.status'), class: 'gis-reviews__stats-label'
+    = select_tag :status,
+      options_for_select([[t('.all_statuses'), '']] + @statuses.map { |s| [t("gis_reviews.claim_statuses.#{s}"), s] }, @selected_status),
+      class: 'input-medium'
+    = label_tag :user_id, t('.employee'), class: 'gis-reviews__stats-label'
+    = select_tag :user_id,
+      options_from_collection_for_select(@claim_authors, :id, :short_name, @selected_user_id),
+      include_blank: t('.all_employees'), class: 'input-medium'
+    = submit_tag t('.apply'), class: 'btn', name: nil
+
+  %table.table.table-bordered.gis-reviews
+    %thead
+      %tr
+        %th= t('.columns.created_at')
+        %th= t('.columns.employee')
+        %th= t('gis_reviews.index.columns.branch')
+        %th= GisReview.human_attribute_name(:text)
+        %th= t('.columns.status')
+        %th= t('.columns.resolved')
+    %tbody
+      - if @claims.empty?
+        %tr
+          %td{ colspan: 6 }= t('.empty')
+      - @claims.each do |claim|
+        - review = claim.gis_review
+        %tr
+          %td= human_datetime claim.created_at
+          %td= link_to claim.user.short_name, user_path(claim.user)
+          %td
+            %span.gis-reviews__source{ class: "gis-reviews__source--#{review.source.tr('_', '-')}" }= review.source_label
+            = review.city_name
+            - if review.branch_name.present?
+              %br
+              %small.muted= review.branch_name
+          %td.gis-reviews__text-cell= review.text
+          %td
+            %span.label{ class: "gis-reviews__claim--#{claim.status.tr('_', '-')}" }
+              = t("gis_reviews.claim_statuses.#{claim.status}")
+          %td
+            - if claim.resolved_at
+              = human_datetime claim.resolved_at
+              %br
+              %small.muted= claim.resolved_by&.short_name
+            - else
+              %span.muted —
+
+  = paginate @claims

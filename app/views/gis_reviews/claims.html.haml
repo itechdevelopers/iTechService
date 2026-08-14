@@ -1,0 +1,49 @@
+.page-header
+  %h2= t('.title')
+  %p.muted= t('.hint')
+  = link_to t('.history_link'), claims_history_gis_reviews_path, class: 'btn'
+
+.gis-reviews
+  %table.table.table-hover.table-bordered.gis-reviews
+    %thead
+      %tr
+        %th= t('.columns.created_at')
+        %th= t('.columns.employee')
+        %th= t('gis_reviews.index.columns.branch')
+        %th= GisReview.human_attribute_name(:rating)
+        %th= GisReview.human_attribute_name(:text)
+        %th= t('.columns.actions')
+    %tbody
+      - if @claims.empty?
+        %tr
+          %td{ colspan: 6 }= t('.empty')
+      - @claims.each do |claim|
+        - review = claim.gis_review
+        %tr
+          %td= human_datetime claim.created_at
+          %td
+            = link_to claim.user.short_name, user_path(claim.user)
+            - if review.claims.pending.count > 1
+              %br
+              %small.text-error= t('.competing', count: review.claims.pending.count)
+          %td
+            %span.gis-reviews__source{ class: "gis-reviews__source--#{review.source.tr('_', '-')}" }= review.source_label
+            = review.city_name
+            - if review.branch_name.present?
+              %br
+              %small.muted= review.branch_name
+          %td.gis-reviews__rating-cell
+            - if review.stars
+              %span.gis-reviews__stars= review.stars
+            - else
+              %span.muted= t('gis_reviews.no_rating')
+          %td.gis-reviews__text-cell
+            = review.text
+            %br
+            %small.muted= review.author
+          %td.gis-reviews__claim-actions
+            = link_to t('.approve'), approve_claim_gis_reviews_path(claim_id: claim.id),
+              method: :patch, class: 'btn btn-small btn-success',
+              data: { confirm: t('.approve_confirm', name: claim.user.short_name) }
+            = link_to t('.reject'), reject_claim_gis_reviews_path(claim_id: claim.id),
+              method: :patch, class: 'btn btn-small btn-danger'

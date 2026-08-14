@@ -33,15 +33,58 @@ ru:
       filter_label: 'Статус:'
       filter_reset: Сбросить
       empty: Отзывов для привязки нет
+      scope_all: Показать все филиалы Айтека
+      scope_my_city: Только мой город
+      scope_all_active: показаны отзывы всех филиалов
+      scope_my_city_active: 'показаны отзывы города: %{city}'
     assignment_row:
       select_employee: — выберите сотрудника —
       assign_btn: Привязать
       reassign_btn: Переназначить
       assigned_by: 'привязал: %{name}'
       reassign_superadmin_only: Переназначить может только суперадмин
+      claim_btn: Это мой отзыв
     assign:
       updated: Отзыв привязан
     no_rating: без оценки
+    claim_statuses:
+      pending: На рассмотрении
+      approved: Подтверждена
+      rejected: Отклонена
+    claim:
+      created: Заявка отправлена на рассмотрение
+    approve_claim:
+      approved: 'Отзыв закреплён за сотрудником: %{name}'
+    reject_claim:
+      rejected: Заявка отклонена
+    claims:
+      title: Заявки на отзывы
+      hint: Сотрудники просят закрепить за собой отзывы. Подтверждение привязывает отзыв и отклоняет остальные заявки по нему.
+      history_link: История заявок
+      empty: Заявок на рассмотрении нет
+      approve: Подтвердить
+      approve_confirm: 'Закрепить отзыв за сотрудником %{name}?'
+      reject: Отклонить
+      competing: 'заявок на этот отзыв: %{count}'
+      columns:
+        created_at: Подана
+        employee: Сотрудник
+        actions: Решение
+    claims_history:
+      title: История заявок на отзывы
+      hint: Все заявки — и решённые, и ожидающие. По ним видно, каким образом отзыв оказался привязан к сотруднику.
+      queue_link: К заявкам на рассмотрении
+      status: 'Статус:'
+      employee: 'Сотрудник:'
+      all_statuses: Все статусы
+      all_employees: Все сотрудники
+      apply: Показать
+      empty: Заявок нет
+      columns:
+        created_at: Подана
+        employee: Сотрудник
+        status: Статус
+        resolved: Решение
     summary:
       total: 'Всего за месяц:'
       details: Подробная статистика →

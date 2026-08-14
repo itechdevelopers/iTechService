@@ -1,7 +1,8 @@
--# Строка страницы привязки. r — GisReview, candidates — сотрудники бара его города.
+-# Строка страницы привязки. r — GisReview, candidates — сотрудники бара его города,
+-# my_claim — заявка текущего пользователя на этот отзыв (если подавал).
 - r = gis_review
 - status_mod = r.status.tr('_', '-')
--# Привязать может любой с доступом к странице; перекинуть уже привязанный — только суперадмин.
+-# Привязать может обладатель права; перекинуть уже привязанный — только суперадмин.
 - can_edit = r.user_id.present? ? policy(r).reassign? : policy(r).assign?
 %tr.gis-reviews__row{ class: "gis-reviews__row--#{status_mod}", id: "gis_review_assignment_#{r.id}" }
   %td= human_datetime r.reviewed_at
@@ -34,3 +35,11 @@
         = submit_tag(r.user_id.present? ? t('.reassign_btn') : t('.assign_btn'), class: 'btn btn-small btn-primary')
     - elsif r.user_id.present?
       %small.muted= t('.reassign_superadmin_only')
+
+    -# Сотруднику без права — заявка «это мой отзыв» и её текущее состояние.
+    - if r.need_assignment? && policy(r).claim?
+      - if my_claim
+        %span.label{ class: "gis-reviews__claim--#{my_claim.status.tr('_', '-')}" }
+          = t("gis_reviews.claim_statuses.#{my_claim.status}")
+      - elsif !can_edit
+        = link_to t('.claim_btn'), claim_gis_review_path(r), method: :post, class: 'btn btn-small btn-info'

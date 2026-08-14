@@ -253,6 +253,12 @@ Rails.application.routes.draw do
     # Вкладка «Отзывы» в профиле сотрудника — грузится AJAX'ом при клике.
     get :employee, on: :collection
     get :statistics, on: :collection
+    # Заявки сотрудников «этот отзыв мой»: подача, очередь модерации, история.
+    post :claim, on: :member
+    get :claims, on: :collection
+    get :claims_history, on: :collection
+    patch :approve_claim, on: :collection
+    patch :reject_claim, on: :collection
   end
 
   # Учёт пакетов. Размеры (package_stocks) редактируются вложенно в форме дизайна.

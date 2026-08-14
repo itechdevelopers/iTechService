@@ -14,7 +14,16 @@
         = t("gis_reviews.statuses.#{st}")
         %span.gis-reviews__chip-count= @status_counts[st]
     - if @selected_statuses.any?
-      = link_to t('.filter_reset'), assignment_gis_reviews_path, class: 'gis-reviews__chip-reset'
+      = link_to t('.filter_reset'), assignment_gis_reviews_path(scope: ('all' if @all_cities)), class: 'gis-reviews__chip-reset'
+
+    -# Переключатель охвата: свой город (по умолчанию) или все филиалы Айтека.
+    .gis-reviews__scope-toggle
+      - if @all_cities
+        = link_to t('.scope_my_city'), assignment_gis_reviews_path(status: @selected_statuses.presence), class: 'btn btn-small'
+        %span.muted= t('.scope_all_active')
+      - else
+        = link_to t('.scope_all'), assignment_gis_reviews_path(status: @selected_statuses.presence, scope: 'all'), class: 'btn btn-small'
+        %span.muted= t('.scope_my_city_active', city: current_user.city&.name)
 
 %table#gis_reviews_assignment_table.table.table-hover.table-bordered.gis-reviews
   %thead
@@ -30,4 +39,6 @@
       %tr
         %td{ colspan: 6 }= t('.empty')
     - @gis_reviews.each do |review|
-      = render 'assignment_row', gis_review: review, candidates: @candidates_by_city_id[review.city_id]
+      = render 'assignment_row', gis_review: review,
+        candidates: @candidates_by_city_id[review.city_id],
+        my_claim: @my_claims[review.id]

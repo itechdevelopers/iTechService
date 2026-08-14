@@ -64,8 +64,7 @@ class ReviewAgentApi < Grape::API
     params do
       requires :external_review_id, type: String
       requires :city,               type: String
-      # VL.ru разрешает отзыв без оценки — по контракту от 2026-08-14 rating
-      # допускает null, и агент не додумывает звёзды по тексту.
+      # VL.ru разрешает отзыв без оценки, и агент не додумывает звёзды по тексту.
       optional :rating,             type: Integer, values: 1..5
       requires :date,               type: DateTime
       requires :status,             type: String, values: GisReview::AGENT_STATUSES.keys

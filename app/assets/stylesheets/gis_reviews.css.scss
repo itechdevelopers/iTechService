@@ -98,6 +98,24 @@
 
   &__stats-city-row > td { background: #f7f7f7; }
 
+  // ── Заявки сотрудников ────────────────────────────────────────────────────
+  .gis-reviews__claim--pending  { background-color: #f0ad4e; }
+  .gis-reviews__claim--approved { background-color: #5cb85c; }
+  .gis-reviews__claim--rejected { background-color: #d9534f; }
+
+  &__claim-actions {
+    white-space: nowrap;
+
+    .btn { margin-right: 4px; }
+  }
+
+  &__scope-toggle {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-left: auto;
+  }
+
   // ── Бейдж площадки (2ГИС / Яндекс / VL.ru) ────────────────────────────────
   // Фирменные цвета площадок: отзыв должен быть узнаваем с одного взгляда —
   // сотрудник пойдёт искать его именно там, где он оставлен.

@@ -2,7 +2,7 @@
 
 class GisReviewsController < ApplicationController
   # Страница «Негативные отзывы» — только негативная ветка (1–3★). Позитивные
-  # отзывы сотрудник видит у себя в профиле (цикл 4), отдельной страницы у них нет.
+  # отзывы сотрудник видит у себя в профиле, отдельной страницы у них нет.
   #
   # Чипы здесь — ФИЛЬТР-отсев, а не приоритет-сортировка как в device_unlock_requests:
   # негативных отзывов мало и работа с ними идёт очередями («покажи только новые»),
@@ -61,22 +61,82 @@ class GisReviewsController < ApplicationController
   # Страница привязки сотрудников: неопределённые отзывы (агент не нашёл имени)
   # и уже привязанные — на одном экране, чтобы суперадмин мог перекинуть отзыв
   # на другого сотрудника, не разыскивая его по профилям.
+  #
+  # По умолчанию показываем отзывы города сотрудника: человек работает то на
+  # одной точке, то на другой, поэтому фильтр по подразделению был бы слишком
+  # узким. Переключатель «весь Айтек» снимает и это ограничение.
   def assignment
     authorize GisReview
 
     @statuses = %w[need_assignment assigned]
     @selected_statuses = Array(params[:status]).select { |s| @statuses.include?(s) }
+    @all_cities = params[:scope] == 'all'
     @status_counts = assignment_status_counts
 
     scope = GisReview.where(status: @statuses).recent.includes(:user, :city)
+    scope = scope.where(city_id: current_user.city_id) unless @all_cities
     scope = scope.where(status: @selected_statuses) if @selected_statuses.any?
     @gis_reviews = scope
     @candidates_by_city_id = candidates_by_city_id(@gis_reviews)
+    # Свои заявки — чтобы вместо кнопки показать «на рассмотрении» или решение.
+    @my_claims = current_user.gis_review_claims
+                             .where(gis_review_id: @gis_reviews.map(&:id))
+                             .index_by(&:gis_review_id)
 
-    # Сводка за текущий месяц над таблицей — заказчик прислал скриншот этой
-    # страницы с просьбой показывать «количество отзывов по филиалам и за месяц».
+    # Сводка за текущий месяц над таблицей: сколько отзывов всего и по филиалам.
     @month = Date.current
     @stats = GisReviewStatsQuery.new(month: @month).call
+  end
+
+  # Сотрудник заявляет, что отзыв оставлен ему.
+  def claim
+    @gis_review = GisReview.find(params[:id])
+    authorize @gis_review, :claim?
+
+    claim = current_user.gis_review_claims.build(gis_review: @gis_review)
+
+    if claim.save
+      claim.notify_moderators
+      redirect_back fallback_location: assignment_gis_reviews_path, notice: t('.created')
+    else
+      redirect_back fallback_location: assignment_gis_reviews_path,
+                    alert: claim.errors.full_messages.to_sentence
+    end
+  end
+
+  # Очередь модерации: заявки, ждущие решения.
+  def claims
+    authorize GisReview
+
+    @claims = GisReviewClaim.pending.recent.includes(:user, gis_review: %i[city department])
+  end
+
+  # История заявок: все решённые, с фильтрами по сотруднику и статусу.
+  def claims_history
+    authorize GisReview
+
+    @statuses = GisReviewClaim.statuses.keys
+    @selected_status = params[:status].presence_in(@statuses)
+    @selected_user_id = params[:user_id].presence
+
+    scope = GisReviewClaim.recent.includes(:user, :resolved_by, gis_review: %i[city department])
+    scope = scope.where(status: @selected_status) if @selected_status
+    scope = scope.where(user_id: @selected_user_id) if @selected_user_id
+    @claims = paginate(scope)
+    # Только те, кто вообще подавал заявки — иначе селект на весь штат.
+    @claim_authors = User.where(id: GisReviewClaim.distinct.select(:user_id)).order(:surname, :name)
+  end
+
+  def approve_claim
+    claim = find_claim
+    claim.approve!(current_user)
+    redirect_to claims_gis_reviews_path, notice: t('.approved', name: claim.user.short_name)
+  end
+
+  def reject_claim
+    claim = find_claim
+    claim.reject!(current_user)
+    redirect_to claims_gis_reviews_path, notice: t('.rejected')
   end
 
   # Полная статистика: всего → города → подразделения, отдельно разбивка по
@@ -95,7 +155,7 @@ class GisReviewsController < ApplicationController
   # не тому, а кому надо — пока не знаем».
   def assign
     @gis_review = find_record GisReview
-    # Гейт заказчика: перекинуть УЖЕ привязанный отзыв может только суперадмин.
+    # Перекинуть УЖЕ привязанный отзыв может только суперадмин.
     authorize @gis_review, :reassign? if @gis_review.user_id.present?
 
     if params[:user_id].blank?
@@ -142,6 +202,13 @@ class GisReviewsController < ApplicationController
 
   def filter_params
     params.require(:filter).permit(:user_id, :month, :year)
+  end
+
+  # Решение по заявке авторизуем через GisReview: аудитория та же, что у
+  # остальной работы с отзывами, и отдельная политика для заявок не нужна.
+  def find_claim
+    authorize GisReview
+    GisReviewClaim.pending.find(params[:claim_id])
   end
 
   # Месяц из строки «2026-08»; мусор и отсутствие параметра → текущий месяц.
