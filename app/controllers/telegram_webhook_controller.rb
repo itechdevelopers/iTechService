@@ -240,6 +240,10 @@ class TelegramWebhookController < Telegram::Bot::UpdatesController
   # the actual download + attach runs async (fetching from Telegram and
   # uploading to storage is too slow for the webhook). Division stays in the
   # session so the employee can keep sending photos without re-selecting.
+  #
+  # The reply here only acknowledges receipt — the photo is not in the system
+  # yet. The definitive ✅/❌ comes from TelegramPhotoAttachJob once the file is
+  # actually stored, so the wording must not imply the upload already happened.
   def handle_photo(photo_sizes)
     return respond_not_linked unless current_employee
 
@@ -251,12 +255,15 @@ class TelegramWebhookController < Telegram::Bot::UpdatesController
     end
 
     # Telegram sends several sizes; the last is the highest resolution.
-    file_id = photo_sizes.last['file_id']
-    TelegramPhotoAttachJob.perform_later(job_id, division, file_id, current_employee.id)
+    # file_unique_id stays the same for the same file, so the job uses it to
+    # skip a photo Telegram delivered twice (webhook timeout -> update re-sent).
+    photo = photo_sizes.last
+    TelegramPhotoAttachJob.perform_later(job_id, division, photo['file_id'],
+                                         current_employee.id, photo['file_unique_id'])
 
     respond_with :message,
-                 text: "📥 Фото принято, добавляю в раздел «#{DIVISION_LABELS[division]}» " \
-                       "работы №#{session[:ticket]}."
+                 text: "⏳ Фото получено. Сохраняю в раздел «#{DIVISION_LABELS[division]}» " \
+                       "работы №#{session[:ticket]}…"
   end
 
   def job_button_label(service_job)

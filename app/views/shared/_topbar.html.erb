@@ -60,9 +60,10 @@
         </div>
       <% end %>
     <% end %>
-    <%# Отзывы 2ГИС — за всё время, в отличие от соседей выше (у них текущий месяц).
-        Ведём в профиль на вкладку с отзывами, а не в personnel_statistics: та
-        страница построена вокруг STATISTICS_ACTIVITIES, отзывов в ней нет. %>
+    <%# Отзывы 2ГИС за текущий месяц — как у соседей выше, только месяц берётся
+        по дате отзыва, а не по created_at. Ведём в профиль на вкладку с
+        отзывами, а не в personnel_statistics: та страница построена вокруг
+        STATISTICS_ACTIVITIES, отзывов в ней нет. %>
     <% if current_user.acts_to?(:reviews) %>
       <%= link_to user_path(current_user, anchor: 'gis_reviews_tab') do %>
         <div class="statistics__item">
