@@ -765,8 +765,10 @@ class User < ApplicationRecord
               .size
   end
 
-  # Считаем ЗА ВСЁ ВРЕМЯ — в отличие от соседних счётчиков в topbar, которые
-  # ограничены `period` (текущий месяц). Покрывается индексом
+  # Текущий месяц по ДАТЕ ОТЗЫВА (`in_month`), а не по `period`, как у соседних
+  # счётчиков в topbar: агент может прислать июльский отзыв в августе, и он
+  # должен остаться июльским. Та же граница, что и у фильтра во вкладке профиля,
+  # — счётчик и таблица под ним всегда сходятся. Покрывается индексом
   # [user_id, reviewed_at].
   # Мемоизация через defined?, а не ||=: topbar спрашивает счётчик дважды
   # (условие показа + само значение), а ||= повторял бы запрос при нуле — то есть
@@ -774,7 +776,7 @@ class User < ApplicationRecord
   def gis_reviews_count
     return @gis_reviews_count if defined?(@gis_reviews_count)
 
-    @gis_reviews_count = GisReview.where(user_id: id).count
+    @gis_reviews_count = GisReview.where(user_id: id).in_month(Date.current).count
   end
 
   def update_authentication_token
