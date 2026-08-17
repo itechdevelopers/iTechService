@@ -51,10 +51,9 @@ class ReceptionPhotoCheckJob < ApplicationJob
 
     return unless recipient.telegram_linked?
 
-    SendTelegramMessage.call(
-      chat_id: recipient.telegram_chat_id,
-      text: causer_telegram_text(service_job, message)
-    )
+    # Via NotifyEmployeeJob so a network hiccup retries instead of dropping the
+    # message — see the same change in ReceptionPhotoReminderJob.
+    NotifyEmployeeJob.perform_later(recipient.id, causer_telegram_text(service_job, message))
   end
 
   def notify_supervisors(service_job, fault)

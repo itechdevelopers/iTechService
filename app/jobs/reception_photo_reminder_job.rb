@@ -23,9 +23,16 @@ class ReceptionPhotoReminderJob < ApplicationJob
 
     recipient = service_job.user
     return if recipient.nil?
-    return if Notification.exists?(referenceable: service_job, kind: KIND)
 
-    notify_in_app(service_job, recipient)
+    # Guard covers only the bell: it exists to keep a second in-app notification
+    # from appearing, and it used to sit in front of both channels — so a rerun
+    # of this job (Sidekiq retry, double scheduling) returned early and the
+    # Telegram message was never attempted. A duplicate reminder is the lesser
+    # evil compared with a silently dropped one.
+    unless Notification.exists?(referenceable: service_job, kind: KIND)
+      notify_in_app(service_job, recipient)
+    end
+
     notify_telegram(service_job, recipient)
   end
 
@@ -42,10 +49,13 @@ class ReceptionPhotoReminderJob < ApplicationJob
     UserNotificationChannel.broadcast_to(notification.user, notification)
   end
 
+  # Delivery goes through NotifyEmployeeJob: SendTelegramMessage swallows
+  # network errors, so calling it here left a failed send indistinguishable
+  # from a successful one and the reminder was lost.
   def notify_telegram(service_job, recipient)
     return unless recipient.telegram_linked?
 
-    SendTelegramMessage.call(chat_id: recipient.telegram_chat_id, text: telegram_text(service_job))
+    NotifyEmployeeJob.perform_later(recipient.id, telegram_text(service_job))
   end
 
   def telegram_text(service_job)

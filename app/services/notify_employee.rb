@@ -18,7 +18,10 @@ class NotifyEmployee
     Telegram::Bot::NotFound   # chat not found
   ].freeze
 
-  Result = Struct.new(:status) do
+  # `error` carries the exception SendTelegramMessage caught, so a caller that
+  # wants to retry (NotifyEmployeeJob) can tell a network hiccup from a
+  # permanent refusal. nil on every status except :error.
+  Result = Struct.new(:status, :error) do
     def sent?
       status == :sent
     end
@@ -48,7 +51,7 @@ class NotifyEmployee
     end
 
     Rails.logger.error("[NotifyEmployee] user ##{@user.id} send failed: #{outcome.result}")
-    Result.new(:error)
+    Result.new(:error, outcome.error)
   end
 
   private
