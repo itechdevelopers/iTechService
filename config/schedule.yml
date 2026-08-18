@@ -105,3 +105,9 @@ repair_master_day_off_notification:
   class: 'RepairMasterDayOffNotificationJob'
   queue: 'default'
   active_job: true
+
+find_my_device_health_check:
+  cron: '0 9 * * * Asia/Vladivostok'
+  class: 'FindMyDeviceHealthCheckJob'
+  queue: 'default'
+  active_job: true
