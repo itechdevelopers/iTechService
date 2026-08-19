@@ -1,0 +1,28 @@
+-# История согласований с клиентом по этому ремонту: кто запросил, что именно,
+-# кто и когда ответил, сколько заняло. Пока согласований не было — блока нет,
+-# чтобы не занимать место в правой колонке на большинстве ремонтов.
+- requests = service_job.approval_requests.includes(:requester, :responder).recent_first
+
+- if requests.any?
+  .approval-history
+    %h5.approval-history__title= t('approval_requests.history.title')
+    .well.well-small.approval-history__wall
+      - requests.each do |request|
+        .approval-history__item{ class: "approval-history__item--#{request.status}" }
+          .approval-history__request
+            %strong= request.requester&.short_name
+            %span.approval-history__time= l(request.created_at, format: :date_time)
+          .approval-history__question= request.question
+          - if request.pending?
+            .approval-history__pending= t('approval_requests.history.pending')
+          - else
+            .approval-history__answer
+              %strong= t("approval_requests.results.#{request.status}")
+              = "— #{request.responder&.short_name}"
+              - if request.responded_at
+                %span.approval-history__time= l(request.responded_at, format: :date_time)
+              - if request.duration
+                %span.approval-history__duration
+                  = "(#{t('approval_requests.answered.duration').downcase} #{distance_of_time_in_words(request.created_at, request.responded_at)})"
+            - if request.response_comment.present?
+              .approval-history__comment= request.response_comment

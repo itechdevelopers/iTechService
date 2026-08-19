@@ -19,6 +19,67 @@
   vertical-align: baseline;
 }
 
+// История согласований в правой колонке страницы ремонта.
+.approval-history {
+  &__title {
+    margin: 12px 0 6px;
+    font-weight: bold;
+  }
+
+  &__wall {
+    max-height: 300px;
+    overflow-y: auto;
+  }
+
+  &__item {
+    padding: 6px 8px;
+    margin-bottom: 6px;
+    border-left: 3px solid #cccccc;
+    background-color: #ffffff;
+    font-size: 12px;
+    line-height: 16px;
+
+    &--approved {
+      border-left-color: #468847;
+    }
+
+    &--rejected {
+      border-left-color: #b94a48;
+    }
+
+    &--pending {
+      border-left-color: #f89406;
+    }
+  }
+
+  &__question {
+    margin: 2px 0 4px;
+    white-space: pre-line;
+  }
+
+  &__time {
+    margin-left: 6px;
+    color: #999999;
+    font-size: 11px;
+  }
+
+  &__duration {
+    margin-left: 4px;
+    color: #777777;
+    font-size: 11px;
+  }
+
+  &__pending {
+    color: #f89406;
+    font-style: italic;
+  }
+
+  &__comment {
+    margin-top: 2px;
+    color: #555555;
+  }
+}
+
 .approvals-answered {
   &__row--approved > td {
     background-color: #f1f8f1;

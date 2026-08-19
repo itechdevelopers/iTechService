@@ -22,6 +22,9 @@ ru:
         result: 'Ответ'
         comment: 'Комментарий'
         action: 'Действие'
+    history:
+      title: 'Согласования'
+      pending: 'Ждём ответа медиа'
     results:
       approved: 'Согласовано'
       rejected: 'Не согласовано'
