@@ -37,6 +37,7 @@
               %span.testings-nav-badge{ title: t('dashboard.returned_action_needed_hint', count: returned_action_needed, default: "Ждут продолжения ремонта: #{returned_action_needed}") }= returned_action_needed
       %li.all_service_jobs_nav= link_to t('dashboard.all_service_jobs'), service_jobs_path
 
+= render 'employee_widgets'
 #dashboard_table_filter= render @table_name+'_filter'
 - if @table_name == 'tasks_table'
   = render 'repair_status_summary'

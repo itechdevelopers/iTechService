@@ -1,0 +1,50 @@
+// «Дашборды сотрудника» — ряд крупных блоков над таблицей задач на главной.
+// Высота тела блока фиксирована: список внутри скроллится, чтобы таблица задач
+// не уезжала за пределы экрана при большом количестве записей.
+
+.employee-dashboard {
+  display: flex;
+  gap: 12px;
+  margin-bottom: 12px;
+}
+
+.employee-dashboard__panel {
+  flex: 1 1 0;
+  min-width: 0;
+  border: 1px solid #cfcfcf;
+  border-radius: 4px;
+  background-color: #ffffff;
+}
+
+.employee-dashboard__title {
+  padding: 6px 10px;
+  text-align: center;
+  font-size: 16px;
+  font-weight: bold;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  color: #444444;
+  background-color: #e4e4e4;
+  border-bottom: 1px solid #cfcfcf;
+  border-radius: 3px 3px 0 0;
+}
+
+.employee-dashboard__body {
+  height: 380px;
+  overflow-y: auto;
+  overflow-x: hidden;
+  padding: 6px 0;
+
+  // Списки трубок свёрстаны под отрицательные отступы popover'а — внутри
+  // панели их надо погасить, иначе элементы вылезают за границы блока.
+  ul {
+    margin-left: 0;
+    margin-right: 0;
+  }
+}
+
+.employee-dashboard__empty {
+  padding: 12px;
+  text-align: center;
+  color: #999999;
+}
