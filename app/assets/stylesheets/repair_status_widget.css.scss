@@ -178,6 +178,13 @@
   box-sizing: border-box;
 }
 
+.repair-status-widget-modal__hint {
+  margin: 6px 0 0;
+  color: #888;
+  font-size: 12px;
+  line-height: 16px;
+}
+
 .repair-status-widget-modal__error {
   background: #f2dede;
   color: #b94a48;

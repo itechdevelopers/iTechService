@@ -1,0 +1,36 @@
+- approval_reason = RepairPauseReason.find_by(code: RepairPauseReason::WAITING_APPROVAL)
+- paused_status = RepairStatus.by_code(RepairStatus::PAUSED)
+
+.repair-status-widget-modal{ id: "approval_modal_#{service_job.id}", tabindex: -1, role: 'dialog' }
+  .repair-status-widget-modal__dialog
+    = form_with url: repair_status_service_job_path(service_job),
+                method: :patch,
+                local: false,
+                html: { id: "approval_form_#{service_job.id}", class: 'repair-status-widget-modal__form' } do
+      = hidden_field_tag :repair_status_code, paused_status&.code
+      = hidden_field_tag :repair_pause_reason_id, approval_reason&.id
+
+      .repair-status-widget-modal__header
+        %h4= t('service_jobs.repair_status.approval_modal.title')
+        %button.repair-status-widget-modal__close{ type: 'button', 'aria-label': 'Close', data: { repair_status_widget_modal_close_for: service_job.id } } ×
+
+      .repair-status-widget-modal__body
+        - if local_assigns[:error].present?
+          .repair-status-widget-modal__error= error
+
+        %label.repair-status-widget-modal__label{ for: "approval_question_#{service_job.id}" }
+          = t('service_jobs.repair_status.approval_modal.question_label')
+        = text_area_tag :approval_question,
+                        local_assigns[:approval_question],
+                        id: "approval_question_#{service_job.id}",
+                        rows: 4,
+                        class: 'repair-status-widget-modal__input',
+                        autocomplete: 'off',
+                        autofocus: true
+        %p.repair-status-widget-modal__hint= t('service_jobs.repair_status.approval_modal.hint')
+
+      .repair-status-widget-modal__footer
+        %button.btn{ type: 'button', data: { repair_status_widget_modal_close_for: service_job.id } }
+          = t('helpers.links.cancel', default: 'Отмена')
+        %button.btn.btn-primary{ type: 'submit' }
+          = t('service_jobs.repair_status.approval_modal.submit')
