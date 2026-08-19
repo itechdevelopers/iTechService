@@ -1,0 +1,26 @@
+-# Неотвеченные запросы на согласование по ремонтам своего подразделения.
+-# Данные берём здесь, а не в DashboardController: иначе контроллер должен был бы
+-# знать, какие именно виджеты стоят у сотрудника в слотах.
+- requests = ApprovalRequest.pending.in_department(current_department).includes(:requester, service_job: [:client, {item: :product}]).chronological
+
+#approval_requests_widget
+  - if requests.any?
+    %ul.approval-widget
+      - requests.each do |request|
+        - service_job = request.service_job
+        -# type_name/client_presentation отдают '-' вместо пустоты — такие
+        -# заглушки в карточке не показываем, чтобы не плодить висячие разделители.
+        - details = [service_job.type_name, service_job.client_presentation].reject { |value| value.blank? || value == '-' }
+        %li.approval-widget__item{ id: "approval_request-#{request.id}" }
+          .approval-widget__head
+            %span.approval-widget__author= request.requester&.short_name
+            %span.approval-widget__time
+              = l(request.created_at, format: :date_time)
+              = "(ждёт #{time_ago_in_words(request.created_at)})"
+          .approval-widget__question= request.question
+          .approval-widget__job
+            = link_to "№#{service_job.ticket_number}", service_job_path(service_job)
+            - if details.any?
+              = "· #{details.join(' · ')}"
+  - else
+    .employee-dashboard__empty Нет запросов на согласование

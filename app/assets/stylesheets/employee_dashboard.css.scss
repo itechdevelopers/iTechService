@@ -43,6 +43,51 @@
   }
 }
 
+// Карточки запросов на согласование внутри блока «Согласование».
+.approval-widget {
+  list-style: none;
+  margin: 0;
+  padding: 0 10px;
+}
+
+.approval-widget__item {
+  padding: 8px 10px;
+  margin-bottom: 8px;
+  border: 1px solid #e0e0e0;
+  border-left: 3px solid #f89406;
+  border-radius: 3px;
+  background-color: #fdfdfd;
+  line-height: 18px;
+}
+
+.approval-widget__head {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  gap: 8px;
+  margin-bottom: 4px;
+}
+
+.approval-widget__author {
+  font-weight: bold;
+}
+
+.approval-widget__time {
+  color: #999999;
+  font-size: 11px;
+  text-align: right;
+}
+
+.approval-widget__question {
+  margin-bottom: 4px;
+  white-space: pre-line;
+}
+
+.approval-widget__job {
+  color: #777777;
+  font-size: 12px;
+}
+
 .employee-dashboard__empty {
   padding: 12px;
   text-align: center;

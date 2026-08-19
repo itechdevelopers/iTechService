@@ -13,7 +13,7 @@ module Dashboard
   module WidgetRegistry
     WIDGETS = {
       'order_feedbacks' => { title: 'Заказы', partial: nil },
-      'approvals' => { title: 'Согласование', partial: nil },
+      'approvals' => { title: 'Согласование', partial: 'dashboard/widgets/approvals' },
       'service_feedbacks' => { title: 'Сервис', partial: nil }
     }.freeze
 
