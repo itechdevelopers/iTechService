@@ -87,4 +87,6 @@
  *= require technicians_in_progress_timeline
  *= require breakage_report
  *= require gis_reviews
+ *= require employee_dashboard
+ *= require approval_requests
  */

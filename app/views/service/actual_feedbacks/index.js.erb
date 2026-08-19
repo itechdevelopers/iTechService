@@ -1,4 +1,6 @@
 <%
+  # Popover иконки-«трубки»: обе секции склеены в одну строку и уезжают в
+  # data-content. Префикса id нет — его ждёт optimistic remove в update.js.erb.
   sections = []
 
   if @order_feedbacks.any?
@@ -6,12 +8,29 @@
     sections << render(partial: 'order_feedbacks/list', locals: { feedbacks: @order_feedbacks })
   end
 
-  if @feedbacks_list.present?
+  if @feedbacks.any?
     sections << content_tag(:div, 'Сервис', class: 'feedback_notification-section')
-    sections << @feedbacks_list
+    sections << cell(Service::Feedback::Cell::List, @feedbacks).call
   end
 
   content = safe_join(sections)
+
+  # Блоки дашборда сотрудника: те же списки, но каждый в своём блоке и с
+  # префиксом id, чтобы не конфликтовать с открытым popover'ом.
+  empty_panel = content_tag(:div, 'Нет актуальных', class: 'employee-dashboard__empty')
+
+  orders_panel = if @order_feedbacks.any?
+                   render(partial: 'order_feedbacks/list',
+                          locals: { feedbacks: @order_feedbacks, id_prefix: 'dash-' })
+                 else
+                   empty_panel
+                 end
+
+  service_panel = if @feedbacks.any?
+                    cell(Service::Feedback::Cell::List, @feedbacks, id_prefix: 'dash-').call
+                  else
+                    empty_panel
+                  end
 %>
 
 var content = '<%= j(content) %>';
@@ -23,4 +42,14 @@ if (content !== '') {
   $link.addClass('active');
 } else {
   $link.removeClass('active');
+}
+
+var $ordersPanel = $('#dashboard_widget--order_feedbacks .employee-dashboard__body');
+if ($ordersPanel.length > 0) {
+  $ordersPanel.html('<%= j(orders_panel) %>');
+}
+
+var $servicePanel = $('#dashboard_widget--service_feedbacks .employee-dashboard__body');
+if ($servicePanel.length > 0) {
+  $servicePanel.html('<%= j(service_panel) %>');
 }

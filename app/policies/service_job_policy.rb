@@ -64,6 +64,10 @@ class ServiceJobPolicy < CommonPolicy
     update_repair_status?
   end
 
+  def approval_prompt?
+    update_repair_status?
+  end
+
   # Управление статусом ремонта (виджет + «Да» в строгом режиме) доступно
   # технарям/админам ИЛИ любому сотруднику на repair-локации. Локационная ветка
   # добавлена для «Строгого ремонта»: фича целиком location-based (вуаль/reveal),

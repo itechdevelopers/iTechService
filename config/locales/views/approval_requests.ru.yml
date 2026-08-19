@@ -1,0 +1,36 @@
+ru:
+  approval_requests:
+    modal_form_content:
+      title: 'Ответ по согласованию'
+      requester: 'Запросил'
+      requested_at: 'Когда'
+      service_job: 'Ремонт'
+      question: 'Что согласовать'
+      comment: 'Комментарий'
+      approved: 'Согласовано'
+      rejected: 'Не согласовано'
+    answered:
+      title: 'С согласования'
+      empty: 'Нет ответов по согласованию'
+      duration: 'Согласование заняло'
+      resume: 'Продолжить ремонт'
+      resume_confirm: 'Снять ремонт с паузы и взять в работу?'
+      resumed: 'Ремонт продолжен'
+      columns:
+        identification: 'Устройство / клиент'
+        request: 'Запрос'
+        result: 'Ответ'
+        comment: 'Комментарий'
+        action: 'Действие'
+    history:
+      title: 'Согласования'
+      pending: 'Ждём ответа медиа'
+    results:
+      approved: 'Согласовано'
+      rejected: 'Не согласовано'
+    widget:
+      answer: 'Ответить'
+      empty: 'Нет запросов на согласование'
+      waiting: 'ждёт %{time}'
+    errors:
+      already_pending: 'По этому ремонту уже есть запрос на согласовании'

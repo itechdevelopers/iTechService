@@ -1,0 +1,9 @@
+- widget_keys = Dashboard::WidgetRegistry.for_user(current_user)
+- if widget_keys.any?
+  .employee-dashboard
+    - widget_keys.each do |key|
+      .employee-dashboard__panel{ id: Dashboard::WidgetRegistry.dom_id(key) }
+        .employee-dashboard__title= Dashboard::WidgetRegistry.title(key)
+        .employee-dashboard__body
+          - if (partial = Dashboard::WidgetRegistry.partial(key))
+            = render partial

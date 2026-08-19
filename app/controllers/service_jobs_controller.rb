@@ -489,6 +489,23 @@ class ServiceJobsController < ApplicationController
       end
     end
 
+    approval_question = nil
+    if pause_reason&.waiting_approval?
+      approval_question = params[:approval_question].to_s.strip
+      if approval_question.blank?
+        @approval_error = t('service_jobs.repair_status.approval_question_required')
+        respond_to(&:js)
+        return
+      end
+      # Второй неотвеченный запрос по тому же ремонту не заводим: медиа иначе
+      # видит дубли и не понимает, на какой из них отвечает.
+      if @service_job.approval_requests.pending.exists?
+        @approval_error = t('service_jobs.repair_status.approval_already_pending')
+        respond_to(&:js)
+        return
+      end
+    end
+
     if new_status.in_progress?
       active = ServiceJob.active_in_progress_for(current_user).where.not(id: @service_job.id).first
       if active && params[:force_displace_active].blank?
@@ -513,6 +530,7 @@ class ServiceJobsController < ApplicationController
 
     change = nil
     testing_session = nil
+    approval_request = nil
     ServiceJob.transaction do
       change = @service_job.change_repair_status!(new_status, user: current_user, pause_reason: pause_reason, displaced_by: displaced_by, gluing_hours: gluing_hours)
       if change && pause_reason&.testing?
@@ -521,6 +539,9 @@ class ServiceJobsController < ApplicationController
           target_location: testing_target_location,
           what_to_test: testing_what_to_test
         )
+      end
+      if change && pause_reason&.waiting_approval?
+        approval_request = @service_job.approval_requests.create!(requester: current_user, question: approval_question)
       end
     end
     if change && pause_reason&.gluing? && gluing_hours
@@ -533,6 +554,7 @@ class ServiceJobsController < ApplicationController
       SendTestingTelegramNotificationJob.perform_later(testing_session.id)
       SendTestingInAppNotificationJob.perform_later(testing_session.id)
     end
+    SendApprovalTelegramNotificationJob.perform_later(approval_request.id) if approval_request
     respond_to(&:js)
   end
 
@@ -585,6 +607,12 @@ class ServiceJobsController < ApplicationController
   end
 
   def testing_prompt
+    @service_job = find_record ServiceJob
+    respond_to(&:js)
+  end
+
+  # Окно «что согласовать с клиентом» перед постановкой на паузу «Ждём согласования».
+  def approval_prompt
     @service_job = find_record ServiceJob
     respond_to(&:js)
   end

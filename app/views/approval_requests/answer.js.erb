@@ -1,0 +1,4 @@
+$('#modal_form').modal('hide');
+
+// Блок целиком перечитывает свои данные — отвеченный запрос уходит из списка.
+$('#approval_requests_widget').replaceWith('<%= j render "dashboard/widgets/approvals" %>');

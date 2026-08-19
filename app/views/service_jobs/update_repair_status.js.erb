@@ -24,6 +24,14 @@
     $modal.find('.repair-status-widget-modal__body')
           .prepend('<div class="repair-status-widget-modal__error"><%= j @testing_error %></div>');
   })();
+<% elsif @approval_error.present? %>
+  (function() {
+    var $modal = $('#approval_modal_<%= @service_job.id %>');
+    if ($modal.length === 0) { return; }
+    $modal.find('.repair-status-widget-modal__error').remove();
+    $modal.find('.repair-status-widget-modal__body')
+          .prepend('<div class="repair-status-widget-modal__error"><%= j @approval_error %></div>');
+  })();
 <% elsif @displace_confirm_target.present? %>
   (function() {
     $('#displace_confirm_modal_<%= @displace_new_for.id %>').remove();
@@ -45,6 +53,7 @@
     $('#displaced_by_modal_<%= @service_job.id %>').remove();
     $('#gluing_modal_<%= @service_job.id %>').remove();
     $('#testing_modal_<%= @service_job.id %>').remove();
+    $('#approval_modal_<%= @service_job.id %>').remove();
     $('#displace_confirm_modal_<%= @service_job.id %>').remove();
     var html = "<%= j render('repair_status_widget', service_job: @service_job) %>";
     $('[data-repair-status-sj-id="<%= @service_job.id %>"]').each(function() {

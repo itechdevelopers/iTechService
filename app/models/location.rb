@@ -113,6 +113,11 @@ class Location < ApplicationRecord
     code == 'special'
   end
 
+  # Локация «Медиа»: отвечает на согласования и держит свои блоки на дашборде.
+  def is_media?
+    code == 'content'
+  end
+
   def parsed_overstay_thresholds
     return [] if overstay_thresholds.blank?
     overstay_thresholds.split(',').map(&:strip).select(&:present?).map(&:to_i).select(&:positive?).uniq.sort

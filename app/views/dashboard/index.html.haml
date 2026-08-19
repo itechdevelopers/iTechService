@@ -35,8 +35,16 @@
             = t('dashboard.returned_testings')
             - if returned_action_needed > 0
               %span.testings-nav-badge{ title: t('dashboard.returned_action_needed_hint', count: returned_action_needed, default: "Ждут продолжения ремонта: #{returned_action_needed}") }= returned_action_needed
+      - if current_user.any_admin? || current_user.location&.is_any_repair?
+        - approvals_action_needed = ApprovalRequest.awaiting_resume_in(current_department).count
+        %li.answered_approvals_nav
+          = link_to answered_approval_requests_path do
+            = t('dashboard.answered_approvals')
+            - if approvals_action_needed > 0
+              %span.approvals-nav-badge{ title: t('dashboard.answered_approvals_hint', count: approvals_action_needed) }= approvals_action_needed
       %li.all_service_jobs_nav= link_to t('dashboard.all_service_jobs'), service_jobs_path
 
+= render 'employee_widgets'
 #dashboard_table_filter= render @table_name+'_filter'
 - if @table_name == 'tasks_table'
   = render 'repair_status_summary'
