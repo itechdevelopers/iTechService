@@ -30,11 +30,14 @@ class RepairAttentionNotifier
     UserNotificationChannel.broadcast_to(notification.user, notification)
   end
 
+  # Доставка — через SendTelegramMessageJob: у неё ретраи на сетевых сбоях.
+  # Прямой вызов SendTelegramMessage терял сообщение при обрыве связи, потому
+  # что сервис по контракту не бросает исключений и его результат тут не читали.
   def notify_telegram
     chat_id = ENV['REPAIR_ATTENTION_TELEGRAM_CHAT_ID']
     return if chat_id.blank?
 
-    SendTelegramMessage.call(chat_id: chat_id, text: telegram_text)
+    SendTelegramMessageJob.perform_later(chat_id, telegram_text)
   end
 
   def telegram_text

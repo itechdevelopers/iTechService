@@ -27,9 +27,10 @@ class SendTestingTelegramNotificationJob < ApplicationJob
     session = TestingSession.find(testing_session_id)
     text = build_message(session)
 
-    Rails.logger.info("[TestingTelegram] Sending notification for session ##{testing_session_id} to chat #{chat_id}")
-    result = SendTelegramMessage.call(chat_id: chat_id, text: text)
-    Rails.logger.info("[TestingTelegram] Result: #{result.result.inspect}")
+    Rails.logger.info("[TestingTelegram] Queueing notification for session ##{testing_session_id} for chat #{chat_id}")
+    # Доставку ведёт SendTelegramMessageJob (ретраи + свой лог исхода): прямой
+    # вызов SendTelegramMessage молча терял сообщение при обрыве связи.
+    SendTelegramMessageJob.perform_later(chat_id, text)
   end
 
   private
