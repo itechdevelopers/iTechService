@@ -14,6 +14,13 @@ Rails.application.routes.draw do
   get 'actual_supply_requests', to: 'dashboard#actual_supply_requests'
   get 'ready_service_jobs', to: 'dashboard#ready_service_jobs'
   get 'quack_control', to: 'quack_control#show'
+  resources :approval_requests, only: [] do
+    member do
+      get :answer_prompt, defaults: { format: 'js' }
+      patch :answer, defaults: { format: 'js' }
+    end
+  end
+
   resources :testings, only: %i[index] do
     collection { get :returned }
     member do

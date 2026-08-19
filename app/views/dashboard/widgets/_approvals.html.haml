@@ -16,11 +16,14 @@
             %span.approval-widget__author= request.requester&.short_name
             %span.approval-widget__time
               = l(request.created_at, format: :date_time)
-              = "(ждёт #{time_ago_in_words(request.created_at)})"
+              = "(#{t('approval_requests.widget.waiting', time: time_ago_in_words(request.created_at))})"
           .approval-widget__question= request.question
           .approval-widget__job
             = link_to "№#{service_job.ticket_number}", service_job_path(service_job)
             - if details.any?
               = "· #{details.join(' · ')}"
+          .approval-widget__actions
+            = link_to t('approval_requests.widget.answer'), answer_prompt_approval_request_path(request),
+                      remote: true, class: 'btn btn-small btn-primary'
   - else
-    .employee-dashboard__empty Нет запросов на согласование
+    .employee-dashboard__empty= t('approval_requests.widget.empty')

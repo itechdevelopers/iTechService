@@ -1,0 +1,17 @@
+ru:
+  approval_requests:
+    modal_form_content:
+      title: 'Ответ по согласованию'
+      requester: 'Запросил'
+      requested_at: 'Когда'
+      service_job: 'Ремонт'
+      question: 'Что согласовать'
+      comment: 'Комментарий'
+      approved: 'Согласовано'
+      rejected: 'Не согласовано'
+    widget:
+      answer: 'Ответить'
+      empty: 'Нет запросов на согласование'
+      waiting: 'ждёт %{time}'
+    errors:
+      already_pending: 'По этому ремонту уже есть запрос на согласовании'

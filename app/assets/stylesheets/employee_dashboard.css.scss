@@ -88,6 +88,16 @@
   font-size: 12px;
 }
 
+.approval-widget__actions {
+  margin-top: 6px;
+  text-align: right;
+}
+
+// Вопрос в модалке ответа: переносы строк технаря сохраняем как есть.
+.approval-answer__question {
+  white-space: pre-line;
+}
+
 .employee-dashboard__empty {
   padding: 12px;
   text-align: center;

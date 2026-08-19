@@ -1,0 +1,34 @@
+- service_job = @approval_request.service_job
+-# '-' — заглушка type_name/client_presentation, в карточку её не тащим
+- job_details = [service_job.type_name, service_job.client_presentation].reject { |value| value.blank? || value == '-' }
+
+.modal-header
+  = button_to_close_modal
+  %h3= t('.title')
+
+= form_with url: answer_approval_request_path(@approval_request), method: :patch, local: false do
+  .modal-body
+    %dl.dl-horizontal.approval-answer
+      %dt= t('.requester')
+      %dd= @approval_request.requester&.short_name
+      %dt= t('.requested_at')
+      %dd= l(@approval_request.created_at, format: :date_time)
+      %dt= t('.service_job')
+      %dd
+        = link_to "№#{service_job.ticket_number}", service_job_path(service_job)
+        - if job_details.any?
+          = "· #{job_details.join(' · ')}"
+      %dt= t('.question')
+      %dd.approval-answer__question= @approval_request.question
+
+    .control-group
+      = label_tag :response_comment, t('.comment'), class: 'control-label'
+      .controls
+        = text_area_tag :response_comment, nil, rows: 3, class: 'input-xlarge', autocomplete: 'off'
+
+  .modal-footer
+    -# button_tag, а не submit_tag: у submit_tag value — это и подпись, и
+    -# отправляемое значение, а нам нужны разные («Согласовано» → approved).
+    = button_tag t('.approved'), type: 'submit', name: 'outcome', value: 'approved', class: 'btn btn-success'
+    = button_tag t('.rejected'), type: 'submit', name: 'outcome', value: 'rejected', class: 'btn btn-danger'
+    = link_to t('helpers.links.close'), '#', 'data-dismiss' => 'modal', class: 'btn'
