@@ -530,6 +530,7 @@ class ServiceJobsController < ApplicationController
 
     change = nil
     testing_session = nil
+    approval_request = nil
     ServiceJob.transaction do
       change = @service_job.change_repair_status!(new_status, user: current_user, pause_reason: pause_reason, displaced_by: displaced_by, gluing_hours: gluing_hours)
       if change && pause_reason&.testing?
@@ -540,7 +541,7 @@ class ServiceJobsController < ApplicationController
         )
       end
       if change && pause_reason&.waiting_approval?
-        @service_job.approval_requests.create!(requester: current_user, question: approval_question)
+        approval_request = @service_job.approval_requests.create!(requester: current_user, question: approval_question)
       end
     end
     if change && pause_reason&.gluing? && gluing_hours
@@ -553,6 +554,7 @@ class ServiceJobsController < ApplicationController
       SendTestingTelegramNotificationJob.perform_later(testing_session.id)
       SendTestingInAppNotificationJob.perform_later(testing_session.id)
     end
+    SendApprovalTelegramNotificationJob.perform_later(approval_request.id) if approval_request
     respond_to(&:js)
   end
 

@@ -42,10 +42,12 @@ class ApprovalRequestsController < ApplicationController
   def answer
     authorize :approval_request, :answer?
     # answer! вернёт false, если запрос уже отвечен (двойной клик, «назад»):
-    # блок всё равно перерисовываем — карточка просто уйдёт из списка.
-    @approval_request.answer!(outcome: params[:outcome],
-                              comment: params[:response_comment],
-                              user: current_user)
+    # блок всё равно перерисовываем — карточка просто уйдёт из списка, но
+    # уведомление шлём только когда ответ поставил именно этот вызов.
+    answered = @approval_request.answer!(outcome: params[:outcome],
+                                         comment: params[:response_comment],
+                                         user: current_user)
+    SendApprovalTelegramNotificationJob.perform_later(@approval_request.id) if answered
 
     respond_to(&:js)
   end
