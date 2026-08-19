@@ -1,0 +1,56 @@
+// Витрина «С согласования» + бейдж на пункте навбара.
+// BEM под собственными блоками, generic-селекторы не трогаем (см. CONTEXT.md).
+// Палитра согласована с testings.css.scss, чтобы обе витрины читались одинаково.
+
+// Счётчик ответов, по которым технарь ещё не снял ремонт с паузы.
+.approvals-nav-badge {
+  position: relative;
+  top: -8px;
+  left: -3px;
+  display: inline-block;
+  min-width: 8px;
+  padding: 1px 5px;
+  border-radius: 9px;
+  background-color: #d9534f;
+  color: #ffffff;
+  font-size: 11px;
+  font-weight: bold;
+  line-height: 14px;
+  vertical-align: baseline;
+}
+
+.approvals-answered {
+  &__row--approved > td {
+    background-color: #f1f8f1;
+  }
+
+  &__row--rejected > td {
+    background-color: #fdf3f3;
+  }
+
+  // «Требует действия»: ответ есть, а ремонт всё ещё на паузе. Янтарная полоса
+  // поверх тона исхода — гаснет после «Продолжить ремонт».
+  &__row--action-needed > td:first-child {
+    box-shadow: inset 4px 0 0 #f89406;
+  }
+
+  &__question {
+    margin-top: 4px;
+    white-space: pre-line;
+  }
+
+  &__time {
+    color: #999999;
+    font-size: 11px;
+  }
+
+  &__duration {
+    color: #777777;
+    font-size: 11px;
+  }
+
+  &__resumed {
+    color: #999999;
+    font-size: 12px;
+  }
+}

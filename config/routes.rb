@@ -18,7 +18,9 @@ Rails.application.routes.draw do
     member do
       get :answer_prompt, defaults: { format: 'js' }
       patch :answer, defaults: { format: 'js' }
+      patch :resume, defaults: { format: 'js' }
     end
+    collection { get :answered }
   end
 
   resources :testings, only: %i[index] do

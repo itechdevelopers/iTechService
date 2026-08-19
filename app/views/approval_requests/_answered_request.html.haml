@@ -1,0 +1,45 @@
+- service_job = approval_request.service_job
+- row_modifier = approval_request.approved? ? 'approvals-answered__row--approved' : 'approvals-answered__row--rejected'
+-# «Требует действия» = ремонт всё ещё стоит на паузе «Ждём согласования», то есть
+-# технарь ответ ещё не отработал. Условие дословно повторяет гейт кнопки ниже и
+-# scope awaiting_resume_in, который считает бейдж в навбаре.
+- still_paused = service_job.repair_status&.paused? && service_job.repair_pause_reason&.waiting_approval?
+- action_needed = 'approvals-answered__row--action-needed' if still_paused
+
+%tr.approvals-answered__row{ class: [row_modifier, action_needed].compact, id: "answered_approval_#{approval_request.id}" }
+  %td
+    = link_to service_job.presentation, service_job_path(service_job)
+    %br
+    %span.device_ticket_number
+      #{ServiceJob.human_attribute_name(:ticket_number)}: #{service_job.ticket_number}
+    %br
+    = service_job.client_presentation
+  %td
+    %strong= approval_request.requester&.short_name
+    %br
+    %span.approvals-answered__time= l(approval_request.created_at, format: :date_time)
+    .approvals-answered__question= approval_request.question
+  %td.approvals-answered__result
+    - if approval_request.approved?
+      %i.icon-ok
+      %strong= t('approval_requests.results.approved')
+    - else
+      %i.icon-remove
+      %strong= t('approval_requests.results.rejected')
+    %br
+    = approval_request.responder&.short_name
+    - if approval_request.responded_at
+      %br
+      %span.approvals-answered__time= l(approval_request.responded_at, format: :date_time)
+    - if approval_request.duration
+      %br
+      %span.approvals-answered__duration
+        = "#{t('approval_requests.answered.duration')}: #{distance_of_time_in_words(approval_request.created_at, approval_request.responded_at)}"
+  %td= approval_request.response_comment
+  %td.approvals-answered__action
+    - if still_paused
+      = link_to t('approval_requests.answered.resume'), resume_approval_request_path(approval_request),
+                method: :patch, remote: true, class: 'btn btn-primary btn-small',
+                data: { confirm: t('approval_requests.answered.resume_confirm') }
+    - else
+      %span.approvals-answered__resumed= t('approval_requests.answered.resumed')

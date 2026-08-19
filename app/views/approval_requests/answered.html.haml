@@ -1,0 +1,15 @@
+%h3= t('.title')
+
+%table#answered_approvals_table.table.table-hover.table-bordered.approvals-answered
+  %thead
+    %tr
+      %th= t('.columns.identification')
+      %th= t('.columns.request')
+      %th= t('.columns.result')
+      %th= t('.columns.comment')
+      %th= t('.columns.action')
+  %tbody
+    - if @approval_requests.empty?
+      %tr
+        %td{ colspan: 5 }= t('.empty')
+    = render partial: 'answered_request', collection: @approval_requests, as: :approval_request
