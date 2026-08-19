@@ -99,11 +99,13 @@ class RepairMasterDayOffNotificationJob < ApplicationJob
   end
 
   # Тот же текст, что и in-app, плюс встроенная HTML-ссылка на работу.
-  # Экранируем message: SendTelegramMessage шлёт с parse_mode HTML.
+  # Экранируем message: доставка идёт с parse_mode HTML.
+  # Через NotifyEmployeeJob — у неё ретраи; прямой вызов SendTelegramMessage
+  # проглатывал сетевую ошибку, и напоминание пропадало без следа.
   def notify_telegram(user, job, message)
     url  = Rails.application.routes.url_helpers.service_job_url(job)
     text = "#{CGI.escapeHTML(message)}\n\n<a href=\"#{url}\">Открыть ремонт</a>"
-    SendTelegramMessage.call(chat_id: user.telegram_chat_id, text: text)
+    NotifyEmployeeJob.perform_later(user.id, text)
   end
 
   # Идемпотентность: повторный запуск cron в тот же день не создаёт дубль по той же

@@ -11,9 +11,11 @@ class SendGlassStickingTelegramJob < ApplicationJob
     end
 
     text = build_message(notification)
-    Rails.logger.info("[GlassStickingTelegram] Sending notification ##{glass_sticking_notification_id} to chat #{chat_id}")
-    result = SendTelegramMessage.call(chat_id: chat_id, text: text)
-    Rails.logger.info("[GlassStickingTelegram] Result: #{result.result.inspect}")
+    Rails.logger.info("[GlassStickingTelegram] Queueing notification ##{glass_sticking_notification_id} for chat #{chat_id}")
+    # Доставка — через SendTelegramMessageJob: у неё ретраи на сетевых сбоях.
+    # Прямой вызов SendTelegramMessage терял сообщение при любом моргании связи,
+    # а логирование его результата создавало ложное впечатление доставки.
+    SendTelegramMessageJob.perform_later(chat_id, text)
   end
 
   private

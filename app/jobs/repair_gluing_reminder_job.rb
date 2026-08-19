@@ -53,7 +53,9 @@ class RepairGluingReminderJob < ApplicationJob
       return
     end
 
-    SendTelegramMessage.call(chat_id: chat_id, text: telegram_text(service_job, change))
+    # Через SendTelegramMessageJob — она ретраит сетевые сбои; прямой вызов
+    # SendTelegramMessage глотает ошибку, и напоминание пропадает без следа.
+    SendTelegramMessageJob.perform_later(chat_id, telegram_text(service_job, change))
   end
 
   def telegram_text(service_job, change)

@@ -65,12 +65,14 @@ class KanbanCardDeadlineReminderJob < ApplicationJob
   end
 
   # Тот же текст, что и in-app, плюс встроенная HTML-ссылка на карточку.
-  # Экранируем message: SendTelegramMessage шлёт с parse_mode HTML, а название
-  # карточки/доски может содержать <, >, & — без escape они бы сломали разбор.
+  # Экранируем message: доставка идёт с parse_mode HTML, а название карточки
+  # или доски может содержать <, >, & — без escape они бы сломали разбор.
+  # Доставка — через NotifyEmployeeJob (ретраи при обрыве связи), а не прямым
+  # вызовом SendTelegramMessage: тот глотает ошибку и сообщение теряется молча.
   def notify_telegram(user, card, message)
     url  = Rails.application.routes.url_helpers.kanban_card_url(card)
     text = "#{CGI.escapeHTML(message)}\n\n<a href=\"#{url}\">Перейти на карточку</a>"
-    SendTelegramMessage.call(chat_id: user.telegram_chat_id, text: text)
+    NotifyEmployeeJob.perform_later(user.id, text)
   end
 
   # Идемпотентность: если cron перезапустится в тот же день, повторное

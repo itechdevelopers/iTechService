@@ -8,10 +8,11 @@ class SendKanbanTelegramNotificationJob < ApplicationJob
     return unless telegram_chat
 
     text = build_message(card, board)
-    Rails.logger.info("[KanbanTelegram] Sending notification for card ##{card_id} to chat #{telegram_chat.chat_id}")
+    Rails.logger.info("[KanbanTelegram] Queueing notification for card ##{card_id} for chat #{telegram_chat.chat_id}")
     Rails.logger.info("[KanbanTelegram] Message text:\n#{text}")
-    result = SendTelegramMessage.call(chat_id: telegram_chat.chat_id, text: text)
-    Rails.logger.info("[KanbanTelegram] Result: #{result.result.inspect}")
+    # Через SendTelegramMessageJob — она ретраит сетевые сбои и сама логирует
+    # исход; прежний лог результата отражал бы только факт постановки в очередь.
+    SendTelegramMessageJob.perform_later(telegram_chat.chat_id, text)
   end
 
   private
