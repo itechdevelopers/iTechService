@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20260815120000) do
+ActiveRecord::Schema.define(version: 20260819184353) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -50,6 +50,23 @@ ActiveRecord::Schema.define(version: 20260815120000) do
   create_table "announcements_users", id: :serial, force: :cascade do |t|
     t.integer "announcement_id"
     t.integer "user_id"
+  end
+
+  create_table "approval_requests", force: :cascade do |t|
+    t.bigint "service_job_id", null: false
+    t.bigint "requester_id"
+    t.bigint "responder_id"
+    t.text "question", null: false
+    t.string "status", default: "pending", null: false
+    t.text "response_comment"
+    t.datetime "responded_at"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["requester_id"], name: "index_approval_requests_on_requester_id"
+    t.index ["responder_id"], name: "index_approval_requests_on_responder_id"
+    t.index ["service_job_id"], name: "index_approval_requests_on_pending_service_job", unique: true, where: "((status)::text = 'pending'::text)"
+    t.index ["service_job_id"], name: "index_approval_requests_on_service_job_id"
+    t.index ["status"], name: "index_approval_requests_on_status"
   end
 
   create_table "audits", force: :cascade do |t|

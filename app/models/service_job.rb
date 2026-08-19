@@ -76,6 +76,7 @@ class ServiceJob < ApplicationRecord
   has_many :features, through: :item
   has_many :repair_status_changes, dependent: :destroy
   has_many :testing_sessions, dependent: :destroy
+  has_many :approval_requests, dependent: :destroy
   has_many :device_tasks, dependent: :destroy
   has_many :tasks, through: :device_tasks
   has_many :repair_tasks, through: :device_tasks
