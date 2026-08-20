@@ -75,6 +75,7 @@ class OneCOrderUpdateJob < ApplicationJob
     sync_record.update!(
       sync_status: :pending,
       external_id: nil,
+      external_guid: nil,
       sync_attempts: 0
     )
     

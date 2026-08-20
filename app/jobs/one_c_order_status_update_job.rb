@@ -25,10 +25,11 @@ class OneCOrderStatusUpdateJob < ApplicationJob
       
       if result[:success] && result[:data]['status'] == 'found'
         Rails.logger.info "[OneCStatusUpdate] Order #{order.id} status updated successfully in 1C"
-        # Update external_id if provided in response
-        if result[:data]['external_number'].present?
-          sync_record.update!(external_id: result[:data]['external_number'])
-        end
+        # Update identifiers if provided in response
+        refreshed = {}
+        refreshed[:external_id] = result[:data]['external_number'] if result[:data]['external_number'].present?
+        refreshed[:external_guid] = result[:data]['guid'] if result[:data]['guid'].present?
+        sync_record.update!(refreshed) if refreshed.any?
       elsif result[:success] && result[:data]['status'] == 'not_found'
         Rails.logger.error "[OneCStatusUpdate] Order #{order.id} not found in 1C"
         # Order doesn't exist in 1C, might need to create it first
