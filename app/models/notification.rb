@@ -16,6 +16,7 @@ class Notification < ApplicationRecord
     'Kanban::Column'           => 'Канбан-колонки',
     'GlassStickingNotification' => 'Стикеры стекла',
     'TestingSession'           => 'Тестирование',
+    'ApprovalRequest'          => 'Согласования',
     'ClientRequest'            => 'Запросы клиентов',
     'DeviceUnlockRequest'      => 'Запросы на разблокировку',
     'GisReview'                => 'Отзывы 2ГИС',

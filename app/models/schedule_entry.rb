@@ -50,6 +50,15 @@ class ScheduleEntry < ApplicationRecord
   # department, working occupation) with Ruby-side time-of-day filtering against
   # shift or custom shift bounds. Reusable across features that need "who's
   # currently on shift" — see TODO.md > Schedule for usage notes.
+  # Кто работает в указанный ДЕНЬ в подразделении — то же, что working_now_in,
+  # но без отсечки по времени суток. Нужно там, где адресат определяется сменой
+  # целиком, а не текущим моментом: например, оповестить всех технарей смены,
+  # даже если ответ по согласованию пришёл после её конца.
+  def self.working_on(department, date)
+    where(date: date, department: department)
+      .joins(:occupation_type).where(occupation_types: { counts_as_working: true })
+  end
+
   def self.working_now_in(department, at: Time.current)
     today = at.to_date
     seconds = at.seconds_since_midnight
