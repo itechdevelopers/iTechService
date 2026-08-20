@@ -20,6 +20,7 @@ Reference: @CONTEXT.md for project architecture, @PLAYBOOK.md for project-specif
 3. **If unsure, propose 2 options with trade-offs** (<80 words each)
 4. **Keep changes surgical** - Max 3 files unless explicitly expanded
 5. **If more than 3 files needed** - Tell me why and what files will be touched
+6. **Комментарии в коде — только про неочевидную логику кода.** Запрещены ссылки на план (`§5`, `план §11`), номера циклов (`Цикл 7`), даты и авторство решений («решение заказчика 20.08», «заказчик просил», «уточнено заказчиком»). Причину формулируй через саму систему: не «заказчик просил тегать всю смену», а «ответ часто приходит после конца смены, но адресован именно ей». Факт остаётся — процессная мета уходит в git, commit message и `docs/`. Ссылки на код (`scope :actual`, `ServiceJob#change_repair_status!`, имена файлов) — можно, они указывают на реальный код.
 
 ## Git Commit Format
 

@@ -1,6 +1,6 @@
 # По одной работе может висеть несколько неотвеченных согласований сразу
-# (техник спрашивает клиента и про плату, и про экран) — решение заказчика
-# от 2026-08-20. Снимаем partial unique index, который это запрещал.
+# (техник спрашивает клиента и про плату, и про экран). Снимаем partial unique
+# index, который это запрещал.
 class AllowMultiplePendingApprovalRequests < ActiveRecord::Migration[5.1]
   def up
     remove_index :approval_requests, name: 'index_approval_requests_on_pending_service_job'
