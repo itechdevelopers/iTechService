@@ -554,7 +554,10 @@ class ServiceJobsController < ApplicationController
       SendTestingTelegramNotificationJob.perform_later(testing_session.id)
       SendTestingInAppNotificationJob.perform_later(testing_session.id)
     end
-    SendApprovalTelegramNotificationJob.perform_later(approval_request.id) if approval_request
+    if approval_request
+      SendApprovalTelegramNotificationJob.perform_later(approval_request.id)
+      SendApprovalInAppNotificationJob.perform_later(approval_request.id)
+    end
     respond_to(&:js)
   end
 

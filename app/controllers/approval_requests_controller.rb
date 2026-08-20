@@ -47,7 +47,10 @@ class ApprovalRequestsController < ApplicationController
     answered = @approval_request.answer!(outcome: params[:outcome],
                                          comment: params[:response_comment],
                                          user: current_user)
-    SendApprovalTelegramNotificationJob.perform_later(@approval_request.id) if answered
+    if answered
+      SendApprovalTelegramNotificationJob.perform_later(@approval_request.id)
+      SendApprovalInAppNotificationJob.perform_later(@approval_request.id)
+    end
 
     respond_to(&:js)
   end

@@ -14,6 +14,9 @@ ru:
     repair_gluing: 'Устройство по талону №%{ticket} на проклейке уже %{hours} ч — пора забирать.'
     testing_to_test: 'Устройство по талону №%{ticket} ждёт тестирования.'
     testing_returned: 'Устройство по талону №%{ticket} вернулось с тестирования.'
+    approval_requested: 'Работа №%{ticket}: нужно согласовать с клиентом.'
+    approval_approved: 'Работа №%{ticket}: клиент согласовал ✅'
+    approval_rejected: 'Работа №%{ticket}: клиент не согласовал ❌'
 
   faults:
     reception_photo_auto_comment: 'Выставлен минус автоматически за отсутствие фотографий к работе №%{ticket}. Минус может быть опротестован отдельно у руководителей.'
