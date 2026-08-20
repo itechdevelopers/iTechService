@@ -9,7 +9,6 @@ ru:
       testing_target_required: 'Выберите, куда отправить устройство'
       testing_what_required: 'Укажите, что тестировать'
       approval_question_required: 'Напишите, что нужно согласовать с клиентом'
-      approval_already_pending: 'По этому ремонту уже есть запрос на согласовании'
       seize: 'Забрать устройство у другого технического специалиста'
       seize_invalid: 'Устройство уже не в работе у другого специалиста'
       displaced_by_modal:

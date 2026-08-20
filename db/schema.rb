@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20260819184353) do
+ActiveRecord::Schema.define(version: 20260820145114) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -64,7 +64,6 @@ ActiveRecord::Schema.define(version: 20260819184353) do
     t.datetime "updated_at", null: false
     t.index ["requester_id"], name: "index_approval_requests_on_requester_id"
     t.index ["responder_id"], name: "index_approval_requests_on_responder_id"
-    t.index ["service_job_id"], name: "index_approval_requests_on_pending_service_job", unique: true, where: "((status)::text = 'pending'::text)"
     t.index ["service_job_id"], name: "index_approval_requests_on_service_job_id"
     t.index ["status"], name: "index_approval_requests_on_status"
   end

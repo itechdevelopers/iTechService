@@ -4,8 +4,9 @@
 # работ). Рождается вместе с паузой «Ждём согласования», отвечают сотрудники
 # локации «Медиа», после ответа технарь сам снимает ремонт с паузы.
 #
-# По ремонту может висеть только один неотвеченный запрос: валидация даёт
-# внятную ошибку в модалке, partial unique index в БД закрывает гонку.
+# По одной работе может висеть НЕСКОЛЬКО неотвеченных запросов сразу: техник
+# нередко спрашивает клиента и про плату, и про экран, не дожидаясь ответа на
+# первое (решение заказчика 2026-08-20). Медиа отвечает на каждый отдельно.
 class ApprovalRequest < ApplicationRecord
   belongs_to :service_job
   belongs_to :requester, class_name: 'User', optional: true
@@ -18,7 +19,6 @@ class ApprovalRequest < ApplicationRecord
   }
 
   validates :question, presence: true
-  validate :single_pending_per_service_job, on: :create
 
   scope :chronological, -> { order(:created_at) }
   scope :recent_first,  -> { order(created_at: :desc) }
@@ -56,13 +56,4 @@ class ApprovalRequest < ApplicationRecord
     responded_at - created_at
   end
 
-  private
-
-  def single_pending_per_service_job
-    return unless service_job_id && pending?
-    return unless self.class.pending.where(service_job_id: service_job_id).exists?
-
-    errors.add(:base, I18n.t('approval_requests.errors.already_pending',
-                             default: 'По этому ремонту уже есть запрос на согласовании'))
-  end
 end

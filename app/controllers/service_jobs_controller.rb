@@ -497,13 +497,6 @@ class ServiceJobsController < ApplicationController
         respond_to(&:js)
         return
       end
-      # Второй неотвеченный запрос по тому же ремонту не заводим: медиа иначе
-      # видит дубли и не понимает, на какой из них отвечает.
-      if @service_job.approval_requests.pending.exists?
-        @approval_error = t('service_jobs.repair_status.approval_already_pending')
-        respond_to(&:js)
-        return
-      end
     end
 
     if new_status.in_progress?
@@ -533,15 +526,23 @@ class ServiceJobsController < ApplicationController
     approval_request = nil
     ServiceJob.transaction do
       change = @service_job.change_repair_status!(new_status, user: current_user, pause_reason: pause_reason, displaced_by: displaced_by, gluing_hours: gluing_hours)
-      if change && pause_reason&.testing?
+      # Сессия/запрос рождаются по НАМЕРЕНИЮ сотрудника, а не по факту смены
+      # статуса: устройство может уже стоять на этой самой паузе (второе
+      # согласование подряд, повторная отправка на тест), и тогда идемпотентный
+      # change_repair_status! вернёт nil — раньше действие молча терялось.
+      if pause_reason&.testing?
         testing_session = @service_job.testing_sessions.create!(
           sender: current_user,
           target_location: testing_target_location,
           what_to_test: testing_what_to_test
         )
       end
-      if change && pause_reason&.waiting_approval?
-        approval_request = @service_job.approval_requests.create!(requester: current_user, question: approval_question)
+      if pause_reason&.waiting_approval?
+        # @-переменная нужна вьюхе: она перерисует блок «Согласования» на
+        # странице ремонта — при повторном запросе статус не меняется, и без
+        # этого технарю не за что зацепиться, чтобы понять, что запрос ушёл.
+        approval_request = @approval_request =
+          @service_job.approval_requests.create!(requester: current_user, question: approval_question)
       end
     end
     if change && pause_reason&.gluing? && gluing_hours
