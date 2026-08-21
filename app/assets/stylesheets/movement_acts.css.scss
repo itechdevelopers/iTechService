@@ -1,0 +1,17 @@
+.movement-act-items__code-toggle {
+  margin-left: 6px;
+  color: #999;
+  text-decoration: none;
+
+  &:hover {
+    color: #555;
+    text-decoration: none;
+  }
+}
+
+.movement-act-items__code {
+  display: none;
+  margin-top: 2px;
+  color: #777;
+  font-size: 12px;
+}

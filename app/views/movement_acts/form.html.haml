@@ -16,9 +16,10 @@
     %thead
       %tr
         %th.num
-        %th.code= Product.human_attribute_name :code
         %th.product= t 'activerecord.models.product'
         - if can? :manage, MovementAct
+          - movement_act_quantity_stores.each do |store|
+            %th.store_quantity= movement_act_store_label(store)
           %th= Product.human_attribute_name :available
         %th.quantity= MovementItem.human_attribute_name :quantity
         %th.action

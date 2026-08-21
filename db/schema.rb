@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20260820145114) do
+ActiveRecord::Schema.define(version: 20260821090000) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -2268,6 +2268,7 @@ ActiveRecord::Schema.define(version: 20260820145114) do
     t.string "kind", limit: 255
     t.integer "department_id"
     t.boolean "hidden"
+    t.boolean "show_in_movement_acts", default: false, null: false
     t.index ["code"], name: "index_stores_on_code"
     t.index ["department_id"], name: "index_stores_on_department_id"
   end
