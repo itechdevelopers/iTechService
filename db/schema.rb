@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20260820145114) do
+ActiveRecord::Schema.define(version: 20260820152339) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -1194,7 +1194,9 @@ ActiveRecord::Schema.define(version: 20260820145114) do
     t.text "sync_notes"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.string "external_guid"
     t.index ["attention_required"], name: "index_order_external_syncs_on_attention_required"
+    t.index ["external_guid"], name: "index_order_external_syncs_on_external_guid", unique: true, where: "(external_guid IS NOT NULL)"
     t.index ["last_attempt_at"], name: "index_order_external_syncs_on_last_attempt_at"
     t.index ["order_id", "external_system"], name: "index_order_external_syncs_on_order_and_system", unique: true
     t.index ["order_id"], name: "index_order_external_syncs_on_order_id"

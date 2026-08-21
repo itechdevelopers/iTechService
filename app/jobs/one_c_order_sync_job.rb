@@ -77,10 +77,11 @@ class OneCOrderSyncJob < ApplicationJob
           Rails.logger.info "[OneCSync] Order #{order.id} synced successfully"
         end
         
-        # Extract external_number from 1C response
+        # Extract external_number and document GUID from 1C response
         external_number = data['external_number']
-        sync_record.mark_sync_success!(external_number)
-        Rails.logger.info "[OneCSync] Order #{order.id} synced with 1C number: #{external_number}" if external_number.present?
+        guid = data['guid']
+        sync_record.mark_sync_success!(external_number, guid)
+        Rails.logger.info "[OneCSync] Order #{order.id} synced with 1C number: #{external_number}, guid: #{guid}" if external_number.present?
         
         # Notify user for manual sync
         if !automatic && user
@@ -133,6 +134,7 @@ class OneCOrderSyncJob < ApplicationJob
             'Executed' => true,
             'Error' => '',
             'external_number' => status_data['external_number'],
+            'guid' => status_data['guid'],
             'already_existed' => true
           }
         }
