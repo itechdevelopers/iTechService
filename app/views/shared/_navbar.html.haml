@@ -18,6 +18,7 @@
         = menu_item t('movement_acts.defect_link'), make_defect_sp_movement_acts_path if can? :make_defect_sp, MovementAct
         = menu_item t('.repair_return'), new_service_repair_return_path
         = menu_item t('.repair_returns'), service_repair_returns_path if policy(Service::RepairReturn).index?
+        = menu_item t('breakage_reports.badge'), new_breakage_report_path if policy(BreakageReport).new?
         = drop_down_divider
         = menu_item t('.free_jobs'), service_free_jobs_path if can? :manage, Service::FreeJob
         = menu_item t('quick_orders.link'), quick_orders_path if can? :read, QuickOrder

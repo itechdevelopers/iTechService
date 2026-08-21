@@ -11,7 +11,7 @@ $(document).on 'keyup', '#product_choose_form #product_search_field', ->
   q = $(this).val()
   clearTimeout(search_timeout) if search_timeout?
   search_timeout = setTimeout (->
-    $.get '/products.js', q: q, choose: true, form: $('#modal_form #form').val()
+    $.get '/products.js', q: q, choose: true, form: $('#product_choose_form #form').val()
   ), 500
 
 $(document).on 'keyup', '#product_choose_form #item_search_field', ->
@@ -24,8 +24,10 @@ $(document).on 'keyup', '#product_choose_form #item_search_field', ->
       product_id: $('#selected_product').val(),
       product_group_id: $('#selected_product_group').val(),
       choose: true,
-      form: $('#modal_form #form').val(),
-      association: $('#modal_form #association').val(),
+      # The picker carries its own state: reading it from #modal_form loses the
+      # form kind whenever the picker is opened outside a modal window.
+      form: $('#product_choose_form #form').val(),
+      association: $('#product_choose_form #association').val(),
       # A single hit is selected right away by products/select, which needs to
       # know where to put it.
       parent_input_id: $('#product_choose_form #parent_input_id').val()

@@ -1,0 +1,34 @@
+.page-header
+  %h2= t('.title')
+
+.row-fluid
+  .span6
+    - if @service_job.blank?
+      = form_tag new_breakage_report_path, method: :get, class: 'form-search' do
+        - if @ticket_error.present?
+          .alert.alert-error= @ticket_error
+        = label_tag :ticket_number, t('.ticket_number')
+        = text_field_tag :ticket_number, params[:ticket_number], class: 'input-medium', autofocus: true
+        = submit_tag t('.find'), name: nil, class: 'btn btn-primary'
+        %span.help-block= t('.ticket_hint')
+    - else
+      .well.well-small
+        = link_to t('.another_ticket'), new_breakage_report_path, class: 'btn btn-small pull-right'
+        %strong= link_to @service_job.ticket_number, service_job_path(@service_job), target: '_blank'
+        %br
+        = @service_job.item&.product&.name
+        %br
+        = @service_job.client&.short_name
+        %br
+        %small.muted= @service_job.department&.name
+
+      - if @existing_report.present?
+        .alert.alert-info
+          = t('.already_reported', user: @existing_report.user&.short_name)
+          = link_to t('.open_job'), service_job_path(@service_job)
+      - else
+        = simple_form_for @breakage_report, html: { class: 'form-horizontal' } do |f|
+          = f.hidden_field :service_job_id
+          = render 'fields', f: f, hidden: false
+          .form-actions
+            = submit_button f
