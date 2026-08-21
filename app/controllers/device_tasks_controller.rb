@@ -68,13 +68,13 @@ class DeviceTasksController < ApplicationController
     return if @device_task.service_job.breakage_reports.any?
     return if @device_task.breakage_reports.any?(&:new_record?)
 
-    @device_task.breakage_reports.build
+    @device_task.breakage_reports.build(user: current_user)
   end
 
   def device_task_params
     params.require(:device_task)
           .permit(:comment, :cost, :done, :done_at, :performer_id, :service_job_id, :task_id, :user_comment,
-                  breakage_reports_attributes: %i[id circumstances resolution item_id],
+                  breakage_reports_attributes: %i[id circumstances resolution item_id user_id],
                   check_list_responses_attributes: [:id, :check_list_id, responses: {}, comments: {}])
           .tap do |p|
       if params[:device_task][:service_job_attributes]
