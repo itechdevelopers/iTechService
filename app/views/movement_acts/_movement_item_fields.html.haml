@@ -6,7 +6,7 @@
       = link_to glyph(:barcode), '#', class: 'movement-act-items__code-toggle', title: Product.human_attribute_name(:code)
       .movement-act-items__code= f.object.code
     .features= features_presentation f.object
-    = f.hidden_field :item_id, class: 'item_id'
+    = f.hidden_field :item_id
   - if can? :manage, MovementAct
     - store_quantities = movement_item_store_quantities(f.object)
     - movement_act_quantity_stores.each do |store|
