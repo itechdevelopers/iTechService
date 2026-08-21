@@ -1,6 +1,13 @@
-.fields.well.well-small.breakage-report__fields{class: ('hidden' unless f.object.persisted?)}
+-# Shared by the technician's task modal (hidden until the «Я сломал» checkbox)
+-# and the standalone admin page (always visible).
+- hidden = local_assigns.fetch(:hidden, !f.object.persisted?)
+.fields.well.well-small.breakage-report__fields{class: ('hidden' if hidden)}
   - if f.object.errors.any?
     %p.text-error= f.object.errors.full_messages.join('. ')
+  = f.input :user_id, required: true,
+            collection: BreakageReport.possible_users(f.object.department, current_user, f.object.user),
+            label_method: :short_name, value_method: :id,
+            input_html: { class: 'breakage-report__user' }
   = f.input :circumstances, as: :text, required: true,
             input_html: { rows: 3, class: 'input-block-level',
                           placeholder: t('device_tasks.breakage_reports.circumstances_hint') }

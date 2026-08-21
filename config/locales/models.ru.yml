@@ -106,6 +106,7 @@ ru:
         item_id: 'Запчасть взамен сломанной'
         part_price: 'Стоимость запчасти'
         user: 'Кто сломал'
+        user_id: 'Кто сломал'
 
       cash_operation:
         value: 'Сумма'

@@ -560,6 +560,8 @@ Rails.application.routes.draw do
 
   resources :repair_time_standards, only: %i[index show]
 
+  resources :breakage_reports, only: %i[new create]
+
   resources :repair_services do
     get :choose, on: :collection, defaults: {format: :js}
     get :select, on: :member, defaults: {format: :js}

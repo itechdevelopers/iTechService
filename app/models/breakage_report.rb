@@ -21,14 +21,26 @@ class BreakageReport < ApplicationRecord
   delegate :ticket_number, :presentation, to: :service_job, allow_nil: true
 
   validates :circumstances, :resolution, presence: true
+  validates :user, presence: true
   validate :single_report_per_job
   validate :spare_part_available, if: -> { item.present? && item_id_changed? }
 
   before_validation :set_service_job, :set_user
   before_save :snapshot_part_price, if: :item_id_changed?
   after_save :sync_write_off, if: :saved_change_to_item_id?
+  after_save :refresh_write_off_comment, if: -> { saved_change_to_user_id? && !saved_change_to_item_id? }
 
   audited associated_with: :service_job
+
+  # Whoever can be named as the one who broke the device: technicians of the
+  # branch the device sits in. Extra users (the one filling the form, the one
+  # already named in a saved report) join the list even when they are not
+  # technicians — otherwise the select would silently reassign the report.
+  def self.possible_users(department, *extra_users)
+    ids = User.active.located_at(Location.repair.in_department(department)).pluck(:id)
+    ids |= extra_users.compact.map(&:id)
+    User.where(id: ids).order(:surname, :name)
+  end
 
   # Item#presentation joins name/serial/imei unconditionally, which leaves
   # trailing slashes for spare parts — they carry neither.
@@ -38,11 +50,15 @@ class BreakageReport < ApplicationRecord
     [item.name, item.serial_number.presence].compact.join(' / ')
   end
 
-  # Branch spare parts store the part is written off from. On an unsaved report
-  # built inside the task form service_job is still blank — set_service_job runs
-  # only before validation — so the task's own job answers for it.
+  # On an unsaved report built inside the task form service_job is still blank —
+  # set_service_job runs only before validation — so the task's own job answers.
+  def department
+    (service_job || device_task&.service_job)&.department
+  end
+
+  # Branch spare parts store the part is written off from.
   def write_off_store
-    (service_job || device_task&.service_job)&.department&.spare_parts_store
+    department&.spare_parts_store
   end
 
   private
@@ -115,5 +131,12 @@ class BreakageReport < ApplicationRecord
   def write_off_comment
     I18n.t('breakage_reports.write_off_comment',
            ticket: service_job&.ticket_number, user: user&.short_name)
+  end
+
+  # The write-off comment names the person who broke the part, so reassigning
+  # the report has to rewrite it. update_columns bypasses the posted document's
+  # validations: the reason on paper changes, the stock does not.
+  def refresh_write_off_comment
+    deduction_act&.update_columns(comment: write_off_comment)
   end
 end
