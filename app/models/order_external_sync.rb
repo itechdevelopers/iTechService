@@ -31,26 +31,40 @@ class OrderExternalSync < ApplicationRecord
   # Scopes for common queries
   scope :requires_attention, -> { where(attention_required: true) }
   scope :recently_failed, -> { failed.where('last_attempt_at > ?', 1.hour.ago) }
-  
+
+  # 1C addresses our orders by the identifier it once returned to us. It is migrating
+  # from the document number (unique only within a year) to the document GUID, so we
+  # accept either: GUID first, then the legacy number for orders not backfilled yet.
+  def self.find_synced_by_one_c_identifier(identifier)
+    return nil if identifier.blank?
+
+    one_c.synced.find_by(external_guid: identifier) ||
+      one_c.synced.find_by(external_id: identifier)
+  end
+
   # Note: retry-related scopes removed as ActiveJob handles retry scheduling
   
   # Instance methods
   # Note: Retry logic is now handled by ActiveJob in OneCOrderSyncJob
   # sync_attempts field is kept for monitoring and reporting purposes
   
-  def mark_sync_success!(external_id = nil)
+  def mark_sync_success!(external_id = nil, guid = nil)
     # Only clear attention if article doesn't require attention anymore
     clear_attention = !requires_article_attention?
-    
+
     # Use external_number from 1C
     sync_external_id = external_id
-    
-    update!(
+
+    attrs = {
       sync_status: :synced,
       external_id: sync_external_id,
       last_error: nil,
       attention_required: clear_attention ? false : attention_required
-    )
+    }
+    # Older 1C builds don't send the GUID yet — don't wipe a value we already have
+    attrs[:external_guid] = guid if guid.present?
+
+    update!(attrs)
   end
   
   def mark_sync_failure!(error_message)

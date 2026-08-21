@@ -43,8 +43,8 @@ class OneCOrderApi < Grape::API
           error!({ error: "Invalid status value: '#{english_status}'" }, 422)
         end
 
-        # Find order by external_id
-        sync_record = OrderExternalSync.one_c.synced.find_by(external_id: params[:external_id])
+        # Find order by 1C document GUID, falling back to the legacy document number
+        sync_record = OrderExternalSync.find_synced_by_one_c_identifier(params[:external_id])
 
         if sync_record.nil?
           error!({ error: "Order with external_id '#{params[:external_id]}' not found or not synced" }, 404)
@@ -106,8 +106,8 @@ class OneCOrderApi < Grape::API
           error!({ error: 'This endpoint requires API role' }, 403)
         end
 
-        # Find order
-        sync_record = OrderExternalSync.one_c.synced.find_by(external_id: params[:external_id])
+        # Find order by 1C document GUID, falling back to the legacy document number
+        sync_record = OrderExternalSync.find_synced_by_one_c_identifier(params[:external_id])
 
         if sync_record.nil?
           error!({ error: "Order with external_id '#{params[:external_id]}' not found or not synced" }, 404)

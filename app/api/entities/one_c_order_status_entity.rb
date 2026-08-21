@@ -17,8 +17,12 @@ class Entities::OneCOrderStatusEntity < Grape::Entity
   expose :archive_comment, documentation: { type: 'String', desc: 'Additional archive comment' }
   expose :updated_at, documentation: { type: 'DateTime', desc: 'Last update timestamp' }
 
-  expose :external_id, documentation: { type: 'String', desc: '1C external ID' } do |order, _|
+  expose :external_id, documentation: { type: 'String', desc: '1C document number' } do |order, _|
     order.one_c_sync&.external_id
+  end
+
+  expose :guid, documentation: { type: 'String', desc: '1C document GUID' } do |order, _|
+    order.one_c_sync&.external_guid
   end
 
   expose :sync_status, documentation: { type: 'String', desc: '1C sync status' } do |order, _|
