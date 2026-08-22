@@ -600,6 +600,7 @@ ru:
       store:
         hidden: 'Скрытый'
         price_types: 'Типы цен'
+        show_in_movement_acts: 'Отображать в актах перемещения'
 
       stolen_phone:
         client_comment: 'Обстоятельства кражи'

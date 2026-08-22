@@ -16,6 +16,13 @@ class Store < ApplicationRecord
   scope :repair, -> { where(kind: 'repair') }
   scope :spare_parts, -> { where(kind: 'spare_parts') }
   scope :visible, -> { where(hidden: [false, nil]) }
+  # reorder, а не order: default_scope уже сортирует по hidden/name, и обычный
+  # order встал бы после него — сортировка по подразделению не сработала бы
+  scope :for_movement_acts, lambda {
+    visible.where(show_in_movement_acts: true)
+           .left_outer_joins(:department)
+           .reorder('departments.name asc, stores.name asc')
+  }
 
   belongs_to :department, optional: true
   has_many :purchases, inverse_of: :store

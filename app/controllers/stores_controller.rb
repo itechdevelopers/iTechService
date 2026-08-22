@@ -86,6 +86,6 @@ class StoresController < ApplicationController
 
   def store_params
     params.require(:store)
-          .permit(:code, :department_id, :hidden, :kind, :name)
+          .permit(:code, :department_id, :hidden, :kind, :name, :show_in_movement_acts)
   end
 end
