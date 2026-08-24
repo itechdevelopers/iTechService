@@ -562,6 +562,10 @@ Rails.application.routes.draw do
 
   resources :breakage_reports, only: %i[new create]
 
+  resources :breakage_parts, only: %i[index], defaults: { format: :js } do
+    get :choose, on: :collection
+  end
+
   resources :repair_services do
     get :choose, on: :collection, defaults: {format: :js}
     get :select, on: :member, defaults: {format: :js}

@@ -1,0 +1,28 @@
+-# Two roads to the same item: the repair service the part belongs to (what
+-# technicians are used to) and the product catalogue. The wrapper keeps the
+-# .product-choose-inline class because products/select.js.haml folds the picker
+-# by it once a part is chosen — the inner product picker must NOT carry it, or
+-# the fold would target the tab pane instead of the whole widget.
+.product-choose-inline.breakage-parts
+  = link_to t('done'), '#', class: 'btn btn-primary btn-small product-choose-inline__close'
+  %ul.nav.nav-tabs.breakage-parts__tabs
+    %li.active
+      %a{ href: '#breakage_parts_repair_services', 'data-toggle' => 'tab' }= t('.by_repair_service')
+    %li
+      %a{ href: '#breakage_parts_products', 'data-toggle' => 'tab' }= t('.by_product')
+
+  .tab-content
+    #breakage_parts_repair_services.tab-pane.active
+      .row-fluid
+        .span4
+          -# Own id: in the task modal the repair service picker with #repair_groups
+          -# is open right above, and $('#id') returns only the first match.
+          #breakage_repair_groups.readonly
+            = repair_groups_trees_tag @repair_groups, nil,
+                                      tree_path: ->(group_id) { breakage_parts_path(group: group_id, parent_input_id: params[:parent_input_id]) }
+        .span8
+          #breakage_repair_table= render 'breakage_parts/repair_services_table'
+
+    #breakage_parts_products.tab-pane
+      #product_choose_form{ data: { url: select_products_path } }
+        = render 'products/choose_fields'

@@ -1,0 +1,5 @@
+var $container = $('<%= j params[:container] %>');
+$container.html("<%= j(render('breakage_parts/tabs')) %>");
+repair_groups_tree_readonly('<%= j params[:container] %> #breakage_repair_groups');
+product_groups_tree_readonly('<%= j params[:container] %> #product_groups');
+$container.slideDown();
