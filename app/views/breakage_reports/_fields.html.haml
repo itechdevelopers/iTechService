@@ -17,17 +17,16 @@
   .control-group
     %label.control-label= BreakageReport.human_attribute_name :item
     .controls
-      -# Same picker technicians already use for repair service spare parts:
-      -# groups tree plus search. It renders inline because the task form itself
-      -# occupies #modal_form.
+      -# Picker with two tabs: by repair service and by product. It renders
+      -# inline because the task form itself occupies #modal_form.
       = f.hidden_field :item_id, id: 'breakage_report_item_id'
       %span#breakage_report_item_id_presentation.breakage-report__item
         = f.object.item_presentation
       = link_to t('device_tasks.breakage_reports.choose_item'),
-                choose_products_path(form: 'breakage_report', store_kind: 'spare_parts', is_product_only: false,
-                                     store_id: f.object.write_off_store&.id,
-                                     container: '#breakage_item_choose_container',
-                                     parent_input_id: 'breakage_report_item_id'),
+                choose_breakage_parts_path(form: 'breakage_report', store_kind: 'spare_parts', is_product_only: false,
+                                           store_id: f.object.write_off_store&.id,
+                                           container: '#breakage_item_choose_container',
+                                           parent_input_id: 'breakage_report_item_id'),
                 remote: true, class: 'btn btn-small'
       - if f.object.part_price.present?
         %span.help-inline

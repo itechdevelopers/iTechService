@@ -1,0 +1,10 @@
+ru:
+  breakage_parts:
+    tabs:
+      by_repair_service: 'По видам ремонта'
+      by_product: 'По товарам'
+    repair_services_table:
+      choose_group: 'Выберите группу ремонтов слева'
+      empty_group: 'В этой группе нет видов ремонта'
+      no_spare_part: 'нет привязанной запчасти'
+      no_item: '— нет экземпляра на учёте'

@@ -77,3 +77,39 @@
     font-size: 13px;
   }
 }
+
+// Repair service tab of the spare part picker: services are headers, their
+// spare parts are the clickable rows underneath.
+.breakage-parts {
+  &__tabs {
+    margin-bottom: 10px;
+  }
+
+  // Same treatment as #product_groups above: the jstree apple theme paints
+  // itself white and would read as a panel of its own inside the well.
+  #breakage_repair_groups {
+    max-height: 320px;
+    overflow-y: auto;
+    background: transparent;
+  }
+
+  #breakage_repair_table {
+    max-height: 320px;
+    overflow-y: auto;
+  }
+
+  &__service td {
+    font-weight: bold;
+    border-top: 2px solid #ddd;
+  }
+
+  &__part td {
+    padding-left: 24px;
+  }
+
+  &__service--empty td,
+  &__part--empty td {
+    color: #999;
+    font-weight: normal;
+  }
+}

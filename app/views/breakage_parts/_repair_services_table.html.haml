@@ -1,0 +1,34 @@
+- if params[:group].blank?
+  %p.muted= t('.choose_group')
+- elsif @repair_services.blank?
+  %p.muted= t('.empty_group')
+- else
+  %table.table.table-condensed.breakage-parts__table
+    %tbody
+      - @repair_services.each do |repair_service|
+        - spare_parts = repair_service.spare_parts.to_a
+        - selectable = spare_parts.any? { |spare_part| spare_part.product&.items&.first }
+        %tr.breakage-parts__service{ class: ('breakage-parts__service--empty' unless selectable) }
+          %td= repair_service.name
+
+        - if spare_parts.empty?
+          %tr.breakage-parts__part.breakage-parts__part--empty
+            %td= t('.no_spare_part')
+        - else
+          - spare_parts.each do |spare_part|
+            -# The repair flow resolves a spare part into an item exactly like
+            -# this (RepairTask#build_repair_parts): a spare part points at a
+            -# product, while the report needs one instance to write off.
+            - item = spare_part.product&.items&.first
+            %tr.breakage-parts__part{ class: ('breakage-parts__part--empty' if item.blank?) }
+              %td
+                - if item.present?
+                  -# products#select is a POST-only collection route: the picker
+                  -# normally submits its hidden inputs, we hand it the item.
+                  = link_to spare_part.product.name,
+                            select_products_path(item_id: item.id, form: 'breakage_report',
+                                                 parent_input_id: params[:parent_input_id]),
+                            remote: true, method: :post, class: 'breakage-parts__part-link'
+                - else
+                  = spare_part.product&.name
+                  %small= t('.no_item')
