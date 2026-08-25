@@ -1,0 +1,29 @@
+ru:
+  inventories:
+    statuses:
+      draft: 'Черновик'
+      sent: 'Отправлена на филиал'
+      counting: 'Идёт подсчёт'
+      submitted: 'Готова к приёму'
+      recount: 'На пересчёте'
+      finished: 'Закончена'
+    index:
+      title: 'Ревизия запчастей'
+      new_inventory: 'Начать ревизию'
+      any_status: 'Любой статус'
+      any_store: 'Любой склад'
+      reset: 'Сбросить'
+      empty: 'Ревизий пока нет'
+      progress_value: 'Заполнено %{counted} из %{total}'
+      columns:
+        progress: 'Заполнено'
+    show:
+      title: 'Ревизия №%{number}'
+      back: 'К списку'
+      no_lines: 'В ревизии пока нет позиций'
+      hidden_until_start: 'Список позиций откроется после нажатия кнопки «Начать».'
+      columns:
+        position: '№'
+        name: 'Номенклатура'
+        expected: 'По учёту'
+        counted: 'Факт'

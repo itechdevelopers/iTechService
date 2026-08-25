@@ -82,6 +82,7 @@
         = menu_item t('revaluation_acts.index.title'), revaluation_acts_path if can? :manage, RevaluationAct
         = menu_item t('movement_acts.link'), movement_acts_path if can? :manage, MovementAct
         = menu_item t('deduction_acts.link'), deduction_acts_path if can? :manage, DeductionAct
+        = menu_item t('inventories.index.title'), inventories_path if policy(Inventory).index?
         = drop_down_divider
         = menu_item t('prices.link', default: 'Prices'), prices_path
         = menu_item t('gift_certificates.link'), gift_certificates_path

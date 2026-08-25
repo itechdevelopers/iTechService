@@ -1,0 +1,42 @@
+.page-header
+  = link_to t('.back'), inventories_path, class: 'btn pull-right'
+  %h2= t('.title', number: @inventory.number)
+
+.inventories__card
+  %dl.dl-horizontal
+    %dt= Inventory.human_attribute_name(:created_at)
+    %dd= l @inventory.created_at, format: :short
+    %dt= Inventory.human_attribute_name(:store)
+    %dd= @inventory.store&.name
+    %dt= Inventory.human_attribute_name(:department)
+    %dd= @inventory.department&.name
+    %dt= Inventory.human_attribute_name(:status)
+    %dd
+      %span{ class: "inventories__status inventories__status--#{@inventory.status.tr('_', '-')}" }
+        = t("inventories.statuses.#{@inventory.status}")
+    %dt= Inventory.human_attribute_name(:user)
+    %dd= @inventory.user&.short_name
+    - if @inventory.started_at.present?
+      %dt= Inventory.human_attribute_name(:started_at)
+      %dd= l @inventory.started_at, format: :short
+
+- if policy(@inventory).see_lines?
+  %table.table.table-bordered.inventories__lines
+    %thead
+      %tr
+        %th.inventories__lines-position= t('.columns.position')
+        %th= t('.columns.name')
+        %th= t('.columns.expected')
+        %th= t('.columns.counted')
+    %tbody
+      - if @inventory.lines.empty?
+        %tr
+          %td{ colspan: 4 }= t('.no_lines')
+      - @inventory.lines.each do |line|
+        %tr
+          %td= line.position
+          %td= line.name
+          %td= line.expected_quantity
+          %td= line.counted_quantity
+- else
+  %p.inventories__hint= t('.hidden_until_start')

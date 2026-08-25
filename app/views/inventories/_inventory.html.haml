@@ -1,0 +1,13 @@
+%tr.inventories__row
+  %td= link_to "№#{inventory.number}", inventory_path(inventory)
+  %td= l inventory.created_at, format: :short
+  %td= inventory.store&.name
+  %td
+    %span{ class: "inventories__status inventories__status--#{inventory.status.tr('_', '-')}" }
+      = t("inventories.statuses.#{inventory.status}")
+  %td= inventory.user&.short_name
+  %td
+    - if inventory.draft?
+      = '—'
+    - else
+      = t('inventories.index.progress_value', counted: inventory.counted_lines_count, total: inventory.lines.size)

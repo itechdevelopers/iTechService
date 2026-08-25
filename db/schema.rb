@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20260821090000) do
+ActiveRecord::Schema.define(version: 20260825120000) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -932,6 +932,67 @@ ActiveRecord::Schema.define(version: 20260821090000) do
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.index ["installment_plan_id"], name: "index_installments_on_installment_plan_id"
+  end
+
+  create_table "inventories", force: :cascade do |t|
+    t.bigint "store_id", null: false
+    t.bigint "department_id", null: false
+    t.bigint "user_id", null: false
+    t.integer "status", default: 0, null: false
+    t.integer "sort_mode", default: 0, null: false
+    t.boolean "hide_model_in_name", default: false, null: false
+    t.boolean "include_zero_remnants", default: false, null: false
+    t.text "comment"
+    t.datetime "sent_at"
+    t.datetime "started_at"
+    t.datetime "submitted_at"
+    t.datetime "finished_at"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["department_id"], name: "index_inventories_on_department_id"
+    t.index ["status"], name: "index_inventories_on_status"
+    t.index ["store_id"], name: "index_inventories_on_store_id"
+    t.index ["user_id"], name: "index_inventories_on_user_id"
+  end
+
+  create_table "inventory_documents", force: :cascade do |t|
+    t.bigint "inventory_id", null: false
+    t.string "document_type", null: false
+    t.bigint "document_id", null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["document_type", "document_id"], name: "idx_inventory_documents_on_document"
+    t.index ["inventory_id"], name: "index_inventory_documents_on_inventory_id"
+  end
+
+  create_table "inventory_lines", force: :cascade do |t|
+    t.bigint "inventory_id", null: false
+    t.bigint "item_id", null: false
+    t.bigint "counted_by_id"
+    t.integer "position", null: false
+    t.integer "expected_quantity"
+    t.integer "counted_quantity"
+    t.datetime "counted_at"
+    t.boolean "recount_requested", default: false, null: false
+    t.integer "resolution"
+    t.string "snapshot_name"
+    t.decimal "snapshot_purchase_price", precision: 10, scale: 2
+    t.integer "usage_count"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["counted_by_id"], name: "index_inventory_lines_on_counted_by_id"
+    t.index ["inventory_id", "item_id"], name: "index_inventory_lines_on_inventory_id_and_item_id", unique: true
+    t.index ["inventory_id", "position"], name: "index_inventory_lines_on_inventory_id_and_position"
+    t.index ["inventory_id"], name: "index_inventory_lines_on_inventory_id"
+    t.index ["item_id"], name: "index_inventory_lines_on_item_id"
+  end
+
+  create_table "inventory_subscriptions", id: false, force: :cascade do |t|
+    t.bigint "inventory_id", null: false
+    t.bigint "subscriber_id", null: false
+    t.index ["inventory_id", "subscriber_id"], name: "idx_inventory_subscriptions_unique", unique: true
+    t.index ["inventory_id"], name: "idx_inventory_subscriptions_on_inventory"
+    t.index ["subscriber_id"], name: "idx_inventory_subscriptions_on_subscriber"
   end
 
   create_table "items", id: :serial, force: :cascade do |t|
@@ -2801,6 +2862,13 @@ ActiveRecord::Schema.define(version: 20260821090000) do
   add_foreign_key "glass_sticking_notifications", "departments"
   add_foreign_key "glass_sticking_notifications", "users", column: "recipient_id"
   add_foreign_key "glass_sticking_notifications", "users", column: "sender_id"
+  add_foreign_key "inventories", "departments"
+  add_foreign_key "inventories", "stores"
+  add_foreign_key "inventories", "users"
+  add_foreign_key "inventory_documents", "inventories"
+  add_foreign_key "inventory_lines", "inventories"
+  add_foreign_key "inventory_lines", "items"
+  add_foreign_key "inventory_lines", "users", column: "counted_by_id"
   add_foreign_key "kanban_boards", "telegram_chats"
   add_foreign_key "kanban_boards_users", "kanban_boards"
   add_foreign_key "kanban_boards_users", "users"

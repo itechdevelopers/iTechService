@@ -558,6 +558,8 @@ Rails.application.routes.draw do
     patch 'post', on: :member
   end
 
+  resources :inventories, only: %i[index show]
+
   resources :repair_time_standards, only: %i[index show]
 
   resources :breakage_reports, only: %i[new create]

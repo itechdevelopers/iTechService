@@ -1,0 +1,32 @@
+.page-header
+  - if policy(Inventory).new?
+    = link_to t('.new_inventory'), '#', class: 'btn btn-success pull-right disabled'
+  %h2= t('.title')
+
+.inventories
+  .inventories__filters
+    = form_tag inventories_path, method: 'get', class: 'form-inline inventories__filters-form' do
+      = select_tag :status,
+                   options_for_select(Inventory.statuses.keys.map { |st| [t("inventories.statuses.#{st}"), st] }, params[:status]),
+                   include_blank: t('.any_status'), class: 'input-medium'
+      - if policy(Inventory).new?
+        = select_tag :store_id,
+                     options_from_collection_for_select(Store.visible.spare_parts, 'id', 'name', params[:store_id]),
+                     include_blank: t('.any_store'), class: 'input-large'
+      %button.btn.btn-info{ type: 'submit' }= glyph('filter')
+      = link_to t('.reset'), inventories_path, class: 'btn'
+
+  %table#inventories_table.table.table-hover.table-bordered.inventories__table
+    %thead
+      %tr
+        %th= Inventory.human_attribute_name(:number)
+        %th= Inventory.human_attribute_name(:created_at)
+        %th= Inventory.human_attribute_name(:store)
+        %th= Inventory.human_attribute_name(:status)
+        %th= Inventory.human_attribute_name(:user)
+        %th= t('.columns.progress')
+    %tbody
+      - if @inventories.empty?
+        %tr
+          %td{ colspan: 6 }= t('.empty')
+      = render partial: 'inventory', collection: @inventories, as: :inventory

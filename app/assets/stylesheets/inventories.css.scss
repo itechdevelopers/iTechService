@@ -1,0 +1,62 @@
+.inventories {
+  &__filters {
+    margin-bottom: 12px;
+  }
+
+  &__filters-form {
+    margin: 0;
+  }
+
+  &__card {
+    margin-bottom: 16px;
+  }
+
+  &__hint {
+    color: #777;
+    font-style: italic;
+  }
+
+  &__status {
+    display: inline-block;
+    padding: 2px 8px;
+    border-radius: 10px;
+    font-size: 12px;
+    white-space: nowrap;
+    background: #eee;
+    color: #333;
+  }
+
+  &__status--draft {
+    background: #e6e6e6;
+    color: #555;
+  }
+
+  &__status--sent {
+    background: #d9edf7;
+    color: #245269;
+  }
+
+  &__status--counting {
+    background: #fcf8e3;
+    color: #8a6d3b;
+  }
+
+  &__status--submitted {
+    background: #dff0d8;
+    color: #3c763d;
+  }
+
+  &__status--recount {
+    background: #f2dede;
+    color: #a94442;
+  }
+
+  &__status--finished {
+    background: #444;
+    color: #fff;
+  }
+
+  &__lines-position {
+    width: 50px;
+  }
+}
