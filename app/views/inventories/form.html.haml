@@ -1,0 +1,45 @@
+.page-header
+  %h2= @inventory.new_record? ? t('.new_title') : t('.edit_title', number: @inventory.number)
+
+.row-fluid
+  .span6
+    = simple_form_for @inventory, html: { class: 'form-horizontal' } do |f|
+      - if f.object.errors.any?
+        .alert.alert-error= f.object.errors.full_messages.join('. ')
+
+      -# Склады показываем с филиалом в подписи: названия вида «Mars склад
+      -# запчастей» сами по себе не говорят, какому подразделению принадлежат.
+      = f.input :store_id,
+                collection: Store.visible.spare_parts.map { |s| ["#{s.department_name} — #{s.name}", s.id] },
+                include_blank: false,
+                label: Inventory.human_attribute_name(:store)
+
+      = f.input :sort_mode,
+                collection: Inventory.sort_modes.keys.map { |m| [t("inventories.sort_modes.#{m}"), m] },
+                include_blank: false
+
+      -# Опция осмысленна только при алфавитном порядке — при сортировке по
+      -# себестоимости или частоте имя вообще не участвует в сравнении.
+      .inventories__sort-option{ id: 'ignore_model_option' }
+        = f.input :ignore_model_in_sort, as: :boolean, hint: t('.ignore_model_hint')
+
+      = f.input :include_zero_remnants, as: :boolean, hint: t('.include_zero_hint')
+      = f.input :comment, as: :text, input_html: { rows: 3 }
+
+      .form-actions
+        = submit_button f
+        = link_to t('helpers.links.cancel'), inventories_path, class: 'btn'
+
+:javascript
+  (function() {
+    var mode = document.getElementById('inventory_sort_mode');
+    var option = document.getElementById('ignore_model_option');
+    if (!mode || !option) return;
+
+    function sync() {
+      option.style.display = mode.value === 'alphabetical' ? '' : 'none';
+    }
+
+    mode.addEventListener('change', sync);
+    sync();
+  })();

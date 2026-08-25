@@ -20,8 +20,10 @@ class InventoryPolicy < ApplicationPolicy
     manager?
   end
 
+  # Параметры (склад, порядок, опции) правятся только у черновика: после
+  # отправки на филиал по ним уже развёрнут список и идёт подсчёт.
   def update?
-    manager?
+    manager? && record.draft?
   end
 
   def edit?

@@ -54,6 +54,12 @@ class Inventory < ApplicationRecord
     usage_desc: 2
   }, _prefix: :sorted
 
+  # Учитывать ли модель при сортировке — вопрос только для алфавитного порядка:
+  # в остальных режимах имя в сравнении не участвует.
+  def ignore_model_in_sort?
+    sorted_alphabetical? && self[:ignore_model_in_sort]
+  end
+
   # Статусы, в которых ревизия уже видна филиалу.
   VISIBLE_TO_BRANCH = %w[sent counting recount submitted].freeze
 

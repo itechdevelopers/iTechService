@@ -110,6 +110,9 @@ ru:
         user: 'Автор'
         started_at: 'Начата'
         comment: 'Комментарий'
+        sort_mode: 'Порядок позиций'
+        ignore_model_in_sort: 'Сортировать без учёта модели'
+        include_zero_remnants: 'Включать нулевые остатки'
 
       breakage_report:
         circumstances: 'Обстоятельства поломки'

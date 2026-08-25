@@ -1,5 +1,10 @@
 .page-header
   = link_to t('.back'), inventories_path, class: 'btn pull-right'
+  - if policy(@inventory).destroy?
+    = link_to t('helpers.links.destroy'), inventory_path(@inventory), method: :delete,
+              data: { confirm: t('helpers.links.confirm') }, class: 'btn btn-danger pull-right'
+  - if policy(@inventory).edit?
+    = link_to t('helpers.links.edit'), edit_inventory_path(@inventory), class: 'btn pull-right'
   %h2= t('.title', number: @inventory.number)
 
 .inventories__card
@@ -19,6 +24,16 @@
     - if @inventory.started_at.present?
       %dt= Inventory.human_attribute_name(:started_at)
       %dd= l @inventory.started_at, format: :short
+    %dt= Inventory.human_attribute_name(:sort_mode)
+    %dd
+      = t("inventories.sort_modes.#{@inventory.sort_mode}")
+      - if @inventory.ignore_model_in_sort?
+        %span.inventories__hint= t('.ignore_model_on')
+      - if @inventory.include_zero_remnants?
+        %span.inventories__hint= t('.include_zero_on')
+    - if @inventory.comment.present?
+      %dt= Inventory.human_attribute_name(:comment)
+      %dd= @inventory.comment
 
 - if policy(@inventory).see_lines?
   %table.table.table-bordered.inventories__lines

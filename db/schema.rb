@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20260825120000) do
+ActiveRecord::Schema.define(version: 20260825133000) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -940,7 +940,7 @@ ActiveRecord::Schema.define(version: 20260825120000) do
     t.bigint "user_id", null: false
     t.integer "status", default: 0, null: false
     t.integer "sort_mode", default: 0, null: false
-    t.boolean "hide_model_in_name", default: false, null: false
+    t.boolean "ignore_model_in_sort", default: false, null: false
     t.boolean "include_zero_remnants", default: false, null: false
     t.text "comment"
     t.datetime "sent_at"

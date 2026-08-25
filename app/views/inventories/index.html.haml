@@ -1,6 +1,6 @@
 .page-header
   - if policy(Inventory).new?
-    = link_to t('.new_inventory'), '#', class: 'btn btn-success pull-right disabled'
+    = link_to t('.new_inventory'), new_inventory_path, class: 'btn btn-success pull-right'
   %h2= t('.title')
 
 .inventories

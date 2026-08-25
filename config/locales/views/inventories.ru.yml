@@ -7,6 +7,10 @@ ru:
       submitted: 'Готова к приёму'
       recount: 'На пересчёте'
       finished: 'Закончена'
+    sort_modes:
+      alphabetical: 'По алфавиту'
+      cost_desc: 'По себестоимости, от дорогих'
+      usage_desc: 'По частоте использования'
     index:
       title: 'Ревизия запчастей'
       new_inventory: 'Начать ревизию'
@@ -22,8 +26,21 @@ ru:
       back: 'К списку'
       no_lines: 'В ревизии пока нет позиций'
       hidden_until_start: 'Список позиций откроется после нажатия кнопки «Начать».'
+      ignore_model_on: 'модель не учитывается при сортировке'
+      include_zero_on: 'с нулевыми остатками'
       columns:
         position: '№'
         name: 'Номенклатура'
         expected: 'По учёту'
         counted: 'Факт'
+    form:
+      new_title: 'Новая ревизия'
+      edit_title: 'Ревизия №%{number}: параметры'
+      ignore_model_hint: 'Сортировать по названию запчасти без модели: «Дисплей iPhone 15 Pro» встанет на букву «Д». В списке название останется полным'
+      include_zero_hint: 'Добавить позиции, которых по учёту на складе нет'
+    create:
+      created: 'Ревизия №%{number} создана'
+    update:
+      updated: 'Параметры ревизии сохранены'
+    destroy:
+      destroyed: 'Ревизия №%{number} удалена'
