@@ -5,6 +5,9 @@
               data: { confirm: t('helpers.links.confirm') }, class: 'btn btn-danger pull-right'
   - if policy(@inventory).edit?
     = link_to t('helpers.links.edit'), edit_inventory_path(@inventory), class: 'btn pull-right'
+  - if policy(@inventory).send_picker?
+    = link_to t('.send_to_branch'), send_picker_inventory_path(@inventory, form_name: 'send_picker_modal'),
+              remote: true, class: 'btn btn-success pull-right'
   %h2= t('.title', number: @inventory.number)
 
 .inventories__card
@@ -21,6 +24,12 @@
         = t("inventories.statuses.#{@inventory.status}")
     %dt= Inventory.human_attribute_name(:user)
     %dd= @inventory.user&.short_name
+    - if @inventory.sent_at.present?
+      %dt= t('.sent_at')
+      %dd= l @inventory.sent_at, format: :short
+    - if @inventory.subscribers.any?
+      %dt= t('.subscribers')
+      %dd= @inventory.subscribers.map(&:short_name).join(', ')
     - if @inventory.started_at.present?
       %dt= Inventory.human_attribute_name(:started_at)
       %dd= l @inventory.started_at, format: :short

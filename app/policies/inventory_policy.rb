@@ -53,6 +53,16 @@ class InventoryPolicy < ApplicationPolicy
     update?
   end
 
+  # Отправлять нечего, пока список не собран: технарь получил бы уведомление и
+  # пустой бланк.
+  def send_picker?
+    manager? && record.draft? && record.lines.any?
+  end
+
+  def send_to_branch?
+    send_picker?
+  end
+
   # Содержимое списка. Технарю до нажатия «Начать» видны только номер и дата —
   # позиции открываются вместе с фиксацией остатков.
   def see_lines?

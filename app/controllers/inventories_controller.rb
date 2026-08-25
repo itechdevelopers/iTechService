@@ -95,6 +95,36 @@ class InventoriesController < ApplicationController
     end
   end
 
+  # Модалка перед отправкой: показывает, кого уведомим автоматически, и даёт
+  # добавить людей вручную.
+  def send_picker
+    @inventory = find_record Inventory
+    @auto_recipients = InventoryNotifier.new(@inventory).recipients
+    @available_users = additional_recipients_scope
+
+    render 'shared/show_modal_form'
+  end
+
+  # Отправка на филиал: статус, момент отправки, запомненные адресаты и рассылка.
+  def send_to_branch
+    @inventory = find_record Inventory
+
+    # Скоуп проверяем повторно на сервере: id в форме можно подменить.
+    ids = Array(params[:user_ids]).map(&:to_i) & additional_recipients_scope.ids
+    @inventory.subscribers = User.where(id: ids)
+    @inventory.update!(status: :sent, sent_at: Time.zone.now)
+
+    @notified_count = InventoryNotifier.notify_sent(@inventory)
+    # flash, а не notice в redirect: JS-ветка закрывает модалку и перезагружает
+    # страницу сама, и сообщение должно пережить эту перезагрузку.
+    flash[:notice] = t('.sent', count: @notified_count)
+
+    respond_to do |format|
+      format.js
+      format.html { redirect_to @inventory }
+    end
+  end
+
   def destroy
     @inventory = find_record Inventory
     number = @inventory.number
@@ -107,6 +137,12 @@ class InventoriesController < ApplicationController
 
   def search_products
     SparePartSearch.call(params[:q])
+  end
+
+  # Дополнительно уведомить можно кого угодно из действующих сотрудников:
+  # ревизию филиала часто курирует человек из другого подразделения.
+  def additional_recipients_scope
+    User.active.includes(:department, :location)
   end
 
   def toggle_product
