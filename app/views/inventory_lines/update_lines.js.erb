@@ -1,0 +1,2 @@
+$('#inventory_lines').html('<%= j render "inventories/lines_table", inventory: @inventory %>');
+$('#line_candidates').html('<%= j render "inventories/line_candidates", inventory: @inventory, products: @found_products, query: params[:q] %>');

@@ -43,38 +43,20 @@
     = render 'selection_summary', inventory: @inventory
 
 - if policy(@inventory).see_lines?
-  .inventories__lines-header
-    %h4
-      = t('.lines_title')
-      %small= t('.lines_count', count: @inventory.lines.size)
-    - if policy(@inventory).build_lines?
-      -# Пересборка стирает ручные правки списка, поэтому подтверждение
-      -# спрашиваем только когда стирать уже есть что.
-      = link_to build_lines_inventory_path(@inventory), method: :post,
-                data: { confirm: (t('.rebuild_confirm') if @inventory.lines.any?) },
-                class: 'btn btn-primary btn-small' do
-        = @inventory.lines.any? ? t('.rebuild_lines') : t('.build_lines')
+  #inventory_lines= render 'lines_table', inventory: @inventory
 
-  %table.table.table-bordered.inventories__lines
-    %thead
-      %tr
-        %th.inventories__lines-position= t('.columns.position')
-        %th= t('.columns.name')
-        %th= t('.columns.purchase_price')
-        %th= t('.columns.usage')
-        %th= t('.columns.expected')
-        %th= t('.columns.counted')
-    %tbody
-      - if @inventory.lines.empty?
-        %tr
-          %td{ colspan: 6 }= t('.no_lines')
-      - @inventory.lines.each do |line|
-        %tr
-          %td= line.position
-          %td= line.name
-          %td= number_to_currency(line.snapshot_purchase_price, precision: 0) if line.snapshot_purchase_price.present?
-          %td= line.usage_count
-          %td= line.expected_quantity
-          %td= line.counted_quantity
+  - if policy(@inventory).manage_lines?
+    .inventories__add-line
+      %h4= t('.add_line_title')
+      %p.inventories__hint= t('.add_line_hint')
+
+      -# remote: результаты подменяются на месте, иначе перезагрузка уводила бы
+      -# страницу в начало на каждый поиск по длинному списку.
+      = form_tag inventory_path(@inventory), method: :get, class: 'form-search', remote: true do
+        .input-append
+          = text_field_tag :q, params[:q], class: 'search-query input-medium', placeholder: t('inventories.selection.search_placeholder')
+          %button.btn{ type: 'submit' }= glyph('search')
+
+      #line_candidates= render 'line_candidates', inventory: @inventory, products: @found_products, query: params[:q]
 - else
   %p.inventories__hint= t('.hidden_until_start')

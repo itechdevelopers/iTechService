@@ -13,6 +13,12 @@ class InventoriesController < ApplicationController
 
   def show
     @inventory = find_record Inventory
+    @found_products = search_products
+
+    respond_to do |format|
+      format.html
+      format.js # поиск позиции для добавления в список подменяет только результаты
+    end
   end
 
   def new
@@ -99,30 +105,8 @@ class InventoriesController < ApplicationController
 
   private
 
-  # Ищем только среди запчастей, и категория берётся с самого продукта, а не с
-  # его группы: они расходятся — продукт может лежать в группе запчастей, но
-  # числиться поэкземплярным «девайсом».
-  #
-  # Регистронезависимость через явную коллацию, а не LOWER(): база создана с
-  # коллацией C, где lower() кириллицу не трогает и поиск «дисплей» никогда не
-  # найдёт «Дисплей». Имя коллации спрашиваем у базы — на проде и на dev оно
-  # пишется по-разному (Item.russian_collation).
   def search_products
-    query = params[:q].to_s.strip
-    return Product.none if query.blank?
-
-    collation = Item.russian_collation
-    condition = if collation
-                  %(products.name ILIKE :q COLLATE "#{collation}")
-                else
-                  'LOWER(products.name) LIKE :q'
-                end
-    term = collation ? "%#{query}%" : "%#{query.mb_chars.downcase}%"
-
-    Product.joins(:product_category)
-           .where(product_categories: { kind: 'spare_part' })
-           .where(condition, q: term)
-           .limit(30)
+    SparePartSearch.call(params[:q])
   end
 
   def toggle_product

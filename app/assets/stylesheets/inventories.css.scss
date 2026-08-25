@@ -97,6 +97,19 @@
     font-weight: bold;
   }
 
+  &__lines-action {
+    width: 40px;
+    text-align: center;
+  }
+
+  &__add-line {
+    margin-top: 20px;
+    padding: 12px;
+    background: #f7f7f7;
+    border: 1px solid #e3e3e3;
+    border-radius: 4px;
+  }
+
   &__lines-header {
     display: flex;
     align-items: center;

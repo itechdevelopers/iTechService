@@ -562,6 +562,7 @@ Rails.application.routes.draw do
     get :selection, on: :member
     patch :update_selection, on: :member
     post :build_lines, on: :member
+    resources :lines, only: %i[create destroy], controller: 'inventory_lines'
   end
 
   resources :repair_time_standards, only: %i[index show]

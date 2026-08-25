@@ -90,6 +90,23 @@ class Inventory < ApplicationRecord
     selections.exists?
   end
 
+  # Сплошная нумерация 1..N: номера строк печатаются в бланке и по ним технари
+  # диктуют результаты, поэтому дырок после удаления оставаться не должно.
+  def renumber_lines!
+    transaction do
+      lines.reload.each_with_index do |line, index|
+        line.update_column(:position, index + 1) unless line.position == index + 1
+      end
+    end
+  end
+
+  # Добавленная вручную позиция встаёт в конец, а не по правилам сортировки:
+  # иначе номера уже розданных строк поехали бы, а бланк на руках у технарей
+  # остался бы со старыми.
+  def next_position
+    (lines.maximum(:position) || 0) + 1
+  end
+
   # Разворот выбора в номенклатуру: выбранная группа тянет за собой все свои
   # подгруппы (выбрали «iPhone» — считаем и «iPhone 15», и «iPhone 15 Pro»),
   # плюс точечно отмеченные продукты.
