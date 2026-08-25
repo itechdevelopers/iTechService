@@ -59,4 +59,41 @@
   &__lines-position {
     width: 50px;
   }
+
+  &__tree {
+    list-style: none;
+    margin-left: 0;
+
+    ul {
+      list-style: none;
+      margin-left: 20px;
+    }
+  }
+
+  &__tree-node label.checkbox {
+    margin-bottom: 2px;
+  }
+
+  &__found {
+    list-style: none;
+    margin-left: 0;
+    max-height: 320px;
+    overflow-y: auto;
+
+    li {
+      padding: 2px 0;
+    }
+  }
+
+  &__summary {
+    margin-top: 16px;
+    padding: 10px 12px;
+    background: #f7f7f7;
+    border: 1px solid #e3e3e3;
+    border-radius: 4px;
+  }
+
+  &__summary-total {
+    font-weight: bold;
+  }
 }

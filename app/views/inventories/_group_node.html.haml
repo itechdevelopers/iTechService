@@ -1,0 +1,9 @@
+%li.inventories__tree-node
+  %label.checkbox
+    = check_box_tag 'group_ids[]', group.id, selected_ids.include?(group.id), id: "group_#{group.id}"
+    = group.name
+  - children = group.children.ordered
+  - if children.any?
+    %ul
+      - children.each do |child|
+        = render 'group_node', group: child, selected_ids: selected_ids

@@ -34,6 +34,15 @@ class InventoryPolicy < ApplicationPolicy
     manager? && record.draft?
   end
 
+  # Выбор номенклатуры правится там же, где остальные параметры — у черновика.
+  def selection?
+    update?
+  end
+
+  def update_selection?
+    update?
+  end
+
   # Содержимое списка. Технарю до нажатия «Начать» видны только номер и дата —
   # позиции открываются вместе с фиксацией остатков.
   def see_lines?

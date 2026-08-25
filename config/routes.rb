@@ -558,7 +558,10 @@ Rails.application.routes.draw do
     patch 'post', on: :member
   end
 
-  resources :inventories
+  resources :inventories do
+    get :selection, on: :member
+    patch :update_selection, on: :member
+  end
 
   resources :repair_time_standards, only: %i[index show]
 

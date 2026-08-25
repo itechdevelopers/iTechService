@@ -35,6 +35,13 @@
       %dt= Inventory.human_attribute_name(:comment)
       %dd= @inventory.comment
 
+- if policy(@inventory).selection?
+  .inventories__card
+    %h4
+      = t('.selection_title')
+      = link_to t('.selection_edit'), selection_inventory_path(@inventory), class: 'btn btn-small'
+    = render 'selection_summary', inventory: @inventory
+
 - if policy(@inventory).see_lines?
   %table.table.table-bordered.inventories__lines
     %thead

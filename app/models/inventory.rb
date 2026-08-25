@@ -26,6 +26,11 @@ class Inventory < ApplicationRecord
 
   has_many :inventory_documents, dependent: :destroy
 
+  # «Что считать»: выбранные группы каталога и точечные позиции.
+  has_many :selections, class_name: 'InventorySelection', dependent: :destroy
+  has_many :selected_groups, through: :selections, source: :selectable, source_type: 'ProductGroup'
+  has_many :selected_products, through: :selections, source: :selectable, source_type: 'Product'
+
   audited
 
   # draft    — список формируется, филиал его не видит
@@ -79,6 +84,20 @@ class Inventory < ApplicationRecord
 
   def presentation
     "№#{number} от #{I18n.l(created_at.to_date)}"
+  end
+
+  def selection?
+    selections.exists?
+  end
+
+  # Разворот выбора в номенклатуру: выбранная группа тянет за собой все свои
+  # подгруппы (выбрали «iPhone» — считаем и «iPhone 15», и «iPhone 15 Pro»),
+  # плюс точечно отмеченные продукты.
+  def selected_products_scope
+    group_ids = ProductGroup.where(id: selected_group_ids).flat_map(&:subtree_ids).uniq
+
+    Product.where(product_group_id: group_ids)
+           .or(Product.where(id: selected_product_ids))
   end
 
   # Заполненные строки — те, где факт вписан. Ноль считается заполнением,

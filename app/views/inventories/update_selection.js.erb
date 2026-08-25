@@ -1,0 +1,5 @@
+$('#selection_summary').html('<%= j render "selection_summary", inventory: @inventory %>');
+<% if params[:product_id].present? %>
+  <% selected = @inventory.selected_product_ids.include?(params[:product_id].to_i) %>
+  $('#product_toggle_<%= params[:product_id] %>').html('<%= j (selected ? glyph("minus") : glyph("plus")) %>');
+<% end %>

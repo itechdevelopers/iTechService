@@ -1,0 +1,9 @@
+- if products.any?
+  %ul.inventories__found
+    - products.each do |product|
+      %li
+        = link_to update_selection_inventory_path(inventory, product_id: product.id), method: :patch, remote: true, class: 'btn btn-mini', id: "product_toggle_#{product.id}" do
+          = inventory.selected_product_ids.include?(product.id) ? glyph('minus') : glyph('plus')
+        = product.name
+- elsif query.present?
+  %p.inventories__hint= t('inventories.selection.nothing_found')

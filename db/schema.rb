@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20260825133000) do
+ActiveRecord::Schema.define(version: 20260825140000) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -985,6 +985,17 @@ ActiveRecord::Schema.define(version: 20260825133000) do
     t.index ["inventory_id", "position"], name: "index_inventory_lines_on_inventory_id_and_position"
     t.index ["inventory_id"], name: "index_inventory_lines_on_inventory_id"
     t.index ["item_id"], name: "index_inventory_lines_on_item_id"
+  end
+
+  create_table "inventory_selections", force: :cascade do |t|
+    t.bigint "inventory_id", null: false
+    t.string "selectable_type", null: false
+    t.bigint "selectable_id", null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["inventory_id", "selectable_type", "selectable_id"], name: "idx_inventory_selections_unique", unique: true
+    t.index ["inventory_id"], name: "index_inventory_selections_on_inventory_id"
+    t.index ["selectable_type", "selectable_id"], name: "idx_inventory_selections_on_selectable"
   end
 
   create_table "inventory_subscriptions", id: false, force: :cascade do |t|
@@ -2869,6 +2880,7 @@ ActiveRecord::Schema.define(version: 20260825133000) do
   add_foreign_key "inventory_lines", "inventories"
   add_foreign_key "inventory_lines", "items"
   add_foreign_key "inventory_lines", "users", column: "counted_by_id"
+  add_foreign_key "inventory_selections", "inventories"
   add_foreign_key "kanban_boards", "telegram_chats"
   add_foreign_key "kanban_boards_users", "kanban_boards"
   add_foreign_key "kanban_boards_users", "users"

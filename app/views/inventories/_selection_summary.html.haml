@@ -1,0 +1,19 @@
+.inventories__summary
+  %h4= t('inventories.selection.summary_title')
+  - if inventory.selection?
+    %p
+      = t('inventories.selection.summary_counts',
+          groups: inventory.selected_groups.size,
+          products: inventory.selected_products.size)
+    %p.inventories__summary-total
+      = t('inventories.selection.summary_total', count: inventory.selected_products_scope.count)
+    - if inventory.selected_groups.any?
+      %ul.unstyled
+        - inventory.selected_groups.each do |group|
+          %li= glyph('folder-open') + " #{group.name}"
+    - if inventory.selected_products.any?
+      %ul.unstyled
+        - inventory.selected_products.each do |product|
+          %li= glyph('tag') + " #{product.name}"
+  - else
+    %p.inventories__hint= t('inventories.selection.summary_empty')
