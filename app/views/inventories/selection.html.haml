@@ -1,0 +1,41 @@
+.page-header
+  = link_to t('.back', number: @inventory.number), inventory_path(@inventory), class: 'btn pull-right'
+  %h2= t('.title', number: @inventory.number)
+
+.row-fluid.inventories
+  .span6
+    %h4= t('.groups_title')
+    %p.inventories__hint= t('.groups_hint')
+
+    -# Форма автосабмитится на каждый клик (см. JS внизу): иначе точечный поиск
+    -# в соседней колонке перезагружал бы страницу и терял неотправленные галочки.
+    = form_tag update_selection_inventory_path(@inventory), method: :patch, remote: true, id: 'groups_form' do
+      = hidden_field_tag 'group_ids[]', ''
+      %ul.inventories__tree
+        - @root_groups.each do |root|
+          = render 'group_node', group: root, selected_ids: @inventory.selected_group_ids
+
+  .span6
+    %h4= t('.products_title')
+    %p.inventories__hint= t('.products_hint')
+
+    -# remote: поиск подменяет только блок результатов, иначе дерево слева
+    -# перерисовывалось бы целиком и уезжало в начало на каждый запрос.
+    = form_tag selection_inventory_path(@inventory), method: :get, class: 'form-search', remote: true do
+      .input-append
+        = text_field_tag :q, params[:q], class: 'search-query input-medium', placeholder: t('.search_placeholder')
+        %button.btn{ type: 'submit' }= glyph('search')
+
+    #found_products= render 'found_products', inventory: @inventory, products: @found_products, query: params[:q]
+
+    #selection_summary= render 'selection_summary', inventory: @inventory
+
+-# Любой клик по галочке сразу уходит на сервер: выбор должен пережить
+-# перезагрузку страницы поиском в соседней колонке. Сабмитим через
+-# submit.rails — в проекте подключён jquery_ujs, глобального Rails нет.
+:javascript
+  $(function() {
+    $('#groups_form').on('change', 'input[type=checkbox]', function() {
+      $('#groups_form').trigger('submit.rails');
+    });
+  });

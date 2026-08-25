@@ -1,0 +1,4 @@
+// Перерисовываем только свою строку и счётчик: чужие строки могли измениться
+// параллельно, и затирать их разметкой из этого ответа нельзя.
+$('#inventory_line_<%= @line.id %>').replaceWith('<%= j render "inventories/line", line: @line, inventory: @inventory %>');
+$('#lines_progress').text('<%= j inventory_lines_progress(@inventory) %>');

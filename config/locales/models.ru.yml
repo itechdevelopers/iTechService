@@ -40,6 +40,8 @@ ru:
       history_record: 'Запись истории'
       imported_sale: 'Продажа 1С'
       info: 'Новость'
+      inventory: 'Ревизия'
+      inventory_line: 'Позиция ревизии'
       installment_plan: 'Рассрочка'
       installment: 'Взнос'
       kanban/board: 'Канбан Доска'
@@ -98,6 +100,19 @@ ru:
 
       batch:
         product: :activerecord.models.product
+
+      inventory:
+        number: '№'
+        created_at: 'Дата'
+        store: 'Склад'
+        department: 'Филиал'
+        status: 'Статус'
+        user: 'Автор'
+        started_at: 'Начата'
+        comment: 'Комментарий'
+        sort_mode: 'Порядок позиций'
+        ignore_model_in_sort: 'Сортировать без учёта модели'
+        include_zero_remnants: 'Включать нулевые остатки'
 
       breakage_report:
         circumstances: 'Обстоятельства поломки'

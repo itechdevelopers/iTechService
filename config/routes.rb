@@ -558,6 +558,16 @@ Rails.application.routes.draw do
     patch 'post', on: :member
   end
 
+  resources :inventories do
+    get :selection, on: :member
+    patch :update_selection, on: :member
+    post :build_lines, on: :member
+    get :send_picker, on: :member
+    patch :send_to_branch, on: :member
+    patch :start, on: :member
+    resources :lines, only: %i[create update destroy], controller: 'inventory_lines'
+  end
+
   resources :repair_time_standards, only: %i[index show]
 
   resources :breakage_reports, only: %i[new create]

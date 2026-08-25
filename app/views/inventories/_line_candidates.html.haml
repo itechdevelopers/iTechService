@@ -1,0 +1,17 @@
+- if @error.present?
+  .alert.alert-error= @error
+
+- if products.present? && products.any?
+  %ul.inventories__found
+    - added_item_ids = inventory.lines.pluck(:item_id)
+    - products.each do |product|
+      - already = product.items.any? { |item| added_item_ids.include?(item.id) }
+      %li
+        - if already
+          %span.btn.btn-mini.disabled{ title: t('inventories.show.already_in_list') }= glyph('check')
+        - else
+          = link_to inventory_lines_path(inventory, product_id: product.id, q: query), method: :post, remote: true, class: 'btn btn-mini' do
+            = glyph('plus')
+        = product.name
+- elsif query.present?
+  %p.inventories__hint= t('inventories.selection.nothing_found')

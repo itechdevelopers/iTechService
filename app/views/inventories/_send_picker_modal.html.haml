@@ -1,0 +1,62 @@
+-# Пикер получателей перед отправкой ревизии на филиал. Открывается кнопкой
+-# «Отправить на филиал» (GET send_picker → shared/show_modal_form).
+-# Технари филиала уведомляются всегда — их показываем списком, без галочек;
+-# multiselect добавляет людей сверх этого набора.
+- grouped = @available_users.group_by { |u| u.department&.name.presence || t('inventories.send_modal.no_department') }
+- option_groups = grouped.map { |dept, users| [dept, users.map { |u| [u.short_name, u.id] }] }
+
+.modal-header
+  = button_to_close_modal
+  %h3= t('inventories.send_modal.title', number: @inventory.number)
+
+-# overflow: visible на этом modal-body (scoped) — иначе выпадающий список
+-# multiselect обрежется стандартным .modal-body { overflow-y: auto }.
+.modal-body.inventories__send-modal-body
+  = form_with url: send_to_branch_inventory_path(@inventory), method: :patch, local: false, id: 'inventory_send_form' do
+    .control-group
+      %label.control-label= t('inventories.send_modal.auto_recipients')
+      .controls
+        - if @auto_recipients.any?
+          %p.help-block= @auto_recipients.map(&:short_name).join(', ')
+        - else
+          %p.help-block.text-error= t('inventories.send_modal.no_auto_recipients')
+
+    .control-group
+      = label_tag :user_ids, t('inventories.send_modal.extra_recipients'), class: 'control-label'
+      .controls
+        = select_tag :user_ids, grouped_options_for_select(option_groups, @inventory.subscriber_ids), multiple: true, class: 'input-xlarge multiselect-inventory-recipients', id: 'inventory_user_ids', style: 'display: none;'
+        %p.help-block= t('inventories.send_modal.extra_recipients_help')
+
+    .modal-footer
+      = submit_tag t('inventories.send_modal.submit'), class: 'btn btn-primary'
+      = link_to t('helpers.links.close'), '#', 'data-dismiss' => 'modal', class: 'btn'
+
+:javascript
+  $(function() {
+    // Помечаем только эту модалку — правила ниже не должны задеть остальные.
+    $('#modal_form').addClass('inventories__send-modal')
+      .one('hidden', function() { $(this).removeClass('inventories__send-modal'); });
+
+    var $select = $('#inventory_user_ids');
+    if ($select.length && !$select.data('multiselect')) {
+      $select.multiselect({
+        enableClickableOptGroups: true,
+        enableCaseInsensitiveFiltering: true,
+        includeSelectAllOption: false,
+        filterPlaceholder: '#{j t('inventories.send_modal.filter_placeholder')}',
+        nonSelectedText: '#{j t('inventories.send_modal.non_selected')}',
+        nSelectedText: '#{j t('inventories.send_modal.n_selected')}',
+        buttonWidth: '100%',
+        maxHeight: 300,
+        templates: {
+          filter: '<div class="multiselect-filter"><div class="input-prepend"><span class="add-on"><i class="icon-search"></i></span><input class="multiselect-search" type="text" /></div></div>',
+          filterClearBtn: ''
+        },
+        onInitialized: function() {
+          $select.closest('.controls').find('.multiselect-group, .multiselect-option').each(function() {
+            $(this).attr('type', 'button');
+          });
+        }
+      });
+    }
+  });

@@ -20,6 +20,7 @@ class Notification < ApplicationRecord
     'ClientRequest'            => 'Запросы клиентов',
     'DeviceUnlockRequest'      => 'Запросы на разблокировку',
     'GisReview'                => 'Отзывы 2ГИС',
+    'Inventory'                => 'Ревизии',
     'Merit'                    => 'Плюсы',
     'Fault'                    => 'Минусы',
     nil                        => 'Без типа'

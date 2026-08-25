@@ -1,0 +1,93 @@
+.page-header
+  = link_to t('.back'), inventories_path, class: 'btn pull-right'
+  - if policy(@inventory).destroy?
+    = link_to t('helpers.links.destroy'), inventory_path(@inventory), method: :delete,
+              data: { confirm: t('helpers.links.confirm') }, class: 'btn btn-danger pull-right'
+  - if policy(@inventory).edit?
+    = link_to t('helpers.links.edit'), edit_inventory_path(@inventory), class: 'btn pull-right'
+  - if policy(@inventory).send_picker?
+    = link_to t('.send_to_branch'), send_picker_inventory_path(@inventory, form_name: 'send_picker_modal'),
+              remote: true, class: 'btn btn-success pull-right'
+  %h2= t('.title', number: @inventory.number)
+
+.inventories__card
+  %dl.dl-horizontal
+    %dt= Inventory.human_attribute_name(:created_at)
+    %dd= l @inventory.created_at, format: :short
+    %dt= Inventory.human_attribute_name(:store)
+    %dd= @inventory.store&.name
+    %dt= Inventory.human_attribute_name(:department)
+    %dd= @inventory.department&.name
+    %dt= Inventory.human_attribute_name(:status)
+    %dd
+      %span{ class: "inventories__status inventories__status--#{@inventory.status.tr('_', '-')}" }
+        = t("inventories.statuses.#{@inventory.status}")
+    %dt= Inventory.human_attribute_name(:user)
+    %dd= @inventory.user&.short_name
+    - if @inventory.sent_at.present?
+      %dt= t('.sent_at')
+      %dd= l @inventory.sent_at, format: :short
+    - if @inventory.subscribers.any?
+      %dt= t('.subscribers')
+      %dd= @inventory.subscribers.map(&:short_name).join(', ')
+    - if @inventory.started_at.present?
+      %dt= Inventory.human_attribute_name(:started_at)
+      %dd= l @inventory.started_at, format: :short
+    %dt= Inventory.human_attribute_name(:sort_mode)
+    %dd
+      = t("inventories.sort_modes.#{@inventory.sort_mode}")
+      - if @inventory.ignore_model_in_sort?
+        %span.inventories__hint= t('.ignore_model_on')
+      - if @inventory.include_zero_remnants?
+        %span.inventories__hint= t('.include_zero_on')
+    - if @inventory.comment.present?
+      %dt= Inventory.human_attribute_name(:comment)
+      %dd= @inventory.comment
+
+- if policy(@inventory).selection?
+  .inventories__card
+    %h4
+      = t('.selection_title')
+      = link_to t('.selection_edit'), selection_inventory_path(@inventory), class: 'btn btn-small'
+    = render 'selection_summary', inventory: @inventory
+
+- if policy(@inventory).see_lines?
+  #inventory_lines= render 'lines_table', inventory: @inventory
+
+  - if policy(@inventory).count_lines?
+    -# Обработчик делегирован на document: строки перерисовываются после каждого
+    -# сохранения, и обработчик, навешенный на сами поля, пережил бы только
+    -# первую правку. Сабмит через submit.rails — в проекте jquery_ujs.
+    :javascript
+      $(function() {
+        $(document).off('change.inventoryLine').on('change.inventoryLine', '.inventories__line-input', function() {
+          $(this).closest('form').trigger('submit.rails');
+        });
+      });
+
+  - if policy(@inventory).manage_lines?
+    .inventories__add-line
+      %h4= t('.add_line_title')
+      %p.inventories__hint= t('.add_line_hint')
+
+      -# remote: результаты подменяются на месте, иначе перезагрузка уводила бы
+      -# страницу в начало на каждый поиск по длинному списку.
+      = form_tag inventory_path(@inventory), method: :get, class: 'form-search', remote: true do
+        .input-append
+          = text_field_tag :q, params[:q], class: 'search-query input-medium', placeholder: t('inventories.selection.search_placeholder')
+          %button.btn{ type: 'submit' }= glyph('search')
+
+      #line_candidates= render 'line_candidates', inventory: @inventory, products: @found_products, query: params[:q]
+- else
+  .inventories__start
+    -# Пустая ревизия кнопку «Начать» не показывает, и обещать открытие списка
+    -# в этом случае нельзя — объясняем, что делать.
+    - if @inventory.lines.empty?
+      %p.inventories__hint= t('.empty_for_branch')
+    - else
+      %p.inventories__hint= t('.hidden_until_start')
+    - if policy(@inventory).start?
+      -# Предупреждение обязательное: с момента старта ревизия сверяется со
+      -# снимком остатков, а не с текущим складом.
+      = link_to t('.start'), start_inventory_path(@inventory), method: :patch,
+                data: { confirm: t('.start_confirm') }, class: 'btn btn-primary btn-large'
