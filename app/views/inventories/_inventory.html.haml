@@ -11,3 +11,8 @@
       = '—'
     - else
       = t('inventories.index.progress_value', counted: inventory.counted_lines_count, total: inventory.lines.size)
+  %td.inventories__row-action
+    -# Технарь видит в списке только номер и дату — работа начинается отсюда.
+    - if policy(inventory).start?
+      = link_to t('inventories.show.start'), start_inventory_path(inventory), method: :patch,
+                data: { confirm: t('inventories.show.start_confirm') }, class: 'btn btn-small btn-primary'

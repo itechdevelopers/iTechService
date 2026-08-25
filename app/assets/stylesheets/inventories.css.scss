@@ -103,6 +103,19 @@
     overflow: visible;
   }
 
+  &__row-action {
+    width: 110px;
+    text-align: right;
+  }
+
+  &__start {
+    padding: 24px;
+    text-align: center;
+    background: #f7f7f7;
+    border: 1px solid #e3e3e3;
+    border-radius: 4px;
+  }
+
   &__lines-action {
     width: 40px;
     text-align: center;

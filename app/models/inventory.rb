@@ -100,6 +100,25 @@ class Inventory < ApplicationRecord
     end
   end
 
+  # Старт подсчёта: с этого момента ревизия сравнивается не с текущим остатком,
+  # а со снимком, снятым здесь. Поэтому технаря и предупреждают, что количество
+  # считается «на текущий момент» — всё, что уедет со склада позже, останется
+  # расхождением.
+  def start!
+    transaction do
+      quantities = StoreItem.where(store_id: store_id, item_id: lines.select(:item_id))
+                            .pluck(:item_id, :quantity).to_h
+
+      lines.each do |line|
+        # Позиции без строки StoreItem на складе — ноль, а не nil: «по учёту
+        # нет ни одной» это полноценное значение для сверки.
+        line.update!(expected_quantity: quantities[line.item_id].to_i)
+      end
+
+      update!(status: :counting, started_at: Time.zone.now)
+    end
+  end
+
   # Добавленная вручную позиция встаёт в конец, а не по правилам сортировки:
   # иначе номера уже розданных строк поехали бы, а бланк на руках у технарей
   # остался бы со старыми.

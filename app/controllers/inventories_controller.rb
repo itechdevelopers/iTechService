@@ -95,6 +95,14 @@ class InventoriesController < ApplicationController
     end
   end
 
+  # Технарь начинает подсчёт: фиксируется момент и остатки по учёту.
+  def start
+    @inventory = find_record Inventory
+    @inventory.start!
+
+    redirect_to @inventory, notice: t('.started')
+  end
+
   # Модалка перед отправкой: показывает, кого уведомим автоматически, и даёт
   # добавить людей вручную.
   def send_picker

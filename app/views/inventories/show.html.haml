@@ -68,4 +68,15 @@
 
       #line_candidates= render 'line_candidates', inventory: @inventory, products: @found_products, query: params[:q]
 - else
-  %p.inventories__hint= t('.hidden_until_start')
+  .inventories__start
+    -# Пустая ревизия кнопку «Начать» не показывает, и обещать открытие списка
+    -# в этом случае нельзя — объясняем, что делать.
+    - if @inventory.lines.empty?
+      %p.inventories__hint= t('.empty_for_branch')
+    - else
+      %p.inventories__hint= t('.hidden_until_start')
+    - if policy(@inventory).start?
+      -# Предупреждение обязательное: с момента старта ревизия сверяется со
+      -# снимком остатков, а не с текущим складом.
+      = link_to t('.start'), start_inventory_path(@inventory), method: :patch,
+                data: { confirm: t('.start_confirm') }, class: 'btn btn-primary btn-large'

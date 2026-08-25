@@ -63,6 +63,15 @@ class InventoryPolicy < ApplicationPolicy
     send_picker?
   end
 
+  # Начинает подсчёт филиал — те, кто физически считает. Админу тоже оставляем:
+  # он может открыть ревизию за филиал, если там некому.
+  #
+  # Пустую ревизию начинать нечем: отправка её и не пропустит, но строки могли
+  # исчезнуть вместе с удалённой номенклатурой.
+  def start?
+    record.sent? && record.lines.any? && (manager? || same_branch?)
+  end
+
   # Содержимое списка. Технарю до нажатия «Начать» видны только номер и дата —
   # позиции открываются вместе с фиксацией остатков.
   def see_lines?
@@ -78,8 +87,11 @@ class InventoryPolicy < ApplicationPolicy
   # Технарь видит ревизию своего филиала и только после отправки на филиал —
   # черновик товароведа для него не существует.
   def visible_to_branch?
-    record.status.in?(Inventory::VISIBLE_TO_BRANCH) &&
-      user.department_id == record.department_id
+    record.status.in?(Inventory::VISIBLE_TO_BRANCH) && same_branch?
+  end
+
+  def same_branch?
+    user.department_id == record.department_id
   end
 
   class Scope < Scope
