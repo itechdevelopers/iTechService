@@ -76,6 +76,19 @@ class InventoriesController < ApplicationController
     end
   end
 
+  # Разворот выбора в пронумерованные строки. Пересборка стирает прежние строки
+  # вместе с ручными правками, поэтому предупреждение висит на кнопке.
+  def build_lines
+    @inventory = find_record Inventory
+    count = InventoryLinesBuilder.call(@inventory)
+
+    if count.zero?
+      redirect_to @inventory, alert: t('.empty')
+    else
+      redirect_to @inventory, notice: t('.built', count: count)
+    end
+  end
+
   def destroy
     @inventory = find_record Inventory
     number = @inventory.number

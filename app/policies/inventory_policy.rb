@@ -43,6 +43,10 @@ class InventoryPolicy < ApplicationPolicy
     update?
   end
 
+  def build_lines?
+    update? && record.selection?
+  end
+
   # Содержимое списка. Технарю до нажатия «Начать» видны только номер и дата —
   # позиции открываются вместе с фиксацией остатков.
   def see_lines?

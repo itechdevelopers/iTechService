@@ -96,4 +96,21 @@
   &__summary-total {
     font-weight: bold;
   }
+
+  &__lines-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 8px;
+
+    h4 {
+      margin: 0;
+    }
+
+    small {
+      margin-left: 8px;
+      color: #777;
+      font-weight: normal;
+    }
+  }
 }

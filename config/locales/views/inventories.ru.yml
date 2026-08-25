@@ -30,9 +30,21 @@ ru:
       selection_edit: 'Выбрать номенклатуру'
       ignore_model_on: 'модель не учитывается при сортировке'
       include_zero_on: 'с нулевыми остатками'
+      lines_title: 'Список позиций'
+      lines_count:
+        zero: 'позиций нет'
+        one: '%{count} позиция'
+        few: '%{count} позиции'
+        many: '%{count} позиций'
+        other: '%{count} позиции'
+      build_lines: 'Сформировать список'
+      rebuild_lines: 'Пересобрать список'
+      rebuild_confirm: 'Список будет собран заново, ручные правки позиций пропадут. Продолжить?'
       columns:
         position: '№'
         name: 'Номенклатура'
+        purchase_price: 'Себестоимость'
+        usage: 'Расход за полгода'
         expected: 'По учёту'
         counted: 'Факт'
     form:
@@ -51,8 +63,12 @@ ru:
       nothing_found: 'Ничего не найдено'
       summary_title: 'Выбрано'
       summary_counts: 'Групп: %{groups}, отдельных позиций: %{products}'
-      summary_total: 'Всего позиций каталога: %{count}'
+      summary_total: 'Попадёт в список: %{count}'
+      summary_catalog: 'В каталоге по этому выбору: %{count} — остальные не заведены на складе ревизии или считаются поштучно'
       summary_empty: 'Пока ничего не выбрано'
+    build_lines:
+      built: 'Список сформирован: позиций — %{count}'
+      empty: 'По выбранной номенклатуре на складе не нашлось ни одной позиции'
     create:
       created: 'Ревизия №%{number} создана'
     update:

@@ -561,6 +561,7 @@ Rails.application.routes.draw do
   resources :inventories do
     get :selection, on: :member
     patch :update_selection, on: :member
+    post :build_lines, on: :member
   end
 
   resources :repair_time_standards, only: %i[index show]
