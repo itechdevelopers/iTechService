@@ -1,9 +1,10 @@
 - editable = policy(inventory).manage_lines?
+- countable = policy(inventory).count_lines?
 
 .inventories__lines-header
   %h4
     = t('inventories.show.lines_title')
-    %small= t('inventories.show.lines_count', count: inventory.lines.size)
+    %small#lines_progress= inventory_lines_progress(inventory)
   - if policy(inventory).build_lines?
     -# Пересборка стирает ручные правки списка, поэтому подтверждение
     -# спрашиваем только когда стирать уже есть что.
@@ -11,6 +12,9 @@
               data: { confirm: (t('inventories.show.rebuild_confirm') if inventory.lines.any?) },
               class: 'btn btn-primary btn-small' do
       = inventory.lines.any? ? t('inventories.show.rebuild_lines') : t('inventories.show.build_lines')
+
+- if countable
+  %p.inventories__hint= t('inventories.show.counting_hint')
 
 %table.table.table-bordered.inventories__lines
   %thead
@@ -21,23 +25,11 @@
       %th= t('inventories.show.columns.usage')
       %th= t('inventories.show.columns.expected')
       %th= t('inventories.show.columns.counted')
-      - if editable
+      - if editable || countable
         %th.inventories__lines-action
+          = t('inventories.show.columns.author') if countable
   %tbody
     - if inventory.lines.empty?
       %tr
-        %td{ colspan: editable ? 7 : 6 }= t('inventories.show.no_lines')
-    - inventory.lines.each do |line|
-      %tr
-        %td= line.position
-        %td= line.name
-        %td= number_to_currency(line.snapshot_purchase_price, precision: 0) if line.snapshot_purchase_price.present?
-        %td= line.usage_count
-        %td= line.expected_quantity
-        %td= line.counted_quantity
-        - if editable
-          %td.inventories__lines-action
-            = link_to inventory_line_path(inventory, line, q: params[:q]), method: :delete, remote: true,
-                      data: { confirm: t('inventories.show.remove_line_confirm', name: line.name) },
-                      class: 'btn btn-mini btn-danger', title: t('inventories.show.remove_line') do
-              = glyph('trash')
+        %td{ colspan: (editable || countable) ? 7 : 6 }= t('inventories.show.no_lines')
+    = render partial: 'inventories/line', collection: inventory.lines, as: :line, locals: { inventory: inventory }

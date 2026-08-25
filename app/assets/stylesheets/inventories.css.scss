@@ -103,6 +103,40 @@
     overflow: visible;
   }
 
+  // Подсветка заполненных строк по автору. Цвет закрепляется за человеком по
+  // его id (см. InventoriesHelper#inventory_author_color_index), поэтому один и
+  // тот же технарь всегда одного цвета — и в этой ревизии, и в следующей.
+  // Фоны намеренно бледные: строк много, и насыщенная заливка сделала бы
+  // таблицу нечитаемой.
+  $inventory-author-colors: #e8f4fd, #eaf7ea, #fdf3e0, #f6ecfb, #fce9ec, #e6f7f6, #f2f4d9, #eeeeee;
+
+  @each $color in $inventory-author-colors {
+    $i: index($inventory-author-colors, $color) - 1;
+
+    &__line--author-#{$i} td {
+      background-color: $color;
+    }
+  }
+
+  &__line-author {
+    font-size: 11px;
+    color: #666;
+    white-space: nowrap;
+  }
+
+  &__line-form {
+    margin: 0;
+  }
+
+  &__line-input {
+    margin: 0;
+    text-align: center;
+  }
+
+  &__line-counted {
+    width: 90px;
+  }
+
   &__row-action {
     width: 110px;
     text-align: right;

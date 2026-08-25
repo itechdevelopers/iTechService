@@ -72,6 +72,12 @@ class InventoryPolicy < ApplicationPolicy
     record.sent? && record.lines.any? && (manager? || same_branch?)
   end
 
+  # Вписывать факт может любой сотрудник филиала — заказчик просил, чтобы
+  # ревизию заполняли одновременно несколькими людьми.
+  def count_lines?
+    (record.counting? || record.recount?) && (manager? || same_branch?)
+  end
+
   # Содержимое списка. Технарю до нажатия «Начать» видны только номер и дата —
   # позиции открываются вместе с фиксацией остатков.
   def see_lines?

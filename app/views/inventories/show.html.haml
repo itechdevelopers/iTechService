@@ -54,6 +54,17 @@
 - if policy(@inventory).see_lines?
   #inventory_lines= render 'lines_table', inventory: @inventory
 
+  - if policy(@inventory).count_lines?
+    -# Обработчик делегирован на document: строки перерисовываются после каждого
+    -# сохранения, и обработчик, навешенный на сами поля, пережил бы только
+    -# первую правку. Сабмит через submit.rails — в проекте jquery_ujs.
+    :javascript
+      $(function() {
+        $(document).off('change.inventoryLine').on('change.inventoryLine', '.inventories__line-input', function() {
+          $(this).closest('form').trigger('submit.rails');
+        });
+      });
+
   - if policy(@inventory).manage_lines?
     .inventories__add-line
       %h4= t('.add_line_title')

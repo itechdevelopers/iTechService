@@ -26,6 +26,24 @@ class InventoryLinesController < ApplicationController
     render 'update_lines'
   end
 
+  # Автосохранение факта: строка уходит на сервер сразу после ввода, чтобы
+  # результат не пропал, если технарь закроет вкладку или сядет батарея.
+  def update
+    @line = @inventory.lines.find(params[:id])
+    quantity = params[:counted_quantity].to_s.strip
+
+    if quantity.blank?
+      # Стирание возвращает строку в «не считали»: пустое поле и ноль — разные
+      # состояния, и технарь должен уметь вернуться к первому.
+      @line.update!(counted_quantity: nil, counted_by: nil, counted_at: nil)
+    else
+      @line.update!(counted_quantity: quantity.to_i, counted_by: current_user,
+                    counted_at: Time.zone.now)
+    end
+
+    render 'update_line'
+  end
+
   def destroy
     line = @inventory.lines.find(params[:id])
     line.destroy
@@ -37,9 +55,11 @@ class InventoryLinesController < ApplicationController
 
   private
 
+  # Правка состава списка и заполнение факта — разные роли: первое делает
+  # товаровед до отправки, второе технарь во время подсчёта.
   def load_inventory
     @inventory = Inventory.find(params[:inventory_id])
-    authorize @inventory, :manage_lines?
+    authorize @inventory, (action_name == 'update' ? :count_lines? : :manage_lines?)
   end
 
   # Считаем в штуках экземпляр номенклатуры (Item), а не продукт: остаток
