@@ -2,3 +2,5 @@
 // параллельно, и затирать их разметкой из этого ответа нельзя.
 $('#inventory_line_<%= @line.id %>').replaceWith('<%= j render "inventories/line", line: @line, inventory: @inventory %>');
 $('#lines_progress').text('<%= j inventory_lines_progress(@inventory) %>');
+// Кнопка «Ревизия готова» появляется только после последней заполненной строки.
+$('#submit_box').html('<%= j render "inventories/submit_box", inventory: @inventory %>');

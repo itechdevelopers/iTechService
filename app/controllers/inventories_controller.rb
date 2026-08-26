@@ -103,6 +103,15 @@ class InventoriesController < ApplicationController
     redirect_to @inventory, notice: t('.started')
   end
 
+  # «Ревизия готова»: результат уходит товароведу.
+  def submit
+    @inventory = find_record Inventory
+    @inventory.update!(status: :submitted, submitted_at: Time.zone.now)
+    InventoryNotifier.notify_submitted(@inventory)
+
+    redirect_to @inventory, notice: t('.submitted', count: @inventory.discrepancy_lines.count)
+  end
+
   # Модалка перед отправкой: показывает, кого уведомим автоматически, и даёт
   # добавить людей вручную.
   def send_picker

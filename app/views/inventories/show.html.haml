@@ -33,6 +33,9 @@
     - if @inventory.started_at.present?
       %dt= Inventory.human_attribute_name(:started_at)
       %dd= l @inventory.started_at, format: :short
+    - if @inventory.submitted_at.present?
+      %dt= t('.submitted_at')
+      %dd= l @inventory.submitted_at, format: :short
     %dt= Inventory.human_attribute_name(:sort_mode)
     %dd
       = t("inventories.sort_modes.#{@inventory.sort_mode}")

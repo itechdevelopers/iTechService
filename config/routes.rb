@@ -565,6 +565,7 @@ Rails.application.routes.draw do
     get :send_picker, on: :member
     patch :send_to_branch, on: :member
     patch :start, on: :member
+    patch :submit, on: :member
     resources :lines, only: %i[create update destroy], controller: 'inventory_lines'
   end
 

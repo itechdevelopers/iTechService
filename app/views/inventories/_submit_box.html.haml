@@ -1,0 +1,10 @@
+-# Сдача ревизии. Кнопка появляется только когда заполнены все строки, поэтому
+-# блок перерисовывается после каждого сохранения (см. update_line.js.erb).
+.inventories__submit
+  - if policy(inventory).submit?
+    = link_to t('inventories.show.submit'), submit_inventory_path(inventory), method: :patch,
+              data: { confirm: t('inventories.show.submit_confirm') },
+              class: 'btn btn-success btn-large'
+  - else
+    %p.inventories__hint
+      = t('inventories.show.submit_blocked', count: inventory.lines.uncounted.count)

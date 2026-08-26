@@ -33,3 +33,6 @@
       %tr
         %td{ colspan: (editable || countable) ? 7 : 6 }= t('inventories.show.no_lines')
     = render partial: 'inventories/line', collection: inventory.lines, as: :line, locals: { inventory: inventory }
+
+- if countable
+  #submit_box= render 'inventories/submit_box', inventory: inventory
