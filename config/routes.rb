@@ -566,6 +566,7 @@ Rails.application.routes.draw do
     patch :send_to_branch, on: :member
     patch :start, on: :member
     patch :submit, on: :member
+    patch :request_recount, on: :member
     resources :lines, only: %i[create update destroy], controller: 'inventory_lines'
   end
 

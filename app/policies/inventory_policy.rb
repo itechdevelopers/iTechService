@@ -84,6 +84,16 @@ class InventoryPolicy < ApplicationPolicy
     count_lines? && record.all_lines_counted?
   end
 
+  # Разбор результата — работа товароведа: он видит расхождения и решает,
+  # пересчитать или принять.
+  def review?
+    manager? && (record.submitted? || record.recount? || record.finished?)
+  end
+
+  def request_recount?
+    manager? && record.submitted?
+  end
+
   # Содержимое списка. Технарю до нажатия «Начать» видны только номер и дата —
   # позиции открываются вместе с фиксацией остатков.
   def see_lines?

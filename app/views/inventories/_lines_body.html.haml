@@ -1,0 +1,21 @@
+%table.table.table-bordered.inventories__lines
+  %thead
+    %tr
+      - if reviewing
+        %th.inventories__line-check
+      %th.inventories__lines-position= t('inventories.show.columns.position')
+      %th= t('inventories.show.columns.name')
+      %th= t('inventories.show.columns.purchase_price')
+      %th= t('inventories.show.columns.usage')
+      %th= t('inventories.show.columns.expected')
+      %th= t('inventories.show.columns.counted')
+      - if reviewing
+        %th.inventories__line-difference= t('inventories.show.columns.difference')
+      - if editable || countable || reviewing
+        %th.inventories__lines-action
+          = t('inventories.show.columns.author') if countable
+  %tbody
+    - if lines.empty?
+      %tr
+        %td{ colspan: columns }= t('inventories.show.no_lines')
+    = render partial: 'inventories/line', collection: lines, as: :line, locals: { inventory: inventory }

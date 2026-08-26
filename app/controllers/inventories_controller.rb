@@ -103,6 +103,26 @@ class InventoriesController < ApplicationController
     redirect_to @inventory, notice: t('.started')
   end
 
+  # Возврат части позиций на пересчёт. Прежний факт по ним стирается — иначе
+  # технарь подтвердит уже вписанное число не пересчитывая.
+  def request_recount
+    @inventory = find_record Inventory
+
+    lines = @inventory.lines.where(id: Array(params[:line_ids]))
+    if lines.empty?
+      redirect_to @inventory, alert: t('.nothing_selected')
+      return
+    end
+
+    Inventory.transaction do
+      lines.each(&:request_recount!)
+      @inventory.update!(status: :recount)
+    end
+
+    InventoryNotifier.notify_recount(@inventory, lines.size)
+    redirect_to @inventory, notice: t('.requested', count: lines.size)
+  end
+
   # «Ревизия готова»: результат уходит товароведу.
   def submit
     @inventory = find_record Inventory

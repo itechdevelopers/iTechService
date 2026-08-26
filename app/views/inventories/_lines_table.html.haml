@@ -1,5 +1,12 @@
 - editable = policy(inventory).manage_lines?
 - countable = policy(inventory).count_lines?
+- reviewing = policy(inventory).review?
+-# При пересчёте технарь видит только возвращённые позиции — остальные он уже
+-# посчитал, и показывать их значило бы предлагать пересчитать всё заново.
+-# Товароведу список урезать нельзя: он разбирает ревизию целиком, а админ
+-# проходит обе проверки сразу.
+- lines = (countable && !reviewing) ? inventory.lines_to_count : inventory.lines
+- columns = 6 + [reviewing ? 2 : 0, (editable || countable || reviewing) ? 1 : 0].sum
 
 .inventories__lines-header
   %h4
@@ -14,25 +21,24 @@
       = inventory.lines.any? ? t('inventories.show.rebuild_lines') : t('inventories.show.build_lines')
 
 - if countable
-  %p.inventories__hint= t('inventories.show.counting_hint')
+  %p.inventories__hint= t(inventory.recount? ? 'inventories.show.recount_hint' : 'inventories.show.counting_hint')
+- if reviewing
+  %p.inventories__hint= t('inventories.show.review_hint', count: inventory.discrepancy_lines.count)
 
-%table.table.table-bordered.inventories__lines
-  %thead
-    %tr
-      %th.inventories__lines-position= t('inventories.show.columns.position')
-      %th= t('inventories.show.columns.name')
-      %th= t('inventories.show.columns.purchase_price')
-      %th= t('inventories.show.columns.usage')
-      %th= t('inventories.show.columns.expected')
-      %th= t('inventories.show.columns.counted')
-      - if editable || countable
-        %th.inventories__lines-action
-          = t('inventories.show.columns.author') if countable
-  %tbody
-    - if inventory.lines.empty?
-      %tr
-        %td{ colspan: (editable || countable) ? 7 : 6 }= t('inventories.show.no_lines')
-    = render partial: 'inventories/line', collection: inventory.lines, as: :line, locals: { inventory: inventory }
+- table_locals = { inventory: inventory, lines: lines, columns: columns,
+                   editable: editable, countable: countable, reviewing: reviewing }
+
+-# Форму разбора вешаем только на режим товароведа: при подсчёте у каждой
+-# строки своя форма автосохранения, а вложенные формы браузер выбрасывает.
+- if policy(inventory).request_recount?
+  = form_tag request_recount_inventory_path(inventory), method: :patch, id: 'inventory_review_form' do
+    = render 'inventories/lines_body', table_locals
+    .inventories__review-actions
+      = submit_tag t('inventories.show.request_recount'), class: 'btn btn-warning',
+                   data: { confirm: t('inventories.show.request_recount_confirm') }
+      %span.inventories__hint= t('inventories.show.request_recount_hint')
+- else
+  = render 'inventories/lines_body', table_locals
 
 - if countable
   #submit_box= render 'inventories/submit_box', inventory: inventory

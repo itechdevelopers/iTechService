@@ -1,12 +1,21 @@
 -# Строка списка. При подсчёте вместо значения — поле ввода с автосохранением;
--# заполненная строка красится в цвет того, кто её вписал.
+-# заполненная строка красится в цвет того, кто её вписал. У товароведа после
+-# сдачи вместо цвета автора важнее расхождение, поэтому оно перебивает подсветку.
 - countable = policy(inventory).count_lines?
+- reviewing = policy(inventory).review?
 - author = line.counted_by
 
 %tr{ id: "inventory_line_#{line.id}",
-     class: ['inventories__line', ("inventories__line--author-#{inventory_author_color_index(author)}" if line.counted? && author)] }
+     class: ['inventories__line', inventory_line_row_class(line, reviewing: reviewing)] }
+  - if reviewing
+    %td.inventories__line-check
+      - if policy(inventory).request_recount? && line.discrepancy?
+        = check_box_tag 'line_ids[]', line.id, false, id: "line_check_#{line.id}"
   %td= line.position
-  %td= line.name
+  %td
+    = line.name
+    - if line.recount_requested?
+      %span.inventories__line-flag= t('inventories.show.recount_flag')
   %td= number_to_currency(line.snapshot_purchase_price, precision: 0) if line.snapshot_purchase_price.present?
   %td= line.usage_count
   %td= line.expected_quantity
@@ -17,7 +26,11 @@
                            class: 'input-mini inventories__line-input', autocomplete: 'off'
     - else
       = line.counted_quantity
-  - if countable || policy(inventory).manage_lines?
+  - if reviewing
+    %td.inventories__line-difference
+      - if line.difference.present? && !line.difference.zero?
+        = number_with_delimiter(line.difference, delimiter: ' ').sub(/\A(?!-)/, '+')
+  - if countable || policy(inventory).manage_lines? || reviewing
     %td.inventories__lines-action
       - if policy(inventory).manage_lines?
         = link_to inventory_line_path(inventory, line, q: params[:q]), method: :delete, remote: true,

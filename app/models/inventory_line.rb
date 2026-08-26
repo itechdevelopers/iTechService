@@ -45,4 +45,12 @@ class InventoryLine < ApplicationRecord
 
     counted_quantity - (expected_quantity || 0)
   end
+
+  # Возврат позиции на пересчёт: прежний факт стирается, иначе технарь увидит
+  # уже вписанное число и «подтвердит» его не глядя — а смысл пересчёта именно
+  # в том, чтобы посчитать заново.
+  def request_recount!
+    update!(counted_quantity: nil, counted_by: nil, counted_at: nil,
+            recount_requested: true, resolution: nil)
+  end
 end

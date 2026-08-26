@@ -118,6 +118,41 @@
     }
   }
 
+  // Расхождение перебивает подсветку автора: товароведу после сдачи важно не
+  // кто считал, а где факт разошёлся с учётом.
+  &__line--discrepancy td {
+    background-color: #fbe6e6;
+  }
+
+  &__line-check {
+    width: 30px;
+    text-align: center;
+  }
+
+  &__line-difference {
+    width: 80px;
+    text-align: right;
+    font-weight: bold;
+  }
+
+  &__line-flag {
+    margin-left: 6px;
+    padding: 1px 6px;
+    border-radius: 8px;
+    font-size: 11px;
+    background: #fcf8e3;
+    color: #8a6d3b;
+  }
+
+  &__review-actions {
+    margin-bottom: 20px;
+
+    .inventories__hint {
+      display: inline-block;
+      margin-left: 12px;
+    }
+  }
+
   &__line-author {
     font-size: 11px;
     color: #666;

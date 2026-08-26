@@ -16,6 +16,10 @@ class InventoryNotifier
     new(inventory).notify_submitted
   end
 
+  def self.notify_recount(inventory, count)
+    new(inventory).notify_recount(count)
+  end
+
   def initialize(inventory)
     @inventory = inventory
   end
@@ -41,6 +45,18 @@ class InventoryNotifier
       message: subject,
       telegram_text: "<b>Ревизия проведена</b>\n#{CGI.escapeHTML(subject)}",
       recipients: review_recipients
+    )
+  end
+
+  # Часть позиций вернули на пересчёт — зовём обратно тех же, кто считал.
+  def notify_recount(count)
+    subject = "Ревизия №#{inventory.number}: пересчитать позиций — #{count} " \
+              "(#{inventory.store&.name})"
+
+    deliver(
+      message: subject,
+      telegram_text: "<b>Ревизия: нужен пересчёт</b>\n#{CGI.escapeHTML(subject)}",
+      recipients: recipients
     )
   end
 
