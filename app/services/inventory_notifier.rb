@@ -20,6 +20,10 @@ class InventoryNotifier
     new(inventory).notify_recount(count)
   end
 
+  def self.notify_finished(inventory)
+    new(inventory).notify_finished
+  end
+
   def initialize(inventory)
     @inventory = inventory
   end
@@ -45,6 +49,21 @@ class InventoryNotifier
       message: subject,
       telegram_text: "<b>Ревизия проведена</b>\n#{CGI.escapeHTML(subject)}",
       recipients: review_recipients
+    )
+  end
+
+  # Ревизия закрыта. В тексте сразу итог, чтобы получателю не пришлось
+  # открывать карточку ради двух чисел.
+  def notify_finished
+    summary = InventorySummary.new(inventory)
+    subject = "Ревизия №#{inventory.number} закрыта (#{inventory.store&.name}): " \
+              "списано #{summary.shortage_quantity} шт, " \
+              "излишков #{summary.surplus_quantity} шт"
+
+    deliver(
+      message: subject,
+      telegram_text: "<b>Ревизия закрыта</b>\n#{CGI.escapeHTML(subject)}",
+      recipients: (review_recipients + recipients).uniq
     )
   end
 

@@ -14,6 +14,7 @@ class InventoriesController < ApplicationController
   def show
     @inventory = find_record Inventory
     @found_products = search_products
+    @summary = InventorySummary.new(@inventory)
 
     respond_to do |format|
       format.html
@@ -142,6 +143,35 @@ class InventoriesController < ApplicationController
     end
   end
 
+  # Выгрузка списка: PDF — печатный бланк для похода по складу, XLSX — рабочий
+  # файл товароведа с фактом и разницей.
+  def export
+    @inventory = find_record Inventory
+
+    respond_to do |format|
+      format.pdf do
+        pdf = InventoryPdf.new(@inventory, view_context)
+        send_data pdf.render, filename: export_filename('pdf'),
+                              type: 'application/pdf', disposition: 'inline'
+      end
+      format.xlsx do
+        package = Axlsx::Package.new
+        InventoryXlsx.new(@inventory).to_xlsx(package.workbook)
+        send_data package.to_stream.read, filename: export_filename('xlsx'),
+                  type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
+      end
+    end
+  end
+
+  # «Ревизия закончена»: закрываем и подводим итоги.
+  def finish
+    @inventory = find_record Inventory
+    @inventory.update!(status: :finished, finished_at: Time.zone.now)
+    InventoryNotifier.notify_finished(@inventory)
+
+    redirect_to @inventory, notice: t('.finished')
+  end
+
   # Приём излишков: отмеченные позиции «отгружаются» на выбранный склад.
   def accept_surplus
     @inventory = find_record Inventory
@@ -213,6 +243,10 @@ class InventoriesController < ApplicationController
 
   def search_products
     SparePartSearch.call(params[:q])
+  end
+
+  def export_filename(extension)
+    "inventory_#{@inventory.number}_#{Time.current.strftime('%Y%m%d_%H%M')}.#{extension}"
   end
 
   # Каждая кнопка разбирает только «свою» половину отмеченного. Пропущенное

@@ -81,6 +81,23 @@ ru:
       accept_surplus_hint: 'Излишек прибавится к остатку выбранного склада. Остаток филиала не изменится — лишние штуки с него уезжают.'
       surplus_store_blank: 'Куда отгрузить излишек'
       documents_title: 'Документы по ревизии'
+      finished_at: 'Закрыта'
+      export_pdf: 'Печать'
+      export_xlsx: 'Excel'
+      finish: 'Ревизия закончена'
+      finish_confirm: 'Закрыть ревизию? После этого разбирать расхождения будет нельзя.'
+      finish_confirm_unresolved: 'Осталось неразобранных расхождений: %{count}. Закрыть ревизию всё равно? После закрытия разобрать их будет нельзя.'
+      finish_hint: 'После закрытия ревизия становится историей: позиции и итоги остаются, но менять их уже нельзя.'
+      summary_title: 'Итоги ревизии'
+      summary:
+        positions: 'Позиций в ревизии'
+        discrepancies: 'Из них с расхождением'
+        shortage: 'Недостача'
+        surplus: 'Излишек'
+        surplus_stores: 'Излишки отгружены'
+        unresolved: 'Не разобрано'
+        counters: 'Кто заполнял'
+        value: '%{positions} поз. / %{quantity} шт'
       columns:
         position: '№'
         name: 'Номенклатура'
@@ -127,6 +144,14 @@ ru:
     documents:
       deduction_act: 'Акт списания №%{number}'
       purchase: 'Приход №%{number}'
+    pdf:
+      title: 'Ревизия №%{number}'
+      store: 'Склад: %{store}'
+      date: 'Дата: %{date}'
+      sort_mode: 'Порядок позиций: %{mode}'
+      fact_column: 'Факт'
+    finish:
+      finished: 'Ревизия закрыта, итоги подведены'
     accept_surplus:
       nothing_selected: 'Не отмечено ни одной позиции'
       store_required: 'Не выбран склад, куда отгружается излишек'
