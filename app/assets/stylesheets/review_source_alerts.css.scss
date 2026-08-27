@@ -1,0 +1,56 @@
+// Состояние источников отзывов. Блок с уникальным префиксом: цвета ячеек
+// заданы через модификаторы, а не через .table-суффиксы Bootstrap, чтобы не
+// зацепить остальные таблицы приложения.
+.review-source-health {
+  &__alerts {
+    // Шапка таблицы аварий: сама таблица уже кричит цветом строк, поэтому
+    // выделяем только сами строки.
+    margin-bottom: 20px;
+  }
+
+  &__alert-row {
+    background-color: #f2dede;
+  }
+
+  &__duration {
+    font-weight: bold;
+    white-space: nowrap;
+  }
+
+  &__ok {
+    padding: 10px 14px;
+    margin-bottom: 20px;
+    background-color: #dff0d8;
+    border: 1px solid #d6e9c6;
+    border-radius: 4px;
+    color: #468847;
+  }
+
+  &__matrix,
+  &__history {
+    width: auto;
+    min-width: 60%;
+  }
+
+  &__cell {
+    white-space: nowrap;
+
+    &--failing {
+      background-color: #f2dede;
+      color: #b94a48;
+      font-weight: bold;
+    }
+
+    &--working {
+      background-color: #dff0d8;
+      color: #468847;
+    }
+
+    // Пара, по которой не приходило ни отзывов, ни аварий: утверждать, что она
+    // работает, оснований нет.
+    &--unknown {
+      background-color: #f5f5f5;
+      color: #999999;
+    }
+  }
+}

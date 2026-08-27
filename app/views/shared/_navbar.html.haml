@@ -44,6 +44,8 @@
                 = menu_item t('gis_reviews.index.title'), gis_reviews_path
                 = menu_item t('gis_reviews.claims.title'), claims_gis_reviews_path
                 = menu_item t('gis_reviews.statistics.title'), statistics_gis_reviews_path
+              - if policy(ReviewSourceAlert).index?
+                = menu_item t('review_source_alerts.index.title'), review_source_alerts_path
         - if can? :manage, TaskTemplate
           = drop_down_divider
           = menu_item t('task_templates.index.title'), task_templates_path
