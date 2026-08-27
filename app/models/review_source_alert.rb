@@ -85,6 +85,22 @@ class ReviewSourceAlert < ApplicationRecord
     GisReview.department_for(branch_code)
   end
 
+  # Сводка по всем открытым авариям одним сообщением. nil — открытых нет, и
+  # тогда никто ничего не шлёт: тишина здесь и означает «всё работает».
+  def self.digest_telegram_text
+    alerts = unresolved.includes(:department).to_a
+    return nil if alerts.empty?
+
+    lines = alerts.sort_by { |alert| -(alert.duration_hours || 0) }
+                  .map { |alert| CGI.escapeHTML("#{alert.full_label}: #{alert.duration_label}") }
+
+    [
+      "<b>Сбор отзывов: открытых аварий #{alerts.size}</b>",
+      lines.join("\n"),
+      %(<a href="#{alerts.first.index_url}">Открыть состояние источников</a>)
+    ].join("\n\n")
+  end
+
   def unresolved?
     resolved_at.nil?
   end
