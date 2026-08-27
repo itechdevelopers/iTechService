@@ -270,6 +270,10 @@ Rails.application.routes.draw do
     patch :reject_claim, on: :collection
   end
 
+  # Состояние источников отзывов: аварии сбора, о которых сообщает парсер-агент.
+  # Записи заводит только он через ReviewAgentApi — отсюда лишь просмотр.
+  resources :review_source_alerts, only: %i[index]
+
   # Учёт пакетов. Размеры (package_stocks) редактируются вложенно в форме дизайна.
   resources :package_designs
   # Забор пакетов водителем (форма + создание).

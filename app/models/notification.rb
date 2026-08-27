@@ -20,6 +20,7 @@ class Notification < ApplicationRecord
     'ClientRequest'            => 'Запросы клиентов',
     'DeviceUnlockRequest'      => 'Запросы на разблокировку',
     'GisReview'                => 'Отзывы 2ГИС',
+    'ReviewSourceAlert'        => 'Сбои сбора отзывов',
     'Inventory'                => 'Ревизии',
     'Merit'                    => 'Плюсы',
     'Fault'                    => 'Минусы',

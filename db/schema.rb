@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20260827100000) do
+ActiveRecord::Schema.define(version: 20260827120000) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -1894,6 +1894,29 @@ ActiveRecord::Schema.define(version: 20260827100000) do
     t.index ["revaluation_act_id"], name: "index_revaluations_on_revaluation_act_id"
   end
 
+  create_table "review_source_alerts", force: :cascade do |t|
+    t.string "source", null: false
+    t.string "branch_code", default: "", null: false
+    t.string "branch_name"
+    t.string "city_name"
+    t.bigint "department_id"
+    t.string "external_alert_id"
+    t.string "alert_type", null: false
+    t.datetime "first_failed_at"
+    t.datetime "last_failed_at"
+    t.integer "consecutive_failures"
+    t.float "hours_failed"
+    t.text "message"
+    t.text "last_error"
+    t.datetime "resolved_at"
+    t.text "resolved_message"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["department_id"], name: "index_review_source_alerts_on_department_id"
+    t.index ["source", "branch_code"], name: "index_review_source_alerts_on_open_source_and_branch", unique: true, where: "(resolved_at IS NULL)"
+    t.index ["source", "resolved_at"], name: "index_review_source_alerts_on_source_and_resolved_at"
+  end
+
   create_table "reviews", id: :serial, force: :cascade do |t|
     t.integer "user_id"
     t.integer "service_job_id"
@@ -2941,6 +2964,7 @@ ActiveRecord::Schema.define(version: 20260827100000) do
   add_foreign_key "report_columns", "reports_boards"
   add_foreign_key "report_permissions", "report_cards"
   add_foreign_key "report_permissions", "users"
+  add_foreign_key "review_source_alerts", "departments"
   add_foreign_key "reviews", "clients"
   add_foreign_key "reviews", "service_jobs"
   add_foreign_key "reviews", "users"

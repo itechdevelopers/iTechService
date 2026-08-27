@@ -224,5 +224,89 @@ class ReviewAgentApi < Grape::API
 
       present review, with: Entities::GisReviewEntity
     end
+
+    desc 'Авария сбора отзывов или её восстановление'
+    params do
+      requires :source,     type: String, values: ReviewSourceAlert::SOURCES
+      # Решение принимаем по alert_type; status агент шлёт как справочный —
+      # поля дублируют друг друга, и без явного приоритета пара
+      # source_recovered + error была бы неразрешимой.
+      requires :alert_type, type: String, values: ReviewSourceAlert::ALERT_TYPES
+      optional :status,     type: String
+      # Пусто (null или отсутствует) — авария площадки целиком.
+      optional :branch_code, type: String
+      # Идентификатор аварии у агента: храним для сверки с его логами,
+      # уникальность строим не на нём (см. ReviewSourceAlert).
+      optional :external_alert_id,    type: String
+      optional :branch_name,          type: String
+      optional :city,                 type: String
+      optional :first_failed_at,      type: DateTime
+      optional :last_failed_at,       type: DateTime
+      optional :consecutive_failures, type: Integer
+      optional :hours_failed,         type: Float
+      optional :message,              type: String
+      optional :error,                type: String
+    end
+    post 'alerts' do
+      authorize :create, ReviewSourceAlert
+      log_agent("POST alerts #{loggable_params.to_json}")
+
+      branch_code = ReviewSourceAlert.normalize_branch_code(params[:branch_code])
+
+      if params[:alert_type] == 'source_recovered'
+        resolved = ReviewSourceAlert.resolve(
+          source: params[:source], branch_code: branch_code, message: params[:message]
+        )
+        # Grape по умолчанию отвечает на POST 201 Created, а восстановление
+        # ничего не создаёт — без явного статуса агент увидит «создано».
+        status 200
+
+        if resolved.empty?
+          # Не ошибка: Айс могли поднять уже после начала аварии, или её
+          # закрыли руками. Ронять агенту задачу из-за нашего рассинхрона незачем.
+          log_agent("POST alerts → восстановление #{params[:source]}/#{branch_code.presence || 'вся площадка'} без открытой аварии")
+          { status: 'no_open_alert' }
+        else
+          log_agent("POST alerts → закрыто аварий: #{resolved.size} (#{resolved.map(&:full_label).join('; ')})")
+          { status: 'resolved', alert_ids: resolved.map(&:id) }
+        end
+      else
+        department = ReviewSourceAlert.department_for(branch_code)
+        if department.nil? && branch_code.present?
+          warn_agent("Подразделение не найдено по коду филиала #{branch_code.inspect} (авария #{params[:source]})")
+        end
+
+        alert, first_appearance = ReviewSourceAlert.open_or_update(
+          source:               params[:source],
+          branch_code:          branch_code,
+          alert_type:           params[:alert_type],
+          external_alert_id:    params[:external_alert_id],
+          branch_name:          params[:branch_name],
+          city_name:            params[:city],
+          department:           department,
+          first_failed_at:      params[:first_failed_at],
+          last_failed_at:       params[:last_failed_at],
+          consecutive_failures: params[:consecutive_failures],
+          hours_failed:         params[:hours_failed],
+          message:              params[:message],
+          last_error:           params[:error]
+        )
+
+        # Звоним только на первое появление: агент шлёт аварию на каждом
+        # прогоне, пока она держится. Рецидив после восстановления — это уже
+        # новая запись, и уведомление по нему придёт снова.
+        alert.notify_about_opening if first_appearance
+
+        log_agent(
+          "POST alerts → #{first_appearance ? 'открыта' : 'обновлена'} авария ##{alert.id} " \
+          "(#{alert.full_label}), сбоев подряд #{alert.consecutive_failures.inspect}"
+        )
+        status(first_appearance ? 201 : 200)
+        { status: first_appearance ? 'created' : 'already_exists', alert_id: alert.id }
+      end
+    rescue ActiveRecord::RecordNotUnique
+      # Два прогона агента столкнулись на одной и той же аварии.
+      agent_error!('Авария по этой площадке и филиалу уже открыта', 409)
+    end
   end
 end
