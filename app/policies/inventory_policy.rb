@@ -78,6 +78,42 @@ class InventoryPolicy < ApplicationPolicy
     (record.counting? || record.recount?) && (manager? || same_branch?)
   end
 
+  # Сдать ревизию можно только целиком: незаполненная строка означает, что
+  # позицию не считали, и товаровед принял бы её за расхождение с нулём.
+  def submit?
+    count_lines? && record.all_lines_counted?
+  end
+
+  # Разбор результата — работа товароведа: он видит расхождения и решает,
+  # пересчитать или принять.
+  def review?
+    manager? && (record.submitted? || record.recount? || record.finished?)
+  end
+
+  def request_recount?
+    manager? && record.submitted?
+  end
+
+  def accept_shortages?
+    request_recount?
+  end
+
+  def accept_surplus?
+    request_recount?
+  end
+
+  # Закрыть ревизию можно и с неразобранными расхождениями — товаровед мог
+  # решить оставить их как есть. Предупреждение об этом висит на кнопке.
+  def finish?
+    manager? && (record.submitted? || record.recount?)
+  end
+
+  # Выгрузки доступны тем же, кому виден список: печатать пустой бланк, которого
+  # ты ещё не должен видеть, смысла нет.
+  def export?
+    see_lines? && record.lines.any?
+  end
+
   # Содержимое списка. Технарю до нажатия «Начать» видны только номер и дата —
   # позиции открываются вместе с фиксацией остатков.
   def see_lines?

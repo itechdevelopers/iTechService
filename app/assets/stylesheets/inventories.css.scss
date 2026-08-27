@@ -118,6 +118,51 @@
     }
   }
 
+  // Расхождение перебивает подсветку автора: товароведу после сдачи важно не
+  // кто считал, а где факт разошёлся с учётом.
+  &__line--discrepancy td {
+    background-color: #fbe6e6;
+  }
+
+  &__line-check {
+    width: 30px;
+    text-align: center;
+  }
+
+  &__line-difference {
+    width: 80px;
+    text-align: right;
+    font-weight: bold;
+  }
+
+  &__line-flag {
+    margin-left: 6px;
+    padding: 1px 6px;
+    border-radius: 8px;
+    font-size: 11px;
+    background: #fcf8e3;
+    color: #8a6d3b;
+  }
+
+  &__line-flag--accepted {
+    background: #dff0d8;
+    color: #3c763d;
+  }
+
+  &__line-flag--surplus {
+    background: #d9edf7;
+    color: #245269;
+  }
+
+  &__review-actions {
+    margin-bottom: 20px;
+
+    .inventories__hint {
+      display: inline-block;
+      margin-left: 12px;
+    }
+  }
+
   &__line-author {
     font-size: 11px;
     color: #666;
@@ -140,6 +185,63 @@
   &__row-action {
     width: 110px;
     text-align: right;
+  }
+
+  &__summary-box {
+    margin-bottom: 20px;
+    padding: 12px 16px;
+    background: #f7f7f7;
+    border: 1px solid #e3e3e3;
+    border-radius: 4px;
+  }
+
+  &__summary-table {
+    margin-bottom: 0;
+    background: transparent;
+
+    td:first-child {
+      width: 220px;
+      color: #555;
+    }
+
+    td:last-child {
+      font-weight: bold;
+    }
+
+    .inventories__hint {
+      margin-left: 8px;
+      font-weight: normal;
+    }
+  }
+
+  &__summary-row--shortage td:last-child {
+    color: #a94442;
+  }
+
+  &__summary-row--surplus td:last-child {
+    color: #245269;
+  }
+
+  &__summary-row--unresolved td:last-child {
+    color: #8a6d3b;
+  }
+
+  &__finish {
+    margin-bottom: 20px;
+    padding: 16px;
+    text-align: center;
+    background: #f7f7f7;
+    border: 1px solid #e3e3e3;
+    border-radius: 4px;
+  }
+
+  &__submit {
+    margin: 16px 0 24px;
+    padding: 16px;
+    text-align: center;
+    background: #f7f7f7;
+    border: 1px solid #e3e3e3;
+    border-radius: 4px;
   }
 
   &__start {

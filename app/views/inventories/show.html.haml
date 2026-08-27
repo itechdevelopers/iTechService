@@ -5,6 +5,13 @@
               data: { confirm: t('helpers.links.confirm') }, class: 'btn btn-danger pull-right'
   - if policy(@inventory).edit?
     = link_to t('helpers.links.edit'), edit_inventory_path(@inventory), class: 'btn pull-right'
+  - if policy(@inventory).export?
+    = link_to export_inventory_path(@inventory, format: :xlsx), class: 'btn pull-right' do
+      = glyph('file-excel-o')
+      = t('.export_xlsx')
+    = link_to export_inventory_path(@inventory, format: :pdf), target: '_blank', class: 'btn pull-right' do
+      = glyph('print')
+      = t('.export_pdf')
   - if policy(@inventory).send_picker?
     = link_to t('.send_to_branch'), send_picker_inventory_path(@inventory, form_name: 'send_picker_modal'),
               remote: true, class: 'btn btn-success pull-right'
@@ -33,6 +40,12 @@
     - if @inventory.started_at.present?
       %dt= Inventory.human_attribute_name(:started_at)
       %dd= l @inventory.started_at, format: :short
+    - if @inventory.submitted_at.present?
+      %dt= t('.submitted_at')
+      %dd= l @inventory.submitted_at, format: :short
+    - if @inventory.finished_at.present?
+      %dt= t('.finished_at')
+      %dd= l @inventory.finished_at, format: :short
     %dt= Inventory.human_attribute_name(:sort_mode)
     %dd
       = t("inventories.sort_modes.#{@inventory.sort_mode}")
@@ -50,6 +63,29 @@
       = t('.selection_title')
       = link_to t('.selection_edit'), selection_inventory_path(@inventory), class: 'btn btn-small'
     = render 'selection_summary', inventory: @inventory
+
+-# Итоги показываем со сдачи ревизии: до этого считать нечего, а товароведу
+-# они нужны до закрытия — по ним он и решает, закрывать ли.
+- if policy(@inventory).review?
+  = render 'summary', summary: @summary
+
+  - if policy(@inventory).finish?
+    .inventories__finish
+      = link_to t('.finish'), finish_inventory_path(@inventory), method: :patch,
+                data: { confirm: (@summary.unresolved_lines.any? ? t('.finish_confirm_unresolved', count: @summary.unresolved_lines.size) : t('.finish_confirm')) },
+                class: 'btn btn-primary btn-large'
+      %p.inventories__hint= t('.finish_hint')
+
+- if @inventory.inventory_documents.any?
+  .inventories__card
+    %h4= t('.documents_title')
+    %ul.unstyled
+      - @inventory.inventory_documents.includes(:document).each do |link|
+        %li
+          = glyph('file')
+          = link_to t("inventories.documents.#{link.document_type.underscore}", number: link.document_id),
+                    deduction_act_path(link.document_id)
+          = "— #{l(link.document.date.to_date)}" if link.document.respond_to?(:date) && link.document.date.present?
 
 - if policy(@inventory).see_lines?
   #inventory_lines= render 'lines_table', inventory: @inventory

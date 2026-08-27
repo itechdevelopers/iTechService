@@ -14,6 +14,7 @@ class InventoriesController < ApplicationController
   def show
     @inventory = find_record Inventory
     @found_products = search_products
+    @summary = InventorySummary.new(@inventory)
 
     respond_to do |format|
       format.html
@@ -103,6 +104,103 @@ class InventoriesController < ApplicationController
     redirect_to @inventory, notice: t('.started')
   end
 
+  # Возврат части позиций на пересчёт. Прежний факт по ним стирается — иначе
+  # технарь подтвердит уже вписанное число не пересчитывая.
+  def request_recount
+    @inventory = find_record Inventory
+
+    lines = @inventory.lines.where(id: Array(params[:line_ids]))
+    if lines.empty?
+      redirect_to @inventory, alert: t('.nothing_selected')
+      return
+    end
+
+    Inventory.transaction do
+      lines.each(&:request_recount!)
+      @inventory.update!(status: :recount)
+    end
+
+    InventoryNotifier.notify_recount(@inventory, lines.size)
+    redirect_to @inventory, notice: t('.requested', count: lines.size)
+  end
+
+  # Приём недостач: отмеченные позиции списываются одним актом.
+  def accept_shortages
+    @inventory = find_record Inventory
+    lines = @inventory.lines.where(id: Array(params[:line_ids])).to_a
+
+    if lines.empty?
+      redirect_to @inventory, alert: t('.nothing_selected')
+      return
+    end
+
+    result = InventoryShortageWriteOff.call(@inventory, lines)
+
+    if result.success?
+      redirect_to @inventory, notice: accept_notice(lines, result.act)
+    else
+      redirect_to @inventory, alert: result.errors.join('. ')
+    end
+  end
+
+  # Выгрузка списка: PDF — печатный бланк для похода по складу, XLSX — рабочий
+  # файл товароведа с фактом и разницей.
+  def export
+    @inventory = find_record Inventory
+
+    respond_to do |format|
+      format.pdf do
+        pdf = InventoryPdf.new(@inventory, view_context)
+        send_data pdf.render, filename: export_filename('pdf'),
+                              type: 'application/pdf', disposition: 'inline'
+      end
+      format.xlsx do
+        package = Axlsx::Package.new
+        InventoryXlsx.new(@inventory).to_xlsx(package.workbook)
+        send_data package.to_stream.read, filename: export_filename('xlsx'),
+                  type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
+      end
+    end
+  end
+
+  # «Ревизия закончена»: закрываем и подводим итоги.
+  def finish
+    @inventory = find_record Inventory
+    @inventory.update!(status: :finished, finished_at: Time.zone.now)
+    InventoryNotifier.notify_finished(@inventory)
+
+    redirect_to @inventory, notice: t('.finished')
+  end
+
+  # Приём излишков: отмеченные позиции «отгружаются» на выбранный склад.
+  def accept_surplus
+    @inventory = find_record Inventory
+    lines = @inventory.lines.where(id: Array(params[:line_ids])).to_a
+
+    if lines.empty?
+      redirect_to @inventory, alert: t('.nothing_selected')
+      return
+    end
+
+    store = Store.find_by(id: params[:surplus_store_id])
+    result = InventorySurplusHandover.call(@inventory, lines, store)
+
+    if result.success?
+      redirect_to @inventory, notice: surplus_notice(lines, result, store)
+    else
+      redirect_to @inventory, alert: result.errors.join('. ')
+    end
+  end
+
+  # «Ревизия готова»: результат уходит товароведу.
+  def submit
+    @inventory = find_record Inventory
+    @inventory.update!(status: :submitted, submitted_at: Time.zone.now)
+    InventoryNotifier.notify_submitted(@inventory)
+
+    redirect_to @inventory, notice: t('.submitted', count: @inventory.discrepancy_lines.count)
+  end
+
   # Модалка перед отправкой: показывает, кого уведомим автоматически, и даёт
   # добавить людей вручную.
   def send_picker
@@ -145,6 +243,27 @@ class InventoriesController < ApplicationController
 
   def search_products
     SparePartSearch.call(params[:q])
+  end
+
+  def export_filename(extension)
+    "inventory_#{@inventory.number}_#{Time.current.strftime('%Y%m%d_%H%M')}.#{extension}"
+  end
+
+  # Каждая кнопка разбирает только «свою» половину отмеченного. Пропущенное
+  # называем вслух: товаровед отметил эти строки сознательно и должен понимать,
+  # что они остались неразобранными и какой кнопкой их закрыть.
+  def accept_notice(lines, act)
+    surplus = lines.count { |line| line.difference.to_i.positive? }
+    notice = t('.accepted', count: lines.size - surplus, act: act.id)
+    notice += " #{t('.surplus_skipped', count: surplus)}" if surplus.positive?
+    notice
+  end
+
+  def surplus_notice(lines, result, store)
+    shortages = lines.count { |line| line.difference.to_i.negative? }
+    notice = t('.accepted', count: result.lines.size, store: store.name)
+    notice += " #{t('.shortages_skipped', count: shortages)}" if shortages.positive?
+    notice
   end
 
   # Дополнительно уведомить можно кого угодно из действующих сотрудников:

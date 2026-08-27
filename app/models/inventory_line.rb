@@ -7,6 +7,9 @@ class InventoryLine < ApplicationRecord
   belongs_to :inventory
   belongs_to :item
   belongs_to :counted_by, class_name: 'User', optional: true
+  # Куда «отгрузили» излишек при приёме. Склад выбирается в момент разбора —
+  # у филиалов он может быть разный.
+  belongs_to :surplus_store, class_name: 'Store', optional: true
 
   # nil — расхождение ещё не разобрано товароведом
   enum resolution: { accepted: 0, recounted: 1 }, _prefix: :resolution
@@ -44,5 +47,13 @@ class InventoryLine < ApplicationRecord
     return nil unless counted?
 
     counted_quantity - (expected_quantity || 0)
+  end
+
+  # Возврат позиции на пересчёт: прежний факт стирается, иначе технарь увидит
+  # уже вписанное число и «подтвердит» его не глядя — а смысл пересчёта именно
+  # в том, чтобы посчитать заново.
+  def request_recount!
+    update!(counted_quantity: nil, counted_by: nil, counted_at: nil,
+            recount_requested: true, resolution: nil)
   end
 end

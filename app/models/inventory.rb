@@ -146,6 +146,12 @@ class Inventory < ApplicationRecord
     lines.any? && lines.where(counted_quantity: nil).none?
   end
 
+  # Что технарь видит и заполняет: при пересчёте — только возвращённые позиции,
+  # в обычном подсчёте — весь список.
+  def lines_to_count
+    recount? ? lines.requested_for_recount : lines
+  end
+
   def discrepancy_lines
     lines.where.not(counted_quantity: nil)
          .where('counted_quantity <> expected_quantity')

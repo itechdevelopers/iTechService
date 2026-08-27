@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20260825140000) do
+ActiveRecord::Schema.define(version: 20260827100000) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -980,11 +980,13 @@ ActiveRecord::Schema.define(version: 20260825140000) do
     t.integer "usage_count"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.bigint "surplus_store_id"
     t.index ["counted_by_id"], name: "index_inventory_lines_on_counted_by_id"
     t.index ["inventory_id", "item_id"], name: "index_inventory_lines_on_inventory_id_and_item_id", unique: true
     t.index ["inventory_id", "position"], name: "index_inventory_lines_on_inventory_id_and_position"
     t.index ["inventory_id"], name: "index_inventory_lines_on_inventory_id"
     t.index ["item_id"], name: "index_inventory_lines_on_item_id"
+    t.index ["surplus_store_id"], name: "index_inventory_lines_on_surplus_store_id"
   end
 
   create_table "inventory_selections", force: :cascade do |t|
@@ -2879,6 +2881,7 @@ ActiveRecord::Schema.define(version: 20260825140000) do
   add_foreign_key "inventory_documents", "inventories"
   add_foreign_key "inventory_lines", "inventories"
   add_foreign_key "inventory_lines", "items"
+  add_foreign_key "inventory_lines", "stores", column: "surplus_store_id"
   add_foreign_key "inventory_lines", "users", column: "counted_by_id"
   add_foreign_key "inventory_selections", "inventories"
   add_foreign_key "kanban_boards", "telegram_chats"

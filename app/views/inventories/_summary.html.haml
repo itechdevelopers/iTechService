@@ -1,0 +1,39 @@
+.inventories__summary-box
+  %h4= t('inventories.show.summary_title')
+
+  %table.table.table-condensed.inventories__summary-table
+    %tbody
+      %tr
+        %td= t('inventories.show.summary.positions')
+        %td= summary.total_lines
+      %tr
+        %td= t('inventories.show.summary.discrepancies')
+        %td= summary.discrepancy_lines.size
+      %tr.inventories__summary-row--shortage
+        %td= t('inventories.show.summary.shortage')
+        %td
+          = t('inventories.show.summary.value',
+              positions: summary.shortage_lines.size, quantity: summary.shortage_quantity)
+          %span.inventories__hint= number_to_currency(summary.shortage_cost, precision: 0)
+      %tr.inventories__summary-row--surplus
+        %td= t('inventories.show.summary.surplus')
+        %td
+          = t('inventories.show.summary.value',
+              positions: summary.surplus_lines.size, quantity: summary.surplus_quantity)
+          %span.inventories__hint= number_to_currency(summary.surplus_cost, precision: 0)
+      - if summary.surplus_by_store.any?
+        %tr
+          %td= t('inventories.show.summary.surplus_stores')
+          %td
+            - summary.surplus_by_store.each do |store, quantity|
+              %div= "#{store.name} — #{quantity} шт"
+      - if summary.unresolved_lines.any?
+        %tr.inventories__summary-row--unresolved
+          %td= t('inventories.show.summary.unresolved')
+          %td= summary.unresolved_lines.size
+      - if summary.counters.any?
+        %tr
+          %td= t('inventories.show.summary.counters')
+          %td
+            - summary.counters.each do |user, count|
+              %div= "#{user.short_name} — #{count}"
