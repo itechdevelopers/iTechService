@@ -1,0 +1,28 @@
+ru:
+  review_source_alerts:
+    index:
+      title: Состояние источников отзывов
+      all_ok: Открытых аварий нет — сбор отзывов идёт по всем площадкам.
+      open_alerts_title: 'Открытые аварии: %{count}'
+      matrix_title: По филиалам и площадкам
+      matrix_hint: >-
+        Агент сообщает о сбое, только если он держится сутки, поэтому «работает» означает
+        «за последние сутки не было непрерывного отказа». Дата рядом — последний полученный отзыв.
+      history_title: Последние закрытые аварии
+      whole_source: вся площадка
+      columns:
+        source: Площадка
+        branch: Филиал
+        city: Город
+        duration: Длится
+        last_check: Последняя проверка
+        failures: Сбоев подряд
+        details: Что сообщает агент
+        started: Начало
+        resolved: Восстановлено
+        total_duration: Длительность
+      cell:
+        failing: 'Ошибка: %{duration}'
+        working: Работает
+        unknown: Нет данных
+        last_review: 'отзыв от %{date}'

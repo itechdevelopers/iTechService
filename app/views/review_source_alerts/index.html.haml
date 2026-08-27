@@ -1,0 +1,94 @@
+.page-header
+  %h2= t('.title')
+
+.review-source-health
+  - if @health.open_alerts.any?
+    %h4= t('.open_alerts_title', count: @health.open_alerts.size)
+    %table.table.table-bordered.review-source-health__alerts
+      %thead
+        %tr
+          %th= t('.columns.source')
+          %th= t('.columns.branch')
+          %th= t('.columns.duration')
+          %th= t('.columns.last_check')
+          %th= t('.columns.failures')
+          %th= t('.columns.details')
+      %tbody
+        - @health.open_alerts.each do |alert|
+          %tr.review-source-health__alert-row
+            %td= alert.source_label
+            %td
+              - if alert.global?
+                %strong= t('.whole_source')
+              - else
+                = alert.branch_label
+            %td.review-source-health__duration= alert.duration_label
+            %td
+              - if alert.last_failed_at.present?
+                = l(alert.last_failed_at, format: :short)
+            %td= alert.consecutive_failures
+            %td
+              = alert.message
+              - if alert.last_error.present?
+                %div
+                  %small.muted= alert.last_error
+  - else
+    .review-source-health__ok= t('.all_ok')
+
+  %h4= t('.matrix_title')
+  -# «Работает» здесь означает «открытой аварии нет»: агент сообщает только о
+  -# сбоях, которые держатся сутки. Дата последнего отзыва рядом — то, чем этот
+  -# вывод можно проверить.
+  %p.muted= t('.matrix_hint')
+
+  - if @health.rows.empty?
+    = render 'shared/empty'
+  - else
+    %table.table.table-bordered.review-source-health__matrix
+      %thead
+        %tr
+          %th= t('.columns.city')
+          %th= t('.columns.branch')
+          - @health.sources.each do |source|
+            %th= ReviewSourceAlert::SOURCE_LABELS.fetch(source, source)
+      %tbody
+        - @health.rows.each do |row|
+          %tr
+            %td= row.city_name
+            %td= row.label
+            - row.cells.each do |cell|
+              %td.review-source-health__cell{ class: "review-source-health__cell--#{cell.state}" }
+                - case cell.state
+                - when :failing
+                  = t('.cell.failing', duration: cell.alert.duration_label)
+                - when :working
+                  = t('.cell.working')
+                  %div
+                    %small.muted= t('.cell.last_review', date: l(cell.last_review_at.to_date, format: :short))
+                - else
+                  = t('.cell.unknown')
+
+  - if @health.resolved_alerts.any?
+    %h4= t('.history_title')
+    %table.table.table-bordered.review-source-health__history
+      %thead
+        %tr
+          %th= t('.columns.source')
+          %th= t('.columns.branch')
+          %th= t('.columns.started')
+          %th= t('.columns.resolved')
+          %th= t('.columns.total_duration')
+      %tbody
+        - @health.resolved_alerts.each do |alert|
+          %tr
+            %td= alert.source_label
+            %td
+              - if alert.global?
+                = t('.whole_source')
+              - else
+                = alert.branch_label
+            %td
+              - if alert.first_failed_at.present?
+                = l(alert.first_failed_at, format: :short)
+            %td= l(alert.resolved_at, format: :short)
+            %td= alert.duration_label

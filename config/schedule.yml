@@ -111,3 +111,9 @@ find_my_device_health_check:
   class: 'FindMyDeviceHealthCheckJob'
   queue: 'default'
   active_job: true
+
+review_source_alerts_digest:
+  cron: '30 9 * * * Asia/Vladivostok'
+  class: 'ReviewSourceAlertsDigestJob'
+  queue: 'default'
+  active_job: true
