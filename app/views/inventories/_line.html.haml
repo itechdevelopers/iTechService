@@ -9,13 +9,24 @@
      class: ['inventories__line', inventory_line_row_class(line, reviewing: reviewing)] }
   - if reviewing
     %td.inventories__line-check
-      - if policy(inventory).request_recount? && line.discrepancy?
+      -# Разобранную строку к приёму больше не предлагаем: повторное списание
+      -# попытается вычесть ту же разницу второй раз и упрётся в остаток,
+      -# который уже приведён к факту.
+      - if policy(inventory).request_recount? && line.discrepancy? && !line.resolution_accepted?
         = check_box_tag 'line_ids[]', line.id, false, id: "line_check_#{line.id}"
   %td= line.position
   %td
     = line.name
     - if line.recount_requested?
       %span.inventories__line-flag= t('inventories.show.recount_flag')
+    - if line.resolution_accepted?
+      %span.inventories__line-flag.inventories__line-flag--accepted
+        - if line.surplus_store.present?
+          = t('inventories.show.surplus_moved_flag', store: line.surplus_store.name)
+        - else
+          = t('inventories.show.accepted_flag')
+    - if reviewing && line.difference.to_i.positive?
+      %span.inventories__line-flag.inventories__line-flag--surplus= t('inventories.show.surplus_flag')
   %td= number_to_currency(line.snapshot_purchase_price, precision: 0) if line.snapshot_purchase_price.present?
   %td= line.usage_count
   %td= line.expected_quantity

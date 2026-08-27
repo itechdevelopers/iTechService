@@ -7,6 +7,9 @@ class InventoryLine < ApplicationRecord
   belongs_to :inventory
   belongs_to :item
   belongs_to :counted_by, class_name: 'User', optional: true
+  # Куда «отгрузили» излишек при приёме. Склад выбирается в момент разбора —
+  # у филиалов он может быть разный.
+  belongs_to :surplus_store, class_name: 'Store', optional: true
 
   # nil — расхождение ещё не разобрано товароведом
   enum resolution: { accepted: 0, recounted: 1 }, _prefix: :resolution

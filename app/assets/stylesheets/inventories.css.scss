@@ -144,6 +144,16 @@
     color: #8a6d3b;
   }
 
+  &__line-flag--accepted {
+    background: #dff0d8;
+    color: #3c763d;
+  }
+
+  &__line-flag--surplus {
+    background: #d9edf7;
+    color: #245269;
+  }
+
   &__review-actions {
     margin-bottom: 20px;
 

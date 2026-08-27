@@ -54,6 +54,17 @@
       = link_to t('.selection_edit'), selection_inventory_path(@inventory), class: 'btn btn-small'
     = render 'selection_summary', inventory: @inventory
 
+- if @inventory.inventory_documents.any?
+  .inventories__card
+    %h4= t('.documents_title')
+    %ul.unstyled
+      - @inventory.inventory_documents.includes(:document).each do |link|
+        %li
+          = glyph('file')
+          = link_to t("inventories.documents.#{link.document_type.underscore}", number: link.document_id),
+                    deduction_act_path(link.document_id)
+          = "— #{l(link.document.date.to_date)}" if link.document.respond_to?(:date) && link.document.date.present?
+
 - if policy(@inventory).see_lines?
   #inventory_lines= render 'lines_table', inventory: @inventory
 

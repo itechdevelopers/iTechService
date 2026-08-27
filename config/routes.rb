@@ -567,6 +567,8 @@ Rails.application.routes.draw do
     patch :start, on: :member
     patch :submit, on: :member
     patch :request_recount, on: :member
+    patch :accept_shortages, on: :member
+    patch :accept_surplus, on: :member
     resources :lines, only: %i[create update destroy], controller: 'inventory_lines'
   end
 

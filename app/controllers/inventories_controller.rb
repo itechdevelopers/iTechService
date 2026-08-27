@@ -123,6 +123,45 @@ class InventoriesController < ApplicationController
     redirect_to @inventory, notice: t('.requested', count: lines.size)
   end
 
+  # Приём недостач: отмеченные позиции списываются одним актом.
+  def accept_shortages
+    @inventory = find_record Inventory
+    lines = @inventory.lines.where(id: Array(params[:line_ids])).to_a
+
+    if lines.empty?
+      redirect_to @inventory, alert: t('.nothing_selected')
+      return
+    end
+
+    result = InventoryShortageWriteOff.call(@inventory, lines)
+
+    if result.success?
+      redirect_to @inventory, notice: accept_notice(lines, result.act)
+    else
+      redirect_to @inventory, alert: result.errors.join('. ')
+    end
+  end
+
+  # Приём излишков: отмеченные позиции «отгружаются» на выбранный склад.
+  def accept_surplus
+    @inventory = find_record Inventory
+    lines = @inventory.lines.where(id: Array(params[:line_ids])).to_a
+
+    if lines.empty?
+      redirect_to @inventory, alert: t('.nothing_selected')
+      return
+    end
+
+    store = Store.find_by(id: params[:surplus_store_id])
+    result = InventorySurplusHandover.call(@inventory, lines, store)
+
+    if result.success?
+      redirect_to @inventory, notice: surplus_notice(lines, result, store)
+    else
+      redirect_to @inventory, alert: result.errors.join('. ')
+    end
+  end
+
   # «Ревизия готова»: результат уходит товароведу.
   def submit
     @inventory = find_record Inventory
@@ -174,6 +213,23 @@ class InventoriesController < ApplicationController
 
   def search_products
     SparePartSearch.call(params[:q])
+  end
+
+  # Каждая кнопка разбирает только «свою» половину отмеченного. Пропущенное
+  # называем вслух: товаровед отметил эти строки сознательно и должен понимать,
+  # что они остались неразобранными и какой кнопкой их закрыть.
+  def accept_notice(lines, act)
+    surplus = lines.count { |line| line.difference.to_i.positive? }
+    notice = t('.accepted', count: lines.size - surplus, act: act.id)
+    notice += " #{t('.surplus_skipped', count: surplus)}" if surplus.positive?
+    notice
+  end
+
+  def surplus_notice(lines, result, store)
+    shortages = lines.count { |line| line.difference.to_i.negative? }
+    notice = t('.accepted', count: result.lines.size, store: store.name)
+    notice += " #{t('.shortages_skipped', count: shortages)}" if shortages.positive?
+    notice
   end
 
   # Дополнительно уведомить можно кого угодно из действующих сотрудников:

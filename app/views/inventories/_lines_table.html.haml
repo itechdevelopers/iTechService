@@ -36,7 +36,21 @@
     .inventories__review-actions
       = submit_tag t('inventories.show.request_recount'), class: 'btn btn-warning',
                    data: { confirm: t('inventories.show.request_recount_confirm') }
-      %span.inventories__hint= t('inventories.show.request_recount_hint')
+      -# formaction: все кнопки работают с одним набором чекбоксов, но ведут в
+      -# разные экшены — второй набор галочек для того же списка только запутал бы.
+      = submit_tag t('inventories.show.accept_shortages'), class: 'btn btn-danger',
+                   formaction: accept_shortages_inventory_path(inventory),
+                   data: { confirm: t('inventories.show.accept_shortages_confirm') }
+      %span.inventories__hint= t('inventories.show.review_actions_hint')
+
+    .inventories__review-actions
+      = select_tag :surplus_store_id,
+                   options_from_collection_for_select(Store.visible, 'id', 'name'),
+                   include_blank: t('inventories.show.surplus_store_blank'), class: 'input-large'
+      = submit_tag t('inventories.show.accept_surplus'), class: 'btn btn-info',
+                   formaction: accept_surplus_inventory_path(inventory),
+                   data: { confirm: t('inventories.show.accept_surplus_confirm') }
+      %span.inventories__hint= t('inventories.show.accept_surplus_hint')
 - else
   = render 'inventories/lines_body', table_locals
 

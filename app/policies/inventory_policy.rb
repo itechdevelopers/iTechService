@@ -94,6 +94,14 @@ class InventoryPolicy < ApplicationPolicy
     manager? && record.submitted?
   end
 
+  def accept_shortages?
+    request_recount?
+  end
+
+  def accept_surplus?
+    request_recount?
+  end
+
   # Содержимое списка. Технарю до нажатия «Начать» видны только номер и дата —
   # позиции открываются вместе с фиксацией остатков.
   def see_lines?
