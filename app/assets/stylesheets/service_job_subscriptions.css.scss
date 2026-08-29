@@ -1,12 +1,22 @@
 .subscriptions-bar {
   display: flex;
   align-items: stretch;
-  overflow-x: auto;
   background: #f5f5f5;
   padding: 10px 15px;
-  gap: 20px;
+  gap: 15px;
   border-bottom: 1px solid #ddd;
   box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+// Скролл живёт здесь, а не на всей полоске: чип избранного должен оставаться
+// на месте, а выпадающее меню — не обрезаться переполнением контейнера.
+.subscriptions-bar__scroll {
+  display: flex;
+  align-items: stretch;
+  gap: 15px;
+  overflow-x: auto;
+  flex: 1 1 auto;
+  min-width: 0;
 
   // Custom scrollbar for webkit browsers
   &::-webkit-scrollbar {
@@ -27,15 +37,23 @@
   }
 }
 
+.subscriptions-bar__favorites {
+  position: relative;
+  flex: 0 0 auto;
+  align-self: center;
+  padding-left: 15px;
+  border-left: 1px solid #ddd;
+}
+
 .subscriptions-group {
   display: flex;
   flex-direction: column;
-  gap: 6px;
+  gap: 5px;
   flex-shrink: 0;
 
-  // Vertical divider between the two labelled sections
+  // Vertical divider between the labelled sections
   & + & {
-    padding-left: 20px;
+    padding-left: 15px;
     border-left: 1px solid #ddd;
   }
 }
@@ -52,15 +70,24 @@
   color: #c0392b;
 }
 
+.subscriptions-group--paused .subscriptions-group__label {
+  color: #b9770e;
+}
+
+// Pause reason sits on its own line under the "На паузе" caption
+.subscriptions-group__reason {
+  display: block;
+}
+
 .subscriptions-group__list {
   display: flex;
-  gap: 10px;
+  gap: 8px;
 }
 
 .subscription-block {
-  min-width: 150px;
-  max-width: 200px;
-  padding: 8px 10px;
+  min-width: 118px;
+  max-width: 160px;
+  padding: 5px 8px;
   background: white;
   border: 1px solid #ddd;
   border-radius: 4px;
@@ -87,20 +114,20 @@
 
   .subscription-device {
     font-weight: bold;
-    font-size: 0.95em;
+    font-size: 0.88em;
     color: #2c3e50;
-    margin-bottom: 2px;
+    margin-bottom: 1px;
   }
 
   .subscription-client {
     color: #666;
-    font-size: 0.9em;
-    margin-bottom: 2px;
+    font-size: 0.82em;
+    margin-bottom: 1px;
   }
 
   .subscription-ticket {
     color: #888;
-    font-size: 0.85em;
+    font-size: 0.78em;
     font-family: monospace;
   }
 }
@@ -113,6 +140,70 @@
   }
 }
 
+.subscription-block--paused {
+  border-left: 3px solid #f0ad4e;
+
+  .subscription-device {
+    color: #b9770e;
+  }
+}
+
+.subscriptions-favorites-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 6px 10px;
+  font-size: 13px;
+  background: white;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  color: #777;
+  text-decoration: none;
+  cursor: pointer;
+
+  &:hover,
+  &:focus {
+    background: #f9f9f9;
+    border-color: #999;
+    color: #555;
+    text-decoration: none;
+  }
+
+  .fa-star {
+    color: #f0ad4e;
+  }
+}
+
+.subscriptions-favorites-chip__count {
+  font-weight: bold;
+  font-size: 0.9em;
+}
+
+// Панель раскрывается влево от чипа и ложится поверх колонок пауз — карточки
+// в ней те же и в том же ряду, что в самой полосе.
+.subscriptions-favorites-panel {
+  display: none;
+  position: absolute;
+  top: 50%;
+  // Вплотную к чипу: зазор между ними ронял бы :hover при движении курсора
+  // к карточкам, и панель закрывалась бы на полпути.
+  right: 100%;
+  transform: translateY(-50%);
+  z-index: 1000;
+  padding: 8px 12px;
+  background: white;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  box-shadow: 0 3px 8px rgba(0,0,0,0.18);
+  max-width: 70vw;
+  overflow-x: auto;
+}
+
+.subscriptions-bar__favorites:hover .subscriptions-favorites-panel,
+.subscriptions-bar__favorites:focus-within .subscriptions-favorites-panel {
+  display: block;
+}
+
 // Responsive adjustments
 @media (max-width: 768px) {
   .subscriptions-bar {
@@ -120,8 +211,12 @@
     gap: 8px;
   }
 
+  .subscriptions-bar__scroll {
+    gap: 8px;
+  }
+
   .subscription-block {
-    min-width: 130px;
-    padding: 6px 8px;
+    min-width: 110px;
+    padding: 5px 6px;
   }
 }

@@ -1,0 +1,7 @@
+= link_to service_job_path(service_job), class: "subscription-block #{local_assigns[:modifier]}" do
+  .subscription-device
+    = truncate(service_job.decorate.device_name, length: 20)
+  .subscription-client
+    = truncate(service_job.client&.presentation || '-', length: 20)
+  .subscription-ticket
+    = service_job.ticket_number
