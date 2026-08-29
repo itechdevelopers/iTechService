@@ -50,7 +50,7 @@ module Bot
     end
 
     def sanitize_like(value)
-      ActiveRecord::Base.sanitize_sql_like(value)
+      ActiveRecord::Base.send(:sanitize_sql_like, value)
     end
   end
 end
