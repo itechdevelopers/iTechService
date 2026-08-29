@@ -66,17 +66,36 @@ class ReviewSourceAlert < ApplicationRecord
   # либо её закрыли руками), это не ошибка.
   def self.resolve(source:, branch_code: nil, message: nil)
     code = normalize_branch_code(branch_code)
-    scope = unresolved.where(source: source)
-    # Восстановление площадки целиком закрывает и филиальные аварии: «2ГИС
-    # снова работает» означает, что лежащих филиалов не осталось. Закрывай мы
-    # строго по паре — филиальные записи не закрыл бы уже никто (агент их
-    # больше не пришлёт), и суточная сводка вечно звенела бы про мёртвую
-    # аварию. Если филиал на самом деле ещё лежит, агент откроет его заново.
-    scope = scope.where(branch_code: code) unless code == GLOBAL_BRANCH_CODE
+    open_alerts = unresolved.where(source: source).to_a
 
-    scope.to_a.each do |alert|
+    closing =
+      if code == GLOBAL_BRANCH_CODE
+        # Восстановление площадки целиком закрывает и филиальные аварии: «2ГИС
+        # снова работает» означает, что лежащих филиалов не осталось. Закрывай
+        # мы строго по паре — филиальные записи не закрыл бы уже никто (во
+        # время глобальной аварии агент их не шлёт), и суточная сводка вечно
+        # звенела бы про мёртвую аварию.
+        global = open_alerts.find(&:global?)
+        open_alerts.reject { |alert| reported_after?(alert, global) }
+      else
+        open_alerts.select { |alert| alert.branch_code == code }
+      end
+
+    closing.each do |alert|
       alert.update!(resolved_at: Time.zone.now, resolved_message: message)
     end
+  end
+
+  # Филиальная авария, о которой агент сообщил ПОЗЖЕ, чем в последний раз видел
+  # лежащей всю площадку, описывает состояние уже после восстановления: в одном
+  # прогоне агент присылает и восстановление площадки, и аварии по точкам,
+  # которые остались недоступны, причём порядок не гарантирован. Закрыть такую
+  # значит показать зелёное по филиалу, который лежит.
+  def self.reported_after?(alert, global)
+    return false if global.nil? || alert.global?
+    return false if alert.last_failed_at.blank? || global.last_failed_at.blank?
+
+    alert.last_failed_at > global.last_failed_at
   end
 
   # Подразделение по коду филиала — тот же резолв, что у отзывов: коды агента
