@@ -496,19 +496,38 @@ module ApplicationHelper
       ServiceJob.active_in_progress_for(current_user).includes(:client).to_a
   end
 
+  # The same devices once they are parked under a pause, split into one group
+  # per pause reason so each kind of pause gets its own labelled column.
+  # Fetched in a single query and grouped in Ruby — the bar renders on every
+  # page, so a query per reason would tax the whole app.
+  # Returns [[pause_reason, jobs], ...] ordered by the reason's position;
+  # a pause left without a reason sorts last under a bare label.
+  def user_paused_service_job_groups
+    return [] unless user_signed_in?
+
+    @user_paused_service_job_groups ||=
+      ServiceJob.active_paused_for(current_user)
+                .includes(:client, :repair_pause_reason).to_a
+                .group_by(&:repair_pause_reason)
+                .sort_by { |pause_reason, _jobs| pause_reason&.position || Float::INFINITY }
+  end
+
   # Starred/subscribed devices, minus any already shown in the "in progress"
-  # section so a device never appears twice in the top bar.
+  # or paused sections so a device never appears twice in the top bar.
   def user_favorite_service_jobs
     return ServiceJob.none unless user_signed_in?
 
     @user_favorite_service_jobs ||= begin
-      in_progress_ids = user_in_progress_service_jobs.map(&:id)
+      shown_ids = user_in_progress_service_jobs.map(&:id) +
+                  user_paused_service_job_groups.flat_map { |_reason, jobs| jobs.map(&:id) }
       current_user.subscribed_service_jobs.includes(:client)
-                  .reject { |service_job| in_progress_ids.include?(service_job.id) }
+                  .reject { |service_job| shown_ids.include?(service_job.id) }
     end
   end
 
   def show_repair_top_bar?
-    user_signed_in? && (user_in_progress_service_jobs.any? || user_favorite_service_jobs.any?)
+    user_signed_in? && (user_in_progress_service_jobs.any? ||
+                        user_paused_service_job_groups.any? ||
+                        user_favorite_service_jobs.any?)
   end
 end

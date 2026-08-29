@@ -144,10 +144,31 @@ class ServiceJob < ApplicationRecord
   has_associated_audits
 
   def self.active_in_progress_for(user)
-    in_progress = RepairStatus.by_code(RepairStatus::IN_PROGRESS)
-    return ServiceJob.none unless user && in_progress
+    owned_by_last_repairer(user, RepairStatus::IN_PROGRESS)
+  end
 
-    where(repair_status_id: in_progress.id).where(<<~SQL.squish, user.id, in_progress.id, in_progress.id)
+  # Paused devices still belong to the technician who last took them into
+  # repair: the pause itself may have been set by someone else (an approval
+  # put on by a manager, a displacement by an urgent job), but the device is
+  # the technician's until another one picks it up.
+  def self.active_paused_for(user)
+    owned_by_last_repairer(user, RepairStatus::PAUSED)
+  end
+
+  # Ownership rule behind both: the job currently sits in `status_code`, and
+  # the latest move into "in_progress" was made by this user.
+  #
+  # Visibility repeats what the status badge on the job page does
+  # (service_jobs/_repair_status_widget): the status is set and the device
+  # lies on the user's own location. Deliberately no filter on done_at — where
+  # the badge lets a user drive the repair status, the device also belongs in
+  # their top bar, so both stay in sync.
+  def self.owned_by_last_repairer(user, status_code)
+    in_progress = RepairStatus.find_by(code: RepairStatus::IN_PROGRESS)
+    status = RepairStatus.find_by(code: status_code)
+    return ServiceJob.none unless user&.location_id && in_progress && status
+
+    where(repair_status_id: status.id, location_id: user.location_id).where(<<~SQL.squish, user.id, in_progress.id, in_progress.id)
       EXISTS (
         SELECT 1 FROM repair_status_changes rsc
         WHERE rsc.service_job_id = service_jobs.id
@@ -161,6 +182,7 @@ class ServiceJob < ApplicationRecord
       )
     SQL
   end
+  private_class_method :owned_by_last_repairer
 
   def self.search(params)
     service_jobs = ServiceJob.includes :device_tasks, :tasks

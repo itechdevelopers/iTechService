@@ -93,4 +93,5 @@ ru:
       created: 'Создание запроса'
     user_subscriptions:
       in_progress_devices: 'В процессе ремонта'
+      paused_devices: 'На паузе'
       favorite_devices: 'Избранное'

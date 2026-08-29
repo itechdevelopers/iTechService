@@ -52,6 +52,15 @@
   color: #c0392b;
 }
 
+.subscriptions-group--paused .subscriptions-group__label {
+  color: #b9770e;
+}
+
+// Pause reason sits on its own line under the "На паузе" caption
+.subscriptions-group__reason {
+  display: block;
+}
+
 .subscriptions-group__list {
   display: flex;
   gap: 10px;
@@ -110,6 +119,14 @@
 
   .subscription-device {
     color: #c0392b;
+  }
+}
+
+.subscription-block--paused {
+  border-left: 3px solid #f0ad4e;
+
+  .subscription-device {
+    color: #b9770e;
   }
 }
 
