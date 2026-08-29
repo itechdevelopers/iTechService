@@ -91,4 +91,5 @@ class API < Grape::API
   mount TradeInApi
   mount TranscriptionApi
   mount ReviewAgentApi
+  mount BotApi
 end
