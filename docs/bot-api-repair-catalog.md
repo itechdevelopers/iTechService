@@ -3,7 +3,7 @@
 All routes below require the existing `Authorization: Bearer ...` service token and are
 read-only.
 
-`GET /api/bot/v1/repair_catalog?department_id=&product_id=&model=&active_only=true&limit=100`
+`GET /api/bot/v1/repair_catalog?department_id=&product_id=&model=&limit=100`
 returns bounded RepairService objects. `department_id` is optional for vocabulary refresh;
 when present the object includes branch, price and availability. The response includes only
 official service/product names, plain-text `customer_info`, and `special_marks` as

@@ -109,12 +109,11 @@ class BotApi < Grape::API
         optional :department_id, type: Integer
         optional :product_id, type: Integer
         optional :model, type: String
-        optional :active_only, type: Boolean, default: true
         optional :limit, type: Integer, values: 1..100, default: 100
       end
       get do
         department = params[:department_id].present? ? participating_department! : nil
-        services = Bot::RepairServicesQuery.catalog(model: params[:model], product_id: params[:product_id], limit: params[:limit], active_only: params[:active_only])
+        services = Bot::RepairServicesQuery.catalog(model: params[:model], product_id: params[:product_id], limit: params[:limit])
         { success: true, items: services.map { |service| Bot::RepairCatalogPresenter.new(repair_service: service, department: department).as_json } }
       end
     end
