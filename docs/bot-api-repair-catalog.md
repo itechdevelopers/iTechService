@@ -18,10 +18,10 @@ An explicit `product_id` on the detail route must be related to the selected Rep
 otherwise the API returns `NOT_FOUND` and never silently substitutes another product.
 
 `GET /api/bot/v1/repair_branches` returns active real departments with only `id`, `name`,
-`city` and `repair_participating`. The endpoint uses the existing `Department.main_branches`
-customer-location scope (the same semantic used by Client/City), rather than the broader
-`Department.real` scope that includes remote/internal departments. Repair price/search routes
-additionally require the participation scope.
+`city` and `repair_participating`. The endpoint uses the authoritative
+`Department.real.participating_in_repair_services` scope. `Department.main_branches` has a
+different customer assignment meaning and must not be used for repair bot filtering. Repair
+price/search routes use the same centralized participation scope.
 
 Business status is derived from the existing AIS `RepairService#remnants_s` method: `many` →
 `sufficient`, `low` → `low_requires_confirmation`, `none` → `unavailable`; missing store or

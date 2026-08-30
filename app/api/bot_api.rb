@@ -26,7 +26,7 @@ class BotApi < Grape::API
     end
 
     def participating_department!
-      Department.real.participating_in_repair_services.find_by(id: params[:department_id]) ||
+      Bot::RepairBranchScope.call.find_by(id: params[:department_id]) ||
         bot_error!('NOT_FOUND', 'Service department not found', 404)
     end
 
@@ -123,9 +123,10 @@ class BotApi < Grape::API
         optional :active_only, type: Boolean, default: true
       end
       get do
-        # `main_branches` is the existing customer-location scope (used by
-        # Client and City); `real` also includes remote/internal departments.
-        departments = Department.main_branches
+        # Repair bot eligibility is defined solely by the authoritative repair
+        # participation flag. `main_branches` has different semantics and omits
+        # valid repair departments (for example remote branches).
+        departments = Bot::RepairBranchScope.call
         departments = departments.active if params[:active_only]
         {
           success: true,
