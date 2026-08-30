@@ -17,11 +17,8 @@ module Bot
         service: @repair_service.name,
         price: price_json,
         availability: {
-          status: (legacy_status = Bot::RepairServiceAvailabilityQuery.new(
-            repair_service: @repair_service,
-            department: @department
-          ).call),
-          business_status: { 'many' => 'sufficient', 'low' => 'low_requires_confirmation', 'none' => 'unavailable' }[@repair_service.remnants_s(@department.spare_parts_store)] || (legacy_status == 'not_required' ? 'not_required' : 'unknown')
+          status: (legacy_status = Bot::RepairServiceStatus.legacy(@repair_service, @department)),
+          business_status: Bot::RepairServiceStatus.business(@repair_service, @department)
         },
         branch: {
           id: @department.id,

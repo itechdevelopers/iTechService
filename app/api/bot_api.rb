@@ -93,7 +93,11 @@ class BotApi < Grape::API
         get do
           department = participating_department!
           service = RepairService.not_archived.includes(:products, :prices, spare_parts: { product: { items: :store_items } }).find(params[:id])
-          product = service.products.find_by(id: params[:product_id]) || service.products.first
+          product = if params[:product_id].present?
+                      service.products.find_by(id: params[:product_id])
+                    else
+                      service.products.first
+                    end
           bot_error!('NOT_FOUND', 'Repair service not found', 404) unless product
           { success: true, data: Bot::RepairCatalogPresenter.new(repair_service: service, department: department).as_json }
         end
@@ -112,6 +116,27 @@ class BotApi < Grape::API
         department = params[:department_id].present? ? participating_department! : nil
         services = Bot::RepairServicesQuery.catalog(model: params[:model], product_id: params[:product_id], limit: params[:limit], active_only: params[:active_only])
         { success: true, items: services.map { |service| Bot::RepairCatalogPresenter.new(repair_service: service, department: department).as_json } }
+      end
+    end
+
+    resource :repair_branches do
+      params do
+        optional :active_only, type: Boolean, default: true
+      end
+      get do
+        departments = Department.real
+        departments = departments.active if params[:active_only]
+        {
+          success: true,
+          items: departments.map do |department|
+            {
+              id: department.id,
+              name: department.name,
+              city: department.city_name,
+              repair_participating: department.participates_in_repair_services?
+            }
+          end
+        }
       end
     end
 

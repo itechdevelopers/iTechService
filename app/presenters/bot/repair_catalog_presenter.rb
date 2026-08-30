@@ -52,11 +52,7 @@ module Bot
     def availability_json
       return { status: 'unknown', business_status: 'unknown' } unless @department
 
-      legacy = Bot::RepairServiceAvailabilityQuery.new(repair_service: @repair_service, department: @department).call
-      raw_status = @department.spare_parts_store && @repair_service.remnants_s(@department.spare_parts_store)
-      business = { 'many' => 'sufficient', 'low' => 'low_requires_confirmation', 'none' => 'unavailable' }[raw_status] ||
-        (legacy == 'not_required' ? 'not_required' : 'unknown')
-      { status: legacy, business_status: business }
+      { status: Bot::RepairServiceStatus.legacy(@repair_service, @department), business_status: Bot::RepairServiceStatus.business(@repair_service, @department) }
     end
 
     def decimal(value)
