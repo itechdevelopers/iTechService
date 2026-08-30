@@ -9,7 +9,7 @@ module Bot
     # Bounded, read-only catalog query used by the middleware vocabulary refresh.
     # It deliberately preloads only customer-safe relations and never inventory rows
     # into the serialized response.
-    def self.catalog(model: nil, product_id: nil, limit: 100, active_only: true)
+    def self.catalog(model: nil, product_id: nil, limit: 100)
       scope = RepairService.not_archived
       scope = scope.includes(:products, :prices, spare_parts: { product: { items: :store_items } })
       if product_id.present?
