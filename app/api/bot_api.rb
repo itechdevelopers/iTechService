@@ -88,6 +88,31 @@ class BotApi < Grape::API
       get :search do
         { success: true, items: repair_service_items(require_service_query: true) }
       end
+
+      route_param :id, type: Integer do
+        get do
+          department = participating_department!
+          service = RepairService.not_archived.includes(:products, :prices, spare_parts: { product: { items: :store_items } }).find(params[:id])
+          product = service.products.find_by(id: params[:product_id]) || service.products.first
+          bot_error!('NOT_FOUND', 'Repair service not found', 404) unless product
+          { success: true, data: Bot::RepairCatalogPresenter.new(repair_service: service, department: department).as_json }
+        end
+      end
+    end
+
+    resource :repair_catalog do
+      params do
+        optional :department_id, type: Integer
+        optional :product_id, type: Integer
+        optional :model, type: String
+        optional :active_only, type: Boolean, default: true
+        optional :limit, type: Integer, values: 1..100, default: 100
+      end
+      get do
+        department = params[:department_id].present? ? participating_department! : nil
+        services = Bot::RepairServicesQuery.catalog(model: params[:model], product_id: params[:product_id], limit: params[:limit], active_only: params[:active_only])
+        { success: true, items: services.map { |service| Bot::RepairCatalogPresenter.new(repair_service: service, department: department).as_json } }
+      end
     end
 
     resource :service_jobs do
