@@ -123,7 +123,9 @@ class BotApi < Grape::API
         optional :active_only, type: Boolean, default: true
       end
       get do
-        departments = Department.real
+        # `main_branches` is the existing customer-location scope (used by
+        # Client and City); `real` also includes remote/internal departments.
+        departments = Department.main_branches
         departments = departments.active if params[:active_only]
         {
           success: true,
