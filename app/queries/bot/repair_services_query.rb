@@ -6,6 +6,20 @@ module Bot
     ProductNotFound = Class.new(StandardError)
     Result = Struct.new(:product, :repair_service, :price)
 
+    # Bounded, read-only catalog query used by the middleware vocabulary refresh.
+    # It deliberately preloads only customer-safe relations and never inventory rows
+    # into the serialized response.
+    def self.catalog(model: nil, product_id: nil, limit: 100, active_only: true)
+      scope = RepairService.not_archived
+      scope = scope.includes(:products, :prices, spare_parts: { product: { items: :store_items } })
+      if product_id.present?
+        scope = scope.joins(:products).where(products: { id: product_id })
+      elsif model.to_s.strip.present?
+        scope = scope.joins(:products).where('products.name ILIKE ?', "%#{ActiveRecord::Base.send(:sanitize_sql_like, model.to_s.strip)}%")
+      end
+      scope.distinct.order(:name, :id).limit(limit.to_i.clamp(1, 100)).to_a
+    end
+
     def initialize(department:, product_id: nil, model: nil, service: nil, limit: 50)
       @department = department
       @product_id = product_id

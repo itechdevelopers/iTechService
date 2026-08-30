@@ -1,0 +1,20 @@
+# Bot API repair catalog contract
+
+All routes below require the existing `Authorization: Bearer ...` service token and are
+read-only.
+
+`GET /api/bot/v1/repair_catalog?department_id=&product_id=&model=&active_only=true&limit=100`
+returns bounded RepairService objects. `department_id` is optional for vocabulary refresh;
+when present the object includes branch, price and availability. The response includes only
+official service/product names, plain-text `customer_info`, and `special_marks` as
+`[{text, source: "repair_service"}]`. No quantity, store, purchase price, margin or internal
+comments are returned.
+
+`GET /api/bot/v1/repair_services/:id?department_id=` returns one selected service using the
+same safe representation. Existing list/search fields remain backward compatible; their
+availability object now has additive `business_status` alongside legacy `status`.
+
+Business status is derived from the existing AIS `RepairService#remnants_s` method: `many` →
+`sufficient`, `low` → `low_requires_confirmation`, `none` → `unavailable`; missing store or
+ambiguous data remains `unknown`, and services without spare parts are `not_required`.
+Department participation comes from `Department#participates_in_repair_services?`.

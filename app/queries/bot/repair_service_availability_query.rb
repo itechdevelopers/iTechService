@@ -20,25 +20,14 @@ module Bot
 
       store = @department&.spare_parts_store
       return UNKNOWN unless store
-
-      statuses = spare_parts.map { |spare_part| part_status(spare_part, store) }
-      return UNKNOWN if statuses.include?(UNKNOWN)
-      return OUT_OF_STOCK if statuses.include?(OUT_OF_STOCK)
-
-      IN_STOCK
-    end
-
-    private
-
-    def part_status(spare_part, store)
-      product = spare_part.product
-      return UNKNOWN unless product
-      return UNKNOWN if product.items.empty?
-
-      quantity = product.quantity_in_store(store)
-      return UNKNOWN unless quantity.is_a?(Numeric)
-
-      quantity.positive? ? IN_STOCK : OUT_OF_STOCK
+      # RepairService#remnants_s is AIS' authoritative aggregate across all
+      # required spare parts. Keep the legacy status contract while exposing the
+      # richer business_status in the presenter.
+      case @repair_service.remnants_s(store)
+      when 'many', 'low' then IN_STOCK
+      when 'none' then OUT_OF_STOCK
+      else UNKNOWN
+      end
     end
   end
 end
