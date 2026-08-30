@@ -14,6 +14,13 @@ comments are returned.
 same safe representation. Existing list/search fields remain backward compatible; their
 availability object now has additive `business_status` alongside legacy `status`.
 
+An explicit `product_id` on the detail route must be related to the selected RepairService;
+otherwise the API returns `NOT_FOUND` and never silently substitutes another product.
+
+`GET /api/bot/v1/repair_branches` returns active real departments with only `id`, `name`,
+`city` and `repair_participating`. The scope intentionally excludes role `store`/back-office
+departments; repair price/search routes additionally require the participation scope.
+
 Business status is derived from the existing AIS `RepairService#remnants_s` method: `many` →
 `sufficient`, `low` → `low_requires_confirmation`, `none` → `unavailable`; missing store or
 ambiguous data remains `unknown`, and services without spare parts are `not_required`.
