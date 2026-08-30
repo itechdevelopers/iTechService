@@ -94,9 +94,9 @@ class BotApi < Grape::API
           department = participating_department!
           service = RepairService.not_archived.includes(:products, :prices, spare_parts: { product: { items: :store_items } }).find(params[:id])
           product = if params[:product_id].present?
-                      service.products.find_by(id: params[:product_id])
+                      service.products.merge(Product.devices).find_by(id: params[:product_id])
                     else
-                      service.products.first
+                      service.products.merge(Product.devices).first
                     end
           bot_error!('NOT_FOUND', 'Repair service not found', 404) unless product
           { success: true, data: Bot::RepairCatalogPresenter.new(repair_service: service, department: department).as_json }

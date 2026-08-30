@@ -25,3 +25,9 @@ Business status is derived from the existing AIS `RepairService#remnants_s` meth
 `sufficient`, `low` → `low_requires_confirmation`, `none` → `unavailable`; missing store or
 ambiguous data remains `unknown`, and services without spare parts are `not_required`.
 Department participation comes from `Department#participates_in_repair_services?`.
+
+The catalog query uses the authoritative `Product.devices` scope
+(`ProductCategory.kind = equipment`) and a generic parsed model boundary, so `iPhone 11`
+excludes Pro/Pro Max while storage, colour and SIM suffixes remain applicable variants. The
+ambiguous `RepairService#products` relation is not exposed as a device list; responses use
+compact `applicable_devices` metadata only for products classified by that scope.

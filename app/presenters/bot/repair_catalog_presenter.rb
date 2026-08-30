@@ -14,7 +14,8 @@ module Bot
         active: !@repair_service.archived?,
         customer_info: plain_text(@repair_service.client_info),
         special_marks: special_marks,
-        products: @repair_service.products.map { |p| { id: p.id, name: p.name } },
+        applicable_devices: @repair_service.products.select { |p| p.respond_to?(:is_equipment?) && p.is_equipment? }
+          .map { |p| { id: p.id, name: p.name } },
         branch: branch_json,
         price: price_json,
         availability: availability_json

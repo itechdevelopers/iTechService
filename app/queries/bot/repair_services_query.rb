@@ -13,9 +13,14 @@ module Bot
       scope = RepairService.not_archived
       scope = scope.includes(:products, :prices, spare_parts: { product: { items: :store_items } })
       if product_id.present?
-        scope = scope.joins(:products).where(products: { id: product_id })
+        scope = scope.joins(:products).merge(Product.devices.where(id: product_id))
       elsif model.to_s.strip.present?
-        scope = scope.joins(:products).where('products.name ILIKE ?', "%#{ActiveRecord::Base.send(:sanitize_sql_like, model.to_s.strip)}%")
+        candidate_ids = Product.devices.not_archived
+                              .where('products.name ILIKE ?', "%#{ActiveRecord::Base.send(:sanitize_sql_like, model.to_s.strip)}%")
+                              .to_a
+                              .select { |product| Bot::DeviceModelMatcher.matches?(model, product.name) }
+                              .map(&:id)
+        scope = scope.joins(:products).where(products: { id: candidate_ids })
       end
       scope.distinct.order(:name, :id).limit(limit.to_i.clamp(1, 100)).to_a
     end
