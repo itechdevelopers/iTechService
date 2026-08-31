@@ -1,6 +1,6 @@
 %div{data: { notification_id: notification.id }, class: single_notification_class(notification)}
   .single-notification__body
-    = link_to notification.message, notification.url
+    = link_to notification_message_html(notification), notification.url
     .single-notification__meta
       %span.single-notification__badge= notification_type_label(notification)
       %span.single-notification__sep ·

@@ -17,6 +17,15 @@ module NotificationsHelper
     ['single-notification', modifier].compact.join(' ')
   end
 
+  # Слова-маркеры подсвечиваем только в уведомлениях о транскрипциях: в тексте
+  # уведомления другого типа то же слово встречается случайно, и подсветка
+  # обещала бы найденный маркер там, где его не искали.
+  def notification_message_html(notification)
+    return notification.message unless notification.referenceable_type == 'CallTranscription'
+
+    sanitize(highlight_marker_words(notification.message))
+  end
+
   def notification_type_label(notification)
     Notification::TYPE_LABELS[notification.referenceable_type] ||
       notification.referenceable_type ||
