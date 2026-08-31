@@ -139,6 +139,14 @@ class BotApi < Grape::API
       end
     end
 
+    resource :device_hierarchy do
+      desc 'Read-only equipment hierarchy used by the repair UI'
+      get do
+        groups = ProductGroup.devices.distinct
+        Bot::DeviceHierarchyPresenter.new(groups).as_json
+      end
+    end
+
     resource :service_jobs do
       route_param :ticket_number, type: String do
         desc 'Show a client-safe service job status by exact public ticket number'
