@@ -8,9 +8,9 @@ module Bot
         name: department.name,
         city: department.city_name,
         repair_participating: department.participates_in_repair_services?,
-        address: department.address.presence,
-        contact_phone: department.contact_phone.presence,
-        working_hours: working_hours(department)
+        address: Setting.get_value('address', department).presence || department.address.presence,
+        contact_phone: Setting.get_value('contact_phone', department).presence || department.contact_phone.presence,
+        working_hours: schedule(department)
       }
     end
 
@@ -27,6 +27,13 @@ module Bot
       end
       entries.presence
     end
-    private_class_method :working_hours
+
+    def self.schedule(department)
+      configured = Setting.get_value('schedule', department).presence
+      return configured if configured
+
+      working_hours(department)
+    end
+    private_class_method :working_hours, :schedule
   end
 end
