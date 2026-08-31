@@ -1,0 +1,9 @@
+// Подсветка слов-маркеров в тексте транскрипции и в тексте уведомлений о ней.
+// Инлайн-стиль здесь невозможен: разметка проходит через sanitize, у которого
+// в allowlist есть class, но нет style.
+.marker-word-highlight {
+  background-color: #ffe066;
+  border-radius: 2px;
+  padding: 0 2px;
+  font-weight: bold;
+}
