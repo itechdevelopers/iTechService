@@ -14,6 +14,7 @@ module Bot
         active: !@repair_service.archived?,
         customer_info: plain_text(@repair_service.client_info),
         special_marks: special_marks,
+        warranty: warranty_json,
         products: @repair_service.products.map { |p| { id: p.id, name: p.name } },
         branch: branch_json,
         price: price_json,
@@ -31,12 +32,16 @@ module Bot
     def branch_json
       return nil unless @department
 
-      {
-        id: @department.id,
-        name: @department.name,
-        city: @department.city_name,
-        repair_participating: @department.participates_in_repair_services?
-      }
+      Bot::DepartmentMetadataPresenter.as_json(@department)
+    end
+
+    def warranty_json
+      terms = @repair_service.spare_parts.includes(:product).map do |part|
+        part.warranty_term.presence || part.product&.warranty_term
+      end.compact.map(&:to_s).uniq
+      return nil unless terms.one?
+
+      { term: terms.first, display: "#{terms.first} месяцев" }
     end
 
     def price_json
