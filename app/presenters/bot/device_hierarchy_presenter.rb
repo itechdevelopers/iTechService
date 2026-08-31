@@ -13,11 +13,18 @@ module Bot
       nodes = @groups.each_with_object({}) do |group, result|
         result[group.id] = {
           id: group.id.to_s,
-          name: group.name,
+          name: group.name.to_s.strip,
           parent_id: parent_id(group),
           active: active?(group),
           children: []
         }
+      end
+
+      # A filtered equipment scope can contain a leaf whose non-equipment
+      # ancestor is intentionally absent. Such nodes are roots in this public
+      # tree, so never expose a dangling parent reference.
+      nodes.each_value do |node|
+        node[:parent_id] = nil if node[:parent_id] && !nodes.key?(node[:parent_id].to_i)
       end
 
       nodes.each_value do |node|
