@@ -20,19 +20,24 @@ module Bot
           status: (legacy_status = Bot::RepairServiceStatus.legacy(@repair_service, @department)),
           business_status: Bot::RepairServiceStatus.business(@repair_service, @department)
         },
-        branch: {
-          id: @department.id,
-          name: @department.name,
-          city: @department.city_name,
-          repair_participating: @department.participates_in_repair_services?
-        },
+        branch: Bot::DepartmentMetadataPresenter.as_json(@department),
         active: !@repair_service.archived?,
         customer_info: plain_text(@repair_service.client_info),
+        warranty: warranty_json,
         special_marks: begin
           text = plain_text(@repair_service.special_marks)
           text.present? ? [{ text: text, source: 'repair_service' }] : []
         end
       }
+    end
+
+    def warranty_json
+      terms = @repair_service.spare_parts.includes(:product).map do |part|
+        part.warranty_term.presence || part.product&.warranty_term
+      end.compact.map(&:to_s).uniq
+      return nil unless terms.one?
+
+      { term: terms.first, display: "#{terms.first} месяцев" }
     end
 
     private

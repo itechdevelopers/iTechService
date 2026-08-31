@@ -123,17 +123,12 @@ class BotApi < Grape::API
         optional :active_only, type: Boolean, default: true
       end
       get do
-        departments = Department.real
+        departments = Department.real.participating_in_repair_services
         departments = departments.active if params[:active_only]
         {
           success: true,
           items: departments.map do |department|
-            {
-              id: department.id,
-              name: department.name,
-              city: department.city_name,
-              repair_participating: department.participates_in_repair_services?
-            }
+            Bot::DepartmentMetadataPresenter.as_json(department)
           end
         }
       end
