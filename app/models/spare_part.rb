@@ -1,4 +1,7 @@
 class SparePart < ApplicationRecord
+  # Вид ремонта всегда расходует ровно одну запчасть, количество не редактируется
+  DEFAULT_QUANTITY = 1
+
   belongs_to :repair_service, optional: true
   belongs_to :product, optional: true
   has_many :store_items, through: :product
@@ -8,6 +11,7 @@ class SparePart < ApplicationRecord
 
   after_initialize do
     self.warranty_term ||= product.try(:warranty_term)
+    self.quantity ||= DEFAULT_QUANTITY
   end
 
 end

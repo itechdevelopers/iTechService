@@ -2,9 +2,7 @@
   %td.item
     = link_to f.object.name, f.object.product
     = f.hidden_field :product_id
-  %td.quantity
-    = f.input_field :quantity, class: 'input-mini', min: 1
-    = f.error :quantity
+    = f.hidden_field :quantity, value: SparePart::DEFAULT_QUANTITY
   %td.warranty
     = f.input_field :warranty_term, class: 'input-mini', min: 0
     = f.error :warranty_term

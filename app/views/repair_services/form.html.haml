@@ -58,14 +58,13 @@
     %thead
       %tr
         %th= t('activerecord.models.product')
-        %th.quantity= SparePart.human_attribute_name :quantity
         %th.warranty= SparePart.human_attribute_name :warranty_term
         %th.cost= SparePart.human_attribute_name :price
         %th.action
     %tbody= f.simple_fields_for(:spare_parts) { |ff| render 'spare_part_fields', f: ff }
     %tfoot
       %tr
-        %td{colspan: 3}= t 'total'
+        %td{colspan: 2}= t 'total'
         %td.total= human_currency @repair_service.total_cost, false
   = link_to_add_product :repair_service, :spare_parts, true
 

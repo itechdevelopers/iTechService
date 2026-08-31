@@ -381,7 +381,8 @@ window.calculateTableTotal = (table, value_col, qty_col)->
   total = 0
   $('tbody>tr:visible', table).each ->
     value = accounting.unformat $(value_col, this).text()
-    quantity = $(qty_col+'>input', this).val()
+    # в таблице может не быть поля количества — тогда считаем строку как одну единицу
+    quantity = $(qty_col+'>input', this).val() ? 1
     total += value * quantity
   $('tfoot td.total').text accounting.formatMoney(total)
 
