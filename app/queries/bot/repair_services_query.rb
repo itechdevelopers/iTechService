@@ -11,7 +11,7 @@ module Bot
     # into the serialized response.
     def self.catalog(model: nil, product_id: nil, limit: 100)
       scope = RepairService.not_archived
-      scope = scope.includes(:products, :prices, spare_parts: { product: { items: :store_items } })
+      scope = scope.includes(:products, :prices, :repair_causes, spare_parts: { product: { items: :store_items } })
       if product_id.present?
         scope = scope.joins(:products).where(products: { id: product_id })
       elsif model.to_s.strip.present?
@@ -56,7 +56,7 @@ module Bot
 
     def services_for(product)
       scope = product.repair_services.not_archived.includes(
-        :prices,
+        :prices, :repair_causes,
         spare_parts: { product: { items: :store_items } }
       )
       scope = scope.where('repair_services.name ILIKE ?', "%#{sanitize_like(@service)}%") if @service.present?

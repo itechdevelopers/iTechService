@@ -15,6 +15,7 @@ module Bot
         customer_info: plain_text(@repair_service.client_info),
         special_marks: special_marks,
         warranty: warranty_json,
+        reasons: @repair_service.repair_causes.order(:id).map { |cause| { id: cause.id, name: cause.title } },
         products: @repair_service.products.map { |p| { id: p.id, name: p.name } },
         branch: branch_json,
         price: price_json,

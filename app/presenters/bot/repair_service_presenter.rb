@@ -24,6 +24,7 @@ module Bot
         active: !@repair_service.archived?,
         customer_info: plain_text(@repair_service.client_info),
         warranty: warranty_json,
+        reasons: reasons_json,
         special_marks: begin
           text = plain_text(@repair_service.special_marks)
           text.present? ? [{ text: text, source: 'repair_service' }] : []
@@ -38,6 +39,10 @@ module Bot
       return nil unless terms.one?
 
       { term: terms.first, display: "#{terms.first} месяцев" }
+    end
+
+    def reasons_json
+      @repair_service.repair_causes.order(:id).map { |cause| { id: cause.id, name: cause.title } }
     end
 
     private
