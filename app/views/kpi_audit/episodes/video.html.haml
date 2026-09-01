@@ -1,0 +1,11 @@
+- content_for :title, 'Видео эпизода'
+= auto_header_tag
+
+.container-fluid
+  %h1 Видео эпизода
+  %p= "Талон: #{@video[:ticket_number]}"
+  %p= "Рабочее окно: #{@video[:window_number]}"
+  %p= "Камера: #{@video[:camera_name]}"
+  %p= "Период: #{@video[:range_start]} — #{@video[:range_end]}"
+  .alert.alert-info
+    Видео-контекст определён. Просмотр будет доступен после подключения защищённого проигрывателя.

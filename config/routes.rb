@@ -2,6 +2,13 @@ require 'sidekiq/web'
 require 'sidekiq/cron/web'
 
 Rails.application.routes.draw do
+  namespace :kpi_audit do
+    resources :episodes, only: %i[index show] do
+      post :analyze, on: :collection
+      get :video, on: :member
+    end
+  end
+
   # The priority is based upon order of creation: first created -> highest priority.
   # See how all your routes lay out with "rake routes".
 
