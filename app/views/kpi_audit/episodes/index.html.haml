@@ -19,6 +19,7 @@
     .form-group
       = label_tag 'analysis_mode', 'Режим'
       = select_tag 'analysis[mode]', options_for_select([['Обычный', 'normal'], ['Строгий', 'strict']], @analysis_params[:mode]), class: 'form-control'
+      %small.help-block Обычный — показывает только эпизоды с более существенными признаками нарушений.<br>Строгий — дополнительно показывает эпизоды со слабыми и пограничными признаками.
     = submit_tag 'Запустить проверку', class: 'btn btn-primary'
 
   - unless @episodes.nil?
@@ -29,7 +30,7 @@
       .panel.panel-default.kpi-audit__episode
         .panel-heading
           %strong= "#{episode.employee[:full_name]} (#{episode.employee[:login]})"
-          .pull-right= "Risk #{episode.risk_score}/100 · Confidence #{episode.confidence[:score]}/100"
+          .pull-right= "Вероятность мошенничества: #{episode.risk_score}/100 · Вероятность того, что система сработала верно: #{episode.confidence[:score]}/100"
         .panel-body
           %p= episode.summary
           %p
@@ -42,8 +43,8 @@
             %strong Талон:
             = episode.video_summary[:ticket_number] || 'не установлен'
           %ul
-            - episode.signals.each do |signal|
-              %li= signal[:description]
+            - kpi_episode_reasons(episode).each do |signal|
+              %li= signal[:code].to_s == 'burst' ? kpi_free_service_reason(episode, signal) : signal[:description]
           %p= "Бесплатных сервисов: #{episode.visit_profile[:free_services_count]} · Длинных приёмок: #{episode.visit_profile[:long_receptions_count]} · Mac: #{episode.visit_profile[:mac_works_count]}"
           %p
             %strong Деньги:

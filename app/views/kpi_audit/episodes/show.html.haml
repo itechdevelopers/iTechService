@@ -9,12 +9,12 @@
   %p= "Клиент: не установлен"
   %p= "Талон: #{@episode.video_summary[:ticket_number] || 'не установлен'}"
   %p= "Время: #{l @episode.visit_profile[:started_at], format: :long} — #{l @episode.visit_profile[:ended_at], format: :long}"
-  %p= "Risk #{@episode.risk_score}/100 · Confidence #{@episode.confidence[:score]}/100"
+  %p= "Вероятность мошенничества: #{@episode.risk_score}/100 · Вероятность того, что система сработала верно: #{@episode.confidence[:score]}/100"
 
   %h3 Причины проверки
   %ul
-    - @episode.signals.each do |signal|
-      %li= signal[:description]
+    - kpi_episode_reasons(@episode).each do |signal|
+      %li= signal[:code].to_s == 'burst' ? kpi_free_service_reason(@episode, signal) : signal[:description]
 
   %h3 Связанные работы
   %table.table.table-striped

@@ -22,6 +22,8 @@ RSpec.describe KpiAudit::EpisodesController, type: :controller do
 
       expect(response).to have_http_status(:ok)
       expect(assigns(:episodes)).to be_nil
+      expect(response.body).to include('Обычный — показывает только эпизоды')
+      expect(response.body).to include('Строгий — дополнительно показывает эпизоды')
     end
   end
 
