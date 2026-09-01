@@ -65,6 +65,24 @@ class BotApi < Grape::API
     before { authenticate_bot! }
 
     resource :repair_services do
+      desc 'List customer departments with prices for matching repair services'
+      params do
+        optional :product_id, type: Integer
+        optional :model, type: String
+        requires :service, type: String
+        optional :limit, type: Integer, values: 1..100, default: 50
+      end
+      get :branches do
+        if params[:product_id].blank? && params[:model].to_s.strip.blank?
+          bot_error!('INVALID_PARAMETERS', 'product_id or model is required', 400)
+        end
+        results = Bot::RepairServiceBranchesQuery.new(
+          product_id: params[:product_id], model: params[:model],
+          service: params[:service], limit: params[:limit]
+        ).call
+        { success: true, items: results.map { |r| Bot::RepairServiceBranchesPresenter.new(r).as_json } }
+      end
+
       desc 'List repair services and branch prices for a device model'
       params do
         requires :department_id, type: Integer
