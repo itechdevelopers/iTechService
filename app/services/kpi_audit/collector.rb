@@ -147,7 +147,7 @@ module KpiAudit
 
       { id: ticket.id, number: ticket.ticket_number, issued_at: ticket.ticket_issued_at,
         served_at: ticket.ticket_served_at, queue_key: ticket.electronic_queue.ipad_link,
-        queue_name: ticket.electronic_queue.name, called_id: call&.id, called_at: call&.created_at,
+        queue_name: ticket.electronic_queue.queue_name, called_id: call&.id, called_at: call&.created_at,
         window_number: call&.elqueue_window&.window_number,
         historical_employee: employee_snapshot(call&.user) }.freeze
     end
