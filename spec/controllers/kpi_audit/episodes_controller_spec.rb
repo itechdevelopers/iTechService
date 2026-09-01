@@ -61,6 +61,12 @@ RSpec.describe KpiAudit::EpisodesController, type: :controller do
       expect(response).to have_http_status(:ok)
       expect(assigns(:episode).id).to eq(episode.id)
     end
+
+    it 'redirects when a cached run has expired instead of raising' do
+      get :show, params: { id: 'missing', run_id: 'expired-run' }
+
+      expect(response).to redirect_to(kpi_audit_episodes_path)
+    end
   end
 
   describe 'authorization' do

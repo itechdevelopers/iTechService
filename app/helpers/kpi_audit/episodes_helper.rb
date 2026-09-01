@@ -11,6 +11,7 @@ module KpiAudit
       end
     end
 
+    # rubocop:disable Metrics/AbcSize
     def kpi_episode_reasons(episode)
       signals = episode.signals.reject { |signal| %w[multiple_kpi confirmed_ticket].include?(signal[:code].to_s) }
       ticket = episode.video_summary[:ticket_number]
@@ -20,8 +21,9 @@ module KpiAudit
                       'влияющих на выполнение плана, в рамках этого талона'
         signals.unshift(code: :visit_summary, description: description)
       end
-      signals
+      signals.map { |signal| signal.merge(description: human_signal_description(episode, signal)) }
     end
+    # rubocop:enable Metrics/AbcSize
 
     def kpi_operation_word(count)
       return 'операция' if count % 10 == 1 && count % 100 != 11
@@ -41,6 +43,16 @@ module KpiAudit
       times = entries.map { |entry| entry[:occurred_at] }
       seconds = (times.max - times.min).round
       "#{match[1]} бесплатных сервисов за #{human_duration(seconds)}"
+    end
+
+    def human_signal_description(_episode, signal)
+      description = signal[:description].to_s
+      match = description.match(%r{В последние (\d+) дня (\d+) KPI при baseline ([\d.]+) KPI/день})
+      return description unless match
+
+      baseline = match[3].to_f
+      formatted = baseline.zero? ? '0' : format('%.1f', baseline).tr('.', ',')
+      "За последние #{match[1]} дня — #{match[2]} KPI при обычном уровне #{formatted} KPI в день"
     end
     # rubocop:enable Metrics/AbcSize
 
