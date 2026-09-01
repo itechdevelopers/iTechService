@@ -4,6 +4,8 @@ require 'rails_helper'
 
 # rubocop:disable Metrics/BlockLength
 RSpec.describe KpiAudit::EpisodesController, type: :controller do
+  render_views
+
   let(:user) { create(:user, :superadmin) }
   let(:departments) { double(order: [user.department]) }
 
@@ -44,7 +46,8 @@ RSpec.describe KpiAudit::EpisodesController, type: :controller do
   describe 'GET show' do
     it 'reads the explicit run cache without running Analyzer again' do
       episode = KpiAudit::Episode.new(
-        id: 'episode-1', summary: 'Основание для проверки', employee: {}, visit_profile: {}, signals: [],
+        id: 'episode-1', summary: 'Основание для проверки', employee: {},
+        visit_profile: { started_at: Time.zone.now, ended_at: Time.zone.now }, signals: [],
         risk_score: 25, risk_level: :moderate, confidence: { score: 80 }, timeline: [],
         economic_outcome: {}, video_summary: {}, related_records: [], limitations: []
       )
