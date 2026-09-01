@@ -189,6 +189,10 @@ RSpec.describe 'KPI Audit PHASE A backend' do
       reason = KpiAudit::Reason.new(code: :user_mismatch, text: 'Диагностика', points: 0, family: :diagnostics)
       expect(described_class.new(configuration: KPI_AUDIT_TEST_CONFIG).assess([reason]).score).to eq(0)
     end
+
+    it 'classifies an over-cap aggregate without raising' do
+      expect(described_class.new(configuration: KPI_AUDIT_TEST_CONFIG).level(101)).to eq(:critical)
+    end
   end
 
   describe KpiAudit::Detector do

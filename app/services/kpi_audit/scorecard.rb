@@ -38,7 +38,7 @@ module KpiAudit
     end
 
     def level(score)
-      LEVELS.find { |range, _| range.cover?(score) }.last
+      LEVELS.find { |range, _| range.cover?(score) }&.last || (score.to_f.negative? ? :low : :critical)
     end
 
     private
