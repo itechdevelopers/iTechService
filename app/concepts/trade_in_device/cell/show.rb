@@ -74,18 +74,22 @@ module TradeInDevice::Cell
     end
 
     def link_to_index
-      link_to t('.index.title'), trade_in_devices_path
+      link_to t('.index.title'), trade_in_devices_path if superadmin?
     end
 
     def link_to_print
+      return unless policy.print?
+
       link_to t('helpers.links.print'), print_trade_in_device_path(id), target: '_blank', class: 'btn btn-default'
     end
 
     def link_to_edit
-      link_to t('helpers.links.edit'), edit_trade_in_device_path(id), class: 'btn btn-default'
+      link_to t('helpers.links.edit'), edit_trade_in_device_path(id), class: 'btn btn-default' if policy.edit?
     end
 
     def link_to_destroy
+      return unless policy.destroy?
+
       link_to t('helpers.links.destroy'), trade_in_device_path(id), method: 'delete', data: {confirm: t('helpers.links.confirm', default: 'Are you sure?')}, class: 'btn btn-danger'
     end
   end

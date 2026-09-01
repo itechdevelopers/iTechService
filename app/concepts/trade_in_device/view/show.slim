@@ -11,7 +11,7 @@
       = attribute_presentation :received_at
       = attribute_presentation :number
       = attribute_presentation :item
-      = attribute_presentation :appraised_value
+      = attribute_presentation :appraised_value if superadmin?
       = attribute_presentation :appraiser
       = attribute_presentation :bought_device
       - if client.present?

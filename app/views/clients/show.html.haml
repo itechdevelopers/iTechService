@@ -182,8 +182,7 @@
           %td= order.quantity
           %td= l order.desired_date, format: :default if order.desired_date.present?
 
-- if current_user.superadmin?
-  #client_trade_devices= render 'clients/trade_in_devices', trade_in_devices: @client.trade_in_devices
+#client_trade_devices= render 'clients/trade_in_devices', trade_in_devices: @client.trade_in_devices
 
 .form-actions
   - if can? :create, ServiceJob

@@ -11,11 +11,11 @@ class TradeInDevicePolicy < BasePolicy
     manage?
   end
 
-  def create?; manage?; end
+  def create?; true; end
 
   def index?; manage?; end
 
-  def show?; manage?; end
+  def show?; true; end
 
   def print?; manage?; end
 

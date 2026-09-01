@@ -11,17 +11,25 @@ class TradeInDevicePolicyTest < ActiveSupport::TestCase
     end
   end
 
-  ACTIONS = %i[manage index show create new update edit destroy print index_unconfirmed].freeze
+  SUPERADMIN_ACTIONS = %i[manage index show create new update edit destroy print index_unconfirmed].freeze
+  REGULAR_ALLOWED_ACTIONS = %i[show create new].freeze
+  REGULAR_DENIED_ACTIONS = %i[manage index update edit destroy print index_unconfirmed].freeze
 
   test 'superadmin can access trade-in devices' do
     policy = TradeInDevicePolicy.new(User.new('superadmin', false), TradeInDevice)
 
-    ACTIONS.each { |action| assert policy.public_send("#{action}?") }
+    SUPERADMIN_ACTIONS.each { |action| assert policy.public_send("#{action}?") }
   end
 
-  test 'non-superadmin cannot access trade-in devices even with manage_trade_in ability' do
+  test 'non-superadmin can create and show a trade-in device' do
     policy = TradeInDevicePolicy.new(User.new('admin', true), TradeInDevice)
 
-    ACTIONS.each { |action| refute policy.public_send("#{action}?") }
+    REGULAR_ALLOWED_ACTIONS.each { |action| assert policy.public_send("#{action}?") }
+  end
+
+  test 'non-superadmin cannot list or manage trade-in devices even with manage_trade_in ability' do
+    policy = TradeInDevicePolicy.new(User.new('admin', true), TradeInDevice)
+
+    REGULAR_DENIED_ACTIONS.each { |action| refute policy.public_send("#{action}?") }
   end
 end
