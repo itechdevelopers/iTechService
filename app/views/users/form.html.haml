@@ -149,7 +149,7 @@
           .control-group.span6
             %label.control-label= User.human_attribute_name :abilities
             .controls
-              - Ability.admin_assignable.each do |ability|
+              - Ability.admin_assignable.where.not(name: 'manage_trade_in').each do |ability|
                 = label_tag "user_ability_ids_#{ability.id}", class: 'checkbox' do
                   = check_box_tag "user[ability_ids][]", ability.id, @user.abilities.include?(ability), id: "user_ability_ids_#{ability.id}"
                   = t("users.abilities.#{ability.name}")

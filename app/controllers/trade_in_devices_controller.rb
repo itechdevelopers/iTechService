@@ -39,6 +39,7 @@ class TradeInDevicesController < ApplicationController
 
   # TODO: make it via ajax
   def print
+    authorize TradeInDevice, :print?
     trade_in_device = find_record TradeInDevice
     pdf = print_ticket trade_in_device
     send_data pdf.render, filename: pdf.filename, type: 'application/pdf', disposition: :inline

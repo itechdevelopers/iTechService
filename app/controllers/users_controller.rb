@@ -378,7 +378,7 @@ class UsersController < ApplicationController
     return unless p.key?(:ability_ids)
 
     if policy(User).manage_limited_rights?
-      admin_assignable_ids = Ability.admin_assignable.pluck(:id).map(&:to_s)
+      admin_assignable_ids = Ability.admin_assignable.where.not(name: 'manage_trade_in').pluck(:id).map(&:to_s)
       submitted_ids = Array(p[:ability_ids]).reject(&:blank?)
 
       # Keep only admin_assignable from submitted
