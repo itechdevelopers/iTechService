@@ -8,7 +8,7 @@ require Rails.root.join('app/services/kpi_audit/video_summary_builder').to_s
 
 # rubocop:disable Metrics/BlockLength
 RSpec.describe KpiAudit::VideoSummaryBuilder do
-  let(:event_class) { Struct.new(:occurred_at, :video_diagnostic, keyword_init: true) }
+  let(:event_class) { Struct.new(:occurred_at, :video_diagnostic, :kind, keyword_init: true) }
 
   let(:zone) { Time.find_zone!('Vladivostok') }
   let(:configuration) do
@@ -17,16 +17,19 @@ RSpec.describe KpiAudit::VideoSummaryBuilder do
                                          link_ttl_seconds: 3600 })
   end
   let(:queue) { double(id: 1, ipad_link: 'okean', queue_name: 'Первая речка') }
-  let(:ticket) { double(id: 114_974, ticket_number: 'К14', electronic_queue: queue) }
+  let(:ticket) do
+    double(id: 114_974, ticket_number: 'К14', electronic_queue: queue,
+           ticket_issued_at: nil, ticket_served_at: nil)
+  end
   let(:window) { double(window_number: 8) }
-  let(:called) { double(elqueue_window: window) }
+  let(:called) { double(elqueue_window: window, created_at: nil) }
   let(:first_time) { zone.parse('2026-07-29 06:00:44') }
   let(:last_time) { zone.parse('2026-07-29 06:07:23') }
   let(:status) { 'EXACT' }
   let(:events) do
-    [event_class.new(occurred_at: first_time,
+    [event_class.new(occurred_at: first_time, kind: :free_job,
                      video_diagnostic: { status: status, waiting_client: ticket, called: called }),
-     event_class.new(occurred_at: last_time,
+     event_class.new(occurred_at: last_time, kind: :free_job,
                      video_diagnostic: { status: status, waiting_client: ticket, called: called })]
   end
   let(:link_builder) { ->(payload) { "https://ais.example/kpi/video/#{payload[:camera_key]}" } }
@@ -60,6 +63,17 @@ RSpec.describe KpiAudit::VideoSummaryBuilder do
     expect(summary.range_start).to eq(zone.parse('2026-07-29 06:00:29'))
     expect(summary.range_end).to eq(zone.parse('2026-07-29 06:07:38'))
     expect(summary.range_start.strftime('%H:%M:%S')).to eq('06:00:29')
+  end
+
+  it 'keeps a late back-office Mac in context without extending the primary visit range' do
+    allow(ticket).to receive(:ticket_issued_at).and_return(zone.parse('2026-07-29 05:55:28'))
+    allow(ticket).to receive(:ticket_served_at).and_return(zone.parse('2026-07-29 06:14:53'))
+    allow(called).to receive(:created_at).and_return(zone.parse('2026-07-29 05:55:33'))
+    events << event_class.new(occurred_at: zone.parse('2026-07-29 07:54:09'), kind: :mac,
+                              video_diagnostic: events.first.video_diagnostic)
+
+    expect(summary.range_start).to eq(zone.parse('2026-07-29 05:55:13'))
+    expect(summary.range_end).to eq(zone.parse('2026-07-29 06:15:08'))
   end
 
   it 'returns a fallback camera as an alternative link' do
@@ -117,7 +131,7 @@ RSpec.describe KpiAudit::VideoSummaryBuilder do
 
   it 'deduplicates 22 events into one summary and one primary link' do
     repeated = Array.new(22) do |index|
-      event_class.new(occurred_at: first_time + index.seconds,
+      event_class.new(occurred_at: first_time + index.seconds, kind: :free_job,
                       video_diagnostic: { status: 'EXACT', waiting_client: ticket, called: called })
     end
     calls = 0

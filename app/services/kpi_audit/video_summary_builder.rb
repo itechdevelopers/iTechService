@@ -46,7 +46,7 @@ module KpiAudit
       route = Hikvision::CameraRouter.for(queue: queue.ipad_link, window: window.window_number,
                                           configuration: @camera_catalog)
       primary = camera(route.nvr_name, route.primary)
-      start_time, end_time, segments = video_range
+      start_time, end_time, segments = video_range(ticket, called)
       payload = safe_payload(ticket, route, primary, start_time, end_time, segments)
       primary_link = link(route.primary, primary, payload) if @link_builder
       alternatives = if @link_builder
@@ -72,8 +72,11 @@ module KpiAudit
       )
     end
 
-    def video_range
-      times = @events.map(&:occurred_at).compact.sort
+    def video_range(ticket, called)
+      visit_times = @events.reject { |event| event.kind == :mac }.map(&:occurred_at).compact
+      visit_times = @events.map(&:occurred_at).compact if visit_times.empty?
+      times = visit_times + [ticket.ticket_issued_at, called.created_at, ticket.ticket_served_at].compact
+      times.sort!
       raise ArgumentError, 'video events have no timestamps' if times.empty?
 
       start_time = times.first - video_config(:pre_roll_seconds).seconds
