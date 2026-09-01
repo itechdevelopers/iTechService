@@ -27,11 +27,15 @@ module KpiAudit
 
     def show
       @episode = find_cached_episode
+    rescue ActiveRecord::RecordNotFound
+      redirect_to kpi_audit_episodes_path, alert: 'Результат проверки больше недоступен. Запустите проверку повторно.'
     end
 
     def video
       @episode = find_cached_episode
       @video = @episode.video_summary
+    rescue ActiveRecord::RecordNotFound
+      redirect_to kpi_audit_episodes_path, alert: 'Результат проверки больше недоступен. Запустите проверку повторно.'
     end
 
     private

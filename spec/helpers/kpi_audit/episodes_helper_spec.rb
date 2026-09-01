@@ -24,4 +24,12 @@ RSpec.describe KpiAudit::EpisodesHelper do
 
     expect(helper.kpi_free_service_reason(episode, signal)).to eq('5 бесплатных сервисов за 1 минуту и 21 секунду')
   end
+
+  it 'translates baseline into an ordinary-level explanation' do
+    signal = { description: 'В последние 3 дня 21 KPI при baseline 0.0 KPI/день' }
+
+    expect(helper.human_signal_description(nil, signal)).to eq(
+      'За последние 3 дня — 21 KPI при обычном уровне 0 KPI в день'
+    )
+  end
 end
