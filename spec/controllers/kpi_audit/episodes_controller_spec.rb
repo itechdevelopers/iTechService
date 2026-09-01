@@ -69,6 +69,43 @@ RSpec.describe KpiAudit::EpisodesController, type: :controller do
     end
   end
 
+  describe 'GET clip' do
+    let(:episode) do
+      KpiAudit::Episode.new(
+        id: 'episode-video', summary: 'Основание для проверки', employee: {},
+        visit_profile: {}, signals: [], risk_score: 25, risk_level: :moderate,
+        confidence: { score: 80 }, timeline: [], economic_outcome: {},
+        video_summary: { available: true, queue_key: 'okean', ticket_id: 114_974,
+                         camera_key: 'zal1', channel: 1,
+                         range_start: Time.zone.parse('2026-08-31 17:00:30'),
+                         range_end: Time.zone.parse('2026-08-31 17:02:32') },
+        related_records: [], limitations: []
+      )
+    end
+
+    it 'generates a protected clip only after an explicit request' do
+      Rails.cache.write("kpi-audit:runs:user:#{user.id}:video-run", [episode])
+      service = instance_double(KpiAudit::VideoClipService, call: Rails.root.join('tmp', 'clip.mp4').to_s)
+      allow(KpiAudit::VideoClipService).to receive(:new).and_return(service)
+      allow(controller).to receive(:send_file)
+
+      get :clip, params: { id: episode.id, run_id: 'video-run' }
+
+      expect(response).to have_http_status(:ok)
+      expect(service).to have_received(:call)
+    end
+
+    it 'does not invoke NVR service for unsupported queues' do
+      unsupported = episode.to_h.merge(video_summary: episode.video_summary.merge(queue_key: 'other'))
+      Rails.cache.write("kpi-audit:runs:user:#{user.id}:unsupported", [KpiAudit::Episode.new(**unsupported)])
+      expect(KpiAudit::VideoClipService).not_to receive(:new)
+
+      get :clip, params: { id: episode.id, run_id: 'unsupported' }
+
+      expect(response).to have_http_status(:not_found)
+    end
+  end
+
   describe 'authorization' do
     let(:user) { create(:user, :software) }
 

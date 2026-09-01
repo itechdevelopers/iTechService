@@ -6,6 +6,7 @@ Rails.application.routes.draw do
     resources :episodes, only: %i[index show] do
       post :analyze, on: :collection
       get :video, on: :member
+      get :clip, on: :member
     end
   end
 

@@ -38,6 +38,22 @@ module KpiAudit
       redirect_to kpi_audit_episodes_path, alert: 'Результат проверки больше недоступен. Запустите проверку повторно.'
     end
 
+    def clip
+      @episode = find_cached_episode
+      summary = @episode.video_summary
+      unless summary[:queue_key].to_s == 'okean'
+        return render plain: 'Просмотр видео для этого подразделения пока не подключён.', status: :not_found
+      end
+
+      path = VideoClipService.new(payload: clip_payload(summary)).call
+      send_file path, type: 'video/mp4', disposition: 'inline', filename: 'kpi-audit-video.mp4'
+    rescue ActiveRecord::RecordNotFound
+      redirect_to kpi_audit_episodes_path, alert: 'Результат проверки больше недоступен. Запустите проверку повторно.'
+    rescue Hikvision::Client::Error, Hikvision::Configuration::Error, ArgumentError, SystemCallError => e
+      Rails.logger.warn("[KpiAudit video] unavailable user_id=#{current_user.id} error=#{e.class.name}")
+      render plain: 'Не удалось получить видеозапись.', status: :service_unavailable
+    end
+
     private
 
     def authorize_kpi_audit
@@ -74,6 +90,24 @@ module KpiAudit
 
     def cache_key(run_id)
       "kpi-audit:runs:user:#{current_user.id}:#{run_id}"
+    end
+
+    def clip_payload(summary)
+      diagnostics = (summary[:diagnostics] || {}).deep_symbolize_keys
+      diagnostics.merge(
+        investigation_id: @episode.id,
+        ticket_id: summary[:ticket_id],
+        nvr_name: 'okean',
+        queue_key: summary[:queue_key],
+        camera_key: summary[:camera_key],
+        channel: summary[:channel],
+        range_start: iso8601(summary[:range_start]),
+        range_end: iso8601(summary[:range_end])
+      )
+    end
+
+    def iso8601(value)
+      value.respond_to?(:iso8601) ? value.iso8601 : value.to_s
     end
   end
 end

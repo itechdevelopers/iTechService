@@ -8,5 +8,9 @@
   %p= "Рабочее окно: #{@video[:window_number]}"
   %p= "Камера: #{@video[:camera_name]}"
   %p= "Период: #{@video[:range_start]} — #{@video[:range_end]}"
-  .alert.alert-info
-    Видео-контекст определён. Просмотр будет доступен после подключения защищённого проигрывателя.
+  - if @video[:available] && @video[:queue_key].to_s == 'okean'
+    %video{controls: true, preload: 'metadata', width: '100%', src: clip_kpi_audit_episode_path(@episode, run_id: params[:run_id])}
+  - elsif @video[:available]
+    .alert.alert-info Просмотр видео для этого подразделения пока не подключён.
+  - else
+    .alert.alert-warning Видео-контекст не установлен.

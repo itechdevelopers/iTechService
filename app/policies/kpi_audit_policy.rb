@@ -9,4 +9,5 @@ class KpiAuditPolicy < ApplicationPolicy
   alias analyze? index?
   alias show? index?
   alias video? index?
+  alias clip? index?
 end
