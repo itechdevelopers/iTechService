@@ -1,0 +1,91 @@
+departments:
+  pervaya_rechka:
+    code_env: HIKVISION_DEPARTMENT_CODE
+    nvr: okean
+
+electronic_queues:
+  okean:
+    name: "Первая речка"
+    department_code: vl
+    nvr: okean
+    windows:
+      1:
+        primary: zal6
+      2:
+        primary: zal6
+      3:
+        primary: zal6
+        fallback:
+          - zal3
+      4:
+        primary: zal3
+      5:
+        primary: zal3
+      6:
+        primary: zal2
+      7:
+        primary: zal2
+        fallback:
+          - zal1
+      8:
+        primary: zal1
+      9:
+        primary: zal1
+
+nvrs:
+  okean:
+    host_env: HIKVISION_HOST
+    http_port_env: HIKVISION_PORT
+    rtsp_port_env: HIKVISION_RTSP_PORT
+    user_env: HIKVISION_USER
+    password_env: HIKVISION_PASSWORD
+    archive_clock: local_wall_clock_as_z
+    cameras:
+      zal1:
+        channel: 1
+        main_stream: 101
+        substream: 102
+      zal2:
+        channel: 2
+        main_stream: 201
+        substream: 202
+      zal3:
+        channel: 3
+        main_stream: 301
+        substream: 302
+      zal4:
+        channel: 4
+        main_stream: 401
+        substream: 402
+      zal5:
+        channel: 5
+        main_stream: 501
+        substream: 502
+      zal6:
+        channel: 6
+        main_stream: 601
+        substream: 602
+      kassa2:
+        channel: 7
+        main_stream: 701
+        substream: 702
+      fish_eye:
+        channel: 9
+        main_stream: 901
+        substream: 902
+      street_back:
+        channel: 10
+        main_stream: 1001
+        substream: 1002
+      street_front_2:
+        channel: 12
+        main_stream: 1201
+        substream: 1202
+      lestnitsa:
+        channel: 13
+        main_stream: 1301
+        substream: 1302
+      camera_01:
+        channel: 14
+        main_stream: 1401
+        substream: 1402

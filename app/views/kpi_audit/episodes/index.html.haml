@@ -1,0 +1,55 @@
+- content_for :title, 'Контроль KPI'
+= auto_header_tag
+
+.container-fluid.kpi-audit
+  %h1 Контроль KPI
+  %p.text-muted Результ показывает эпизоды, которые требуют ручной проверки.
+
+  = form_tag analyze_kpi_audit_episodes_path, method: :post, class: 'form-inline kpi-audit__form' do
+    .form-group
+      = label_tag 'analysis_date_from', 'Дата с'
+      = date_field_tag 'analysis[date_from]', @analysis_params[:date_from], class: 'form-control', required: true
+    .form-group
+      = label_tag 'analysis_date_to', 'Дата по'
+      = date_field_tag 'analysis[date_to]', @analysis_params[:date_to], class: 'form-control', required: true
+    .form-group
+      = label_tag 'analysis_department_id', 'Подразделение'
+      = select_tag 'analysis[department_id]', options_from_collection_for_select(@departments, :id, :full_name, @analysis_params[:department_id]), class: 'form-control', required: true
+    .form-group
+      = label_tag 'analysis_mode', 'Режим'
+      = select_tag 'analysis[mode]', options_for_select([['Обычный', 'normal'], ['Строгий', 'strict']], @analysis_params[:mode]), class: 'form-control'
+    = submit_tag 'Запустить проверку', class: 'btn btn-primary'
+
+  - unless @episodes.nil?
+    %h2= "Найдено #{@episodes.size} эпизодов для проверки"
+    - if @episodes.empty?
+      .alert.alert-success Оснований для ручной проверки не найдено.
+    - @episodes.each do |episode|
+      .panel.panel-default.kpi-audit__episode
+        .panel-heading
+          %strong= "#{episode.employee[:full_name]} (#{episode.employee[:login]})"
+          .pull-right= "Risk #{episode.risk_score}/100 · Confidence #{episode.confidence[:score]}/100"
+        .panel-body
+          %p= episode.summary
+          %p
+            %strong Время:
+            = "#{l episode.visit_profile[:started_at], format: :short} — #{l episode.visit_profile[:ended_at], format: :short}"
+          %p
+            %strong Клиент:
+            не установлен
+          %p
+            %strong Талон:
+            = episode.video_summary[:ticket_number] || 'не установлен'
+          %ul
+            - episode.signals.each do |signal|
+              %li= signal[:description]
+          %p= "Бесплатных сервисов: #{episode.visit_profile[:free_services_count]} · Длинных приёмок: #{episode.visit_profile[:long_receptions_count]} · Mac: #{episode.visit_profile[:mac_works_count]}"
+          %p
+            %strong Деньги:
+            = episode.economic_outcome[:money_received].nil? ? 'не установлено' : "#{episode.economic_outcome[:net_confirmed_money]} ₽"
+          = link_to 'Открыть эпизод', kpi_audit_episode_path(episode, run_id: @run_id), class: 'btn btn-default'
+
+:scss
+  .kpi-audit__form { margin-bottom: 24px; }
+  .kpi-audit__form .form-group { margin-right: 12px; }
+  .kpi-audit__episode { max-width: 980px; }

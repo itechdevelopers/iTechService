@@ -1,0 +1,52 @@
+- content_for :title, 'Эпизод контроля KPI'
+= auto_header_tag
+
+.container-fluid
+  %h1 Эпизод контроля KPI
+  %h2= "#{@episode.employee[:full_name]} (#{@episode.employee[:login]})"
+  %p= @episode.summary
+  %p= "Клиент: не установлен"
+  %p= "Талон: #{@episode.video_summary[:ticket_number] || 'не установлен'}"
+  %p= "Время: #{l @episode.visit_profile[:started_at], format: :long} — #{l @episode.visit_profile[:ended_at], format: :long}"
+  %p= "Risk #{@episode.risk_score}/100 · Confidence #{@episode.confidence[:score]}/100"
+
+  %h3 Причины проверки
+  %ul
+    - @episode.signals.each do |signal|
+      %li= signal[:description]
+
+  %h3 Связанные работы
+  %table.table.table-striped
+    %thead
+      %tr
+        %th Тип
+        %th ID
+        %th Документ
+    %tbody
+      - @episode.related_records.each do |record|
+        %tr
+          %td= { free_job: 'Бесплатный сервис', service_job: 'Длинная приёмка', mac: 'Работа с Mac' }.fetch(record[:type].to_sym, record[:type])
+          %td= record[:source_id]
+          %td= record[:url].present? ? link_to('Открыть в Айсе', record[:url]) : 'ссылка не установлена'
+
+  %h3 Временная шкала
+  %table.table.table-condensed
+    - @episode.timeline.each do |entry|
+      %tr
+        %td= entry[:occurred_at] ? l(entry[:occurred_at], format: :long) : 'время не установлено'
+        %td= entry[:title]
+        %td= [entry[:source_type], entry[:source_id]].compact.join(' #')
+
+  %h3 Экономический итог
+  %p= @episode.economic_outcome[:explanation]
+  %p= "Оплаты: #{@episode.economic_outcome[:gross_payments]} ₽; возвраты: #{@episode.economic_outcome[:confirmed_returns]} ₽; итог: #{@episode.economic_outcome[:net_confirmed_money]} ₽"
+
+  %h3 Видео
+  %p= "Очередь: #{@episode.video_summary[:queue_name] || 'не установлена'}"
+  %p= "Рабочее окно: #{@episode.video_summary[:window_number] || 'не установлено'}"
+  %p= "Камера: #{@episode.video_summary[:camera_name] || 'не установлена'}; канал: #{@episode.video_summary[:channel] || 'не установлен'}"
+  %p= "#{@episode.video_summary[:range_start] || 'не установлено'} — #{@episode.video_summary[:range_end] || 'не установлено'}"
+  - if @episode.video_summary[:available]
+    = link_to '▶ Смотреть видео', video_kpi_audit_episode_path(@episode, run_id: params[:run_id]), class: 'btn btn-primary'
+  - else
+    .alert.alert-warning Видео-контекст не установлен.
