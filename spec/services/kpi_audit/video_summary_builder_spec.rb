@@ -16,7 +16,7 @@ RSpec.describe KpiAudit::VideoSummaryBuilder do
                                          max_preview_duration_seconds: 1800,
                                          link_ttl_seconds: 3600 })
   end
-  let(:queue) { double(id: 1, ipad_link: 'okean', name: 'Океан') }
+  let(:queue) { double(id: 1, ipad_link: 'okean', queue_name: 'Первая речка') }
   let(:ticket) { double(id: 114_974, ticket_number: 'К14', electronic_queue: queue) }
   let(:window) { double(window_number: 8) }
   let(:called) { double(elqueue_window: window) }
@@ -51,6 +51,7 @@ RSpec.describe KpiAudit::VideoSummaryBuilder do
 
     expect(result.available?).to eq(true)
     expect(result.playback_available).to eq(true)
+    expect(result.queue_name).to eq('Первая речка')
     expect(result.primary_link).to be_nil
     expect(result.explanation).to include('Пользовательская ссылка не опубликована')
   end

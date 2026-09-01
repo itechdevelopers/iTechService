@@ -61,7 +61,7 @@ module KpiAudit
       VideoSummary.new(
         available: true, playback_available: true, status: diagnostic[:status],
         explanation: available_explanation(mismatch, primary_link),
-        queue_name: queue.name, queue_key: queue.ipad_link, ticket_id: ticket.id,
+        queue_name: queue.queue_name, queue_key: queue.ipad_link, ticket_id: ticket.id,
         ticket_number: ticket.ticket_number, window_number: window.window_number,
         camera_name: primary.name, camera_key: route.primary, channel: primary.channel,
         fallback_cameras: route.fallback, range_start: start_time, range_end: end_time,
