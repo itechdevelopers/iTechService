@@ -8,6 +8,7 @@ module Hikvision
   class RuntimeEnvironment
     KEYS = %w[HIKVISION_HOST HIKVISION_USER HIKVISION_PASSWORD HIKVISION_RTSP_PORT].freeze
     SHELL_COMMAND = <<~'SH'
+      . /etc/profile >/dev/null 2>&1
       printf '%s\\0%s\\0' HIKVISION_HOST "$HIKVISION_HOST"
       printf '%s\\0%s\\0' HIKVISION_USER "$HIKVISION_USER"
       printf '%s\\0%s\\0' HIKVISION_PASSWORD "$HIKVISION_PASSWORD"

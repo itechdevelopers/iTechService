@@ -2,6 +2,7 @@
 
 require "yaml"
 require_relative 'configuration_error'
+require_relative 'runtime_environment'
 
 module Hikvision
   class Configuration
@@ -51,6 +52,7 @@ module Hikvision
     end
 
     def nvr(name)
+      RuntimeEnvironment.new(env: @env).import!
       name = name.to_s
       config = @data.fetch("nvrs", {})[name]
       raise Error, "Unknown Hikvision NVR #{name.inspect}" unless config
