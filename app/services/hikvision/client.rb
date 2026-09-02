@@ -73,7 +73,9 @@ module Hikvision
       arguments = [
         "ffmpeg", "-v", "quiet", "-nostdin", "-y",
         "-rtsp_transport", "tcp", "-i", playback_url(channel, start_time, end_time),
-        "-t", duration.to_i.to_s, "-map", "0", "-c", "copy", output_path.to_s
+        "-t", duration.to_i.to_s, "-map", "0:v:0", "-map", "0:a:0?",
+        "-c:v", "libx264", "-preset", "veryfast", "-crf", "23",
+        "-c:a", "aac", "-movflags", "+faststart", output_path.to_s
       ]
 
       success = @command_runner.call(arguments)
