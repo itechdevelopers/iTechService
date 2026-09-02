@@ -12,6 +12,7 @@ RSpec.describe KpiAudit::EpisodesController, type: :controller do
   before do
     sign_in user
     allow(Department).to receive(:real).and_return(departments)
+    allow(described_class::RUN_STORE).to receive(:write)
   end
 
   describe 'GET index' do
@@ -53,7 +54,7 @@ RSpec.describe KpiAudit::EpisodesController, type: :controller do
         risk_score: 25, risk_level: :moderate, confidence: { score: 80 }, timeline: [],
         economic_outcome: {}, video_summary: {}, related_records: [], limitations: []
       )
-      Rails.cache.write("kpi-audit:runs:user:#{user.id}:test-run", [episode])
+      allow(described_class::RUN_STORE).to receive(:read).with(user.id, 'test-run').and_return([episode])
       expect(KpiAudit::Analyzer).not_to receive(:call)
 
       get :show, params: { id: episode.id, run_id: 'test-run' }

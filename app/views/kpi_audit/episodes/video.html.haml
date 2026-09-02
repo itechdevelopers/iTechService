@@ -9,7 +9,10 @@
   %p= "Камера: #{@video[:camera_name]}"
   %p= "Период: #{@video[:range_start]} — #{@video[:range_end]}"
   - if @video[:available] && @video[:queue_key].to_s == 'okean'
-    %video{controls: true, preload: 'metadata', width: '100%', src: clip_kpi_audit_episode_path(@episode, run_id: params[:run_id])}
+    - @segments.each_with_index do |segment, index|
+      %h2= "Фрагмент #{index + 1} из #{@segments.size}" if @segments.size > 1
+      %p= "#{segment[:start_time]} — #{segment[:end_time]}" if @segments.size > 1
+      %video{controls: true, preload: 'metadata', width: '100%', src: clip_kpi_audit_episode_path(@episode, run_id: params[:run_id], segment: index)}
   - elsif @video[:available]
     .alert.alert-info Просмотр видео для этого подразделения пока не подключён.
   - else

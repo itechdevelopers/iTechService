@@ -2,8 +2,11 @@
 
 module KpiAudit
   # Manual, authorized KPI audit UI. Analyzer runs only from the analyze action.
+  # rubocop:disable Metrics/ClassLength, Metrics/AbcSize, Metrics/MethodLength
   class EpisodesController < ApplicationController
     CACHE_TTL = 30.minutes
+    SEGMENT_SECONDS = 120
+    RUN_STORE = RunStore.new
 
     before_action :authorize_kpi_audit
     before_action :load_departments, only: %i[index analyze]
@@ -17,7 +20,7 @@ module KpiAudit
       @analysis_params = normalized_analysis_params
       @episodes = EpisodeBuilder.call(ReadOnlyRunner.call { Analyzer.call(**@analysis_params) }.investigations)
       @run_id = SecureRandom.hex(24)
-      Rails.cache.write(cache_key(@run_id), @episodes, expires_in: CACHE_TTL)
+      RUN_STORE.write(current_user.id, @run_id, @episodes, expires_in: CACHE_TTL)
       render :index
     rescue ArgumentError, ActiveRecord::RecordNotFound => e
       @episodes = nil
@@ -34,6 +37,7 @@ module KpiAudit
     def video
       @episode = find_cached_episode
       @video = @episode.video_summary
+      @segments = video_segments(@video)
     rescue ActiveRecord::RecordNotFound
       redirect_to kpi_audit_episodes_path, alert: 'Результат проверки больше недоступен. Запустите проверку повторно.'
     end
@@ -45,7 +49,10 @@ module KpiAudit
         return render plain: 'Просмотр видео для этого подразделения пока не подключён.', status: :not_found
       end
 
-      path = VideoClipService.new(payload: clip_payload(summary)).call
+      segment = selected_segment(summary)
+      return render plain: 'Недопустимый фрагмент видео.', status: :not_found unless segment
+
+      path = VideoClipService.new(payload: clip_payload(summary, segment)).call
       send_file path, type: 'video/mp4', disposition: 'inline', filename: 'kpi-audit-video.mp4'
     rescue ActiveRecord::RecordNotFound
       redirect_to kpi_audit_episodes_path, alert: 'Результат проверки больше недоступен. Запустите проверку повторно.'
@@ -82,32 +89,48 @@ module KpiAudit
     end
 
     def find_cached_episode
-      episodes = Rails.cache.read(cache_key(params.fetch(:run_id)))
+      episodes = RUN_STORE.read(current_user.id, params.fetch(:run_id))
       raise ActiveRecord::RecordNotFound unless episodes
 
       episodes.find { |episode| episode.id == params[:id] } || raise(ActiveRecord::RecordNotFound)
     end
 
-    def cache_key(run_id)
-      "kpi-audit:runs:user:#{current_user.id}:#{run_id}"
+    def selected_segment(summary)
+      video_segments(summary).fetch(Integer(params.fetch(:segment, 0)))
+    rescue ArgumentError, IndexError, TypeError
+      nil
     end
 
-    def clip_payload(summary)
+    def video_segments(summary)
+      diagnostics = (summary[:diagnostics] || {}).deep_symbolize_keys
+      source = Array(diagnostics[:segments])
+      source = [{ start_time: summary[:range_start], end_time: summary[:range_end] }] if source.empty?
+      source.flat_map { |segment| split_segment(segment) }
+    end
+
+    def split_segment(segment)
+      start_time = Time.iso8601(segment[:start_time].to_s)
+      end_time = Time.iso8601(segment[:end_time].to_s)
+      result = []
+      cursor = start_time
+      while cursor < end_time
+        finish = [cursor + SEGMENT_SECONDS, end_time].min
+        result << { start_time: cursor.iso8601, end_time: finish.iso8601 }
+        cursor = finish
+      end
+      result
+    rescue ArgumentError, TypeError
+      []
+    end
+
+    def clip_payload(summary, segment)
       diagnostics = (summary[:diagnostics] || {}).deep_symbolize_keys
       diagnostics.merge(
-        investigation_id: @episode.id,
-        ticket_id: summary[:ticket_id],
-        nvr_name: 'okean',
-        queue_key: summary[:queue_key],
-        camera_key: summary[:camera_key],
-        channel: summary[:channel],
-        range_start: iso8601(summary[:range_start]),
-        range_end: iso8601(summary[:range_end])
+        investigation_id: @episode.id, ticket_id: summary[:ticket_id], nvr_name: 'okean',
+        queue_key: summary[:queue_key], camera_key: summary[:camera_key], channel: summary[:channel],
+        range_start: segment.fetch(:start_time), range_end: segment.fetch(:end_time)
       )
     end
-
-    def iso8601(value)
-      value.respond_to?(:iso8601) ? value.iso8601 : value.to_s
-    end
   end
+  # rubocop:enable Metrics/ClassLength, Metrics/AbcSize, Metrics/MethodLength
 end
