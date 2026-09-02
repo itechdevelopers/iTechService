@@ -19,6 +19,22 @@ RSpec.describe KpiAudit::VideoClipCache do
     expect(@cache_root.glob('*.part-*')).to be_empty
   end
 
+  it 'uses a unique temporary mp4 beside the final path' do
+    cache = described_class.new(root: @cache_root, validator: ->(_path) { true })
+    observed = nil
+    final_path = @cache_root.join("#{Digest::SHA256.hexdigest('clip')}.mp4")
+
+    cache.fetch('clip') do |path|
+      observed = path
+      path.write('valid')
+    end
+
+    expect(observed.extname).to eq('.mp4')
+    expect(observed.basename.to_s).to include('.part-')
+    expect(observed).not_to eq(final_path)
+    expect(observed.dirname).to eq(final_path.dirname)
+  end
+
   it 'cleans up after failed generation' do
     cache = described_class.new(root: @cache_root, validator: ->(_path) { true })
     expect do

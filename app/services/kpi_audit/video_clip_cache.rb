@@ -60,7 +60,7 @@ module KpiAudit
     end
 
     def publish(path, &block)
-      temporary_path = @root.join("#{path.basename}.part-#{Process.pid}-#{SecureRandom.hex(8)}")
+      temporary_path = @root.join("#{path.basename('.mp4')}.part-#{Process.pid}-#{SecureRandom.hex(8)}.mp4")
       published = false
       block.call(temporary_path)
       raise 'invalid video cache artifact' unless @validator.call(temporary_path)
