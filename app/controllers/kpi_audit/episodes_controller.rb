@@ -109,8 +109,8 @@ module KpiAudit
     end
 
     def split_segment(segment)
-      start_time = Time.iso8601(segment[:start_time].to_s)
-      end_time = Time.iso8601(segment[:end_time].to_s)
+      start_time = normalize_segment_time(segment[:start_time])
+      end_time = normalize_segment_time(segment[:end_time])
       result = []
       cursor = start_time
       while cursor < end_time
@@ -121,6 +121,14 @@ module KpiAudit
       result
     rescue ArgumentError, TypeError
       []
+    end
+
+    def normalize_segment_time(value)
+      return Time.iso8601(value) if value.is_a?(String)
+      return value if value.is_a?(Time)
+      return value.to_time if value.respond_to?(:to_time)
+
+      raise ArgumentError, 'invalid segment time'
     end
 
     def clip_payload(summary, segment)

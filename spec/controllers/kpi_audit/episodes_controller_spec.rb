@@ -70,6 +70,23 @@ RSpec.describe KpiAudit::EpisodesController, type: :controller do
     end
   end
 
+  describe 'video segments' do
+    it 'normalizes TimeWithZone values without losing the short tail' do
+      controller = described_class.new
+      start_time = Time.zone.parse('2026-08-31 17:00:30 +10')
+      end_time = Time.zone.parse('2026-08-31 17:02:32 +10')
+
+      segments = controller.send(:split_segment, start_time: start_time, end_time: end_time)
+
+      expect(segments.map { |segment| Time.iso8601(segment[:end_time]) - Time.iso8601(segment[:start_time]) })
+        .to eq([120.0, 2.0])
+    end
+
+    it 'returns no segments for invalid input instead of raising' do
+      expect(described_class.new.send(:split_segment, start_time: Object.new, end_time: Object.new)).to eq([])
+    end
+  end
+
   describe 'GET clip' do
     let(:episode) do
       KpiAudit::Episode.new(
