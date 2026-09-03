@@ -14,12 +14,26 @@
 .modal-body.inventories__send-modal-body
   = form_with url: send_to_branch_inventory_path(@inventory), method: :patch, local: false, id: 'inventory_send_form' do
     .control-group
-      %label.control-label= t('inventories.send_modal.auto_recipients')
+      %label.control-label= t('inventories.send_modal.locations')
       .controls
-        - if @auto_recipients.any?
-          %p.help-block= @auto_recipients.map(&:short_name).join(', ')
+        - if @branch_locations.any?
+          -# Состав каждой локации показываем сразу: иначе товаровед узнаёт,
+          -# кого позвал, только из уведомлений — то есть уже после отправки.
+          - @branch_locations.each do |location|
+            - employees = @location_employees[location.code].to_a
+            %label.checkbox
+              = check_box_tag 'location_codes[]', location.code,
+                              @selected_location_codes.include?(location.code),
+                              id: "location_code_#{location.code}"
+              = location.name
+              %span.inventories__send-modal-staff
+                - if employees.any?
+                  = employees.map(&:short_name).join(', ')
+                - else
+                  = t('inventories.send_modal.location_empty')
         - else
-          %p.help-block.text-error= t('inventories.send_modal.no_auto_recipients')
+          %p.help-block.text-error= t('inventories.send_modal.no_locations')
+        %p.help-block= t('inventories.send_modal.locations_help')
 
     .control-group
       = label_tag :user_ids, t('inventories.send_modal.extra_recipients'), class: 'control-label'

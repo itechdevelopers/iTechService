@@ -217,7 +217,10 @@ class InventoriesController < ApplicationController
   # добавить людей вручную.
   def send_picker
     @inventory = find_record Inventory
-    @auto_recipients = InventoryNotifier.new(@inventory).recipients
+    @branch_locations = branch_locations
+    @location_employees = branch_employees_by_location
+    @selected_location_codes = @inventory.notify_location_codes.presence ||
+                               Inventory::DEFAULT_NOTIFY_LOCATION_CODES
     @available_users = additional_recipients_scope
 
     render 'shared/show_modal_form'
@@ -229,8 +232,10 @@ class InventoriesController < ApplicationController
 
     # Скоуп проверяем повторно на сервере: id в форме можно подменить.
     ids = Array(params[:user_ids]).map(&:to_i) & additional_recipients_scope.ids
+    codes = Array(params[:location_codes]).map(&:to_s) & branch_locations.map(&:code)
+
     @inventory.subscribers = User.where(id: ids)
-    @inventory.update!(status: :sent, sent_at: Time.zone.now)
+    @inventory.update!(status: :sent, sent_at: Time.zone.now, notify_location_codes: codes)
 
     @notified_count = InventoryNotifier.notify_sent(@inventory)
     # flash, а не notice в redirect: JS-ветка закрывает модалку и перезагружает
@@ -282,6 +287,22 @@ class InventoriesController < ApplicationController
   # ревизию филиала часто курирует человек из другого подразделения.
   def additional_recipients_scope
     User.active.includes(:department, :location)
+  end
+
+  # Локации филиала, где идёт ревизия. Дублирующиеся коды в одном департаменте
+  # не встречаются, поэтому список сразу годится и для чекбоксов, и для сверки
+  # присланного выбора.
+  def branch_locations
+    Location.where(department_id: @inventory.department_id).order(:name).to_a
+  end
+
+  # Кто на филиале сидит в какой локации — показываем поимённо прямо в пикере,
+  # чтобы товаровед видел состав рассылки до отправки, а не после.
+  def branch_employees_by_location
+    User.active
+        .where(department_id: @inventory.department_id)
+        .includes(:location)
+        .group_by { |user| user.location&.code }
   end
 
   # Всё содержимое ветки уже в ревизии, если отмечена сама группа или любой её

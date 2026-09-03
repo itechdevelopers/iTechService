@@ -68,6 +68,14 @@ class Inventory < ApplicationRecord
   # Статусы, в которых ревизия уже видна филиалу.
   VISIBLE_TO_BRANCH = %w[sent counting recount submitted].freeze
 
+  # Какие локации отмечены в пикере отправки по умолчанию.
+  #
+  # Именно предвыбор, а не подстановка при чтении: пустой список — это
+  # осознанное «на филиале никого, зовём только поимённо», и подстановка
+  # затирала бы этот выбор. Ревизиям, отправленным до появления выбора,
+  # значение проставлено data-миграцией.
+  DEFAULT_NOTIFY_LOCATION_CODES = %w[repair].freeze
+
   scope :recent, -> { order(created_at: :desc) }
   scope :visible_to_branch, -> { where(status: statuses.values_at(*VISIBLE_TO_BRANCH)) }
   scope :in_department, ->(department) { where(department_id: department) }

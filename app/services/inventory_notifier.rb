@@ -79,18 +79,22 @@ class InventoryNotifier
     )
   end
 
-  # Технари филиала — те, кто физически считает: сотрудники департамента склада
-  # с локацией «Ремонт». Плюс отмеченные товароведом в пикере: заказчик просил
-  # уметь адресовать ревизию и конкретным людям.
+  # Кого зовут считать: сотрудники департамента склада из выбранных при отправке
+  # локаций плюс отмеченные товароведом поимённо — ревизию нужно уметь
+  # адресовать и конкретным людям.
   def recipients
-    (branch_technicians + inventory.subscribers.to_a).uniq
+    (branch_employees + inventory.subscribers.to_a).uniq
   end
 
-  # Кому разбирать результат: автор ревизии, подписчики и администраторы.
-  # Автор может быть в отпуске, поэтому админы здесь не «на всякий случай», а
+  # Кому разбирать результат: автор ревизии, подписчики и суперадмины. Автор
+  # может быть в отпуске, поэтому суперадмин здесь не «на всякий случай», а
   # чтобы ревизия не зависла без разбора.
+  #
+  # Обычных админов не зовём: разбор им закрыт (InventoryPolicy#review?), и
+  # уведомление привело бы их к карточке без единой кнопки. Админов чужих
+  # филиалов оно вдобавок звало к чужому складу.
   def review_recipients
-    ([inventory.user] + inventory.subscribers.to_a + User.active.where(role: %w[admin superadmin]).to_a)
+    ([inventory.user] + inventory.subscribers.to_a + User.active.where(role: 'superadmin').to_a)
       .compact.uniq
   end
 
@@ -98,10 +102,14 @@ class InventoryNotifier
 
   attr_reader :inventory
 
-  def branch_technicians
+  # Локации отбираем по коду без привязки к департаменту, а филиал задаёт
+  # фильтр по департаменту сотрудника: в базе встречаются люди, приписанные к
+  # локации соседнего филиала, и матч по id локаций своего департамента молча
+  # выкинул бы их из рассылки.
+  def branch_employees
     User.active
         .where(department_id: inventory.department_id)
-        .where(location_id: Location.repair.ids)
+        .where(location_id: Location.where(code: inventory.notify_location_codes).ids)
         .to_a
   end
 
