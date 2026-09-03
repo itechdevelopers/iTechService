@@ -1,9 +1,23 @@
+-# Узел дерева. Дети не рендерятся рекурсивно: контейнер уезжает пустым, а его
+-# содержимое приходит по клику из selection_node.js.erb.
+- expandable = expandable_ids.include?(group.id)
+- checked = covered || selected_ids.include?(group.id)
+
 %li.inventories__tree-node
-  %label.checkbox
-    = check_box_tag 'group_ids[]', group.id, selected_ids.include?(group.id), id: "group_#{group.id}"
-    = group.name
-  - children = group.children.ordered
-  - if children.any?
-    %ul
-      - children.each do |child|
-        = render 'group_node', group: child, selected_ids: selected_ids
+  .inventories__tree-row
+    - if expandable
+      %a.inventories__tree-toggle{ href: '#',
+                                   data: { url: selection_node_inventory_path(inventory, group_id: group.id),
+                                           target: "group_children_#{group.id}" } }
+        = glyph('chevron-right')
+    - else
+      %span.inventories__tree-toggle.inventories__tree-toggle--leaf
+    %label.checkbox
+      -# Имя чекбокса роли не играет: он не сабмитится формой, а сам шлёт запрос
+      -# со своим состоянием (см. JS на странице выбора).
+      = check_box_tag "group_#{group.id}", group.id, checked,
+                      id: "group_#{group.id}", class: 'inventories__tree-check', disabled: covered,
+                      data: { url: update_selection_inventory_path(inventory), group: group.id }
+      = group.name
+
+  %ul.inventories__tree-children{ id: "group_children_#{group.id}" }

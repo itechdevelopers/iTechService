@@ -1,0 +1,12 @@
+-# Отдельная позиция внутри группы. Стрелки нет, но пустышка на её месте нужна:
+-# иначе названия позиций сдвинулись бы влево относительно соседних подгрупп.
+- checked = covered || selected_ids.include?(product.id)
+
+%li.inventories__tree-node.inventories__tree-node--product
+  .inventories__tree-row
+    %span.inventories__tree-toggle.inventories__tree-toggle--leaf
+    %label.checkbox
+      = check_box_tag "product_#{product.id}", product.id, checked,
+                      id: "product_#{product.id}", class: 'inventories__tree-check', disabled: covered,
+                      data: { url: update_selection_inventory_path(inventory), product: product.id }
+      = product.name

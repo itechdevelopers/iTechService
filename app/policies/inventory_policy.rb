@@ -39,6 +39,11 @@ class InventoryPolicy < ApplicationPolicy
     update?
   end
 
+  # Раскрытие ветки дерева — часть той же страницы выбора.
+  def selection_node?
+    selection?
+  end
+
   def update_selection?
     update?
   end

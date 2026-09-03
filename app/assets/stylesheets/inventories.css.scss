@@ -71,7 +71,49 @@
   }
 
   &__tree-node label.checkbox {
-    margin-bottom: 2px;
+    margin-bottom: 0;
+  }
+
+  &__tree-row {
+    display: flex;
+    align-items: baseline;
+    padding: 1px 0;
+  }
+
+  // Ширину держим и у листьев тоже: без неё названия групп без стрелки
+  // разъезжались бы влево относительно соседей по уровню.
+  &__tree-toggle {
+    display: inline-block;
+    width: 14px;
+    flex: none;
+    color: #888;
+    text-decoration: none;
+
+    i {
+      transition: transform 0.1s linear;
+    }
+
+    &--open i {
+      transform: rotate(90deg);
+    }
+  }
+
+  // Позиции внутри группы отличаем шрифтом, а не отступом: отступ уже занят
+  // уровнем вложенности, и лишний сдвиг читался бы как ещё одна подгруппа.
+  &__tree-node--product label.checkbox {
+    color: #555;
+    font-size: 12px;
+  }
+
+  &__tree-check[disabled] {
+    opacity: 0.6;
+  }
+
+  &__tree-hint {
+    color: #999;
+    font-size: 11px;
+    font-style: italic;
+    padding: 2px 0 2px 18px;
   }
 
   &__found {

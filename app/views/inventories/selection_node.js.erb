@@ -1,0 +1,22 @@
+<% if @group.present? %>
+<%
+  # Куски собираем через safe_join, а не сложением: render пустой коллекции
+  # возвращает nil, и первый же `nil.to_s` превратил бы дальнейшую склейку в
+  # обычную String — SafeBuffer подставил бы её экранированной, и вместо
+  # разметки в ветку уехал бы её HTML-исходник текстом.
+  parts = []
+  parts << content_tag(:li, t('inventories.selection.covered_hint'), class: 'inventories__tree-hint') if @covered
+
+  # Подгруппы идут перед позициями: внутри линейки сначала вложенные модели,
+  # потом её собственные запчасти — иначе длинный список позиций отодвинул бы
+  # подгруппы за пределы экрана.
+  parts << render(partial: 'inventories/group_node', collection: @children, as: :group,
+                  locals: { selected_ids: @inventory.selected_group_ids, inventory: @inventory,
+                            covered: @covered, expandable_ids: expandable_group_ids(@children) })
+
+  parts << render(partial: 'inventories/group_product', collection: @products, as: :product,
+                  locals: { selected_ids: @inventory.selected_product_ids,
+                            inventory: @inventory, covered: @covered })
+%>
+$('#group_children_<%= @group.id %>').html('<%= j safe_join(parts.compact) %>');
+<% end %>
