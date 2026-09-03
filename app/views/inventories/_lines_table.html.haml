@@ -1,12 +1,15 @@
 - editable = policy(inventory).manage_lines?
 - countable = policy(inventory).count_lines?
 - reviewing = policy(inventory).review?
+- private_columns = policy(inventory).see_private_columns?
 -# При пересчёте технарь видит только возвращённые позиции — остальные он уже
 -# посчитал, и показывать их значило бы предлагать пересчитать всё заново.
 -# Товароведу список урезать нельзя: он разбирает ревизию целиком, а админ
 -# проходит обе проверки сразу.
 - lines = (countable && !reviewing) ? inventory.lines_to_count : inventory.lines
-- columns = 6 + [reviewing ? 2 : 0, (editable || countable || reviewing) ? 1 : 0].sum
+-# Номер, наименование и факт видны всем; остальные колонки появляются по праву.
+- columns = 3 + [private_columns ? 3 : 0, reviewing ? 2 : 0,
+                 (editable || countable || reviewing) ? 1 : 0].sum
 
 .inventories__lines-header
   %h4
@@ -26,7 +29,8 @@
   %p.inventories__hint= t('inventories.show.review_hint', count: inventory.discrepancy_lines.count)
 
 - table_locals = { inventory: inventory, lines: lines, columns: columns,
-                   editable: editable, countable: countable, reviewing: reviewing }
+                   editable: editable, countable: countable, reviewing: reviewing,
+                   private_columns: private_columns }
 
 -# Форму разбора вешаем только на режим товароведа: при подсчёте у каждой
 -# строки своя форма автосохранения, а вложенные формы браузер выбрасывает.

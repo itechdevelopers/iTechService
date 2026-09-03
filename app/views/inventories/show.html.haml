@@ -87,7 +87,10 @@
                     deduction_act_path(link.document_id)
           = "— #{l(link.document.date.to_date)}" if link.document.respond_to?(:date) && link.document.date.present?
 
-- if policy(@inventory).see_lines?
+- sees_lines = policy(@inventory).see_lines?
+- can_start = policy(@inventory).start?
+
+- if sees_lines
   #inventory_lines= render 'lines_table', inventory: @inventory
 
   - if policy(@inventory).count_lines?
@@ -114,15 +117,19 @@
           %button.btn{ type: 'submit' }= glyph('search')
 
       #line_candidates= render 'line_candidates', inventory: @inventory, products: @found_products, query: params[:q]
-- else
+
+-# Кнопку старта держим снаружи ветки со списком: админу позиции видны и до
+-# старта, и внутри ветки с подсказками кнопка ему бы не досталась.
+- if can_start || !sees_lines
   .inventories__start
-    -# Пустая ревизия кнопку «Начать» не показывает, и обещать открытие списка
-    -# в этом случае нельзя — объясняем, что делать.
-    - if @inventory.lines.empty?
-      %p.inventories__hint= t('.empty_for_branch')
-    - else
-      %p.inventories__hint= t('.hidden_until_start')
-    - if policy(@inventory).start?
+    - unless sees_lines
+      -# Пустая ревизия кнопку «Начать» не показывает, и обещать открытие списка
+      -# в этом случае нельзя — объясняем, что делать.
+      - if @inventory.lines.empty?
+        %p.inventories__hint= t('.empty_for_branch')
+      - else
+        %p.inventories__hint= t('.hidden_until_start')
+    - if can_start
       -# Предупреждение обязательное: с момента старта ревизия сверяется со
       -# снимком остатков, а не с текущим складом.
       = link_to t('.start'), start_inventory_path(@inventory), method: :patch,

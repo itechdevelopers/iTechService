@@ -6,7 +6,7 @@
 class InventoryPdf < Prawn::Document
   require 'prawn/measurement_extensions'
 
-  COLUMN_WIDTHS = [30, 320, 80, 80].freeze
+  COLUMN_WIDTHS = [30, 400, 80].freeze
 
   def initialize(inventory, view)
     @inventory = inventory
@@ -51,7 +51,7 @@ class InventoryPdf < Prawn::Document
       cells.borders = %i[top bottom left right]
       cells.padding = [3, 4, 3, 4]
       column(0).align = :center
-      columns(2..3).align = :center
+      column(2).align = :center
     end
   end
 
@@ -59,18 +59,16 @@ class InventoryPdf < Prawn::Document
     [
       view.t('inventories.show.columns.position'),
       view.t('inventories.show.columns.name'),
-      view.t('inventories.show.columns.expected'),
       view.t('inventories.pdf.fact_column')
     ]
   end
 
-  # «По учёту» печатаем только после старта: до него снимок не снят, а печатать
-  # текущий остаток на бланке нельзя — технарь спишет его как факт.
+  # Учётное количество на бланке не печатаем: с листом идут по складу те же, кто
+  # считает, и напечатанный остаток они перепишут в графу «Факт» не считая.
   def line_row(line)
     [
       line.position.to_s,
       line.name.to_s,
-      line.expected_quantity.to_s,
       ''
     ]
   end
