@@ -564,6 +564,7 @@ Rails.application.routes.draw do
 
   resources :inventories do
     get :selection, on: :member
+    get :selection_node, on: :member
     patch :update_selection, on: :member
     post :build_lines, on: :member
     get :send_picker, on: :member

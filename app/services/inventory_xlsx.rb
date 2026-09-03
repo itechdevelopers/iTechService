@@ -4,9 +4,9 @@
 # графой под фактическое количество. Факт, автор и результат разбора намеренно
 # не выгружаются: файл нужен для похода по складу, а не для отчёта.
 class InventoryXlsx
-  HEADERS = ['№', 'Номенклатура', 'По учёту', 'Факт'].freeze
+  HEADERS = ['№', 'Номенклатура', 'Факт'].freeze
 
-  COLUMN_WIDTHS = [6, 55, 12, 12].freeze
+  COLUMN_WIDTHS = [6, 55, 12].freeze
 
   def initialize(inventory)
     @inventory = inventory
@@ -32,13 +32,14 @@ class InventoryXlsx
 
   attr_reader :inventory
 
-  # Графа «Факт» пустая — её заполняют руками на складе.
+  # Графа «Факт» пустая — её заполняют руками на складе. Учётного количества в
+  # бланке нет по той же причине, что и в PDF: его перепишут вместо подсчёта.
   def row_for(line)
-    [line.position, line.name.to_s, line.expected_quantity, nil]
+    [line.position, line.name.to_s, nil]
   end
 
   def row_styles(styles)
-    [styles[:integer], styles[:text], styles[:integer], styles[:blank]]
+    [styles[:integer], styles[:text], styles[:blank]]
   end
 
   def build_styles(workbook)

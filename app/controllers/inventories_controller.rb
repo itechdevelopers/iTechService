@@ -67,15 +67,27 @@ class InventoriesController < ApplicationController
     end
   end
 
-  # Группы приходят целиком (набор чекбоксов), продукт — по одному, кнопкой.
+  # Содержимое одной ветки дерева. Дерево грузится по уровням: каталог запчастей
+  # разворачивается в сотни групп, и отрисовывать его целиком значит выдавать
+  # товароведу простыню, в которой не найти нужную линейку.
+  def selection_node
+    @inventory = find_record Inventory
+    @group = ProductGroup.find_by(id: params[:group_id])
+    @children = @group ? @group.children.ordered : ProductGroup.none
+    @products = @group ? @group.products.name_asc : Product.none
+    @covered = covered_by_selection?(@group)
+
+    respond_to(&:js)
+  end
+
+  # И группа, и продукт переключаются по одному. Присваивать набор целиком
+  # нельзя: дерево раскрывается по веткам, и отметки нераскрытых веток в
+  # запросе не приедут — присваивание стёрло бы их молча.
   def update_selection
     @inventory = find_record Inventory
 
-    if params.key?(:group_ids)
-      @inventory.selected_group_ids = Array(params[:group_ids]).reject(&:blank?)
-    end
-
-    toggle_product if params[:product_id].present?
+    update_selectable(ProductGroup, params[:group_id])
+    update_selectable(Product, params[:product_id])
 
     respond_to do |format|
       format.js
@@ -272,12 +284,31 @@ class InventoriesController < ApplicationController
     User.active.includes(:department, :location)
   end
 
-  def toggle_product
-    product = Product.find_by(id: params[:product_id])
-    return if product.blank?
+  # Всё содержимое ветки уже в ревизии, если отмечена сама группа или любой её
+  # предок: выбранная группа тянет за собой весь свой subtree. Точечные галочки
+  # внутри такой ветки ничего не изменили бы, поэтому показываем их запертыми.
+  def covered_by_selection?(group)
+    return false if group.blank?
 
-    selection = @inventory.selections.find_by(selectable: product)
-    selection ? selection.destroy : @inventory.selections.create(selectable: product)
+    (group.path_ids & @inventory.selected_group_ids).any?
+  end
+
+  # Чекбокс дерева знает своё состояние и присылает его в :selected; кнопка
+  # «+/−» в поиске состояния не знает и просит просто переключить.
+  def update_selectable(klass, id)
+    return if id.blank?
+
+    record = klass.find_by(id: id)
+    return if record.blank?
+
+    selection = @inventory.selections.find_by(selectable: record)
+    wanted = params.key?(:selected) ? params[:selected] == '1' : selection.nil?
+
+    if wanted
+      @inventory.selections.create(selectable: record) if selection.nil?
+    else
+      selection&.destroy
+    end
   end
 
   def inventory_params

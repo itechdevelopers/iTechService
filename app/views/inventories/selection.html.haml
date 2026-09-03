@@ -7,13 +7,12 @@
     %h4= t('.groups_title')
     %p.inventories__hint= t('.groups_hint')
 
-    -# Форма автосабмитится на каждый клик (см. JS внизу): иначе точечный поиск
-    -# в соседней колонке перезагружал бы страницу и терял неотправленные галочки.
-    = form_tag update_selection_inventory_path(@inventory), method: :patch, remote: true, id: 'groups_form' do
-      = hidden_field_tag 'group_ids[]', ''
-      %ul.inventories__tree
-        - @root_groups.each do |root|
-          = render 'group_node', group: root, selected_ids: @inventory.selected_group_ids
+    %ul.inventories__tree#groups_tree
+      -# covered: false — у корня предков нет, а собственная отметка группы её
+      -# же чекбокс не запирает, иначе снять её было бы нечем.
+      = render partial: 'group_node', collection: @root_groups, as: :group,
+               locals: { selected_ids: @inventory.selected_group_ids, inventory: @inventory,
+                         covered: false, expandable_ids: expandable_group_ids(@root_groups) }
 
   .span6
     %h4= t('.products_title')
@@ -30,12 +29,48 @@
 
     #selection_summary= render 'selection_summary', inventory: @inventory
 
--# Любой клик по галочке сразу уходит на сервер: выбор должен пережить
--# перезагрузку страницы поиском в соседней колонке. Сабмитим через
--# submit.rails — в проекте подключён jquery_ujs, глобального Rails нет.
+-# Каждая галочка уходит на сервер отдельным запросом и несёт своё состояние:
+-# сабмит формы отправил бы только те чекбоксы, что сейчас есть в DOM, а дерево
+-# раскрывается по веткам. CSRF-токен подставляет jquery_ujs своим
+-# ajaxPrefilter — в проекте подключён он, глобального Rails нет.
 :javascript
   $(function() {
-    $('#groups_form').on('change', 'input[type=checkbox]', function() {
-      $('#groups_form').trigger('submit.rails');
+    // Ветка грузится один раз: дальше стрелка просто прячет и показывает уже
+    // полученную разметку, иначе повторное раскрытие затирало бы галочки,
+    // которые товаровед успел поставить внутри ветки.
+    $('#groups_tree').on('click', '.inventories__tree-toggle', function(e) {
+      e.preventDefault();
+      var toggle = $(this);
+      var box = $('#' + toggle.data('target'));
+
+      if (toggle.data('loaded')) {
+        box.toggle();
+      } else {
+        toggle.data('loaded', true);
+        box.show();
+        $.get(toggle.data('url'));
+      }
+
+      toggle.toggleClass('inventories__tree-toggle--open', box.is(':visible'));
+    });
+
+    $('#groups_tree').on('change', '.inventories__tree-check', function() {
+      var box = $(this);
+      var data = { selected: box.is(':checked') ? 1 : 0 };
+
+      if (box.data('group')) {
+        data.group_id = box.data('group');
+        // Отметка группы меняет смысл всего, что внутри: позиции ветки уходят
+        // в ревизию через неё. Уже загруженную ветку схлопываем, чтобы она не
+        // осталась на экране с прежними — теперь неверными — галочками.
+        var node = box.closest('.inventories__tree-node');
+        node.find('.inventories__tree-children').empty().hide();
+        node.find('.inventories__tree-toggle').removeData('loaded')
+            .removeClass('inventories__tree-toggle--open');
+      } else {
+        data.product_id = box.data('product');
+      }
+
+      $.ajax({ url: box.data('url'), type: 'PATCH', dataType: 'script', data: data });
     });
   });

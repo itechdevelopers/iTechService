@@ -5,9 +5,10 @@
         %th.inventories__line-check
       %th.inventories__lines-position= t('inventories.show.columns.position')
       %th= t('inventories.show.columns.name')
-      %th= t('inventories.show.columns.purchase_price')
-      %th= t('inventories.show.columns.usage')
-      %th= t('inventories.show.columns.expected')
+      - if private_columns
+        %th= t('inventories.show.columns.purchase_price')
+        %th= t('inventories.show.columns.usage')
+        %th= t('inventories.show.columns.expected')
       %th= t('inventories.show.columns.counted')
       - if reviewing
         %th.inventories__line-difference= t('inventories.show.columns.difference')

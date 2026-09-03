@@ -39,6 +39,11 @@ class InventoryPolicy < ApplicationPolicy
     update?
   end
 
+  # Раскрытие ветки дерева — часть той же страницы выбора.
+  def selection_node?
+    selection?
+  end
+
   def update_selection?
     update?
   end
@@ -85,13 +90,14 @@ class InventoryPolicy < ApplicationPolicy
   end
 
   # Разбор результата — работа товароведа: он видит расхождения и решает,
-  # пересчитать или принять.
+  # пересчитать или принять. Разница по строке и суммы в итогах восстанавливают
+  # учётное количество и себестоимость, поэтому разбор закрыт тем же правом.
   def review?
-    manager? && (record.submitted? || record.recount? || record.finished?)
+    owner? && (record.submitted? || record.recount? || record.finished?)
   end
 
   def request_recount?
-    manager? && record.submitted?
+    owner? && record.submitted?
   end
 
   def accept_shortages?
@@ -105,7 +111,7 @@ class InventoryPolicy < ApplicationPolicy
   # Закрыть ревизию можно и с неразобранными расхождениями — товаровед мог
   # решить оставить их как есть. Предупреждение об этом висит на кнопке.
   def finish?
-    manager? && (record.submitted? || record.recount?)
+    owner? && (record.submitted? || record.recount?)
   end
 
   # Выгрузки доступны тем же, кому виден список: печатать пустой бланк, которого
@@ -120,10 +126,23 @@ class InventoryPolicy < ApplicationPolicy
     manager? || !record.sent?
   end
 
+  # Себестоимость, расход и учётный остаток. Учётный остаток раскрывает ответ
+  # тому, кто считает, а себестоимость — коммерческая тайна, и админ филиала,
+  # где идёт ревизия, тоже её видеть не должен.
+  def see_private_columns?
+    owner?
+  end
+
   private
 
   def manager?
     any_admin?
+  end
+
+  # Право по конкретному документу, а не по должности: ревизию товароведа не
+  # должен разбирать другой товаровед.
+  def owner?
+    superadmin? || record.user_id == user.id
   end
 
   # Технарь видит ревизию своего филиала и только после отправки на филиал —
