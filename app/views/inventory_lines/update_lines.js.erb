@@ -1,2 +1,17 @@
+<%# Список найденных позиций — собственный прокручиваемый блок (max-height в
+    inventories.css.scss). Подмена содержимого сбрасывает его прокрутку в ноль,
+    и товароведа после каждого «плюса» отбрасывало в начало длинного списка.
+    Заодно держим и страницу: таблица позиций лежит выше и меняет высоту, из-за
+    чего блок поиска уезжал под курсором. %>
+var candidates = $('#line_candidates');
+var listScroll = candidates.find('.inventories__found').scrollTop();
+var candidatesAnchor = candidates.length ? candidates.offset().top - $(window).scrollTop() : null;
+
 $('#inventory_lines').html('<%= j render "inventories/lines_table", inventory: @inventory %>');
-$('#line_candidates').html('<%= j render "inventories/line_candidates", inventory: @inventory, products: @found_products, query: params[:q] %>');
+candidates.html('<%= j render "inventories/line_candidates", inventory: @inventory, products: @found_products, query: params[:q] %>');
+
+candidates.find('.inventories__found').scrollTop(listScroll);
+
+if (candidatesAnchor !== null) {
+  $(window).scrollTop(candidates.offset().top - candidatesAnchor);
+}
