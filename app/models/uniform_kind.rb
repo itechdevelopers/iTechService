@@ -16,6 +16,17 @@ class UniformKind < ApplicationRecord
 
   scope :ordered, -> { order(:name) }
 
+  # Вид с историей движений не удаляем: журнал должен пережить правку справочника.
+  # Из оборота такой вид выводят, обнулив остатки списанием.
+  # prepend обязателен: dependent: :destroy у uniform_stocks вешает свой before_destroy
+  # в момент объявления связи, то есть раньше этой проверки, и без prepend строки
+  # остатков успели бы уйти под внешний ключ строк документов.
+  before_destroy :ensure_no_movements, prepend: true
+
+  def movements
+    UniformOperationLine.for_stocks(uniform_stocks.select(:id))
+  end
+
   # Размеры формы задаются галочками, поэтому снаружи вид выглядит как объект с
   # массивом размеров, а внутри это строки остатков. Пока форма не прислала список,
   # отдаём то, что уже есть в базе.
@@ -63,5 +74,12 @@ class UniformKind < ApplicationRecord
   # то, что нужно, когда сняли вообще все галочки.
   def unchecked_stocks
     uniform_stocks.where.not(size: @sizes).to_a
+  end
+
+  def ensure_no_movements
+    return if movements.none?
+
+    errors.add(:base, :has_movements)
+    throw(:abort)
   end
 end

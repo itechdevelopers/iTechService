@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20260904100001) do
+ActiveRecord::Schema.define(version: 20260904120001) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -2636,6 +2636,29 @@ ActiveRecord::Schema.define(version: 20260904100001) do
     t.datetime "updated_at", null: false
   end
 
+  create_table "uniform_operation_lines", force: :cascade do |t|
+    t.bigint "uniform_operation_id", null: false
+    t.bigint "uniform_stock_id", null: false
+    t.integer "quantity", null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["uniform_operation_id"], name: "index_uniform_operation_lines_on_uniform_operation_id"
+    t.index ["uniform_stock_id"], name: "index_uniform_operation_lines_on_uniform_stock_id"
+  end
+
+  create_table "uniform_operations", force: :cascade do |t|
+    t.string "kind", null: false
+    t.bigint "author_id", null: false
+    t.bigint "recipient_id"
+    t.text "comment"
+    t.date "performed_on", null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["author_id"], name: "index_uniform_operations_on_author_id"
+    t.index ["kind"], name: "index_uniform_operations_on_kind"
+    t.index ["recipient_id"], name: "index_uniform_operations_on_recipient_id"
+  end
+
   create_table "uniform_stocks", force: :cascade do |t|
     t.bigint "uniform_kind_id", null: false
     t.string "size", null: false
@@ -3045,6 +3068,10 @@ ActiveRecord::Schema.define(version: 20260904100001) do
   add_foreign_key "trade_in_devices", "departments"
   add_foreign_key "trade_in_devices", "items"
   add_foreign_key "trade_in_devices", "users", column: "receiver_id"
+  add_foreign_key "uniform_operation_lines", "uniform_operations"
+  add_foreign_key "uniform_operation_lines", "uniform_stocks"
+  add_foreign_key "uniform_operations", "users", column: "author_id"
+  add_foreign_key "uniform_operations", "users", column: "recipient_id"
   add_foreign_key "uniform_stocks", "uniform_kinds"
   add_foreign_key "user_abilities", "abilities"
   add_foreign_key "user_abilities", "users"

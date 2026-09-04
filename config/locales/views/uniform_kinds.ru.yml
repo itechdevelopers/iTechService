@@ -9,6 +9,10 @@ ru:
         one: Остаток формы
         few: Остатка формы
         many: Остатков формы
+      uniform_operation:
+        one: Движение формы
+        few: Движения формы
+        many: Движений формы
     attributes:
       uniform_kind:
         name: Название
@@ -19,12 +23,36 @@ ru:
       uniform_stock:
         size: Размер
         quantity: Остаток
+      uniform_operation:
+        kind: Тип операции
+        author: Кто оформил
+        recipient: Сотрудник
+        comment: Комментарий
+        performed_on: Дата
+      uniform_operation_line:
+        quantity: Количество
     errors:
       models:
         uniform_kind:
           attributes:
             sizes:
-              in_use: "нельзя убрать размеры с остатком на складе: %{sizes}"
+              in_use: "нельзя убрать размеры с остатком или движениями: %{sizes}"
+            base:
+              has_movements: По этому виду формы уже есть движения — его нельзя удалить.
+        uniform_operation:
+          attributes:
+            base:
+              no_lines: Укажите количество хотя бы по одному размеру.
+              exceeds_stock: "%{kind}, размер %{size}: на складе только %{available} шт."
+              exceeds_holder: "%{kind}, размер %{size}: за сотрудником %{holder} числится только %{available} шт."
+
+  uniform_operations:
+    kinds:
+      receipt: Приход
+      write_off: Списание со склада
+      issue: Выдача сотруднику
+      return_from_user: Возврат от сотрудника
+      write_off_from_user: Списание с сотрудника
 
   uniform_kinds:
     link: Учёт рабочей формы
@@ -36,13 +64,21 @@ ru:
       sizes: Размеры и остатки
       total: Всего на складе
       no_sizes: Размеры не выбраны
+    show:
+      back: К списку
+      no_cost: не указана
+      no_sizes: У этого вида формы не выбрано ни одного размера.
+      in_stock: На складе
+      on_employees: На сотрудниках
+      written_off: Списано
+      total: Итого
     new:
       title: Новый вид формы
     edit:
       title: Редактирование вида формы
     form:
       sizes_legend: Размеры
-      sizes_hint: Отметьте размеры, в которых бывает эта форма. Снять можно только размер с нулевым остатком.
+      sizes_hint: Отметьте размеры, в которых бывает эта форма. Снять можно только размер без остатка и без движений.
       image_hint: JPG, PNG или GIF. Картинка нужна, чтобы понимать, как выглядит форма.
     create:
       created: Вид формы создан.

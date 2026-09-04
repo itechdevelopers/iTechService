@@ -6,6 +6,13 @@ class UniformKindsController < ApplicationController
     @uniform_kinds = UniformKind.ordered.includes(:uniform_stocks)
   end
 
+  def show
+    @uniform_kind = find_record UniformKind
+    lines = UniformOperationLine.for_stocks(@uniform_kind.uniform_stocks.map(&:id))
+    @on_employees = lines.holder_balance_by_stock
+    @written_off = lines.quantity_by_stock(UniformOperation::WRITE_OFF_KINDS)
+  end
+
   def new
     @uniform_kind = authorize UniformKind.new
   end
@@ -36,8 +43,12 @@ class UniformKindsController < ApplicationController
 
   def destroy
     @uniform_kind = find_record UniformKind
-    @uniform_kind.destroy
-    redirect_to uniform_kinds_path, notice: t('.destroyed')
+
+    if @uniform_kind.destroy
+      redirect_to uniform_kinds_path, notice: t('.destroyed')
+    else
+      redirect_to uniform_kinds_path, alert: @uniform_kind.errors.full_messages.to_sentence
+    end
   end
 
   private

@@ -22,7 +22,7 @@
             - if uniform_kind.image?
               = image_tag uniform_kind.image.thumb.url, class: 'uniform-kinds__thumb'
           %td
-            %strong= uniform_kind.name
+            %strong= link_to uniform_kind.name, uniform_kind_path(uniform_kind)
             - if uniform_kind.description.present?
               %p.muted= uniform_kind.description
           %td= number_to_currency uniform_kind.cost if uniform_kind.cost.present?

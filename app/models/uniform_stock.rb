@@ -9,6 +9,8 @@ class UniformStock < ApplicationRecord
 
   belongs_to :uniform_kind, inverse_of: :uniform_stocks
 
+  has_many :uniform_operation_lines
+
   validates :size, presence: true, inclusion: { in: UniformKind::SIZES }
   validates :size, uniqueness: { scope: :uniform_kind_id }
   validates :quantity, numericality: { only_integer: true, greater_than_or_equal_to: 0 }
@@ -19,8 +21,9 @@ class UniformStock < ApplicationRecord
     size.upcase
   end
 
-  # Размер можно убрать из вида, только если по нему нечего терять.
+  # Размер можно убрать из вида, только если по нему нечего терять: ни остатка,
+  # ни движений.
   def removable?
-    quantity.to_i.zero?
+    quantity.to_i.zero? && uniform_operation_lines.none?
   end
 end

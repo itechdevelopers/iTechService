@@ -281,7 +281,7 @@ Rails.application.routes.draw do
 
   # Учёт рабочей формы. Размеры вида задаются галочками и хранятся строками
   # uniform_stocks, поэтому отдельного ресурса для них нет.
-  resources :uniform_kinds, except: %i[show]
+  resources :uniform_kinds
 
   resources :client_categories
 
