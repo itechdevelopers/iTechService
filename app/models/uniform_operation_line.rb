@@ -30,6 +30,14 @@ class UniformOperationLine < ApplicationRecord
       .sum(Arel.sql("uniform_operation_lines.quantity * #{UniformOperation::HOLDER_SIGN_SQL}"))
   end
 
+  # Разворот баланса «на сотрудниках» до пары «кто — какая позиция». Ключ хеша —
+  # [recipient_id, uniform_stock_id].
+  def self.holder_balance_by_user_and_stock
+    joins(:uniform_operation)
+      .group('uniform_operations.recipient_id', :uniform_stock_id)
+      .sum(Arel.sql("uniform_operation_lines.quantity * #{UniformOperation::HOLDER_SIGN_SQL}"))
+  end
+
   def self.quantity_by_stock(kinds)
     joins(:uniform_operation)
       .where(uniform_operations: { kind: kinds })

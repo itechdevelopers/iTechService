@@ -1,6 +1,7 @@
 .page-header
   - if policy(UniformKind).new?
     = link_to t('.add_kind'), new_uniform_kind_path, class: 'btn btn-success pull-right'
+  = link_to t('.report'), report_uniform_kinds_path, class: 'btn pull-right uniform-kinds__report-link'
   %h2= t('.title')
 
 - if @uniform_kinds.empty?

@@ -92,6 +92,21 @@ ru:
       sizes: Размеры и остатки
       total: Всего на складе
       no_sizes: Размеры не выбраны
+      report: Отчёт
+    report:
+      back: К списку
+      title: Отчёт по рабочей форме
+      empty: Пока нет ни одного вида формы с размерами.
+      metric: Показатель
+      total: Итого
+      in_stock: На складе
+      on_employees: На сотрудниках
+      written_off: Списано
+      holders: У кого что на руках
+      no_holders: Форма сейчас ни за кем не числится.
+      holder_items: Что числится
+      write_offs: Списанное
+      no_write_offs: Списаний ещё не было.
     show:
       back: К списку
       no_cost: не указана
