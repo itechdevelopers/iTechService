@@ -42,6 +42,12 @@ class UserPolicy < BasePolicy
     owner?
   end
 
+  # Что выдано на руки, сотрудник видит про себя сам — как и заявленный размер
+  # выше. Учёт формы ведут суперадмины, поэтому им видно про всех.
+  def uniform_issues?
+    owner? || superadmin?
+  end
+
   def update_user_settings?
     owner?
   end

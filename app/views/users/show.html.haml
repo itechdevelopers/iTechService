@@ -311,6 +311,9 @@
               = f.input :uniform_size, collection: User::UNIFORM_SIZE, value_method: :to_s, selected: @user.uniform_size, input_html: {id: :input_uniform_size}
               = submit_button f
 
+        - if can? :uniform_issues, @user
+          = render 'uniform_issues', uniform_on_hands: @uniform_on_hands, uniform_operations: @uniform_operations
+
       #reports_tab.tab-pane
         %h3 Доступные отчёты
         - if @user.accessible_report_cards.exists?

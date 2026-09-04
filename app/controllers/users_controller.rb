@@ -32,6 +32,7 @@ class UsersController < ApplicationController
     load_schedule_calendar_data
     @assignments_month = Date.current
     load_assignments_calendar_data
+    load_uniform_issues if policy(@user).uniform_issues?
 
     respond_to do |format|
       format.html
@@ -321,6 +322,17 @@ class UsersController < ApplicationController
     @upcoming_duties = DutyScheduleEntry.where('date >= ?', Date.current).includes(:user, :department).order(:date).limit(10)
     @upcoming_cashier = CashierScheduleEntry.where('date >= ?', Date.current).includes(:user, :department).order(:date).limit(10)
     @upcoming_store_closing = StoreClosingEntry.where('date >= ?', Date.current).includes(:user, :department).order(:date).limit(10)
+  end
+
+  # Раздел «Форма» в профиле: что сейчас на руках и движения по сотруднику.
+  # Остаток на руках нигде не хранится — считается по журналу выдач и возвратов.
+  def load_uniform_issues
+    balance = UniformOperationLine.holder_balance(@user).reject { |_stock_id, quantity| quantity.to_i.zero? }
+    @uniform_on_hands = UniformStock.joins(:uniform_kind).includes(:uniform_kind)
+                                    .where(id: balance.keys).order('uniform_kinds.name').ordered
+                                    .map { |stock| [stock, balance[stock.id]] }
+    @uniform_operations = UniformOperation.where(recipient: @user).recent.limit(50)
+                                          .includes(:author, uniform_operation_lines: { uniform_stock: :uniform_kind })
   end
 
   def load_infos

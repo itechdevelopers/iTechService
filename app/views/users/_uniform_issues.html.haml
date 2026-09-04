@@ -1,0 +1,47 @@
+%h4= t('uniform_issues.profile.on_hands')
+
+- if uniform_on_hands.empty?
+  %p.muted= t('uniform_issues.profile.nothing')
+- else
+  %table.table.table-bordered.table-condensed.uniform-kinds__stocks
+    %thead
+      %tr
+        %th= UniformKind.model_name.human
+        %th= UniformStock.human_attribute_name :size
+        %th= UniformOperationLine.human_attribute_name :quantity
+    %tbody
+      - uniform_on_hands.each do |stock, quantity|
+        %tr
+          %td
+            - if policy(UniformKind).show?
+              = link_to stock.uniform_kind.name, uniform_kind_path(stock.uniform_kind)
+            - else
+              = stock.uniform_kind.name
+          %td= stock.label
+          %td= quantity
+
+%h4= t('uniform_issues.profile.history')
+
+- if uniform_operations.empty?
+  %p.muted= t('uniform_issues.profile.no_history')
+- else
+  %table.table.table-bordered.table-condensed
+    %thead
+      %tr
+        %th= UniformOperation.human_attribute_name :performed_on
+        %th= UniformOperation.human_attribute_name :kind
+        %th= t('uniform_kinds.history.lines')
+        %th= UniformOperation.human_attribute_name :author
+        %th= UniformOperation.human_attribute_name :comment
+    %tbody
+      - uniform_operations.each do |operation|
+        %tr
+          %td= l operation.performed_on
+          %td= t("uniform_operations.kinds.#{operation.kind}")
+          %td
+            - operation.uniform_operation_lines.each do |line|
+              %span.uniform-kinds__size
+                = "#{line.uniform_stock.uniform_kind.name} #{line.uniform_stock.label}"
+                %b= line.quantity
+          %td= operation.author.short_name
+          %td= operation.comment

@@ -76,6 +76,11 @@ ru:
       submit: Выдать
     create:
       created: "Форма выдана: %{user}."
+    profile:
+      on_hands: Форма на руках
+      nothing: Рабочая форма сейчас не числится.
+      history: История выдач и возвратов
+      no_history: Форму этому сотруднику ещё не выдавали.
 
   uniform_kinds:
     link: Учёт рабочей формы
