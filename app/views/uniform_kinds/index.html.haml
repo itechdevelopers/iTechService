@@ -1,0 +1,43 @@
+.page-header
+  - if policy(UniformKind).new?
+    = link_to t('.add_kind'), new_uniform_kind_path, class: 'btn btn-success pull-right'
+  %h2= t('.title')
+
+- if @uniform_kinds.empty?
+  %p.muted= t('.empty')
+- else
+  %table.table.table-bordered.table-condensed.uniform-kinds__table
+    %thead
+      %tr
+        %th
+        %th= UniformKind.human_attribute_name :name
+        %th= UniformKind.human_attribute_name :cost
+        %th= t('.sizes')
+        %th= t('.total')
+        %th
+    %tbody
+      - @uniform_kinds.each do |uniform_kind|
+        %tr
+          %td.uniform-kinds__thumb-cell
+            - if uniform_kind.image?
+              = image_tag uniform_kind.image.thumb.url, class: 'uniform-kinds__thumb'
+          %td
+            %strong= uniform_kind.name
+            - if uniform_kind.description.present?
+              %p.muted= uniform_kind.description
+          %td= number_to_currency uniform_kind.cost if uniform_kind.cost.present?
+          %td
+            - if uniform_kind.uniform_stocks.empty?
+              %span.muted= t('.no_sizes')
+            - else
+              - uniform_kind.uniform_stocks.each do |stock|
+                %span.uniform-kinds__size
+                  = stock.label
+                  %b= stock.quantity
+          %td= uniform_kind.total_quantity
+          %td.text-right
+            - if policy(uniform_kind).edit?
+              = link_to t('helpers.links.edit'), edit_uniform_kind_path(uniform_kind), class: 'btn btn-mini'
+            - if policy(uniform_kind).destroy?
+              = link_to t('helpers.links.destroy'), uniform_kind_path(uniform_kind), method: :delete,
+                data: { confirm: t('uniform_kinds.destroy_confirm') }, class: 'btn btn-mini btn-danger'

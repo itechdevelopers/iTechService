@@ -148,6 +148,7 @@
 
       = drop_down t('.misc') do
         = menu_item 'Забрать пакеты', new_package_withdrawal_path if current_user.driver? || current_user.any_admin?
+        = menu_item t('uniform_kinds.link'), uniform_kinds_path if policy(UniformKind).index?
         = menu_item t('kanban.boards.index.title'), kanban_boards_path
         = menu_item t('wiki.link'), wiki_pages_path if can? :read, WikiPage
         = menu_item t('reports.title'), reports_path if can?(:manage, :report) || current_user.accessible_report_cards.exists?

@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20260903191313) do
+ActiveRecord::Schema.define(version: 20260904100001) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -2627,6 +2627,25 @@ ActiveRecord::Schema.define(version: 20260903191313) do
     t.index ["receiver_id"], name: "index_trade_in_devices_on_receiver_id"
   end
 
+  create_table "uniform_kinds", force: :cascade do |t|
+    t.string "name", null: false
+    t.text "description"
+    t.decimal "cost", precision: 10, scale: 2
+    t.string "image"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+  end
+
+  create_table "uniform_stocks", force: :cascade do |t|
+    t.bigint "uniform_kind_id", null: false
+    t.string "size", null: false
+    t.integer "quantity", default: 0, null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["uniform_kind_id", "size"], name: "index_uniform_stocks_on_uniform_kind_id_and_size", unique: true
+    t.index ["uniform_kind_id"], name: "index_uniform_stocks_on_uniform_kind_id"
+  end
+
   create_table "user_abilities", force: :cascade do |t|
     t.bigint "user_id"
     t.bigint "ability_id"
@@ -3026,6 +3045,7 @@ ActiveRecord::Schema.define(version: 20260903191313) do
   add_foreign_key "trade_in_devices", "departments"
   add_foreign_key "trade_in_devices", "items"
   add_foreign_key "trade_in_devices", "users", column: "receiver_id"
+  add_foreign_key "uniform_stocks", "uniform_kinds"
   add_foreign_key "user_abilities", "abilities"
   add_foreign_key "user_abilities", "users"
   add_foreign_key "user_achievements", "achievements"

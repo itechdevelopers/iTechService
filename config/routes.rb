@@ -279,6 +279,10 @@ Rails.application.routes.draw do
   # Забор пакетов водителем (форма + создание).
   resources :package_withdrawals, only: %i[new create]
 
+  # Учёт рабочей формы. Размеры вида задаются галочками и хранятся строками
+  # uniform_stocks, поэтому отдельного ресурса для них нет.
+  resources :uniform_kinds, except: %i[show]
+
   resources :client_categories
 
   resources :device_types, except: [:new] do

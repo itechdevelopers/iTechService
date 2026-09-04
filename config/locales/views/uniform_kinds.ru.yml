@@ -1,0 +1,52 @@
+ru:
+  activerecord:
+    models:
+      uniform_kind:
+        one: Вид рабочей формы
+        few: Вида рабочей формы
+        many: Видов рабочей формы
+      uniform_stock:
+        one: Остаток формы
+        few: Остатка формы
+        many: Остатков формы
+    attributes:
+      uniform_kind:
+        name: Название
+        description: Описание
+        cost: Себестоимость
+        image: Картинка формы
+        sizes: Размеры
+      uniform_stock:
+        size: Размер
+        quantity: Остаток
+    errors:
+      models:
+        uniform_kind:
+          attributes:
+            sizes:
+              in_use: "нельзя убрать размеры с остатком на складе: %{sizes}"
+
+  uniform_kinds:
+    link: Учёт рабочей формы
+    destroy_confirm: Удалить вид формы вместе со всеми размерами и остатками?
+    index:
+      title: Учёт рабочей формы
+      add_kind: Добавить новый вид формы
+      empty: Пока не заведено ни одного вида формы.
+      sizes: Размеры и остатки
+      total: Всего на складе
+      no_sizes: Размеры не выбраны
+    new:
+      title: Новый вид формы
+    edit:
+      title: Редактирование вида формы
+    form:
+      sizes_legend: Размеры
+      sizes_hint: Отметьте размеры, в которых бывает эта форма. Снять можно только размер с нулевым остатком.
+      image_hint: JPG, PNG или GIF. Картинка нужна, чтобы понимать, как выглядит форма.
+    create:
+      created: Вид формы создан.
+    update:
+      updated: Вид формы обновлён.
+    destroy:
+      destroyed: Вид формы удалён.
