@@ -1,0 +1,7 @@
+.page-header
+  %h2= t('.title')
+
+- if @uniform_kinds.empty?
+  %p.muted= t('.no_stocks')
+- else
+  = render 'form'

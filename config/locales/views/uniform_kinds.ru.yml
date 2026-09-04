@@ -65,6 +65,18 @@ ru:
       created_receipt: Приход записан, остатки обновлены.
       created_write_off: Списание записано, остатки обновлены.
 
+  uniform_issues:
+    new:
+      title: Выдача формы сотруднику
+      no_stocks: Пока нет ни одного вида формы с размерами — выдавать нечего.
+    form:
+      select_employee: Выберите сотрудника
+      search_placeholder: Фамилия, имя или локация
+      in_stock: На складе
+      submit: Выдать
+    create:
+      created: "Форма выдана: %{user}."
+
   uniform_kinds:
     link: Учёт рабочей формы
     destroy_confirm: Удалить вид формы вместе со всеми размерами и остатками?
@@ -85,6 +97,7 @@ ru:
       total: Итого
       add_receipt: Добавить приход
       add_write_off: Списать
+      add_issue: Выдать форму сотруднику
     history:
       title: История движений
       empty: Движений по этому виду формы пока не было.

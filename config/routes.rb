@@ -284,6 +284,8 @@ Rails.application.routes.draw do
   resources :uniform_kinds
   # Документы движения: приход и списание заводятся из карточки вида.
   resources :uniform_operations, only: %i[new create]
+  # Выдача сотруднику: получатель + позиции из любых видов формы.
+  resources :uniform_issues, only: %i[new create]
 
   resources :client_categories
 

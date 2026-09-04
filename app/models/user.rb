@@ -559,6 +559,19 @@ class User < ApplicationRecord
     department&.color
   end
 
+  # Цвет подсветки сотрудника там, где важна точка, а не подразделение: своя
+  # локация приоритетнее, но color у локаций заполнен не везде, поэтому запасной
+  # вариант — цвет подразделения (он же цвет города).
+  def location_or_department_color
+    location&.color.presence || department_color
+  end
+
+  # Локация в подписи нужна не для красоты: поиск в пикере идёт по тексту опции,
+  # поэтому так можно отобрать сразу всех, скажем, из ремонта.
+  def short_name_with_location
+    [short_name, location&.name].reject(&:blank?).join(' — ')
+  end
+
   def upcoming_birthday?
     if birthday.present?
       today = Date.current

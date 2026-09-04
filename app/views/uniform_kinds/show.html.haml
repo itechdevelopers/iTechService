@@ -30,6 +30,7 @@
         class: 'btn btn-success'
       = link_to t('.add_write_off'), new_uniform_operation_path(uniform_kind_id: @uniform_kind, kind: 'write_off'),
         class: 'btn'
+      = link_to t('.add_issue'), new_uniform_issue_path(uniform_kind_id: @uniform_kind), class: 'btn btn-primary'
 
   %table.table.table-bordered.table-condensed.uniform-kinds__stocks
     %thead
