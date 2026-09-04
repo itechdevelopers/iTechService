@@ -31,6 +31,19 @@
   max-width: 600px;
 }
 
+.uniform-kinds__actions {
+  margin-bottom: 12px;
+}
+
+.uniform-operations__lines {
+  max-width: 480px;
+
+  .control-group,
+  .controls {
+    margin: 0;
+  }
+}
+
 .uniform-kinds__size-checkbox {
   margin-right: 12px;
   text-transform: uppercase;

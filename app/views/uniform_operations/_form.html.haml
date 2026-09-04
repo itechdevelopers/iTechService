@@ -1,0 +1,31 @@
+= simple_form_for @uniform_operation, url: uniform_operations_path, html: { class: 'form-horizontal' } do |f|
+  = f.error_notification message: error_messages_for(@uniform_operation)
+
+  = hidden_field_tag :uniform_kind_id, @uniform_kind.id
+  = f.hidden_field :kind
+
+  = f.input :performed_on, as: :my_date
+  = f.input :comment, input_html: { rows: 2 }, required: @uniform_operation.comment_required?,
+    hint: (t('.comment_hint') if @uniform_operation.comment_required?)
+
+  %table.table.table-bordered.table-condensed.uniform-operations__lines
+    %thead
+      %tr
+        %th= UniformStock.human_attribute_name :size
+        %th= t('.in_stock')
+        %th= UniformOperationLine.human_attribute_name :quantity
+    %tbody
+      - @form_lines.each_with_index do |line, index|
+        -# child_index, а не index: у вложенных атрибутов index добавляет свой уровень
+        -# поверх собственного счётчика fields_for, и имя полей становится [0][0][…].
+        = f.simple_fields_for :uniform_operation_lines, line, child_index: index do |ff|
+          %tr
+            %td= line.uniform_stock.label
+            %td= line.uniform_stock.quantity
+            %td
+              = ff.hidden_field :uniform_stock_id
+              = ff.input :quantity, label: false, input_html: { class: 'input-mini' }
+
+  .form-actions
+    = f.submit t('.submit'), class: 'btn btn-primary'
+    = link_to t('helpers.links.cancel'), uniform_kind_path(@uniform_kind), class: 'btn'

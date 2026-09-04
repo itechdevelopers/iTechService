@@ -24,6 +24,13 @@
 - if @uniform_kind.uniform_stocks.empty?
   %p.muted= t('.no_sizes')
 - else
+  - if policy(UniformOperation).create?
+    .uniform-kinds__actions
+      = link_to t('.add_receipt'), new_uniform_operation_path(uniform_kind_id: @uniform_kind, kind: 'receipt'),
+        class: 'btn btn-success'
+      = link_to t('.add_write_off'), new_uniform_operation_path(uniform_kind_id: @uniform_kind, kind: 'write_off'),
+        class: 'btn'
+
   %table.table.table-bordered.table-condensed.uniform-kinds__stocks
     %thead
       %tr
@@ -44,3 +51,5 @@
         %th= @uniform_kind.total_quantity
         %th= @on_employees.values.sum
         %th= @written_off.values.sum
+
+  = render 'history', operations: @operations, stock_ids: @stock_ids

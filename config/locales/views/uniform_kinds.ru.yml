@@ -47,12 +47,23 @@ ru:
               exceeds_holder: "%{kind}, размер %{size}: за сотрудником %{holder} числится только %{available} шт."
 
   uniform_operations:
+    unknown_kind: Неизвестный тип операции.
     kinds:
       receipt: Приход
       write_off: Списание со склада
       issue: Выдача сотруднику
       return_from_user: Возврат от сотрудника
       write_off_from_user: Списание с сотрудника
+    new:
+      title_receipt: Приход формы
+      title_write_off: Списание формы со склада
+    form:
+      in_stock: На складе
+      submit: Сохранить
+      comment_hint: Напишите, почему форма списывается.
+    create:
+      created_receipt: Приход записан, остатки обновлены.
+      created_write_off: Списание записано, остатки обновлены.
 
   uniform_kinds:
     link: Учёт рабочей формы
@@ -72,6 +83,12 @@ ru:
       on_employees: На сотрудниках
       written_off: Списано
       total: Итого
+      add_receipt: Добавить приход
+      add_write_off: Списать
+    history:
+      title: История движений
+      empty: Движений по этому виду формы пока не было.
+      lines: Размеры и количество
     new:
       title: Новый вид формы
     edit:

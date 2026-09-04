@@ -1,0 +1,30 @@
+%h3= t('.title')
+
+- if operations.empty?
+  %p.muted= t('.empty')
+- else
+  %table.table.table-bordered.table-condensed
+    %thead
+      %tr
+        %th= UniformOperation.human_attribute_name :performed_on
+        %th= UniformOperation.human_attribute_name :kind
+        %th= t('.lines')
+        %th= UniformOperation.human_attribute_name :author
+        %th= UniformOperation.human_attribute_name :recipient
+        %th= UniformOperation.human_attribute_name :comment
+    %tbody
+      - operations.each do |operation|
+        %tr
+          %td= l operation.performed_on
+          %td= t("uniform_operations.kinds.#{operation.kind}")
+          %td
+            -# Документ выдачи может собрать несколько видов формы, поэтому в истории
+            -# вида показываем только его собственные позиции.
+            - operation.uniform_operation_lines.each do |line|
+              - next unless stock_ids.include?(line.uniform_stock_id)
+              %span.uniform-kinds__size
+                = line.uniform_stock.label
+                %b= line.quantity
+          %td= operation.author.short_name
+          %td= operation.recipient&.short_name
+          %td= operation.comment
