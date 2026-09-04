@@ -1,0 +1,44 @@
+.page-header
+  %h2= t('.title')
+  %h4.muted= @employee.short_name
+
+- if @on_hands.empty?
+  %p.muted= t('.nothing')
+  = link_to t('helpers.links.back'), user_path(@employee), class: 'btn'
+- else
+  %p= t('.hint')
+
+  = simple_form_for @uniform_return, url: uniform_returns_path(user_id: @employee),
+    html: { class: 'form-horizontal' } do |f|
+    = f.error_notification message: error_messages_for(@uniform_return)
+
+    = f.input :performed_on, as: :my_date
+    = f.input :comment, as: :text, input_html: { rows: 2 }, hint: t('.comment_hint')
+
+    %table.table.table-bordered.table-condensed.uniform-returns__rows
+      %thead
+        %tr
+          %th= UniformKind.model_name.human
+          %th= UniformStock.human_attribute_name :size
+          %th= t('.on_hands')
+          %th= t('.returned_good')
+          %th= t('.returned_unusable')
+      %tbody
+        - @on_hands.each_with_index do |(stock, quantity), index|
+          %tr
+            %td= stock.uniform_kind.name
+            %td= stock.label
+            %td= quantity
+            %td
+              = hidden_field_tag "uniform_return[rows][#{index}][uniform_stock_id]", stock.id, id: nil
+              -# По умолчанию считаем, что сдали всё и в порядке: так оформляется
+              -# обычное увольнение, а расхождения оператор правит руками.
+              = number_field_tag "uniform_return[rows][#{index}][good]", quantity, min: 0, max: quantity,
+                class: 'input-mini', id: nil
+            %td
+              = number_field_tag "uniform_return[rows][#{index}][unusable]", 0, min: 0, max: quantity,
+                class: 'input-mini', id: nil
+
+    .form-actions
+      = f.submit t('.submit'), class: 'btn btn-primary'
+      = link_to t('.skip'), user_path(@employee), class: 'btn'

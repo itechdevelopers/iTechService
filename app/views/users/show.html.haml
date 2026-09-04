@@ -312,7 +312,8 @@
               = submit_button f
 
         - if can? :uniform_issues, @user
-          = render 'uniform_issues', uniform_on_hands: @uniform_on_hands, uniform_operations: @uniform_operations
+          = render 'uniform_issues', user: @user, uniform_on_hands: @uniform_on_hands,
+            uniform_operations: @uniform_operations
 
       #reports_tab.tab-pane
         %h3 Доступные отчёты

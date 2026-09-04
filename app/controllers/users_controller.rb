@@ -93,6 +93,8 @@ class UsersController < ApplicationController
         format.html do
           if params[:user][:photo].present?
             render :crop
+          elsif uniform_return_needed?
+            redirect_to new_uniform_return_path(user_id: @user), alert: t('users.uniform_return_prompt')
           else
             redirect_to @user, notice: t('users.updated')
           end
@@ -322,6 +324,16 @@ class UsersController < ApplicationController
     @upcoming_duties = DutyScheduleEntry.where('date >= ?', Date.current).includes(:user, :department).order(:date).limit(10)
     @upcoming_cashier = CashierScheduleEntry.where('date >= ?', Date.current).includes(:user, :department).order(:date).limit(10)
     @upcoming_store_closing = StoreClosingEntry.where('date >= ?', Date.current).includes(:user, :department).order(:date).limit(10)
+  end
+
+  # Уволенного спрашиваем про форму сразу: после ухода человека выяснять, что у него
+  # осталось, уже не у кого. Молча пропускаем, если за ним ничего не числится или
+  # увольняющему такой экран недоступен.
+  def uniform_return_needed?
+    return false unless @user.saved_change_to_is_fired? && @user.is_fired?
+    return false unless policy(@user).uniform_return?
+
+    UniformOperationLine.holder_balance(@user).any? { |_stock_id, quantity| quantity.to_i.positive? }
   end
 
   # Раздел «Форма» в профиле: что сейчас на руках и движения по сотруднику.

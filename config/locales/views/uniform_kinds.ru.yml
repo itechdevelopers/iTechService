@@ -1,4 +1,16 @@
 ru:
+  activemodel:
+    attributes:
+      uniform_return:
+        performed_on: Дата возврата
+        comment: Комментарий
+    errors:
+      models:
+        uniform_return:
+          attributes:
+            base:
+              exceeds_balance: "%{kind}, размер %{size}: за сотрудником числится только %{available} шт."
+
   activerecord:
     models:
       uniform_kind:
@@ -78,9 +90,28 @@ ru:
       created: "Форма выдана: %{user}."
     profile:
       on_hands: Форма на руках
+      new_return: Оформить возврат формы
       nothing: Рабочая форма сейчас не числится.
       history: История выдач и возвратов
       no_history: Форму этому сотруднику ещё не выдавали.
+
+  users:
+    uniform_return_prompt: За сотрудником числится рабочая форма. Отметьте, что он сдал и в каком состоянии.
+
+  uniform_returns:
+    write_off_comment: "Списано при увольнении: %{user}, состояние неудовлетворительное."
+    new:
+      title: Возврат рабочей формы
+      nothing: За сотрудником не числится рабочая форма — возвращать нечего.
+      hint: Укажите, сколько формы сотрудник сдал и в каком состоянии. Годная вернётся на склад, негодная будет списана. Несданное останется числиться за сотрудником.
+      on_hands: Числится
+      returned_good: Сдал годной
+      returned_unusable: Сдал негодной
+      comment_hint: Необязательно. Добавится к системной причине списания.
+      submit: Оформить возврат
+      skip: Пропустить
+    create:
+      created: "Возврат оформлен: на склад — %{returned} шт., списано — %{written_off} шт."
 
   uniform_kinds:
     link: Учёт рабочей формы

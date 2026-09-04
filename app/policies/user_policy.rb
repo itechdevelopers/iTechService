@@ -48,6 +48,12 @@ class UserPolicy < BasePolicy
     owner? || superadmin?
   end
 
+  # Возврат формы спрашивают в момент увольнения, поэтому отвечать на него должен
+  # тот же, кто увольняет, — иначе увольнение упирается в отказ доступа.
+  def uniform_return?
+    update?
+  end
+
   def update_user_settings?
     owner?
   end

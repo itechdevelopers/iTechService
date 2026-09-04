@@ -3,6 +3,10 @@
 - if uniform_on_hands.empty?
   %p.muted= t('uniform_issues.profile.nothing')
 - else
+  -# Уволенный с формой на руках — незакрытый возврат. Ссылка нужна тем, кто на
+  -# экране увольнения нажал «Пропустить»: иначе к нему было бы не вернуться.
+  - if user.is_fired? && policy(user).uniform_return?
+    %p= link_to t('uniform_issues.profile.new_return'), new_uniform_return_path(user_id: user), class: 'btn btn-primary'
   %table.table.table-bordered.table-condensed.uniform-kinds__stocks
     %thead
       %tr

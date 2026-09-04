@@ -288,6 +288,8 @@ Rails.application.routes.draw do
   resources :uniform_operations, only: %i[new create]
   # Выдача сотруднику: получатель + позиции из любых видов формы.
   resources :uniform_issues, only: %i[new create]
+  # Возврат формы при увольнении: спрашивается сразу после увольнения.
+  resources :uniform_returns, only: %i[new create]
 
   resources :client_categories
 
