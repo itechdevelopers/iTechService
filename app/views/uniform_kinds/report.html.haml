@@ -1,0 +1,85 @@
+.page-header
+  %h2
+    = link_to t('.back'), uniform_kinds_path, class: 'btn btn-mini'
+    = t('.title')
+
+- if @stocks.empty?
+  %p.muted= t('.empty')
+- else
+  %table.table.table-bordered.table-condensed.uniform-report
+    %thead
+      %tr
+        %th= UniformKind.model_name.human
+        %th= t('.metric')
+        - @sizes.each do |size|
+          %th.uniform-report__size= size.upcase
+        %th= t('.total')
+    %tbody
+      - @uniform_kinds.each do |uniform_kind|
+        - stocks_by_size = uniform_kind.uniform_stocks.index_by(&:size)
+        -# Три показателя на вид: остаток склада, что на руках, что списано.
+        -# Пустая ячейка означает, что такого размера у вида нет вовсе.
+        - rows = [[t('.in_stock'), ->(stock) { stock.quantity }],
+                  [t('.on_employees'), ->(stock) { @on_employees[stock.id].to_i }],
+                  [t('.written_off'), ->(stock) { @written_off[stock.id].to_i }]]
+        - rows.each_with_index do |(label, value), index|
+          %tr
+            - if index.zero?
+              %td{ rowspan: rows.size }= link_to uniform_kind.name, uniform_kind_path(uniform_kind)
+            %td= label
+            - total = 0
+            - @sizes.each do |size|
+              - stock = stocks_by_size[size]
+              - if stock.nil?
+                %td.muted —
+              - else
+                - quantity = value.call(stock)
+                - total += quantity
+                %td= quantity
+            %th= total
+
+  %h3= t('.holders')
+  - if @holders.empty?
+    %p.muted= t('.no_holders')
+  - else
+    %table.table.table-bordered.table-condensed
+      %thead
+        %tr
+          %th= UniformOperation.human_attribute_name :recipient
+          %th= t('.holder_items')
+      %tbody
+        - @holders.each do |user, items|
+          %tr
+            %td= link_to user.short_name, user_path(user)
+            %td
+              - items.each do |stock, quantity|
+                %span.uniform-kinds__size
+                  = "#{stock.uniform_kind.name} #{stock.label}"
+                  %b= quantity
+
+  %h3= t('.write_offs')
+  - if @write_offs.empty?
+    %p.muted= t('.no_write_offs')
+  - else
+    %table.table.table-bordered.table-condensed
+      %thead
+        %tr
+          %th= UniformOperation.human_attribute_name :performed_on
+          %th= UniformOperation.human_attribute_name :kind
+          %th= t('uniform_kinds.history.lines')
+          %th= UniformOperation.human_attribute_name :author
+          %th= UniformOperation.human_attribute_name :recipient
+          %th= UniformOperation.human_attribute_name :comment
+      %tbody
+        - @write_offs.each do |operation|
+          %tr
+            %td= l operation.performed_on
+            %td= t("uniform_operations.kinds.#{operation.kind}")
+            %td
+              - operation.uniform_operation_lines.each do |line|
+                %span.uniform-kinds__size
+                  = "#{line.uniform_stock.uniform_kind.name} #{line.uniform_stock.label}"
+                  %b= line.quantity
+            %td= operation.author.short_name
+            %td= operation.recipient&.short_name
+            %td= operation.comment

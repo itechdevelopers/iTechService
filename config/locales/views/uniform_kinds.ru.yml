@@ -1,0 +1,169 @@
+ru:
+  activemodel:
+    attributes:
+      uniform_return:
+        performed_on: Дата возврата
+        comment: Комментарий
+    errors:
+      models:
+        uniform_return:
+          attributes:
+            base:
+              exceeds_balance: "%{kind}, размер %{size}: за сотрудником числится только %{available} шт."
+
+  activerecord:
+    models:
+      uniform_kind:
+        one: Вид рабочей формы
+        few: Вида рабочей формы
+        many: Видов рабочей формы
+      uniform_stock:
+        one: Остаток формы
+        few: Остатка формы
+        many: Остатков формы
+      uniform_operation:
+        one: Движение формы
+        few: Движения формы
+        many: Движений формы
+    attributes:
+      uniform_kind:
+        name: Название
+        description: Описание
+        cost: Себестоимость
+        image: Картинка формы
+        sizes: Размеры
+      uniform_stock:
+        size: Размер
+        quantity: Остаток
+      uniform_operation:
+        kind: Тип операции
+        author: Кто оформил
+        recipient: Сотрудник
+        comment: Комментарий
+        performed_on: Дата
+      uniform_operation_line:
+        quantity: Количество
+    errors:
+      models:
+        uniform_kind:
+          attributes:
+            sizes:
+              in_use: "нельзя убрать размеры с остатком или движениями: %{sizes}"
+            base:
+              has_movements: По этому виду формы уже есть движения — его нельзя удалить.
+        uniform_operation:
+          attributes:
+            base:
+              no_lines: Укажите количество хотя бы по одному размеру.
+              exceeds_stock: "%{kind}, размер %{size}: на складе только %{available} шт."
+              exceeds_holder: "%{kind}, размер %{size}: за сотрудником %{holder} числится только %{available} шт."
+
+  uniform_operations:
+    unknown_kind: Неизвестный тип операции.
+    kinds:
+      receipt: Приход
+      write_off: Списание со склада
+      issue: Выдача сотруднику
+      return_from_user: Возврат от сотрудника
+      write_off_from_user: Списание с сотрудника
+    new:
+      title_receipt: Приход формы
+      title_write_off: Списание формы со склада
+    form:
+      in_stock: На складе
+      submit: Сохранить
+      comment_hint: Напишите, почему форма списывается.
+    create:
+      created_receipt: Приход записан, остатки обновлены.
+      created_write_off: Списание записано, остатки обновлены.
+
+  uniform_issues:
+    new:
+      title: Выдача формы сотруднику
+      no_stocks: Пока нет ни одного вида формы с размерами — выдавать нечего.
+    form:
+      select_employee: Выберите сотрудника
+      search_placeholder: Фамилия, имя или локация
+      in_stock: На складе
+      submit: Выдать
+    create:
+      created: "Форма выдана: %{user}."
+    profile:
+      on_hands: Форма на руках
+      new_return: Оформить возврат формы
+      nothing: Рабочая форма сейчас не числится.
+      history: История выдач и возвратов
+      no_history: Форму этому сотруднику ещё не выдавали.
+
+  users:
+    uniform_return_prompt: За сотрудником числится рабочая форма. Отметьте, что он сдал и в каком состоянии.
+
+  uniform_returns:
+    write_off_comment: "Списано при увольнении: %{user}, состояние неудовлетворительное."
+    new:
+      title: Возврат рабочей формы
+      nothing: За сотрудником не числится рабочая форма — возвращать нечего.
+      hint: Укажите, сколько формы сотрудник сдал и в каком состоянии. Годная вернётся на склад, негодная будет списана. Несданное останется числиться за сотрудником.
+      on_hands: Числится
+      returned_good: Сдал годной
+      returned_unusable: Сдал негодной
+      comment_hint: Необязательно. Добавится к системной причине списания.
+      submit: Оформить возврат
+      skip: Пропустить
+    create:
+      created: "Возврат оформлен: на склад — %{returned} шт., списано — %{written_off} шт."
+
+  uniform_kinds:
+    link: Учёт рабочей формы
+    destroy_confirm: Удалить вид формы вместе со всеми размерами и остатками?
+    index:
+      title: Учёт рабочей формы
+      add_kind: Добавить новый вид формы
+      empty: Пока не заведено ни одного вида формы.
+      sizes: Размеры и остатки
+      total: Всего на складе
+      no_sizes: Размеры не выбраны
+      report: Отчёт
+    report:
+      back: К списку
+      title: Отчёт по рабочей форме
+      empty: Пока нет ни одного вида формы с размерами.
+      metric: Показатель
+      total: Итого
+      in_stock: На складе
+      on_employees: На сотрудниках
+      written_off: Списано
+      holders: У кого что на руках
+      no_holders: Форма сейчас ни за кем не числится.
+      holder_items: Что числится
+      write_offs: Списанное
+      no_write_offs: Списаний ещё не было.
+    show:
+      back: К списку
+      no_cost: не указана
+      no_sizes: У этого вида формы не выбрано ни одного размера.
+      in_stock: На складе
+      on_employees: На сотрудниках
+      written_off: Списано
+      total: Итого
+      add_receipt: Добавить приход
+      add_write_off: Списать
+      add_issue: Выдать форму сотруднику
+    history:
+      title: История движений
+      empty: Движений по этому виду формы пока не было.
+      lines: Размеры и количество
+    new:
+      title: Новый вид формы
+    edit:
+      title: Редактирование вида формы
+    form:
+      sizes_legend: Размеры
+      sizes_hint: Отметьте размеры, в которых бывает эта форма. Снять можно только размер без остатка и без движений.
+      image_hint: JPG, PNG или GIF. Картинка нужна, чтобы понимать, как выглядит форма.
+    create:
+      created: Вид формы создан.
+    update:
+      updated: Вид формы обновлён.
+    destroy:
+      destroyed: Вид формы удалён.

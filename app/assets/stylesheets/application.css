@@ -66,6 +66,7 @@
  *= require tasks
  *= require timesheet_days
  *= require top_salables
+ *= require uniform_kinds
  *= require users
  *= require user_settings_form
  *= require wiki

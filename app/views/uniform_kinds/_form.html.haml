@@ -1,0 +1,30 @@
+= simple_form_for @uniform_kind, html: { class: 'form-horizontal', multipart: true } do |f|
+  = f.error_notification message: error_messages_for(@uniform_kind)
+
+  = f.input :name
+  = f.input :description, input_html: { rows: 3 }
+  = f.input :cost
+
+  - if @uniform_kind.image?
+    = image_tag @uniform_kind.image.thumb.url, class: 'uniform-kinds__thumb'
+  = f.input :image, as: :file, hint: t('.image_hint')
+  -# image_cache сохраняет уже загруженный файл, если форма вернулась с ошибкой.
+  = f.input :image_cache, as: :hidden
+  - unless @uniform_kind.new_record?
+    = f.input :remove_image, as: :boolean
+
+  .control-group
+    %label.control-label= t('.sizes_legend')
+    .controls.uniform-kinds__sizes
+      -# Пустое значение уходит всегда, иначе снятие всех галочек не пришло бы
+      -# на сервер вовсе и размеры остались бы прежними.
+      = hidden_field_tag 'uniform_kind[sizes][]', '', id: nil
+      - UniformKind::SIZES.each do |size|
+        %label.checkbox.inline.uniform-kinds__size-checkbox
+          = check_box_tag 'uniform_kind[sizes][]', size, @uniform_kind.sizes.include?(size), id: "uniform_kind_size_#{size}"
+          = size.upcase
+      %p.help-block= t('.sizes_hint')
+
+  .form-actions
+    = submit_button f
+    = link_to t('helpers.links.cancel'), uniform_kinds_path, class: 'btn'

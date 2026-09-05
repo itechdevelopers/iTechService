@@ -1,0 +1,59 @@
+.uniform-kinds__thumb {
+  max-width: 60px;
+  max-height: 60px;
+  border-radius: 3px;
+}
+
+.uniform-kinds__thumb-cell {
+  width: 70px;
+}
+
+.uniform-kinds__size {
+  display: inline-block;
+  margin: 0 10px 3px 0;
+  white-space: nowrap;
+
+  b {
+    margin-left: 3px;
+  }
+}
+
+.uniform-kinds__card {
+  margin-bottom: 15px;
+}
+
+.uniform-kinds__photo {
+  max-width: 100%;
+  border-radius: 3px;
+}
+
+.uniform-kinds__stocks {
+  max-width: 600px;
+}
+
+.uniform-kinds__actions {
+  margin-bottom: 12px;
+}
+
+.uniform-kinds__report-link {
+  margin-right: 8px;
+}
+
+.uniform-report__size {
+  text-align: center;
+  min-width: 44px;
+}
+
+.uniform-operations__lines {
+  max-width: 480px;
+
+  .control-group,
+  .controls {
+    margin: 0;
+  }
+}
+
+.uniform-kinds__size-checkbox {
+  margin-right: 12px;
+  text-transform: uppercase;
+}

@@ -1,0 +1,56 @@
+.page-header
+  - if policy(@uniform_kind).edit?
+    = link_to t('helpers.links.edit'), edit_uniform_kind_path(@uniform_kind), class: 'btn pull-right'
+  %h2
+    = link_to t('.back'), uniform_kinds_path, class: 'btn btn-mini'
+    = @uniform_kind.name
+
+.row-fluid.uniform-kinds__card
+  - if @uniform_kind.image?
+    .span3
+      = image_tag @uniform_kind.image.url, class: 'uniform-kinds__photo'
+  %div{ class: @uniform_kind.image? ? 'span9' : 'span12' }
+    %dl.dl-horizontal
+      - if @uniform_kind.description.present?
+        %dt= UniformKind.human_attribute_name :description
+        %dd= simple_format @uniform_kind.description
+      %dt= UniformKind.human_attribute_name :cost
+      %dd
+        - if @uniform_kind.cost.present?
+          = number_to_currency @uniform_kind.cost
+        - else
+          %span.muted= t('.no_cost')
+
+- if @uniform_kind.uniform_stocks.empty?
+  %p.muted= t('.no_sizes')
+- else
+  - if policy(UniformOperation).create?
+    .uniform-kinds__actions
+      = link_to t('.add_receipt'), new_uniform_operation_path(uniform_kind_id: @uniform_kind, kind: 'receipt'),
+        class: 'btn btn-success'
+      = link_to t('.add_write_off'), new_uniform_operation_path(uniform_kind_id: @uniform_kind, kind: 'write_off'),
+        class: 'btn'
+      = link_to t('.add_issue'), new_uniform_issue_path(uniform_kind_id: @uniform_kind), class: 'btn btn-primary'
+
+  %table.table.table-bordered.table-condensed.uniform-kinds__stocks
+    %thead
+      %tr
+        %th= UniformStock.human_attribute_name :size
+        %th= t('.in_stock')
+        %th= t('.on_employees')
+        %th= t('.written_off')
+    %tbody
+      - @uniform_kind.uniform_stocks.each do |stock|
+        %tr
+          %td= stock.label
+          %td= stock.quantity
+          %td= @on_employees[stock.id].to_i
+          %td= @written_off[stock.id].to_i
+    %tfoot
+      %tr
+        %th= t('.total')
+        %th= @uniform_kind.total_quantity
+        %th= @on_employees.values.sum
+        %th= @written_off.values.sum
+
+  = render 'history', operations: @operations, stock_ids: @stock_ids

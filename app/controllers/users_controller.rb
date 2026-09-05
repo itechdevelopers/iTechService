@@ -32,6 +32,7 @@ class UsersController < ApplicationController
     load_schedule_calendar_data
     @assignments_month = Date.current
     load_assignments_calendar_data
+    load_uniform_issues if policy(@user).uniform_issues?
 
     respond_to do |format|
       format.html
@@ -92,6 +93,8 @@ class UsersController < ApplicationController
         format.html do
           if params[:user][:photo].present?
             render :crop
+          elsif uniform_return_needed?
+            redirect_to new_uniform_return_path(user_id: @user), alert: t('users.uniform_return_prompt')
           else
             redirect_to @user, notice: t('users.updated')
           end
@@ -321,6 +324,27 @@ class UsersController < ApplicationController
     @upcoming_duties = DutyScheduleEntry.where('date >= ?', Date.current).includes(:user, :department).order(:date).limit(10)
     @upcoming_cashier = CashierScheduleEntry.where('date >= ?', Date.current).includes(:user, :department).order(:date).limit(10)
     @upcoming_store_closing = StoreClosingEntry.where('date >= ?', Date.current).includes(:user, :department).order(:date).limit(10)
+  end
+
+  # Уволенного спрашиваем про форму сразу: после ухода человека выяснять, что у него
+  # осталось, уже не у кого. Молча пропускаем, если за ним ничего не числится или
+  # увольняющему такой экран недоступен.
+  def uniform_return_needed?
+    return false unless @user.saved_change_to_is_fired? && @user.is_fired?
+    return false unless policy(@user).uniform_return?
+
+    UniformOperationLine.holder_balance(@user).any? { |_stock_id, quantity| quantity.to_i.positive? }
+  end
+
+  # Раздел «Форма» в профиле: что сейчас на руках и движения по сотруднику.
+  # Остаток на руках нигде не хранится — считается по журналу выдач и возвратов.
+  def load_uniform_issues
+    balance = UniformOperationLine.holder_balance(@user).reject { |_stock_id, quantity| quantity.to_i.zero? }
+    @uniform_on_hands = UniformStock.joins(:uniform_kind).includes(:uniform_kind)
+                                    .where(id: balance.keys).order('uniform_kinds.name').ordered
+                                    .map { |stock| [stock, balance[stock.id]] }
+    @uniform_operations = UniformOperation.where(recipient: @user).recent.limit(50)
+                                          .includes(:author, uniform_operation_lines: { uniform_stock: :uniform_kind })
   end
 
   def load_infos
