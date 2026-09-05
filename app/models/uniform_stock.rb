@@ -5,7 +5,9 @@
 class UniformStock < ApplicationRecord
   # Размеры сортируются по порядку из SIZES, а не по алфавиту: иначе «2xl» окажется
   # раньше «l». array_position — постгресовая функция, индекс элемента в массиве.
-  ORDER_SQL = "array_position(ARRAY[#{UniformKind::SIZES.map { |s| "'#{s}'" }.join(',')}]::text[], uniform_stocks.size)"
+  # ::text у колонки обязателен: она varchar, а array_position полиморфная, и до PG 12
+  # varchar к text при подборе сигнатуры не приводится — падает «function does not exist».
+  ORDER_SQL = "array_position(ARRAY[#{UniformKind::SIZES.map { |s| "'#{s}'" }.join(',')}]::text[], uniform_stocks.size::text)"
 
   belongs_to :uniform_kind, inverse_of: :uniform_stocks
 
