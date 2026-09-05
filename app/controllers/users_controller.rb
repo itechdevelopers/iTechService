@@ -163,6 +163,7 @@ class UsersController < ApplicationController
     load_schedule_calendar_data
     @assignments_month = Date.current
     load_assignments_calendar_data
+    load_uniform_issues if policy(@user).uniform_issues?
 
     respond_to do |format|
       format.html { render 'show' }
