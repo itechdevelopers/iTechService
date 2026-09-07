@@ -43,15 +43,16 @@ class UserPolicy < BasePolicy
   end
 
   # Что выдано на руки, сотрудник видит про себя сам — как и заявленный размер
-  # выше. Учёт формы ведут суперадмины, поэтому им видно про всех.
+  # выше. Про всех видно тем, кто ведёт учёт формы.
   def uniform_issues?
-    owner? || superadmin?
+    owner? || manage_uniform?
   end
 
   # Возврат формы спрашивают в момент увольнения, поэтому отвечать на него должен
-  # тот же, кто увольняет, — иначе увольнение упирается в отказ доступа.
+  # тот же, кто увольняет, — иначе увольнение упирается в отказ доступа. Ведущий
+  # учёт закрывает возврат и позже: форма возвращается на склад, а не сотруднику.
   def uniform_return?
-    update?
+    update? || manage_uniform?
   end
 
   def update_user_settings?
@@ -122,6 +123,10 @@ class UserPolicy < BasePolicy
 
   def owner?
     user.id == record.id
+  end
+
+  def manage_uniform?
+    superadmin? || able_to?(:manage_uniform)
   end
 
   def manage_schedule?
