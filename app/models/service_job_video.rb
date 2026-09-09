@@ -10,6 +10,13 @@
 class ServiceJobVideo < ApplicationRecord
   # Breakage reports keep photos only for now, so their division is absent here.
   DIVISIONS = %w[reception in_operation completed].freeze
+  # Without the word "фото" the bot's own division labels carry: the same
+  # division now holds both kinds of file.
+  DIVISION_LABELS = {
+    'reception' => 'При приёмке',
+    'in_operation' => 'В процессе ремонта',
+    'completed' => 'Готовое устройство'
+  }.freeze
   PER_DIVISION_LIMIT = 3
   MAX_DURATION = 60
   # Bot API refuses to hand over anything bigger through getFile, so a clip
@@ -30,6 +37,10 @@ class ServiceJobVideo < ApplicationRecord
   # Without the Auditable concern on purpose: it enriches the audit from
   # User.current, which is nil in the Sidekiq worker that creates these.
   audited associated_with: :service_job
+
+  def self.division_label(division)
+    DIVISION_LABELS.fetch(division, division)
+  end
 
   def self.division_full?(service_job_id, division)
     in_division(division).where(service_job_id: service_job_id).count >= PER_DIVISION_LIMIT
