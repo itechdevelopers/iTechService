@@ -15,6 +15,7 @@ ru:
       empty: В архиве пока нет запросов.
     show:
       title: Запрос на разблокировку устройства
+      created_by: "Создал: %{user}"
       comments: Комментарии
     comments_modal:
       title: Все комментарии
