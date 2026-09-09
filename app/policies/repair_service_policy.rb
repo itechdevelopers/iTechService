@@ -1,4 +1,8 @@
 class RepairServicePolicy < CommonPolicy
+  def manage?
+    super || able_to?(:manage_repair_services)
+  end
+
   def choose?
     any_manager?(:technician)
   end
