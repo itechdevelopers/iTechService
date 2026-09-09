@@ -23,7 +23,35 @@
     width: 80px;
   }
   .client_info{
-    width: 40%;
+    width: 30%;
+  }
+  .repair_causes{
+    width: 25%;
+  }
+}
+
+.rs-causes {
+  &__item {
+    font-size: 12px;
+    line-height: 16px;
+    color: #555;
+    padding: 1px 0;
+  }
+
+  &__rest--collapsed {
+    display: none;
+  }
+
+  &__toggle {
+    display: inline-block;
+    margin-top: 3px;
+    font-size: 12px;
+    border-bottom: 1px dashed;
+    text-decoration: none;
+
+    &:hover {
+      text-decoration: none;
+    }
   }
 }
 
