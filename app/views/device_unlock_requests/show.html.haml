@@ -2,7 +2,9 @@
   %h2
     = link_back_to_index
     = t('.title')
-  %small= history_link_to history_device_unlock_request_path(@device_unlock_request)
+  %small
+    = history_link_to history_device_unlock_request_path(@device_unlock_request)
+    = t('.created_by', user: @device_unlock_request.user.short_name)
 
 %table.table.table-bordered.table-hover.device-unlock-requests
   %thead

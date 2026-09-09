@@ -5,6 +5,11 @@
 # SendTelegramMessage inline:
 #
 #   NotifyEmployeeJob.perform_later(user.id, '<b>Заявка обновлена</b>')
+#   NotifyEmployeeJob.perform_later(user.id, text, photo_path)
+#
+# `photo_path` (optional) turns the message into a photo with the text as its
+# caption. Being the third argument with a default, it leaves jobs enqueued by
+# the previous release — serialised with two arguments — runnable.
 #
 # Why a job and not a service: SendTelegramMessage catches every error and
 # returns an object, so an inline caller that ignores the return value loses
@@ -31,11 +36,11 @@ class NotifyEmployeeJob < ApplicationJob
     end
   end
 
-  def perform(user_id, text)
+  def perform(user_id, text, photo_path = nil)
     user = User.find_by(id: user_id)
     return unless user
 
-    result = NotifyEmployee.call(user: user, text: text)
+    result = NotifyEmployee.call(user: user, text: text, photo_path: photo_path)
     return if result.sent? || result.error.nil?
 
     # Permanent refusals (bot blocked, chat gone) are already handled inside

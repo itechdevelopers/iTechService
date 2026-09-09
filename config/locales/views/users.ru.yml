@@ -45,6 +45,7 @@ ru:
       work_with_receipt_search_requests: 'Работа с запросами на поиск чека'
       manage_negative_reviews: 'Работа с негативными отзывами'
       manage_uniform: 'Учёт рабочей формы'
+      manage_repair_services: 'Управление видами ремонта'
     activities:
       free: Бесплатные
       fast: Быстрые

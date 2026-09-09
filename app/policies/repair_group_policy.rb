@@ -1,21 +1,21 @@
 class RepairGroupPolicy < CommonPolicy
+  def manage?
+    any_admin? || able_to?(:manage_repair_services)
+  end
+
   def update?
-    any_admin?
+    manage?
   end
 
   def destroy?
-    any_admin?
-  end
-
-  def manage?
-    any_admin?
+    manage?
   end
 
   def archive?
-    any_admin?
+    manage?
   end
 
   def unarchive?
-    any_admin?
+    manage?
   end
 end

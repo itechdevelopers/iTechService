@@ -13,6 +13,12 @@ require 'cgi'
 class ReceptionPhotoReminderJob < ApplicationJob
   KIND = 'reception_photo_reminder'
 
+  # Картинка едет с релизом (не через linked_dirs), поэтому путь резолвим на
+  # момент отправки; если файла на месте не окажется, NotifyEmployee отправит
+  # тот же текст без картинки.
+  IMAGE_PATH = Rails.root.join('app', 'assets', 'images', 'telegram',
+                               'reception_photo_reminder.jpg').to_s
+
   queue_as :default
 
   def perform(service_job_id)
@@ -51,11 +57,12 @@ class ReceptionPhotoReminderJob < ApplicationJob
 
   # Delivery goes through NotifyEmployeeJob: SendTelegramMessage swallows
   # network errors, so calling it here left a failed send indistinguishable
-  # from a successful one and the reminder was lost.
+  # from a successful one and the reminder was lost. The picture rides along as
+  # the photo caption, so the employee still gets a single push.
   def notify_telegram(service_job, recipient)
     return unless recipient.telegram_linked?
 
-    NotifyEmployeeJob.perform_later(recipient.id, telegram_text(service_job))
+    NotifyEmployeeJob.perform_later(recipient.id, telegram_text(service_job), IMAGE_PATH)
   end
 
   def telegram_text(service_job)

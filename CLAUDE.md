@@ -88,3 +88,39 @@ After completing a feature or bug fix, write a simple testing instruction in Rus
 - Mention any ENV variables or server-side changes needed (e.g., schedule.yml, ENV keys)
 - Format as numbered steps grouped by scenario
 
+
+**Структура и конкретика сценариев — сверяться с памятью `feedback_seed_ui_test_data.md`**
+(и связанными `reference_test_users_playwright.md`, `feedback_dev_only_data_no_migration.md`).
+Ключевое: каждый шаг должен быть готов к исполнению — конкретный логин, конкретная ссылка
+вида `http://localhost:3000/...`, конкретная запись, конкретная кнопка. Данные под все ветки
+сценария (разные статусы, пустые/заполненные поля, «второй сотрудник», «чужой отдел»)
+засеять в dev-БД заранее через `bin/rails runner`, а в конце сказать, что создано и как удалить.
+
+### Подготовка локального окружения перед тестированием
+
+Если цикл заканчивается ручной проверкой — поднять всё нужное самому, до того как отдавать
+инструкцию.
+
+**1. Dev-сервер на :3000**
+
+```bash
+curl -sS -o /dev/null --max-time 2 http://localhost:3000 && echo alive || echo down
+ps -eo pid,etime,command | grep '[p]uma'   # etime = возраст процесса, формат dd-hh:mm:ss
+```
+
+- Не отвечает → поднять `bin/rails server -p 3000 -e development` (фоном, `run_in_background: true`)
+  и дождаться отклика: `until curl -sS -o /dev/null --max-time 2 http://localhost:3000; do sleep 2; done`.
+- Отвечает, но процессу больше 3 дней → перезапустить (`kill <PID>`, затем поднять заново):
+  за это время накопились правки кода, локалей и инициализаторов, которых старый процесс
+  не видит — I18n и инициализаторы читаются один раз на бут.
+- Живой и свежий → не трогать.
+
+**2. Sidekiq — только если сценарий реально требует фоновой джобы**
+
+- Сначала выяснить точное имя очереди: `SomeJob.new.queue_name` — в dev оно с префиксом
+  (`ise_development_default`), а не то, что написано в `config/sidekiq.yml`.
+- Поднимать **строго на этой одной очереди**: `bundle exec sidekiq -q ise_development_<name> -c 2`.
+  Никогда не на `mailers`/`reports`/полном наборе — в dev-Redis накоплен бэклог, и
+  `letter_opener` откроет вкладку браузера на каждое письмо.
+- После теста Sidekiq надо гасить (`pkill -f sidekiq`) — **напомнить об этом в самой
+  инструкции для тестирования**, отдельным пунктом в конце.
