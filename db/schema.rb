@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20260904120001) do
+ActiveRecord::Schema.define(version: 20260909105018) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -2126,6 +2126,22 @@ ActiveRecord::Schema.define(version: 20260904120001) do
     t.index ["field_name"], name: "index_service_job_templates_on_field_name"
   end
 
+  create_table "service_job_videos", force: :cascade do |t|
+    t.bigint "service_job_id", null: false
+    t.bigint "author_id"
+    t.string "division", null: false
+    t.string "file"
+    t.string "poster"
+    t.integer "duration"
+    t.integer "size"
+    t.string "telegram_file_unique_id"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["author_id"], name: "index_service_job_videos_on_author_id"
+    t.index ["service_job_id", "division", "telegram_file_unique_id"], name: "index_service_job_videos_on_job_division_tg_file", unique: true
+    t.index ["service_job_id"], name: "index_service_job_videos_on_service_job_id"
+  end
+
   create_table "service_job_viewings", id: :serial, force: :cascade do |t|
     t.integer "service_job_id", null: false
     t.integer "user_id", null: false
@@ -3028,6 +3044,8 @@ ActiveRecord::Schema.define(version: 20260904120001) do
   add_foreign_key "service_free_jobs", "service_free_tasks", column: "task_id"
   add_foreign_key "service_free_jobs", "users", column: "performer_id"
   add_foreign_key "service_free_jobs", "users", column: "receiver_id"
+  add_foreign_key "service_job_videos", "service_jobs"
+  add_foreign_key "service_job_videos", "users", column: "author_id"
   add_foreign_key "service_job_viewings", "service_jobs"
   add_foreign_key "service_job_viewings", "users"
   add_foreign_key "service_jobs", "departments", column: "initial_department_id"
