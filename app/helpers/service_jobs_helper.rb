@@ -386,6 +386,25 @@ module ServiceJobsHelper
     gallery_html.join.html_safe
   end
 
+  # The signature lives on the fog file, not on the uploader — same call the
+  # photo gallery makes above, kept in one place for the video views.
+  def signed_url(uploader, expires_in: 10.minutes)
+    uploader.file.authenticated_url(expires_in: expires_in)
+  end
+
+  def video_duration(seconds)
+    format('%d:%02d', seconds / 60, seconds % 60)
+  end
+
+  def video_author_line(video)
+    date = video.created_at.strftime('%d.%m.%Y %H:%M')
+    if video.author
+      t('service_jobs.videos.author', author: video.author.short_name, date: date)
+    else
+      t('service_jobs.videos.author_unknown', date: date)
+    end
+  end
+
   def device_note_content(device_note)
     content_tag :p, class: "content-inline", data: {form_inline_id: "device_note_#{device_note.id}"} do
       inner_content = device_note.content + notified_users_spans(device_note.notifications.map(&:user))

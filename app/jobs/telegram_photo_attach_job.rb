@@ -103,10 +103,10 @@ class TelegramPhotoAttachJob < ApplicationJob
 
   def division_label(division)
     {
-      'reception' => 'Фото при приёмке',
-      'in_operation' => 'Фото в процессе ремонта',
-      'completed' => 'Фото готового устройства',
-      'breakage' => 'Фото поломки и работы'
+      'reception' => 'При приёмке',
+      'in_operation' => 'В процессе ремонта',
+      'completed' => 'Готовое устройство',
+      'breakage' => 'Поломка и работа'
     }.fetch(division, division)
   end
 

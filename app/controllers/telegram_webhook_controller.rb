@@ -7,12 +7,13 @@
 #   /start <token>  -> hard match by users.telegram_link_token (deep link)
 #   /start          -> fallback match by users.telegram_username (from.username)
 #
-# Once linked, the employee can attach photos to a service job over chat.
-# Two entry points live on the persistent reply keyboard, shown after linking
-# and by the /photo command; only linked employees may proceed:
-#   "📷 Добавить фото" -> pick any active job, then pick a photo division
-#   "🔧 Я сломал"      -> pick one of your own breakage reports; the division
-#                         is implied, so photos go straight to «breakage»
+# Once linked, the employee can attach photos and short videos to a service
+# job over chat. Two entry points live on the persistent reply keyboard, shown
+# after linking and by the /photo command; only linked employees may proceed:
+#   "📷 Добавить фото или видео" -> pick any active job, then pick a division
+#   "🔧 Я сломал"                -> pick one of your own breakage reports; the
+#                                   division is implied, so photos go straight
+#                                   to «breakage», which takes no video
 #
 # Conversation state (chosen job, "awaiting a ticket number" step) is kept in
 # a dedicated file-backed session store — see the session_store config below.
@@ -28,22 +29,29 @@ class TelegramWebhookController < Telegram::Bot::UpdatesController
     { expires_in: 1.hour }
   ]
 
-  PHOTO_BUTTON = '📷 Добавить фото'
+  PHOTO_BUTTON = '📷 Добавить фото или видео'
+  # A reply keyboard lives on the employee's phone until the bot replaces it,
+  # and it is only sent on /start and /photo. Everyone linked before the rename
+  # still sees the old caption, so it stays a recognised alias — dropping it
+  # would make the bot answer their taps with silence.
+  LEGACY_PHOTO_BUTTON = '📷 Добавить фото'
   BREAKAGE_BUTTON = '🔧 Я сломал'
   MANUAL_ENTRY = 'manual'
   # How many of the employee's recent active jobs to offer as buttons; the
   # rest are reachable via manual ticket-number entry.
   JOB_LIST_LIMIT = 20
   # Keys are PhotoContainer photo columns (<key>_photos); values are labels.
+  # The labels dropped the word "фото": a division now holds both photos and
+  # videos, and the same strings caption the picker buttons.
   DIVISIONS = {
-    'reception'    => 'Фото при приёмке',
-    'in_operation' => 'Фото в процессе ремонта',
-    'completed'    => 'Фото готового устройства'
+    'reception'    => 'При приёмке',
+    'in_operation' => 'В процессе ремонта',
+    'completed'    => 'Готовое устройство'
   }.freeze
   # Breakage photos are reached through their own button, not through the
   # division picker — the job is already known to be a breakage report.
   BREAKAGE_DIVISION = 'breakage'
-  DIVISION_LABELS = DIVISIONS.merge(BREAKAGE_DIVISION => 'Фото поломки и работы').freeze
+  DIVISION_LABELS = DIVISIONS.merge(BREAKAGE_DIVISION => 'Поломка и работа').freeze
 
   def start!(token = nil, *)
     user = find_user(token)
@@ -67,8 +75,8 @@ class TelegramWebhookController < Telegram::Bot::UpdatesController
     return respond_not_linked unless current_employee
 
     respond_with :message,
-                 text: 'Нажмите кнопку ниже, чтобы добавить фото к работе ' \
-                       'или к своей отметке «Я сломал».',
+                 text: 'Нажмите кнопку ниже, чтобы добавить фото или видео к работе ' \
+                       'или фото к своей отметке «Я сломал».',
                  reply_markup: photo_keyboard
   end
 
@@ -76,6 +84,8 @@ class TelegramWebhookController < Telegram::Bot::UpdatesController
   # we are waiting for a manually entered ticket number, that number.
   def message(message)
     return handle_photo(message['photo']) if message['photo'].present?
+    return handle_video(message['video']) if message['video'].present?
+    return handle_unplayable_video if unplayable_video?(message)
 
     text = message['text'].to_s.strip
 
@@ -84,7 +94,7 @@ class TelegramWebhookController < Telegram::Bot::UpdatesController
     end
 
     case text
-    when PHOTO_BUTTON
+    when PHOTO_BUTTON, LEGACY_PHOTO_BUTTON
       current_employee ? render_job_selection : respond_not_linked
     when BREAKAGE_BUTTON
       current_employee ? render_breakage_selection : respond_not_linked
@@ -217,7 +227,7 @@ class TelegramWebhookController < Telegram::Bot::UpdatesController
     respond_with :message,
                  text: "Работа №#{job.ticket_number} " \
                        "(#{[job.device_short_name, job.client_surname.presence].compact.join(', ')}). " \
-                       'В какой раздел загрузить фото?',
+                       'В какой раздел загрузить?',
                  reply_markup: { inline_keyboard: buttons }
   end
 
@@ -227,13 +237,15 @@ class TelegramWebhookController < Telegram::Bot::UpdatesController
     job = ServiceJob.find_by(id: session[:job_id])
     unless job
       return respond_with(:message,
-                          text: 'Работа не выбрана. Нажмите «📷 Добавить фото» и выберите работу заново.')
+                          text: "Работа не выбрана. Нажмите «#{PHOTO_BUTTON}» и выберите работу заново.")
     end
 
     session[:division] = division
     respond_with :message,
                  text: "Раздел «#{DIVISIONS[division]}», работа №#{job.ticket_number}. " \
-                       'Пришлите фотографии — можно несколько подряд.'
+                       'Пришлите фото или видео — можно несколько подряд. ' \
+                       "Видео — не длиннее #{ServiceJobVideo::MAX_DURATION} секунд."
+
   end
 
   # A photo arrived. Requires a job + division already chosen in this session;
@@ -251,7 +263,7 @@ class TelegramWebhookController < Telegram::Bot::UpdatesController
     division = session[:division]
     unless job_id && division
       return respond_with(:message,
-                          text: 'Сначала выберите работу и раздел: нажмите «📷 Добавить фото».')
+                          text: "Сначала выберите работу и раздел: нажмите «#{PHOTO_BUTTON}».")
     end
 
     # Telegram sends several sizes; the last is the highest resolution.
@@ -264,6 +276,75 @@ class TelegramWebhookController < Telegram::Bot::UpdatesController
     respond_with :message,
                  text: "⏳ Фото получено. Сохраняю в раздел «#{DIVISION_LABELS[division]}» " \
                        "работы №#{session[:ticket]}…"
+  end
+
+  # A video arrived. Same session contract as photos — the job and division are
+  # already chosen — but everything that makes a clip unacceptable is decided
+  # here, before the worker is spent: duration and size come in the update
+  # itself, so an oversized clip costs us nothing to refuse.
+  def handle_video(video)
+    return respond_not_linked unless current_employee
+
+    job_id = session[:job_id]
+    division = session[:division]
+    unless job_id && division
+      return respond_with(:message,
+                          text: "Сначала выберите работу и раздел: нажмите «#{PHOTO_BUTTON}».")
+    end
+
+    unless ServiceJobVideo::DIVISIONS.include?(division)
+      return respond_with(:message,
+                          text: "В раздел «#{DIVISION_LABELS[division]}» пока принимаются только фото.")
+    end
+
+    if video['duration'].to_i > ServiceJobVideo::MAX_DURATION
+      return respond_with(:message,
+                          text: "Видео длиннее #{ServiceJobVideo::MAX_DURATION} секунд не принимается. " \
+                                'Снимите ролик покороче и отправьте снова.')
+    end
+
+    # Bot API will not hand over anything above this through getFile, so the
+    # refusal has to happen here — the worker could only fail on it later.
+    if video['file_size'].to_i > ServiceJobVideo::MAX_FILE_SIZE
+      return respond_with(:message,
+                          text: 'Видео слишком большое — бот не сможет его забрать. ' \
+                                'Обычно так выходит при отправке файлом: пришлите ролик ' \
+                                'обычным сообщением, без «отправить без сжатия».')
+    end
+
+    TelegramVideoAttachJob.perform_later(job_id, division, current_employee.id,
+                                         video_payload(video))
+
+    respond_with :message,
+                 text: "⏳ Видео получено. Сохраняю в раздел «#{DIVISION_LABELS[division]}» " \
+                       "работы №#{session[:ticket]}…"
+  end
+
+  # Two shapes Telegram calls video that we cannot store: a round video_note,
+  # and a clip sent "as a file", which skips the client-side re-encode and so
+  # arrives in whatever codec the camera used — often HEVC, unplayable in the
+  # browsers the workshop uses.
+  def unplayable_video?(message)
+    message['video_note'].present? ||
+      message.dig('document', 'mime_type').to_s.start_with?('video/')
+  end
+
+  def handle_unplayable_video
+    return respond_not_linked unless current_employee
+
+    respond_with :message,
+                 text: 'Такое видео бот принять не может. Снимите ролик камерой и отправьте ' \
+                       'обычным сообщением — не «кружочком» и не файлом.'
+  end
+
+  # Only the fields the job actually uses. Passing the whole Telegram object
+  # would put its every future field into the Sidekiq payload, where an
+  # argument, once enqueued, has to stay readable across a deploy.
+  def video_payload(video)
+    payload = video.slice('file_id', 'file_unique_id', 'duration', 'file_size')
+    thumb_file_id = video.dig('thumb', 'file_id')
+    payload['thumb'] = { 'file_id' => thumb_file_id } if thumb_file_id.present?
+    payload
   end
 
   def job_button_label(service_job)
