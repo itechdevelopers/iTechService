@@ -7,9 +7,9 @@ class RepairServicesController < ApplicationController
     @archived_repair_groups = RepairGroup.archived_for_display.sort_by(&:name)
 
     if params[:group].blank?
-      @repair_services = RepairService.not_archived.search(search_params[:query])
+      @repair_services = RepairService.not_archived.includes(:repair_causes).search(search_params[:query])
     else
-      @repair_services = RepairService.not_archived.includes(spare_parts: :product).in_group(params[:group])
+      @repair_services = RepairService.not_archived.includes(:repair_causes, spare_parts: :product).in_group(params[:group])
       @repair_services = @repair_services.search(search_params[:query])
     end
 

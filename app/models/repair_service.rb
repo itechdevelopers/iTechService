@@ -1,6 +1,9 @@
 # frozen_string_literal: true
 
 class RepairService < ApplicationRecord
+  # Сколько причин ремонта показывать в списке до сворачивания остальных.
+  VISIBLE_CAUSES_IN_TABLE = 3
+
   default_scope { order('repair_services.name asc') }
   scope :in_group, ->(group) { where repair_group_id: group }
   scope :with_spare_part_name, ->(query) {

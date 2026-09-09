@@ -2,6 +2,17 @@ $(document).on 'click', '#close_repair_service_choose_form', (event)->
   event.preventDefault()
   $('#repair_services_choose_form_container').slideUp()
 
+# Раскрытие/сворачивание списка причин ремонта в колонке таблицы.
+# Обработчик делегированный, потому что таблица перерисовывается через AJAX
+# при выборе группы и поиске.
+$(document).on 'click', '.rs-causes__toggle', (event) ->
+  event.preventDefault()
+  $toggle = $(this)
+  $rest = $toggle.siblings('.rs-causes__rest')
+  $rest.toggleClass('rs-causes__rest--collapsed')
+  collapsed = $rest.hasClass('rs-causes__rest--collapsed')
+  $toggle.text(if collapsed then $toggle.data('more-text') else $toggle.data('less-text'))
+
 $(document).on 'change', '#spare_parts .quantity>input', ->
   calculateTableTotal '#spare_parts', '.cost', '.quantity'
 

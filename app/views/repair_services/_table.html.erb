@@ -6,6 +6,7 @@
       <th><%= RepairService.human_attribute_name(:name) %></th>
       <th>Гарантия</th>
       <th><%= RepairService.human_attribute_name(:price) %></th>
+      <th class="repair_causes"><%= RepairService.human_attribute_name(:repair_causes) %></th>
       <th><%= RepairService.human_attribute_name(:client_info) %></th>
       <th><%= RepairService.human_attribute_name(:is_popular) %></th>
       <%= tag(:th) if(can? :manage, RepairService) %>
@@ -26,6 +27,26 @@
         </td>
         <td class="warranty"><%= repair_service_warranty_display(repair_service) %></td>
         <td class="price"><%= human_currency repair_service.price(params[:department_id])&.shown_price, false %></td>
+        <td class="repair_causes" rowspan="<%= parts_qty+1 %>">
+          <% causes = repair_service.repair_causes.to_a %>
+          <% visible_causes = causes.first(RepairService::VISIBLE_CAUSES_IN_TABLE) %>
+          <% hidden_causes = causes.drop(RepairService::VISIBLE_CAUSES_IN_TABLE) %>
+          <div class="rs-causes">
+            <% visible_causes.each do |cause| %>
+              <div class="rs-causes__item"><%= cause.title %></div>
+            <% end %>
+            <% if hidden_causes.any? %>
+              <div class="rs-causes__rest rs-causes__rest--collapsed">
+                <% hidden_causes.each do |cause| %>
+                  <div class="rs-causes__item"><%= cause.title %></div>
+                <% end %>
+              </div>
+              <a href="#" class="rs-causes__toggle"
+                 data-more-text="ещё <%= hidden_causes.size %>"
+                 data-less-text="свернуть">ещё <%= hidden_causes.size %></a>
+            <% end %>
+          </div>
+        </td>
         <td class="client_info text-info" rowspan="<%= parts_qty+1 %>"><%= repair_service.client_info %></td>
         <td class="is_popular text-center" rowspan="<%= parts_qty+1 %>">
           <%= '✓' if repair_service.is_popular %>
