@@ -348,7 +348,7 @@ Rails.application.routes.draw do
       resource :subscription, only: %i[create destroy], format: :js
       resources :viewings, only: :index, format: :js
       resources :photos, format: :js, only: %i[show new create destroy]
-      resources :videos, format: :js, only: :show
+      resources :videos, format: :js, only: %i[show destroy]
       # Не :js и не член resources: сюда ходит сам тег <video>, ожидая файл.
       get 'videos/:id/stream' => 'videos#stream', as: :video_stream
     end

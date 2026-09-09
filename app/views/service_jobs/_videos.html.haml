@@ -2,11 +2,15 @@
 - if videos.any?
   .sj-video-gallery
     - videos.each do |video|
-      = link_to service_job_video_path(@service_job, video), remote: true, class: 'sj-video-gallery__item', title: video_author_line(video) do
-        - if video.poster.present?
-          %img.sj-video-gallery__poster{src: signed_url(video.poster)}
-        - else
-          .sj-video-gallery__poster.sj-video-gallery__poster--empty
-        %span.sj-video-gallery__play
-        - if video.duration.present?
-          %span.sj-video-gallery__duration= video_duration(video.duration)
+      .sj-video-gallery__item{title: video_author_line(video)}
+        = link_to service_job_video_path(@service_job, video), remote: true, class: 'sj-video-gallery__open' do
+          - if video.poster.present?
+            %img.sj-video-gallery__poster{src: signed_url(video.poster)}
+          - else
+            .sj-video-gallery__poster.sj-video-gallery__poster--empty
+          %span.sj-video-gallery__play
+          - if video.duration.present?
+            %span.sj-video-gallery__duration= video_duration(video.duration)
+        - if can?(:edit, @service_job)
+          = link_to service_job_video_path(@service_job, video), method: :delete, class: 'sj-video-gallery__delete', title: t('helpers.links.destroy'), data: { confirm: t('helpers.links.confirm') } do
+            = glyph(:trash)

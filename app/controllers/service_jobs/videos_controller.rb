@@ -22,6 +22,14 @@ module ServiceJobs
       redirect_to @video.file.file.authenticated_url(expires_in: 10.minutes)
     end
 
+    # Same permission photos are deleted under (ServiceJobPolicy#edit?): a clip
+    # is another attachment on the job, not a separate kind of record.
+    def destroy
+      authorize @service_job, :edit?
+      @video.destroy
+      redirect_to service_job_url(@service_job)
+    end
+
     private
 
     def set_service_job
