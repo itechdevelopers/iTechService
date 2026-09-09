@@ -4,10 +4,14 @@
 # Reusable by any feature that needs to notify a staff member directly.
 #
 #   NotifyEmployee.call(user: some_user, text: '<b>Готово</b>')
+#   NotifyEmployee.call(user: some_user, text: '<b>Готово</b>', photo_path: path)
 #
 # `text` is passed through as HTML (parse_mode: 'HTML'), so callers are
 # responsible for escaping user-supplied fragments with CGI.escapeHTML —
 # same convention as the existing Telegram jobs.
+#
+# With `photo_path` the same text goes out as the photo caption — one message
+# and one push instead of two.
 #
 # For async delivery use NotifyEmployeeJob instead of calling this directly.
 class NotifyEmployee
@@ -31,15 +35,21 @@ class NotifyEmployee
     new(**args).call
   end
 
-  def initialize(user:, text:)
+  # Подпись к фото у Telegram ограничена 1024 символами; более длинный текст
+  # API отвергает целиком, поэтому такое уведомление уходит текстом без
+  # картинки — потерять картинку дешевле, чем сообщение.
+  CAPTION_LIMIT = 1024
+
+  def initialize(user:, text:, photo_path: nil)
     @user = user
     @text = text
+    @photo_path = photo_path
   end
 
   def call
     return Result.new(:not_linked) unless @user&.telegram_linked?
 
-    outcome = SendTelegramMessage.call(chat_id: @user.telegram_chat_id, text: @text)
+    outcome = deliver
     return Result.new(:sent) if outcome.success?
 
     if unreachable?(outcome.error)
@@ -55,6 +65,32 @@ class NotifyEmployee
   end
 
   private
+
+  def deliver
+    return send_text unless photo?
+
+    SendTelegramPhoto.call(
+      chat_id: @user.telegram_chat_id,
+      file_path: @photo_path,
+      caption: @text
+    )
+  end
+
+  def send_text
+    SendTelegramMessage.call(chat_id: @user.telegram_chat_id, text: @text)
+  end
+
+  # Путь приходит из релиза приложения и может не существовать, если джоба
+  # пережила выкладку: без картинки уведомление всё равно должно дойти.
+  def photo?
+    return false if @photo_path.blank?
+    return false if @text.to_s.length > CAPTION_LIMIT
+
+    return true if File.exist?(@photo_path)
+
+    Rails.logger.warn("[NotifyEmployee] photo not found: #{@photo_path}; sending text only")
+    false
+  end
 
   def unreachable?(error)
     UNREACHABLE_ERRORS.any? { |klass| error.is_a?(klass) }
