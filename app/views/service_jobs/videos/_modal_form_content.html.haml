@@ -1,0 +1,9 @@
+.modal-header
+  = button_to_close_modal
+  %h3= t('.title', division: ServiceJobVideo.division_label(@video.division))
+.modal-body
+  .sj-video-modal
+    %video.sj-video-modal__player{controls: true, preload: 'metadata',
+      poster: (@video.poster.present? ? signed_url(@video.poster) : nil),
+      src: service_job_video_stream_path(@service_job, @video)}
+    %p.sj-video-modal__meta= video_author_line(@video)

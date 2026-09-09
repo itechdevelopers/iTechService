@@ -1,0 +1,68 @@
+.sj-video-gallery {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-top: 6px;
+}
+
+.sj-video-gallery__item {
+  position: relative;
+  display: block;
+  width: 120px;
+  height: 90px;
+  border-radius: 3px;
+  overflow: hidden;
+  background: #222;
+}
+
+.sj-video-gallery__poster {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+.sj-video-gallery__poster--empty {
+  background: #333;
+}
+
+/* Треугольник собран из границ, чтобы не тащить картинку ради иконки. */
+.sj-video-gallery__play {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 0;
+  height: 0;
+  margin: -9px 0 0 -6px;
+  border-style: solid;
+  border-width: 9px 0 9px 15px;
+  border-color: transparent transparent transparent #fff;
+  filter: drop-shadow(0 0 2px rgba(0, 0, 0, .6));
+}
+
+.sj-video-gallery__duration {
+  position: absolute;
+  right: 4px;
+  bottom: 4px;
+  padding: 0 4px;
+  border-radius: 2px;
+  background: rgba(0, 0, 0, .7);
+  color: #fff;
+  font-size: 11px;
+  line-height: 16px;
+}
+
+.sj-video-modal__player {
+  display: block;
+  max-width: 100%;
+  max-height: 70vh;
+  margin: 0 auto;
+  background: #000;
+}
+
+.sj-video-modal__meta {
+  margin: 8px 0 0;
+  color: #888;
+  font-size: 12px;
+  text-align: center;
+}

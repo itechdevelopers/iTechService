@@ -3,6 +3,7 @@
     = t(".title_#{division}")
   .mini-gallery
     = photo_gallery_mini(@service_job, division)
+  = render 'videos', division: division
   .add-photo-btn
     = link_to t(".add_photo"),
       "#",

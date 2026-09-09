@@ -61,6 +61,13 @@ ru:
         title_completed: "Загруженные фото (готовое устройство)"
         title_breakage: "Загруженные фото (поломка при ремонте)"
 
+    videos:
+      author: "Снял %{author}, %{date}"
+      author_unknown: "Добавлено %{date}"
+
+      modal_form_content:
+        title: "Видео · %{division}"
+
     edit:
       title: 'Редактирование Работы'
       copy_client_phone: "Копировать номер клиента"
