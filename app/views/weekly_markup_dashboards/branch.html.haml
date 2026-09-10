@@ -1,0 +1,33 @@
+.weekly-markup-dashboard
+  .page-header
+    = link_to '← Все филиалы', weekly_markup_dashboard_path(from: @period_from, to: @period_to), class: 'btn pull-right'
+    %h2= @branch[:name]
+    %p.muted Дневные показатели · #{l(@period_from)} — #{l(@period_to)}
+
+  %table.table.table-bordered.table-hover
+    %thead
+      %tr
+        %th Дата
+        %th Выручка
+        %th Себестоимость
+        %th Валовая прибыль
+        %th Маржа
+        %th Наценка
+        %th Наличные
+        %th Безналичные
+        %th Не распределено
+    %tbody
+      - @branch[:days].sort_by { |day| day[:date] }.each do |day|
+        %tr
+          %td= l(day[:date])
+          %td= markup_money(day[:revenue])
+          %td= markup_money(day[:cost])
+          %td= markup_money(day[:gross_profit])
+          %td= markup_percent(day[:gross_margin])
+          %td= markup_percent(day[:markup])
+          %td= markup_money(day[:cash])
+          %td= markup_money(day[:noncash])
+          %td= markup_money(day[:unallocated])
+
+  .well
+    Наличные включают оплаты на карты сотрудников. Прибыль по способам оплаты на этой странице не показывается: доступный в источнике разрез является пропорциональной оценкой, а не фактической себестоимостью конкретных продаж.

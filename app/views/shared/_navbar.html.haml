@@ -76,6 +76,8 @@
         = menu_item "Снять статус 'запомнить паузу'", remember_pause_users_path if can?(:remember_pause, User)
 
       = drop_down t('.trade') do
+        = menu_item 'Dashborad', weekly_markup_dashboard_path if policy(:weekly_markup_dashboard).show?
+        = drop_down_divider if policy(:weekly_markup_dashboard).show?
         - trade_in_path = current_user.superadmin? ? trade_in_devices_path : new_trade_in_device_path
         = menu_item t('.trade_in'), trade_in_path
         = menu_item t('.trade_in_evaluation'), trade_in_device_evaluations_path

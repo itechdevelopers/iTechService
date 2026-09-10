@@ -7,6 +7,13 @@ Rails.application.routes.draw do
 
   root to: 'dashboard#index'
   get 'dashboard', to: 'dashboard#index'
+  resource :weekly_markup_dashboard, only: :show do
+    get :branch
+    get :download
+  end
+  namespace :api do
+    resources :weekly_markup_imports, only: :create
+  end
   get 'become/:id', to: 'dashboard#become', as: 'become'
   get 'actual_orders', to: 'dashboard#actual_orders'
   get 'actual_tasks', to: 'dashboard#actual_tasks'
