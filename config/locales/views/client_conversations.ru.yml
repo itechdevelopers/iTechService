@@ -19,6 +19,9 @@ ru:
         status: Статус
     show:
       back: К списку
+      channels:
+        telegram: Telegram
+    card:
       phone: Телефон
       department: Филиал
       department_unknown: не определён
@@ -30,8 +33,10 @@ ru:
       reply_placeholder: Напишите ответ…
       send: Отправить
       closed_note: Диалог закрыт — новые сообщения в него не отправляются.
-      channels:
-        telegram: Telegram
+      assign: Взять в работу
+      take_over: Перехватить
+      assigned_to_me: Диалог за вами
+      close: Закрыть диалог
       statuses:
         open: Открыт
         closed: Закрыт

@@ -113,8 +113,33 @@ class ClientConversation < ApplicationRecord
     ((closed_at || Time.current) - started_at).to_i
   end
 
+  # Взятие в работу и перехват — одно действие: диалог переходит к тому, кто
+  # нажал. Запрещать перехват нечего (отвечать всё равно может любой), но след
+  # в ленте остаётся, чтобы прежний ответственный понял, куда делся диалог.
+  def assign_to!(user)
+    return false if assigned_user_id == user&.id
+
+    previous = assigned_user
+    transaction do
+      update!(assigned_user: user)
+      add_system_message(assignment_note(previous, user))
+    end
+    true
+  end
+
+  # user пуст ⇒ закрыл не человек, а суточная тишина.
   def close!(user = nil)
-    update!(status: 'closed', closed_at: Time.current, closed_by: user)
+    transaction do
+      update!(status: 'closed', closed_at: Time.current, closed_by: user)
+      add_system_message(closing_note(user))
+    end
+  end
+
+  # Запись в ленте, которой клиент не увидит: отметки о взятии в работу и
+  # закрытии. delivery_status 'sent' здесь значит «доставлять нечего».
+  def add_system_message(text)
+    messages.create!(direction: 'out', kind: 'system', body: text,
+                     delivery_status: 'sent')
   end
 
   # Как показать собеседника: опознанный клиент, иначе то, что дал мессенджер.
@@ -132,6 +157,11 @@ class ClientConversation < ApplicationRecord
   # update_columns, а не update!: валидации тут нечего проверять, а лишний
   # save спровоцировал бы колбэки на каждое сообщение чата.
   def register_message(message)
+    # Служебные записи таймлайн не двигают. Иначе взятие диалога в работу
+    # обнуляло бы счётчик суточной тишины, и забытый диалог не закрылся бы
+    # автоматически; автоответ бота делал бы то же с ночным обращением.
+    return if message.system?
+
     attrs = { last_message_at: message.created_at, updated_at: Time.current }
 
     if message.inbound?
@@ -143,5 +173,23 @@ class ClientConversation < ApplicationRecord
     end
 
     update_columns(attrs)
+  end
+
+  private
+
+  def assignment_note(previous, current)
+    if current.nil?
+      "Диалог снят с сотрудника #{previous.short_name}"
+    elsif previous.nil?
+      "Диалог взят в работу: #{current.short_name}"
+    else
+      "Диалог перехвачен: #{current.short_name} (был за #{previous.short_name})"
+    end
+  end
+
+  def closing_note(user)
+    return "Диалог закрыт: #{user.short_name}" if user
+
+    'Диалог закрыт автоматически — сутки без сообщений'
   end
 end

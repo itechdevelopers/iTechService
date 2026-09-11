@@ -19,7 +19,7 @@ class ClientConversationsController < ApplicationController
 
   def show
     @conversation = find_record ClientConversation
-    @messages = @conversation.messages.chronological.includes(:user)
+    load_messages
   end
 
   # Ответ клиенту. Сообщение сначала ложится в ленту со статусом pending и
@@ -42,10 +42,30 @@ class ClientConversationsController < ApplicationController
     end
   end
 
+  # Взять в работу и перехватить — один экшен: разница только в том, был ли
+  # диалог за кем-то, и её отражает запись в ленте.
+  def assign
+    @conversation = find_record ClientConversation
+    @conversation.assign_to!(current_user)
+    load_messages
+    render :update_card
+  end
+
+  def close
+    @conversation = find_record ClientConversation
+    @conversation.close!(current_user) if @conversation.open?
+    load_messages
+    render :update_card
+  end
+
   private
 
   def reply_params
     params.fetch(:client_message, {}).permit(:body)
+  end
+
+  def load_messages
+    @messages = @conversation.messages.chronological.includes(:user)
   end
 
   def filtered_scope
@@ -75,7 +95,10 @@ class ClientConversationsController < ApplicationController
   def last_messages_for(conversations)
     return {} if conversations.empty?
 
+    # Служебные записи в колонку не годятся: сотруднику нужно видеть, что
+    # сказал клиент или что ответили ему, а не «диалог взят в работу».
     ids = ClientMessage.where(client_conversation_id: conversations.map(&:id))
+                       .where.not(kind: 'system')
                        .group(:client_conversation_id).maximum(:id)
     ClientMessage.where(id: ids.values).index_by(&:client_conversation_id)
   end

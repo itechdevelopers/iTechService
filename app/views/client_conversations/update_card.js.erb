@@ -1,0 +1,3 @@
+$('#client_chat_card').html('<%= j render "card", conversation: @conversation, messages: @messages %>');
+var feed = $('#client_chat_feed')[0];
+if (feed) { feed.scrollTop = feed.scrollHeight; }

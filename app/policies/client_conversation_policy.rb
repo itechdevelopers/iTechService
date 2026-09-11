@@ -18,6 +18,14 @@ class ClientConversationPolicy < ApplicationPolicy
     index?
   end
 
+  def assign?
+    index?
+  end
+
+  def close?
+    index?
+  end
+
   private
 
   # Location#is_media? — это code == 'content'. Роль `media` у пользователя —

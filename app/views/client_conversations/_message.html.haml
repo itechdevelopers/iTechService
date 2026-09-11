@@ -11,7 +11,10 @@
         = message.user.short_name
         = '·'
       = human_datetime message.created_at
-      - if message.delivery_status == 'pending'
-        %span= "· #{t('.pending')}"
-      - elsif message.delivery_status == 'failed'
-        %span.client-chat__failed= "· #{t('.failed')}"
+      -# Статус доставки — только у реплик. Служебные записи никуда не уходят,
+      -# и «отправляется» рядом с «диалог взят в работу» сбивало бы с толку.
+      - unless message.system?
+        - if message.delivery_status == 'pending'
+          %span= "· #{t('.pending')}"
+        - elsif message.delivery_status == 'failed'
+          %span.client-chat__failed= "· #{t('.failed')}"
