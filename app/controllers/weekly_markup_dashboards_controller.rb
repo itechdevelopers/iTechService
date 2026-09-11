@@ -50,11 +50,14 @@ class WeeklyMarkupDashboardsController < ApplicationController
 
   def build_csv(data)
     CSV.generate(headers: true) do |csv|
-      csv << %w[Дата Филиал Выручка_регистра Исключенные_операции Выручка_в_расчете Себестоимость Валовая_прибыль Наличные Безналичные Не_распределено]
+      csv << %w[Дата Филиал Выручка_регистра Исключенные_операции Выручка_в_расчете Себестоимость Прибыль_до_налога Налог_с_безналичных Прибыль_после_налога Наценка_до_налога Наценка_после_налога Наличные Безналичные Не_распределено]
       data[:branches].each do |branch|
         branch[:days].each do |day|
           csv << [day[:date], branch[:name], day[:source_revenue].to_s('F'), day[:excluded_operations_amount].to_s('F'),
-                  *%i[revenue cost gross_profit cash noncash unallocated].map { |key| day[key].to_s('F') }]
+                  *%i[revenue cost gross_profit_before_tax noncash_tax gross_profit markup_before_tax markup cash noncash unallocated].map do |key|
+                    value = day[key]
+                    value.nil? ? nil : value.to_s('F')
+                  end]
         end
       end
     end

@@ -42,6 +42,8 @@ RSpec.describe WeeklyMarkup::DashboardData do
 
   it 'shows excluded operations separately and removes them from profitability' do
     day = metric('2026-08-11', '130.00', '60.00')
+    day['cash'] = '100.00'
+    day['noncash'] = '30.00'
     products = [
       {'item_id' => 'goods', 'code' => '1', 'name' => 'Телефон', 'category' => 'Техника', 'days' => [
         {'date' => '2026-08-11', 'operation_count' => '1', 'quantity' => '1', 'revenue' => '100', 'cost' => '60', 'gross_profit' => '40'}]},
@@ -60,8 +62,12 @@ RSpec.describe WeeklyMarkup::DashboardData do
     result = described_class.new(from: Date.new(2026, 8, 11), to: Date.new(2026, 8, 11)).call
     expect(result[:source_totals][:revenue]).to eq(BigDecimal('130'))
     expect(result[:totals][:revenue]).to eq(BigDecimal('100'))
-    expect(result[:totals][:gross_profit]).to eq(BigDecimal('40'))
-    expect(result[:totals][:markup]).to eq(BigDecimal('40') / BigDecimal('60'))
+    expect(result[:totals][:gross_profit_before_tax]).to eq(BigDecimal('40'))
+    expect(result[:totals][:noncash_tax]).to eq(BigDecimal('3'))
+    expect(result[:totals][:gross_profit]).to eq(BigDecimal('37'))
+    expect(result[:totals][:markup_before_tax]).to eq(BigDecimal('40') / BigDecimal('60'))
+    expect(result[:totals][:markup]).to eq(BigDecimal('37') / BigDecimal('60'))
+    expect(result[:noncash_tax][:base]).to eq(BigDecimal('30'))
     expect(result[:excluded_operations][:operation_count]).to eq(BigDecimal('2'))
     expect(result[:excluded_operations][:amount]).to eq(BigDecimal('30'))
     expect(result[:branches].first[:total][:revenue]).to eq(BigDecimal('100'))

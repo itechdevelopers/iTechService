@@ -4,6 +4,8 @@ module WeeklyMarkup
   class DashboardData
     MONEY_KEYS = %w[revenue cost gross_profit cash noncash unallocated].freeze
     EXCLUDED_OPERATION_CODES = %w[00-00000377 00-00003075].freeze
+    NONCASH_TAX_RATE = BigDecimal('0.10').freeze
+    METHODOLOGY_VERSION = 'weekly-markup-dashboard-2.2.0'.freeze
 
     def initialize(from:, to:)
       @from, @to = from, to
@@ -27,9 +29,12 @@ module WeeklyMarkup
         totals: totals, weeks: build_weeks(days), months: build_months(days, chosen),
         source_totals: source_totals, excluded_operations: build_excluded_operations(excluded_products),
         categories: build_categories(included_products), products: included_products, category_a_products: category_a(included_products),
+        noncash_tax: build_noncash_tax_breakdown(totals), methodology_version: METHODOLOGY_VERSION,
         gross_margin_breakdown: {source_revenue: source_totals[:revenue], excluded_operations: totals[:excluded_operations_amount],
-                                 revenue: totals[:revenue], cost: totals[:cost], gross_profit: totals[:gross_profit],
-                                 formula: 'Валовая прибыль / Выручка', result: totals[:gross_margin]},
+                                 revenue: totals[:revenue], cost: totals[:cost],
+                                 gross_profit_before_tax: totals[:gross_profit_before_tax], noncash_tax: totals[:noncash_tax],
+                                 gross_profit: totals[:gross_profit], formula: 'Прибыль после налога / Выручка',
+                                 result: totals[:gross_margin]},
         missing_dates: days.select { |row| !row[:loaded] }.map { |row| row[:date] },
         incomplete_dates: days.select { |row| row[:incomplete] }.map { |row| row[:date] },
         preliminary_cost_dates: days.select { |row| row[:loaded] && !row[:cost_complete] }.map { |row| row[:date] },
@@ -173,8 +178,19 @@ module WeeklyMarkup
       result[:excluded_operations_amount] = excluded[:revenue]
       result[:revenue] -= excluded[:revenue]
       result[:cost] -= excluded[:cost]
-      result[:gross_profit] = result[:revenue] - result[:cost]
+      result[:gross_profit_before_tax] = result[:revenue] - result[:cost]
+      result[:gross_margin_before_tax] = percent(result[:gross_profit_before_tax], result[:revenue])
+      result[:markup_before_tax] = percent(result[:gross_profit_before_tax], result[:cost])
+      result[:noncash_tax] = source[:noncash] * NONCASH_TAX_RATE
+      result[:gross_profit] = result[:gross_profit_before_tax] - result[:noncash_tax]
       add_ratios(result)
+    end
+
+    def build_noncash_tax_breakdown(totals)
+      {base: totals[:noncash], rate: NONCASH_TAX_RATE, tax: totals[:noncash_tax],
+       gross_profit_before_tax: totals[:gross_profit_before_tax], gross_profit_after_tax: totals[:gross_profit],
+       gross_margin_before_tax: totals[:gross_margin_before_tax], gross_margin_after_tax: totals[:gross_margin],
+       markup_before_tax: totals[:markup_before_tax], markup_after_tax: totals[:markup]}
     end
 
     def build_excluded_operations(products)
@@ -196,6 +212,12 @@ module WeeklyMarkup
       if rows.any? { |row| row.key?(:source_revenue) }
         result[:source_revenue] = rows.sum(BigDecimal('0')) { |row| row[:source_revenue] || row[:revenue] }
         result[:excluded_operations_amount] = rows.sum(BigDecimal('0')) { |row| row[:excluded_operations_amount] || BigDecimal('0') }
+      end
+      if rows.any? { |row| row.key?(:noncash_tax) }
+        result[:gross_profit_before_tax] = rows.sum(BigDecimal('0')) { |row| row[:gross_profit_before_tax] || row[:gross_profit] }
+        result[:noncash_tax] = rows.sum(BigDecimal('0')) { |row| row[:noncash_tax] || BigDecimal('0') }
+        result[:gross_margin_before_tax] = percent(result[:gross_profit_before_tax], result[:revenue])
+        result[:markup_before_tax] = percent(result[:gross_profit_before_tax], result[:cost])
       end
       add_ratios(result)
     end

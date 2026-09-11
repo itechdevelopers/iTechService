@@ -6,7 +6,7 @@
   .weekly-markup-widgets
     = link_to details_weekly_markup_dashboard_path(from: @yearly_markup_summary[:drilldown_from], to: @yearly_markup_summary[:drilldown_to]), class: 'yearly-markup-widget' do
       .yearly-markup-widget__circle
-        .yearly-markup-widget__label Средняя наценка #{@yearly_markup_summary[:year]}
+        .yearly-markup-widget__label Средняя наценка после налога #{@yearly_markup_summary[:year]}
         .yearly-markup-widget__value= markup_percent(@yearly_markup_summary[:markup])
         .yearly-markup-widget__caption
           - if @yearly_markup_summary[:closed_months].positive?

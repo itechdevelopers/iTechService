@@ -48,20 +48,42 @@
 
 - totals = @dashboard[:totals]
 .weekly-markup-cards
-  - [['Выручка', :revenue], ['Себестоимость', :cost], ['Валовая прибыль', :gross_profit], ['Наличные', :cash], ['Безналичные', :noncash], ['Не распределено', :unallocated]].each do |label, key|
+  - [['Выручка', :revenue], ['Себестоимость', :cost], ['Прибыль до налога с Б/Н', :gross_profit_before_tax], ['Налог с Б/Н (10%)', :noncash_tax], ['Прибыль после налога', :gross_profit], ['Наличные', :cash], ['Безналичные', :noncash], ['Не распределено', :unallocated]].each do |label, key|
     .weekly-markup-card
       .weekly-markup-card__label= label
       .weekly-markup-card__value= markup_money(totals[key])
   .weekly-markup-card.weekly-markup-card--ratio
-    .weekly-markup-card__label Валовая маржа
+    .weekly-markup-card__label Маржа после налога
     .weekly-markup-card__value= markup_percent(totals[:gross_margin])
   .weekly-markup-card.weekly-markup-card--ratio
-    .weekly-markup-card__label Наценка
+    .weekly-markup-card__label Наценка после налога
     .weekly-markup-card__value= markup_percent(totals[:markup])
   .weekly-markup-card.weekly-markup-card--ratio
     .weekly-markup-card__label Доля наличных
     .weekly-markup-card__value= markup_percent(totals[:cash_share])
 %p.muted Наличные, безналичные и нераспределённые показывают полный оборот, включая вынесенные выше операции.
+
+%h3 Налог с безналичных оплат
+%table.table.table-bordered.weekly-markup-noncash-tax
+  %thead
+    %tr
+      %th Безналичные — база налога
+      %th Ставка
+      %th Прибыль до налога
+      %th Налог
+      %th Прибыль после налога
+      %th Наценка до налога
+      %th Наценка после налога
+  %tbody
+    %tr
+      %td= markup_money(@dashboard[:noncash_tax][:base])
+      %td= markup_percent(@dashboard[:noncash_tax][:rate])
+      %td= markup_money(@dashboard[:noncash_tax][:gross_profit_before_tax])
+      %td= markup_money(@dashboard[:noncash_tax][:tax])
+      %td= markup_money(@dashboard[:noncash_tax][:gross_profit_after_tax])
+      %td= markup_percent(@dashboard[:noncash_tax][:markup_before_tax])
+      %td= markup_percent(@dashboard[:noncash_tax][:markup_after_tax])
+%p.muted Налог равен 10% полного подтверждённого безналичного оборота. В базу входят карта, СБП, кредит и платежи по расчётному счёту, определённые утверждённым правилом.
 
 %h3 Расшифровка валовой маржи
 %table.table.table-bordered.weekly-markup-explanation
@@ -71,7 +93,9 @@
       %th Исключённые операции
       %th Выручка в расчёте
       %th Себестоимость
-      %th Валовая прибыль
+      %th Прибыль до налога
+      %th Налог с Б/Н
+      %th Прибыль после налога
       %th Расчёт
       %th Валовая маржа
   %tbody
@@ -80,8 +104,10 @@
       %td= markup_money(@dashboard[:gross_margin_breakdown][:excluded_operations])
       %td= markup_money(@dashboard[:gross_margin_breakdown][:revenue])
       %td= markup_money(@dashboard[:gross_margin_breakdown][:cost])
+      %td= markup_money(@dashboard[:gross_margin_breakdown][:gross_profit_before_tax])
+      %td= markup_money(@dashboard[:gross_margin_breakdown][:noncash_tax])
       %td= markup_money(@dashboard[:gross_margin_breakdown][:gross_profit])
-      %td Валовая прибыль ÷ выручка в расчёте
+      %td Прибыль после налога ÷ выручка в расчёте
       %td= markup_percent(@dashboard[:gross_margin_breakdown][:result])
 
 %h3 Динамика по месяцам
@@ -91,9 +117,12 @@
       %th Месяц
       %th Выручка
       %th Себестоимость
-      %th Валовая прибыль
-      %th Маржа
-      %th Наценка
+      %th Прибыль до налога
+      %th Налог с Б/Н
+      %th Прибыль после налога
+      %th Маржа после налога
+      %th Наценка до налога
+      %th Наценка после налога
       %th Наличные
       %th Доля наличных
       %th Статус
@@ -103,8 +132,11 @@
         %td= l(month[:from], format: '%B %Y')
         %td= markup_money(month[:totals][:revenue])
         %td= markup_money(month[:totals][:cost])
+        %td= markup_money(month[:totals][:gross_profit_before_tax])
+        %td= markup_money(month[:totals][:noncash_tax])
         %td= markup_money(month[:totals][:gross_profit])
         %td= markup_percent(month[:totals][:gross_margin])
+        %td= markup_percent(month[:totals][:markup_before_tax])
         %td= markup_percent(month[:totals][:markup])
         %td= markup_money(month[:totals][:cash])
         %td= markup_percent(month[:totals][:cash_share])
@@ -115,7 +147,7 @@
             %span.label.label-warning Предварительный
 
 %h3 Категории товаров
-%p.muted Категория определяется по верхней группе реальной иерархии номенклатуры 1С. Вынесенные операции в таблицу категорий не входят.
+%p.muted Категория определяется по верхней группе реальной иерархии номенклатуры 1С. Вынесенные операции в таблицу категорий не входят. Прибыль и наценка категорий показаны до налога с Б/Н: источник не связывает форму оплаты с конкретной товарной строкой.
 %table.table.table-bordered.table-hover
   %thead
     %tr
@@ -124,9 +156,9 @@
       %th Выручка
       %th Доля выручки
       %th Себестоимость
-      %th Валовая прибыль
-      %th Маржа
-      %th Наценка
+      %th Прибыль до налога
+      %th Маржа до налога
+      %th Наценка до налога
   %tbody
     - @dashboard[:categories].each do |category|
       %tr
@@ -139,7 +171,7 @@
         %td= markup_percent(category[:total][:gross_margin])
         %td= markup_percent(category[:total][:markup])
 
-%h3 Категория A — товары, дающие первые 80% положительной валовой прибыли
+%h3 Категория A — товары, дающие первые 80% положительной прибыли до налога с Б/Н
 %table.table.table-bordered.table-hover
   %thead
     %tr
@@ -148,8 +180,8 @@
       %th Категория
       %th Выручка
       %th Себестоимость
-      %th Валовая прибыль
-      %th Наценка
+      %th Прибыль до налога
+      %th Наценка до налога
       %th Вклад в прибыль
       %th Накопленный вклад
   %tbody
@@ -172,9 +204,12 @@
       %th Неделя
       %th Выручка
       %th Себестоимость
-      %th Валовая прибыль
-      %th Маржа
-      %th Наценка
+      %th Прибыль до налога
+      %th Налог с Б/Н
+      %th Прибыль после налога
+      %th Маржа после налога
+      %th Наценка до налога
+      %th Наценка после налога
       %th Статус
   %tbody
     - @dashboard[:weeks].each do |week|
@@ -182,8 +217,11 @@
         %td #{l(week[:from])} — #{l(week[:to])}
         %td= markup_money(week[:totals][:revenue])
         %td= markup_money(week[:totals][:cost])
+        %td= markup_money(week[:totals][:gross_profit_before_tax])
+        %td= markup_money(week[:totals][:noncash_tax])
         %td= markup_money(week[:totals][:gross_profit])
         %td= markup_percent(week[:totals][:gross_margin])
+        %td= markup_percent(week[:totals][:markup_before_tax])
         %td= markup_percent(week[:totals][:markup])
         %td
           - if week[:incomplete]
@@ -198,9 +236,12 @@
       %th Филиал
       %th Выручка
       %th Себестоимость
-      %th Валовая прибыль
-      %th Маржа
-      %th Наценка
+      %th Прибыль до налога
+      %th Налог с Б/Н
+      %th Прибыль после налога
+      %th Маржа после налога
+      %th Наценка до налога
+      %th Наценка после налога
       %th Наличные
       %th Безналичные
       %th Не распределено
@@ -210,8 +251,11 @@
         %td= link_to branch[:name], branch_weekly_markup_dashboard_path(warehouse_id: branch[:warehouse_id], from: @period_from, to: @period_to)
         %td= markup_money(branch[:total][:revenue])
         %td= markup_money(branch[:total][:cost])
+        %td= markup_money(branch[:total][:gross_profit_before_tax])
+        %td= markup_money(branch[:total][:noncash_tax])
         %td= markup_money(branch[:total][:gross_profit])
         %td= markup_percent(branch[:total][:gross_margin])
+        %td= markup_percent(branch[:total][:markup_before_tax])
         %td= markup_percent(branch[:total][:markup])
         %td= markup_money(branch[:total][:cash])
         %td= markup_money(branch[:total][:noncash])
@@ -219,7 +263,9 @@
 
 .well.weekly-markup-method
   %strong Методика.
-  Операции «Ремонт iOS устройств» и «Платное обновление» показаны отдельно и исключены из выручки и прибыли управленческого расчёта. Валовая маржа = валовая прибыль / выручка после исключения этих операций. Наценка = валовая прибыль / себестоимость. Общие проценты рассчитаны из общих сумм. Наличные включают оплаты на карты сотрудников. Платёжные показатели отражают полный оборот. Реализации с пустой ФормойОплаты и связанным заказом в статусе «КОбеспечению» относятся к безналичным платежам по расчётному счёту. Остальные неподтверждённые способы оплаты остаются в категории «Не распределено».
+  Операции «Ремонт iOS устройств» и «Платное обновление» показаны отдельно и исключены из выручки и прибыли управленческого расчёта. Из прибыли дополнительно вычитается налог 10% от всей подтверждённой безналичной оплаты. Итоговая маржа = прибыль после налога / выручка после исключения операций. Итоговая наценка = прибыль после налога / себестоимость. Общие проценты рассчитаны из общих сумм. Наличные включают оплаты на карты сотрудников. Платёжные показатели отражают полный оборот. Реализации с пустой ФормойОплаты и связанным заказом в статусе «КОбеспечению» относятся к безналичным платежам по расчётному счёту. Остальные неподтверждённые способы оплаты остаются в категории «Не распределено».
+  %br
+  Методика Dashboard: #{@dashboard[:methodology_version]}.
   - if @dashboard[:current_version]
     %br
     Версия методики: #{@dashboard[:current_version][:methodology_version]}; расчёт: #{@dashboard[:current_version][:calculated_at]}.
