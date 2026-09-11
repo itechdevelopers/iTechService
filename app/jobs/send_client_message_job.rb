@@ -1,5 +1,7 @@
 # frozen_string_literal: true
 
+require 'tempfile'
+
 # Доставка ответа сотрудника клиенту. Отдельно от SendTelegramMessageJob:
 # там адресат — чат по chat_id и терять нечего, кроме уведомления, а здесь у
 # сообщения есть строка в БД, которую сотрудник видит в ленте, и она обязана
@@ -28,12 +30,7 @@ class SendClientMessageJob < ApplicationJob
     message = ClientMessage.find_by(id: message_id)
     return if message.nil? || message.delivery_status == 'sent'
 
-    outcome = SendTelegramMessage.call(
-      chat_id: message.conversation.external_chat_id,
-      text: message.body,
-      bot: :client,
-      parse_mode: nil
-    )
+    outcome = message.photo? ? deliver_photo(message) : deliver_text(message)
 
     if outcome.success?
       message.update!(delivery_status: 'sent', sent_at: Time.current)
@@ -44,5 +41,31 @@ class SendClientMessageJob < ApplicationJob
     else
       message.update!(delivery_status: 'failed', delivery_error: outcome.result)
     end
+  end
+
+  private
+
+  def deliver_text(message)
+    SendTelegramMessage.call(chat_id: chat_id_for(message), text: message.body,
+                             bot: :client, parse_mode: nil)
+  end
+
+  # Файл лежит в облаке, а гем принимает открытый File — поэтому сначала
+  # выкачиваем во временный. Ссылкой не отдаём: бакет приватный, и полагаться
+  # на то, что Telegram до него дотянется, нельзя.
+  def deliver_photo(message)
+    tempfile = Tempfile.new(['client_out', File.extname(message.photo.path.to_s).presence || '.jpg'])
+    tempfile.binmode
+    tempfile.write(message.photo.file.read)
+    tempfile.rewind
+
+    SendTelegramMessage.call(chat_id: chat_id_for(message), text: message.body.to_s,
+                             bot: :client, parse_mode: nil, photo: tempfile)
+  ensure
+    tempfile&.close!
+  end
+
+  def chat_id_for(message)
+    message.conversation.external_chat_id
   end
 end

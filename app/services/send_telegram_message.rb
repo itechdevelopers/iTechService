@@ -32,11 +32,15 @@ class SendTelegramMessage
   # его нужно снимать (parse_mode: nil): текст печатает живой сотрудник, и
   # любое «цена < 5000» Telegram отвергнет как незакрытый тег — сообщение
   # не уйдёт, хотя выглядеть будет отправленным.
-  def initialize(chat_id:, text:, bot: :default, parse_mode: 'HTML')
+  # photo: открытый File/IO. Тогда уходит sendPhoto, а text становится
+  # подписью — у Telegram это разные методы, но для вызывающего это по-прежнему
+  # «отправить сообщение в чат».
+  def initialize(chat_id:, text:, bot: :default, parse_mode: 'HTML', photo: nil)
     @chat_id = chat_id
     @text = text
     @bot = bot
     @parse_mode = parse_mode
+    @photo = photo
     @result = nil
     @error = nil
   end
@@ -53,7 +57,7 @@ class SendTelegramMessage
     end
 
     begin
-      client.send_message(message_params)
+      @photo ? client.send_photo(photo_params) : client.send_message(message_params)
       @result = :success
     rescue Telegram::Bot::Error => e
       Rails.logger.error("[SendTelegramMessage] Telegram API error: #{e.message}")
@@ -85,6 +89,13 @@ class SendTelegramMessage
   def message_params
     params = { chat_id: @chat_id, text: @text }
     params[:parse_mode] = @parse_mode if @parse_mode.present?
+    params
+  end
+
+  def photo_params
+    params = { chat_id: @chat_id, photo: @photo }
+    params[:caption] = @text if @text.present?
+    params[:parse_mode] = @parse_mode if @parse_mode.present? && @text.present?
     params
   end
 end

@@ -37,8 +37,12 @@
     = render partial: 'message', collection: messages, as: :message
 
   - if conversation.open?
-    = form_tag reply_client_conversation_path(conversation), remote: true, class: 'client-chat__reply' do
+    -# multipart + remote: без файла уходит AJAX, с файлом jquery_ujs сам
+    -# переключается на обычную отправку — экшен отвечает и так, и так.
+    = form_tag reply_client_conversation_path(conversation), remote: true, multipart: true, class: 'client-chat__reply' do
       = text_area_tag 'client_message[body]', nil, id: 'client_reply_body', rows: 2, class: 'client-chat__reply-input', placeholder: t('.reply_placeholder')
-      = submit_tag t('.send'), class: 'btn btn-primary'
+      .client-chat__reply-controls
+        = file_field_tag 'client_message[photo]', accept: 'image/*', class: 'client-chat__reply-photo'
+        = submit_tag t('.send'), class: 'btn btn-primary'
   - else
     %p.muted.client-chat__closed-note= t('.closed_note')

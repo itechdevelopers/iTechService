@@ -29,16 +29,30 @@ class ClientConversationsController < ApplicationController
     @conversation = find_record ClientConversation
     body = reply_params[:body].to_s.strip
 
+    photo = reply_params[:photo]
+
     if @conversation.closed?
       @error = t('.conversation_closed')
-    elsif body.blank?
+    elsif body.blank? && photo.blank?
       @error = t('.empty_body')
     else
       @message = @conversation.messages.create!(
-        direction: 'out', kind: 'text', body: body,
+        direction: 'out', kind: photo.present? ? 'photo' : 'text',
+        body: body.presence, photo: photo,
         user: current_user, delivery_status: 'pending'
       )
       SendClientMessageJob.perform_later(@message.id)
+    end
+
+    # jquery_ujs отменяет AJAX, если в форме выбран файл, и отправляет её
+    # обычным способом — поэтому у экшена обязан быть HTML-ответ, иначе
+    # отправка фото падала бы с ActionView::MissingTemplate.
+    respond_to do |format|
+      format.js
+      format.html do
+        flash[:alert] = @error if @error
+        redirect_to client_conversation_path(@conversation)
+      end
     end
   end
 
@@ -61,7 +75,7 @@ class ClientConversationsController < ApplicationController
   private
 
   def reply_params
-    params.fetch(:client_message, {}).permit(:body)
+    params.fetch(:client_message, {}).permit(:body, :photo)
   end
 
   def load_messages
