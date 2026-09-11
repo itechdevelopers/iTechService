@@ -73,4 +73,37 @@ RSpec.describe WeeklyMarkup::DashboardData do
     expect(result[:branches].first[:total][:revenue]).to eq(BigDecimal('100'))
     expect(result[:categories].map { |row| row[:name] }).to eq(['Техника'])
   end
+
+  it 'includes a completed month with small cost issues as partially closed' do
+    days = (Date.new(2026, 8, 1)..Date.new(2026, 8, 31)).map { |date| metric(date.iso8601, '100', '60') }
+    zero_cost_goods = 4.times.map { |index| {'item_id' => "item-#{index}", 'code' => index.to_s, 'name' => "Товар #{index}"} }
+    WeeklyMarkupImport.create!(delivery_id: 'e' * 64, period_from: '2026-08-01', period_to: '2026-08-31',
+      calculated_at: Time.utc(2026, 9, 11), methodology_version: 'weekly-markup-2.3.0', status: 'successful',
+      payload: {'totals' => {'days' => days}, 'branches' => [], 'discrepancies' => [],
+                'checks' => {'cost_data_complete' => false, 'zero_cost_goods' => zero_cost_goods,
+                             'unfinished_cost_register_rows' => 3, 'zero_cost_revenue_dates' => []}})
+
+    allow(Date).to receive(:current).and_return(Date.new(2026, 9, 11))
+    month = described_class.new(from: Date.new(2026, 8, 1), to: Date.new(2026, 8, 31)).call[:months].first
+
+    expect(month[:status]).to eq('Закрыт, но не до конца')
+    expect(month[:eligible_for_yearly_markup]).to eq(true)
+    expect(month[:cost_quality]).to include(zero_cost_goods_count: 4, unfinished_cost_register_rows: 3)
+  end
+
+  it 'keeps a month preliminary when cost issues exceed the limits' do
+    days = (Date.new(2026, 8, 1)..Date.new(2026, 8, 31)).map { |date| metric(date.iso8601, '100', '60') }
+    zero_cost_goods = 5.times.map { |index| {'item_id' => "item-#{index}", 'code' => index.to_s, 'name' => "Товар #{index}"} }
+    WeeklyMarkupImport.create!(delivery_id: 'f' * 64, period_from: '2026-08-01', period_to: '2026-08-31',
+      calculated_at: Time.utc(2026, 9, 11), methodology_version: 'weekly-markup-2.3.0', status: 'successful',
+      payload: {'totals' => {'days' => days}, 'branches' => [], 'discrepancies' => [],
+                'checks' => {'cost_data_complete' => false, 'zero_cost_goods' => zero_cost_goods,
+                             'unfinished_cost_register_rows' => 0, 'zero_cost_revenue_dates' => []}})
+
+    allow(Date).to receive(:current).and_return(Date.new(2026, 9, 11))
+    month = described_class.new(from: Date.new(2026, 8, 1), to: Date.new(2026, 8, 31)).call[:months].first
+
+    expect(month[:status]).to eq('Предварительный')
+    expect(month[:eligible_for_yearly_markup]).to eq(false)
+  end
 end

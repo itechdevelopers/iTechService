@@ -72,3 +72,13 @@
 .yearly-markup-widget__label { font-size: 14px; color: #60717d; }
 .yearly-markup-widget__value { font-size: 33px; font-weight: 700; margin: 7px 0; }
 .yearly-markup-widget__caption { font-size: 12px; color: #60717d; }
+.yearly-markup-widget__previous {
+  border-top: 1px solid rgba(96, 113, 125, .25);
+  color: #3e5665;
+  font-size: 12px;
+  margin-top: 7px;
+  padding-top: 6px;
+}
+.yearly-markup-widget__previous strong { display: block; font-size: 17px; color: #17384f; }
+.yearly-markup-widget__previous small { display: block; font-size: 10px; }
+.month-cost-quality { display: block; margin-top: 4px; color: #60717d; }

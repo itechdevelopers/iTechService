@@ -5,7 +5,9 @@ module WeeklyMarkup
     MONEY_KEYS = %w[revenue cost gross_profit cash noncash unallocated].freeze
     EXCLUDED_OPERATION_CODES = %w[00-00000377 00-00003075].freeze
     NONCASH_TAX_RATE = BigDecimal('0.10').freeze
-    METHODOLOGY_VERSION = 'weekly-markup-dashboard-2.2.0'.freeze
+    PARTIAL_CLOSE_ZERO_COST_GOODS_LIMIT = 4
+    PARTIAL_CLOSE_UNFINISHED_COST_ROWS_LIMIT = 3
+    METHODOLOGY_VERSION = 'weekly-markup-dashboard-2.3.0'.freeze
 
     def initialize(from:, to:)
       @from, @to = from, to
@@ -257,9 +259,36 @@ module WeeklyMarkup
       days.group_by { |row| row[:date].beginning_of_month }.map do |month_start, rows|
         month_end = month_start.end_of_month
         complete_dates = (month_start..month_end).all? { |day| chosen[day] && rows.any? { |row| row[:date] == day && row[:loaded] } }
-        closed = complete_dates && month_end < Date.current && rows.none? { |row| row[:incomplete] || !row[:cost_complete] }
-        {from: month_start, to: month_end, totals: sum_metrics(rows), closed: closed, status: closed ? 'Закрыт' : 'Предварительный'}
+        sources = rows.filter_map { |row| chosen[row[:date]] }.uniq
+        quality = month_cost_quality(sources)
+        calendar_complete = complete_dates && month_end < Date.current && rows.none? { |row| row[:incomplete] }
+        within_partial_limits = quality[:known] && quality[:zero_cost_goods_count] <= PARTIAL_CLOSE_ZERO_COST_GOODS_LIMIT &&
+          quality[:unfinished_cost_register_rows] <= PARTIAL_CLOSE_UNFINISHED_COST_ROWS_LIMIT &&
+          quality[:zero_cost_revenue_dates].zero?
+        fully_closed = calendar_complete && within_partial_limits && quality[:zero_cost_goods_count].zero? &&
+          quality[:unfinished_cost_register_rows].zero?
+        partially_closed = calendar_complete && within_partial_limits && !fully_closed
+        status = fully_closed ? 'Закрыт' : partially_closed ? 'Закрыт, но не до конца' : 'Предварительный'
+        {from: month_start, to: month_end, totals: sum_metrics(rows), closed: fully_closed,
+         partially_closed: partially_closed, eligible_for_yearly_markup: fully_closed || partially_closed,
+         status: status, cost_quality: quality}
       end
+    end
+
+    def month_cost_quality(sources)
+      checks = sources.map { |source| source.payload.fetch('checks', {}) }
+      detailed_or_complete = checks.all? do |check|
+        check['cost_data_complete'] == true ||
+          (check.key?('zero_cost_goods') && check.key?('unfinished_cost_register_rows') && check.key?('zero_cost_revenue_dates'))
+      end
+      goods = checks.flat_map { |check| Array(check['zero_cost_goods']) }
+      goods_ids = goods.map { |item| item['item_id'].presence || item['code'].presence || item['name'] }.compact.uniq
+      {
+        known: detailed_or_complete,
+        zero_cost_goods_count: goods_ids.size,
+        unfinished_cost_register_rows: checks.sum { |check| check['unfinished_cost_register_rows'].to_i },
+        zero_cost_revenue_dates: checks.flat_map { |check| Array(check['zero_cost_revenue_dates']) }.uniq.size
+      }
     end
 
     def collect_discrepancies(chosen)

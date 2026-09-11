@@ -10,7 +10,12 @@
         .yearly-markup-widget__value= markup_percent(@yearly_markup_summary[:markup])
         .yearly-markup-widget__caption
           - if @yearly_markup_summary[:closed_months].positive?
-            #{@yearly_markup_summary[:closed_months]} закр. мес. · до #{l(@yearly_markup_summary[:through])}
+            #{@yearly_markup_summary[:closed_months]} учтённых мес. · до #{l(@yearly_markup_summary[:through])}
           - else
             Нет закрытых месяцев
+        - if @yearly_markup_summary[:previous_month]
+          .yearly-markup-widget__previous
+            Наценка за #{l(@yearly_markup_summary[:previous_month][:from], format: '%B')}
+            %strong= markup_percent(@yearly_markup_summary[:previous_month][:markup])
+            %small= @yearly_markup_summary[:previous_month][:status]
       .yearly-markup-widget__action Открыть подробный отчёт
