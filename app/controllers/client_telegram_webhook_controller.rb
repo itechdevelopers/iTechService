@@ -47,7 +47,7 @@ class ClientTelegramWebhookController < Telegram::Bot::UpdatesController
     # не класть в ленту пустую реплику.
     return if text.blank?
 
-    after_inbound(store_inbound(message, kind: 'text', body: text))
+    handle_inbound(message, kind: 'text', body: text)
   end
 
   def callback_query(data)
@@ -105,17 +105,24 @@ class ClientTelegramWebhookController < Telegram::Bot::UpdatesController
   def store_photo(message)
     # Telegram присылает несколько размеров одного фото, последний — крупнейший.
     file_id = message['photo'].last['file_id']
-    record = store_inbound(message, kind: 'photo', body: message['caption'].presence)
+    record = handle_inbound(message, kind: 'photo', body: message['caption'].presence)
     AttachClientPhotoJob.perform_later(record.id, file_id) if record
-    after_inbound(record)
   end
 
-  # Автоответ шлём только на новое входящее: повторная доставка апдейта её не
-  # вызывает, потому что store_inbound в таком случае возвращает nil.
-  def after_inbound(record)
-    return if record.nil?
+  # Побочные эффекты нового входящего. Повторная доставка апдейта сюда не
+  # доходит: store_inbound в таком случае возвращает nil.
+  #
+  # was_awaiting снимаем ДО создания записи: после неё диалог ждёт ответа в
+  # любом случае, и отличить «клиент написал впервые» от «клиент дописывает
+  # четвёртое сообщение подряд» было бы уже нечем.
+  def handle_inbound(message, kind:, body:)
+    was_awaiting = conversation.awaiting_reply?
+    record = store_inbound(message, kind: kind, body: body)
+    return nil if record.nil?
 
     ClientChat::AutoReply.call(conversation)
+    conversation.notify_new_message(record) unless was_awaiting
+    record
   end
 
   def store_inbound(message, kind:, body:)

@@ -73,6 +73,12 @@ class ClientConversation < ApplicationRecord
     "#{hours / 24} д #{hours % 24} ч"
   end
 
+  # Диалоги ведёт локация Медиа. Location#is_media? — это code == 'content';
+  # роль `media` у пользователя это другая сущность и сюда не относится.
+  def self.notification_recipients
+    User.active.staff.located_at(Location.content)
+  end
+
   def self.open_for(channel, external_chat_id)
     opened.find_by(channel: channel, external_chat_id: external_chat_id)
   end
@@ -135,6 +141,27 @@ class ClientConversation < ApplicationRecord
     end
   end
 
+  # Колокольчик о новом сообщении. Зовём ТОЛЬКО когда диалог переходит в
+  # состояние «ждёт ответа» (первое сообщение или сообщение после нашего
+  # ответа): клиент, приславший пять реплик подряд, иначе выдал бы по пять
+  # уведомлений каждому медийщику.
+  #
+  # Ответственный получает уведомление, даже если сидит не в Медиа, — иначе
+  # взятый в работу диалог перестал бы до него доходить.
+  def notify_new_message(message)
+    recipients = (self.class.notification_recipients.to_a + [assigned_user]).compact.uniq
+    return if recipients.empty?
+
+    text = notification_text(message)
+    url = Rails.application.routes.url_helpers.client_conversation_path(self)
+
+    recipients.each do |recipient|
+      notification = Notification.create!(user: recipient, message: text,
+                                          url: url, referenceable: self)
+      UserNotificationChannel.broadcast_to(recipient, notification)
+    end
+  end
+
   # Запись в ленте, которой клиент не увидит: отметки о взятии в работу и
   # закрытии. delivery_status 'sent' здесь значит «доставлять нечего».
   def add_system_message(text)
@@ -176,6 +203,11 @@ class ClientConversation < ApplicationRecord
   end
 
   private
+
+  def notification_text(message)
+    snippet = message.body.presence || '[фото]'
+    "Сообщение от клиента (#{contact_title}): #{snippet.to_s.truncate(80)}"
+  end
 
   def assignment_note(previous, current)
     if current.nil?
