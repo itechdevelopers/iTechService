@@ -33,9 +33,9 @@ RSpec.describe WeeklyMarkup::Import do
 
   it 'validates exact product analytics totals' do
     report['sales_analytics'] = {'products' => [{
-      'item_id' => 'item-1', 'days' => [{'date' => '2026-08-11', 'quantity' => '1',
+      'item_id' => 'item-1', 'days' => [{'date' => '2026-08-11', 'operation_count' => '1', 'quantity' => '1',
         'revenue' => '100.00', 'cost' => '60.00', 'gross_profit' => '40.00'}],
-      'total' => {'quantity' => '1', 'revenue' => '100.00', 'cost' => '60.00', 'gross_profit' => '40.00'}
+      'total' => {'operation_count' => '1', 'quantity' => '1', 'revenue' => '100.00', 'cost' => '60.00', 'gross_profit' => '40.00'}
     }]}
     expect { described_class.call(delivery_id: delivery_id, report: report) }.not_to raise_error
   end

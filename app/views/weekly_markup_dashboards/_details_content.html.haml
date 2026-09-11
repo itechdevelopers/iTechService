@@ -23,6 +23,28 @@
   = link_to 'JSON', download_weekly_markup_dashboard_path(from: @period_from, to: @period_to, format: :json), class: 'btn'
   = link_to 'CSV', download_weekly_markup_dashboard_path(from: @period_from, to: @period_to, format: :csv), class: 'btn'
 
+%h3 Операции, исключённые из расчёта рентабельности
+%p.muted Эти операции учитываются в полном обороте и оплатах, но не входят в выручку, прибыль, валовую маржу и наценку ниже.
+%table.table.table-bordered.weekly-markup-excluded-operations
+  %thead
+    %tr
+      %th Код
+      %th Операция
+      %th Количество операций
+      %th Сумма
+  %tbody
+    - @dashboard[:excluded_operations][:rows].each do |operation|
+      %tr
+        %td= operation[:code]
+        %td= operation[:name]
+        %td= markup_quantity(operation[:operation_count])
+        %td= markup_money(operation[:amount])
+  %tfoot
+    %tr
+      %th{colspan: 2} Итого исключено
+      %th= markup_quantity(@dashboard[:excluded_operations][:operation_count])
+      %th= markup_money(@dashboard[:excluded_operations][:amount])
+
 - totals = @dashboard[:totals]
 .weekly-markup-cards
   - [['Выручка', :revenue], ['Себестоимость', :cost], ['Валовая прибыль', :gross_profit], ['Наличные', :cash], ['Безналичные', :noncash], ['Не распределено', :unallocated]].each do |label, key|
@@ -38,22 +60,27 @@
   .weekly-markup-card.weekly-markup-card--ratio
     .weekly-markup-card__label Доля наличных
     .weekly-markup-card__value= markup_percent(totals[:cash_share])
+%p.muted Наличные, безналичные и нераспределённые показывают полный оборот, включая вынесенные выше операции.
 
 %h3 Расшифровка валовой маржи
 %table.table.table-bordered.weekly-markup-explanation
   %thead
     %tr
-      %th Выручка
+      %th Выручка регистра
+      %th Исключённые операции
+      %th Выручка в расчёте
       %th Себестоимость
       %th Валовая прибыль
       %th Расчёт
       %th Валовая маржа
   %tbody
     %tr
+      %td= markup_money(@dashboard[:gross_margin_breakdown][:source_revenue])
+      %td= markup_money(@dashboard[:gross_margin_breakdown][:excluded_operations])
       %td= markup_money(@dashboard[:gross_margin_breakdown][:revenue])
       %td= markup_money(@dashboard[:gross_margin_breakdown][:cost])
       %td= markup_money(@dashboard[:gross_margin_breakdown][:gross_profit])
-      %td Валовая прибыль ÷ выручка
+      %td Валовая прибыль ÷ выручка в расчёте
       %td= markup_percent(@dashboard[:gross_margin_breakdown][:result])
 
 %h3 Динамика по месяцам
@@ -87,7 +114,7 @@
             %span.label.label-warning Предварительный
 
 %h3 Категории товаров
-%p.muted Категория определяется по верхней группе реальной иерархии номенклатуры 1С.
+%p.muted Категория определяется по верхней группе реальной иерархии номенклатуры 1С. Вынесенные операции в таблицу категорий не входят.
 %table.table.table-bordered.table-hover
   %thead
     %tr
@@ -191,7 +218,7 @@
 
 .well.weekly-markup-method
   %strong Методика.
-  Валовая маржа = валовая прибыль / выручка. Наценка = валовая прибыль / себестоимость. Общие проценты рассчитаны из общих сумм. Наличные включают оплаты на карты сотрудников. Реализации с пустой ФормойОплаты и связанным заказом в статусе «КОбеспечению» относятся к безналичным платежам по расчётному счёту. Остальные неподтверждённые способы оплаты остаются в категории «Не распределено».
+  Операции «Ремонт iOS устройств» и «Платное обновление» показаны отдельно и исключены из выручки и прибыли управленческого расчёта. Валовая маржа = валовая прибыль / выручка после исключения этих операций. Наценка = валовая прибыль / себестоимость. Общие проценты рассчитаны из общих сумм. Наличные включают оплаты на карты сотрудников. Платёжные показатели отражают полный оборот. Реализации с пустой ФормойОплаты и связанным заказом в статусе «КОбеспечению» относятся к безналичным платежам по расчётному счёту. Остальные неподтверждённые способы оплаты остаются в категории «Не распределено».
   - if @dashboard[:current_version]
     %br
     Версия методики: #{@dashboard[:current_version][:methodology_version]}; расчёт: #{@dashboard[:current_version][:calculated_at]}.

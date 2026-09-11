@@ -3,6 +3,7 @@ require 'bigdecimal'
 module WeeklyMarkup
   class DashboardData
     MONEY_KEYS = %w[revenue cost gross_profit cash noncash unallocated].freeze
+    EXCLUDED_OPERATION_CODES = %w[00-00000377 00-00003075].freeze
 
     def initialize(from:, to:)
       @from, @to = from, to
@@ -11,17 +12,23 @@ module WeeklyMarkup
     def call
       imports = WeeklyMarkupImport.successful.overlapping(from, to).newest_first.to_a
       chosen = choose_imports(imports)
-      days = (from..to).map { |day| build_day(day, chosen[day]) }
+      source_days = (from..to).map { |day| build_day(day, chosen[day]) }
       products = build_products(chosen)
+      excluded_products = products.select { |product| excluded_operation?(product) }
+      days = apply_day_exclusions(source_days, excluded_products)
+      included_products = products.reject { |product| excluded_operation?(product) }
       successful = chosen.values.compact.uniq
       latest_success = successful.max_by(&:calculated_at)
       latest_failure = WeeklyMarkupImport.failed.newest_first.first
       totals = sum_metrics(days)
+      source_totals = sum_metrics(source_days)
       {
-        period: {from: from, to: to}, days: days, branches: build_branches(chosen),
+        period: {from: from, to: to}, days: days, branches: build_branches(chosen, excluded_products),
         totals: totals, weeks: build_weeks(days), months: build_months(days, chosen),
-        categories: build_categories(products), products: products, category_a_products: category_a(products),
-        gross_margin_breakdown: {revenue: totals[:revenue], cost: totals[:cost], gross_profit: totals[:gross_profit],
+        source_totals: source_totals, excluded_operations: build_excluded_operations(excluded_products),
+        categories: build_categories(included_products), products: included_products, category_a_products: category_a(included_products),
+        gross_margin_breakdown: {source_revenue: source_totals[:revenue], excluded_operations: totals[:excluded_operations_amount],
+                                 revenue: totals[:revenue], cost: totals[:cost], gross_profit: totals[:gross_profit],
                                  formula: 'Валовая прибыль / Выручка', result: totals[:gross_margin]},
         missing_dates: days.select { |row| !row[:loaded] }.map { |row| row[:date] },
         incomplete_dates: days.select { |row| row[:incomplete] }.map { |row| row[:date] },
@@ -53,7 +60,14 @@ module WeeklyMarkup
                          import_id: source.id)
     end
 
-    def build_branches(chosen)
+    def build_branches(chosen, excluded_products)
+      exclusions = excluded_products.each_with_object(Hash.new { |hash, key| hash[key] = empty_product_metrics }) do |product, index|
+        product.fetch(:branches, []).each do |branch|
+          branch[:days].each do |day|
+            add_product_metrics(index[[branch[:warehouse_id], day[:date]]], day)
+          end
+        end
+      end
       rows = {}
       chosen.each do |day, source|
         next unless source
@@ -61,7 +75,10 @@ module WeeklyMarkup
           id = branch['warehouse_id'].to_s
           entry = (rows[id] ||= {warehouse_id: id, name: branch['name'], days: []})
           raw = branch.fetch('days', []).find { |item| item['date'] == day.iso8601 }
-          entry[:days] << metrics(raw).merge(date: day, loaded: true) if raw
+          if raw
+            source = metrics(raw).merge(date: day, loaded: true)
+            entry[:days] << adjust_profitability(source, exclusions[[id, day]])
+          end
         end
       end
       rows.values.each { |entry| entry[:total] = sum_metrics(entry[:days]) }
@@ -77,11 +94,24 @@ module WeeklyMarkup
           next unless raw
           id = product['item_id'].to_s
           entry = (rows[id] ||= {item_id: id, code: product['code'], name: product['name'], item_type: product['item_type'],
-                                  category: product['category'].presence || 'Без группы', category_path: product['category_path'], days: []})
+                                  category: product['category'].presence || 'Без группы', category_path: product['category_path'],
+                                  excluded_from_profitability: product['excluded_from_profitability'] == true,
+                                  days: [], branches: {}})
           entry[:days] << product_metrics(raw).merge(date: day)
+          product.fetch('branches', []).each do |branch|
+            branch_raw = branch.fetch('days', []).find { |item| item['date'] == day.iso8601 }
+            next unless branch_raw
+            branch_id = branch['warehouse_id'].to_s
+            branch_entry = (entry[:branches][branch_id] ||= {warehouse_id: branch_id, days: []})
+            branch_entry[:days] << product_metrics(branch_raw).merge(date: day)
+          end
         end
       end
-      rows.values.each { |entry| entry[:total] = sum_product_metrics(entry[:days]) }
+      rows.values.each do |entry|
+        entry[:total] = sum_product_metrics(entry[:days])
+        entry[:branches] = entry[:branches].values
+        entry[:branches].each { |branch| branch[:total] = sum_product_metrics(branch[:days]) }
+      end
       rows.values.sort_by { |entry| [-entry[:total][:gross_profit], entry[:name].to_s] }
     end
 
@@ -112,9 +142,48 @@ module WeeklyMarkup
     end
 
     def product_metrics(row)
-      result = {quantity: decimal(row['quantity']), revenue: decimal(row['revenue']), cost: decimal(row['cost']),
+      result = {operation_count: decimal(row['operation_count']), quantity: decimal(row['quantity']), revenue: decimal(row['revenue']), cost: decimal(row['cost']),
                 gross_profit: decimal(row['gross_profit'])}
       add_ratios(result)
+    end
+
+    def empty_product_metrics
+      {operation_count: BigDecimal('0'), quantity: BigDecimal('0'), revenue: BigDecimal('0'), cost: BigDecimal('0'), gross_profit: BigDecimal('0')}
+    end
+
+    def add_product_metrics(target, source)
+      empty_product_metrics.keys.each { |key| target[key] += source[key] }
+      target
+    end
+
+    def excluded_operation?(product)
+      product[:excluded_from_profitability] || EXCLUDED_OPERATION_CODES.include?(product[:code])
+    end
+
+    def apply_day_exclusions(source_days, excluded_products)
+      by_day = excluded_products.each_with_object(Hash.new { |hash, key| hash[key] = empty_product_metrics }) do |product, index|
+        product[:days].each { |day| add_product_metrics(index[day[:date]], day) }
+      end
+      source_days.map { |day| adjust_profitability(day, by_day[day[:date]]) }
+    end
+
+    def adjust_profitability(source, excluded)
+      result = source.dup
+      result[:source_revenue] = source[:revenue]
+      result[:excluded_operations_amount] = excluded[:revenue]
+      result[:revenue] -= excluded[:revenue]
+      result[:cost] -= excluded[:cost]
+      result[:gross_profit] = result[:revenue] - result[:cost]
+      add_ratios(result)
+    end
+
+    def build_excluded_operations(products)
+      rows = products.map do |product|
+        {code: product[:code], name: product[:name], operation_count: product[:total][:operation_count],
+         source_quantity: product[:total][:quantity], amount: product[:total][:revenue]}
+      end.sort_by { |row| row[:code] }
+      {rows: rows, operation_count: rows.sum(BigDecimal('0')) { |row| row[:operation_count] },
+       amount: rows.sum(BigDecimal('0')) { |row| row[:amount] }}
     end
 
     def empty_metrics
@@ -124,11 +193,15 @@ module WeeklyMarkup
     def sum_metrics(rows)
       result = empty_metrics
       rows.select { |row| row[:loaded] != false }.each { |row| MONEY_KEYS.each { |key| result[key.to_sym] += row[key.to_sym] } }
+      if rows.any? { |row| row.key?(:source_revenue) }
+        result[:source_revenue] = rows.sum(BigDecimal('0')) { |row| row[:source_revenue] || row[:revenue] }
+        result[:excluded_operations_amount] = rows.sum(BigDecimal('0')) { |row| row[:excluded_operations_amount] || BigDecimal('0') }
+      end
       add_ratios(result)
     end
 
     def sum_product_metrics(rows)
-      result = {quantity: BigDecimal('0'), revenue: BigDecimal('0'), cost: BigDecimal('0'), gross_profit: BigDecimal('0')}
+      result = {operation_count: BigDecimal('0'), quantity: BigDecimal('0'), revenue: BigDecimal('0'), cost: BigDecimal('0'), gross_profit: BigDecimal('0')}
       rows.each { |row| result.keys.each { |key| result[key] += row[key] } }
       add_ratios(result)
     end
@@ -136,7 +209,7 @@ module WeeklyMarkup
     def add_ratios(result)
       result[:gross_margin] = percent(result[:gross_profit], result[:revenue])
       result[:markup] = percent(result[:gross_profit], result[:cost])
-      result[:cash_share] = percent(result[:cash], result[:revenue]) if result.key?(:cash)
+      result[:cash_share] = percent(result[:cash], result[:source_revenue] || result[:revenue]) if result.key?(:cash)
       result
     end
 
