@@ -117,3 +117,9 @@ review_source_alerts_digest:
   class: 'ReviewSourceAlertsDigestJob'
   queue: 'default'
   active_job: true
+
+close_stale_client_conversations:
+  cron: '15 * * * * Asia/Vladivostok'
+  class: 'CloseStaleClientConversationsJob'
+  queue: 'default'
+  active_job: true
