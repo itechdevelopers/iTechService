@@ -17,6 +17,11 @@ class ClientConversationsController < ApplicationController
     @last_messages = last_messages_for(@conversations)
   end
 
+  def show
+    @conversation = find_record ClientConversation
+    @messages = @conversation.messages.chronological.includes(:user)
+  end
+
   private
 
   def filtered_scope

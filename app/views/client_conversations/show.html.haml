@@ -1,0 +1,33 @@
+.page-header
+  = link_to t('.back'), client_conversations_path, class: 'btn pull-right'
+  %h2
+    = @conversation.contact_title
+    %small= t(".channels.#{@conversation.channel}", default: @conversation.channel)
+
+.client-chat
+  %dl.client-chat__header-facts
+    - if @conversation.client
+      %dt= ClientConversation.human_attribute_name(:client)
+      %dd= link_to @conversation.client.short_name, client_path(@conversation.client)
+    - if @conversation.contact_phone.present?
+      %dt= t('.phone')
+      %dd= @conversation.contact_phone
+    %dt= t('.department')
+    %dd= @conversation.department&.full_name || t('.department_unknown')
+    %dt= t('.assigned')
+    %dd= @conversation.assigned_user&.short_name || t('.nobody')
+    %dt= t('.status')
+    %dd
+      - if @conversation.open?
+        = t('.statuses.open')
+      - else
+        = t('.statuses.closed')
+        = "(#{ClientConversation.human_duration(@conversation.duration_seconds)})"
+    - if @conversation.first_reply_seconds
+      %dt= t('.first_reply')
+      %dd= ClientConversation.human_duration(@conversation.first_reply_seconds)
+
+  #client_chat_feed.client-chat__feed
+    - if @messages.empty?
+      %p.muted= t('.empty')
+    = render partial: 'message', collection: @messages, as: :message

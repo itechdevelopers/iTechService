@@ -4,7 +4,7 @@
 - overdue = waiting.present? && waiting > ClientConversation::WAITING_ALERT
 %tr{ id: "client_conversation_#{conversation.id}" }
   %td
-    = conversation.contact_title
+    = link_to conversation.contact_title, client_conversation_path(conversation)
     - if conversation.client
       %br
       %small= link_to conversation.client.short_name, client_path(conversation.client)

@@ -1,0 +1,82 @@
+// Лента переписки с клиентом. Префикс блока уникален намеренно: селекторы
+// вроде .message или .chat зацепили бы внутренний чат сотрудников и модалки.
+.client-chat {
+  &__feed {
+    max-height: 60vh;
+    overflow-y: auto;
+    padding: 10px 14px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    background: #f7f7f7;
+  }
+
+  &__row {
+    display: block;
+    margin-bottom: 10px;
+    overflow: hidden;
+  }
+
+  &__bubble {
+    display: inline-block;
+    max-width: 70%;
+    padding: 6px 10px;
+    border-radius: 10px;
+    background: #fff;
+    border: 1px solid #dcdcdc;
+    white-space: pre-wrap;
+    word-wrap: break-word;
+  }
+
+  // Исходящие — справа, чтобы направление читалось без подписей.
+  &__row--out {
+    text-align: right;
+
+    .client-chat__bubble {
+      text-align: left;
+      background: #dff0d8;
+      border-color: #c6e0b4;
+    }
+  }
+
+  // Служебные записи (взят в работу, автоответ, автозакрытие) клиенту не
+  // уходят и в ленте не должны выглядеть репликой.
+  &__row--system {
+    text-align: center;
+
+    .client-chat__bubble {
+      max-width: 90%;
+      background: transparent;
+      border: 0;
+      color: #999;
+      font-size: 12px;
+      font-style: italic;
+    }
+  }
+
+  &__meta {
+    display: block;
+    margin-top: 2px;
+    font-size: 11px;
+    color: #999;
+  }
+
+  &__failed {
+    color: #b94a48;
+  }
+
+  &__header-facts {
+    margin-bottom: 12px;
+
+    dt {
+      float: left;
+      clear: left;
+      width: 170px;
+      color: #777;
+      font-weight: normal;
+    }
+
+    dd {
+      margin-left: 180px;
+    }
+  }
+}

@@ -1,0 +1,17 @@
+-# Одна реплика ленты. Служебные записи (kind: system) клиенту не уходят —
+-# это автоответ бота и отметки о взятии в работу и закрытии.
+- modifier = message.system? ? 'system' : message.direction
+%div{ class: "client-chat__row client-chat__row--#{modifier}", id: "client_message_#{message.id}" }
+  %span.client-chat__bubble
+    - if message.photo?
+      = t('.photo')
+    = message.body
+    %span.client-chat__meta
+      - if message.from_employee?
+        = message.user.short_name
+        = '·'
+      = human_datetime message.created_at
+      - if message.delivery_status == 'pending'
+        %span= "· #{t('.pending')}"
+      - elsif message.delivery_status == 'failed'
+        %span.client-chat__failed= "· #{t('.failed')}"

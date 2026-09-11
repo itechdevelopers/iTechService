@@ -17,6 +17,25 @@ ru:
         first_reply: Время первого ответа
         assigned: Кто ведёт
         status: Статус
+    show:
+      back: К списку
+      phone: Телефон
+      department: Филиал
+      department_unknown: не определён
+      assigned: Кто ведёт
+      nobody: никто
+      status: Статус
+      first_reply: Время первого ответа
+      empty: Сообщений пока нет.
+      channels:
+        telegram: Telegram
+      statuses:
+        open: Открыт
+        closed: Закрыт
+    message:
+      photo: "[фото]"
+      pending: отправляется
+      failed: не доставлено
     conversation:
       photo: "[фото]"
       no_messages: Сообщений ещё не было
