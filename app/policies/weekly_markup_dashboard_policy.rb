@@ -4,6 +4,7 @@ class WeeklyMarkupDashboardPolicy < ApplicationPolicy
   end
 
   alias index? show?
+  alias details? show?
   alias branch? show?
   alias download? show?
 end

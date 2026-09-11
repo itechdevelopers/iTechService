@@ -8,6 +8,7 @@ Rails.application.routes.draw do
   root to: 'dashboard#index'
   get 'dashboard', to: 'dashboard#index'
   resource :weekly_markup_dashboard, only: :show do
+    get :details
     get :branch
     get :download
   end

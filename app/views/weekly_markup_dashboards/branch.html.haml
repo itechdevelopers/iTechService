@@ -1,6 +1,6 @@
 .weekly-markup-dashboard
   .page-header
-    = link_to '← Все филиалы', weekly_markup_dashboard_path(from: @period_from, to: @period_to), class: 'btn pull-right'
+    = link_to '← Все филиалы', details_weekly_markup_dashboard_path(from: @period_from, to: @period_to), class: 'btn pull-right'
     %h2= @branch[:name]
     %p.muted Дневные показатели · #{l(@period_from)} — #{l(@period_to)}
 

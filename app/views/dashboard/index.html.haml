@@ -1,14 +1,3 @@
-- if @yearly_markup_summary
-  = link_to weekly_markup_dashboard_path(from: @yearly_markup_summary[:drilldown_from], to: @yearly_markup_summary[:drilldown_to]), class: 'yearly-markup-widget' do
-    .yearly-markup-widget__circle
-      .yearly-markup-widget__label Средняя наценка #{@yearly_markup_summary[:year]}
-      .yearly-markup-widget__value= markup_percent(@yearly_markup_summary[:markup])
-      .yearly-markup-widget__caption
-        - if @yearly_markup_summary[:closed_months].positive?
-          #{@yearly_markup_summary[:closed_months]} закр. мес. · до #{l(@yearly_markup_summary[:through])}
-        - else
-          Нет закрытых месяцев
-
 %h4
   %ul#dashboard_navigation.nav.nav-pills
     - if current_user.marketing?

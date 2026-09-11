@@ -2,9 +2,13 @@ require 'csv'
 
 class WeeklyMarkupDashboardsController < ApplicationController
   before_action :authorize_dashboard
-  before_action :set_period
+  before_action :set_period, only: %i[details branch download]
 
   def show
+    @yearly_markup_summary = WeeklyMarkup::YearSummary.new.call
+  end
+
+  def details
     @dashboard = dashboard_data
   end
 
@@ -37,7 +41,7 @@ class WeeklyMarkupDashboardsController < ApplicationController
     @period_to = params[:to].present? ? Date.iso8601(params[:to]) : default_to
     raise ArgumentError, 'Некорректный период' if @period_to < @period_from || (@period_to - @period_from).to_i > 366
   rescue ArgumentError
-    redirect_to weekly_markup_dashboard_path, alert: 'Некорректный период.'
+    redirect_to details_weekly_markup_dashboard_path, alert: 'Некорректный период.'
   end
 
   def dashboard_data

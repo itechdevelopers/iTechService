@@ -9,6 +9,9 @@
   .weekly-markup-filter label:first-child { margin-left: 0; }
 }
 
+.weekly-markup-dashboard--overview { min-height: 520px; }
+.weekly-markup-widgets { display: flex; flex-wrap: wrap; gap: 24px; align-items: flex-start; }
+
 .weekly-markup-cards {
   display: flex;
   flex-wrap: wrap;
@@ -39,6 +42,13 @@
   margin: 0 0 18px;
   color: #17384f;
   text-decoration: none;
+}
+
+.yearly-markup-widget__action {
+  margin-top: 10px;
+  text-align: center;
+  color: #337ab7;
+  font-weight: 600;
 }
 
 .yearly-markup-widget:hover { color: #17384f; text-decoration: none; }
