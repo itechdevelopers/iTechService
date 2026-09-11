@@ -47,7 +47,7 @@ class ClientTelegramWebhookController < Telegram::Bot::UpdatesController
     # не класть в ленту пустую реплику.
     return if text.blank?
 
-    store_inbound(message, kind: 'text', body: text)
+    after_inbound(store_inbound(message, kind: 'text', body: text))
   end
 
   def callback_query(data)
@@ -107,6 +107,15 @@ class ClientTelegramWebhookController < Telegram::Bot::UpdatesController
     file_id = message['photo'].last['file_id']
     record = store_inbound(message, kind: 'photo', body: message['caption'].presence)
     AttachClientPhotoJob.perform_later(record.id, file_id) if record
+    after_inbound(record)
+  end
+
+  # Автоответ шлём только на новое входящее: повторная доставка апдейта её не
+  # вызывает, потому что store_inbound в таком случае возвращает nil.
+  def after_inbound(record)
+    return if record.nil?
+
+    ClientChat::AutoReply.call(conversation)
   end
 
   def store_inbound(message, kind:, body:)
