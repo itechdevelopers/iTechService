@@ -90,6 +90,9 @@ Rails.application.routes.draw do
   resources :marker_words, only: %i[index create destroy]
   resources :phone_labels, only: %i[index create destroy]
   telegram_webhook TelegramWebhookController if ENV['TELEGRAM_BOT_TOKEN'].present?
+  # Второй бот переименовывает роуты в default_/client_telegram_webhook, но путь
+  # строится из хэша токена и не меняется — вебхук в Telegram перенастраивать не надо.
+  telegram_webhook ClientTelegramWebhookController, :client if ENV['CLIENT_TELEGRAM_BOT_TOKEN'].present?
   resources :telegram_bot_settings, only: %i[index]
   resources :telegram_chats, only: %i[new create edit update destroy]
   resources :telegram_broadcasts, except: %i[show] do

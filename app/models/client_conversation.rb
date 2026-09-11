@@ -38,10 +38,15 @@ class ClientConversation < ApplicationRecord
   # класс-метод `open`, конфликтующий с Kernel#open.
   scope :opened, -> { where(status: 'open') }
   scope :closed, -> { where(status: 'closed') }
-  scope :recent, -> { order(last_message_at: :desc) }
+  # COALESCE, а не голый last_message_at: диалог заводится на /start, до первого
+  # сообщения, и пустой всплыл бы в начало списка (в Postgres NULL идёт первым
+  # при DESC) и никогда не попал бы в :stale (NULL <= X даёт NULL, не true).
+  scope :recent, -> { order(Arel.sql('COALESCE(last_message_at, created_at) DESC')) }
   scope :in_channel, ->(channel) { where(channel: channel) }
   scope :assigned_to, ->(user) { where(assigned_user_id: user) }
-  scope :stale, -> { opened.where('last_message_at <= ?', STALE_AFTER.ago) }
+  scope :stale, lambda {
+    opened.where('COALESCE(last_message_at, created_at) <= ?', STALE_AFTER.ago)
+  }
 
   # Ждут ответа: есть входящее новее последнего ответа сотрудника. Считаем
   # именно по last_reply_at, а не по last_message_at: автоответ вне рабочих

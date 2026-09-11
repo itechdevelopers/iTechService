@@ -1,18 +1,29 @@
 # frozen_string_literal: true
 
-if ENV['TELEGRAM_BOT_TOKEN'].present?
-  Telegram.bots_config = { default: ENV['TELEGRAM_BOT_TOKEN'] }
+# Два независимых бота:
+#   :default — служебный, привязывает сотрудников и принимает от них медиа
+#              (TelegramWebhookController)
+#   :client  — публичный, через него пишут клиенты
+#              (ClientTelegramWebhookController)
+# Каждый поднимается только при своём токене: без него приложение работает,
+# просто соответствующий бот не отвечает.
+telegram_bots = {
+  default: ENV['TELEGRAM_BOT_TOKEN'],
+  client: ENV['CLIENT_TELEGRAM_BOT_TOKEN']
+}.reject { |_key, token| token.blank? }
 
-  # Telegram::Bot::Client builds a bare HTTPClient.new, whose default connect
-  # timeout is 60 seconds. Every outgoing call shares that single client:
-  # respond_with inside the webhook, get_file in TelegramPhotoAttachJob and all
-  # personal notifications via SendTelegramMessage. While the channel to
-  # api.telegram.org degrades each of them hangs for a full minute — long
-  # enough for Telegram to consider the webhook undelivered and re-send the
-  # update (duplicate photos), and long enough for a job to burn its retry
-  # budget on waiting instead of retrying.
+if telegram_bots.any?
+  Telegram.bots_config = telegram_bots
+
+  # Telegram::Bot::Client строит голый HTTPClient.new, у которого таймаут
+  # соединения по умолчанию 60 секунд, и этот клиент общий на все исходящие
+  # вызовы бота: respond_with внутри вебхука, get_file при скачивании медиа,
+  # личные уведомления. Пока канал до api.telegram.org деградирует, каждый из
+  # них висит целую минуту — достаточно, чтобы Telegram счёл вебхук
+  # недоставленным и пере-прислал апдейт, и чтобы джоба спалила бюджет ретраев
+  # на ожидание вместо повтора.
   #
-  # receive_timeout is left at the default: send_animation pushes multi-megabyte
-  # files through this same client and needs the headroom.
-  Telegram.bot.client.connect_timeout = 10
+  # receive_timeout оставлен по умолчанию: send_animation протаскивает через
+  # тот же клиент многомегабайтные файлы, ему нужен запас.
+  Telegram.bots.each_value { |bot| bot.client.connect_timeout = 10 }
 end
