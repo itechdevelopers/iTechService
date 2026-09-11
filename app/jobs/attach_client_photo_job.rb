@@ -49,6 +49,9 @@ class AttachClientPhotoJob < ApplicationJob
 
     message.photo = tempfile
     message.save!
+    # Реплика уже в ленте с пометкой «загружается» — досылаем её же, чтобы
+    # открытая карточка подменила пометку картинкой.
+    ClientConversationChannel.broadcast_message(message)
   ensure
     tempfile&.close!
   end

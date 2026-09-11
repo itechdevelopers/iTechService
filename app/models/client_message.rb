@@ -31,6 +31,7 @@ class ClientMessage < ApplicationRecord
   scope :from_employees, -> { outbound.where.not(kind: 'system', user_id: nil) }
 
   after_create :register_in_conversation
+  after_create :broadcast_to_feed
 
   def inbound?
     direction == 'in'
@@ -59,5 +60,9 @@ class ClientMessage < ApplicationRecord
 
   def register_in_conversation
     conversation.register_message(self)
+  end
+
+  def broadcast_to_feed
+    ClientConversationChannel.broadcast_message(self)
   end
 end

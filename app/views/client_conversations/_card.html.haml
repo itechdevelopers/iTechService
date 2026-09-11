@@ -31,7 +31,7 @@
         = link_to t('.assign'), assign_client_conversation_path(conversation), method: :post, remote: true, class: 'btn btn-small btn-primary'
       = link_to t('.close'), close_client_conversation_path(conversation), method: :post, remote: true, class: 'btn btn-small'
 
-  #client_chat_feed.client-chat__feed
+  #client_chat_feed.client-chat__feed{ data: { conversation_id: conversation.id } }
     - if messages.empty?
       %p.muted= t('.empty')
     = render partial: 'message', collection: messages, as: :message
