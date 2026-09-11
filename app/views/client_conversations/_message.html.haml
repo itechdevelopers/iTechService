@@ -3,8 +3,13 @@
 - modifier = message.system? ? 'system' : message.direction
 %div{ class: "client-chat__row client-chat__row--#{modifier}", id: "client_message_#{message.id}" }
   %span.client-chat__bubble
+    -# Картинка появляется, когда AttachClientPhotoJob её догрузит; до этого
+    -# в ленте стоит пометка — иначе реплика выглядела бы пустой.
     - if message.photo?
-      = t('.photo')
+      = link_to message.photo.file.authenticated_url(expires_in: 600), target: '_blank' do
+        = image_tag message.photo.file.authenticated_url(expires_in: 600), class: 'client-chat__photo'
+    - elsif message.photo_kind?
+      %span.muted= t('.photo_pending')
     = message.body
     %span.client-chat__meta
       - if message.from_employee?

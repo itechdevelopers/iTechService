@@ -44,7 +44,7 @@ ru:
       empty_body: Сообщение пустое — писать нечего.
       conversation_closed: Диалог уже закрыт, ответ не отправлен.
     message:
-      photo: "[фото]"
+      photo_pending: "[фото загружается…]"
       pending: отправляется
       failed: не доставлено
     conversation:

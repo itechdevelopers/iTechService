@@ -40,12 +40,14 @@ class ClientTelegramWebhookController < Telegram::Bot::UpdatesController
   end
 
   def message(message)
+    return store_photo(message) if message['photo'].present?
+
     text = message['text'].to_s.strip
-    # Фото и прочие вложения — отдельный цикл; молча пропускаем, чтобы не
-    # записать в ленту пустое сообщение.
+    # Голосовые, файлы, стикеры пока не поддержаны — молча пропускаем, чтобы
+    # не класть в ленту пустую реплику.
     return if text.blank?
 
-    store_inbound(message, text)
+    store_inbound(message, kind: 'text', body: text)
   end
 
   def callback_query(data)
@@ -97,14 +99,24 @@ class ClientTelegramWebhookController < Telegram::Bot::UpdatesController
     Department.real.find_by(code: code.delete_prefix(DEEP_LINK_PREFIX))
   end
 
-  def store_inbound(message, text)
+  # Фото кладём в ленту сразу, а файл догружаем джобой: строка нужна здесь и
+  # сейчас (иначе повторная доставка апдейта создала бы второе сообщение), а
+  # скачивание не укладывается в время ответа вебхука.
+  def store_photo(message)
+    # Telegram присылает несколько размеров одного фото, последний — крупнейший.
+    file_id = message['photo'].last['file_id']
+    record = store_inbound(message, kind: 'photo', body: message['caption'].presence)
+    AttachClientPhotoJob.perform_later(record.id, file_id) if record
+  end
+
+  def store_inbound(message, kind:, body:)
     external_id = message['message_id'].to_s
     return if conversation.messages.exists?(external_id: external_id)
 
     conversation.messages.create!(
       direction: 'in',
-      kind: 'text',
-      body: text,
+      kind: kind,
+      body: body,
       external_id: external_id,
       # Входящее доставлено самим фактом прихода апдейта; delivery_status
       # осмыслен только для исходящих.

@@ -13,11 +13,17 @@ class ClientMessage < ApplicationRecord
   # Пусто у входящих и у автоответов бота — см. #from_employee?.
   belongs_to :user, optional: true
 
+  # photo? принадлежит CarrierWave («файл приложен»). Признак вида сообщения
+  # называется photo_kind? — иначе одно молча затирало бы другое, и валидация
+  # ниже начала бы требовать скачанный файл там, где строка создаётся сразу,
+  # а картинка приезжает фоновой джобой.
+  mount_uploader :photo, ClientMessagePhotoUploader
+
   validates :direction, inclusion: { in: DIRECTIONS }
   validates :kind, inclusion: { in: KINDS }
   validates :delivery_status, inclusion: { in: DELIVERY_STATUSES }
   # Фото клиент присылает и без подписи, остальным сообщениям текст обязателен.
-  validates :body, presence: true, unless: :photo?
+  validates :body, presence: true, unless: :photo_kind?
 
   scope :chronological, -> { order(:created_at) }
   scope :inbound, -> { where(direction: 'in') }
@@ -38,7 +44,7 @@ class ClientMessage < ApplicationRecord
     kind == 'system'
   end
 
-  def photo?
+  def photo_kind?
     kind == 'photo'
   end
 

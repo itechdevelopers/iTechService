@@ -98,3 +98,11 @@
 .client-chat__actions {
   margin-bottom: 10px;
 }
+
+.client-chat__photo {
+  display: block;
+  max-width: 260px;
+  max-height: 260px;
+  margin-bottom: 4px;
+  border-radius: 6px;
+}
