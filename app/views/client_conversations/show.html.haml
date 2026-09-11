@@ -31,3 +31,10 @@
     - if @messages.empty?
       %p.muted= t('.empty')
     = render partial: 'message', collection: @messages, as: :message
+
+  - if @conversation.open?
+    = form_tag reply_client_conversation_path(@conversation), remote: true, class: 'client-chat__reply' do
+      = text_area_tag 'client_message[body]', nil, id: 'client_reply_body', rows: 2, class: 'client-chat__reply-input', placeholder: t('.reply_placeholder')
+      = submit_tag t('.send'), class: 'btn btn-primary'
+  - else
+    %p.muted.client-chat__closed-note= t('.closed_note')

@@ -80,3 +80,17 @@
     }
   }
 }
+
+.client-chat__reply {
+  margin-top: 12px;
+}
+
+.client-chat__reply-input {
+  width: 100%;
+  box-sizing: border-box;
+  resize: vertical;
+}
+
+.client-chat__closed-note {
+  margin-top: 12px;
+}

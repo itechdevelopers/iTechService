@@ -1,0 +1,8 @@
+<% if @error %>
+App.Notification.show('<%= j @error %>', 'alert');
+<% else %>
+$('#client_chat_feed').append('<%= j render "message", message: @message %>');
+var feed = $('#client_chat_feed')[0];
+feed.scrollTop = feed.scrollHeight;
+$('#client_reply_body').val('');
+<% end %>

@@ -25,16 +25,25 @@ class SendTelegramMessage
     TRANSIENT_ERRORS.any? { |klass| error.is_a?(klass) }
   end
 
-  def initialize(chat_id:, text:)
+  # bot: ключ из Telegram.bots_config. :default — служебный бот, :client —
+  # публичный, через который идёт переписка с клиентами.
+  #
+  # parse_mode: 'HTML' безопасен, пока текст пишем мы сами. Для ответа клиенту
+  # его нужно снимать (parse_mode: nil): текст печатает живой сотрудник, и
+  # любое «цена < 5000» Telegram отвергнет как незакрытый тег — сообщение
+  # не уйдёт, хотя выглядеть будет отправленным.
+  def initialize(chat_id:, text:, bot: :default, parse_mode: 'HTML')
     @chat_id = chat_id
     @text = text
+    @bot = bot
+    @parse_mode = parse_mode
     @result = nil
     @error = nil
   end
 
   def send_message
-    unless configured?
-      @result = 'Telegram бот не настроен (TELEGRAM_BOT_TOKEN отсутствует)'
+    unless client
+      @result = "Telegram бот :#{@bot} не настроен (нет токена в окружении)"
       return self
     end
 
@@ -44,11 +53,7 @@ class SendTelegramMessage
     end
 
     begin
-      Telegram.bot.send_message(
-        chat_id: @chat_id,
-        text: @text,
-        parse_mode: 'HTML'
-      )
+      client.send_message(message_params)
       @result = :success
     rescue Telegram::Bot::Error => e
       Rails.logger.error("[SendTelegramMessage] Telegram API error: #{e.message}")
@@ -69,7 +74,17 @@ class SendTelegramMessage
 
   private
 
-  def configured?
-    ENV['TELEGRAM_BOT_TOKEN'].present?
+  def client
+    return @client if defined?(@client)
+
+    @client = Telegram.bots[@bot]
+  end
+
+  # parse_mode кладём в запрос только когда он задан: с nil Telegram получил бы
+  # пустой режим разбора вместо обычного текста.
+  def message_params
+    params = { chat_id: @chat_id, text: @text }
+    params[:parse_mode] = @parse_mode if @parse_mode.present?
+    params
   end
 end

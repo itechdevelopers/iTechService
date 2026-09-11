@@ -11,6 +11,13 @@ class ClientConversationPolicy < ApplicationPolicy
     index?
   end
 
+  # Ответить может любой, у кого есть доступ, даже не взяв диалог в работу:
+  # назначение нужно, чтобы двое не отвечали разом, а не чтобы запрещать.
+  # Автор всё равно фиксируется на каждом сообщении.
+  def reply?
+    index?
+  end
+
   private
 
   # Location#is_media? — это code == 'content'. Роль `media` у пользователя —

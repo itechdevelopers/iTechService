@@ -22,7 +22,31 @@ class ClientConversationsController < ApplicationController
     @messages = @conversation.messages.chronological.includes(:user)
   end
 
+  # Ответ клиенту. Сообщение сначала ложится в ленту со статусом pending и
+  # только потом уходит джобом — сотрудник видит свою реплику сразу, а её
+  # судьбу («не доставлено») узнаёт из той же строки.
+  def reply
+    @conversation = find_record ClientConversation
+    body = reply_params[:body].to_s.strip
+
+    if @conversation.closed?
+      @error = t('.conversation_closed')
+    elsif body.blank?
+      @error = t('.empty_body')
+    else
+      @message = @conversation.messages.create!(
+        direction: 'out', kind: 'text', body: body,
+        user: current_user, delivery_status: 'pending'
+      )
+      SendClientMessageJob.perform_later(@message.id)
+    end
+  end
+
   private
+
+  def reply_params
+    params.fetch(:client_message, {}).permit(:body)
+  end
 
   def filtered_scope
     scope =

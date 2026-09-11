@@ -27,11 +27,17 @@ ru:
       status: Статус
       first_reply: Время первого ответа
       empty: Сообщений пока нет.
+      reply_placeholder: Напишите ответ…
+      send: Отправить
+      closed_note: Диалог закрыт — новые сообщения в него не отправляются.
       channels:
         telegram: Telegram
       statuses:
         open: Открыт
         closed: Закрыт
+    reply:
+      empty_body: Сообщение пустое — писать нечего.
+      conversation_closed: Диалог уже закрыт, ответ не отправлен.
     message:
       photo: "[фото]"
       pending: отправляется
