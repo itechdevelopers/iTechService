@@ -17,6 +17,19 @@ class ClientTelegramWebhookController < Telegram::Bot::UpdatesController
   # что и /city.
   CHANGE_BRANCH = 'dep:change'
   GREETING = 'Здравствуйте! Напишите свой вопрос — сотрудник ответит здесь же.'
+  # Вложения, которые мы пока не показываем в Айсе. Порядок важен: Telegram
+  # кладёт анимацию и видеосообщение рядом с document/video, и разобрать их
+  # надо раньше более общих ключей.
+  UNSUPPORTED = {
+    'voice' => 'голосовые сообщения',
+    'video_note' => 'видеосообщения',
+    'animation' => 'анимации',
+    'video' => 'видео',
+    'audio' => 'аудиофайлы',
+    'sticker' => 'стикеры',
+    'location' => 'геопозицию',
+    'document' => 'файлы'
+  }.freeze
 
   def start!(payload = nil, *)
     department = department_from_payload(payload)
@@ -40,11 +53,13 @@ class ClientTelegramWebhookController < Telegram::Bot::UpdatesController
   end
 
   def message(message)
+    return store_contact(message) if message['contact'].present?
     return store_photo(message) if message['photo'].present?
 
+    unsupported = UNSUPPORTED.keys.detect { |key| message[key].present? }
+    return store_unsupported(message, unsupported) if unsupported
+
     text = message['text'].to_s.strip
-    # Голосовые, файлы, стикеры пока не поддержаны — молча пропускаем, чтобы
-    # не класть в ленту пустую реплику.
     return if text.blank?
 
     handle_inbound(message, kind: 'text', body: text)
@@ -107,6 +122,46 @@ class ClientTelegramWebhookController < Telegram::Bot::UpdatesController
     file_id = message['photo'].last['file_id']
     record = handle_inbound(message, kind: 'photo', body: message['caption'].presence)
     AttachClientPhotoJob.perform_later(record.id, file_id) if record
+  end
+
+  # Вложение, которое мы пока не умеем показывать. Строку в ленту всё равно
+  # кладём — иначе сотрудник не узнает, что клиент вообще писал, а клиент
+  # будет ждать ответа на сообщение, которого для нас не существовало.
+  def store_unsupported(message, key)
+    label = UNSUPPORTED[key]
+    body = ["[клиент прислал: #{label}]", message['caption'].presence].compact.join(' ')
+    return if handle_inbound(message, kind: 'text', body: body).nil?
+
+    respond_with :message,
+                 text: "Мы пока не умеем открывать #{label}. Опишите вопрос " \
+                       'текстом или пришлите фото.'
+  end
+
+  # Клиент поделился контактом. Телефон — единственный способ связать диалог с
+  # карточкой клиента: Telegram номер сам по себе не отдаёт.
+  def store_contact(message)
+    phone = PhoneNormalizer.normalize(message['contact']['phone_number'])
+    return if phone.blank?
+
+    conversation.update!(contact_phone: phone)
+    bind_client(phone)
+    return if handle_inbound(message, kind: 'text', body: "[клиент прислал номер: #{phone}]").nil?
+
+    respond_with :message, text: 'Спасибо, номер сохранён.'
+  end
+
+  # Опознанный клиент подтягивает и филиал — но только если тот ещё не задан:
+  # deep link точнее, он говорит, куда человек обратился сейчас, а не куда
+  # приносил устройство в прошлый раз.
+  def bind_client(phone)
+    client = Client.find_by(full_phone_number: phone)
+    return if client.nil?
+
+    attrs = { client: client }
+    if conversation.department.nil?
+      attrs[:department] = client.service_jobs.order(created_at: :desc).first&.department
+    end
+    conversation.update!(attrs.compact)
   end
 
   # Побочные эффекты нового входящего. Повторная доставка апдейта сюда не

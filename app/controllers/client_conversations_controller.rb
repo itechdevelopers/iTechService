@@ -12,8 +12,8 @@ class ClientConversationsController < ApplicationController
     @filter = FILTERS.include?(params[:filter]) ? params[:filter] : FILTERS.first
     @departments = Department.real
     @counts = filter_counts
-    @conversations = filtered_scope.includes(:client, :department, :assigned_user)
-                                   .recent.limit(PER_PAGE).to_a
+    @conversations = ordered(filtered_scope).includes(:client, :department, :assigned_user)
+                                            .limit(PER_PAGE).to_a
     @last_messages = last_messages_for(@conversations)
   end
 
@@ -93,6 +93,12 @@ class ClientConversationsController < ApplicationController
 
     scope = scope.where(department_id: params[:department_id]) if params[:department_id].present?
     scope
+  end
+
+  # «Без ответа» — рабочая очередь, наверх поднимается тот, кто ждёт дольше
+  # всех. Остальные вкладки справочные, там естественнее свежие сверху.
+  def ordered(scope)
+    @filter == 'awaiting' ? scope.order(last_inbound_at: :asc) : scope.recent
   end
 
   def filter_counts
