@@ -1,0 +1,34 @@
+-# Строка списка диалогов. last_message приходит из контроллера предзагруженным,
+-# брать conversation.messages.last здесь нельзя — это N+1 на каждую строку.
+- waiting = conversation.waiting_seconds
+- overdue = waiting.present? && waiting > ClientConversation::WAITING_ALERT
+%tr{ id: "client_conversation_#{conversation.id}" }
+  %td
+    = conversation.contact_title
+    - if conversation.client
+      %br
+      %small= link_to conversation.client.short_name, client_path(conversation.client)
+    %br
+    %small.muted= t(".channels.#{conversation.channel}", default: conversation.channel)
+  %td= conversation.department&.full_name
+  %td
+    - if last_message
+      - own = last_message.outbound?
+      %span{ class: ('muted' if own) }
+        = truncate(last_message.body.presence || t('.photo'), length: 60)
+      %br
+      %small.muted= human_datetime last_message.created_at
+    - else
+      %small.muted= t('.no_messages')
+  %td
+    - if waiting
+      %span{ class: ('label label-important' if overdue) }= ClientConversation.human_duration(waiting)
+  %td= ClientConversation.human_duration(conversation.first_reply_seconds)
+  %td= conversation.assigned_user&.short_name
+  %td
+    - if conversation.open?
+      %span.label.label-info= t('.statuses.open')
+    - else
+      %span.label= t('.statuses.closed')
+      %br
+      %small.muted= ClientConversation.human_duration(conversation.duration_seconds)

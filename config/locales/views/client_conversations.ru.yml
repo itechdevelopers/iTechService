@@ -1,0 +1,27 @@
+ru:
+  client_conversations:
+    index:
+      title: Диалоги с клиентами
+      empty: Диалогов пока нет.
+      all_departments: Все филиалы
+      filters:
+        awaiting: Без ответа
+        mine: Мои
+        open: Все открытые
+        closed: Закрытые
+      columns:
+        contact: Клиент
+        department: Филиал
+        last_message: Последнее сообщение
+        waiting: Ждёт ответа
+        first_reply: Время первого ответа
+        assigned: Кто ведёт
+        status: Статус
+    conversation:
+      photo: "[фото]"
+      no_messages: Сообщений ещё не было
+      channels:
+        telegram: Telegram
+      statuses:
+        open: Открыт
+        closed: Закрыт

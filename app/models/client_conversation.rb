@@ -57,6 +57,22 @@ class ClientConversation < ApplicationRecord
           .where('last_reply_at IS NULL OR last_reply_at < last_inbound_at')
   }
 
+  # Человекочитаемая длительность для списка: секунды → «12 мин», «3 ч 20 мин».
+  # Формат на уровне модели — как DepartmentWorkingHours#time_range: значение
+  # показывается в нескольких местах и должно выглядеть одинаково.
+  def self.human_duration(seconds)
+    return nil if seconds.blank?
+    return "#{seconds} с" if seconds < 60
+
+    minutes = seconds / 60
+    return "#{minutes} мин" if minutes < 60
+
+    hours = minutes / 60
+    return "#{hours} ч #{minutes % 60} мин" if hours < 24
+
+    "#{hours / 24} д #{hours % 24} ч"
+  end
+
   def self.open_for(channel, external_chat_id)
     opened.find_by(channel: channel, external_chat_id: external_chat_id)
   end
