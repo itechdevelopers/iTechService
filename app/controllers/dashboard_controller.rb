@@ -4,6 +4,7 @@ class DashboardController < ApplicationController
   helper_method :sort_column, :sort_direction
 
   def index
+    @yearly_markup_summary = WeeklyMarkup::YearSummary.new.call if current_user.superadmin?
     if current_user.marketing?
       load_actual_orders
       @table_name = 'orders_table'

@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20260909105018) do
+ActiveRecord::Schema.define(version: 20260910120000) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -2846,6 +2846,22 @@ ActiveRecord::Schema.define(version: 20260909105018) do
     t.index ["client_id"], name: "index_waiting_clients_on_client_id"
     t.index ["elqueue_window_id"], name: "index_waiting_clients_on_elqueue_window_id"
     t.index ["queue_item_id"], name: "index_waiting_clients_on_queue_item_id"
+  end
+
+  create_table "weekly_markup_imports", force: :cascade do |t|
+    t.string "delivery_id", null: false
+    t.date "period_from", null: false
+    t.date "period_to", null: false
+    t.datetime "calculated_at", null: false
+    t.string "methodology_version", null: false
+    t.string "status", null: false
+    t.jsonb "payload", default: {}, null: false
+    t.text "error_message"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["calculated_at"], name: "index_weekly_markup_imports_on_calculated_at"
+    t.index ["delivery_id"], name: "index_weekly_markup_imports_on_delivery_id", unique: true
+    t.index ["status", "period_from", "period_to"], name: "index_weekly_markup_imports_for_dashboard"
   end
 
   create_table "wiki_documents", force: :cascade do |t|

@@ -72,6 +72,8 @@ module WeeklyMarkup
         invalid!("branches total #{key}") unless cents(sum) == cents(decimal(totals[key], "totals.#{key}"))
       end
 
+      validate_sales_analytics!(report['sales_analytics'], from, to) if report['sales_analytics']
+
       {delivery_id: delivery_id, period_from: from, period_to: to, calculated_at: calculated_at,
        methodology_version: methodology}
     rescue ArgumentError, KeyError, TypeError => e
@@ -87,6 +89,34 @@ module WeeklyMarkup
       unallocated = decimal(row['unallocated'], "#{label}.unallocated")
       invalid!("#{label} gross profit") unless cents(revenue - cost) == cents(profit)
       invalid!("#{label} payments") unless cents(cash + noncash + unallocated) == cents(revenue)
+    end
+
+    def validate_sales_analytics!(analytics, from, to)
+      products = analytics.fetch('products')
+      invalid!('sales analytics products') unless products.is_a?(Array)
+      invalid!('duplicate products') unless products.map { |row| row['item_id'] }.uniq.size == products.size
+      products.each do |product|
+        days = product.fetch('days')
+        invalid!('duplicate product days') unless days.map { |row| row['date'] }.uniq.size == days.size
+        days.each do |row|
+          day = Date.iso8601(row['date'].to_s)
+          invalid!('product day period') unless day.between?(from, to)
+          assert_product_equations!(row, "product #{product['item_id']} day #{row['date']}")
+        end
+        assert_product_equations!(product.fetch('total'), "product #{product['item_id']} total")
+        %w[revenue cost gross_profit].each do |key|
+          sum = days.sum(BigDecimal('0')) { |row| decimal(row[key], "product day #{key}") }
+          invalid!("product total #{key}") unless cents(sum) == cents(decimal(product.dig('total', key), "product total #{key}"))
+        end
+      end
+    end
+
+    def assert_product_equations!(row, label)
+      revenue = decimal(row['revenue'], "#{label}.revenue")
+      cost = decimal(row['cost'], "#{label}.cost")
+      profit = decimal(row['gross_profit'], "#{label}.gross_profit")
+      decimal(row['quantity'], "#{label}.quantity")
+      invalid!("#{label} gross profit") unless cents(revenue - cost) == cents(profit)
     end
 
     def assert_money!(value, label)

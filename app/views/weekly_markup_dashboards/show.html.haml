@@ -15,6 +15,9 @@
   - if @dashboard[:zero_cost_revenue_dates].any?
     .alert.alert-error
       В 1С ещё не рассчитана себестоимость за даты: #{@dashboard[:zero_cost_revenue_dates].map { |date| l(date) }.join(', ')}. Прибыль, маржа и наценка периода предварительные.
+  - elsif @dashboard[:preliminary_cost_dates].any?
+    .alert.alert-error
+      В выбранном периоде есть товары с незавершённым расчётом себестоимости. Наценка предварительная и станет актуальной после закрытия месяца и повторного расчёта.
 
   = form_tag weekly_markup_dashboard_path, method: :get, class: 'form-inline weekly-markup-filter' do
     = label_tag :from, 'Период с'
@@ -37,6 +40,107 @@
     .weekly-markup-card.weekly-markup-card--ratio
       .weekly-markup-card__label Наценка
       .weekly-markup-card__value= markup_percent(totals[:markup])
+    .weekly-markup-card.weekly-markup-card--ratio
+      .weekly-markup-card__label Доля наличных
+      .weekly-markup-card__value= markup_percent(totals[:cash_share])
+
+  %h3 Расшифровка валовой маржи
+  %table.table.table-bordered.weekly-markup-explanation
+    %thead
+      %tr
+        %th Выручка
+        %th Себестоимость
+        %th Валовая прибыль
+        %th Расчёт
+        %th Валовая маржа
+    %tbody
+      %tr
+        %td= markup_money(@dashboard[:gross_margin_breakdown][:revenue])
+        %td= markup_money(@dashboard[:gross_margin_breakdown][:cost])
+        %td= markup_money(@dashboard[:gross_margin_breakdown][:gross_profit])
+        %td Валовая прибыль ÷ выручка
+        %td= markup_percent(@dashboard[:gross_margin_breakdown][:result])
+
+  %h3 Динамика по месяцам
+  %table.table.table-bordered.table-hover
+    %thead
+      %tr
+        %th Месяц
+        %th Выручка
+        %th Себестоимость
+        %th Валовая прибыль
+        %th Маржа
+        %th Наценка
+        %th Наличные
+        %th Доля наличных
+        %th Статус
+    %tbody
+      - @dashboard[:months].each do |month|
+        %tr
+          %td= l(month[:from], format: '%B %Y')
+          %td= markup_money(month[:totals][:revenue])
+          %td= markup_money(month[:totals][:cost])
+          %td= markup_money(month[:totals][:gross_profit])
+          %td= markup_percent(month[:totals][:gross_margin])
+          %td= markup_percent(month[:totals][:markup])
+          %td= markup_money(month[:totals][:cash])
+          %td= markup_percent(month[:totals][:cash_share])
+          %td
+            - if month[:closed]
+              %span.label.label-success Закрыт
+            - else
+              %span.label.label-warning Предварительный
+
+  %h3 Категории товаров
+  %p.muted Категория определяется по верхней группе реальной иерархии номенклатуры 1С.
+  %table.table.table-bordered.table-hover
+    %thead
+      %tr
+        %th Категория
+        %th Товаров
+        %th Выручка
+        %th Доля выручки
+        %th Себестоимость
+        %th Валовая прибыль
+        %th Маржа
+        %th Наценка
+    %tbody
+      - @dashboard[:categories].each do |category|
+        %tr
+          %td= category[:name]
+          %td= category[:product_count]
+          %td= markup_money(category[:total][:revenue])
+          %td= markup_percent(category[:total][:revenue_share])
+          %td= markup_money(category[:total][:cost])
+          %td= markup_money(category[:total][:gross_profit])
+          %td= markup_percent(category[:total][:gross_margin])
+          %td= markup_percent(category[:total][:markup])
+
+  %h3 Категория A — товары, дающие первые 80% положительной валовой прибыли
+  %table.table.table-bordered.table-hover
+    %thead
+      %tr
+        %th Код
+        %th Товар
+        %th Категория
+        %th Выручка
+        %th Себестоимость
+        %th Валовая прибыль
+        %th Наценка
+        %th Вклад в прибыль
+        %th Накопленный вклад
+    %tbody
+      - @dashboard[:category_a_products].each do |product|
+        %tr
+          %td= product[:code]
+          %td= product[:name]
+          %td= product[:category]
+          %td= markup_money(product[:total][:revenue])
+          %td= markup_money(product[:total][:cost])
+          %td= markup_money(product[:total][:gross_profit])
+          %td= markup_percent(product[:total][:markup])
+          %td= markup_percent(product[:gross_profit_share])
+          %td= markup_percent(product[:cumulative_gross_profit_share])
 
   %h3 Недельные итоги
   %table.table.table-bordered.table-hover
@@ -92,7 +196,7 @@
 
   .well.weekly-markup-method
     %strong Методика.
-    Валовая маржа = валовая прибыль / выручка. Наценка = валовая прибыль / себестоимость. Общие проценты рассчитаны из общих сумм. Наличные включают оплаты на карты сотрудников. Неподтверждённые способы оплаты остаются в категории «Не распределено».
+    Валовая маржа = валовая прибыль / выручка. Наценка = валовая прибыль / себестоимость. Общие проценты рассчитаны из общих сумм. Наличные включают оплаты на карты сотрудников. Реализации с пустой ФормойОплаты и связанным заказом в статусе «КОбеспечению» относятся к безналичным платежам по расчётному счёту. Остальные неподтверждённые способы оплаты остаются в категории «Не распределено».
     - if @dashboard[:current_version]
       %br
       Версия методики: #{@dashboard[:current_version][:methodology_version]}; расчёт: #{@dashboard[:current_version][:calculated_at]}.
