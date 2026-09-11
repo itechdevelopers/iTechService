@@ -53,12 +53,12 @@
 
 .yearly-markup-widget:hover { color: #17384f; text-decoration: none; }
 
-.yearly-markup-widget__circle {
+.yearly-markup-widget__square {
   box-sizing: border-box;
-  width: 220px;
-  height: 220px;
-  border: 14px solid #73ad57;
-  border-radius: 50%;
+  width: 230px;
+  height: 230px;
+  border: 8px solid #73ad57;
+  border-radius: 12px;
   background: #f4faef;
   box-shadow: 0 4px 15px rgba(32, 73, 39, .18);
   display: flex;
@@ -82,3 +82,48 @@
 .yearly-markup-widget__previous strong { display: block; font-size: 17px; color: #17384f; }
 .yearly-markup-widget__previous small { display: block; font-size: 10px; }
 .month-cost-quality { display: block; margin-top: 4px; color: #60717d; }
+
+.monthly-markup-tiles {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 14px;
+  margin: 14px 0 10px;
+}
+
+.monthly-markup-tile {
+  box-sizing: border-box;
+  width: 165px;
+  height: 165px;
+  border: 4px solid #c6d0d7;
+  border-radius: 9px;
+  background: #f7f9fa;
+  box-shadow: 0 2px 7px rgba(20, 48, 68, .1);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 14px;
+  text-align: center;
+}
+
+.monthly-markup-tile--closed { border-color: #73ad57; background: #f4faef; }
+.monthly-markup-tile--partial { border-color: #e58a23; background: #fff4e5; }
+.monthly-markup-tile--preliminary { border-color: #c6d0d7; background: #f7f9fa; }
+.monthly-markup-tile__month { color: #60717d; font-size: 14px; text-transform: capitalize; }
+.monthly-markup-tile__value { color: #17384f; font-size: 29px; font-weight: 700; margin-top: 10px; white-space: nowrap; }
+.monthly-markup-tiles__legend { color: #60717d; font-size: 12px; margin-bottom: 24px; }
+.monthly-markup-tiles__legend-swatch {
+  display: inline-block;
+  width: 12px;
+  height: 12px;
+  border: 2px solid;
+  border-radius: 2px;
+  margin-right: 5px;
+  vertical-align: -2px;
+}
+.monthly-markup-tiles__legend-swatch--partial { border-color: #e58a23; background: #fff4e5; }
+
+@media (max-width: 520px) {
+  .monthly-markup-tiles { gap: 10px; }
+  .monthly-markup-tile { width: calc(50% - 5px); height: auto; aspect-ratio: 1 / 1; }
+}

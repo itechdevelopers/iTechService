@@ -23,6 +23,17 @@
   = link_to 'JSON', download_weekly_markup_dashboard_path(from: @period_from, to: @period_to, format: :json), class: 'btn'
   = link_to 'CSV', download_weekly_markup_dashboard_path(from: @period_from, to: @period_to, format: :csv), class: 'btn'
 
+%h3 Наценка по месяцам
+.monthly-markup-tiles
+  - @dashboard[:months].each do |month|
+    - state_class = month[:partially_closed] ? 'monthly-markup-tile--partial' : month[:closed] ? 'monthly-markup-tile--closed' : 'monthly-markup-tile--preliminary'
+    .monthly-markup-tile{class: state_class, title: month[:status]}
+      .monthly-markup-tile__month= l(month[:from], format: '%B %Y').capitalize
+      .monthly-markup-tile__value= markup_percent(month[:totals][:markup])
+%p.monthly-markup-tiles__legend
+  %span.monthly-markup-tiles__legend-swatch.monthly-markup-tiles__legend-swatch--partial
+  Оранжевый — месяц закрыт, но не до конца.
+
 %h3 Операции, исключённые из расчёта рентабельности
 %p.muted Эти операции учитываются в полном обороте и оплатах, но не входят в выручку, прибыль, валовую маржу и наценку ниже.
 %p.muted Количество операций — число строк регистра с положительной выручкой за вычетом строк с отрицательной выручкой. Строки с нулевой выручкой не учитываются. Это не количество посещений клиентов; исходное количество из 1С сохраняется в JSON.
