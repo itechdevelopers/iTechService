@@ -15,7 +15,7 @@
             Нет закрытых месяцев
         - if @yearly_markup_summary[:previous_month]
           .yearly-markup-widget__previous
-            Наценка за #{l(@yearly_markup_summary[:previous_month][:from], format: '%B')}
+            Наценка за #{l(@yearly_markup_summary[:previous_month][:from], format: '%m.%Y')}
             %strong= markup_percent(@yearly_markup_summary[:previous_month][:markup])
             %small= @yearly_markup_summary[:previous_month][:status]
       .yearly-markup-widget__action Открыть подробный отчёт
