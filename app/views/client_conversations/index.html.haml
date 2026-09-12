@@ -1,32 +1,6 @@
 .page-header
   %h2= t('.title')
 
-.btn-toolbar
-  .btn-group
-    - ClientConversationsController::FILTERS.each do |filter|
-      = link_to client_conversations_path(filter: filter, department_id: params[:department_id]), class: "btn #{'active' if @filter == filter}" do
-        = t(".filters.#{filter}")
-        %span.badge= @counts[filter]
-  .btn-group.pull-right
-    = form_tag client_conversations_path, method: :get, class: 'form-inline' do
-      = hidden_field_tag :filter, @filter
-      = select_tag :department_id,
-        options_from_collection_for_select(@departments, :id, :full_name, params[:department_id]),
-        include_blank: t('.all_departments'), class: 'input-medium', onchange: 'this.form.submit();'
-
-%table.table.table-hover.table-bordered
-  %thead
-    %tr
-      %th= t('.columns.contact')
-      %th= t('.columns.department')
-      %th= t('.columns.last_message')
-      %th= t('.columns.waiting')
-      %th= t('.columns.first_reply')
-      %th= t('.columns.assigned')
-      %th= t('.columns.status')
-  %tbody
-    - if @conversations.empty?
-      %tr
-        %td{ colspan: 7 }= t('.empty')
-    - @conversations.each do |conversation|
-      = render 'conversation', conversation: conversation, last_message: @last_messages[conversation.id]
+-# Вкладки и фильтр по филиалу меняют только эту часть страницы: список
+-# перечитывается AJAX-ом, шапка и меню не перерисовываются.
+#client_conversations_list= render 'list'

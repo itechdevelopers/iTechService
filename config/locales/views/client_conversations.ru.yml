@@ -2,6 +2,7 @@ ru:
   client_conversations:
     index:
       title: Диалоги с клиентами
+    list:
       empty: Диалогов пока нет.
       all_departments: Все филиалы
       filters:

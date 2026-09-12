@@ -1,5 +1,6 @@
 <% if @error %>
-App.Notification.show('<%= j @error %>', 'alert');
+<%# raw: .js.erb экранирует HTML, и апостроф или «&» в тексте ошибки приехали бы сущностью %>
+App.Notification.show('<%= raw j @error %>', 'alert');
 <% else %>
 $('#client_chat_feed').append('<%= j render "message", message: @message %>');
 var feed = $('#client_chat_feed')[0];
