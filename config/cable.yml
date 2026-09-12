@@ -1,5 +1,14 @@
+# adapter: async работает только внутри одного процесса — броадкаст из любого
+# другого теряется. В dev это значимо: сообщения от клиента приходят через
+# поллер бота (`BOT=client rake telegram:bot:poller`), фото догружает Sidekiq,
+# и оба процесса отдельные от Puma. С async их сообщения в открытой карточке
+# не появлялись бы, хотя на проде (redis) всё работает.
+#
+# Redis в dev и так обязателен — на нём Sidekiq.
 development:
-  adapter: async
+  adapter: redis
+  url: redis://localhost:6379
+  channel_prefix: itech_service_development
 
 test:
   adapter: async

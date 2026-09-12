@@ -1,0 +1,48 @@
+.client-chat
+  %dl.client-chat__header-facts
+    - if conversation.client
+      %dt= ClientConversation.human_attribute_name(:client)
+      %dd= link_to conversation.client.short_name, client_path(conversation.client)
+    - if conversation.contact_phone.present?
+      %dt= t('.phone')
+      %dd= conversation.contact_phone
+    %dt= t('.department')
+    %dd= conversation.department&.full_name || t('.department_unknown')
+    %dt= t('.assigned')
+    %dd= conversation.assigned_user&.short_name || t('.nobody')
+    %dt= t('.status')
+    %dd
+      - if conversation.open?
+        = t('.statuses.open')
+      - else
+        = t('.statuses.closed')
+        = "(#{ClientConversation.human_duration(conversation.duration_seconds)})"
+    - if conversation.first_reply_seconds
+      %dt= t('.first_reply')
+      %dd= ClientConversation.human_duration(conversation.first_reply_seconds)
+
+  .client-chat__actions
+    - if conversation.open?
+      - if conversation.assigned_user == current_user
+        %span.muted= t('.assigned_to_me')
+      - elsif conversation.assigned_user
+        = link_to t('.take_over'), assign_client_conversation_path(conversation), method: :post, remote: true, class: 'btn btn-small'
+      - else
+        = link_to t('.assign'), assign_client_conversation_path(conversation), method: :post, remote: true, class: 'btn btn-small btn-primary'
+      = link_to t('.close'), close_client_conversation_path(conversation), method: :post, remote: true, class: 'btn btn-small'
+
+  #client_chat_feed.client-chat__feed{ data: { conversation_id: conversation.id } }
+    - if messages.empty?
+      %p.muted= t('.empty')
+    = render partial: 'message', collection: messages, as: :message
+
+  - if conversation.open?
+    -# multipart + remote: без файла уходит AJAX, с файлом jquery_ujs сам
+    -# переключается на обычную отправку — экшен отвечает и так, и так.
+    = form_tag reply_client_conversation_path(conversation), remote: true, multipart: true, class: 'client-chat__reply' do
+      = text_area_tag 'client_message[body]', nil, id: 'client_reply_body', rows: 2, class: 'client-chat__reply-input', placeholder: t('.reply_placeholder')
+      .client-chat__reply-controls
+        = file_field_tag 'client_message[photo]', accept: 'image/*', class: 'client-chat__reply-photo'
+        = submit_tag t('.send'), class: 'btn btn-primary'
+  - else
+    %p.muted.client-chat__closed-note= t('.closed_note')

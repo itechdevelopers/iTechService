@@ -78,28 +78,10 @@ When testing protected JSON/AJAX endpoints without a browser (e.g., for backend 
 
 Full recipe with working curl examples: **[docs/testing-endpoints-with-curl.md](docs/testing-endpoints-with-curl.md)**
 
-## Testing Instructions for Stakeholder
+## Подготовка локального окружения для ручной проверки
 
-After completing a feature or bug fix, write a simple testing instruction in Russian for the project lead. The instruction should:
-- Be written in plain language (non-technical)
-- Include step-by-step UI actions: what page to open, what to click, what to fill in
-- Describe the expected result after each action
-- Cover all main scenarios (happy path + edge cases)
-- Mention any ENV variables or server-side changes needed (e.g., schedule.yml, ENV keys)
-- Format as numbered steps grouped by scenario
-
-
-**Структура и конкретика сценариев — сверяться с памятью `feedback_seed_ui_test_data.md`**
-(и связанными `reference_test_users_playwright.md`, `feedback_dev_only_data_no_migration.md`).
-Ключевое: каждый шаг должен быть готов к исполнению — конкретный логин, конкретная ссылка
-вида `http://localhost:3000/...`, конкретная запись, конкретная кнопка. Данные под все ветки
-сценария (разные статусы, пустые/заполненные поля, «второй сотрудник», «чужой отдел»)
-засеять в dev-БД заранее через `bin/rails runner`, а в конце сказать, что создано и как удалить.
-
-### Подготовка локального окружения перед тестированием
-
-Если цикл заканчивается ручной проверкой — поднять всё нужное самому, до того как отдавать
-инструкцию.
+Если цикл заканчивается ручной проверкой — поднять всё нужное самому, до того как звать
+к проверке.
 
 **1. Dev-сервер на :3000**
 
@@ -122,5 +104,5 @@ ps -eo pid,etime,command | grep '[p]uma'   # etime = возраст процес
 - Поднимать **строго на этой одной очереди**: `bundle exec sidekiq -q ise_development_<name> -c 2`.
   Никогда не на `mailers`/`reports`/полном наборе — в dev-Redis накоплен бэклог, и
   `letter_opener` откроет вкладку браузера на каждое письмо.
-- После теста Sidekiq надо гасить (`pkill -f sidekiq`) — **напомнить об этом в самой
-  инструкции для тестирования**, отдельным пунктом в конце.
+- После теста Sidekiq надо гасить (`pkill -f sidekiq`) — **сказать об этом явно**, когда
+  передаёшь окружение на ручную проверку.

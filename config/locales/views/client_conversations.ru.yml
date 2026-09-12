@@ -1,0 +1,58 @@
+ru:
+  client_conversations:
+    index:
+      title: Диалоги с клиентами
+    list:
+      empty: Диалогов пока нет.
+      all_departments: Все филиалы
+      filters:
+        awaiting: Без ответа
+        mine: Мои
+        open: Все открытые
+        closed: Закрытые
+      columns:
+        contact: Клиент
+        department: Филиал
+        last_message: Последнее сообщение
+        waiting: Ждёт ответа
+        first_reply: Время первого ответа
+        assigned: Кто ведёт
+        status: Статус
+    show:
+      back: К списку
+      channels:
+        telegram: Telegram
+    card:
+      phone: Телефон
+      department: Филиал
+      department_unknown: не определён
+      assigned: Кто ведёт
+      nobody: никто
+      status: Статус
+      first_reply: Время первого ответа
+      empty: Сообщений пока нет.
+      reply_placeholder: Напишите ответ…
+      send: Отправить
+      closed_note: Диалог закрыт — новые сообщения в него не отправляются.
+      assign: Взять в работу
+      take_over: Перехватить
+      assigned_to_me: Диалог за вами
+      close: Закрыть диалог
+      statuses:
+        open: Открыт
+        closed: Закрыт
+    reply:
+      empty_body: Сообщение пустое — писать нечего.
+      conversation_closed: Диалог уже закрыт, ответ не отправлен.
+    message:
+      photo_pending: "[фото загружается…]"
+      pending: отправляется
+      failed: не доставлено
+    conversation:
+      photo: "[фото]"
+      no_messages: Сообщений ещё не было
+      channels:
+        telegram: Telegram
+      statuses:
+        open: Открыт
+        closed: Закрыт

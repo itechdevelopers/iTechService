@@ -3,6 +3,7 @@
 class Setting < ApplicationRecord
   TYPES = {
     address: 'string',
+    client_chat_after_hours_reply: 'text',
     address_for_check: 'string',
     app_logo_filename: 'string',
     forma_filename: 'string',

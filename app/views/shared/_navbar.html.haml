@@ -29,6 +29,7 @@
         = menu_item t('orders.link', default: 'Orders'), orders_path if can? :read, Order
         = drop_down_divider
         = menu_item t('clients.link', default: 'Clients'), clients_path
+        = menu_item t('client_conversations.index.title'), client_conversations_path if policy(ClientConversation).index?
         - if policy(ClientRequest).index? || policy(DeviceUnlockRequest).index?
           %li.dropdown-submenu.navbar-requests-submenu
             %a{ href: '#', tabindex: '-1' }= t('.client_requests_group')

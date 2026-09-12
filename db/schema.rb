@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20260909105018) do
+ActiveRecord::Schema.define(version: 20260911144902) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -341,6 +341,53 @@ ActiveRecord::Schema.define(version: 20260909105018) do
     t.datetime "set_at"
     t.index ["client_category_id"], name: "index_client_characteristics_on_client_category_id"
     t.index ["set_by_user_id"], name: "index_client_characteristics_on_set_by_user_id"
+  end
+
+  create_table "client_conversations", force: :cascade do |t|
+    t.string "channel", default: "telegram", null: false
+    t.string "external_chat_id", null: false
+    t.bigint "client_id"
+    t.bigint "department_id"
+    t.bigint "assigned_user_id"
+    t.bigint "closed_by_id"
+    t.string "status", default: "open", null: false
+    t.string "contact_name"
+    t.string "contact_username"
+    t.string "contact_phone"
+    t.datetime "started_at"
+    t.datetime "first_reply_at"
+    t.datetime "last_message_at"
+    t.datetime "last_inbound_at"
+    t.datetime "last_reply_at"
+    t.datetime "closed_at"
+    t.datetime "auto_reply_sent_at"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["assigned_user_id"], name: "index_client_conversations_on_assigned_user_id"
+    t.index ["channel", "external_chat_id"], name: "index_client_conversations_on_open_chat", unique: true, where: "((status)::text = 'open'::text)"
+    t.index ["client_id"], name: "index_client_conversations_on_client_id"
+    t.index ["closed_by_id"], name: "index_client_conversations_on_closed_by_id"
+    t.index ["department_id"], name: "index_client_conversations_on_department_id"
+    t.index ["status", "last_message_at"], name: "index_client_conversations_on_status_and_last_message_at"
+  end
+
+  create_table "client_messages", force: :cascade do |t|
+    t.bigint "client_conversation_id", null: false
+    t.string "direction", null: false
+    t.bigint "user_id"
+    t.text "body"
+    t.string "external_id"
+    t.string "kind", default: "text", null: false
+    t.string "photo"
+    t.string "delivery_status", default: "pending", null: false
+    t.text "delivery_error"
+    t.datetime "sent_at"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["client_conversation_id", "created_at"], name: "index_client_messages_on_client_conversation_id_and_created_at"
+    t.index ["client_conversation_id", "external_id"], name: "index_client_messages_on_conversation_and_external_id", unique: true, where: "(external_id IS NOT NULL)"
+    t.index ["client_conversation_id"], name: "index_client_messages_on_client_conversation_id"
+    t.index ["user_id"], name: "index_client_messages_on_user_id"
   end
 
   create_table "client_requests", force: :cascade do |t|
@@ -2919,6 +2966,12 @@ ActiveRecord::Schema.define(version: 20260909105018) do
   add_foreign_key "check_list_responses", "check_lists"
   add_foreign_key "check_lists", "check_list_items", column: "main_question_id"
   add_foreign_key "client_characteristics", "users", column: "set_by_user_id"
+  add_foreign_key "client_conversations", "clients"
+  add_foreign_key "client_conversations", "departments"
+  add_foreign_key "client_conversations", "users", column: "assigned_user_id"
+  add_foreign_key "client_conversations", "users", column: "closed_by_id"
+  add_foreign_key "client_messages", "client_conversations"
+  add_foreign_key "client_messages", "users"
   add_foreign_key "client_requests", "clients"
   add_foreign_key "client_requests", "departments"
   add_foreign_key "client_requests", "items"

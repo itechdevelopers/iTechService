@@ -1,0 +1,9 @@
+<% if @error %>
+<%# raw: .js.erb экранирует HTML, и апостроф или «&» в тексте ошибки приехали бы сущностью %>
+App.Notification.show('<%= raw j @error %>', 'alert');
+<% else %>
+<%# upsert, а не append: эта же реплика прилетает по ActionCable и может
+    опередить текущий ответ — тогда безусловное добавление задвоило бы её %>
+ClientChat.upsertMessage(<%= @message.id %>, '<%= j render "message", message: @message %>');
+$('#client_reply_body').val('');
+<% end %>
