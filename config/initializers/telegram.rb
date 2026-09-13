@@ -23,7 +23,12 @@ if telegram_bots.any?
   # недоставленным и пере-прислал апдейт, и чтобы джоба спалила бюджет ретраев
   # на ожидание вместо повтора.
   #
-  # receive_timeout оставлен по умолчанию: send_animation протаскивает через
-  # тот же клиент многомегабайтные файлы, ему нужен запас.
-  Telegram.bots.each_value { |bot| bot.client.connect_timeout = 10 }
+  # receive_timeout у служебного бота оставлен по умолчанию (60 с):
+  # send_animation протаскивает через тот же клиент многомегабайтные файлы,
+  # ему нужен запас. Клиентский шлёт только текст и фото — минуту ждать ответа
+  # ему незачем, а лишнее ожидание удерживает воркер Sidekiq.
+  Telegram.bots.each do |key, bot|
+    bot.client.connect_timeout = 10
+    bot.client.receive_timeout = 15 if key == :client
+  end
 end
