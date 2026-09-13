@@ -9,6 +9,16 @@
 #
 # Состояние диалога хранится в БД, поэтому use_session! не нужен.
 class ClientTelegramWebhookController < Telegram::Bot::UpdatesController
+  # Обработчик не ходит в сеть: каждый ответ боту уходит фоновой джобой.
+  #
+  # Синхронный respond_with стоил дорого именно при сбое. Мидлвар гема
+  # исключения не ловит, поэтому неудачный исходящий запрос превращался в 500,
+  # Telegram считал апдейт недоставленным и присылал его снова с нарастающей
+  # паузой — один потерянный пакет оборачивался ответом клиенту через час.
+  # При поллинге тот же сбой приводил к другому исходу, не лучше: offset уже
+  # сдвинут, и ответ терялся совсем.
+  around_action :respond_in_background
+
   CHANNEL = 'telegram'
   # Ссылка вида t.me/<bot>?start=dep_vl — своя на каждый филиал. Приходит первым
   # же апдейтом, так что филиал определяется без единого действия клиента.
@@ -83,6 +93,10 @@ class ClientTelegramWebhookController < Telegram::Bot::UpdatesController
   end
 
   private
+
+  def respond_in_background
+    bot.async(TelegramClientRequestJob) { yield }
+  end
 
   # Открытый диалог этого чата, либо новый. Контактные данные перечитываем на
   # каждом апдейте: в Telegram и имя, и ник меняются в любой момент.
@@ -176,7 +190,7 @@ class ClientTelegramWebhookController < Telegram::Bot::UpdatesController
     return nil if record.nil?
 
     ClientChat::AutoReply.call(conversation)
-    conversation.notify_new_message(record) unless was_awaiting
+    NotifyClientConversationJob.perform_later(record.id) unless was_awaiting
     record
   end
 
