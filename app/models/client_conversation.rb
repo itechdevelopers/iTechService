@@ -15,7 +15,7 @@ class ClientConversation < ApplicationRecord
   # Дольше этого клиент ждёт ответа «слишком долго» — строка в списке краснеет.
   WAITING_ALERT = 15.minutes
 
-  # Все четыре связи необязательны: клиент может остаться неопознанным, филиал —
+  # Все четыре связи необязательны: клиент может остаться неопознанным, город —
   # неопределённым, ответственного может не быть, а пустой closed_by у закрытого
   # диалога означает автозакрытие по тишине.
   #
@@ -23,7 +23,7 @@ class ClientConversation < ApplicationRecord
   # в new_framework_defaults.rb: она применяется уже после того, как
   # ActiveRecord прочитал эту настройку, и ни на что не влияет.
   belongs_to :client, optional: true
-  belongs_to :department, optional: true
+  belongs_to :city, optional: true
   belongs_to :assigned_user, class_name: 'User', optional: true
   belongs_to :closed_by, class_name: 'User', optional: true
 
@@ -133,6 +133,20 @@ class ClientConversation < ApplicationRecord
     true
   end
 
+  # Город определяется автоматически (ссылка, выбор клиента, опознание по
+  # телефону), но ошибиться легко, а у диалога без города автоответ вне
+  # рабочих часов не уходит вовсе — сотруднику нужен способ это поправить.
+  def change_city!(new_city)
+    return false if city_id == new_city&.id
+
+    previous = city
+    transaction do
+      update!(city: new_city)
+      add_system_message(city_note(previous, new_city))
+    end
+    true
+  end
+
   # user пуст ⇒ закрыл не человек, а суточная тишина.
   def close!(user = nil)
     transaction do
@@ -200,6 +214,14 @@ class ClientConversation < ApplicationRecord
     end
 
     update_columns(attrs)
+
+    # Первый ответивший забирает диалог себе. Кнопка «Взять в работу»
+    # остаётся, но обычно сотрудник просто отвечает — и без этого правила
+    # «Кто ведёт» пустовало бы у всех отвеченных диалогов.
+    #
+    # from_employee? отсекает автоответ бота: у него нет автора, и робот
+    # ответственным стать не может.
+    assign_to!(message.user) if message.from_employee? && assigned_user_id.nil?
   end
 
   private
@@ -217,6 +239,13 @@ class ClientConversation < ApplicationRecord
     else
       "Диалог перехвачен: #{current.short_name} (был за #{previous.short_name})"
     end
+  end
+
+  def city_note(previous, current)
+    return "Город убран (был #{previous.name})" if current.nil?
+    return "Город указан: #{current.name}" if previous.nil?
+
+    "Город изменён: #{current.name} (был #{previous.name})"
   end
 
   def closing_note(user)

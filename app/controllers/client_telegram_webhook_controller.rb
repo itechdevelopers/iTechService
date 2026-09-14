@@ -23,8 +23,10 @@ class ClientTelegramWebhookController < Telegram::Bot::UpdatesController
   # Ссылка вида t.me/<bot>?start=dep_vl — своя на каждый филиал. Приходит первым
   # же апдейтом, так что филиал определяется без единого действия клиента.
   DEEP_LINK_PREFIX = 'dep_'
-  # Кнопка «Другой город» под приветствием: открывает тот же список филиалов,
-  # что и /city.
+  # Кнопка «Другой город» под приветствием: открывает тот же список, что и
+  # /city. Значение не менялось при переходе с филиалов на города — оно
+  # непрозрачно для клиента, а у кого-то на телефоне могла остаться старая
+  # клавиатура.
   CHANGE_BRANCH = 'dep:change'
   GREETING = 'Здравствуйте! Напишите свой вопрос — сотрудник ответит здесь же.'
   # Вложения, которые мы пока не показываем в Айсе. Порядок важен: Telegram
@@ -42,15 +44,15 @@ class ClientTelegramWebhookController < Telegram::Bot::UpdatesController
   }.freeze
 
   def start!(payload = nil, *)
-    department = department_from_payload(payload)
-    conversation.update!(department: department) if department
+    city = city_from_payload(payload)
+    conversation.update!(city: city) if city
 
-    if conversation.department
-      respond_with :message, text: "#{GREETING}\n\n#{branch_line}",
+    if conversation.city
+      respond_with :message, text: "#{GREETING}\n\n#{city_line}",
                              reply_markup: change_branch_markup
     else
       respond_with :message, text: "#{GREETING}\n\nИз какого вы города?",
-                             reply_markup: branch_markup
+                             reply_markup: city_markup
     end
   end
 
@@ -58,8 +60,8 @@ class ClientTelegramWebhookController < Telegram::Bot::UpdatesController
   # город, перешёл по чужой ссылке).
   def city!(*)
     respond_with :message,
-                 text: conversation.department ? branch_line : 'Из какого вы города?',
-                 reply_markup: branch_markup
+                 text: conversation.city ? city_line : 'Из какого вы города?',
+                 reply_markup: city_markup
   end
 
   def message(message)
@@ -76,20 +78,19 @@ class ClientTelegramWebhookController < Telegram::Bot::UpdatesController
   end
 
   def callback_query(data)
-    return answer_callback_query(nil) unless data.to_s.start_with?('dep:')
-
-    if data == CHANGE_BRANCH
+    case data.to_s
+    when CHANGE_BRANCH
       answer_callback_query(nil)
-      return respond_with(:message, text: 'Из какого вы города?',
-                                    reply_markup: branch_markup)
+      respond_with :message, text: 'Из какого вы города?', reply_markup: city_markup
+    when /\Acity:(\d+)\z/
+      select_city(City.find_by(id: Regexp.last_match(1)))
+    when /\Adep:(\d+)\z/
+      # Старые клавиатуры со списком филиалов: у клиента в переписке они
+      # остаются рабочими кнопками и после перехода на выбор города.
+      select_city(Department.real.find_by(id: Regexp.last_match(1))&.city)
+    else
+      answer_callback_query(nil)
     end
-
-    department = Department.real.find_by(id: data.split(':', 2).last)
-    return answer_callback_query('Филиал не найден') if department.nil?
-
-    conversation.update!(department: department)
-    answer_callback_query(nil)
-    respond_with :message, text: branch_line
   end
 
   private
@@ -121,11 +122,13 @@ class ClientTelegramWebhookController < Telegram::Bot::UpdatesController
     }.compact
   end
 
-  def department_from_payload(payload)
+  # Ссылка остаётся адресной по филиалу — её печатают на конкретной точке, —
+  # но в диалог кладём его город: филиал нам больше ни для чего не нужен.
+  def city_from_payload(payload)
     code = payload.to_s.strip
     return nil unless code.start_with?(DEEP_LINK_PREFIX)
 
-    Department.real.find_by(code: code.delete_prefix(DEEP_LINK_PREFIX))
+    Department.real.find_by(code: code.delete_prefix(DEEP_LINK_PREFIX))&.city
   end
 
   # Фото кладём в ленту сразу, а файл догружаем джобой: строка нужна здесь и
@@ -172,8 +175,8 @@ class ClientTelegramWebhookController < Telegram::Bot::UpdatesController
     return if client.nil?
 
     attrs = { client: client }
-    if conversation.department.nil?
-      attrs[:department] = client.service_jobs.order(created_at: :desc).first&.department
+    if conversation.city.nil?
+      attrs[:city] = client.service_jobs.order(created_at: :desc).first&.department&.city
     end
     conversation.update!(attrs.compact)
   end
@@ -215,15 +218,30 @@ class ClientTelegramWebhookController < Telegram::Bot::UpdatesController
     nil
   end
 
-  def branch_line
-    "Вы обращаетесь в филиал: #{conversation.department.full_name}."
+  def select_city(city)
+    return answer_callback_query('Город не найден') if city.nil?
+
+    conversation.update!(city: city)
+    answer_callback_query(nil)
+    respond_with :message, text: city_line
   end
 
-  def branch_markup
-    buttons = Department.real.includes(:city).map do |department|
-      [{ text: department.full_name, callback_data: "dep:#{department.id}" }]
+  def city_line
+    "Ваш город: #{conversation.city.name}."
+  end
+
+  # Клиенту показываем только города: филиал внутри города он всё равно не
+  # выбирает осознанно, а список из семи строк читался тяжело.
+  def city_markup
+    buttons = pickable_cities.map do |city|
+      mark = ClientChat::CityMark.for(city)
+      [{ text: "#{mark} #{city.name} #{mark}", callback_data: "city:#{city.id}" }]
     end
     { inline_keyboard: buttons }
+  end
+
+  def pickable_cities
+    City.with_real_departments
   end
 
   def change_branch_markup

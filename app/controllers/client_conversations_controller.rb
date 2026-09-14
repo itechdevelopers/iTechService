@@ -10,16 +10,16 @@ class ClientConversationsController < ApplicationController
     authorize ClientConversation
 
     @filter = FILTERS.include?(params[:filter]) ? params[:filter] : FILTERS.first
-    @departments = Department.real
+    @cities = City.with_real_departments
     @counts = filter_counts
-    @conversations = ordered(filtered_scope).includes(:client, :department, :assigned_user)
+    @conversations = ordered(filtered_scope).includes(:client, :city, :assigned_user)
                                             .limit(PER_PAGE).to_a
     @last_messages = last_messages_for(@conversations)
   end
 
   def show
     @conversation = find_record ClientConversation
-    load_messages
+    load_card
   end
 
   # Ответ клиенту. Сообщение сначала ложится в ленту со статусом pending и
@@ -30,6 +30,7 @@ class ClientConversationsController < ApplicationController
     body = reply_params[:body].to_s.strip
 
     photo = reply_params[:photo]
+    assigned_before = @conversation.assigned_user_id
 
     if @conversation.closed?
       @error = t('.conversation_closed')
@@ -44,11 +45,22 @@ class ClientConversationsController < ApplicationController
       SendClientMessageJob.perform_later(@message.id)
     end
 
+    # Ответ мог сделать сотрудника ответственным — тогда устарела и шапка
+    # карточки, и набор кнопок, а не только лента.
+    @assignment_changed = @conversation.assigned_user_id != assigned_before
+
     # jquery_ujs отменяет AJAX, если в форме выбран файл, и отправляет её
     # обычным способом — поэтому у экшена обязан быть HTML-ответ, иначе
     # отправка фото падала бы с ActionView::MissingTemplate.
     respond_to do |format|
-      format.js
+      format.js do
+        if @assignment_changed
+          load_card
+          render :update_card
+        else
+          render :reply
+        end
+      end
       format.html do
         flash[:alert] = @error if @error
         redirect_to client_conversation_path(@conversation)
@@ -61,14 +73,22 @@ class ClientConversationsController < ApplicationController
   def assign
     @conversation = find_record ClientConversation
     @conversation.assign_to!(current_user)
-    load_messages
+    load_card
     render :update_card
   end
 
   def close
     @conversation = find_record ClientConversation
     @conversation.close!(current_user) if @conversation.open?
-    load_messages
+    load_card
+    render :update_card
+  end
+
+  # Город правится вручную, когда клиент выбрал не тот или не выбрал вовсе.
+  def change_city
+    @conversation = find_record ClientConversation
+    @conversation.change_city!(City.with_real_departments.find_by(id: params[:city_id]))
+    load_card
     render :update_card
   end
 
@@ -78,8 +98,11 @@ class ClientConversationsController < ApplicationController
     params.fetch(:client_message, {}).permit(:body, :photo)
   end
 
-  def load_messages
+  # Всё, что нужно партиалу карточки. Зовётся из show и из всех действий,
+  # которые её перерисовывают.
+  def load_card
     @messages = @conversation.messages.chronological.includes(:user)
+    @cities = City.with_real_departments
   end
 
   def filtered_scope
@@ -91,7 +114,7 @@ class ClientConversationsController < ApplicationController
       else ClientConversation.awaiting_reply
       end
 
-    scope = scope.where(department_id: params[:department_id]) if params[:department_id].present?
+    scope = scope.where(city_id: params[:city_id]) if params[:city_id].present?
     scope
   end
 

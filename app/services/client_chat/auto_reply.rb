@@ -40,7 +40,7 @@ module ClientChat
     private
 
     def due?
-      return false if WorkingHours.open?(@conversation.department)
+      return false if WorkingHours.open?(@conversation.city)
       return true if @conversation.auto_reply_sent_at.blank?
 
       @conversation.auto_reply_sent_at <= THROTTLE.ago
@@ -50,7 +50,7 @@ module ClientChat
     # случайный процент в нём уронил бы format на ArgumentError.
     def reply_text
       template = Setting.client_chat_after_hours_reply.presence || DEFAULT_TEXT
-      hours = WorkingHours.summary(@conversation.department)
+      hours = WorkingHours.summary(@conversation.city)
       # Шаблон обещает часы, а их нет — лучше промолчать, чем прислать
       # «Часы работы: .»
       return nil if hours.blank? && template.include?(HOURS_PLACEHOLDER)

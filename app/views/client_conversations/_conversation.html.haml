@@ -10,7 +10,7 @@
       %small= link_to conversation.client.short_name, client_path(conversation.client)
     %br
     %small.muted= t(".channels.#{conversation.channel}", default: conversation.channel)
-  %td= conversation.department&.full_name
+  %td= conversation.city&.name
   %td
     - if last_message
       - own = last_message.outbound?

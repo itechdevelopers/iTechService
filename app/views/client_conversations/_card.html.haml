@@ -6,8 +6,18 @@
     - if conversation.contact_phone.present?
       %dt= t('.phone')
       %dd= conversation.contact_phone
-    %dt= t('.department')
-    %dd= conversation.department&.full_name || t('.department_unknown')
+    %dt= t('.city')
+    %dd
+      - if policy(conversation).change_city?
+        -# enforce_utf8: false — GET-мусора в теле POST не нужно; форма
+        -# отправляется по change, отдельной кнопки нет.
+        = form_tag change_city_client_conversation_path(conversation), remote: true, enforce_utf8: false, class: 'client-chat__city-form' do
+          = select_tag :city_id,
+            options_from_collection_for_select(cities, :id, :name, conversation.city_id),
+            include_blank: t('.city_unknown'), class: 'input-medium',
+            onchange: '$(this.form).submit();'
+      - else
+        = conversation.city&.name || t('.city_unknown')
     %dt= t('.assigned')
     %dd= conversation.assigned_user&.short_name || t('.nobody')
     %dt= t('.status')

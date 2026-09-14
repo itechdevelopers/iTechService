@@ -1,7 +1,7 @@
 .btn-toolbar
   .btn-group
     - ClientConversationsController::FILTERS.each do |filter|
-      = link_to client_conversations_path(filter: filter, department_id: params[:department_id]), remote: true, class: "btn #{'active' if @filter == filter}" do
+      = link_to client_conversations_path(filter: filter, city_id: params[:city_id]), remote: true, class: "btn #{'active' if @filter == filter}" do
         = t(".filters.#{filter}")
         %span.badge= @counts[filter]
   .btn-group.pull-right
@@ -11,16 +11,16 @@
       = hidden_field_tag :filter, @filter
       -# $(form).submit(), а не this.form.submit(): нативный сабмит проходит
       -# мимо jquery_ujs и перезагрузил бы страницу целиком.
-      = select_tag :department_id,
-        options_from_collection_for_select(@departments, :id, :full_name, params[:department_id]),
-        include_blank: t('.all_departments'), class: 'input-medium',
+      = select_tag :city_id,
+        options_from_collection_for_select(@cities, :id, :name, params[:city_id]),
+        include_blank: t('.all_cities'), class: 'input-medium',
         onchange: '$(this.form).submit();'
 
 %table.table.table-hover.table-bordered
   %thead
     %tr
       %th= t('.columns.contact')
-      %th= t('.columns.department')
+      %th= t('.columns.city')
       %th= t('.columns.last_message')
       %th= t('.columns.waiting')
       %th= t('.columns.first_reply')
