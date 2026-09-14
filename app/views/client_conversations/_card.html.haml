@@ -1,8 +1,17 @@
 .client-chat
   %dl.client-chat__header-facts
-    - if conversation.client
-      %dt= ClientConversation.human_attribute_name(:client)
-      %dd= link_to conversation.client.short_name, client_path(conversation.client)
+    %dt= ClientConversation.human_attribute_name(:client)
+    %dd
+      - if conversation.client
+        = link_to conversation.client.short_name, client_path(conversation.client)
+        - if policy(conversation).bind_client?
+          = link_to t('.unbind_client'), bind_client_client_conversation_path(conversation, client_id: ''), method: :post, remote: true, class: 'btn btn-mini client-chat__unbind'
+      - elsif policy(conversation).bind_client?
+        .client-chat__client-picker{ data: { url: client_search_client_conversation_path(conversation) } }
+          = text_field_tag :client_q, nil, class: 'input-medium client-chat__client-query', placeholder: t('.client_search_placeholder'), autocomplete: 'off'
+          %ul.client-chat__client-results
+      - else
+        %span.muted= t('.client_unknown')
     - if conversation.contact_phone.present?
       %dt= t('.phone')
       %dd= conversation.contact_phone

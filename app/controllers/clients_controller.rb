@@ -20,6 +20,11 @@ class ClientsController < ApplicationController
   def show
     @client = find_record(Client.includes(:sale_items, :orders, :free_jobs, :quick_orders, :trade_in_devices,
                                           service_jobs: :device_tasks))
+    # Отдельным запросом, а не через includes выше: блок переписок рисуется
+    # только тем, у кого есть доступ к разделу диалогов, и грузить их всем
+    # остальным незачем.
+    @client_conversations = @client.client_conversations.recent.includes(:messages) if
+      ClientConversationPolicy.new(current_user, ClientConversation).index?
 
     respond_to do |format|
       format.html

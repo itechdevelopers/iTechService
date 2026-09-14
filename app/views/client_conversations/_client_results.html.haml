@@ -1,0 +1,7 @@
+-# Результаты поиска клиента для привязки к диалогу. Каждая строка — сразу
+-# действие: отдельной кнопки «Выбрать» нет, список короткий.
+- if clients.empty?
+  %li.muted= t('.nothing_found')
+- clients.each do |client|
+  %li
+    = link_to client_presentation(client), bind_client_client_conversation_path(conversation, client_id: client.id), method: :post, remote: true

@@ -20,6 +20,9 @@ class Client < ApplicationRecord
   belongs_to :department, optional: true
   belongs_to :client_characteristic, optional: true
   has_many :service_jobs, inverse_of: :client, dependent: :restrict_with_error
+  # Переписки в мессенджерах. nullify, а не destroy: удаление карточки клиента
+  # не повод стирать историю общения — она просто перестаёт быть привязанной.
+  has_many :client_conversations, dependent: :nullify
   has_many :devices, -> { distinct }, through: :service_jobs, source: :item, class_name: 'Item'
   has_many :orders, as: :customer, dependent: :destroy
   has_many :purchases, class_name: 'Sale', inverse_of: :client, dependent: :nullify

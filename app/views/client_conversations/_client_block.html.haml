@@ -1,0 +1,25 @@
+-# Переписки клиента в мессенджерах — блок на его карточке. Показываем только
+-# тем, у кого есть доступ к разделу диалогов: содержимое переписки чувствительнее
+-# списка ремонтов.
+- if conversations.any?
+  %h4= t('.title')
+  %table.table.table-bordered.table-hover.table-condensed
+    %thead
+      %tr
+        %th= t('.started')
+        %th= t('.channel')
+        %th= t('.last_message')
+        %th= t('.messages')
+        %th= t('.status')
+    %tbody
+      - conversations.each do |conversation|
+        %tr
+          %td= link_to human_datetime(conversation.started_at || conversation.created_at), client_conversation_path(conversation)
+          %td= t("client_conversations.conversation.channels.#{conversation.channel}", default: conversation.channel)
+          %td= human_datetime conversation.last_message_at
+          %td= conversation.messages.size
+          %td
+            - if conversation.open?
+              %span.label.label-info= t('client_conversations.card.statuses.open')
+            - else
+              %span.label= t('client_conversations.card.statuses.closed')

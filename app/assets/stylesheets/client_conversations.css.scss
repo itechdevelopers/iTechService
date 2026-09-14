@@ -126,3 +126,37 @@
     margin: 0;
   }
 }
+
+.client-chat__client-picker {
+  position: relative;
+  display: inline-block;
+}
+
+.client-chat__client-results {
+  display: none;
+  position: absolute;
+  z-index: 1000;
+  left: 0;
+  top: 100%;
+  min-width: 260px;
+  margin: 0;
+  padding: 4px 0;
+  list-style: none;
+  background: #fff;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, .15);
+
+  li {
+    padding: 3px 10px;
+    white-space: nowrap;
+  }
+
+  li:hover {
+    background: #f0f0f0;
+  }
+}
+
+.client-chat__unbind {
+  margin-left: 8px;
+}
