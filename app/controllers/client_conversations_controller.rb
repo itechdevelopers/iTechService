@@ -30,6 +30,7 @@ class ClientConversationsController < ApplicationController
     body = reply_params[:body].to_s.strip
 
     photo = reply_params[:photo]
+    assigned_before = @conversation.assigned_user_id
 
     if @conversation.closed?
       @error = t('.conversation_closed')
@@ -44,11 +45,22 @@ class ClientConversationsController < ApplicationController
       SendClientMessageJob.perform_later(@message.id)
     end
 
+    # Ответ мог сделать сотрудника ответственным — тогда устарела и шапка
+    # карточки, и набор кнопок, а не только лента.
+    @assignment_changed = @conversation.assigned_user_id != assigned_before
+
     # jquery_ujs отменяет AJAX, если в форме выбран файл, и отправляет её
     # обычным способом — поэтому у экшена обязан быть HTML-ответ, иначе
     # отправка фото падала бы с ActionView::MissingTemplate.
     respond_to do |format|
-      format.js
+      format.js do
+        if @assignment_changed
+          load_card
+          render :update_card
+        else
+          render :reply
+        end
+      end
       format.html do
         flash[:alert] = @error if @error
         redirect_to client_conversation_path(@conversation)

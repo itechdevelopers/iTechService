@@ -214,6 +214,14 @@ class ClientConversation < ApplicationRecord
     end
 
     update_columns(attrs)
+
+    # Первый ответивший забирает диалог себе. Кнопка «Взять в работу»
+    # остаётся, но обычно сотрудник просто отвечает — и без этого правила
+    # «Кто ведёт» пустовало бы у всех отвеченных диалогов.
+    #
+    # from_employee? отсекает автоответ бота: у него нет автора, и робот
+    # ответственным стать не может.
+    assign_to!(message.user) if message.from_employee? && assigned_user_id.nil?
   end
 
   private
