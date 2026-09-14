@@ -4,7 +4,7 @@ ru:
       title: Диалоги с клиентами
     list:
       empty: Диалогов пока нет.
-      all_departments: Все филиалы
+      all_cities: Все города
       filters:
         awaiting: Без ответа
         mine: Мои
@@ -12,7 +12,7 @@ ru:
         closed: Закрытые
       columns:
         contact: Клиент
-        department: Филиал
+        city: Город
         last_message: Последнее сообщение
         waiting: Ждёт ответа
         first_reply: Время первого ответа
@@ -24,8 +24,8 @@ ru:
         telegram: Telegram
     card:
       phone: Телефон
-      department: Филиал
-      department_unknown: не определён
+      city: Город
+      city_unknown: не определён
       assigned: Кто ведёт
       nobody: никто
       status: Статус

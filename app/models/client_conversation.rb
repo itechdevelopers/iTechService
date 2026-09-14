@@ -15,7 +15,7 @@ class ClientConversation < ApplicationRecord
   # Дольше этого клиент ждёт ответа «слишком долго» — строка в списке краснеет.
   WAITING_ALERT = 15.minutes
 
-  # Все четыре связи необязательны: клиент может остаться неопознанным, филиал —
+  # Все четыре связи необязательны: клиент может остаться неопознанным, город —
   # неопределённым, ответственного может не быть, а пустой closed_by у закрытого
   # диалога означает автозакрытие по тишине.
   #
@@ -23,7 +23,7 @@ class ClientConversation < ApplicationRecord
   # в new_framework_defaults.rb: она применяется уже после того, как
   # ActiveRecord прочитал эту настройку, и ни на что не влияет.
   belongs_to :client, optional: true
-  belongs_to :department, optional: true
+  belongs_to :city, optional: true
   belongs_to :assigned_user, class_name: 'User', optional: true
   belongs_to :closed_by, class_name: 'User', optional: true
 

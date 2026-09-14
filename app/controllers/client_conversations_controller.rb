@@ -10,9 +10,9 @@ class ClientConversationsController < ApplicationController
     authorize ClientConversation
 
     @filter = FILTERS.include?(params[:filter]) ? params[:filter] : FILTERS.first
-    @departments = Department.real
+    @cities = City.with_real_departments
     @counts = filter_counts
-    @conversations = ordered(filtered_scope).includes(:client, :department, :assigned_user)
+    @conversations = ordered(filtered_scope).includes(:client, :city, :assigned_user)
                                             .limit(PER_PAGE).to_a
     @last_messages = last_messages_for(@conversations)
   end
@@ -91,7 +91,7 @@ class ClientConversationsController < ApplicationController
       else ClientConversation.awaiting_reply
       end
 
-    scope = scope.where(department_id: params[:department_id]) if params[:department_id].present?
+    scope = scope.where(city_id: params[:city_id]) if params[:city_id].present?
     scope
   end
 

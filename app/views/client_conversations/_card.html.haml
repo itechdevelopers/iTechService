@@ -6,8 +6,8 @@
     - if conversation.contact_phone.present?
       %dt= t('.phone')
       %dd= conversation.contact_phone
-    %dt= t('.department')
-    %dd= conversation.department&.full_name || t('.department_unknown')
+    %dt= t('.city')
+    %dd= conversation.city&.name || t('.city_unknown')
     %dt= t('.assigned')
     %dd= conversation.assigned_user&.short_name || t('.nobody')
     %dt= t('.status')

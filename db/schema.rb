@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20260911144902) do
+ActiveRecord::Schema.define(version: 20260914104119) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -347,7 +347,6 @@ ActiveRecord::Schema.define(version: 20260911144902) do
     t.string "channel", default: "telegram", null: false
     t.string "external_chat_id", null: false
     t.bigint "client_id"
-    t.bigint "department_id"
     t.bigint "assigned_user_id"
     t.bigint "closed_by_id"
     t.string "status", default: "open", null: false
@@ -363,11 +362,12 @@ ActiveRecord::Schema.define(version: 20260911144902) do
     t.datetime "auto_reply_sent_at"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.bigint "city_id"
     t.index ["assigned_user_id"], name: "index_client_conversations_on_assigned_user_id"
     t.index ["channel", "external_chat_id"], name: "index_client_conversations_on_open_chat", unique: true, where: "((status)::text = 'open'::text)"
+    t.index ["city_id"], name: "index_client_conversations_on_city_id"
     t.index ["client_id"], name: "index_client_conversations_on_client_id"
     t.index ["closed_by_id"], name: "index_client_conversations_on_closed_by_id"
-    t.index ["department_id"], name: "index_client_conversations_on_department_id"
     t.index ["status", "last_message_at"], name: "index_client_conversations_on_status_and_last_message_at"
   end
 
@@ -2966,8 +2966,8 @@ ActiveRecord::Schema.define(version: 20260911144902) do
   add_foreign_key "check_list_responses", "check_lists"
   add_foreign_key "check_lists", "check_list_items", column: "main_question_id"
   add_foreign_key "client_characteristics", "users", column: "set_by_user_id"
+  add_foreign_key "client_conversations", "cities"
   add_foreign_key "client_conversations", "clients"
-  add_foreign_key "client_conversations", "departments"
   add_foreign_key "client_conversations", "users", column: "assigned_user_id"
   add_foreign_key "client_conversations", "users", column: "closed_by_id"
   add_foreign_key "client_messages", "client_conversations"

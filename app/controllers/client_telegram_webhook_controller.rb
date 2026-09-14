@@ -44,11 +44,11 @@ class ClientTelegramWebhookController < Telegram::Bot::UpdatesController
   }.freeze
 
   def start!(payload = nil, *)
-    department = department_from_payload(payload)
-    conversation.update!(department: department) if department
+    city = city_from_payload(payload)
+    conversation.update!(city: city) if city
 
-    if conversation.department
-      respond_with :message, text: "#{GREETING}\n\n#{branch_line}",
+    if conversation.city
+      respond_with :message, text: "#{GREETING}\n\n#{city_line}",
                              reply_markup: change_branch_markup
     else
       respond_with :message, text: "#{GREETING}\n\nИз какого вы города?",
@@ -60,7 +60,7 @@ class ClientTelegramWebhookController < Telegram::Bot::UpdatesController
   # город, перешёл по чужой ссылке).
   def city!(*)
     respond_with :message,
-                 text: conversation.department ? branch_line : 'Из какого вы города?',
+                 text: conversation.city ? city_line : 'Из какого вы города?',
                  reply_markup: city_markup
   end
 
@@ -87,7 +87,7 @@ class ClientTelegramWebhookController < Telegram::Bot::UpdatesController
     when /\Adep:(\d+)\z/
       # Старые клавиатуры со списком филиалов: у клиента в переписке они
       # остаются рабочими кнопками и после перехода на выбор города.
-      select_department(Department.real.find_by(id: Regexp.last_match(1)))
+      select_city(Department.real.find_by(id: Regexp.last_match(1))&.city)
     else
       answer_callback_query(nil)
     end
@@ -122,11 +122,13 @@ class ClientTelegramWebhookController < Telegram::Bot::UpdatesController
     }.compact
   end
 
-  def department_from_payload(payload)
+  # Ссылка остаётся адресной по филиалу — её печатают на конкретной точке, —
+  # но в диалог кладём его город: филиал нам больше ни для чего не нужен.
+  def city_from_payload(payload)
     code = payload.to_s.strip
     return nil unless code.start_with?(DEEP_LINK_PREFIX)
 
-    Department.real.find_by(code: code.delete_prefix(DEEP_LINK_PREFIX))
+    Department.real.find_by(code: code.delete_prefix(DEEP_LINK_PREFIX))&.city
   end
 
   # Фото кладём в ленту сразу, а файл догружаем джобой: строка нужна здесь и
@@ -173,8 +175,8 @@ class ClientTelegramWebhookController < Telegram::Bot::UpdatesController
     return if client.nil?
 
     attrs = { client: client }
-    if conversation.department.nil?
-      attrs[:department] = client.service_jobs.order(created_at: :desc).first&.department
+    if conversation.city.nil?
+      attrs[:city] = client.service_jobs.order(created_at: :desc).first&.department&.city
     end
     conversation.update!(attrs.compact)
   end
@@ -219,27 +221,13 @@ class ClientTelegramWebhookController < Telegram::Bot::UpdatesController
   def select_city(city)
     return answer_callback_query('Город не найден') if city.nil?
 
-    select_department(department_for(city))
-  end
-
-  def select_department(department)
-    return answer_callback_query('Не нашли, попробуйте ещё раз') if department.nil?
-
-    conversation.update!(department: department)
+    conversation.update!(city: city)
     answer_callback_query(nil)
-    respond_with :message, text: branch_line
+    respond_with :message, text: city_line
   end
 
-  # Из филиала нам нужны только часы работы для автоответа, поэтому берём тот,
-  # у которого они заполнены: у бэк-офиса их обычно нет, а процитировать
-  # клиенту его расписание было бы неверно.
-  def department_for(city)
-    scope = Department.real.in_city(city)
-    scope.joins(:working_hours).distinct.first || scope.first
-  end
-
-  def branch_line
-    "Ваш город: #{conversation.department.city_name}."
+  def city_line
+    "Ваш город: #{conversation.city.name}."
   end
 
   # Клиенту показываем только города: филиал внутри города он всё равно не
@@ -252,12 +240,8 @@ class ClientTelegramWebhookController < Telegram::Bot::UpdatesController
     { inline_keyboard: buttons }
   end
 
-  # Подзапросом, а не joins+distinct: у City и Department свои default_scope с
-  # сортировкой, merge затащил бы ORDER BY departments.id в запрос, а Postgres
-  # запрещает сортировать SELECT DISTINCT по полю вне списка выборки.
-  # reorder(nil) снимает сортировку внутри подзапроса — там она не нужна.
   def pickable_cities
-    City.where(id: Department.real.reorder(nil).select(:city_id))
+    City.with_real_departments
   end
 
   def change_branch_markup
