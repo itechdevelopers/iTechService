@@ -26,6 +26,9 @@ ru:
       phone: Телефон
       city: Город
       city_unknown: не определён
+      client_unknown: не привязан
+      client_search_placeholder: Найти клиента…
+      unbind_client: Отвязать
       assigned: Кто ведёт
       nobody: никто
       status: Статус
@@ -44,6 +47,15 @@ ru:
     reply:
       empty_body: Сообщение пустое — писать нечего.
       conversation_closed: Диалог уже закрыт, ответ не отправлен.
+    client_results:
+      nothing_found: Ничего не найдено
+    client_block:
+      title: Переписки в мессенджерах
+      started: Начата
+      channel: Канал
+      last_message: Последнее сообщение
+      messages: Сообщений
+      status: Статус
     message:
       photo_pending: "[фото загружается…]"
       pending: отправляется

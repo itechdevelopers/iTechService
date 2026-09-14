@@ -133,6 +133,20 @@ class ClientConversation < ApplicationRecord
     true
   end
 
+  # Клиент проставляется сам, только когда он поделился контактом и телефон
+  # нашёлся в базе. В остальных случаях Telegram номера не отдаёт, и связать
+  # переписку с карточкой может лишь сотрудник — он видит, с кем говорит.
+  def bind_client!(new_client)
+    return false if client_id == new_client&.id
+
+    previous = client
+    transaction do
+      update!(client: new_client)
+      add_system_message(client_note(previous, new_client))
+    end
+    true
+  end
+
   # Город определяется автоматически (ссылка, выбор клиента, опознание по
   # телефону), но ошибиться легко, а у диалога без города автоответ вне
   # рабочих часов не уходит вовсе — сотруднику нужен способ это поправить.
@@ -239,6 +253,13 @@ class ClientConversation < ApplicationRecord
     else
       "Диалог перехвачен: #{current.short_name} (был за #{previous.short_name})"
     end
+  end
+
+  def client_note(previous, current)
+    return "Клиент отвязан (был #{previous.short_name})" if current.nil?
+    return "Клиент привязан: #{current.short_name}" if previous.nil?
+
+    "Клиент изменён: #{current.short_name} (был #{previous.short_name})"
   end
 
   def city_note(previous, current)

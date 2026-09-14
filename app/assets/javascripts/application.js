@@ -78,3 +78,4 @@
 //= require glass_sticking
 //= require employee_statistics
 //= require strict_repair
+//= require client_conversations

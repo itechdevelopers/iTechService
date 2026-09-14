@@ -92,6 +92,21 @@ class ClientConversationsController < ApplicationController
     render :update_card
   end
 
+  # Поиск клиента для привязки. Общий пикер из формы приёмки переиспользовать
+  # нельзя: он завязан на её разметку (#client_search, #service_job_client_id)
+  # и на абсолютное позиционирование списка.
+  def client_search
+    @conversation = find_record ClientConversation
+    @clients = policy_scope(Client).search(client_q: params[:q]).limit(10)
+  end
+
+  def bind_client
+    @conversation = find_record ClientConversation
+    @conversation.bind_client!(policy_scope(Client).find_by(id: params[:client_id]))
+    load_card
+    render :update_card
+  end
+
   private
 
   def reply_params
