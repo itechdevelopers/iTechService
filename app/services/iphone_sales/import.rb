@@ -40,6 +40,7 @@ module IphoneSales
 
     def validate_days!(from, to)
       invalid! unless @report.dig('checks', 'passed') == true &&
+        @report.dig('checks', 'all_pages_received') == true && @report.dig('checks', 'duplicates') == 0 &&
         @report.dig('source', 'read_only') == true && @report.dig('source', 'http_methods') == ['GET']
       days = @report.fetch('days')
       invalid! unless days.is_a?(Array) && days.map { |d| d.fetch('date') }.sort == (from..to).map(&:iso8601)
