@@ -1,0 +1,25 @@
+-# Одна реплика ленты. Служебные записи (kind: system) клиенту не уходят —
+-# это автоответ бота и отметки о взятии в работу и закрытии.
+- modifier = message.system? ? 'system' : message.direction
+%div{ class: "client-chat__row client-chat__row--#{modifier}", id: "client_message_#{message.id}" }
+  %span.client-chat__bubble
+    -# Картинка появляется, когда AttachClientPhotoJob её догрузит; до этого
+    -# в ленте стоит пометка — иначе реплика выглядела бы пустой.
+    - if message.photo?
+      = link_to message.photo.file.authenticated_url(expires_in: 600), target: '_blank' do
+        = image_tag message.photo.file.authenticated_url(expires_in: 600), class: 'client-chat__photo'
+    - elsif message.photo_kind?
+      %span.muted= t('.photo_pending')
+    = message.body
+    %span.client-chat__meta
+      - if message.from_employee?
+        = message.user.short_name
+        = '·'
+      = human_datetime message.created_at
+      -# Статус доставки — только у реплик. Служебные записи никуда не уходят,
+      -# и «отправляется» рядом с «диалог взят в работу» сбивало бы с толку.
+      - unless message.system?
+        - if message.delivery_status == 'pending'
+          %span= "· #{t('.pending')}"
+        - elsif message.delivery_status == 'failed'
+          %span.client-chat__failed= "· #{t('.failed')}"

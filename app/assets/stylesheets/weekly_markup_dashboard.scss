@@ -127,3 +127,18 @@
   .monthly-markup-tiles { gap: 10px; }
   .monthly-markup-tile { width: calc(50% - 5px); height: auto; aspect-ratio: 1 / 1; }
 }
+
+.iphone-sales-widget .yearly-markup-widget__square { background: #eaf4ff; border-color: #77aee0; }
+.iphone-sales-warning { color: #935100; }
+.iphone-sales-filters { margin: 20px 0; display: flex; gap: 12px; flex-wrap: wrap; align-items: center; }
+.iphone-sales-summary { display: flex; flex-wrap: wrap; gap: 20px; margin: 20px 0; }
+.iphone-sales-card { box-sizing: border-box; width: 250px; min-height: 170px; border: 1px solid #b9d0e7; border-radius: 12px; background: #eef6ff; padding: 22px; display: flex; flex-direction: column; gap: 14px; }
+.iphone-sales-card strong { font-size: 40px; line-height: 1.2; }
+.iphone-sales-card--forecast { border-style: dashed; background: #f7f9fb; }
+.iphone-sales-months { display: grid; grid-template-columns: repeat(auto-fit, minmax(145px, 1fr)); gap: 12px; margin-bottom: 28px; }
+.iphone-sales-month { padding: 16px; border: 1px solid #d5e1ed; border-radius: 8px; display: flex; flex-direction: column; gap: 10px; }
+.iphone-sales-month strong { font-size: 27px; }
+.iphone-sales-month--partial { border-style: dashed; background: #fafafa; }
+.iphone-sales-table-wrap { overflow-x: auto; margin-bottom: 25px; }
+.iphone-sales-table-wrap td { text-align: right; white-space: nowrap; }
+.iphone-sales-table-wrap th:first-child { min-width: 130px; }

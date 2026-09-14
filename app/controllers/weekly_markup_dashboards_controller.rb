@@ -6,6 +6,15 @@ class WeeklyMarkupDashboardsController < ApplicationController
 
   def show
     @yearly_markup_summary = WeeklyMarkup::YearSummary.new.call
+    @iphone_sales = IphoneSales::Dashboard.new.call
+  end
+
+  def iphone_sales
+    year = params[:year].present? ? Integer(params[:year]) : Time.current.in_time_zone('Asia/Vladivostok').year
+    raise ArgumentError unless year.between?(2019, Time.current.in_time_zone('Asia/Vladivostok').year)
+    @iphone_sales = IphoneSales::Dashboard.new(year: year, warehouse_id: params[:warehouse_id]).call
+  rescue ArgumentError
+    redirect_to iphone_sales_weekly_markup_dashboard_path, alert: 'Некорректный год или филиал.'
   end
 
   def details

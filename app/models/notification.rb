@@ -24,6 +24,7 @@ class Notification < ApplicationRecord
     'Inventory'                => 'Ревизии',
     'Merit'                    => 'Плюсы',
     'Fault'                    => 'Минусы',
+    'ClientConversation'       => 'Диалоги с клиентами',
     nil                        => 'Без типа'
   }.freeze
 

@@ -9,11 +9,13 @@ Rails.application.routes.draw do
   get 'dashboard', to: 'dashboard#index'
   resource :weekly_markup_dashboard, only: :show do
     get :details
+    get :iphone_sales
     get :branch
     get :download
   end
   namespace :api do
     resources :weekly_markup_imports, only: :create
+    resources :iphone_sales_imports, only: :create
   end
   get 'become/:id', to: 'dashboard#become', as: 'become'
   get 'actual_orders', to: 'dashboard#actual_orders'
@@ -98,6 +100,17 @@ Rails.application.routes.draw do
   resources :marker_words, only: %i[index create destroy]
   resources :phone_labels, only: %i[index create destroy]
   telegram_webhook TelegramWebhookController if ENV['TELEGRAM_BOT_TOKEN'].present?
+  # Второй бот переименовывает роуты в default_/client_telegram_webhook, но путь
+  # строится из хэша токена и не меняется — вебхук в Telegram перенастраивать не надо.
+  telegram_webhook ClientTelegramWebhookController, :client if ENV['CLIENT_TELEGRAM_BOT_TOKEN'].present?
+  resources :client_conversations, only: %i[index show] do
+    member do
+      post :reply
+      post :assign
+      post :close
+      post :change_city
+    end
+  end
   resources :telegram_bot_settings, only: %i[index]
   resources :telegram_chats, only: %i[new create edit update destroy]
   resources :telegram_broadcasts, except: %i[show] do

@@ -1,5 +1,6 @@
 ru:
   settings:
+    client_chat_after_hours_reply: Автоответ клиенту вне рабочих часов
     edit:
       title: 'Редактирование параметра'
     index:
