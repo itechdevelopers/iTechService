@@ -19,7 +19,7 @@ class ClientConversationsController < ApplicationController
 
   def show
     @conversation = find_record ClientConversation
-    load_messages
+    load_card
   end
 
   # Ответ клиенту. Сообщение сначала ложится в ленту со статусом pending и
@@ -61,14 +61,22 @@ class ClientConversationsController < ApplicationController
   def assign
     @conversation = find_record ClientConversation
     @conversation.assign_to!(current_user)
-    load_messages
+    load_card
     render :update_card
   end
 
   def close
     @conversation = find_record ClientConversation
     @conversation.close!(current_user) if @conversation.open?
-    load_messages
+    load_card
+    render :update_card
+  end
+
+  # Город правится вручную, когда клиент выбрал не тот или не выбрал вовсе.
+  def change_city
+    @conversation = find_record ClientConversation
+    @conversation.change_city!(City.with_real_departments.find_by(id: params[:city_id]))
+    load_card
     render :update_card
   end
 
@@ -78,8 +86,11 @@ class ClientConversationsController < ApplicationController
     params.fetch(:client_message, {}).permit(:body, :photo)
   end
 
-  def load_messages
+  # Всё, что нужно партиалу карточки. Зовётся из show и из всех действий,
+  # которые её перерисовывают.
+  def load_card
     @messages = @conversation.messages.chronological.includes(:user)
+    @cities = City.with_real_departments
   end
 
   def filtered_scope

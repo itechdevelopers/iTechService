@@ -117,3 +117,12 @@
 .client-chat__reply-photo {
   margin: 0;
 }
+
+.client-chat__city-form {
+  display: inline-block;
+  margin: 0;
+
+  select {
+    margin: 0;
+  }
+}

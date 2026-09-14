@@ -133,6 +133,20 @@ class ClientConversation < ApplicationRecord
     true
   end
 
+  # Город определяется автоматически (ссылка, выбор клиента, опознание по
+  # телефону), но ошибиться легко, а у диалога без города автоответ вне
+  # рабочих часов не уходит вовсе — сотруднику нужен способ это поправить.
+  def change_city!(new_city)
+    return false if city_id == new_city&.id
+
+    previous = city
+    transaction do
+      update!(city: new_city)
+      add_system_message(city_note(previous, new_city))
+    end
+    true
+  end
+
   # user пуст ⇒ закрыл не человек, а суточная тишина.
   def close!(user = nil)
     transaction do
@@ -217,6 +231,13 @@ class ClientConversation < ApplicationRecord
     else
       "Диалог перехвачен: #{current.short_name} (был за #{previous.short_name})"
     end
+  end
+
+  def city_note(previous, current)
+    return "Город убран (был #{previous.name})" if current.nil?
+    return "Город указан: #{current.name}" if previous.nil?
+
+    "Город изменён: #{current.name} (был #{previous.name})"
   end
 
   def closing_note(user)

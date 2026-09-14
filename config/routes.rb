@@ -98,6 +98,7 @@ Rails.application.routes.draw do
       post :reply
       post :assign
       post :close
+      post :change_city
     end
   end
   resources :telegram_bot_settings, only: %i[index]
