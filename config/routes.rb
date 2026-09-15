@@ -94,6 +94,7 @@ Rails.application.routes.draw do
   # строится из хэша токена и не меняется — вебхук в Telegram перенастраивать не надо.
   telegram_webhook ClientTelegramWebhookController, :client if ENV['CLIENT_TELEGRAM_BOT_TOKEN'].present?
   resources :client_conversations, only: %i[index show] do
+    get :counter, on: :collection
     member do
       post :reply
       post :assign

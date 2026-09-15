@@ -160,3 +160,78 @@
 .client-chat__unbind {
   margin-left: 8px;
 }
+
+// Иконка в топбаре. Размеры подогнаны под соседние ссылки-глифы, как у
+// .quack-control__nav-icon.
+#topbar .bar-buttons a.client-chat-nav-icon {
+  display: inline-block;
+  padding: 0 6px;
+  line-height: 36px;
+  vertical-align: middle;
+  text-decoration: none;
+
+  .client-chat-nav-icon__glyph {
+    font-size: 17px;
+  }
+
+  .badge {
+    margin-left: 2px;
+    vertical-align: super;
+    font-size: 11px;
+  }
+}
+
+// Всплывашка у иконки в топбаре. Ширину задаём самой подсказке, иначе
+// Bootstrap разложит строки по своей минимальной и текст будет рваться.
+.popover .client-chat-popover__item {
+  display: block;
+  padding: 5px 0;
+  border-bottom: 1px solid #eee;
+  color: #333;
+  text-decoration: none;
+
+  &:last-child {
+    border-bottom: 0;
+  }
+
+  &:hover {
+    background: #f5f5f5;
+  }
+}
+
+.client-chat-popover__head {
+  display: flex;
+  justify-content: space-between;
+  gap: 10px;
+}
+
+.client-chat-popover__who {
+  font-weight: 600;
+}
+
+.client-chat-popover__waiting {
+  color: #b94a48;
+  white-space: nowrap;
+}
+
+.client-chat-popover__text {
+  color: #777;
+  font-size: 12px;
+}
+
+.client-chat-popover__empty {
+  margin: 0;
+}
+
+// Bootstrap вставляет подсказку сразу после элемента (insertAfter), поэтому
+// соседний селектор надёжен и не задевает остальные popover'ы в приложении.
+#client_conversations_icon + .popover {
+  width: 300px;
+}
+
+.client-chat-popover__footer {
+  margin-top: 6px;
+  padding-top: 6px;
+  border-top: 1px solid #eee;
+  text-align: right;
+}

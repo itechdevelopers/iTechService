@@ -47,6 +47,10 @@ ru:
     reply:
       empty_body: Сообщение пустое — писать нечего.
       conversation_closed: Диалог уже закрыт, ответ не отправлен.
+    popover_list:
+      empty: Все диалоги отвечены.
+      all: Все диалоги →
+      photo: "[фото]"
     client_results:
       nothing_found: Ничего не найдено
     client_block:

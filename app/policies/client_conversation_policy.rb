@@ -30,6 +30,10 @@ class ClientConversationPolicy < ApplicationPolicy
     index?
   end
 
+  def counter?
+    index?
+  end
+
   def client_search?
     index?
   end

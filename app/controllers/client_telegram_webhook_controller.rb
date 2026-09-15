@@ -183,17 +183,11 @@ class ClientTelegramWebhookController < Telegram::Bot::UpdatesController
 
   # Побочные эффекты нового входящего. Повторная доставка апдейта сюда не
   # доходит: store_inbound в таком случае возвращает nil.
-  #
-  # was_awaiting снимаем ДО создания записи: после неё диалог ждёт ответа в
-  # любом случае, и отличить «клиент написал впервые» от «клиент дописывает
-  # четвёртое сообщение подряд» было бы уже нечем.
   def handle_inbound(message, kind:, body:)
-    was_awaiting = conversation.awaiting_reply?
     record = store_inbound(message, kind: kind, body: body)
     return nil if record.nil?
 
     ClientChat::AutoReply.call(conversation)
-    NotifyClientConversationJob.perform_later(record.id) unless was_awaiting
     record
   end
 

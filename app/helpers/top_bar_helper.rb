@@ -1,4 +1,8 @@
 module TopBarHelper
+  # Сколько заждавшихся диалогов показывать во всплывашке. Это не список задач,
+  # а подсказка «что горит» — за остальным человек идёт в раздел.
+  CLIENT_CONVERSATIONS_POPOVER_LIMIT = 5
+
   def header_link_to_feedbacks
     link_to glyph('phone'), '#', id: 'feedback_notifications-link', rel: 'popover',
             data: {html: true, placement: 'bottom', content: ''}
@@ -78,6 +82,45 @@ module TopBarHelper
   def header_link_to_bad_reviews
     link_to image_tag('bad-review.svg'), '#', rel: 'popover', class: 'hidden', id: 'bad_review_announcements',
             data: {html: true, placement: 'bottom', title: 'Негативные отзывы'}
+  end
+
+  # Иконка «Диалоги с клиентами» со счётчиком необработанных. Видимость
+  # делегирована политике, чтобы не расходиться с доступом к самому разделу.
+  #
+  # Показываем состояние (сколько диалогов ждут ответа сейчас), а не журнал
+  # событий: ответил один сотрудник — число падает у всех само, и закрывать
+  # уведомления не нужно.
+  def header_link_to_client_conversations
+    return unless policy(ClientConversation).index?
+
+    count = ClientConversation.awaiting_count_for(current_user)
+    link_to client_conversations_path(filter: 'awaiting'),
+            id: 'client_conversations_icon', rel: 'popover',
+            class: 'client-chat-nav-icon',
+            data: { html: true, placement: 'bottom',
+                    title: t('client_conversations.index.title'),
+                    content: client_conversations_popover_content } do
+      safe_join([
+        content_tag(:span, '💬', class: 'client-chat-nav-icon__glyph'),
+        content_tag(:span, count, id: 'client_conversations_counter',
+                                  class: "badge badge-important#{' hidden' if count.zero?}")
+      ])
+    end
+  end
+
+  # Содержимое всплывашки. Строится и при загрузке страницы, и при каждом
+  # обновлении счётчика, поэтому живёт отдельным методом.
+  def client_conversations_popover_content
+    # Свежие сверху, в отличие от страницы, где очередь отсортирована по
+    # возрасту ожидания. Всплывашка отвечает на вопрос «что прилетело», а
+    # «кто ждёт дольше всех» человек смотрит в разделе.
+    conversations = ClientConversation.awaiting_for(current_user)
+                                      .order(last_inbound_at: :desc)
+                                      .limit(CLIENT_CONVERSATIONS_POPOVER_LIMIT)
+                                      .includes(:client).to_a
+    render partial: 'client_conversations/popover_list',
+           locals: { conversations: conversations,
+                     last_messages: ClientConversation.last_messages_for(conversations) }
   end
 
   def header_link_to_notifications

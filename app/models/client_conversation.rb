@@ -73,10 +73,36 @@ class ClientConversation < ApplicationRecord
     "#{hours / 24} д #{hours % 24} ч"
   end
 
-  # Диалоги ведёт локация Медиа. Location#is_media? — это code == 'content';
-  # роль `media` у пользователя это другая сущность и сюда не относится.
-  def self.notification_recipients
-    User.active.staff.located_at(Location.content)
+  # Сколько диалогов ждут ответа у этого сотрудника — число для иконки в
+  # топбаре. Это состояние, а не журнал событий: ответил один — счётчик упал
+  # у всех сам, закрывать ничего не нужно, и число всегда совпадает с тем,
+  # что человек увидит на вкладке «Без ответа».
+  #
+  # Диалоги без города считаем всем: города у них нет ни у кого, и показать их
+  # только «своим» невозможно — они просто потерялись бы.
+  # Диалоги без города — всем: города у них нет ни у кого, и показать их
+  # только «своим» невозможно, они просто потерялись бы. Сотрудник без города
+  # (например, суперадмин вне подразделения) видит всё.
+  def self.awaiting_for(user)
+    return awaiting_reply if user&.city_id.blank?
+
+    awaiting_reply.where(city_id: [user.city_id, nil])
+  end
+
+  def self.awaiting_count_for(user)
+    awaiting_for(user).count
+  end
+
+  # Последнее НЕслужебное сообщение каждого диалога — одним запросом вместо
+  # обращения к conversation.messages.last в каждой строке. Служебные записи
+  # не годятся: нужно видеть, что сказал клиент, а не «диалог взят в работу».
+  def self.last_messages_for(conversations)
+    return {} if conversations.empty?
+
+    ids = ClientMessage.where(client_conversation_id: conversations.map(&:id))
+                       .where.not(kind: 'system')
+                       .group(:client_conversation_id).maximum(:id)
+    ClientMessage.where(id: ids.values).index_by(&:client_conversation_id)
   end
 
   def self.open_for(channel, external_chat_id)
@@ -158,6 +184,8 @@ class ClientConversation < ApplicationRecord
       update!(city: new_city)
       add_system_message(city_note(previous, new_city))
     end
+    # Диалог мог переехать в другой город — счётчики обоих изменились.
+    ClientConversationCounterChannel.ping
     true
   end
 
@@ -167,27 +195,7 @@ class ClientConversation < ApplicationRecord
       update!(status: 'closed', closed_at: Time.current, closed_by: user)
       add_system_message(closing_note(user))
     end
-  end
-
-  # Колокольчик о новом сообщении. Зовём ТОЛЬКО когда диалог переходит в
-  # состояние «ждёт ответа» (первое сообщение или сообщение после нашего
-  # ответа): клиент, приславший пять реплик подряд, иначе выдал бы по пять
-  # уведомлений каждому медийщику.
-  #
-  # Ответственный получает уведомление, даже если сидит не в Медиа, — иначе
-  # взятый в работу диалог перестал бы до него доходить.
-  def notify_new_message(message)
-    recipients = (self.class.notification_recipients.to_a + [assigned_user]).compact.uniq
-    return if recipients.empty?
-
-    text = notification_text(message)
-    url = Rails.application.routes.url_helpers.client_conversation_path(self)
-
-    recipients.each do |recipient|
-      notification = Notification.create!(user: recipient, message: text,
-                                          url: url, referenceable: self)
-      UserNotificationChannel.broadcast_to(recipient, notification)
-    end
+    ClientConversationCounterChannel.ping
   end
 
   # Запись в ленте, которой клиент не увидит: отметки о взятии в работу и
@@ -239,11 +247,6 @@ class ClientConversation < ApplicationRecord
   end
 
   private
-
-  def notification_text(message)
-    snippet = message.body.presence || '[фото]'
-    "Сообщение от клиента (#{contact_title}): #{snippet.to_s.truncate(80)}"
-  end
 
   def assignment_note(previous, current)
     if current.nil?

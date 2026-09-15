@@ -32,6 +32,7 @@ class ClientMessage < ApplicationRecord
 
   after_create :register_in_conversation
   after_create :broadcast_to_feed
+  after_create :ping_counter
 
   def inbound?
     direction == 'in'
@@ -64,5 +65,11 @@ class ClientMessage < ApplicationRecord
 
   def broadcast_to_feed
     ClientConversationChannel.broadcast_message(self)
+  end
+
+  # Входящее ставит диалог в очередь, ответ сотрудника — снимает. Служебные
+  # записи на очередь не влияют, и дёргать всех из-за них незачем.
+  def ping_counter
+    ClientConversationCounterChannel.ping unless system?
   end
 end

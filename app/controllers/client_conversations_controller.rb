@@ -14,7 +14,7 @@ class ClientConversationsController < ApplicationController
     @counts = filter_counts
     @conversations = ordered(filtered_scope).includes(:client, :city, :assigned_user)
                                             .limit(PER_PAGE).to_a
-    @last_messages = last_messages_for(@conversations)
+    @last_messages = ClientConversation.last_messages_for(@conversations)
   end
 
   def show
@@ -92,6 +92,13 @@ class ClientConversationsController < ApplicationController
     render :update_card
   end
 
+  # Число диалогов без ответа для иконки в топбаре. Считается на сервере под
+  # конкретного сотрудника: у каждого свой город.
+  def counter
+    authorize ClientConversation
+    @awaiting_count = ClientConversation.awaiting_count_for(current_user)
+  end
+
   # Поиск клиента для привязки. Общий пикер из формы приёмки переиспользовать
   # нельзя: он завязан на её разметку (#client_search, #service_job_client_id)
   # и на абсолютное позиционирование списка.
@@ -146,18 +153,5 @@ class ClientConversationsController < ApplicationController
       'open' => ClientConversation.opened.count,
       'closed' => ClientConversation.closed.count
     }
-  end
-
-  # Последнее сообщение каждого диалога — двумя запросами вместо N+1 на
-  # conversation.messages.last в каждой строке таблицы.
-  def last_messages_for(conversations)
-    return {} if conversations.empty?
-
-    # Служебные записи в колонку не годятся: сотруднику нужно видеть, что
-    # сказал клиент или что ответили ему, а не «диалог взят в работу».
-    ids = ClientMessage.where(client_conversation_id: conversations.map(&:id))
-                       .where.not(kind: 'system')
-                       .group(:client_conversation_id).maximum(:id)
-    ClientMessage.where(id: ids.values).index_by(&:client_conversation_id)
   end
 end
