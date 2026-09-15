@@ -18,6 +18,7 @@ class DeviceTask < ApplicationRecord
   belongs_to :service_job, optional: true
   belongs_to :task, optional: true
   belongs_to :performer, class_name: 'User', optional: true
+  belongs_to :creator, class_name: 'User', optional: true
   belongs_to :expected_repair_cause, class_name: 'RepairCause', optional: true
   belongs_to :expected_repair_service, class_name: 'RepairService', optional: true
   has_and_belongs_to_many :expected_repair_causes,
@@ -61,6 +62,7 @@ class DeviceTask < ApplicationRecord
   after_commit :sync_service_job_repair_status, on: :update
   # after_save :deduct_spare_parts if :is_repair?
   after_initialize :set_performer
+  before_create :set_creator
 
   before_save do |dt|
     old_done = dt.done_was
@@ -137,6 +139,13 @@ class DeviceTask < ApplicationRecord
   end
 
   private
+
+  # Кто добавил задачу к работе. Совпадает с приёмщиком, только когда задачу
+  # завели при создании работы; задачу к уже принятой работе может дописать
+  # любой сотрудник, и отвечает за неё он.
+  def set_creator
+    self.creator_id ||= User.current&.id
+  end
 
   def update_service_job_done_attribute
     return if service_job.nil?

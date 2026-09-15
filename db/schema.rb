@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20260914104119) do
+ActiveRecord::Schema.define(version: 20260915103000) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -569,6 +569,8 @@ ActiveRecord::Schema.define(version: 20260914104119) do
     t.integer "performer_id"
     t.bigint "expected_repair_cause_id"
     t.bigint "expected_repair_service_id"
+    t.bigint "creator_id"
+    t.index ["creator_id"], name: "index_device_tasks_on_creator_id"
     t.index ["done"], name: "index_device_tasks_on_done"
     t.index ["done_at"], name: "index_device_tasks_on_done_at"
     t.index ["expected_repair_cause_id"], name: "index_device_tasks_on_expected_repair_cause_id"
@@ -2253,6 +2255,7 @@ ActiveRecord::Schema.define(version: 20260914104119) do
     t.datetime "reception_photo_check_scheduled_at"
     t.boolean "excluded_from_reports", default: false, null: false
     t.datetime "reception_photo_fault_issued_at"
+    t.bigint "reception_photo_responsible_id"
     t.index ["carrier_id"], name: "index_service_jobs_on_carrier_id"
     t.index ["case_color_id"], name: "index_service_jobs_on_case_color_id"
     t.index ["client_id"], name: "index_service_jobs_on_client_id"
@@ -2265,6 +2268,7 @@ ActiveRecord::Schema.define(version: 20260914104119) do
     t.index ["item_id"], name: "index_service_jobs_on_item_id"
     t.index ["location_id"], name: "index_service_jobs_on_location_id"
     t.index ["photo_container_id"], name: "index_service_jobs_on_photo_container_id"
+    t.index ["reception_photo_responsible_id"], name: "index_service_jobs_on_reception_photo_responsible_id"
     t.index ["repair_pause_reason_id"], name: "index_service_jobs_on_repair_pause_reason_id"
     t.index ["repair_status_id"], name: "index_service_jobs_on_repair_status_id"
     t.index ["return_at"], name: "index_service_jobs_on_return_at"

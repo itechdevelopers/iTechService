@@ -2,12 +2,13 @@
 
 require 'cgi'
 
-# Одноразовое напоминание сотруднику, принявшему устройство, что через полчаса
-# после создания работы у неё есть задача с require_reception_photo, а раздел
-# «Фото при приёмке» всё ещё пуст. Ставится ServiceJob#schedule_reception_photo_check
-# вместе с ReceptionPhotoCheckJob под одним guard'ом. Спустя 30 минут перепроверяем
+# Одноразовое напоминание ответственному за фото (автору задачи-триггера — при
+# обычной приёмке это приёмщик), что через полчаса после появления задачи с
+# require_reception_photo раздел «Фото при приёмке» всё ещё пуст. Ставится
+# ServiceJob#schedule_reception_photo_check вместе с ReceptionPhotoCheckJob
+# под одним guard'ом. Спустя 30 минут перепроверяем
 # актуальное состояние (фото могли добавить, задачу убрать, работу удалить) и, если
-# фото так и нет, шлём личное напоминание создателю: in-app колокольчик + TG личка.
+# фото так и нет, шлём личное напоминание: in-app колокольчик + TG личка.
 # Образцы — ReceptionPhotoCheckJob (перепроверка условия) и RepairAttentionNotifier
 # (двухканальная доставка со ссылкой на работу).
 class ReceptionPhotoReminderJob < ApplicationJob
@@ -27,7 +28,7 @@ class ReceptionPhotoReminderJob < ApplicationJob
     return unless service_job.reception_photo_required?
     return unless service_job.reception_photo_absent?
 
-    recipient = service_job.user
+    recipient = service_job.reception_photo_responsible
     return if recipient.nil?
 
     # Guard covers only the bell: it exists to keep a second in-app notification
@@ -48,7 +49,7 @@ class ReceptionPhotoReminderJob < ApplicationJob
     notification = Notification.create!(
       user: recipient,
       referenceable: service_job,
-      message: message_text(service_job.ticket_number),
+      message: message_text(service_job),
       url: url_helpers.service_job_path(service_job),
       kind: KIND
     )
@@ -68,14 +69,22 @@ class ReceptionPhotoReminderJob < ApplicationJob
   def telegram_text(service_job)
     url = url_helpers.service_job_url(service_job, host: app_host)
     [
-      message_text(CGI.escapeHTML(service_job.ticket_number.to_s)),
+      CGI.escapeHTML(message_text(service_job)),
       '',
       "<a href=\"#{url}\">Перейти к работе</a>"
     ].join("\n")
   end
 
-  def message_text(ticket)
-    I18n.t('notifications.reception_photo_reminder', ticket: ticket)
+  # Устройство принимал один сотрудник, а задачу с обязательным фото мог дописать
+  # другой — ему «ты принял устройство» сказать нельзя.
+  def message_text(service_job)
+    if service_job.reception_photo_added_after_reception?
+      I18n.t('notifications.reception_photo_added_task_reminder',
+             ticket: service_job.ticket_number,
+             tasks: service_job.reception_photo_task_names.join(', '))
+    else
+      I18n.t('notifications.reception_photo_reminder', ticket: service_job.ticket_number)
+    end
   end
 
   def app_host
