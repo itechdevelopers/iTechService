@@ -1,0 +1,6 @@
+(function () {
+  var badge = $('#client_conversations_counter');
+  if (!badge.length) { return; }
+  badge.text('<%= @awaiting_count %>');
+  badge.toggleClass('hidden', <%= @awaiting_count.zero? %>);
+})();

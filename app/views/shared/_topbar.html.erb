@@ -89,6 +89,7 @@
     <%= header_link_to_staff_experience if can? :experience, User %>
     <%= header_link_to_birthdays %>
     <%= header_link_to_quack_control %>
+    <%= header_link_to_client_conversations %>
     <%= header_link_to_notifications %>
     <%= header_fault_button if can? :create, Fault %>
     <%= header_merit_button if can? :create, Merit %>

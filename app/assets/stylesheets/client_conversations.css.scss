@@ -160,3 +160,23 @@
 .client-chat__unbind {
   margin-left: 8px;
 }
+
+// Иконка в топбаре. Размеры подогнаны под соседние ссылки-глифы, как у
+// .quack-control__nav-icon.
+#topbar .bar-buttons a.client-chat-nav-icon {
+  display: inline-block;
+  padding: 0 6px;
+  line-height: 36px;
+  vertical-align: middle;
+  text-decoration: none;
+
+  .client-chat-nav-icon__glyph {
+    font-size: 17px;
+  }
+
+  .badge {
+    margin-left: 2px;
+    vertical-align: super;
+    font-size: 11px;
+  }
+}

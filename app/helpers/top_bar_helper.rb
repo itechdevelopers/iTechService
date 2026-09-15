@@ -80,6 +80,26 @@ module TopBarHelper
             data: {html: true, placement: 'bottom', title: 'Негативные отзывы'}
   end
 
+  # Иконка «Диалоги с клиентами» со счётчиком необработанных. Видимость
+  # делегирована политике, чтобы не расходиться с доступом к самому разделу.
+  #
+  # Показываем состояние (сколько диалогов ждут ответа сейчас), а не журнал
+  # событий: ответил один сотрудник — число падает у всех само, и закрывать
+  # уведомления не нужно.
+  def header_link_to_client_conversations
+    return unless policy(ClientConversation).index?
+
+    count = ClientConversation.awaiting_count_for(current_user)
+    link_to client_conversations_path(filter: 'awaiting'),
+            class: 'client-chat-nav-icon', title: t('client_conversations.index.title') do
+      safe_join([
+        content_tag(:span, '💬', class: 'client-chat-nav-icon__glyph'),
+        content_tag(:span, count, id: 'client_conversations_counter',
+                                  class: "badge badge-important#{' hidden' if count.zero?}")
+      ])
+    end
+  end
+
   def header_link_to_notifications
     link_to "", id: "user_notifications", rel: "popover",
             data: { html: true, placement: "bottom", title: notifications_popover_title } do

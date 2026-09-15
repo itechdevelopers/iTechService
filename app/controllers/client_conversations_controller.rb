@@ -92,6 +92,13 @@ class ClientConversationsController < ApplicationController
     render :update_card
   end
 
+  # Число диалогов без ответа для иконки в топбаре. Считается на сервере под
+  # конкретного сотрудника: у каждого свой город.
+  def counter
+    authorize ClientConversation
+    @awaiting_count = ClientConversation.awaiting_count_for(current_user)
+  end
+
   # Поиск клиента для привязки. Общий пикер из формы приёмки переиспользовать
   # нельзя: он завязан на её разметку (#client_search, #service_job_client_id)
   # и на абсолютное позиционирование списка.
