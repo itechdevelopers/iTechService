@@ -73,6 +73,7 @@ class ServiceJob < ApplicationRecord
   belongs_to :photo_container, optional: true
   belongs_to :repair_status, optional: true
   belongs_to :repair_pause_reason, optional: true
+  belongs_to :reception_photo_responsible, class_name: 'User', optional: true
   has_many :features, through: :item
   has_many :repair_status_changes, dependent: :destroy
   has_many :testing_sessions, dependent: :destroy
@@ -595,6 +596,19 @@ kind: 'device_return', content: id.to_s)
     photo_container.nil? || photo_container.reception_photos.blank?
   end
 
+  # Автор задачи-триггера, зафиксированный в момент взведения таймеров. Фолбэк на
+  # приёмщика — для работ, взведённых до появления колонки, и для задач, у которых
+  # автор неизвестен (созданы не из веб-запроса, где нет User.current).
+  def reception_photo_responsible
+    super || user
+  end
+
+  # Задачу дописали к уже принятой работе: отвечает не приёмщик, а тот, кто её
+  # добавил. Меняет формулировки напоминания и минуса.
+  def reception_photo_added_after_reception?
+    reception_photo_responsible_id.present? && reception_photo_responsible_id != user_id
+  end
+
   # Категория задачи-триггера для выбора типа минуса: :service_center | :repair | nil.
   # «сервисный центр» имеет приоритет над «Ремонт» (см. RECEPTION_PHOTO_FAULT_KIND_NAMES).
   def reception_photo_fault_category
@@ -622,38 +636,53 @@ kind: 'device_return', content: id.to_s)
     end
   end
 
-  # Автоматически выставляет создателю работы минус за отсутствие фото при
-  # приёмке. Идемпотентно: guard reception_photo_fault_issued_at не даёт
+  # Автоматически выставляет минус за отсутствие фото ответственному —
+  # автору задачи-триггера (для обычной приёмки это и есть приёмщик).
+  # Идемпотентно: guard reception_photo_fault_issued_at не даёт
   # продублировать минус при перезапуске джоба. Возвращает созданный Fault
   # либо nil, если минус не выставлен (уже выставлен / нет создателя / тип
   # задачи не сопоставлен с FaultKind). issued_by не заполняется — минус
   # системный (см. docs/reception-photo-reminder-and-auto-fault-feature.md).
   def issue_reception_photo_fault!
     return if reception_photo_fault_issued_at.present?
-    return if user.nil?
+
+    causer = reception_photo_responsible
+    return if causer.nil?
 
     kind = reception_photo_fault_kind
     return if kind.nil?
 
     fault = Fault.create!(
-      causer: user,
+      causer: causer,
       kind: kind,
       date: Date.current,
-      comment: I18n.t('faults.reception_photo_auto_comment', ticket: ticket_number),
-      penalty: reception_photo_fault_penalty(kind)
+      comment: reception_photo_fault_comment,
+      penalty: reception_photo_fault_penalty(kind, causer)
     )
     update_column(:reception_photo_fault_issued_at, Time.current)
     fault
   end
 
+  # Комментарий минуса. Для задачи, дописанной к уже принятой работе, «при
+  # приёмке» звучало бы неверно — сотрудник устройство не принимал, а добавил
+  # задачу, и минус именно за её фото.
+  def reception_photo_fault_comment
+    if reception_photo_added_after_reception?
+      I18n.t('faults.reception_photo_added_task_auto_comment',
+             ticket: ticket_number, tasks: reception_photo_task_names.join(', '))
+    else
+      I18n.t('faults.reception_photo_auto_comment', ticket: ticket_number)
+    end
+  end
+
   # Ступень штрафа по правилам Fault::Create#calculate_penalty: у финансовых
   # видов не считается (nil); иначе по числу уже активных необменянных минусов
   # того же вида у сотрудника на сегодня выбираем элемент из kind.penalties.
-  def reception_photo_fault_penalty(kind)
+  def reception_photo_fault_penalty(kind, causer)
     return if kind.financial?
 
     today = Date.current
-    count = Fault.active.not_exchanged.by_causer(user_id).by_kind(kind).on_date(today).count
+    count = Fault.active.not_exchanged.by_causer(causer.id).by_kind(kind).on_date(today).count
     count < kind.penalties.length ? kind.penalties[count] : kind.penalties[-1]
   end
 
@@ -864,6 +893,13 @@ kind: 'device_return', content: id.to_s)
     end
   end
 
+  # Задача, из-за которой фото стали обязательными: самая ранняя из помеченных.
+  # Отвечает за фото её автор — таймеры взводятся ровно в момент её появления,
+  # будь то приёмка или дописывание задачи к уже принятой работе.
+  def reception_photo_trigger_task
+    reception_photo_device_tasks.order(:created_at, :id).first
+  end
+
   # Одноразовая постановка контроля «фото при приёмке». Ставится, если среди
   # задач работы есть помеченная (require_reception_photo) и фото приёмки ещё
   # нет. Guard-таймстамп reception_photo_check_scheduled_at гарантирует, что
@@ -876,7 +912,10 @@ kind: 'device_return', content: id.to_s)
     return if reception_photo_check_scheduled_at.present?
     return unless reception_photo_required? && reception_photo_absent?
 
-    update_column(:reception_photo_check_scheduled_at, Time.current)
+    update_columns(
+      reception_photo_check_scheduled_at: Time.current,
+      reception_photo_responsible_id: reception_photo_trigger_task&.creator_id
+    )
     ReceptionPhotoReminderJob.set(wait: 30.minutes).perform_later(id)
     ReceptionPhotoCheckJob.set(wait: 1.hour).perform_later(id)
   end

@@ -7,9 +7,10 @@ require 'cgi'
 # (30 мин) под одним guard'ом. Спустя час перепроверяем актуальное состояние
 # (за это время фото могли добавить, задачу убрать, работу удалить) и, если
 # фото так и нет:
-#   1) автоматически выставляем создателю работы минус (Fault) с типом по
-#      категории задачи — только если категория сопоставлена с FaultKind,
-#      иначе минус пропускаем (см. ServiceJob#issue_reception_photo_fault!);
+#   1) автоматически выставляем минус (Fault) ответственному — автору задачи,
+#      из-за которой фото стали обязательными (при обычной приёмке это
+#      приёмщик), с типом по категории задачи — только если категория
+#      сопоставлена с FaultKind, иначе минус пропускаем (см. ServiceJob#issue_reception_photo_fault!);
 #   2) уведомляем сотрудника о новом минусе (in-app колокольчик + TG личка);
 #   3) уведомляем супер-админов (in-app) — с пометкой, выставлен ли минус.
 class ReceptionPhotoCheckJob < ApplicationJob
@@ -35,11 +36,11 @@ class ReceptionPhotoCheckJob < ApplicationJob
   private
 
   def notify_causer(service_job)
-    recipient = service_job.user
+    recipient = service_job.reception_photo_responsible
     return if recipient.nil?
     return if Notification.exists?(referenceable: service_job, kind: CAUSER_KIND)
 
-    message = I18n.t('notifications.reception_photo_fault', ticket: service_job.ticket_number)
+    message = causer_message(service_job)
     notification = Notification.create!(
       user: recipient,
       referenceable: service_job,
@@ -74,11 +75,23 @@ class ReceptionPhotoCheckJob < ApplicationJob
     end
   end
 
+  # Минус за дописанную к принятой работе задачу получает её автор, а не
+  # приёмщик, — текст должен объяснять, за что именно.
+  def causer_message(service_job)
+    if service_job.reception_photo_added_after_reception?
+      I18n.t('notifications.reception_photo_added_task_fault',
+             ticket: service_job.ticket_number,
+             tasks: service_job.reception_photo_task_names.join(', '))
+    else
+      I18n.t('notifications.reception_photo_fault', ticket: service_job.ticket_number)
+    end
+  end
+
   def supervisor_message(service_job, fault)
     key = fault ? 'notifications.reception_photo_supervisor_penalized' \
                 : 'notifications.reception_photo_supervisor_not_penalized'
     I18n.t(key,
-           employee: service_job.user&.short_name,
+           employee: service_job.reception_photo_responsible&.short_name,
            ticket: service_job.ticket_number,
            tasks: service_job.reception_photo_task_names.join(', '))
   end
