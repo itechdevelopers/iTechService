@@ -4,7 +4,7 @@ class MeritPolicy < ApplicationPolicy
   end
 
   def create?
-    senior? || any_admin?
+    senior? || any_admin? || able_to?(:manage_merits)
   end
 
   def destroy?

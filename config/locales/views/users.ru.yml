@@ -46,6 +46,7 @@ ru:
       manage_negative_reviews: 'Работа с негативными отзывами'
       manage_uniform: 'Учёт рабочей формы'
       manage_repair_services: 'Управление видами ремонта'
+      manage_merits: 'Ставить плюсы сотрудникам'
     activities:
       free: Бесплатные
       fast: Быстрые
