@@ -1,6 +1,21 @@
 (function () {
+  var icon = $('#client_conversations_icon');
   var badge = $('#client_conversations_counter');
-  if (!badge.length) { return; }
+  if (!icon.length) { return; }
+
   badge.text('<%= @awaiting_count %>');
   badge.toggleClass('hidden', <%= @awaiting_count.zero? %>);
+
+  // data-content читается Bootstrap'ом при каждом открытии, так что обновить
+  // атрибут достаточно для следующего клика.
+  var content = '<%= j client_conversations_popover_content %>';
+  icon.attr('data-content', content);
+
+  // А если всплывашка открыта прямо сейчас — подменяем её содержимое напрямую.
+  // Через setContent нельзя: он снимает с подсказки классы, включая `in`,
+  // и она бы схлопнулась под руками у читающего.
+  var popover = icon.data('popover');
+  if (popover && popover.$tip && popover.$tip.hasClass('in')) {
+    popover.$tip.find('.popover-content').html(content);
+  }
 })();

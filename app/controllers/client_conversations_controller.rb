@@ -14,7 +14,7 @@ class ClientConversationsController < ApplicationController
     @counts = filter_counts
     @conversations = ordered(filtered_scope).includes(:client, :city, :assigned_user)
                                             .limit(PER_PAGE).to_a
-    @last_messages = last_messages_for(@conversations)
+    @last_messages = ClientConversation.last_messages_for(@conversations)
   end
 
   def show
@@ -153,18 +153,5 @@ class ClientConversationsController < ApplicationController
       'open' => ClientConversation.opened.count,
       'closed' => ClientConversation.closed.count
     }
-  end
-
-  # Последнее сообщение каждого диалога — двумя запросами вместо N+1 на
-  # conversation.messages.last в каждой строке таблицы.
-  def last_messages_for(conversations)
-    return {} if conversations.empty?
-
-    # Служебные записи в колонку не годятся: сотруднику нужно видеть, что
-    # сказал клиент или что ответили ему, а не «диалог взят в работу».
-    ids = ClientMessage.where(client_conversation_id: conversations.map(&:id))
-                       .where.not(kind: 'system')
-                       .group(:client_conversation_id).maximum(:id)
-    ClientMessage.where(id: ids.values).index_by(&:client_conversation_id)
   end
 end

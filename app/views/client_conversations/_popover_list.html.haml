@@ -1,0 +1,16 @@
+-# Содержимое всплывашки у иконки в топбаре: те, кто ждёт дольше всех.
+-# Раскрывается ТОЛЬКО по клику — сами не открываем, иначе при потоке из
+-# нескольких мессенджеров она лезла бы поверх работы.
+- if conversations.empty?
+  %p.muted.client-chat-popover__empty= t('.empty')
+- conversations.each do |conversation|
+  = link_to client_conversation_path(conversation), class: 'client-chat-popover__item' do
+    .client-chat-popover__head
+      %span.client-chat-popover__who= conversation.contact_title
+      %span.client-chat-popover__waiting= ClientConversation.human_duration(conversation.waiting_seconds)
+    - last = last_messages[conversation.id]
+    - if last
+      .client-chat-popover__text= truncate(last.body.presence || t('.photo'), length: 60)
+
+.client-chat-popover__footer
+  = link_to t('.all'), client_conversations_path(filter: 'awaiting')

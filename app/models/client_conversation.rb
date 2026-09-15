@@ -80,10 +80,29 @@ class ClientConversation < ApplicationRecord
   #
   # Диалоги без города считаем всем: города у них нет ни у кого, и показать их
   # только «своим» невозможно — они просто потерялись бы.
-  def self.awaiting_count_for(user)
-    return awaiting_reply.count if user&.city_id.blank?
+  # Диалоги без города — всем: города у них нет ни у кого, и показать их
+  # только «своим» невозможно, они просто потерялись бы. Сотрудник без города
+  # (например, суперадмин вне подразделения) видит всё.
+  def self.awaiting_for(user)
+    return awaiting_reply if user&.city_id.blank?
 
-    awaiting_reply.where(city_id: [user.city_id, nil]).count
+    awaiting_reply.where(city_id: [user.city_id, nil])
+  end
+
+  def self.awaiting_count_for(user)
+    awaiting_for(user).count
+  end
+
+  # Последнее НЕслужебное сообщение каждого диалога — одним запросом вместо
+  # обращения к conversation.messages.last в каждой строке. Служебные записи
+  # не годятся: нужно видеть, что сказал клиент, а не «диалог взят в работу».
+  def self.last_messages_for(conversations)
+    return {} if conversations.empty?
+
+    ids = ClientMessage.where(client_conversation_id: conversations.map(&:id))
+                       .where.not(kind: 'system')
+                       .group(:client_conversation_id).maximum(:id)
+    ClientMessage.where(id: ids.values).index_by(&:client_conversation_id)
   end
 
   def self.open_for(channel, external_chat_id)
