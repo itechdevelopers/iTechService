@@ -1,0 +1,41 @@
+.page-header
+  %h1= t('.title')
+
+.well.well-small.technician-repairs__filters
+  = form_tag personnel_repairs_path, method: :get, class: 'form-inline' do
+    = label_tag :month, t('.month'), class: 'control-label'
+    = select_tag :month,
+                 options_for_select(month_options, @month.to_s),
+                 class: 'input-medium',
+                 onchange: 'this.form.submit()'
+
+.technician-repairs
+  %h3.technician-repairs__heading= [nominative_month_year(@month), @department&.name].compact.join(', ')
+
+  - if @rows.empty?
+    %p.muted= t('.empty')
+  - else
+    %table.table.table-striped.technician-repairs__table
+      %thead
+        %tr
+          %th= t('.technician')
+          %th= t('.service_job')
+          %th.technician-repairs__number= t('.quantity')
+      %tbody
+        - @rows.each do |row|
+          %tr.technician-repairs__row{ class: ('technician-repairs__row--self' if row.user == current_user) }
+            %td{ colspan: 2 }
+              %i.technician-repairs__caret{ class: ('fa fa-caret-right' if row.count.positive?) }
+              = row.user.short_name
+            %td.technician-repairs__number= row.count
+          - row.works.each do |work|
+            %tr.technician-repairs__work
+              %td.technician-repairs__work-name= work.name
+              %td
+                - if work.service_job_id.present?
+                  = link_to work.service_job_presentation, service_job_path(work.service_job_id), target: '_blank'
+              %td.technician-repairs__work-date= l(work.done_at, format: :short) if work.done_at.present?
+      %tfoot
+        %tr
+          %td{ colspan: 2 }= t('.total')
+          %td.technician-repairs__number= @rows.sum(&:count)

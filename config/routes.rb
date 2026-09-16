@@ -742,6 +742,7 @@ Rails.application.routes.draw do
   namespace :personnel do
     get   'statistics', to: 'statistics#show',  as: :statistics
     patch 'plans',      to: 'plans#update',     as: :plans
+    get   'repairs',    to: 'repairs#show',     as: :repairs
   end
 
   # Webhook endpoints (no authentication required)
