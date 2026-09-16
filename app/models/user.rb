@@ -792,6 +792,19 @@ class User < ApplicationRecord
     @gis_reviews_count = GisReview.where(user_id: id).in_month(Date.current).count
   end
 
+  # Плитка ремонтов в topbar показывается по локации, а не по галочке
+  # «активности», как у соседних показателей: состав ремонтной бригады меняется
+  # чаще, чем кто-то успевает проставить галочку новому технику.
+  def at_repair_location?
+    location&.code == 'repair'
+  end
+
+  def repairs_count
+    return @repairs_count if defined?(@repairs_count)
+
+    @repairs_count = TechnicianRepairsQuery.new(department: department, month: Date.current).count_for(self)
+  end
+
   def update_authentication_token
     update_column :authentication_token, SecureRandom.uuid
   end

@@ -1,0 +1,15 @@
+ru:
+  personnel:
+    repairs:
+      link: 'Мои ремонты'
+      without_service: 'Без указания услуги'
+      show:
+        title: 'Ремонтные работы'
+        month: 'Месяц'
+        technician: 'Тех. специалист'
+        quantity: 'Количество работ'
+        work: 'Работа'
+        service_job: 'Заявка'
+        done_at: 'Выполнена'
+        total: 'Итого'
+        empty: 'За этот месяц работ не было'

@@ -77,5 +77,6 @@
 //= require highlight_notifications
 //= require glass_sticking
 //= require employee_statistics
+//= require technician_repairs
 //= require strict_repair
 //= require client_conversations
