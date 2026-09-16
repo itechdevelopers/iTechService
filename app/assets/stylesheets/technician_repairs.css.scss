@@ -40,3 +40,36 @@
     text-align: right;
   }
 }
+
+// Плитка в topbar. Размер кружка выровнен по соседнему бейджу кармы, а не по
+// картинкам показателей: карма стоит вплотную слева, и кружок крупнее неё
+// читается как отдельный крупный элемент, выбиваясь из строки.
+.technician-repairs-tile {
+  display: inline-flex;
+  align-items: center;
+  margin-left: 14px;
+  margin-right: 6px;
+
+  &__icon {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 20px;
+    height: 20px;
+    border-radius: 50%;
+    background-color: #16a085;
+    color: #fff;
+    font-size: 11px;
+  }
+
+  &:hover &__icon {
+    background-color: #138f75;
+  }
+
+  &__value {
+    margin-left: 6px;
+    font-weight: bold;
+    font-size: 13px;
+    color: #333;
+  }
+}

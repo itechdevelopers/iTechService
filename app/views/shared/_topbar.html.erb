@@ -74,6 +74,12 @@
         </div>
       <% end %>
     <% end %>
+    <% if current_user.at_repair_location? %>
+      <%= link_to personnel_repairs_path, class: 'technician-repairs-tile', title: t('personnel.repairs.link') do %>
+        <span class="technician-repairs-tile__icon"><%= glyph(:wrench) %></span>
+        <span class="technician-repairs-tile__value"><%= current_user.repairs_count %></span>
+      <% end %>
+    <% end %>
   </span>
   <div id="quick_search_form">
     <%= form_tag quick_search_service_jobs_path, method: :get, remote: true, id: 'service_jobs_quick_search_form', class: 'form-search' do %>
