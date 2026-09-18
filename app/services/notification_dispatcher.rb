@@ -43,8 +43,12 @@ class NotificationDispatcher
   def call
     return if user.nil? || message.blank?
 
-    notification = existing_notification || create_notification
+    existing = existing_notification
+    notification = existing || create_notification
     deliver_telegram
+    # Повторы заводим только для новой записи: у найденной дедупом цепочка уже
+    # идёт, и вторая била бы по сотруднику вдвое чаще, чем он просил.
+    schedule_repeats(notification) if existing.nil?
     notification
   end
 
@@ -109,6 +113,14 @@ class NotificationDispatcher
   # telegram_text можно передать лямбдой: сборка текста тянет за собой
   # абсолютный URL и экранирование, а канал может оказаться выключен — тогда
   # эта работа не нужна вовсе. Лямбда вычисляется только перед отправкой.
+  def schedule_repeats(notification)
+    return if preference.nil? || !preference.repeats?
+
+    NotificationRepeatJob
+      .set(wait: preference.repeat_interval_minutes.minutes)
+      .perform_later(notification.id, telegram? ? telegram_body : nil)
+  end
+
   def telegram_body
     text = telegram_text.respond_to?(:call) ? telegram_text.call : telegram_text
     return text if text.present?
