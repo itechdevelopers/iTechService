@@ -18,17 +18,19 @@ class RepairAttentionNotifier
 
   attr_reader :marker
 
+  # Личная доставка идёт через диспетчер, а сообщение в общий чат — мимо него:
+  # у чата нет получателя-сотрудника, чьи настройки можно было бы прочитать.
   def notify_user
-    notification = Notification.create!(
+    NotificationDispatcher.call(
       user: marker.user,
-      referenceable: marker.service_job,
+      type_key: 'repair_attention',
+      kind: 'repair_attention',
       message: I18n.t('notifications.repair_attention',
                       ticket: marker.service_job.ticket_number),
       url: url_helpers.service_job_path(marker.service_job),
-      kind: 'repair_attention',
-      type_key: 'repair_attention'
+      referenceable: marker.service_job,
+      telegram_text: telegram_text
     )
-    UserNotificationChannel.broadcast_to(notification.user, notification)
   end
 
   # Доставка — через SendTelegramMessageJob: у неё ретраи на сетевых сбоях.

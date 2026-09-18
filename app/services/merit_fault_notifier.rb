@@ -27,8 +27,15 @@ class MeritFaultNotifier
   def call
     return if recipient.nil?
 
-    create_bell
-    NotifyEmployeeJob.perform_later(recipient.id, telegram_text)
+    NotificationDispatcher.call(
+      user: recipient,
+      type_key: type_key,
+      message: bell_text,
+      url: profile_path,
+      referenceable: record,
+      kind: type_key,
+      telegram_text: telegram_text
+    )
   end
 
   private
@@ -44,16 +51,8 @@ class MeritFaultNotifier
     @recipient ||= merit? ? record.recipient : record.causer
   end
 
-  def create_bell
-    notification = Notification.create!(
-      user: recipient,
-      message: bell_text,
-      url: profile_path,
-      referenceable: record,
-      kind: KINDS[record.class.name],
-      type_key: KINDS[record.class.name]
-    )
-    UserNotificationChannel.broadcast_to(recipient, notification)
+  def type_key
+    KINDS[record.class.name]
   end
 
   def bell_text
