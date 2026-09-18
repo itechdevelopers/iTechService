@@ -120,15 +120,14 @@ class InventoryNotifier
   # Возвращает число уведомлённых — контроллеру есть что показать в flash.
   def deliver(message:, telegram_text:, recipients:, type_key:)
     recipients.each do |user|
-      notification = Notification.create!(
+      NotificationDispatcher.call(
         user: user,
-        referenceable: inventory,
+        type_key: type_key,
         message: message,
         url: url,
-        type_key: type_key
+        referenceable: inventory,
+        telegram_text: telegram_text
       )
-      UserNotificationChannel.broadcast_to(user, notification)
-      NotifyEmployeeJob.perform_later(user.id, telegram_text)
     end.size
   end
 

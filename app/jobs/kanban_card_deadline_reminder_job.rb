@@ -42,38 +42,28 @@ class KanbanCardDeadlineReminderJob < ApplicationJob
       managers = card.managers.active.to_a
 
       managers.each do |user|
-        created = create_notification(user, card, message)
-        # Личный TG-дубль — только при новом уведомлении, чтобы повторный запуск
-        # cron в тот же день не задублировал сообщение.
-        notify_telegram(user, card, message) if created && user.telegram_linked?
+        # Дедлайн на день один: перезапуск cron в тот же день не должен ни
+        # задваивать запись, ни слать второе сообщение.
+        next if already_notified_today?(user, card)
+
+        NotificationDispatcher.call(
+          user: user,
+          type_key: 'kanban_card_deadline',
+          message: message,
+          url: card.url,
+          referenceable: card,
+          telegram_text: -> { telegram_text(card, message) }
+        )
       end
     end
-  end
-
-  # Возвращает true, если уведомление создано; false — если уже уведомляли сегодня.
-  def create_notification(user, card, message)
-    return false if already_notified_today?(user, card)
-
-    notification = Notification.create!(
-      user: user,
-      message: message,
-      url: card.url,
-      referenceable: card,
-      type_key: 'kanban_card_deadline'
-    )
-    UserNotificationChannel.broadcast_to(notification.user, notification)
-    true
   end
 
   # Тот же текст, что и in-app, плюс встроенная HTML-ссылка на карточку.
   # Экранируем message: доставка идёт с parse_mode HTML, а название карточки
   # или доски может содержать <, >, & — без escape они бы сломали разбор.
-  # Доставка — через NotifyEmployeeJob (ретраи при обрыве связи), а не прямым
-  # вызовом SendTelegramMessage: тот глотает ошибку и сообщение теряется молча.
-  def notify_telegram(user, card, message)
-    url  = Rails.application.routes.url_helpers.kanban_card_url(card)
-    text = "#{CGI.escapeHTML(message)}\n\n<a href=\"#{url}\">Перейти на карточку</a>"
-    NotifyEmployeeJob.perform_later(user.id, text)
+  def telegram_text(card, message)
+    url = Rails.application.routes.url_helpers.kanban_card_url(card)
+    "#{CGI.escapeHTML(message)}\n\n<a href=\"#{url}\">Перейти на карточку</a>"
   end
 
   # Идемпотентность: если cron перезапустится в тот же день, повторное

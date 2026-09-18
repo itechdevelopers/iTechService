@@ -8,12 +8,13 @@ class ArticleAttentionNotificationJob < ApplicationJob
     recipients = User.active.with_ability('receive_merchandiser_notifications').in_department(order.department_id)
     
     recipients.each do |recipient|
-      Notification.create!(
+      NotificationDispatcher.call(
         user: recipient,
-        referenceable: order,
+        type_key: 'order_without_article',
         message: "Создан заказ без артикула, <a href=\"/orders/#{order.id}/edit\">обратите внимание</a>",
         url: Rails.application.routes.url_helpers.edit_order_path(order),
-        type_key: 'order_without_article'
+        referenceable: order,
+        telegram_text: 'Создан заказ без артикула — требуется проверка'
       )
     end
   end

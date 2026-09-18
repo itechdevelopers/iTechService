@@ -47,7 +47,7 @@ class RepairMasterDayOffNotificationJob < ApplicationJob
           message: message,
           url: Rails.application.routes.url_helpers.service_job_path(job),
           referenceable: job,
-          telegram_text: telegram_text(job, message)
+          telegram_text: -> { telegram_text(job, message) }
         )
       end
     end

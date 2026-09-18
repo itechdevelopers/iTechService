@@ -107,12 +107,12 @@ class OneCOrderSyncJob < ApplicationJob
   def notify_user_sync_result(user, order, success:, message:)
     return unless user
     
-    Notification.create!(
+    NotificationDispatcher.call(
       user: user,
-      referenceable: order,
+      type_key: 'one_c_order_result',
       message: message,
       url: Rails.application.routes.url_helpers.order_path(order),
-      type_key: 'one_c_order_result'
+      referenceable: order
     )
   end
 

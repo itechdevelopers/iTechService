@@ -106,8 +106,12 @@ class NotificationDispatcher
     preference.present? && preference.deliver?(:telegram)
   end
 
+  # telegram_text можно передать лямбдой: сборка текста тянет за собой
+  # абсолютный URL и экранирование, а канал может оказаться выключен — тогда
+  # эта работа не нужна вовсе. Лямбда вычисляется только перед отправкой.
   def telegram_body
-    return telegram_text if telegram_text.present?
+    text = telegram_text.respond_to?(:call) ? telegram_text.call : telegram_text
+    return text if text.present?
 
     link = absolute_url && %(<a href="#{absolute_url}">#{LINK_LABEL}</a>)
     [CGI.escapeHTML(message.to_s), link].compact.join("\n\n")
