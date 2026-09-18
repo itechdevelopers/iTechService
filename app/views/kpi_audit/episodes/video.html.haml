@@ -1,0 +1,19 @@
+- content_for :title, 'Видео эпизода'
+.page-header
+  %h1 Видео эпизода
+
+.container-fluid
+  %h1 Видео эпизода
+  %p= "Талон: #{@video[:ticket_number]}"
+  %p= "Рабочее окно: #{@video[:window_number]}"
+  %p= "Камера: #{@video[:camera_name]}"
+  %p= "Период: #{@video[:range_start]} — #{@video[:range_end]}"
+  - if @video[:available] && @video[:queue_key].to_s == 'okean'
+    - @segments.each_with_index do |segment, index|
+      %h2= "Фрагмент #{index + 1} из #{@segments.size}" if @segments.size > 1
+      %p= "#{segment[:start_time]} — #{segment[:end_time]}" if @segments.size > 1
+      %video{controls: true, preload: 'metadata', width: '100%', src: clip_kpi_audit_episode_path(@episode, run_id: params[:run_id], segment: index)}
+  - elsif @video[:available]
+    .alert.alert-info Просмотр видео для этого подразделения пока не подключён.
+  - else
+    .alert.alert-warning Видео-контекст не установлен.

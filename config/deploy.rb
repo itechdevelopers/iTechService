@@ -3,7 +3,7 @@ lock "~> 3.16.0"
 
 set :application, 'itechservice'
 set :repo_url, 'git@github.com:itechdevelopers/iTechService.git'
-set :branch, 'master'
+set :branch, ENV.fetch('DEPLOY_REF', 'master')
 
 # Default deploy_to directory is /var/www/my_app_name
 # set :deploy_to, "/var/www/my_app_name"
@@ -23,7 +23,7 @@ set :format_options,
 # set :pty, true
 
 # Default value for :linked_files is []
-append :linked_files, 'config/database.yml', 'config/schedule.yml'
+append :linked_files, 'config/database.yml', 'config/schedule.yml', '.env'
 
 # Default value for linked_dirs is []
 append :linked_dirs, 'log', 'tmp/pids', 'tmp/cache', 'tmp/sockets', 'tmp/pdf', 'public/system', 'public/uploads'
