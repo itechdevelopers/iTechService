@@ -20,22 +20,30 @@ module Kanban
 
     # п.1 — новая карточка на доске → ответственным на доске
     def card_created
-      notify(board_manager_recipients, new_card_text)
+      notify(board_manager_recipients, 'kanban_card_created',
+             "На доске «#{card.board_name}» новая карточка: #{card.name}",
+             new_card_text)
     end
 
     # п.2/3 — карточку перенесли между колонками (кроме «Готово»)
     def card_moved(from_column, to_column)
-      notify(activity_recipients, moved_text(from_column, to_column))
+      notify(activity_recipients, 'kanban_card_moved',
+             "Карточка «#{card.name}» перемещена: #{from_column&.name} → #{to_column&.name}",
+             moved_text(from_column, to_column))
     end
 
     # п.2/3 — карточку перенесли в колонку «Готово» (важное сообщение)
     def card_done(to_column)
-      notify(activity_recipients, done_text(to_column))
+      notify(activity_recipients, 'kanban_card_done',
+             "Карточка «#{card.name}» перенесена в «#{to_column&.name}»",
+             done_text(to_column))
     end
 
     # п.2/3 — новый комментарий к карточке
     def comment_added(comment)
-      notify(activity_recipients, comment_text(comment))
+      notify(activity_recipients, 'kanban_card_comment',
+             "Новый комментарий к карточке «#{card.name}»: #{comment.content.to_s[0..80]}",
+             comment_text(comment))
     end
 
     private
@@ -54,10 +62,20 @@ module Kanban
       users.compact.uniq.reject { |user| actor && user.id == actor.id }
     end
 
-    # Runs inside KanbanCardActivityNotificationJob, so deliver synchronously —
-    # NotifyEmployee no-ops for employees who haven't linked Telegram.
-    def notify(recipients, text)
-      recipients.each { |user| NotifyEmployee.call(user: user, text: text) }
+    # Каналы выбирает диспетчер по настройке получателя: по умолчанию у этих
+    # событий включён только Telegram, как и было, а колокольчик сотрудник
+    # может включить себе сам.
+    def notify(recipients, type_key, message, telegram_text)
+      recipients.each do |user|
+        NotificationDispatcher.call(
+          user: user,
+          type_key: type_key,
+          message: message,
+          url: card.url,
+          referenceable: card,
+          telegram_text: telegram_text
+        )
+      end
     end
 
     def new_card_text

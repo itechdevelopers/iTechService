@@ -290,9 +290,15 @@ module NotificationCatalog
 
     entry('kanban_card_comment',
           group: :kanban,
-          title: 'Комментарий к канбан-карточке',
-          audience: 'автор, ответственные по карточке и ответственные на доске',
-          default_channels: CHANNELS),
+          title: 'Комментарий к карточке, где вы ответственный',
+          audience: 'автор и ответственные по карточке, кроме автора действия',
+          default_channels: %i[telegram].freeze),
+
+    entry('kanban_board_comment',
+          group: :kanban,
+          title: 'Комментарий к карточке на вашей доске',
+          hint: 'Ответственным доски — о комментариях к любой её карточке',
+          audience: 'ответственные на доске'),
 
     entry('merit_issued',
           group: :personal,

@@ -188,8 +188,13 @@ class ApplicationController < ActionController::Base
     @notifications = [] if user_ids.present?
 
     user_ids.zip(messages).each do |user_id, message|
-      @notifications << Notification.create(user_id: user_id, message: message,
-                                            type_key: type_key)
+      recipient = User.find_by(id: user_id)
+      next if recipient.nil?
+
+      @notifications << NotificationDispatcher.call(
+        user: recipient, type_key: type_key, message: message
+      )
     end
+    @notifications.compact!
   end
 end
