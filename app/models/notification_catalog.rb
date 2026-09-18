@@ -21,7 +21,19 @@ module NotificationCatalog
   # списке цвета среди активных уведомлений.
   COLORS = %w[red orange yellow green blue purple gray].freeze
 
+  COLOR_LABELS = {
+    'red' => 'Красный',
+    'orange' => 'Оранжевый',
+    'yellow' => 'Жёлтый',
+    'green' => 'Зелёный',
+    'blue' => 'Синий',
+    'purple' => 'Фиолетовый',
+    'gray' => 'Серый'
+  }.freeze
+
   CHANNELS = %i[in_app telegram].freeze
+
+  CHANNEL_LABELS = { in_app: 'Айс', telegram: 'Телеграм' }.freeze
 
   IN_APP_ONLY = %i[in_app].freeze
 

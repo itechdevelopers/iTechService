@@ -59,6 +59,12 @@ class UserPolicy < BasePolicy
     owner?
   end
 
+  # Чужие настройки уведомлений правит только суперадмин: сотруднику иначе
+  # можно молча отключить доставку, о которой он не узнает.
+  def update_notification_settings?
+    owner? || superadmin?
+  end
+
   def update_photo?
     owner? || update?
   end

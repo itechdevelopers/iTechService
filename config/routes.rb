@@ -185,6 +185,7 @@ Rails.application.routes.draw do
     post :destroy_duty_day, on: :collection
     patch :update_uniform, on: :member
     patch :update_user_settings, on: :member
+    patch :update_notification_settings, on: :member
     patch :update_photo, on: :member
     patch :update_self, on: :member
     patch :update_elqueue_window, on: :member

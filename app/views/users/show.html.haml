@@ -36,6 +36,8 @@
       %li= link_to t("users.uniform"), '#uniform_tab', 'data-toggle' => 'tab'
       %li= link_to t("users.user_settings"), "#user_settings", "data-toggle" => "tab"
       %li= link_to t("users.notifications"), "#notifications_tab", "data-toggle" => "tab"
+      - if can? :update_notification_settings, @user
+        %li= link_to 'Настройки уведомлений', "#notification_settings_tab", "data-toggle" => "tab"
       %li= link_to 'Отчёты', '#reports_tab', 'data-toggle' => 'tab'
       %li= link_to t("users.repair_capabilities.tab_title"), '#repair_capabilities_tab', 'data-toggle' => 'tab'
 
@@ -379,6 +381,10 @@
                       = notification.message
                       = link_to "Перейти", notification.url if notification.url.present?
                     %td= notification.closed? ? l(notification.closed_at, format: :date_time) : '-'
+
+      - if can? :update_notification_settings, @user
+        #notification_settings_tab.tab-pane
+          = render 'users/notification_settings_tab', user: @user
 
       #repair_capabilities_tab.tab-pane
         = render 'users/repair_capabilities_tab', user: @user

@@ -51,6 +51,33 @@ class UserNotificationPreference < ApplicationRecord
         repeat_interval_minutes: DEFAULT_INTERVAL)
   end
 
+  # Сохраняем только отличия от каталога: настройка, совпавшая с дефолтом,
+  # удаляется. Иначе у каждого сотрудника осело бы по строке на каждый тип, и
+  # правка дефолта в каталоге перестала бы до них доходить.
+  def self.apply(user, type_key, attrs)
+    entry = NotificationCatalog[type_key]
+    return nil if entry.nil?
+
+    preference = self.for(user, type_key)
+    preference.assign_attributes(attrs)
+
+    if preference.matches_default?
+      preference.destroy if preference.persisted?
+      return preference
+    end
+
+    preference.save
+    preference
+  end
+
+  def matches_default?
+    default = self.class.default_for(user, entry)
+
+    %i[in_app telegram color bold repeat_count repeat_interval_minutes].all? do |field|
+      public_send(field) == default.public_send(field)
+    end
+  end
+
   def entry
     @entry ||= NotificationCatalog[type_key]
   end
