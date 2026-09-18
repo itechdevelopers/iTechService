@@ -5,6 +5,7 @@ class NotificationsController < ApplicationController
     authorize Notification
 
     base_scope = current_user.notifications.not_closed.visible
+    @preferences = UserNotificationPreference.map_for(current_user)
     @chip_counts = base_scope.group(:referenceable_type).count
 
     @filter = params[:filter].presence
@@ -31,10 +32,11 @@ class NotificationsController < ApplicationController
 
     scope = current_user.notifications.not_closed.visible
     @notifications = scope.order(created_at: :desc).page(params[:page])
-    # Флаги для цвета иконки в topbar: синий — только наклейка стекла,
-    # красный — только прочие, красно-синий — и то, и другое.
-    @has_glass = scope.glass_sticking.exists?
-    @has_other = scope.non_glass_sticking.exists?
+    @preferences = UserNotificationPreference.map_for(current_user)
+    # Цвет иконки считаем по всем активным уведомлениям, а не по странице:
+    # самое срочное может не попасть в первую двадцатку.
+    @icon_color = helpers.notifications_icon_color(scope.distinct.pluck(:type_key),
+                                                   @preferences)
 
     respond_to(&:js)
   end

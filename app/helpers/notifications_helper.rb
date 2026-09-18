@@ -1,20 +1,28 @@
 module NotificationsHelper
-  # CSS-классы корневого .single-notification + модификатор по kind.
-  # Один источник правды для _short_/_full_notification (broadcast рендерит
-  # short, модалка/поповер — full). kind → класс: подчёркивания в дефис
-  # (client_request_under_year → single-notification--client-request-under-year).
-  def single_notification_class(notification)
-    kind = notification.kind
-    modifier =
-      if kind.blank?
-        nil
-      elsif kind.start_with?('warranty_overstay') || kind.start_with?('location_overstay')
-        'single-notification--warranty-overstay'
-      elsif kind.start_with?('client_request')
-        "single-notification--#{kind.tr('_', '-')}"
-      end
+  # CSS-классы корневого .single-notification: цвет и жирность берутся из
+  # персональной настройки получателя. Один источник правды для
+  # _short_/_full_notification (broadcast рендерит short, модалка и поповер —
+  # full).
+  #
+  # preferences передают там, где рисуется список: без него каждая строка
+  # сходила бы в базу за своей настройкой. Для одиночного broadcast'а его нет,
+  # и настройка читается точечно.
+  def single_notification_class(notification, preferences = nil)
+    preference = preferences&.fetch(notification.type_key, nil) ||
+                 UserNotificationPreference.for(notification.user, notification.type_key)
 
-    ['single-notification', modifier].compact.join(' ')
+    classes = ['single-notification',
+               "single-notification--color-#{preference&.color || 'red'}"]
+    classes << 'single-notification--bold' if preference&.bold
+
+    classes.join(' ')
+  end
+
+  # Цвет конвертика — самого приоритетного среди активных уведомлений: порядок
+  # задан палитрой в NotificationCatalog::COLORS.
+  def notifications_icon_color(type_keys, preferences)
+    colors = type_keys.map { |key| preferences[key]&.color || 'red' }
+    colors.min_by { |color| NotificationCatalog.color_priority(color) } || 'red'
   end
 
   # Слова-маркеры подсвечиваем только в уведомлениях о транскрипциях: в тексте
