@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20260918090000) do
+ActiveRecord::Schema.define(version: 20260918120000) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -2762,6 +2762,21 @@ ActiveRecord::Schema.define(version: 20260918090000) do
     t.index ["user_id"], name: "index_user_achievements_on_user_id"
   end
 
+  create_table "user_notification_preferences", force: :cascade do |t|
+    t.bigint "user_id", null: false
+    t.string "type_key", null: false
+    t.boolean "in_app", default: true, null: false
+    t.boolean "telegram", default: true, null: false
+    t.string "color", default: "red", null: false
+    t.boolean "bold", default: false, null: false
+    t.integer "repeat_count", default: 0, null: false
+    t.integer "repeat_interval_minutes", default: 5, null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["user_id", "type_key"], name: "index_notification_preferences_on_user_and_type", unique: true
+    t.index ["user_id"], name: "index_user_notification_preferences_on_user_id"
+  end
+
   create_table "user_pauses", force: :cascade do |t|
     t.bigint "user_id", null: false
     t.datetime "paused_at", null: false
@@ -3156,6 +3171,7 @@ ActiveRecord::Schema.define(version: 20260918090000) do
   add_foreign_key "user_abilities", "users"
   add_foreign_key "user_achievements", "achievements"
   add_foreign_key "user_achievements", "users"
+  add_foreign_key "user_notification_preferences", "users"
   add_foreign_key "user_pauses", "users"
   add_foreign_key "user_repair_capabilities", "repair_services"
   add_foreign_key "user_repair_capabilities", "users"
