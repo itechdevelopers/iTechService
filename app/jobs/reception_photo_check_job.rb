@@ -38,23 +38,18 @@ class ReceptionPhotoCheckJob < ApplicationJob
   def notify_causer(service_job)
     recipient = service_job.reception_photo_responsible
     return if recipient.nil?
-    return if Notification.exists?(referenceable: service_job, kind: CAUSER_KIND)
 
     message = causer_message(service_job)
-    notification = Notification.create!(
+    NotificationDispatcher.call(
       user: recipient,
-      referenceable: service_job,
+      type_key: 'reception_photo_fault',
+      kind: CAUSER_KIND,
       message: message,
       url: url_helpers.service_job_path(service_job),
-      kind: CAUSER_KIND
+      referenceable: service_job,
+      telegram_text: causer_telegram_text(service_job, message),
+      dedup_scope: { referenceable: service_job, kind: CAUSER_KIND }
     )
-    UserNotificationChannel.broadcast_to(notification.user, notification)
-
-    return unless recipient.telegram_linked?
-
-    # Via NotifyEmployeeJob so a network hiccup retries instead of dropping the
-    # message — see the same change in ReceptionPhotoReminderJob.
-    NotifyEmployeeJob.perform_later(recipient.id, causer_telegram_text(service_job, message))
   end
 
   def notify_supervisors(service_job, fault)
@@ -64,14 +59,14 @@ class ReceptionPhotoCheckJob < ApplicationJob
     url = url_helpers.service_job_path(service_job)
 
     User.superadmins.active.find_each do |recipient|
-      notification = Notification.create!(
+      NotificationDispatcher.call(
         user: recipient,
-        referenceable: service_job,
+        type_key: 'reception_photo_missing',
+        kind: SUPERVISOR_KIND,
         message: message,
         url: url,
-        kind: SUPERVISOR_KIND
+        referenceable: service_job
       )
-      UserNotificationChannel.broadcast_to(notification.user, notification)
     end
   end
 

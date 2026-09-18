@@ -136,14 +136,14 @@ class ReviewSourceAlert < ApplicationRecord
   # агент шлёт её на каждом прогоне, пока она держится.
   def notify_about_opening
     User.superadmins.active.each do |recipient|
-      notification = Notification.create!(
+      NotificationDispatcher.call(
         user: recipient,
+        type_key: 'review_source_alert',
         message: notification_message,
         url: index_path,
-        referenceable: self
+        referenceable: self,
+        telegram_text: -> { telegram_text }
       )
-      UserNotificationChannel.broadcast_to(recipient, notification)
-      NotifyEmployeeJob.perform_later(recipient.id, telegram_text)
     end
   end
 

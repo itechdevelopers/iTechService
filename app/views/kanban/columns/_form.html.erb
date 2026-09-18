@@ -4,6 +4,7 @@
   <%= form.input :done, as: :boolean %>
 
   <% if column.new_record? && column.board.managers.any? %>
+    <%= hidden_field_tag 'notification[type_key]', 'kanban_column_created' %>
     <% column.board.managers.each do |manager| %>
       <%= hidden_field_tag 'notification[user_ids][]', manager.id %>
       <%= hidden_field_tag 'notification[messages][]', 'На вашей доске добавлена новая колонка.' %>

@@ -23,14 +23,14 @@ class WarrantyOverstayCheckJob < ApplicationJob
     )
 
     recipients.each do |recipient|
-      notification = Notification.create!(
+      NotificationDispatcher.call(
         user: recipient,
-        referenceable: service_job,
+        type_key: 'warranty_overstay',
+        kind: kind,
         message: message,
         url: url,
-        kind: kind
+        referenceable: service_job
       )
-      UserNotificationChannel.broadcast_to(notification.user, notification)
     end
   end
 end

@@ -123,6 +123,18 @@ class UsersController < ApplicationController
     redirect_to @user
   end
 
+  # Форма присылает строку на каждый показанный тип; те, что совпали с
+  # дефолтом каталога, модель не сохраняет.
+  def update_notification_settings
+    @user = find_record User
+
+    notification_settings_params.each do |type_key, attrs|
+      UserNotificationPreference.apply(@user, type_key, attrs.to_h.symbolize_keys)
+    end
+
+    redirect_to user_path(@user, anchor: 'notification_settings_tab')
+  end
+
   def update_photo
     @user = find_record User
     @user.update_attributes(photo_params)
@@ -366,7 +378,7 @@ class UsersController < ApplicationController
       acc[:"default_#{section}_department_ids"] = []
       acc[:"default_#{section}_statuses"] = []
     end
-    params.require(:user_settings).permit(:fixed_main_menu, :auto_department_detection, :receive_location_task_notifications, :receive_glass_sticking_notifications, default_order_department_ids: [], default_order_statuses: [], **section_defaults)
+    params.require(:user_settings).permit(:fixed_main_menu, :auto_department_detection, default_order_department_ids: [], default_order_statuses: [], **section_defaults)
   end
 
   def update_self_params
@@ -442,6 +454,17 @@ class UsersController < ApplicationController
       installment: {}
     )
     # TODO: check nested attributes for: schedule_days, duty_days, karmas, salaries, installment_plans
+  end
+
+  # Ключи типов приходят из формы, поэтому берём только те, что есть в каталоге:
+  # чужой ключ иначе ушёл бы в apply и создал настройку неизвестно чего.
+  def notification_settings_params
+    permitted = params.require(:notification_preferences)
+                      .permit(NotificationCatalog.keys.map do |key|
+                        [key, %i[in_app telegram color bold repeat_count
+                                 repeat_interval_minutes]]
+                      end.to_h)
+    permitted.to_h.slice(*NotificationCatalog.keys)
   end
 
   def photo_params

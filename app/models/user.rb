@@ -135,6 +135,8 @@ class User < ApplicationRecord
   has_many :employment_periods, dependent: :destroy
   belongs_to :elqueue_window, optional: true
   has_one :user_settings, dependent: :destroy
+  has_many :notification_preferences, class_name: 'UserNotificationPreference',
+           dependent: :destroy
   has_many :user_pauses, dependent: :destroy
   has_many :user_abilities
   has_many :abilities, through: :user_abilities
@@ -609,6 +611,12 @@ class User < ApplicationRecord
 
   def able_to?(ability_name)
     abilities.exists?(name: ability_name)
+  end
+
+  # Настройка уведомления: сохранённая либо собранная из дефолтов каталога —
+  # вызывающий код эти случаи не различает.
+  def notification_preference(type_key)
+    UserNotificationPreference.for(self, type_key)
   end
 
   def activities=(activities)

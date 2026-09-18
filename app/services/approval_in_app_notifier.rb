@@ -24,13 +24,13 @@ class ApprovalInAppNotifier
 
   def call
     recipients.each do |user|
-      notification = Notification.create!(
+      NotificationDispatcher.call(
         user: user,
-        referenceable: approval_request,
+        type_key: type_key,
         message: message,
-        url: url
+        url: url,
+        referenceable: approval_request
       )
-      UserNotificationChannel.broadcast_to(notification.user, notification)
     end
   end
 
@@ -40,6 +40,10 @@ class ApprovalInAppNotifier
 
   def recipients
     ApprovalRecipientsQuery.new(approval_request: approval_request).call(fallback_to_attached: true)
+  end
+
+  def type_key
+    approval_request.pending? ? 'approval_requested' : 'approval_answered'
   end
 
   def message

@@ -104,11 +104,13 @@ class CommentsController < ApplicationController
     elsif @comment.commentable.respond_to?(:notification_recipients)
       message = @comment.commentable.notification_message
       @comment.commentable.notification_recipients.each do |recipient|
-        notification = Notification.create(user_id: recipient.id,
-                                           message: message,
-                                           url: @comment.commentable.url,
-                                           referenceable: @comment.commentable)
-        UserNotificationChannel.broadcast_to(notification.user, notification) unless notification.errors.any?
+        NotificationDispatcher.call(
+          user: recipient,
+          type_key: @comment.commentable.try(:notification_type_key),
+          message: message,
+          url: @comment.commentable.url,
+          referenceable: @comment.commentable
+        )
       end
 
     end
@@ -132,7 +134,9 @@ class CommentsController < ApplicationController
     @notifications.each do |notification|
       if @comment.commentable.respond_to?(:url)
         notification.update(url: @comment.commentable.url, referenceable: @comment, message: @comment.content[0..50])
-        UserNotificationChannel.broadcast_to(notification.user, notification) unless notification.errors.any?
+        next if notification.errors.any? || notification.hidden?
+
+        UserNotificationChannel.broadcast_to(notification.user, notification)
       end
     end
   end

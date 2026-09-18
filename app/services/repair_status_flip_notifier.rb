@@ -20,14 +20,14 @@ class RepairStatusFlipNotifier
 
   def call
     User.superadmins.find_each do |recipient|
-      notification = Notification.create!(
+      NotificationDispatcher.call(
         user: recipient,
-        referenceable: service_job,
+        type_key: KIND,
+        kind: KIND,
         message: message,
         url: url_helpers.service_job_path(service_job),
-        kind: KIND
+        referenceable: service_job
       )
-      UserNotificationChannel.broadcast_to(recipient, notification)
     end
   end
 

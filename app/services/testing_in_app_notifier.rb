@@ -24,13 +24,13 @@ class TestingInAppNotifier
 
   def call
     recipients.each do |user|
-      notification = Notification.create!(
+      NotificationDispatcher.call(
         user: user,
-        referenceable: session,
+        type_key: type_key,
         message: message,
-        url: url
+        url: url,
+        referenceable: session
       )
-      UserNotificationChannel.broadcast_to(notification.user, notification)
     end
   end
 
@@ -48,6 +48,10 @@ class TestingInAppNotifier
   def going_to_test?
     session.not_started? ||
       (session.failed? && session.failure_action == TestingSession::FAILURE_ACTIONS[:retry])
+  end
+
+  def type_key
+    going_to_test? ? 'testing_to_test' : 'testing_returned'
   end
 
   def message

@@ -44,14 +44,14 @@ class ClientRequestNotifier
 
   def deliver(kind:, message:)
     ClientRequest.notification_recipients.each do |user|
-      notification = Notification.create!(
+      NotificationDispatcher.call(
         user: user,
-        referenceable: request,
+        type_key: kind,
         kind: kind,
         message: message,
-        url: url
+        url: url,
+        referenceable: request
       )
-      UserNotificationChannel.broadcast_to(user, notification)
     end
   end
 

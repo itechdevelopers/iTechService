@@ -8,7 +8,7 @@
 
   .notifications-modal__list
     - if @notifications.any?
-      = render collection: @notifications, partial: 'full_notification', as: :notification
+      = render collection: @notifications, partial: 'full_notification', as: :notification, locals: { preferences: @preferences }
     - else
       .notifications-modal__empty
         - if @filter.present?

@@ -18,7 +18,13 @@ class ReviewSourceAlertsDigestJob < ApplicationJob
     return if text.nil?
 
     User.superadmins.active.each do |recipient|
-      NotifyEmployeeJob.perform_later(recipient.id, text)
+      NotificationDispatcher.call(
+        user: recipient,
+        type_key: 'review_source_digest',
+        message: 'Открытые аварии сбора отзывов',
+        url: Rails.application.routes.url_helpers.review_source_alerts_path,
+        telegram_text: text
+      )
     end
   end
 end

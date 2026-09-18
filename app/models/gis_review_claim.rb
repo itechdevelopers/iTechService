@@ -51,12 +51,13 @@ class GisReviewClaim < ApplicationRecord
   # Только колокольчик, без Телеграма: заявок кратно больше, чем негативных
   # отзывов, и личные сообщения по каждой превратились бы в шум.
   def notify_author(message)
-    notify(user, "#{message}: #{gis_review.short_label}")
+    notify(user, "#{message}: #{gis_review.short_label}", 'gis_review_claim_resolved')
   end
 
   def notify_moderators
     GisReviewClaim.moderators.each do |moderator|
-      notify(moderator, "#{user.short_name} просит закрепить за собой отзыв: #{gis_review.short_label}")
+      notify(moderator, "#{user.short_name} просит закрепить за собой отзыв: #{gis_review.short_label}",
+             'gis_review_claim')
     end
   end
 
@@ -73,14 +74,14 @@ class GisReviewClaim < ApplicationRecord
     GisReviewClaim.where(gis_review_id: gis_review_id).where.not(id: id).pending.to_a
   end
 
-  def notify(recipient, message)
-    notification = Notification.create!(
+  def notify(recipient, message, type_key)
+    NotificationDispatcher.call(
       user: recipient,
+      type_key: type_key,
       message: message,
       url: Rails.application.routes.url_helpers.claims_gis_reviews_path,
       referenceable: self
     )
-    UserNotificationChannel.broadcast_to(recipient, notification)
   end
 
   # Заявку имеет смысл подавать только на неразобранный отзыв.

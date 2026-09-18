@@ -171,17 +171,30 @@ class ApplicationController < ActionController::Base
   end
 
   def notification_params
-    params.require(:notification).permit(user_ids: [], messages: [])
+    params.require(:notification).permit(:type_key, user_ids: [], messages: [])
   end
 
+  # Уведомления, заказанные самой формой: получателей, тексты и тип присылает
+  # разметка, а не серверный код. Тип приходит из браузера, поэтому сверяем его
+  # с каталогом — подделанный ключ увёл бы уведомление в чужие настройки
+  # получателя. Неизвестный ключ обнуляем, а не отбрасываем уведомление: текст
+  # человеку нужнее, чем настраиваемость.
   def create_notification
     user_ids = notification_params[:user_ids]
     messages = notification_params[:messages]
+    type_key = notification_params[:type_key]
+    type_key = nil unless NotificationCatalog.key?(type_key)
 
     @notifications = [] if user_ids.present?
 
     user_ids.zip(messages).each do |user_id, message|
-      @notifications << Notification.create(user_id: user_id, message: message)
+      recipient = User.find_by(id: user_id)
+      next if recipient.nil?
+
+      @notifications << NotificationDispatcher.call(
+        user: recipient, type_key: type_key, message: message
+      )
     end
+    @notifications.compact!
   end
 end

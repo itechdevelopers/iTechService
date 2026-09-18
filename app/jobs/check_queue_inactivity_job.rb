@@ -34,14 +34,14 @@ class CheckQueueInactivityJob < ApplicationJob
                      active: detector.active_users_count)
 
     User.superadmins.find_each do |admin|
-      notification = Notification.create!(
+      NotificationDispatcher.call(
         user: admin,
-        referenceable: waiting_client,
+        type_key: 'queue_inactivity',
+        kind: KIND,
         message: message,
         url: Rails.application.routes.url_helpers.root_path,
-        kind: KIND
+        referenceable: waiting_client
       )
-      UserNotificationChannel.broadcast_to(notification.user, notification)
     end
   end
 end

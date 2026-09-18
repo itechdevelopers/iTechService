@@ -1,0 +1,58 @@
+- entries_by_group = NotificationCatalog.grouped_for_user(user)
+
+- if entries_by_group.empty?
+  %p.text-muted Этому сотруднику уведомления не приходят.
+- else
+  - preferences = UserNotificationPreference.map_for(user)
+  = form_tag update_notification_settings_user_path(user), method: :patch do
+    %p.text-muted
+      Отметьте, куда доставлять каждое уведомление и как его показывать.
+      Повторы — сколько раз напомнить и через сколько минут; ноль означает «не напоминать».
+
+    - entries_by_group.each do |group, entries|
+      %h4.notif-settings__group= NotificationCatalog::GROUPS[group]
+      %table.table.table-condensed.notif-settings__table
+        %thead
+          %tr
+            %th Уведомление
+            - NotificationCatalog::CHANNELS.each do |channel|
+              %th.notif-settings__narrow= NotificationCatalog::CHANNEL_LABELS[channel]
+            %th.notif-settings__narrow Цвет
+            %th.notif-settings__narrow Жирный
+            %th.notif-settings__narrow Повторов
+            %th.notif-settings__narrow Интервал
+        %tbody
+          - entries.each do |entry|
+            - pref = preferences[entry.key]
+            - field = ->(name) { "notification_preferences[#{entry.key}][#{name}]" }
+            %tr
+              %td
+                = entry.title
+                - if entry.hint.present?
+                  %br
+                  %small.text-muted= entry.hint
+              - NotificationCatalog::CHANNELS.each do |channel|
+                %td.notif-settings__narrow
+                  = hidden_field_tag field.call(channel), '0', id: nil
+                  = check_box_tag field.call(channel), '1', pref.public_send(channel),
+                    id: "pref_#{entry.key}_#{channel}",
+                    disabled: !entry.supports?(channel),
+                    title: (entry.supports?(channel) ? nil : 'Этот канал для уведомления недоступен')
+              %td.notif-settings__narrow
+                = select_tag field.call(:color),
+                  options_for_select(NotificationCatalog::COLOR_LABELS.map { |value, label| [label, value] }, pref.color),
+                  id: "pref_#{entry.key}_color", class: "notif-settings__color notif-settings__color--#{pref.color}"
+              %td.notif-settings__narrow
+                = hidden_field_tag field.call(:bold), '0', id: nil
+                = check_box_tag field.call(:bold), '1', pref.bold, id: "pref_#{entry.key}_bold"
+              %td.notif-settings__narrow
+                = number_field_tag field.call(:repeat_count), pref.repeat_count,
+                  min: 0, max: UserNotificationPreference::MAX_REPEATS,
+                  id: "pref_#{entry.key}_repeat_count", class: 'notif-settings__number'
+              %td.notif-settings__narrow
+                = select_tag field.call(:repeat_interval_minutes),
+                  options_for_select(UserNotificationPreference::REPEAT_INTERVALS.map { |m| ["#{m} мин", m] }, pref.repeat_interval_minutes),
+                  id: "pref_#{entry.key}_repeat_interval", class: 'notif-settings__number'
+
+    .form-actions
+      = submit_tag 'Сохранить настройки', class: 'btn btn-primary'

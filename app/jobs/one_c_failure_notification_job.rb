@@ -13,11 +13,13 @@ class OneCFailureNotificationJob < ApplicationJob
     Rails.logger.info "[OneCFailureNotification] Notifying #{recipients.count} users with merchandiser notifications about permanent sync failure for order #{order.id}"
     
     recipients.each do |recipient|
-      Notification.create!(
+      NotificationDispatcher.call(
         user: recipient,
-        referenceable: order,
+        type_key: 'one_c_sync_failure',
         message: "Ошибка синхронизации заказа с 1С, <a href=\"/orders/#{order.id}/edit\">требуется вмешательство</a>",
-        url: Rails.application.routes.url_helpers.edit_order_path(order)
+        url: Rails.application.routes.url_helpers.edit_order_path(order),
+        referenceable: order,
+        telegram_text: 'Заказ не синхронизировался с 1С — требуется вмешательство'
       )
     end
   end

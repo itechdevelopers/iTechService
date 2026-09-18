@@ -52,6 +52,12 @@ class Kanban::Card < ApplicationRecord
     "Новый комментарий к канбан карточке: #{content[0..50]}."
   end
 
+  # Ответственным доски — свой тип: у комментария две аудитории с разными
+  # каналами, и один общий тип кому-то из них поменял бы доставку.
+  def notification_type_key
+    'kanban_board_comment'
+  end
+
   def archive!
     update!(archived: true)
   end

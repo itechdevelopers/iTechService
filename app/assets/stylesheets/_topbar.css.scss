@@ -166,17 +166,11 @@ svg#letter-icon {
   stroke-width: 16px;
 }
 
-// только наклейка стекла — синий
-.active-notifications.active-notifications--glass svg#letter-icon {
-  stroke: #2b6cb0;
-}
-
-// наклейка стекла + другие уведомления — пульсация красный↔синий
-.active-notifications.active-notifications--mixed svg#letter-icon {
-  animation: letter-mixed-flash 1s infinite alternate ease-in-out;
-}
-
-@keyframes letter-mixed-flash {
-  from { stroke: #da273c; }
-  to   { stroke: #2b6cb0; }
-}
+// Цвет конвертика — цвет самого приоритетного активного уведомления; порядок
+// приоритета задан палитрой NotificationCatalog::COLORS, где красный первый.
+.active-notifications.active-notifications--orange svg#letter-icon { stroke: #dd6b20; }
+.active-notifications.active-notifications--yellow svg#letter-icon { stroke: #d69e2e; }
+.active-notifications.active-notifications--green  svg#letter-icon { stroke: #38a169; }
+.active-notifications.active-notifications--blue   svg#letter-icon { stroke: #2b6cb0; }
+.active-notifications.active-notifications--purple svg#letter-icon { stroke: #805ad5; }
+.active-notifications.active-notifications--gray   svg#letter-icon { stroke: #718096; }

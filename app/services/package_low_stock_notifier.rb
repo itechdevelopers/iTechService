@@ -18,8 +18,14 @@ class PackageLowStockNotifier
 
   def call
     recipients.each do |user|
-      create_bell(user)
-      NotifyEmployeeJob.perform_later(user.id, telegram_text)
+      NotificationDispatcher.call(
+        user: user,
+        type_key: 'package_low_stock',
+        message: bell_text,
+        url: inventory_url,
+        referenceable: stock,
+        telegram_text: telegram_text
+      )
     end
   end
 
@@ -31,13 +37,6 @@ class PackageLowStockNotifier
   # feedback_user_active_scope).
   def recipients
     User.active.any_admin
-  end
-
-  def create_bell(user)
-    notification = Notification.create!(
-      user: user, message: bell_text, url: inventory_url, referenceable: stock
-    )
-    UserNotificationChannel.broadcast_to(user, notification)
   end
 
   def bell_text
