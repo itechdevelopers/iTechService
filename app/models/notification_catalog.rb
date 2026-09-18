@@ -33,13 +33,14 @@ module NotificationCatalog
     kanban: 'Канбан',
     personal: 'Личные события',
     warehouse: 'Склад и ревизия',
+    requests: 'Запросы клиентов',
     reviews: 'Отзывы',
     schedule: 'График'
   }.freeze
 
   Entry = Struct.new(
     :key, :group, :title, :hint, :audience,
-    :channels, :default_channels, :default_color,
+    :channels, :default_channels, :default_color, :default_bold,
     :repeat_window_minutes, :mandatory, :visible_to,
     keyword_init: true
   ) do
@@ -66,12 +67,14 @@ module NotificationCatalog
   # нынешнего: канал тот же, цвет красный, повторов нет.
   def self.entry(key, group:, title:, audience:, hint: nil,
                  channels: CHANNELS, default_channels: IN_APP_ONLY,
-                 default_color: 'red', repeat_window_minutes: nil,
-                 mandatory: false, visible_to: ->(_user) { true })
+                 default_color: 'red', default_bold: false,
+                 repeat_window_minutes: nil, mandatory: false,
+                 visible_to: ->(_user) { true })
     Entry.new(
       key: key, group: group, title: title, hint: hint, audience: audience,
       channels: channels, default_channels: default_channels,
-      default_color: default_color, repeat_window_minutes: repeat_window_minutes,
+      default_color: default_color, default_bold: default_bold,
+      repeat_window_minutes: repeat_window_minutes,
       mandatory: mandatory, visible_to: visible_to
     )
   end
@@ -80,6 +83,16 @@ module NotificationCatalog
   # Локация с кодом repair, repairmac и т. п.: аудитории согласований и
   # тестирования отбираются в запросах через LIKE 'repair%', повторяем тот же
   # критерий, чтобы настройка не разошлась с реальной рассылкой.
+  SUPERADMIN = ->(user) { user.superadmin? }
+
+  OVERSTAY_ABILITY = lambda do |user|
+    user.able_to?('receive_warranty_overstay_notifications')
+  end
+
+  RECEIPT_REQUESTS = lambda do |user|
+    user.superadmin? || user.able_to?('work_with_receipt_search_requests')
+  end
+
   REPAIR_LOCATION = lambda do |user|
     user.location&.code.to_s.start_with?('repair')
   end
@@ -112,7 +125,7 @@ module NotificationCatalog
           title: 'Надзор: фото при приёмке не добавлено',
           hint: 'Сводка для контроля — с пометкой, выставлен ли минус',
           audience: 'суперадмины',
-          visible_to: ->(user) { user.superadmin? }),
+          visible_to: SUPERADMIN),
 
     entry('repair_attention',
           group: :repair,
@@ -139,21 +152,23 @@ module NotificationCatalog
           title: 'Качели статуса ремонта',
           hint: 'Статус сменили туда-обратно в обход «Строгого ремонта»',
           audience: 'суперадмины',
-          visible_to: ->(user) { user.superadmin? }),
+          visible_to: SUPERADMIN),
 
     entry('location_overstay',
           group: :repair,
           title: 'Устройство залежалось на локации',
           hint: 'Работа стоит на одной локации дольше порога',
           audience: 'право receive_warranty_overstay_notifications',
-          visible_to: ->(user) { user.able_to?('receive_warranty_overstay_notifications') }),
+          default_bold: true,
+          visible_to: OVERSTAY_ABILITY),
 
     entry('warranty_overstay',
           group: :repair,
           title: 'Залежалось наше устройство',
           hint: 'Проданное нами устройство стоит дольше порога',
           audience: 'право receive_warranty_overstay_notifications',
-          visible_to: ->(user) { user.able_to?('receive_warranty_overstay_notifications') }),
+          default_bold: true,
+          visible_to: OVERSTAY_ABILITY),
 
     entry('approval_requested',
           group: :repair,
@@ -181,7 +196,223 @@ module NotificationCatalog
           title: 'Устройство вернулось с тестирования',
           hint: 'Тест пройден или устройство возвращено технарю',
           audience: 'смена ремонтных локаций подразделения',
-          visible_to: REPAIR_LOCATION)
+          visible_to: REPAIR_LOCATION),
+
+    entry('glass_sticking',
+          group: :quality,
+          title: 'Наклейка стекла',
+          hint: 'Стекольщик сообщил, что устройство готово или что с ним проблема',
+          audience: 'сотрудники локации «Бар» своего подразделения, кроме отправителя',
+          default_color: 'blue',
+          visible_to: ->(user) { user.location&.code == 'bar' }),
+
+    entry('queue_inactivity',
+          group: :quality,
+          title: 'Клиент в очереди ждёт слишком долго',
+          hint: 'Талон не берут в работу дольше порога',
+          audience: 'суперадмины',
+          visible_to: SUPERADMIN),
+
+    entry('marker_words',
+          group: :quality,
+          title: 'Слова-маркеры в транскрипции звонка',
+          hint: 'В расшифровке разговора встретились отслеживаемые слова',
+          audience: 'суперадмины',
+          visible_to: SUPERADMIN),
+
+    entry('transcription_silence',
+          group: :quality,
+          title: 'Транскрипции звонков не приходят',
+          hint: 'Новых расшифровок нет дольше заданного числа часов',
+          audience: 'суперадмины',
+          visible_to: SUPERADMIN),
+
+    entry('find_my_device_down',
+          group: :quality,
+          title: 'Сервис проверки «Найти iPhone» не отвечает',
+          hint: 'Проверка при приёмке не работает, её можно отключить',
+          audience: 'суперадмины',
+          visible_to: SUPERADMIN),
+
+    entry('order_without_article',
+          group: :orders,
+          title: 'Заказ создан без артикула',
+          hint: 'В заказе вашего подразделения не заполнен артикул',
+          audience: 'право receive_merchandiser_notifications в подразделении заказа',
+          visible_to: ->(user) { user.able_to?('receive_merchandiser_notifications') }),
+
+    entry('one_c_sync_failure',
+          group: :orders,
+          title: 'Заказ не синхронизировался с 1С',
+          hint: 'Все попытки синхронизации исчерпаны, нужно вмешаться руками',
+          audience: 'право receive_merchandiser_notifications в подразделении заказа',
+          visible_to: ->(user) { user.able_to?('receive_merchandiser_notifications') }),
+
+    entry('one_c_order_result',
+          group: :orders,
+          title: 'Результат операции с заказом в 1С',
+          hint: 'Итог синхронизации, обновления или удаления заказа, которое запустили вы',
+          audience: 'тот, кто запустил операцию'),
+
+    entry('kanban_card_deadline',
+          group: :kanban,
+          title: 'Дедлайн канбан-карточки',
+          hint: 'Срок завтра, сегодня или уже просрочен',
+          audience: 'ответственные по карточке',
+          default_channels: CHANNELS),
+
+    entry('kanban_card_created',
+          group: :kanban,
+          title: 'Новая карточка на доске',
+          hint: 'На доске, где вы ответственный, появилась карточка',
+          audience: 'ответственные на доске, кроме автора действия',
+          default_channels: %i[telegram].freeze),
+
+    entry('kanban_card_moved',
+          group: :kanban,
+          title: 'Карточку перенесли между колонками',
+          hint: 'Движение по карточке, где вы автор или ответственный',
+          audience: 'автор и ответственные по карточке, кроме автора действия',
+          default_channels: %i[telegram].freeze),
+
+    entry('kanban_card_done',
+          group: :kanban,
+          title: 'Карточку перенесли в «Готово»',
+          hint: 'Работа по карточке завершена',
+          audience: 'автор и ответственные по карточке, кроме автора действия',
+          default_channels: %i[telegram].freeze),
+
+    entry('kanban_card_comment',
+          group: :kanban,
+          title: 'Комментарий к канбан-карточке',
+          audience: 'автор, ответственные по карточке и ответственные на доске',
+          default_channels: CHANNELS),
+
+    entry('merit_issued',
+          group: :personal,
+          title: 'Вам выставили плюс',
+          audience: 'тот, кому выставили плюс',
+          default_channels: CHANNELS),
+
+    entry('fault_issued',
+          group: :personal,
+          title: 'Вам выставили минус',
+          audience: 'тот, кому выставили минус',
+          default_channels: CHANNELS),
+
+    entry('achievement_granted',
+          group: :personal,
+          title: 'Получено достижение',
+          audience: 'тот, кто получил достижение'),
+
+    entry('telegram_media_attached',
+          group: :personal,
+          title: 'Фото или видео из Telegram прикреплено к работе',
+          hint: 'Подтверждение, что присланный боту файл лёг в нужную работу',
+          audience: 'тот, кто прислал файл боту',
+          default_channels: %i[telegram].freeze),
+
+    entry('package_low_stock',
+          group: :warehouse,
+          title: 'Заканчиваются пакеты',
+          hint: 'Остаток по строке опустился до порога',
+          audience: 'админы и суперадмины',
+          default_channels: CHANNELS,
+          visible_to: ->(user) { user.any_admin? }),
+
+    entry('inventory_assigned',
+          group: :warehouse,
+          title: 'Ревизия: нужно посчитать',
+          hint: 'Появилось задание на ревизию или часть позиций вернули на пересчёт',
+          audience: 'сотрудники складских локаций подразделения и подписчики ревизии',
+          default_channels: CHANNELS),
+
+    entry('inventory_reviewed',
+          group: :warehouse,
+          title: 'Ревизия: результат',
+          hint: 'Ревизия проведена или закрыта — с итогами расхождений',
+          audience: 'автор ревизии, подписчики и суперадмины',
+          default_channels: CHANNELS),
+
+    entry('client_request_under_year',
+          group: :requests,
+          title: 'Запрос чека: покупке меньше года',
+          audience: 'суперадмины и право work_with_receipt_search_requests',
+          default_bold: true,
+          visible_to: RECEIPT_REQUESTS),
+
+    entry('client_request_one_to_two',
+          group: :requests,
+          title: 'Запрос чека: покупке от года до двух',
+          audience: 'суперадмины и право work_with_receipt_search_requests',
+          default_color: 'orange',
+          default_bold: true,
+          visible_to: RECEIPT_REQUESTS),
+
+    entry('client_request_over_two',
+          group: :requests,
+          title: 'Запрос чека: покупке больше двух лет',
+          audience: 'суперадмины и право work_with_receipt_search_requests',
+          default_color: 'gray',
+          default_bold: true,
+          visible_to: RECEIPT_REQUESTS),
+
+    entry('client_request_unconfirmed',
+          group: :requests,
+          title: 'Запрос чека: покупку подтвердить не удалось',
+          hint: '1С недоступна или устройство продано не нами',
+          audience: 'суперадмины и право work_with_receipt_search_requests',
+          default_bold: true,
+          visible_to: RECEIPT_REQUESTS),
+
+    entry('device_unlock_created',
+          group: :requests,
+          title: 'Создан запрос на разблокировку',
+          audience: 'суперадмины',
+          visible_to: SUPERADMIN),
+
+    entry('device_unlock_activity',
+          group: :requests,
+          title: 'Движение по запросу на разблокировку',
+          hint: 'Сменился статус, появился комментарий или запрос завис без ответа',
+          audience: 'подписчики запроса'),
+
+    entry('gis_review_negative',
+          group: :reviews,
+          title: 'Новый негативный отзыв 2ГИС',
+          audience: 'суперадмины',
+          default_channels: CHANNELS,
+          visible_to: SUPERADMIN),
+
+    entry('gis_review_claim',
+          group: :reviews,
+          title: 'Заявка на закрепление отзыва',
+          hint: 'Сотрудник просит закрепить отзыв за собой либо на отзыв претендуют двое',
+          audience: 'суперадмины и право manage_negative_reviews',
+          visible_to: ->(user) { user.superadmin? || user.able_to?('manage_negative_reviews') }),
+
+    entry('review_source_alert',
+          group: :reviews,
+          title: 'Сбор отзывов не работает',
+          hint: 'Площадка или филиал перестали отдавать отзывы',
+          audience: 'суперадмины',
+          default_channels: CHANNELS,
+          visible_to: SUPERADMIN),
+
+    entry('review_source_digest',
+          group: :reviews,
+          title: 'Дайджест аварий сбора отзывов',
+          hint: 'Раз в сутки — все открытые аварии одним сообщением',
+          audience: 'суперадмины',
+          default_channels: %i[telegram].freeze,
+          visible_to: SUPERADMIN),
+
+    entry('schedule_conflict',
+          group: :schedule,
+          title: 'Конфликт в графике',
+          hint: 'У уволенного или невышедшего сотрудника остались назначения',
+          audience: 'суперадмины',
+          visible_to: SUPERADMIN)
   ].each_with_object({}) { |item, result| result[item.key] = item }.freeze
 
   def self.all
