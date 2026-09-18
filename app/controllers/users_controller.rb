@@ -378,7 +378,7 @@ class UsersController < ApplicationController
       acc[:"default_#{section}_department_ids"] = []
       acc[:"default_#{section}_statuses"] = []
     end
-    params.require(:user_settings).permit(:fixed_main_menu, :auto_department_detection, :receive_location_task_notifications, :receive_glass_sticking_notifications, default_order_department_ids: [], default_order_statuses: [], **section_defaults)
+    params.require(:user_settings).permit(:fixed_main_menu, :auto_department_detection, default_order_department_ids: [], default_order_statuses: [], **section_defaults)
   end
 
   def update_self_params

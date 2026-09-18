@@ -52,8 +52,6 @@ class GlassStickingController < ApplicationController
                        .pluck(:id)
 
     User.where(id: bar_user_ids).find_each do |user|
-      next unless user.user_settings.receive_glass_sticking_notifications
-
       NotificationDispatcher.call(
         user: user,
         type_key: 'glass_sticking',

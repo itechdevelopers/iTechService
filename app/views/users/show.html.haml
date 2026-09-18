@@ -334,8 +334,6 @@
           = simple_form_for @user.user_settings, url: update_user_settings_user_path(@user), method: :patch, html: { class: 'user-settings-form' } do |f|
             = f.input :fixed_main_menu
             = f.input :auto_department_detection
-            = f.input :receive_location_task_notifications
-            = f.input :receive_glass_sticking_notifications
             %h4 Работа с заказами
             %small.text-muted По умолчанию — эти филиалы и статусы подставятся при заходе в «Заказы»
             = f.input :default_order_department_ids,
