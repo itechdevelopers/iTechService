@@ -28,7 +28,7 @@ class NotificationDispatcher
   end
 
   def initialize(user:, type_key:, message:, url: nil, referenceable: nil,
-                 kind: nil, telegram_text: nil, photo_path: nil)
+                 kind: nil, telegram_text: nil, photo_path: nil, dedup_scope: nil)
     @user = user
     @type_key = type_key
     @message = message
@@ -37,12 +37,13 @@ class NotificationDispatcher
     @kind = kind
     @telegram_text = telegram_text
     @photo_path = photo_path
+    @dedup_scope = dedup_scope
   end
 
   def call
     return if user.nil? || message.blank?
 
-    notification = create_notification
+    notification = existing_notification || create_notification
     deliver_telegram
     notification
   end
@@ -50,7 +51,21 @@ class NotificationDispatcher
   private
 
   attr_reader :user, :type_key, :message, :url, :referenceable, :kind,
-              :telegram_text, :photo_path
+              :telegram_text, :photo_path, :dedup_scope
+
+  # Повод, о котором уже уведомляли: второй записи в колокольчике не нужно, но
+  # доставку в Telegram это не отменяет — отправитель мог не дойти с первого
+  # раза, и повторное напоминание меньшее зло, чем молча пропавшее. Видимую
+  # запись переброадкастим: иконка снова привлечёт внимание.
+  def existing_notification
+    return nil if dedup_scope.blank?
+
+    found = Notification.find_by(dedup_scope)
+    return nil if found.nil?
+
+    UserNotificationChannel.broadcast_to(user, found) unless found.hidden?
+    found
+  end
 
   def create_notification
     notification = Notification.create!(

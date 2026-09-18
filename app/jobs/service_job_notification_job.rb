@@ -15,14 +15,13 @@ class ServiceJobNotificationJob < ApplicationJob
     url = Rails.application.routes.url_helpers.service_job_path(service_job)
 
     recipients.each do |recipient|
-      notification = Notification.create!(
+      NotificationDispatcher.call(
         user: recipient,
-        referenceable: service_job,
+        type_key: 'service_job_location_added',
         message: message,
         url: url,
-        type_key: 'service_job_location_added'
+        referenceable: service_job
       )
-      UserNotificationChannel.broadcast_to(notification.user, notification)
     end
   end
 end

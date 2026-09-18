@@ -31,41 +31,25 @@ class ReceptionPhotoReminderJob < ApplicationJob
     recipient = service_job.reception_photo_responsible
     return if recipient.nil?
 
-    # Guard covers only the bell: it exists to keep a second in-app notification
-    # from appearing, and it used to sit in front of both channels — so a rerun
-    # of this job (Sidekiq retry, double scheduling) returned early and the
-    # Telegram message was never attempted. A duplicate reminder is the lesser
-    # evil compared with a silently dropped one.
-    unless Notification.exists?(referenceable: service_job, kind: KIND)
-      notify_in_app(service_job, recipient)
-    end
-
-    notify_telegram(service_job, recipient)
+    # dedup_scope прикрывает только колокольчик: он существует, чтобы в нём не
+    # появилось второе напоминание. Перезапуск джобы (ретрай Sidekiq, двойное
+    # планирование) всё равно доходит до Telegram — дубль напоминания меньшее
+    # зло, чем молча пропавшее. Картинка едет подписью, так что push остаётся
+    # один.
+    NotificationDispatcher.call(
+      user: recipient,
+      type_key: KIND,
+      kind: KIND,
+      message: message_text(service_job),
+      url: url_helpers.service_job_path(service_job),
+      referenceable: service_job,
+      telegram_text: telegram_text(service_job),
+      photo_path: IMAGE_PATH,
+      dedup_scope: { referenceable: service_job, kind: KIND }
+    )
   end
 
   private
-
-  def notify_in_app(service_job, recipient)
-    notification = Notification.create!(
-      user: recipient,
-      referenceable: service_job,
-      message: message_text(service_job),
-      url: url_helpers.service_job_path(service_job),
-      kind: KIND,
-      type_key: 'reception_photo_reminder'
-    )
-    UserNotificationChannel.broadcast_to(notification.user, notification)
-  end
-
-  # Delivery goes through NotifyEmployeeJob: SendTelegramMessage swallows
-  # network errors, so calling it here left a failed send indistinguishable
-  # from a successful one and the reminder was lost. The picture rides along as
-  # the photo caption, so the employee still gets a single push.
-  def notify_telegram(service_job, recipient)
-    return unless recipient.telegram_linked?
-
-    NotifyEmployeeJob.perform_later(recipient.id, telegram_text(service_job), IMAGE_PATH)
-  end
 
   def telegram_text(service_job)
     url = url_helpers.service_job_url(service_job, host: app_host)

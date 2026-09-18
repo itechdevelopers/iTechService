@@ -38,8 +38,17 @@ class RepairMasterDayOffNotificationJob < ApplicationJob
 
       message = build_message(job, master)
       recipients.each do |user|
-        created = create_notification(user, job, message)
-        notify_telegram(user, job, message) if created && user.telegram_linked?
+        next if already_notified_today?(user, job)
+
+        NotificationDispatcher.call(
+          user: user,
+          type_key: KIND,
+          kind: KIND,
+          message: message,
+          url: Rails.application.routes.url_helpers.service_job_path(job),
+          referenceable: job,
+          telegram_text: telegram_text(job, message)
+        )
       end
     end
   end
@@ -83,30 +92,11 @@ class RepairMasterDayOffNotificationJob < ApplicationJob
       'Возьмите работу или смените статус.'
   end
 
-  # Возвращает true, если уведомление создано; false — если уже уведомляли сегодня.
-  def create_notification(user, job, message)
-    return false if already_notified_today?(user, job)
-
-    notification = Notification.create!(
-      user: user,
-      message: message,
-      url: Rails.application.routes.url_helpers.service_job_path(job),
-      referenceable: job,
-      kind: KIND,
-      type_key: 'repair_master_day_off'
-    )
-    UserNotificationChannel.broadcast_to(notification.user, notification)
-    true
-  end
-
   # Тот же текст, что и in-app, плюс встроенная HTML-ссылка на работу.
   # Экранируем message: доставка идёт с parse_mode HTML.
-  # Через NotifyEmployeeJob — у неё ретраи; прямой вызов SendTelegramMessage
-  # проглатывал сетевую ошибку, и напоминание пропадало без следа.
-  def notify_telegram(user, job, message)
-    url  = Rails.application.routes.url_helpers.service_job_url(job)
-    text = "#{CGI.escapeHTML(message)}\n\n<a href=\"#{url}\">Открыть ремонт</a>"
-    NotifyEmployeeJob.perform_later(user.id, text)
+  def telegram_text(job, message)
+    url = Rails.application.routes.url_helpers.service_job_url(job)
+    "#{CGI.escapeHTML(message)}\n\n<a href=\"#{url}\">Открыть ремонт</a>"
   end
 
   # Идемпотентность: повторный запуск cron в тот же день не создаёт дубль по той же

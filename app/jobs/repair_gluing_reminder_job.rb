@@ -30,21 +30,23 @@ class RepairGluingReminderJob < ApplicationJob
     latest&.id == change.id
   end
 
+  # Общий чат получает сообщение всегда (notify_telegram ниже), а лично —
+  # только если сотрудник сам включил себе этот канал.
   def notify_user(service_job, change)
     recipient = change.user
     return unless recipient
 
-    notification = Notification.create!(
+    NotificationDispatcher.call(
       user: recipient,
-      referenceable: service_job,
+      type_key: 'repair_gluing',
+      kind: 'repair_gluing',
       message: I18n.t('notifications.repair_gluing',
                       ticket: service_job.ticket_number,
                       hours: change.gluing_hours),
       url: url_helpers.service_job_path(service_job),
-      kind: 'repair_gluing',
-      type_key: 'repair_gluing'
+      referenceable: service_job,
+      telegram_text: telegram_text(service_job, change)
     )
-    UserNotificationChannel.broadcast_to(notification.user, notification)
   end
 
   def notify_telegram(service_job, change)

@@ -24,14 +24,13 @@ class TestingInAppNotifier
 
   def call
     recipients.each do |user|
-      notification = Notification.create!(
+      NotificationDispatcher.call(
         user: user,
-        referenceable: session,
+        type_key: type_key,
         message: message,
         url: url,
-        type_key: type_key
+        referenceable: session
       )
-      UserNotificationChannel.broadcast_to(notification.user, notification)
     end
   end
 
