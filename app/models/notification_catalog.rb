@@ -266,7 +266,13 @@ module NotificationCatalog
           title: 'Новая карточка на доске',
           hint: 'На доске, где вы ответственный, появилась карточка',
           audience: 'ответственные на доске, кроме автора действия',
-          default_channels: %i[telegram].freeze),
+          default_channels: CHANNELS),
+
+    entry('kanban_column_created',
+          group: :kanban,
+          title: 'Новая колонка на доске',
+          hint: 'На доске, где вы ответственный, появилась колонка',
+          audience: 'ответственные на доске'),
 
     entry('kanban_card_moved',
           group: :kanban,
@@ -304,6 +310,12 @@ module NotificationCatalog
           group: :personal,
           title: 'Получено достижение',
           audience: 'тот, кто получил достижение'),
+
+    entry('comment_mention',
+          group: :personal,
+          title: 'Вас отметили в комментарии',
+          hint: 'Кто-то упомянул вас через @ в комментарии',
+          audience: 'тот, кого отметили'),
 
     entry('telegram_media_attached',
           group: :personal,

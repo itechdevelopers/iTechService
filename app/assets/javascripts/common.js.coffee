@@ -228,7 +228,10 @@ $(document).on 'click', '.notificationable-users li', (event) ->
   $hiddenNotificationInputs = $('<div>').addClass('hidden-notification-inputs').attr('data-user-id', userId)
   userIdInput = $('<input>').attr('type', 'hidden').attr('name', "notification[user_ids][]").val(userId)
   messageInput = $('<input>').attr('type', 'hidden').attr('name', "notification[messages][]").val('Вас отметили в комментарии к работе')
-  $hiddenNotificationInputs.append(userIdInput, messageInput)
+  # Тип уведомления едет вместе с получателями: без него ApplicationController
+  # не знает, какое уведомление заказала форма, и настройки к нему не применятся.
+  typeKeyInput = $('<input>').attr('type', 'hidden').attr('name', "notification[type_key]").val('comment_mention')
+  $hiddenNotificationInputs.append(userIdInput, messageInput, typeKeyInput)
   $span.after($hiddenNotificationInputs)
 
 $(document).on 'click', '.notify-user', (event) ->
