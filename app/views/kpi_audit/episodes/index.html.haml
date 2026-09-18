@@ -14,6 +14,9 @@
       = label_tag 'analysis_date_to', 'Дата по'
       = date_field_tag 'analysis[date_to]', @analysis_params[:date_to], class: 'form-control', required: true
     .form-group
+      = label_tag 'analysis_period', 'Период'
+      = select_tag 'analysis[period]', options_for_select([['Произвольный период', 'custom'], ['Последние 7 дней месяца', 'last_7_days_of_month']], 'custom'), class: 'form-control'
+    .form-group
       = label_tag 'analysis_department_id', 'Подразделение'
       = select_tag 'analysis[department_id]', options_from_collection_for_select(@departments, :id, :full_name, @analysis_params[:department_id]), class: 'form-control', required: true
     .form-group

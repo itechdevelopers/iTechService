@@ -77,12 +77,19 @@ module KpiAudit
     end
 
     def normalized_analysis_params
-      values = params.require(:analysis).permit(:department_id, :date_from, :date_to, :mode)
+      values = params.require(:analysis).permit(:department_id, :date_from, :date_to, :mode, :period)
       mode = values.fetch(:mode, 'normal').to_sym
       raise ArgumentError, 'Неизвестный режим проверки.' unless Analyzer::MODES.include?(mode)
 
+      date_from = Date.iso8601(values.fetch(:date_from))
+      date_to = Date.iso8601(values.fetch(:date_to))
+      if values.fetch(:period, 'custom') == 'last_7_days_of_month'
+        date_from = date_to.end_of_month - 6.days
+        date_to = date_to.end_of_month
+      end
+
       { department_id: Integer(values.fetch(:department_id)),
-        date_from: Date.iso8601(values.fetch(:date_from)), date_to: Date.iso8601(values.fetch(:date_to)),
+        date_from: date_from, date_to: date_to,
         mode: mode }
     rescue KeyError, Date::Error, TypeError
       raise ArgumentError, 'Проверьте подразделение и период.'

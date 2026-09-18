@@ -44,6 +44,19 @@ RSpec.describe KpiAudit::EpisodesController, type: :controller do
       expect(assigns(:episodes)).to eq([])
       expect(assigns(:run_id)).to be_present
     end
+
+    it 'maps the last-seven-days preset to the end of the selected month' do
+      expect(KpiAudit::Analyzer).to receive(:call).with(
+        department_id: user.department_id, date_from: Date.new(2026, 7, 25),
+        date_to: Date.new(2026, 7, 31), mode: :normal
+      ).and_return(double(investigations: []))
+      allow(KpiAudit::ReadOnlyRunner).to receive(:call) { |&block| block.call }
+
+      post :analyze, params: { analysis: { department_id: user.department_id, date_from: '2026-07-01',
+                                           date_to: '2026-07-10', period: 'last_7_days_of_month', mode: 'normal' } }
+
+      expect(response).to have_http_status(:ok)
+    end
   end
 
   describe 'GET show' do
