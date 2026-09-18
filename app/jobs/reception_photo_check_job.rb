@@ -46,7 +46,8 @@ class ReceptionPhotoCheckJob < ApplicationJob
       referenceable: service_job,
       message: message,
       url: url_helpers.service_job_path(service_job),
-      kind: CAUSER_KIND
+      kind: CAUSER_KIND,
+      type_key: 'reception_photo_fault'
     )
     UserNotificationChannel.broadcast_to(notification.user, notification)
 
@@ -69,7 +70,8 @@ class ReceptionPhotoCheckJob < ApplicationJob
         referenceable: service_job,
         message: message,
         url: url,
-        kind: SUPERVISOR_KIND
+        kind: SUPERVISOR_KIND,
+        type_key: 'reception_photo_missing'
       )
       UserNotificationChannel.broadcast_to(notification.user, notification)
     end

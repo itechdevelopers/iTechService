@@ -35,7 +35,8 @@ class PackageLowStockNotifier
 
   def create_bell(user)
     notification = Notification.create!(
-      user: user, message: bell_text, url: inventory_url, referenceable: stock
+      user: user, message: bell_text, url: inventory_url, referenceable: stock,
+      type_key: 'package_low_stock'
     )
     UserNotificationChannel.broadcast_to(user, notification)
   end

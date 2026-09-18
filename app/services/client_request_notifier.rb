@@ -48,6 +48,7 @@ class ClientRequestNotifier
         user: user,
         referenceable: request,
         kind: kind,
+        type_key: kind,
         message: message,
         url: url
       )

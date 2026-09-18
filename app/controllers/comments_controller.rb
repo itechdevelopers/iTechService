@@ -107,7 +107,8 @@ class CommentsController < ApplicationController
         notification = Notification.create(user_id: recipient.id,
                                            message: message,
                                            url: @comment.commentable.url,
-                                           referenceable: @comment.commentable)
+                                           referenceable: @comment.commentable,
+                                           type_key: @comment.commentable.try(:notification_type_key))
         UserNotificationChannel.broadcast_to(notification.user, notification) unless notification.errors.any?
       end
 

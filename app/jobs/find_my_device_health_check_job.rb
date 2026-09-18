@@ -63,7 +63,8 @@ class FindMyDeviceHealthCheckJob < ApplicationJob
         message: "Сервис проверки «Найти iPhone» не отвечает (#{reason}). " \
                  "Проверка при приёмке сейчас не работает — " \
                  "<a href=\"#{path}\">отключить обязательную проверку</a>",
-        url: path
+        url: path,
+        type_key: 'find_my_device_down'
       )
     end
   end

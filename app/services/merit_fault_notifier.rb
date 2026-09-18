@@ -50,7 +50,8 @@ class MeritFaultNotifier
       message: bell_text,
       url: profile_path,
       referenceable: record,
-      kind: KINDS[record.class.name]
+      kind: KINDS[record.class.name],
+      type_key: KINDS[record.class.name]
     )
     UserNotificationChannel.broadcast_to(recipient, notification)
   end

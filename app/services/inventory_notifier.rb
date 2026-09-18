@@ -34,7 +34,8 @@ class InventoryNotifier
                "(#{inventory.store&.name})",
       telegram_text: "<b>Появилось задание на проведение ревизии</b>\n" \
                      "№#{inventory.number} — #{CGI.escapeHTML(inventory.store&.name.to_s)}",
-      recipients: recipients
+      recipients: recipients,
+      type_key: 'inventory_assigned'
     )
   end
 
@@ -48,7 +49,8 @@ class InventoryNotifier
     deliver(
       message: subject,
       telegram_text: "<b>Ревизия проведена</b>\n#{CGI.escapeHTML(subject)}",
-      recipients: review_recipients
+      recipients: review_recipients,
+      type_key: 'inventory_reviewed'
     )
   end
 
@@ -63,7 +65,8 @@ class InventoryNotifier
     deliver(
       message: subject,
       telegram_text: "<b>Ревизия закрыта</b>\n#{CGI.escapeHTML(subject)}",
-      recipients: (review_recipients + recipients).uniq
+      recipients: (review_recipients + recipients).uniq,
+      type_key: 'inventory_reviewed'
     )
   end
 
@@ -75,7 +78,8 @@ class InventoryNotifier
     deliver(
       message: subject,
       telegram_text: "<b>Ревизия: нужен пересчёт</b>\n#{CGI.escapeHTML(subject)}",
-      recipients: recipients
+      recipients: recipients,
+      type_key: 'inventory_assigned'
     )
   end
 
@@ -114,13 +118,14 @@ class InventoryNotifier
   end
 
   # Возвращает число уведомлённых — контроллеру есть что показать в flash.
-  def deliver(message:, telegram_text:, recipients:)
+  def deliver(message:, telegram_text:, recipients:, type_key:)
     recipients.each do |user|
       notification = Notification.create!(
         user: user,
         referenceable: inventory,
         message: message,
-        url: url
+        url: url,
+        type_key: type_key
       )
       UserNotificationChannel.broadcast_to(user, notification)
       NotifyEmployeeJob.perform_later(user.id, telegram_text)

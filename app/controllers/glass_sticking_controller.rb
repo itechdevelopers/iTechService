@@ -59,7 +59,8 @@ class GlassStickingController < ApplicationController
         message: message,
         url: glass_sticking_path,
         referenceable: @glass_notification,
-        kind: 'glass_sticking'
+        kind: 'glass_sticking',
+        type_key: 'glass_sticking'
       )
       UserNotificationChannel.broadcast_to(notification.user, notification)
     end

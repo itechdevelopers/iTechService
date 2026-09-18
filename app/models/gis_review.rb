@@ -117,7 +117,8 @@ class GisReview < ApplicationRecord
         user: recipient,
         message: creation_notification_message,
         url: index_path,
-        referenceable: self
+        referenceable: self,
+        type_key: 'gis_review_negative'
       )
       UserNotificationChannel.broadcast_to(recipient, notification)
       NotifyEmployeeJob.perform_later(recipient.id, telegram_text)

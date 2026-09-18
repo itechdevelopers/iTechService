@@ -28,7 +28,8 @@ class ApprovalInAppNotifier
         user: user,
         referenceable: approval_request,
         message: message,
-        url: url
+        url: url,
+        type_key: type_key
       )
       UserNotificationChannel.broadcast_to(notification.user, notification)
     end
@@ -40,6 +41,10 @@ class ApprovalInAppNotifier
 
   def recipients
     ApprovalRecipientsQuery.new(approval_request: approval_request).call(fallback_to_attached: true)
+  end
+
+  def type_key
+    approval_request.pending? ? 'approval_requested' : 'approval_answered'
   end
 
   def message

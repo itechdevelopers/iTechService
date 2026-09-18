@@ -25,7 +25,8 @@ class RepairAttentionNotifier
       message: I18n.t('notifications.repair_attention',
                       ticket: marker.service_job.ticket_number),
       url: url_helpers.service_job_path(marker.service_job),
-      kind: 'repair_attention'
+      kind: 'repair_attention',
+      type_key: 'repair_attention'
     )
     UserNotificationChannel.broadcast_to(notification.user, notification)
   end

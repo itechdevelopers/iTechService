@@ -41,7 +41,8 @@ class RepairGluingReminderJob < ApplicationJob
                       ticket: service_job.ticket_number,
                       hours: change.gluing_hours),
       url: url_helpers.service_job_path(service_job),
-      kind: 'repair_gluing'
+      kind: 'repair_gluing',
+      type_key: 'repair_gluing'
     )
     UserNotificationChannel.broadcast_to(notification.user, notification)
   end

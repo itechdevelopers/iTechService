@@ -39,7 +39,8 @@ class CheckQueueInactivityJob < ApplicationJob
         referenceable: waiting_client,
         message: message,
         url: Rails.application.routes.url_helpers.root_path,
-        kind: KIND
+        kind: KIND,
+        type_key: 'queue_inactivity'
       )
       UserNotificationChannel.broadcast_to(notification.user, notification)
     end

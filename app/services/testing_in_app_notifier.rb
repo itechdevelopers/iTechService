@@ -28,7 +28,8 @@ class TestingInAppNotifier
         user: user,
         referenceable: session,
         message: message,
-        url: url
+        url: url,
+        type_key: type_key
       )
       UserNotificationChannel.broadcast_to(notification.user, notification)
     end
@@ -48,6 +49,10 @@ class TestingInAppNotifier
   def going_to_test?
     session.not_started? ||
       (session.failed? && session.failure_action == TestingSession::FAILURE_ACTIONS[:retry])
+  end
+
+  def type_key
+    going_to_test? ? 'testing_to_test' : 'testing_returned'
   end
 
   def message

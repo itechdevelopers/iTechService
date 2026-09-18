@@ -391,6 +391,12 @@ module NotificationCatalog
           audience: 'суперадмины и право manage_negative_reviews',
           visible_to: ->(user) { user.superadmin? || user.able_to?('manage_negative_reviews') }),
 
+    entry('gis_review_claim_resolved',
+          group: :reviews,
+          title: 'Решение по вашей заявке на отзыв',
+          hint: 'Заявку на закрепление отзыва одобрили или отклонили',
+          audience: 'автор заявки'),
+
     entry('review_source_alert',
           group: :reviews,
           title: 'Сбор отзывов не работает',

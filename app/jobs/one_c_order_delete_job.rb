@@ -67,7 +67,8 @@ class OneCOrderDeleteJob < ApplicationJob
       user: user,
       referenceable: order,
       message: message,
-      url: Rails.application.routes.url_helpers.order_path(order)
+      url: Rails.application.routes.url_helpers.order_path(order),
+      type_key: 'one_c_order_result'
     )
   end
 end

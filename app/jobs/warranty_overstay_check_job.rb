@@ -28,7 +28,8 @@ class WarrantyOverstayCheckJob < ApplicationJob
         referenceable: service_job,
         message: message,
         url: url,
-        kind: kind
+        kind: kind,
+        type_key: 'warranty_overstay'
       )
       UserNotificationChannel.broadcast_to(notification.user, notification)
     end

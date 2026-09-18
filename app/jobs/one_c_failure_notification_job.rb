@@ -17,7 +17,8 @@ class OneCFailureNotificationJob < ApplicationJob
         user: recipient,
         referenceable: order,
         message: "Ошибка синхронизации заказа с 1С, <a href=\"/orders/#{order.id}/edit\">требуется вмешательство</a>",
-        url: Rails.application.routes.url_helpers.edit_order_path(order)
+        url: Rails.application.routes.url_helpers.edit_order_path(order),
+        type_key: 'one_c_sync_failure'
       )
     end
   end

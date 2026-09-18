@@ -51,7 +51,8 @@ class ReceptionPhotoReminderJob < ApplicationJob
       referenceable: service_job,
       message: message_text(service_job),
       url: url_helpers.service_job_path(service_job),
-      kind: KIND
+      kind: KIND,
+      type_key: 'reception_photo_reminder'
     )
     UserNotificationChannel.broadcast_to(notification.user, notification)
   end

@@ -43,7 +43,8 @@ class UserAchievementsController < ApplicationController
     notification = Notification.create(user: @user,
                                        url: user_url(@user, anchor: 'achievements_tab'),
                                        referenceable: @user_achievement,
-                                       message: "Получено достижение: #{@user_achievement.achievement.name}")
+                                       message: "Получено достижение: #{@user_achievement.achievement.name}",
+                                       type_key: 'achievement_granted')
     UserNotificationChannel.broadcast_to(notification.user, notification) unless notification.errors.any?
   end
 end

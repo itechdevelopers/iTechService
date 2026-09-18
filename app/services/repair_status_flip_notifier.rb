@@ -25,7 +25,8 @@ class RepairStatusFlipNotifier
         referenceable: service_job,
         message: message,
         url: url_helpers.service_job_path(service_job),
-        kind: KIND
+        kind: KIND,
+        type_key: KIND
       )
       UserNotificationChannel.broadcast_to(recipient, notification)
     end

@@ -92,7 +92,8 @@ class RepairMasterDayOffNotificationJob < ApplicationJob
       message: message,
       url: Rails.application.routes.url_helpers.service_job_path(job),
       referenceable: job,
-      kind: KIND
+      kind: KIND,
+      type_key: 'repair_master_day_off'
     )
     UserNotificationChannel.broadcast_to(notification.user, notification)
     true

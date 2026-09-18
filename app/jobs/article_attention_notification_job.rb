@@ -12,7 +12,8 @@ class ArticleAttentionNotificationJob < ApplicationJob
         user: recipient,
         referenceable: order,
         message: "Создан заказ без артикула, <a href=\"/orders/#{order.id}/edit\">обратите внимание</a>",
-        url: Rails.application.routes.url_helpers.edit_order_path(order)
+        url: Rails.application.routes.url_helpers.edit_order_path(order),
+        type_key: 'order_without_article'
       )
     end
   end

@@ -27,7 +27,8 @@ class LocationOverstayCheckJob < ApplicationJob
         referenceable: service_job,
         message: message,
         url: url,
-        kind: kind
+        kind: kind,
+        type_key: 'location_overstay'
       )
       UserNotificationChannel.broadcast_to(notification.user, notification)
     end

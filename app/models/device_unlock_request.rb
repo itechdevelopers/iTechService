@@ -83,13 +83,14 @@ class DeviceUnlockRequest < ApplicationRecord
   # Получателей передаём аргументом. Автора действия НЕ исключаем ни в одном
   # уведомлении (решение заказчика 2026-07-09): если суперадмин сам меняет статус
   # или пишет комментарий — колокольчик приходит и ему тоже.
-  def notify(recipients, message, url:)
+  def notify(recipients, message, url:, type_key:)
     Array(recipients).uniq.each do |recipient|
       notification = Notification.create!(
         user: recipient,
         message: message,
         url: url,
-        referenceable: self
+        referenceable: self,
+        type_key: type_key
       )
       UserNotificationChannel.broadcast_to(recipient, notification)
     end
@@ -99,7 +100,8 @@ class DeviceUnlockRequest < ApplicationRecord
   # наверх по scope :recent. exclude_current_user не передаём, поэтому автор,
   # если он суперадмин, тоже попадает в получателей.
   def notify_about_creation
-    notify(User.superadmins.active, creation_notification_message, url: index_url)
+    notify(User.superadmins.active, creation_notification_message, url: index_url,
+           type_key: 'device_unlock_created')
   end
 
   def creation_notification_message
@@ -123,7 +125,8 @@ class DeviceUnlockRequest < ApplicationRecord
   def notify_status_change
     return if subscribers.empty?
 
-    notify(activity_recipients, status_notification_message, url: show_url)
+    notify(activity_recipients, status_notification_message, url: show_url,
+           type_key: 'device_unlock_activity')
   end
 
   # Текст: статус + идентификация запроса (клиент + устройство), как в строке
@@ -154,6 +157,10 @@ class DeviceUnlockRequest < ApplicationRecord
     "Новый комментарий по запросу на разблокировку. #{client_device_label}"
   end
 
+  def notification_type_key
+    'device_unlock_activity'
+  end
+
   # CommentsController#create_notifications берёт ссылку из commentable.url —
   # ведём на сам запрос (там живёт тред комментариев).
   def url
@@ -165,7 +172,8 @@ class DeviceUnlockRequest < ApplicationRecord
   def notify_new_comment
     return if subscribers.empty?
 
-    notify(activity_recipients, notification_message, url: show_url)
+    notify(activity_recipients, notification_message, url: show_url,
+           type_key: 'device_unlock_activity')
   end
 
   # Идентификация запроса в тексте уведомлений — клиент + устройство (item.name +
@@ -204,7 +212,8 @@ class DeviceUnlockRequest < ApplicationRecord
   def notify_if_stale!
     return unless stale? && stale_notification_due?
 
-    notify(activity_recipients, stale_notification_message, url: show_url)
+    notify(activity_recipients, stale_notification_message, url: show_url,
+           type_key: 'device_unlock_activity')
     update_column(:stale_notified_at, Time.current)
   end
 

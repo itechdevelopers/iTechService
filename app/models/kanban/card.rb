@@ -52,6 +52,10 @@ class Kanban::Card < ApplicationRecord
     "Новый комментарий к канбан карточке: #{content[0..50]}."
   end
 
+  def notification_type_key
+    'kanban_card_comment'
+  end
+
   def archive!
     update!(archived: true)
   end

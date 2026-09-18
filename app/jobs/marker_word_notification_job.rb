@@ -36,7 +36,8 @@ class MarkerWordNotificationJob < ApplicationJob
         user: recipient,
         referenceable: transcription,
         message: message,
-        url: url
+        url: url,
+        type_key: 'marker_words'
       )
       UserNotificationChannel.broadcast_to(notification.user, notification)
     end

@@ -47,7 +47,8 @@ class TranscriptionSilenceCheckJob < ApplicationJob
       notification = Notification.create!(
         user: recipient,
         message: message,
-        url: url
+        url: url,
+        type_key: 'transcription_silence'
       )
       UserNotificationChannel.broadcast_to(recipient, notification)
     end

@@ -79,7 +79,8 @@ class ScheduleConflictNotifier
       Notification.create!(
         user: admin,
         message: message,
-        url: url
+        url: url,
+        type_key: 'schedule_conflict'
       )
     end
 

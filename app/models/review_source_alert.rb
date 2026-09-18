@@ -140,7 +140,8 @@ class ReviewSourceAlert < ApplicationRecord
         user: recipient,
         message: notification_message,
         url: index_path,
-        referenceable: self
+        referenceable: self,
+        type_key: 'review_source_alert'
       )
       UserNotificationChannel.broadcast_to(recipient, notification)
       NotifyEmployeeJob.perform_later(recipient.id, telegram_text)

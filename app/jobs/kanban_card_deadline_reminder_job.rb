@@ -58,7 +58,8 @@ class KanbanCardDeadlineReminderJob < ApplicationJob
       user: user,
       message: message,
       url: card.url,
-      referenceable: card
+      referenceable: card,
+      type_key: 'kanban_card_deadline'
     )
     UserNotificationChannel.broadcast_to(notification.user, notification)
     true

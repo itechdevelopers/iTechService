@@ -19,7 +19,8 @@ class ServiceJobNotificationJob < ApplicationJob
         user: recipient,
         referenceable: service_job,
         message: message,
-        url: url
+        url: url,
+        type_key: 'service_job_location_added'
       )
       UserNotificationChannel.broadcast_to(notification.user, notification)
     end
