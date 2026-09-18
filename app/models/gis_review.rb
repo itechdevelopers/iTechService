@@ -113,15 +113,14 @@ class GisReview < ApplicationRecord
   # получали бы одно и то же уведомление круглые сутки.
   def notify_about_creation
     User.superadmins.active.each do |recipient|
-      notification = Notification.create!(
+      NotificationDispatcher.call(
         user: recipient,
+        type_key: 'gis_review_negative',
         message: creation_notification_message,
         url: index_path,
         referenceable: self,
-        type_key: 'gis_review_negative'
+        telegram_text: -> { telegram_text }
       )
-      UserNotificationChannel.broadcast_to(recipient, notification)
-      NotifyEmployeeJob.perform_later(recipient.id, telegram_text)
     end
   end
 

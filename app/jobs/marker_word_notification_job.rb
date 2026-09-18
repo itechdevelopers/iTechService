@@ -32,14 +32,13 @@ class MarkerWordNotificationJob < ApplicationJob
     url = Rails.application.routes.url_helpers.call_transcription_path(transcription)
 
     recipients.each do |recipient|
-      notification = Notification.create!(
+      NotificationDispatcher.call(
         user: recipient,
-        referenceable: transcription,
+        type_key: 'marker_words',
         message: message,
         url: url,
-        type_key: 'marker_words'
+        referenceable: transcription
       )
-      UserNotificationChannel.broadcast_to(notification.user, notification)
     end
   end
 end

@@ -75,14 +75,13 @@ class GisReviewClaim < ApplicationRecord
   end
 
   def notify(recipient, message, type_key)
-    notification = Notification.create!(
+    NotificationDispatcher.call(
       user: recipient,
+      type_key: type_key,
       message: message,
       url: Rails.application.routes.url_helpers.claims_gis_reviews_path,
-      referenceable: self,
-      type_key: type_key
+      referenceable: self
     )
-    UserNotificationChannel.broadcast_to(recipient, notification)
   end
 
   # Заявку имеет смысл подавать только на неразобранный отзыв.

@@ -58,13 +58,14 @@ class FindMyDeviceHealthCheckJob < ApplicationJob
     reason = ActionController::Base.helpers.truncate(error.to_s, length: 120)
 
     recipients.each do |recipient|
-      Notification.create!(
+      NotificationDispatcher.call(
         user: recipient,
+        type_key: 'find_my_device_down',
         message: "Сервис проверки «Найти iPhone» не отвечает (#{reason}). " \
                  "Проверка при приёмке сейчас не работает — " \
                  "<a href=\"#{path}\">отключить обязательную проверку</a>",
         url: path,
-        type_key: 'find_my_device_down'
+        telegram_text: "Сервис проверки «Найти iPhone» не отвечает: #{reason}"
       )
     end
   end

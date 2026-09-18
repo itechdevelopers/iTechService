@@ -85,14 +85,13 @@ class DeviceUnlockRequest < ApplicationRecord
   # или пишет комментарий — колокольчик приходит и ему тоже.
   def notify(recipients, message, url:, type_key:)
     Array(recipients).uniq.each do |recipient|
-      notification = Notification.create!(
+      NotificationDispatcher.call(
         user: recipient,
+        type_key: type_key,
         message: message,
         url: url,
-        referenceable: self,
-        type_key: type_key
+        referenceable: self
       )
-      UserNotificationChannel.broadcast_to(recipient, notification)
     end
   end
 

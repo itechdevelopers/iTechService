@@ -76,11 +76,11 @@ class ScheduleConflictNotifier
     message = messages.join("\n")
 
     superadmins.find_each do |admin|
-      Notification.create!(
+      NotificationDispatcher.call(
         user: admin,
+        type_key: 'schedule_conflict',
         message: message,
-        url: url,
-        type_key: 'schedule_conflict'
+        url: url
       )
     end
 

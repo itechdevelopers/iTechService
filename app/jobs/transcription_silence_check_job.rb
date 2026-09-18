@@ -44,13 +44,12 @@ class TranscriptionSilenceCheckJob < ApplicationJob
     url = Rails.application.routes.url_helpers.call_transcriptions_path
 
     recipients.each do |recipient|
-      notification = Notification.create!(
+      NotificationDispatcher.call(
         user: recipient,
+        type_key: 'transcription_silence',
         message: message,
-        url: url,
-        type_key: 'transcription_silence'
+        url: url
       )
-      UserNotificationChannel.broadcast_to(recipient, notification)
     end
   end
 end

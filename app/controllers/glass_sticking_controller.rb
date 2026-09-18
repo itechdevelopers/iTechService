@@ -54,15 +54,14 @@ class GlassStickingController < ApplicationController
     User.where(id: bar_user_ids).find_each do |user|
       next unless user.user_settings.receive_glass_sticking_notifications
 
-      notification = Notification.create!(
+      NotificationDispatcher.call(
         user: user,
+        type_key: 'glass_sticking',
+        kind: 'glass_sticking',
         message: message,
         url: glass_sticking_path,
-        referenceable: @glass_notification,
-        kind: 'glass_sticking',
-        type_key: 'glass_sticking'
+        referenceable: @glass_notification
       )
-      UserNotificationChannel.broadcast_to(notification.user, notification)
     end
   end
 end

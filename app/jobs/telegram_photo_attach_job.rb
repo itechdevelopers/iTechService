@@ -206,7 +206,12 @@ class TelegramPhotoAttachJob < ApplicationJob
   # a hung sendMessage no longer holds the worker. Still rescued — a photo that
   # is already stored must not be re-downloaded just because the ✅ failed.
   def notify(author, text)
-    NotifyEmployeeJob.perform_later(author.id, CGI.escapeHTML(text))
+    NotificationDispatcher.call(
+      user: author,
+      type_key: 'telegram_media_attached',
+      message: text,
+      telegram_text: CGI.escapeHTML(text)
+    )
   rescue StandardError => e
     Rails.logger.error(
       "[TelegramPhotoAttachJob] notification failed: #{e.class}: #{e.message}"
