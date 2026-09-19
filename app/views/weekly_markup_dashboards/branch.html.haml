@@ -1,0 +1,39 @@
+.weekly-markup-dashboard
+  .page-header
+    = link_to '← Все филиалы', details_weekly_markup_dashboard_path(from: @period_from, to: @period_to), class: 'btn pull-right'
+    %h2= @branch[:name]
+    %p.muted Дневные показатели · #{l(@period_from)} — #{l(@period_to)}
+
+  %table.table.table-bordered.table-hover
+    %thead
+      %tr
+        %th Дата
+        %th Выручка
+        %th Себестоимость
+        %th Прибыль до налога
+        %th Налог с Б/Н
+        %th Прибыль после налога
+        %th Маржа после налога
+        %th Наценка до налога
+        %th Наценка после налога
+        %th Наличные
+        %th Безналичные
+        %th Не распределено
+    %tbody
+      - @branch[:days].sort_by { |day| day[:date] }.each do |day|
+        %tr
+          %td= l(day[:date])
+          %td= markup_money(day[:revenue])
+          %td= markup_money(day[:cost])
+          %td= markup_money(day[:gross_profit_before_tax])
+          %td= markup_money(day[:noncash_tax])
+          %td= markup_money(day[:gross_profit])
+          %td= markup_percent(day[:gross_margin])
+          %td= markup_percent(day[:markup_before_tax])
+          %td= markup_percent(day[:markup])
+          %td= markup_money(day[:cash])
+          %td= markup_money(day[:noncash])
+          %td= markup_money(day[:unallocated])
+
+  .well
+    Наличные включают оплаты на карты сотрудников. Налог с Б/Н равен 10% подтверждённых безналичных оплат дня. Прибыль после налога и итоговая наценка уже уменьшены на эту сумму. Прибыль по отдельным способам оплаты не показывается: доступный в источнике разрез является пропорциональной оценкой, а не фактической себестоимостью конкретных продаж.

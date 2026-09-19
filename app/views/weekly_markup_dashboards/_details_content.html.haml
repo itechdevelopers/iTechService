@@ -1,0 +1,287 @@
+- if @dashboard[:update_failed]
+  .alert.alert-error
+    Последнее обновление не выполнено. Показана предыдущая успешная версия.
+- if @dashboard[:missing_dates].any?
+  .alert.alert-warning
+    Нет загруженных данных: #{@dashboard[:missing_dates].map { |date| l(date) }.join(', ')}.
+- if @dashboard[:incomplete_dates].any?
+  .alert.alert-warning
+    Неполный день: #{@dashboard[:incomplete_dates].map { |date| l(date) }.join(', ')}. Данные актуальны на #{@dashboard[:as_of_local]}.
+- if @dashboard[:zero_cost_revenue_dates].any?
+  .alert.alert-error
+    В 1С ещё не рассчитана себестоимость за даты: #{@dashboard[:zero_cost_revenue_dates].map { |date| l(date) }.join(', ')}. Прибыль, маржа и наценка периода предварительные.
+- elsif @dashboard[:preliminary_cost_dates].any?
+  .alert.alert-error
+    В выбранном периоде есть товары с незавершённым расчётом себестоимости. Наценка предварительная и станет актуальной после закрытия месяца и повторного расчёта.
+
+= form_tag details_weekly_markup_dashboard_path, method: :get, class: 'form-inline weekly-markup-filter' do
+  = label_tag :from, 'Период с'
+  = date_field_tag :from, @period_from, required: true
+  = label_tag :to, 'по'
+  = date_field_tag :to, @period_to, required: true
+  = submit_tag 'Показать', class: 'btn btn-primary'
+  = link_to 'JSON', download_weekly_markup_dashboard_path(from: @period_from, to: @period_to, format: :json), class: 'btn'
+  = link_to 'CSV', download_weekly_markup_dashboard_path(from: @period_from, to: @period_to, format: :csv), class: 'btn'
+
+%h3 Наценка по месяцам
+.monthly-markup-tiles
+  - @dashboard[:months].each do |month|
+    - state_class = month[:partially_closed] ? 'monthly-markup-tile--partial' : month[:closed] ? 'monthly-markup-tile--closed' : 'monthly-markup-tile--preliminary'
+    .monthly-markup-tile{class: state_class, title: month[:status]}
+      .monthly-markup-tile__month= l(month[:from], format: '%B %Y').capitalize
+      .monthly-markup-tile__value= markup_percent(month[:totals][:markup])
+%p.monthly-markup-tiles__legend
+  %span.monthly-markup-tiles__legend-swatch.monthly-markup-tiles__legend-swatch--partial
+  Оранжевый — месяц закрыт, но не до конца.
+
+%h3 Операции, исключённые из расчёта рентабельности
+%p.muted Эти операции учитываются в полном обороте и оплатах, но не входят в выручку, прибыль, валовую маржу и наценку ниже.
+%p.muted Количество операций — число строк регистра с положительной выручкой за вычетом строк с отрицательной выручкой. Строки с нулевой выручкой не учитываются. Это не количество посещений клиентов; исходное количество из 1С сохраняется в JSON.
+%table.table.table-bordered.weekly-markup-excluded-operations
+  %thead
+    %tr
+      %th Код
+      %th Операция
+      %th Количество операций
+      %th Сумма
+  %tbody
+    - @dashboard[:excluded_operations][:rows].each do |operation|
+      %tr
+        %td= operation[:code]
+        %td= operation[:name]
+        %td= markup_quantity(operation[:operation_count])
+        %td= markup_money(operation[:amount])
+  %tfoot
+    %tr
+      %th{colspan: 2} Итого исключено
+      %th= markup_quantity(@dashboard[:excluded_operations][:operation_count])
+      %th= markup_money(@dashboard[:excluded_operations][:amount])
+
+- totals = @dashboard[:totals]
+.weekly-markup-cards
+  - [['Выручка', :revenue], ['Себестоимость', :cost], ['Прибыль до налога с Б/Н', :gross_profit_before_tax], ['Налог с Б/Н (10%)', :noncash_tax], ['Прибыль после налога', :gross_profit], ['Наличные', :cash], ['Безналичные', :noncash], ['Не распределено', :unallocated]].each do |label, key|
+    .weekly-markup-card
+      .weekly-markup-card__label= label
+      .weekly-markup-card__value= markup_money(totals[key])
+  .weekly-markup-card.weekly-markup-card--ratio
+    .weekly-markup-card__label Маржа после налога
+    .weekly-markup-card__value= markup_percent(totals[:gross_margin])
+  .weekly-markup-card.weekly-markup-card--ratio
+    .weekly-markup-card__label Наценка после налога
+    .weekly-markup-card__value= markup_percent(totals[:markup])
+  .weekly-markup-card.weekly-markup-card--ratio
+    .weekly-markup-card__label Доля наличных
+    .weekly-markup-card__value= markup_percent(totals[:cash_share])
+%p.muted Наличные, безналичные и нераспределённые показывают полный оборот, включая вынесенные выше операции.
+
+%h3 Налог с безналичных оплат
+%table.table.table-bordered.weekly-markup-noncash-tax
+  %thead
+    %tr
+      %th Безналичные — база налога
+      %th Ставка
+      %th Прибыль до налога
+      %th Налог
+      %th Прибыль после налога
+      %th Наценка до налога
+      %th Наценка после налога
+  %tbody
+    %tr
+      %td= markup_money(@dashboard[:noncash_tax][:base])
+      %td= markup_percent(@dashboard[:noncash_tax][:rate])
+      %td= markup_money(@dashboard[:noncash_tax][:gross_profit_before_tax])
+      %td= markup_money(@dashboard[:noncash_tax][:tax])
+      %td= markup_money(@dashboard[:noncash_tax][:gross_profit_after_tax])
+      %td= markup_percent(@dashboard[:noncash_tax][:markup_before_tax])
+      %td= markup_percent(@dashboard[:noncash_tax][:markup_after_tax])
+%p.muted Налог равен 10% полного подтверждённого безналичного оборота. В базу входят карта, СБП, кредит и платежи по расчётному счёту, определённые утверждённым правилом.
+
+%h3 Расшифровка валовой маржи
+%table.table.table-bordered.weekly-markup-explanation
+  %thead
+    %tr
+      %th Выручка регистра
+      %th Исключённые операции
+      %th Выручка в расчёте
+      %th Себестоимость
+      %th Прибыль до налога
+      %th Налог с Б/Н
+      %th Прибыль после налога
+      %th Расчёт
+      %th Валовая маржа
+  %tbody
+    %tr
+      %td= markup_money(@dashboard[:gross_margin_breakdown][:source_revenue])
+      %td= markup_money(@dashboard[:gross_margin_breakdown][:excluded_operations])
+      %td= markup_money(@dashboard[:gross_margin_breakdown][:revenue])
+      %td= markup_money(@dashboard[:gross_margin_breakdown][:cost])
+      %td= markup_money(@dashboard[:gross_margin_breakdown][:gross_profit_before_tax])
+      %td= markup_money(@dashboard[:gross_margin_breakdown][:noncash_tax])
+      %td= markup_money(@dashboard[:gross_margin_breakdown][:gross_profit])
+      %td Прибыль после налога ÷ выручка в расчёте
+      %td= markup_percent(@dashboard[:gross_margin_breakdown][:result])
+
+%h3 Динамика по месяцам
+%table.table.table-bordered.table-hover
+  %thead
+    %tr
+      %th Месяц
+      %th Выручка
+      %th Себестоимость
+      %th Прибыль до налога
+      %th Налог с Б/Н
+      %th Прибыль после налога
+      %th Маржа после налога
+      %th Наценка до налога
+      %th Наценка после налога
+      %th Наличные
+      %th Доля наличных
+      %th Статус
+  %tbody
+    - @dashboard[:months].each do |month|
+      %tr
+        %td= l(month[:from], format: '%B %Y')
+        %td= markup_money(month[:totals][:revenue])
+        %td= markup_money(month[:totals][:cost])
+        %td= markup_money(month[:totals][:gross_profit_before_tax])
+        %td= markup_money(month[:totals][:noncash_tax])
+        %td= markup_money(month[:totals][:gross_profit])
+        %td= markup_percent(month[:totals][:gross_margin])
+        %td= markup_percent(month[:totals][:markup_before_tax])
+        %td= markup_percent(month[:totals][:markup])
+        %td= markup_money(month[:totals][:cash])
+        %td= markup_percent(month[:totals][:cash_share])
+        %td
+          - if month[:status] == 'Закрыт'
+            %span.label.label-success Закрыт
+          - elsif month[:status] == 'Закрыт, но не до конца'
+            %span.label.label-info Закрыт, но не до конца
+            %small.month-cost-quality
+              Без себестоимости: #{month[:cost_quality][:zero_cost_goods_count]}; незавершённых строк: #{month[:cost_quality][:unfinished_cost_register_rows]}
+          - else
+            %span.label.label-warning Предварительный
+
+%h3 Категории товаров
+%p.muted Категория определяется по верхней группе реальной иерархии номенклатуры 1С. Вынесенные операции в таблицу категорий не входят. Прибыль и наценка категорий показаны до налога с Б/Н: источник не связывает форму оплаты с конкретной товарной строкой.
+%table.table.table-bordered.table-hover
+  %thead
+    %tr
+      %th Категория
+      %th Товаров
+      %th Выручка
+      %th Доля выручки
+      %th Себестоимость
+      %th Прибыль до налога
+      %th Маржа до налога
+      %th Наценка до налога
+  %tbody
+    - @dashboard[:categories].each do |category|
+      %tr
+        %td= category[:name]
+        %td= category[:product_count]
+        %td= markup_money(category[:total][:revenue])
+        %td= markup_percent(category[:total][:revenue_share])
+        %td= markup_money(category[:total][:cost])
+        %td= markup_money(category[:total][:gross_profit])
+        %td= markup_percent(category[:total][:gross_margin])
+        %td= markup_percent(category[:total][:markup])
+
+%h3 Категория A — товары, дающие первые 80% положительной прибыли до налога с Б/Н
+%table.table.table-bordered.table-hover
+  %thead
+    %tr
+      %th Код
+      %th Товар
+      %th Категория
+      %th Выручка
+      %th Себестоимость
+      %th Прибыль до налога
+      %th Наценка до налога
+      %th Вклад в прибыль
+      %th Накопленный вклад
+  %tbody
+    - @dashboard[:category_a_products].each do |product|
+      %tr
+        %td= product[:code]
+        %td= product[:name]
+        %td= product[:category]
+        %td= markup_money(product[:total][:revenue])
+        %td= markup_money(product[:total][:cost])
+        %td= markup_money(product[:total][:gross_profit])
+        %td= markup_percent(product[:total][:markup])
+        %td= markup_percent(product[:gross_profit_share])
+        %td= markup_percent(product[:cumulative_gross_profit_share])
+
+%h3 Недельные итоги
+%table.table.table-bordered.table-hover
+  %thead
+    %tr
+      %th Неделя
+      %th Выручка
+      %th Себестоимость
+      %th Прибыль до налога
+      %th Налог с Б/Н
+      %th Прибыль после налога
+      %th Маржа после налога
+      %th Наценка до налога
+      %th Наценка после налога
+      %th Статус
+  %tbody
+    - @dashboard[:weeks].each do |week|
+      %tr
+        %td #{l(week[:from])} — #{l(week[:to])}
+        %td= markup_money(week[:totals][:revenue])
+        %td= markup_money(week[:totals][:cost])
+        %td= markup_money(week[:totals][:gross_profit_before_tax])
+        %td= markup_money(week[:totals][:noncash_tax])
+        %td= markup_money(week[:totals][:gross_profit])
+        %td= markup_percent(week[:totals][:gross_margin])
+        %td= markup_percent(week[:totals][:markup_before_tax])
+        %td= markup_percent(week[:totals][:markup])
+        %td
+          - if week[:incomplete]
+            %span.label.label-warning Неполная неделя
+          - else
+            %span.label.label-success Полная неделя
+
+%h3 Филиалы
+%table.table.table-bordered.table-hover
+  %thead
+    %tr
+      %th Филиал
+      %th Выручка
+      %th Себестоимость
+      %th Прибыль до налога
+      %th Налог с Б/Н
+      %th Прибыль после налога
+      %th Маржа после налога
+      %th Наценка до налога
+      %th Наценка после налога
+      %th Наличные
+      %th Безналичные
+      %th Не распределено
+  %tbody
+    - @dashboard[:branches].each do |branch|
+      %tr
+        %td= link_to branch[:name], branch_weekly_markup_dashboard_path(warehouse_id: branch[:warehouse_id], from: @period_from, to: @period_to)
+        %td= markup_money(branch[:total][:revenue])
+        %td= markup_money(branch[:total][:cost])
+        %td= markup_money(branch[:total][:gross_profit_before_tax])
+        %td= markup_money(branch[:total][:noncash_tax])
+        %td= markup_money(branch[:total][:gross_profit])
+        %td= markup_percent(branch[:total][:gross_margin])
+        %td= markup_percent(branch[:total][:markup_before_tax])
+        %td= markup_percent(branch[:total][:markup])
+        %td= markup_money(branch[:total][:cash])
+        %td= markup_money(branch[:total][:noncash])
+        %td= markup_money(branch[:total][:unallocated])
+
+.well.weekly-markup-method
+  %strong Методика.
+  Операции «Ремонт iOS устройств» и «Платное обновление» показаны отдельно и исключены из выручки и прибыли управленческого расчёта. Из прибыли дополнительно вычитается налог 10% от всей подтверждённой безналичной оплаты. Итоговая маржа = прибыль после налога / выручка после исключения операций. Итоговая наценка = прибыль после налога / себестоимость. Общие проценты рассчитаны из общих сумм. Наличные включают оплаты на карты сотрудников. Платёжные показатели отражают полный оборот. Реализации с пустой ФормойОплаты и связанным заказом в статусе «КОбеспечению» относятся к безналичным платежам по расчётному счёту. Остальные неподтверждённые способы оплаты остаются в категории «Не распределено».
+  Завершённый календарный месяц со всеми загруженными днями получает статус «Закрыт, но не до конца», если в нём не более четырёх товаров без себестоимости и не более трёх незавершённых строк расчёта. Такие месяцы учитываются в годовой наценке. Пять и более товаров без себестоимости, четыре и более незавершённых строк или день с выручкой без общей себестоимости сохраняют статус «Предварительный».
+  %br
+  Методика Dashboard: #{@dashboard[:methodology_version]}.
+  - if @dashboard[:current_version]
+    %br
+    Версия методики: #{@dashboard[:current_version][:methodology_version]}; расчёт: #{@dashboard[:current_version][:calculated_at]}.

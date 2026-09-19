@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 module DashboardHelper
+  include WeeklyMarkupDashboardsHelper
   def service_job_information_content(service_job)
     if service_job.present?
       (tag(:hr) +

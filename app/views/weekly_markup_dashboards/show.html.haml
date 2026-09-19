@@ -1,0 +1,37 @@
+.weekly-markup-dashboard.weekly-markup-dashboard--overview
+  .page-header
+    %h2 Dashboard
+    %p.muted Управленческие показатели на основании данных 1С
+
+  .weekly-markup-widgets
+    = link_to details_weekly_markup_dashboard_path(from: @yearly_markup_summary[:drilldown_from], to: @yearly_markup_summary[:drilldown_to]), class: 'yearly-markup-widget' do
+      .yearly-markup-widget__square
+        .yearly-markup-widget__label Средняя наценка после налога #{@yearly_markup_summary[:year]}
+        .yearly-markup-widget__value= markup_percent(@yearly_markup_summary[:markup])
+        .yearly-markup-widget__caption
+          - if @yearly_markup_summary[:closed_months].positive?
+            #{@yearly_markup_summary[:closed_months]} учтённых мес. · до #{l(@yearly_markup_summary[:through])}
+          - else
+            Нет закрытых месяцев
+        - if @yearly_markup_summary[:previous_month]
+          .yearly-markup-widget__previous
+            Наценка за #{l(@yearly_markup_summary[:previous_month][:from], format: '%m.%Y')}
+            %strong= markup_percent(@yearly_markup_summary[:previous_month][:markup])
+            %small= @yearly_markup_summary[:previous_month][:status]
+      .yearly-markup-widget__action Открыть подробный отчёт
+    = link_to iphone_sales_weekly_markup_dashboard_path, class: 'yearly-markup-widget iphone-sales-widget' do
+      .yearly-markup-widget__square
+        .yearly-markup-widget__label Продано iPhone · #{@iphone_sales[:year]}
+        .yearly-markup-widget__value= @iphone_sales[:quantity].nil? ? '—' : number_with_delimiter(@iphone_sales[:quantity])
+        .yearly-markup-widget__caption
+          - if @iphone_sales[:through]
+            С начала года по #{l(@iphone_sales[:through])} · шт.
+          - else
+            Ожидается загрузка данных
+        - if @iphone_sales[:forecast]
+          .yearly-markup-widget__previous
+            Прогноз на год
+            %strong #{number_with_delimiter(@iphone_sales[:forecast][:annual])} шт.
+        - if @iphone_sales[:stale] || @iphone_sales[:failed]
+          %small.iphone-sales-warning Данные требуют обновления
+      .yearly-markup-widget__action Месяцы, филиалы и сравнение лет →

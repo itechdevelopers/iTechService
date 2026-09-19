@@ -1,0 +1,87 @@
+- data = @iphone_sales
+- months = %w[Янв Фев Мар Апр Май Июн Июл Авг Сен Окт Ноя Дек]
+.weekly-markup-dashboard.iphone-sales-dashboard
+  .page-header
+    = link_to '← Dashboard', weekly_markup_dashboard_path
+    %h2 Продажи iPhone
+    %p.muted Количество устройств за вычетом возвратов · розничные филиалы
+  = form_tag iphone_sales_weekly_markup_dashboard_path, method: :get, class: 'form-inline iphone-sales-filters' do
+    = label_tag :year, 'Год'
+    = select_tag :year, options_for_select(data[:years].reverse.map { |y| [y, y] }, data[:year]), class: 'input-small'
+    = label_tag :warehouse_id, 'Филиал'
+    = select_tag :warehouse_id, options_for_select([['Вся сеть', '']] + data[:warehouses].map { |id, name| [name, id] }.sort, data[:warehouse_id]), class: 'input-large'
+    = submit_tag 'Показать', class: 'btn btn-primary'
+  - if data[:stale] || data[:failed]
+    .alert.alert-warning Обновление ещё не выполнено. Показаны последние успешно загруженные данные.
+  %p.muted
+    - if data[:through]
+      Учтены завершённые дни по #{l(data[:through])} включительно.
+    - if data[:updated_at]
+      Расчёт: #{data[:updated_at].in_time_zone('Asia/Vladivostok').strftime('%d.%m.%Y %H:%M')} (Владивосток).
+  .iphone-sales-summary
+    .iphone-sales-card
+      %span Факт · #{data[:year]}
+      %strong= data[:quantity].nil? ? '—' : number_with_delimiter(data[:quantity])
+      %small шт. за доступный период
+    - if data[:forecast]
+      .iphone-sales-card.iphone-sales-card--forecast
+        %span Прогноз на весь год
+        %strong= number_with_delimiter(data[:forecast][:annual])
+        %small Сценарии: #{number_with_delimiter(data[:forecast][:low])}–#{number_with_delimiter(data[:forecast][:high])} шт.
+  %h3 По месяцам
+  .iphone-sales-months
+    - data[:months].each do |month|
+      .iphone-sales-month{class: month[:complete] ? '' : 'iphone-sales-month--partial'}
+        %span= months[month[:month] - 1]
+        %strong= month[:actual].nil? ? '—' : number_with_delimiter(month[:actual])
+        %small= month[:complete] ? 'Факт, месяц полностью' : (month[:actual].nil? ? 'Нет фактических данных' : 'Неполный месяц')
+        - if month[:forecast] && !month[:complete]
+          %small Прогноз месяца: #{number_with_delimiter(month[:forecast])}
+  %h3 Филиалы · #{data[:year]}
+  .iphone-sales-table-wrap
+    %table.table.table-striped.table-bordered
+      %thead
+        %tr
+          %th Филиал
+          - months.each do |name|
+            %th= name
+          %th Итого
+      %tbody
+        - data[:branches].each do |branch|
+          %tr
+            %th= link_to branch[:name], iphone_sales_weekly_markup_dashboard_path(year: data[:year], warehouse_id: branch[:id])
+            - branch[:months].each do |quantity|
+              %td= quantity.nil? ? '—' : number_with_delimiter(quantity)
+            %td
+              %strong= number_with_delimiter(branch[:total])
+  %h3 Сравнение лет · #{data[:warehouse_id] ? data[:warehouses][data[:warehouse_id]] : 'вся сеть'}
+  %p.muted Звёздочкой отмечены неполные периоды. «—» означает отсутствие загрузки, а не нулевые продажи.
+  .iphone-sales-table-wrap
+    %table.table.table-striped.table-bordered
+      %thead
+        %tr
+          %th Год
+          - months.each do |name|
+            %th= name
+          %th Итого
+      %tbody
+        - data[:history].reverse.each do |year|
+          %tr
+            %th= link_to year[:year], iphone_sales_weekly_markup_dashboard_path(year: year[:year], warehouse_id: data[:warehouse_id])
+            - year[:months].each do |month|
+              %td
+                = month[:quantity].nil? ? '—' : number_with_delimiter(month[:quantity])
+                = '*' if !month[:quantity].nil? && !month[:complete]
+            %td
+              %strong= number_with_delimiter(year[:total])
+              = '*' unless year[:complete]
+  .well
+    %h4 Как считаем
+    %p Суммируем количество из активных движений регистра «Выручка и себестоимость продаж»: розничные продажи, реализации, возвраты и корректировки. Возвраты уменьшают результат; внутренние передачи не входят.
+    %p Учитываем виды номенклатуры iPhone и проверенные архивные карточки телефонов. Склад Trade-in, служебные и нерозничные склады исключены; филиал «i что-то там» исключён по согласованному правилу. Неизвестные склады сохраняются отдельно.
+    %p Ежедневный расчёт обновляет текущий год целиком и сохраняет предыдущие версии. Данные текущего дня появятся после его окончания.
+    - if data[:forecast]
+      %p Прогноз — оценка, а не план или гарантия. Делим продажи с начала года на медианную долю продаж к той же дате в #{data[:forecast][:years].join(', ')} годах. На сентябрь–декабрь в этих годах приходилось около #{number_with_precision(data[:forecast][:peak_share] * 100, precision: 1)}% годовых продаж. Остаток прогноза распределяем по исторической сезонности.
+      %p Диапазон показывает сценарии по историческим долям, а не статистический доверительный интервал. Изменения числа филиалов, ассортимента и спроса могут изменить результат.
+    - else
+      %p Прогноз доступен для текущего года при полной загрузке с 1 января и наличии минимум двух полных исторических лет с продажами выбранного филиала.

@@ -1,0 +1,144 @@
+.weekly-markup-dashboard {
+  max-width: 1500px;
+  margin: 0 auto;
+  padding: 0 18px 36px;
+
+  .page-header { margin-bottom: 20px; }
+  .weekly-markup-filter { margin-bottom: 20px; }
+  .weekly-markup-filter label { margin-left: 10px; }
+  .weekly-markup-filter label:first-child { margin-left: 0; }
+}
+
+.weekly-markup-dashboard--overview { min-height: 520px; }
+.weekly-markup-widgets { display: flex; flex-wrap: wrap; gap: 24px; align-items: flex-start; }
+
+.weekly-markup-cards {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  margin: 20px 0 28px;
+}
+
+.weekly-markup-card {
+  box-sizing: border-box;
+  min-width: 210px;
+  flex: 1 1 220px;
+  padding: 16px 18px;
+  border: 1px solid #d7e2ea;
+  border-radius: 7px;
+  background: #f7fafc;
+  box-shadow: 0 1px 3px rgba(20, 48, 68, .08);
+}
+
+.weekly-markup-card--ratio { background: #eef6ea; }
+.weekly-markup-card__label { color: #60717d; font-size: 13px; margin-bottom: 7px; }
+.weekly-markup-card__value { color: #17384f; font-size: 23px; font-weight: 600; white-space: nowrap; }
+.weekly-markup-method { margin-top: 24px; line-height: 1.55; }
+
+.weekly-markup-explanation td { font-size: 16px; }
+
+.yearly-markup-widget {
+  display: inline-block;
+  margin: 0 0 18px;
+  color: #17384f;
+  text-decoration: none;
+}
+
+.yearly-markup-widget__action {
+  margin-top: 10px;
+  text-align: center;
+  color: #337ab7;
+  font-weight: 600;
+}
+
+.yearly-markup-widget:hover { color: #17384f; text-decoration: none; }
+
+.yearly-markup-widget__square {
+  box-sizing: border-box;
+  width: 230px;
+  height: 230px;
+  border: 8px solid #73ad57;
+  border-radius: 12px;
+  background: #f4faef;
+  box-shadow: 0 4px 15px rgba(32, 73, 39, .18);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  padding: 18px;
+}
+
+.yearly-markup-widget__label { font-size: 14px; color: #60717d; }
+.yearly-markup-widget__value { font-size: 33px; font-weight: 700; margin: 7px 0; }
+.yearly-markup-widget__caption { font-size: 12px; color: #60717d; }
+.yearly-markup-widget__previous {
+  border-top: 1px solid rgba(96, 113, 125, .25);
+  color: #3e5665;
+  font-size: 12px;
+  margin-top: 7px;
+  padding-top: 6px;
+}
+.yearly-markup-widget__previous strong { display: block; font-size: 17px; color: #17384f; }
+.yearly-markup-widget__previous small { display: block; font-size: 10px; }
+.month-cost-quality { display: block; margin-top: 4px; color: #60717d; }
+
+.monthly-markup-tiles {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 14px;
+  margin: 14px 0 10px;
+}
+
+.monthly-markup-tile {
+  box-sizing: border-box;
+  width: 165px;
+  height: 165px;
+  border: 4px solid #c6d0d7;
+  border-radius: 9px;
+  background: #f7f9fa;
+  box-shadow: 0 2px 7px rgba(20, 48, 68, .1);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 14px;
+  text-align: center;
+}
+
+.monthly-markup-tile--closed { border-color: #73ad57; background: #f4faef; }
+.monthly-markup-tile--partial { border-color: #e58a23; background: #fff4e5; }
+.monthly-markup-tile--preliminary { border-color: #c6d0d7; background: #f7f9fa; }
+.monthly-markup-tile__month { color: #60717d; font-size: 14px; text-transform: capitalize; }
+.monthly-markup-tile__value { color: #17384f; font-size: 29px; font-weight: 700; margin-top: 10px; white-space: nowrap; }
+.monthly-markup-tiles__legend { color: #60717d; font-size: 12px; margin-bottom: 24px; }
+.monthly-markup-tiles__legend-swatch {
+  display: inline-block;
+  width: 12px;
+  height: 12px;
+  border: 2px solid;
+  border-radius: 2px;
+  margin-right: 5px;
+  vertical-align: -2px;
+}
+.monthly-markup-tiles__legend-swatch--partial { border-color: #e58a23; background: #fff4e5; }
+
+@media (max-width: 520px) {
+  .monthly-markup-tiles { gap: 10px; }
+  .monthly-markup-tile { width: calc(50% - 5px); height: auto; aspect-ratio: 1 / 1; }
+}
+
+.iphone-sales-widget .yearly-markup-widget__square { background: #eaf4ff; border-color: #77aee0; }
+.iphone-sales-warning { color: #935100; }
+.iphone-sales-filters { margin: 20px 0; display: flex; gap: 12px; flex-wrap: wrap; align-items: center; }
+.iphone-sales-summary { display: flex; flex-wrap: wrap; gap: 20px; margin: 20px 0; }
+.iphone-sales-card { box-sizing: border-box; width: 250px; min-height: 170px; border: 1px solid #b9d0e7; border-radius: 12px; background: #eef6ff; padding: 22px; display: flex; flex-direction: column; gap: 14px; }
+.iphone-sales-card strong { font-size: 40px; line-height: 1.2; }
+.iphone-sales-card--forecast { border-style: dashed; background: #f7f9fb; }
+.iphone-sales-months { display: grid; grid-template-columns: repeat(auto-fit, minmax(145px, 1fr)); gap: 12px; margin-bottom: 28px; }
+.iphone-sales-month { padding: 16px; border: 1px solid #d5e1ed; border-radius: 8px; display: flex; flex-direction: column; gap: 10px; }
+.iphone-sales-month strong { font-size: 27px; }
+.iphone-sales-month--partial { border-style: dashed; background: #fafafa; }
+.iphone-sales-table-wrap { overflow-x: auto; margin-bottom: 25px; }
+.iphone-sales-table-wrap td { text-align: right; white-space: nowrap; }
+.iphone-sales-table-wrap th:first-child { min-width: 130px; }
