@@ -72,9 +72,16 @@ class WeeklyMarkupDashboardsController < ApplicationController
     end
   end
 
-  def json_payload(data)
-    data.deep_transform_values do |value|
-      value.is_a?(BigDecimal) ? value.to_s('F') : value
+  def json_payload(value)
+    case value
+    when Hash
+      value.each_with_object({}) { |(key, item), result| result[key] = json_payload(item) }
+    when Array
+      value.map { |item| json_payload(item) }
+    when BigDecimal
+      value.to_s('F')
+    else
+      value
     end
   end
 end
