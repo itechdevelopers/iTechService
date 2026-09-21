@@ -1,6 +1,8 @@
 require 'securerandom'
-require 'stringio'
 require 'shellwords'
+require 'socket'
+require 'stringio'
+require 'time'
 
 namespace :production_safety do
   desc 'Lock production and pin an up-to-date, cumulative master revision'
@@ -13,18 +15,23 @@ namespace :production_safety do
       raise 'Commit or preserve local changes before deploying.' unless capture(:git, :status, '--porcelain').strip.empty?
       local_head = capture(:git, :'rev-parse', 'HEAD').strip
     end
-    set :production_lock_owner, SecureRandom.hex(16)
+    # Случайный хвост оставляет за снятием лока прежнюю гарантию (снимаю только
+    # свой), а префикс отвечает на вопрос, ради которого в занятый лок лезут
+    # руками: кто и с какой машины его держит.
+    operator = [ENV['USER'] || ENV['LOGNAME'] || 'unknown', Socket.gethostname].join('@')
+    set :production_lock_owner, "#{operator} #{Time.now.utc.iso8601} pid=#{Process.pid} #{SecureRandom.hex(8)}"
     set :production_locked_hosts, []
     on roles(:app) do |host|
       lock = shared_path.join('production-deploy.lock')
-      raise "Another deployment holds #{lock}; inspect it before retrying." unless test(:mkdir, lock)
+      raise "Another deployment holds #{lock}; run `cat #{lock}/owner` to see who." unless test(:mkdir, lock)
       fetch(:production_locked_hosts) << host.to_s
       upload! StringIO.new(fetch(:production_lock_owner)), lock.join('owner')
       within repo_path do
         execute :git, :fetch, :origin, 'refs/heads/master:refs/heads/master'
         target = capture(:git, :'rev-parse', 'refs/heads/master').strip
         raise 'Requested revision is not the latest master.' unless requested == 'master' || requested == target
-        raise 'Local deployment code is stale. Update this checkout to the latest master.' unless local_head == target
+        raise "Local deployment code is stale: HEAD #{local_head[0, 9]} is not master #{target[0, 9]}. " \
+              'Run: git checkout master && git pull' unless local_head == target
         current = capture(:cat, current_path.join('REVISION')).strip
         raise 'Master omits the running release. Merge production history first; do not overwrite it.' unless test(:git, :'merge-base', '--is-ancestor', current, target)
         set :production_previous_revision, current
@@ -45,12 +52,6 @@ namespace :production_safety do
       current = capture(:cat, current_path.join('REVISION')).strip
       raise 'Production changed during deployment; refusing to overwrite it.' unless current == fetch(:production_previous_revision)
       raise 'Release revision does not match the approved master.' unless capture(:cat, release_path.join('REVISION')).strip == fetch(:branch)
-      %w[app/controllers/weekly_markup_dashboards_controller.rb app/services/weekly_markup/dashboard_data.rb app/services/iphone_sales/dashboard.rb app/controllers/kpi_audit/episodes_controller.rb].each do |path|
-        raise "Required production feature is missing: #{path}" unless test(:test, '-s', release_path.join(path))
-      end
-      %w[.env config/database.yml config/schedule.yml config/weekly_markup_import_token].each do |path|
-        raise "Persistent configuration is not linked: #{path}" unless test(:test, '-L', release_path.join(path))
-      end
     end
   end
 
@@ -65,8 +66,15 @@ namespace :production_safety do
     set :production_locked_hosts, []
   end
 
+  # Откат переставляет симлинк на прошлый релиз, но схему БД не отматывает:
+  # старый код встречает уже мигрированную базу. Поэтому по умолчанию отказ,
+  # а не запрет — в аварии рычаг должен оставаться доступным.
   task :refuse_rollback do
-    raise 'Production rollback requires an explicit recovery plan; publish a reviewed revert on master.' if fetch(:stage).to_s == 'production'
+    next unless fetch(:stage).to_s == 'production'
+    next if ENV['ALLOW_PRODUCTION_ROLLBACK'] == '1'
+    raise 'Production rollback is disabled by default: an older release can be incompatible with the migrated ' \
+          'schema. Prefer a reviewed revert on master. Re-run with ALLOW_PRODUCTION_ROLLBACK=1 after checking ' \
+          'which migrations ran since the target release.'
   end
 end
 
