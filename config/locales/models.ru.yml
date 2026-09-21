@@ -786,6 +786,16 @@ ru:
           attributes:
             done:
               already_done: 'Задача уже выполнена'
+        device_unlock_request:
+          attributes:
+            client:
+              required: 'не может быть пустым'
+            item:
+              required: 'не может быть пустым'
+            user:
+              required: 'не может быть пустым'
+            department:
+              required: 'не может быть пустым'
         gift_certificate:
           attributes:
             nominal:
