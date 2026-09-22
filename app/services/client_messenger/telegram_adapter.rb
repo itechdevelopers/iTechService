@@ -1,7 +1,5 @@
 # frozen_string_literal: true
 
-require 'tempfile'
-
 module ClientMessenger
   # Доставка в Telegram. Возвращает наружу сам SendTelegramMessage: у него уже
   # есть контракт success?/error/result, которого достаточно джобе, и городить
@@ -23,18 +21,10 @@ module ClientMessenger
       send_message(message, text: message.body)
     end
 
-    # Файл лежит в облаке, а гем принимает открытый File — поэтому сначала
-    # выкачиваем во временный. Ссылкой не отдаём: бакет приватный, и полагаться
-    # на то, что Telegram до него дотянется, нельзя.
     def deliver_photo(message)
-      tempfile = Tempfile.new(['client_out', File.extname(message.photo.path.to_s).presence || '.jpg'])
-      tempfile.binmode
-      tempfile.write(message.photo.file.read)
-      tempfile.rewind
-
-      send_message(message, text: message.body.to_s, photo: tempfile)
-    ensure
-      tempfile&.close!
+      ClientMessenger.with_photo_tempfile(message) do |file|
+        send_message(message, text: message.body.to_s, photo: file)
+      end
     end
 
     def send_message(message, text:, photo: nil)
