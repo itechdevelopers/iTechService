@@ -9,8 +9,8 @@
 class MaxBotReplyJob < ApplicationJob
   queue_as :default
 
-  def perform(chat_id, text)
-    outcome = SendMaxMessage.call(chat_id: chat_id, text: text)
+  def perform(chat_id, text, buttons = nil)
+    outcome = SendMaxMessage.call(chat_id: chat_id, text: text, buttons: buttons)
     return if outcome.success?
 
     Rails.logger.error("[MaxBotReplyJob] chat #{chat_id}: #{outcome.result}")

@@ -40,10 +40,12 @@ class SendMaxMessage
 
   # photo: открытый File/Tempfile. Картинка уходит вложением, а text —
   # обычным текстом того же сообщения, отдельного метода для неё нет.
-  def initialize(chat_id:, text:, photo: nil)
+  # buttons: массив рядов кнопок; клавиатура — такое же вложение, как картинка.
+  def initialize(chat_id:, text:, photo: nil, buttons: nil)
     @chat_id = chat_id
     @text = text
     @photo = photo
+    @buttons = buttons
     @result = nil
     @error = nil
     @message_id = nil
@@ -61,7 +63,7 @@ class SendMaxMessage
     end
 
     begin
-      deliver(@photo ? [upload_photo] : nil)
+      deliver(attachments)
     rescue StandardError => e
       Rails.logger.error("[SendMaxMessage] #{e.class}: #{e.message}")
       @error = e
@@ -76,6 +78,15 @@ class SendMaxMessage
   end
 
   private
+
+  # Картинку сперва надо загрузить и получить токен, клавиатуру — просто
+  # описать: у MAX это два вложения одного сообщения.
+  def attachments
+    list = []
+    list << upload_photo if @photo
+    list << { type: 'inline_keyboard', payload: { buttons: @buttons } } if @buttons.present?
+    list
+  end
 
   def token
     ENV['CLIENT_MAX_BOT_TOKEN']
