@@ -8,11 +8,6 @@ require 'httparty'
 class SendMaxMessage
   include HTTParty
 
-  # У MAX в ходу два адреса — botapi.max.ru и platform-api.max.ru, — и способ
-  # авторизации у них разный. Держим адрес в переменной окружения, чтобы
-  # переезд не требовал выкладки кода.
-  base_uri ENV['CLIENT_MAX_API_URL'].presence || 'https://botapi.max.ru'
-
   # Загруженный файл становится доступным не сразу: несколько секунд MAX
   # отвечает attachment.not.ready. Это не отказ, а «ещё не готово», поэтому
   # ошибка лежит в транзиентных и её повторяет retry_on самой джобы — ждать
@@ -52,7 +47,7 @@ class SendMaxMessage
   end
 
   def send_message
-    unless token.present?
+    unless MaxBotApi.configured?
       @result = 'MAX бот не настроен (нет токена в окружении)'
       return self
     end
@@ -88,17 +83,13 @@ class SendMaxMessage
     list
   end
 
-  def token
-    ENV['CLIENT_MAX_BOT_TOKEN']
-  end
-
   # chat_id уходит в query, а не в теле — так устроен этот API.
   def deliver(attachments)
     body = { text: @text.to_s }
     body[:attachments] = attachments if attachments.present?
 
-    response = self.class.post('/messages', query: query(chat_id: @chat_id),
-                                            body: body.to_json, headers: JSON_HEADERS)
+    response = self.class.post(MaxBotApi.url('/messages'), query: MaxBotApi.query(chat_id: @chat_id),
+                               body: body.to_json, headers: JSON_HEADERS)
 
     if response.code == 200
       @message_id = response.dig('message', 'body', 'mid')
@@ -125,14 +116,10 @@ class SendMaxMessage
   end
 
   def upload_url
-    response = self.class.post('/uploads', query: query(type: 'image'))
+    response = self.class.post(MaxBotApi.url('/uploads'), query: MaxBotApi.query(type: 'image'))
     raise "не получен адрес загрузки (#{response.code})" unless response.code == 200 && response['url'].present?
 
     response['url']
-  end
-
-  def query(extra = {})
-    { access_token: token }.merge(extra)
   end
 
   def error_code(response)

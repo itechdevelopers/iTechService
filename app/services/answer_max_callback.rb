@@ -5,13 +5,9 @@ require 'httparty'
 # Ответ на нажатие кнопки. Пока он не отправлен, у клиента на кнопке крутится
 # индикатор — поэтому отвечаем всегда, даже когда сказать нечего.
 #
-# Адрес и токен читаем так же, как SendMaxMessage: пара сервисов на один
-# внешний API уже есть в проекте (SendWhatsapp и CheckWhatsapp), и заводить
-# ради двух строк общий базовый класс смысла нет.
+# Адрес и авторизация — общие для всех обращений к MAX, они в MaxBotApi.
 class AnswerMaxCallback
   include HTTParty
-
-  base_uri ENV['CLIENT_MAX_API_URL'].presence || 'https://botapi.max.ru'
 
   JSON_HEADERS = { 'Content-Type' => 'application/json' }.freeze
 
@@ -28,15 +24,15 @@ class AnswerMaxCallback
   end
 
   def answer
-    token = ENV['CLIENT_MAX_BOT_TOKEN']
-    if token.blank? || @callback_id.blank?
+    if !MaxBotApi.configured? || @callback_id.blank?
       @result = 'MAX бот не настроен или не передан callback_id'
       return self
     end
 
     body = @notification.present? ? { notification: @notification } : {}
-    response = self.class.post('/answers', query: { access_token: token, callback_id: @callback_id },
-                                           body: body.to_json, headers: JSON_HEADERS)
+    response = self.class.post(MaxBotApi.url('/answers'),
+                               query: MaxBotApi.query(callback_id: @callback_id),
+                               body: body.to_json, headers: JSON_HEADERS)
 
     @result = response.code == 200 ? :success : "Ошибка MAX: HTTP #{response.code}"
     self
