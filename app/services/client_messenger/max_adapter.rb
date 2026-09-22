@@ -18,6 +18,11 @@ module ClientMessenger
       end
     end
 
+    # MAX кладёт в апдейт прямую ссылку на файл, резолвить нечего.
+    def photo_url(url)
+      url.presence
+    end
+
     private
 
     def send_message(message, text:, photo: nil)

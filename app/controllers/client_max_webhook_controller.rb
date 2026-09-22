@@ -20,9 +20,18 @@ class ClientMaxWebhookController < ApplicationController
   # Кнопка под приветствием: открывает тот же список, что и команда /city.
   CHANGE_CITY = 'dep:change'
   CITY_COMMAND = '/city'
-  # Вложения этот цикл ещё не разбирает, но строка в ленте нужна: иначе
-  # сотрудник не узнает, что клиент вообще писал.
-  ATTACHMENT_STUB = '[клиент прислал вложение]'
+  # Вложения, которые мы пока не показываем в Айсе. Картинки разбираются
+  # отдельно, здесь только то, на что отвечаем отказом.
+  UNSUPPORTED = {
+    'video' => 'видео',
+    'audio' => 'аудиофайлы',
+    'file' => 'файлы',
+    'sticker' => 'стикеры',
+    'contact' => 'контакты',
+    'location' => 'геопозицию',
+    'share' => 'ссылки-карточки'
+  }.freeze
+  UNSUPPORTED_FALLBACK = 'вложение'
 
   def update
     return head :unauthorized unless authentic?
@@ -31,6 +40,7 @@ class ClientMaxWebhookController < ApplicationController
     when 'bot_started' then handle_bot_started
     when 'message_created' then handle_message_created
     when 'message_callback' then handle_message_callback
+    when 'bot_stopped' then handle_bot_stopped
     end
 
     head :ok
@@ -91,15 +101,55 @@ class ClientMaxWebhookController < ApplicationController
     # она ничего не говорит, а клиент ждёт не ответа, а список городов.
     return ask_city if text == CITY_COMMAND
 
-    text = text.presence
-    text ||= ATTACHMENT_STUB if body[:attachments].present?
-    return if text.blank?
+    attachments = Array(body[:attachments])
+    image = attachments.find { |attachment| attachment[:type].to_s == 'image' }
+    return store_photo(body, text, image) if image
 
-    record = store_inbound(external_id: body[:mid].to_s, body: text,
+    label = attachments.map { |attachment| UNSUPPORTED[attachment[:type].to_s] }.compact.first
+    label ||= UNSUPPORTED_FALLBACK if attachments.any?
+    return store_unsupported(body, text, label) if label
+
+    handle_inbound(body, kind: 'text', text: text.presence)
+  end
+
+  # Клиент остановил бота: наши ответы ему больше не доходят. Сотрудник должен
+  # узнать это из ленты, а не из тишины в ответ на отправленное сообщение.
+  # Диалог на такое событие не заводим — писать всё равно некому.
+  def handle_bot_stopped
+    ClientConversation.open_for(CHANNEL, chat_id)
+                      &.add_system_message('Клиент остановил бота — ответы ему больше не доставляются')
+  end
+
+  # Фото кладём в ленту сразу, а файл догружаем джобой: скачивание не
+  # укладывается во время ответа вебхука.
+  def store_photo(body, caption, image)
+    record = handle_inbound(body, kind: 'photo', text: caption.presence)
+    return if record.nil?
+
+    AttachClientPhotoJob.perform_later(record.id, image.dig(:payload, :url).to_s)
+  end
+
+  # Вложение, которое мы пока не умеем показывать. Строку в ленту всё равно
+  # кладём — иначе сотрудник не узнает, что клиент вообще писал, а клиент
+  # будет ждать ответа на сообщение, которого для нас не существовало.
+  def store_unsupported(body, caption, label)
+    line = ["[клиент прислал: #{label}]", caption.presence].compact.join(' ')
+    return if handle_inbound(body, kind: 'text', text: line).nil?
+
+    reply("Мы пока не умеем открывать #{label}. Опишите вопрос текстом или пришлите фото.")
+  end
+
+  # Побочные эффекты нового входящего. Повторная доставка апдейта сюда не
+  # доходит: store_inbound в таком случае возвращает nil.
+  def handle_inbound(body, kind:, text:)
+    return if text.blank? && kind != 'photo'
+
+    record = store_inbound(external_id: body[:mid].to_s, kind: kind, body: text,
                            at: params.dig(:message, :timestamp))
     return if record.nil?
 
     ClientChat::AutoReply.call(conversation)
+    record
   end
 
   # Открытый диалог этого чата, либо новый. Контактные данные перечитываем на
@@ -172,12 +222,12 @@ class ClientMaxWebhookController < ApplicationController
     Department.real.find_by(code: code.delete_prefix(DEEP_LINK_PREFIX))&.city
   end
 
-  def store_inbound(external_id:, body:, at:)
+  def store_inbound(external_id:, kind:, body:, at:)
     return if external_id.blank? || conversation.messages.exists?(external_id: external_id)
 
     conversation.messages.create!(
       direction: 'in',
-      kind: 'text',
+      kind: kind,
       body: body,
       external_id: external_id,
       # Входящее доставлено самим фактом прихода апдейта; delivery_status

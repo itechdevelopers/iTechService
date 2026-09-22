@@ -15,6 +15,23 @@ module ClientMessenger
       message.photo? ? deliver_photo(message) : deliver_text(message)
     end
 
+    # Файл забирается в два шага: getFile отдаёт относительный путь, сам файл
+    # лежит на /file/bot<token>/<path>. Токен берём у бота, а не из ENV:
+    # источник конфигурации один — Telegram.bots_config.
+    def photo_url(file_id)
+      bot = Telegram.bots[:client]
+      return if bot.nil?
+
+      response = bot.get_file(file_id: file_id)
+      path = response.is_a?(Hash) ? response.dig('result', 'file_path') : nil
+      if path.blank?
+        Rails.logger.warn("[TelegramAdapter] getFile не дал file_path для #{file_id}: #{response.inspect[0, 200]}")
+        return
+      end
+
+      "https://api.telegram.org/file/bot#{bot.token}/#{path}"
+    end
+
     private
 
     def deliver_text(message)

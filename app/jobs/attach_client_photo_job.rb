@@ -6,8 +6,11 @@ require 'excon' # fog-aws грузит через excon, его сетевые �
 
 # Скачивает фото, присланное клиентом в бот, и прикладывает к уже созданной
 # записи ленты. Строку ClientMessage создаёт вебхук — сотрудник видит реплику
-# сразу, а картинка догружается: два обращения к сети (Telegram и хранилище)
-# внутри вебхука заняли бы больше, чем Telegram готов ждать ответа.
+# сразу, а картинка догружается: два обращения к сети (мессенджер и хранилище)
+# внутри вебхука заняли бы больше, чем мессенджер готов ждать ответа.
+#
+# Второй аргумент канально-зависим: у Telegram это file_id, у MAX — готовая
+# ссылка. Разбирается в адаптере, сюда возвращается уже адрес файла.
 class AttachClientPhotoJob < ApplicationJob
   queue_as :default
 
@@ -40,11 +43,14 @@ class AttachClientPhotoJob < ApplicationJob
     end
   end
 
-  def perform(message_id, file_id)
+  def perform(message_id, file_ref)
     message = ClientMessage.find_by(id: message_id)
     return if message.nil? || message.photo?
 
-    tempfile = download(file_id)
+    url = ClientMessenger.for(message.conversation).photo_url(file_ref)
+    return if url.blank?
+
+    tempfile = fetch(url, extension_of(url))
     return if tempfile.nil?
 
     message.photo = tempfile
@@ -58,23 +64,13 @@ class AttachClientPhotoJob < ApplicationJob
 
   private
 
-  # Скачивание из Telegram в два шага: getFile отдаёт относительный путь,
-  # затем файл забирается с /file/bot<token>/<path>.
-  def download(file_id)
-    bot = Telegram.bots[:client]
-    return if bot.nil?
-
-    response = bot.get_file(file_id: file_id)
-    path = response.is_a?(Hash) ? response.dig('result', 'file_path') : nil
-    if path.blank?
-      Rails.logger.warn("[AttachClientPhotoJob] getFile не дал file_path для #{file_id}: #{response.inspect[0, 200]}")
-      return
-    end
-
-    # Токен берём у самого бота, а не из ENV: источник конфигурации один —
-    # Telegram.bots_config, и подмена бота в тестах не разъезжается с URL.
-    fetch("https://api.telegram.org/file/bot#{bot.token}/#{path}",
-          File.extname(path).presence || '.jpg')
+  # Расширение нужно временному файлу: по нему CarrierWave и хранилище
+  # определяют тип картинки. В ссылке может быть query-строка, поэтому берём
+  # только путь.
+  def extension_of(url)
+    File.extname(URI.parse(url).path).presence || '.jpg'
+  rescue URI::InvalidURIError
+    '.jpg'
   end
 
   def fetch(url, ext)
