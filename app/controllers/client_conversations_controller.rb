@@ -137,6 +137,7 @@ class ClientConversationsController < ApplicationController
       end
 
     scope = scope.where(city_id: params[:city_id]) if params[:city_id].present?
+    scope = scope.in_channel(params[:channel]) if params[:channel].present?
     scope
   end
 

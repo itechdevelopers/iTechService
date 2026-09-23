@@ -4,7 +4,7 @@
 # и тайминги существуют исключительно здесь, потому что Bot API про наших
 # сотрудников ничего не знает.
 class ClientConversation < ApplicationRecord
-  CHANNELS = %w[telegram].freeze
+  CHANNELS = %w[telegram max].freeze
   STATUSES = %w[open closed].freeze
 
   # Сутки тишины — и диалог считается завершённым (закрывает cron-джоб).

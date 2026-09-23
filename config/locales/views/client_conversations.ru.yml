@@ -5,6 +5,7 @@ ru:
     list:
       empty: Диалогов пока нет.
       all_cities: Все города
+      all_channels: Все каналы
       filters:
         awaiting: Без ответа
         mine: Мои
@@ -22,6 +23,7 @@ ru:
       back: К списку
       channels:
         telegram: Telegram
+        max: MAX
     card:
       phone: Телефон
       city: Город
@@ -69,6 +71,7 @@ ru:
       no_messages: Сообщений ещё не было
       channels:
         telegram: Telegram
+        max: MAX
       statuses:
         open: Открыт
         closed: Закрыт

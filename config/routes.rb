@@ -111,6 +111,9 @@ Rails.application.routes.draw do
   # Второй бот переименовывает роуты в default_/client_telegram_webhook, но путь
   # строится из хэша токена и не меняется — вебхук в Telegram перенастраивать не надо.
   telegram_webhook ClientTelegramWebhookController, :client if ENV['CLIENT_TELEGRAM_BOT_TOKEN'].present?
+  # Секрет вебхука проверяет сам контроллер, поэтому маршрут существует всегда:
+  # иначе подписку в MAX было бы не на что нацелить до выкладки токена.
+  post 'client_max_webhook' => 'client_max_webhook#update'
   resources :client_conversations, only: %i[index show] do
     get :counter, on: :collection
     member do
