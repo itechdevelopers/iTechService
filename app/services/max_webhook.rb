@@ -12,8 +12,6 @@ module MaxWebhook
   # апдейт, который мы не обрабатываем, — это впустую разбуженный воркер.
   UPDATE_TYPES = %w[message_created bot_started bot_stopped message_callback].freeze
 
-  JSON_HEADERS = { 'Content-Type' => 'application/json' }.freeze
-
   def self.me
     request(:get, '/me')
   end
@@ -30,7 +28,7 @@ module MaxWebhook
 
     request(:post, '/subscriptions',
             body: { url: url, secret: secret, update_types: UPDATE_TYPES }.to_json,
-            headers: JSON_HEADERS)
+            headers: MaxBotApi.json_headers)
   end
 
   def self.unsubscribe(url:)
@@ -40,8 +38,9 @@ module MaxWebhook
   def self.request(method, path, query_extra: {}, **options)
     return { 'error' => 'не задан токен (CLIENT_MAX_BOT_TOKEN)' } unless MaxBotApi.configured?
 
-    response = HTTParty.send(method, MaxBotApi.url(path),
-                             { query: MaxBotApi.query(query_extra) }.merge(options))
+    options = { headers: MaxBotApi.auth_headers }.merge(options)
+    options[:query] = query_extra if query_extra.present?
+    response = HTTParty.send(method, MaxBotApi.url(path), options)
     body = response.parsed_response
     body.is_a?(Hash) ? body.merge('http_code' => response.code) : { 'body' => body, 'http_code' => response.code }
   rescue StandardError => e

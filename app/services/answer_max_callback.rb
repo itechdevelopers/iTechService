@@ -9,8 +9,6 @@ require 'httparty'
 class AnswerMaxCallback
   include HTTParty
 
-  JSON_HEADERS = { 'Content-Type' => 'application/json' }.freeze
-
   attr_reader :result
 
   def self.call(callback_id:, notification: nil)
@@ -30,9 +28,8 @@ class AnswerMaxCallback
     end
 
     body = @notification.present? ? { notification: @notification } : {}
-    response = self.class.post(MaxBotApi.url('/answers'),
-                               query: MaxBotApi.query(callback_id: @callback_id),
-                               body: body.to_json, headers: JSON_HEADERS)
+    response = self.class.post(MaxBotApi.url('/answers'), query: { callback_id: @callback_id },
+                               body: body.to_json, headers: MaxBotApi.json_headers)
 
     @result = response.code == 200 ? :success : "Ошибка MAX: HTTP #{response.code}"
     self

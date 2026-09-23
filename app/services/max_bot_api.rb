@@ -2,11 +2,11 @@
 
 # Общая часть всех обращений к Bot API мессенджера MAX: адрес и авторизация.
 #
-# Вынесено отдельно не ради красоты: у MAX в ходу два хоста с разным способом
-# авторизации, и какой из них живой — выяснится на первом настоящем токене.
-# Пока этот вопрос открыт, менять его нужно в одном месте, а не в трёх.
+# Токен передаётся ТОЛЬКО заголовком: на query-параметр access_token API
+# отвечает 401 с пометкой deprecated. Официальная python-библиотека MAX всё
+# ещё шлёт его параметром — ориентироваться на неё в этом месте нельзя.
 module MaxBotApi
-  DEFAULT_URL = 'https://botapi.max.ru'
+  DEFAULT_URL = 'https://platform-api.max.ru'
   WEBHOOK_PATH = '/client_max_webhook'
 
   def self.base_uri
@@ -25,8 +25,12 @@ module MaxBotApi
     "#{base_uri}#{path}"
   end
 
-  def self.query(extra = {})
-    { access_token: token }.merge(extra)
+  def self.auth_headers
+    { 'Authorization' => token.to_s }
+  end
+
+  def self.json_headers
+    auth_headers.merge('Content-Type' => 'application/json')
   end
 
   # Адрес, на который MAX будет слать апдейты. Хост тот же, которым живут

@@ -21,8 +21,6 @@ class SendMaxMessage
     SocketError
   ].freeze
 
-  JSON_HEADERS = { 'Content-Type' => 'application/json' }.freeze
-
   attr_reader :result, :error, :message_id
 
   def self.call(**args)
@@ -88,8 +86,8 @@ class SendMaxMessage
     body = { text: @text.to_s }
     body[:attachments] = attachments if attachments.present?
 
-    response = self.class.post(MaxBotApi.url('/messages'), query: MaxBotApi.query(chat_id: @chat_id),
-                               body: body.to_json, headers: JSON_HEADERS)
+    response = self.class.post(MaxBotApi.url('/messages'), query: { chat_id: @chat_id },
+                               body: body.to_json, headers: MaxBotApi.json_headers)
 
     if response.code == 200
       @message_id = response.dig('message', 'body', 'mid')
@@ -116,7 +114,8 @@ class SendMaxMessage
   end
 
   def upload_url
-    response = self.class.post(MaxBotApi.url('/uploads'), query: MaxBotApi.query(type: 'image'))
+    response = self.class.post(MaxBotApi.url('/uploads'), query: { type: 'image' },
+                               headers: MaxBotApi.auth_headers)
     raise "не получен адрес загрузки (#{response.code})" unless response.code == 200 && response['url'].present?
 
     response['url']
