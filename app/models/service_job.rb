@@ -573,6 +573,14 @@ kind: 'device_return', content: id.to_s)
     repair: 'Не выполнение обязанностей сотрудника магазина'
   }.freeze
 
+  # Контроль фото привязан к появлению задачи, а не к сохранению работы: сама
+  # проверка укладывается в час, поэтому задача старше суток — это правка давней
+  # работы, а не приёмка. Без этого порога любое сохранение работы, принятой до
+  # появления механизма (перемещение, смена хранителя, архивирование), взводило
+  # бы таймеры — фото приёмки там нет и уже не появится, и минус прилетал бы за
+  # то, что человек просто тронул старую работу.
+  RECEPTION_PHOTO_TRIGGER_MAX_AGE = 24.hours
+
   # Задачи приёмки, помеченные как «требуют фото». Единый источник для проверки
   # обязательности, списка имён и выбора типа минуса.
   def reception_photo_device_tasks
@@ -901,8 +909,9 @@ kind: 'device_return', content: id.to_s)
   end
 
   # Одноразовая постановка контроля «фото при приёмке». Ставится, если среди
-  # задач работы есть помеченная (require_reception_photo) и фото приёмки ещё
-  # нет. Guard-таймстамп reception_photo_check_scheduled_at гарантирует, что
+  # задач работы есть помеченная (require_reception_photo), она появилась не
+  # позже RECEPTION_PHOTO_TRIGGER_MAX_AGE назад и фото приёмки ещё нет.
+  # Guard-таймстамп reception_photo_check_scheduled_at гарантирует, что
   # даже при повторных редактированиях таймеры заводятся ровно один раз.
   # Взводим сразу два джоба под одним guard'ом (условие постановки у них общее):
   #   +30 мин — ReceptionPhotoReminderJob: напоминание создателю работы;
@@ -912,9 +921,13 @@ kind: 'device_return', content: id.to_s)
     return if reception_photo_check_scheduled_at.present?
     return unless reception_photo_required? && reception_photo_absent?
 
+    trigger_task = reception_photo_trigger_task
+    return if trigger_task.nil?
+    return if trigger_task.created_at < RECEPTION_PHOTO_TRIGGER_MAX_AGE.ago
+
     update_columns(
       reception_photo_check_scheduled_at: Time.current,
-      reception_photo_responsible_id: reception_photo_trigger_task&.creator_id
+      reception_photo_responsible_id: trigger_task.creator_id
     )
     ReceptionPhotoReminderJob.set(wait: 30.minutes).perform_later(id)
     ReceptionPhotoCheckJob.set(wait: 1.hour).perform_later(id)
