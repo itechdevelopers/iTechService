@@ -20,11 +20,7 @@ class ClientsController < ApplicationController
   def show
     @client = find_record(Client.includes(:sale_items, :orders, :free_jobs, :quick_orders, :trade_in_devices,
                                           service_jobs: :device_tasks))
-    # Отдельным запросом, а не через includes выше: блок переписок рисуется
-    # только тем, у кого есть доступ к разделу диалогов, и грузить их всем
-    # остальным незачем.
-    @client_conversations = @client.client_conversations.recent.includes(:messages) if
-      ClientConversationPolicy.new(current_user, ClientConversation).index?
+    load_client_conversations
 
     respond_to do |format|
       format.html
@@ -40,6 +36,7 @@ class ClientsController < ApplicationController
     if clients.one?
       @client = clients.includes(:sale_items, :orders, :free_jobs, :quick_orders, :trade_in_devices,
                                  service_jobs: :device_tasks).first
+      load_client_conversations
       render 'show'
     else
       params[:client_q] = params[:id][/\d+/]
@@ -198,6 +195,15 @@ class ClientsController < ApplicationController
   end
 
   private
+
+  # Отдельным запросом, а не через includes карточки: блок переписок рисуется
+  # только тем, у кого есть доступ к разделу диалогов, и грузить их всем
+  # остальным незачем. Шаблон `show` рендерят два экшена — отсюда общий метод.
+  def load_client_conversations
+    return unless ClientConversationPolicy.new(current_user, ClientConversation).index?
+
+    @client_conversations = @client.client_conversations.recent.includes(:messages)
+  end
 
   def client_params
     params.require(:client).permit(
