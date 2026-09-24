@@ -9,11 +9,42 @@ from datetime import datetime,timedelta
 import fcntl
 import json
 import os
+import re
 from pathlib import Path
 import subprocess
 import sys
 from zoneinfo import ZoneInfo
 from deliver_receipt_counts import deliver
+
+
+def deliver_pending(output, connector):
+    failed = False
+    for state in sorted(output.glob('*.latest.json')):
+        try:
+            data = json.loads(state.read_text())
+            if not isinstance(data.get('sha256'), str) or not re.fullmatch(r'[0-9a-f]{64}', data['sha256']):
+                raise ValueError('invalid_state_checksum')
+            if not isinstance(data.get('file'), str) or Path(data['file']).name != data['file']:
+                raise ValueError('invalid_snapshot_filename')
+            marker = output / (data['sha256'] + '.delivered')
+            if marker.exists():
+                saved = json.loads(marker.read_text())
+                if saved.get('delivery_id') == data['sha256']:
+                    continue
+                raise ValueError('invalid_delivery_marker')
+            result = deliver(output / data['file'], connector, data['sha256'])
+            if result.get('delivery_id') != data['sha256']:
+                raise ValueError('delivery_checksum_mismatch')
+            temporary = marker.with_suffix('.partial')
+            with os.fdopen(os.open(temporary, os.O_WRONLY | os.O_CREAT | os.O_TRUNC, 0o600), 'w') as stream:
+                json.dump(result, stream)
+            temporary.replace(marker)
+            print(json.dumps(result), flush=True)
+        except Exception as exc:
+            # One invalid snapshot must not prevent retrying other pending months.
+            failed = True
+            print('Pending delivery failed: ' + type(exc).__name__, file=sys.stderr)
+    return failed
 
 
 def run():
@@ -29,14 +60,16 @@ def run():
         # Previous/current month catches late postings. Full history: explicit/monthly.
         first=(today.replace(day=1)-timedelta(days=1)).replace(day=1)
         if a.full:first=today.replace(year=today.year-6,month=1,day=1)
-        subprocess.run([sys.executable,str(Path(__file__).with_name('receipt_counts.py')),
-          '--connector',str(a.connector),'--output',str(a.output),'--from',str(first),'--refresh'],check=True)
-        for state in sorted(a.output.glob('*.latest.json')):
-            data=json.loads(state.read_text()); marker=a.output/(data['sha256']+'.delivered')
-            if marker.exists():continue
-            result=deliver(a.output/data['file'],a.connector)
-            with os.fdopen(os.open(marker,os.O_WRONLY|os.O_CREAT|os.O_EXCL,0o600),'w') as stream:json.dump(result,stream)
-            print(json.dumps(result),flush=True)
+        # Retry saved snapshots even if the source is unavailable today.
+        failed = deliver_pending(a.output, a.connector)
+        try:
+            subprocess.run([sys.executable, str(Path(__file__).with_name('receipt_counts.py')),
+                '--connector', str(a.connector), '--output', str(a.output), '--from', str(first), '--refresh'], check=True)
+        except (subprocess.CalledProcessError, OSError):
+            failed = True
+        failed = deliver_pending(a.output, a.connector) or failed
+        if failed:
+            raise RuntimeError('collection_or_delivery_failed')
 
 if __name__=='__main__':
     try:run()

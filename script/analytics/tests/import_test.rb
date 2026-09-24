@@ -3,6 +3,7 @@ require 'bundler/setup'
 require 'active_record'
 require 'active_support/all'
 require 'minitest/autorun'
+require 'minitest/mock'
 require 'pg'
 Time.zone = 'Vladivostok'
 
@@ -15,17 +16,22 @@ class ApplicationRecord < ActiveRecord::Base
   self.abstract_class = true
 end
 class Department < ApplicationRecord; end
-require_relative '../../db/migrate/20260924050000_create_activity_count_snapshots'
+require_relative '../../../db/migrate/20260924050000_create_activity_count_snapshots'
 ActiveRecord::Migration.verbose = false
 CreateActivityCountSnapshots.new.migrate(:up) unless ActiveRecord::Base.connection.table_exists?(:activity_count_imports)
 c = ActiveRecord::Base.connection
 c.execute('CREATE TABLE IF NOT EXISTS departments (id serial PRIMARY KEY, name text)')
 c.execute('CREATE TABLE IF NOT EXISTS locations (id serial PRIMARY KEY, department_id integer, code text)')
 c.execute('CREATE TABLE IF NOT EXISTS history_records (id serial PRIMARY KEY, object_id integer, object_type text, column_name text, old_value text, new_value text, created_at timestamp, deleted_at timestamp)')
-require_relative '../../app/models/activity_count_import'
-require_relative '../../app/models/activity_count_day'
-require_relative '../../app/services/activity_counts/import'
-require_relative '../../app/services/activity_counts/refresh_repairs'
+require_relative '../../../app/models/activity_count_import'
+require_relative '../../../app/models/activity_count_day'
+require_relative '../../../app/services/activity_counts/import'
+require_relative '../../../app/services/activity_counts/refresh_repairs'
+require_relative '../../../app/services/activity_counts/period_counts'
+require_relative '../../../app/services/activity_counts/dashboard'
+module Rails
+  def self.cache; @cache ||= ActiveSupport::Cache::MemoryStore.new; end
+end
 
 class ActivityCountImportTest < Minitest::Test
   def setup
@@ -42,7 +48,8 @@ class ActivityCountImportTest < Minitest::Test
   end
 
   def deliver(data, id = 'a')
-    ActivityCounts::Import.call(delivery_id:id*64, report:data)
+    raw = JSON.generate(data)
+    ActivityCounts::Import.call(delivery_id:Digest::SHA256.hexdigest(raw), report_json:raw)
   end
 
   def test_idempotency_and_immutable_source_versions
@@ -111,7 +118,8 @@ class ActivityCountImportTest < Minitest::Test
     partial['methodology_version'] = 'first-archive-issue-1.0'
     partial['period'] = {'from'=>'2020-01-01','to'=>'2020-01-01'}
     partial['days'] = [{'date'=>'2020-01-01','quantity'=>0,'branches'=>[]}]
-    ActivityCounts::Import.call(delivery_id:'d'*64,report:partial,allowed_metric:'issued_repairs')
+    raw = JSON.generate(partial)
+    ActivityCounts::Import.call(delivery_id:Digest::SHA256.hexdigest(raw),report_json:raw,allowed_metric:'issued_repairs')
     ActivityCounts::RefreshRepairs.call(full:false,today:Date.new(2026,1,6))
     assert_equal 366, ActivityCountDay.where(date: Date.new(2020,1,1)..Date.new(2020,12,31)).count
     assert_equal 365, ActivityCountDay.where(date: Date.new(2025,1,1)..Date.new(2025,12,31)).count
@@ -141,4 +149,65 @@ class ActivityCountImportTest < Minitest::Test
     assert_equal '2',recent.branches.first['id']
     assert_equal 0,ActivityCountDay.find_by!(date:'2026-01-05').quantity
   end
+  def test_hash_mismatch_and_source_documents_are_rejected_without_writes
+    original = report
+    raw = JSON.generate(original)
+    assert_raises(ActivityCounts::Import::InvalidReport) do
+      ActivityCounts::Import.call(delivery_id: 'a'*64, report_json: raw)
+    end
+    tampered = original.merge('quantity' => 999)
+    assert_raises(ActivityCounts::Import::InvalidReport) do
+      ActivityCounts::Import.call(delivery_id: Digest::SHA256.hexdigest(raw), report_json: JSON.generate(tampered))
+    end
+    assert_raises(ActivityCounts::Import::InvalidReport) { deliver(original.merge('documents' => [{'raw'=>'unneeded'}])) }
+    assert_equal 0, ActivityCountImport.count
+  end
+
+  def test_sql_timeout_preserves_snapshots_and_restores_connection_inside_transaction
+    initial = report
+    initial['metric'] = 'issued_repairs'
+    initial['methodology_version'] = 'first-archive-issue-1.0'
+    raw = JSON.generate(initial)
+    ActivityCounts::Import.call(delivery_id: Digest::SHA256.hexdigest(raw), report_json: raw, allowed_metric: 'issued_repairs')
+    before = ActivityCountDay.order(:date).pluck(:date, :quantity, :activity_count_import_id)
+    connection = ActiveRecord::Base.connection
+    previous = connection.select_value('SHOW statement_timeout')
+    original_select = connection.method(:select_all)
+    intercepted = lambda do |sql, *args|
+      original_select.call((sql.is_a?(String) && sql.include?('WITH issued AS')) ? 'SELECT pg_sleep(0.1)' : sql, *args)
+    end
+    klass = ActivityCounts::RefreshRepairs
+    original_limit = klass::SQL_TIMEOUT_MS
+    klass.send(:remove_const, :SQL_TIMEOUT_MS)
+    klass.const_set(:SQL_TIMEOUT_MS, 10)
+    connection.transaction do
+      connection.stub(:select_all, intercepted) do
+        error = assert_raises(ActiveRecord::StatementInvalid) { klass.call(full:true, today:Date.new(2026,1,6)) }
+        assert_kind_of PG::QueryCanceled, error.cause
+      end
+      assert_equal previous, connection.select_value('SHOW statement_timeout')
+      assert_equal before, ActivityCountDay.order(:date).pluck(:date, :quantity, :activity_count_import_id)
+      assert_equal 1, ActivityCountImport.count
+      assert_equal true, connection.select_value('SELECT pg_try_advisory_lock(734243)')
+      connection.execute('SELECT pg_advisory_unlock(734243)')
+    end
+  ensure
+    klass.send(:remove_const, :SQL_TIMEOUT_MS)
+    klass.const_set(:SQL_TIMEOUT_MS, original_limit)
+  end
+
+  def test_dashboard_reads_only_aggregates_and_keeps_stale_snapshot_available
+    deliver(report)
+    Rails.cache.clear
+    queries = []
+    subscriber = ActiveSupport::Notifications.subscribe('sql.active_record') { |*args| queries << args.last[:sql] }
+    data = ActivityCounts::Dashboard.new(metric: 'receipts', today: Date.new(2026,1,4)).call
+    assert_equal 2, data[:quantity]
+    assert_equal '2026-01-02', data[:through]
+    assert data[:stale]
+    refute queries.any? { |sql| sql.match?(/SELECT.*(?:payload|activity_count_imports"\.\*)/i) }, queries.join("\n")
+  ensure
+    ActiveSupport::Notifications.unsubscribe(subscriber) if subscriber
+  end
+
 end

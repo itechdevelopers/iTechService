@@ -5,10 +5,10 @@ require 'hamlit'
 require 'hamlit/rails_template'
 require 'minitest/autorun'
 require 'pundit'
-require_relative '../../app/services/activity_counts/period_counts'
-require_relative '../../app/helpers/weekly_markup_dashboards_helper'
-require_relative '../../app/policies/application_policy'
-require_relative '../../app/policies/weekly_markup_dashboard_policy'
+require_relative '../../../app/services/activity_counts/period_counts'
+require_relative '../../../app/helpers/weekly_markup_dashboards_helper'
+require_relative '../../../app/policies/application_policy'
+require_relative '../../../app/policies/weekly_markup_dashboard_policy'
 I18n.enforce_available_locales = false
 I18n.backend.store_translations(:ru, date: {formats: {default: '%d.%m.%Y'}})
 I18n.locale = :ru
@@ -35,7 +35,7 @@ class ActivityCountsViewTest < Minitest::Test
 
   def test_real_haml_templates_render_counts_comparisons_and_escaped_labels
     payload=data
-    view=CountPreviewView.new([File.expand_path('../../app/views',__dir__)], {activity_counts:payload})
+    view=CountPreviewView.new([File.expand_path('../../../app/views',__dir__)], {activity_counts:payload})
     html=view.render(template:'weekly_markup_dashboards/activity_counts')
     assert_includes html,'Последние пять лет'
     assert_includes html,'+20,0%'
@@ -45,7 +45,7 @@ class ActivityCountsViewTest < Minitest::Test
     assert_includes tile,'Пробитых чеков'
     assert_includes tile,'+20,0%'
     if ENV['ACTIVITY_PREVIEW_OUTPUT']
-      css=File.read(File.expand_path('../../app/assets/stylesheets/weekly_markup_dashboard.scss',__dir__))
+      css=File.read(File.expand_path('../../../app/assets/stylesheets/weekly_markup_dashboard.scss',__dir__))
       require 'sass'
       compiled=Sass::Engine.new(css,syntax: :scss).render
       base='body{font-family:Arial,sans-serif;margin:30px;color:#263445;background:#f7f8fa}table{border-collapse:collapse;width:100%;background:white}th,td{padding:10px;border-bottom:1px solid #ddd;text-align:left}a{color:#2868a6}select,input{margin:8px;padding:7px}h3{margin-top:30px}.well{background:#e9eef4;padding:16px;margin-top:24px}.muted,small{color:#64748b}.weekly-markup-dashboard{max-width:1200px;margin:auto}'

@@ -2,7 +2,7 @@
 
 require 'minitest/autorun'
 require 'date'
-require_relative '../../app/services/activity_counts/period_counts'
+require_relative '../../../app/services/activity_counts/period_counts'
 PeriodCounts = ActivityCounts::PeriodCounts
 
 class PeriodCountsTest < Minitest::Test

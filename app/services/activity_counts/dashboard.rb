@@ -12,7 +12,7 @@ module ActivityCounts
       version = ActivityCountImport.where(metric: @metric).maximum(:id) || 0
       Rails.cache.fetch(['activity-counts-v1', @metric, version, @today.iso8601, @year, @branch_id], expires_in: 5.minutes) do
         rows = ActivityCountDay.where(metric: @metric, date: Date.new(@today.year - 6, 1, 1)..(@today - 1))
-          .includes(:activity_count_import).order(:date).to_a
+          .select(:date, :quantity, :branches, :activity_count_import_id).order(:date).to_a
         # Catalog labels may change between immutable historical snapshots.
         names = {}
         rows.each { |row| row.branches.each { |branch| names[branch['id']] = branch['name'] } }
@@ -28,7 +28,7 @@ module ActivityCounts
         data = PeriodCounts.new(days: days, today: effective_today, year: @year, branch_id: @branch_id).result
         data.merge(metric: @metric, title: LABELS.fetch(@metric), historical_complete: historical_complete,
           years: ((@today.year - 5)..@today.year).to_a, branch_names: names,
-          updated_at: last_current&.activity_count_import&.calculated_at,
+          updated_at: last_current && ActivityCountImport.where(id: last_current.activity_count_import_id).pluck(:calculated_at).first,
           stale: !last_current || last_current.date < @today - 1)
       end
     end

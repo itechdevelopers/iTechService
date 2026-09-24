@@ -52,7 +52,8 @@ python3 script/analytics/receipt_counts.py --connector /path/to/1c-odata-agent \
   --output /persistent/private/receipt-counts --from 2020-01-01 --to 2025-12-31
 python3 script/analytics/receipt_counts.py --connector /path/to/1c-odata-agent \
   --output /persistent/private/receipt-counts --from 2026-01-01
-python3 script/analytics/deliver_receipt_counts.py --connector /path/to/1c-odata-agent report.json
+python3 script/analytics/deliver_receipt_counts.py --connector /path/to/1c-odata-agent \
+  --sha256 <checksum-from-latest.json> report.json
 ```
 
 The collector reads fresh metadata once, uses explicit scalar fields and filters,
@@ -84,10 +85,10 @@ RAILS_ENV=production bundle exec rake activity_counts:refresh_repairs
 
 ## Validation and release
 
-Standalone calendar tests: `ruby test/activity_counts/period_counts_test.rb`.
-Template and authorization checks: `bundle exec ruby test/activity_counts/view_test.rb`.
+Standalone calendar tests: `ruby script/analytics/tests/period_counts_test.rb`.
+Template and authorization checks: `bundle exec ruby script/analytics/tests/view_test.rb`.
 Database tests require an isolated local PostgreSQL on 127.0.0.1:55438 with the
-`ais_test` role: `ACTIVITY_TEST_PORT=55438 bundle exec ruby test/activity_counts/import_test.rb`.
+`ais_test` role: `ACTIVITY_TEST_PORT=55438 bundle exec ruby script/analytics/tests/import_test.rb`.
 The latter only touches database `activity_counts_test`, never Rails DB config.
 
 Before release: PR/review, current master, production ancestry, clean checkout,
@@ -109,3 +110,46 @@ by the existing chromedriver-helper 2.1.1 / Selenium API mismatch (`driver_path=
 The isolated tests above use the project's locked ActiveRecord, ActionView and Hamlit.
 Do not claim a full application regression suite has passed. Production acceptance,
 initial complete source backfill and scheduler installation remain release steps.
+
+## PR #733 hardening
+
+The activity-count endpoint accepts `delivery_id` and `report_json` (the exact UTF-8
+JSON text, not a parsed report object). SHA-256 is checked before parsing/writing;
+unknown fields are rejected so source documents cannot enter aggregate history.
+Only whitelisted daily/store aggregates and source/check metadata are retained as
+immutable import versions. The existing markup/iPhone import contracts are unchanged.
+Delivery requires the saved expected SHA-256 and a matching server acknowledgement.
+Delivery markers are written atomically only after confirmation. Pending snapshots
+are retried independently before and after collection; a source outage reports an
+error without hiding/deleting existing aggregates or blocking their delivery.
+
+Dashboard queries select only daily aggregate fields and one source timestamp;
+source JSON payloads are not loaded. Import preloads existing dates and timestamps
+instead of querying the source payload separately for each day.
+The repair aggregation SQL has a 20-second statement timeout. It executes before
+any publication; cancellation raises for normal job retry and leaves all existing
+aggregates intact. The connection timeout is restored, including nested transactions.
+
+Standalone test harnesses live outside `test/` because they deliberately own their
+DB connection and must run in separate processes. Run all original tests plus the
+hardening regressions using:
+
+```
+LC_ALL=en_US.UTF-8 RBENV_VERSION=2.7.5 ACTIVITY_TEST_PORT=55438 \
+  bash script/analytics/test_activity_counts.sh
+```
+
+Use only the isolated PostgreSQL described above. Standard `rails test` no longer
+loads these harnesses or changes its connection. Full RSpec/Minitest still require
+the legacy test-environment compatibility setup; do not equate baseline failures
+with passing regression checks.
+
+### Hardening regression results
+
+All original 24 checks plus seven additional regressions pass: 23 Ruby tests /
+114 assertions and eight Python tests. Standard Rails Minitest now runs without the
+isolated-port error or global DB switch: 29 tests / 33 assertions, nine failures and
+13 errors, matching clean master by all 22 affected test IDs. Full RSpec: 1806 examples,
+1260 failures and 96 pending on both PR and clean master; all failure IDs match.
+These baseline suites are not green. No existing test is removed or suppressed to
+obtain these results; the new standalone harness is executed explicitly above.

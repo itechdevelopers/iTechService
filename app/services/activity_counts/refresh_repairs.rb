@@ -2,6 +2,8 @@ require 'digest'
 
 module ActivityCounts
   class RefreshRepairs
+    SQL_TIMEOUT_MS = 20_000
+
     # Only this background service scans history. Requests use stored daily counts.
     def self.call(full: false, today: Time.current.in_time_zone('Asia/Vladivostok').to_date)
       new.call(full: full, today: today)
@@ -22,7 +24,10 @@ module ActivityCounts
         stamp = Time.current
         # First archive entry for each job, across its entire history. Filtering
         # dates BEFORE DISTINCT ON would count repeat issuances in a later year.
-        rows = connection.select_all(<<~SQL).to_a
+        previous_timeout = connection.select_value('SHOW statement_timeout')
+        rows = connection.transaction(requires_new: true) do
+          connection.execute("SET LOCAL statement_timeout = '#{SQL_TIMEOUT_MS}ms'")
+          result = connection.select_all(<<~SQL).to_a
           WITH issued AS (
             SELECT DISTINCT ON (h.object_id) h.object_id, h.created_at, archive.department_id
             FROM history_records h
@@ -39,6 +44,10 @@ module ActivityCounts
           FROM dated WHERE day >= #{connection.quote(first)} AND day <= #{connection.quote(last)}
           GROUP BY day, department_id ORDER BY day, department_id
         SQL
+          # SET LOCAL survives a released savepoint: restore on success as well.
+          connection.execute("SET LOCAL statement_timeout = #{connection.quote(previous_timeout)}")
+          result
+        end
         names = Department.pluck(:id, :name).to_h
         grouped = rows.group_by { |row| row['day'].to_s }
         (first..last).group_by { |day| [day.year, day.month] }.each_value do |dates|
@@ -54,7 +63,7 @@ module ActivityCounts
             source: {name: 'AIS history_records', read_only: true}, checks: {all_pages_received: true, duplicates: 0},
             quantity: days.sum { |day| day[:quantity] }, days: days}
           json = JSON.generate(report)
-          Import.call(delivery_id: Digest::SHA256.hexdigest(json), report: JSON.parse(json), allowed_metric: 'issued_repairs')
+          Import.call(delivery_id: Digest::SHA256.hexdigest(json), report_json: json, allowed_metric: 'issued_repairs')
         end
       ensure
         connection.execute('SELECT pg_advisory_unlock(734243)')
