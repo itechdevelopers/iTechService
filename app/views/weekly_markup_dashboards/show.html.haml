@@ -1,9 +1,11 @@
 .weekly-markup-dashboard.weekly-markup-dashboard--overview
   .page-header
     %h2 Dashboard
-    %p.muted Управленческие показатели на основании данных 1С
+    %p.muted Продажи по данным 1С · выдачи ремонтов по данным AIS
 
   .weekly-markup-widgets
+    = render 'activity_tile', data: @receipt_counts
+    = render 'activity_tile', data: @repair_counts
     = link_to details_weekly_markup_dashboard_path(from: @yearly_markup_summary[:drilldown_from], to: @yearly_markup_summary[:drilldown_to]), class: 'yearly-markup-widget' do
       .yearly-markup-widget__square
         .yearly-markup-widget__label Средняя наценка после налога #{@yearly_markup_summary[:year]}

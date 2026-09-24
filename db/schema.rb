@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20260918120000) do
+ActiveRecord::Schema.define(version: 20260924050000) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -32,6 +32,30 @@ ActiveRecord::Schema.define(version: 20260918120000) do
     t.string "icon"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+  end
+
+  create_table "activity_count_days", force: :cascade do |t|
+    t.string "metric", null: false
+    t.date "date", null: false
+    t.integer "quantity", null: false
+    t.jsonb "branches", default: [], null: false
+    t.bigint "activity_count_import_id", null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["activity_count_import_id"], name: "activity_count_day_source"
+    t.index ["metric", "date"], name: "index_activity_count_days_on_metric_and_date", unique: true
+  end
+
+  create_table "activity_count_imports", force: :cascade do |t|
+    t.string "metric", null: false
+    t.string "delivery_id", null: false
+    t.date "period_from", null: false
+    t.date "period_to", null: false
+    t.datetime "calculated_at", null: false
+    t.jsonb "payload", default: {}, null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["metric", "delivery_id"], name: "activity_count_import_identity", unique: true
   end
 
   create_table "announcements", id: :serial, force: :cascade do |t|
@@ -3003,6 +3027,7 @@ ActiveRecord::Schema.define(version: 20260918120000) do
     t.index ["path"], name: "index_wiki_pages_on_path", unique: true
   end
 
+  add_foreign_key "activity_count_days", "activity_count_imports"
   add_foreign_key "birthday_greeting_gifs", "birthday_greetings"
   add_foreign_key "birthday_greeting_variants", "birthday_greetings"
   add_foreign_key "birthday_greetings", "telegram_chats"

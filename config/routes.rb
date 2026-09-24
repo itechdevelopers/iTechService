@@ -18,12 +18,14 @@ Rails.application.routes.draw do
   resource :weekly_markup_dashboard, only: :show do
     get :details
     get :iphone_sales
+    get :activity_counts
     get :branch
     get :download
   end
   namespace :api do
     resources :weekly_markup_imports, only: :create
     resources :iphone_sales_imports, only: :create
+    resources :activity_count_imports, only: :create
   end
   get 'become/:id', to: 'dashboard#become', as: 'become'
   get 'actual_orders', to: 'dashboard#actual_orders'

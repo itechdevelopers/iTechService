@@ -1,0 +1,15 @@
+= link_to activity_counts_weekly_markup_dashboard_path(metric: data[:metric]), class: 'yearly-markup-widget activity-counts-widget' do
+  .yearly-markup-widget__square
+    .yearly-markup-widget__label #{data[:title]} · #{data[:year]}
+    .yearly-markup-widget__value= activity_count(data[:quantity])
+    .yearly-markup-widget__caption= data[:metric] == 'receipts' ? 'Пробитых чеков с начала года' : 'Выданных заказов с начала года'
+    .yearly-markup-widget__previous
+      %strong{class: activity_growth_class(data[:comparison][:change_percent])}= activity_growth(data[:comparison][:change_percent])
+      %small к такому же периоду прошлого года
+    - if data[:through]
+      %small По #{l(Date.iso8601(data[:through]))} включительно
+    - unless data[:coverage_complete]
+      %small.iphone-sales-warning История ещё не полностью загружена
+    - if data[:stale]
+      %small.iphone-sales-warning Ожидается обновление
+  .yearly-markup-widget__action Месяцы, пять лет и магазины →
