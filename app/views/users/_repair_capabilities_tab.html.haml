@@ -1,7 +1,7 @@
 - capabilities_by_group = user.user_repair_capabilities.includes(repair_service: :repair_group).ordered_by_group.group_by(&:repair_group)
 - capabilities_history = user.user_repair_capabilities.includes(repair_service: :repair_group).ordered_by_date.page(1).per(5)
 - existing_repair_service_ids = user.user_repair_capabilities.pluck(:repair_service_id)
-- repair_service_options = RepairGroup.not_archived.includes(:repair_services).map { |g| [g.name, g.repair_services.not_archived.reject { |rs| existing_repair_service_ids.include?(rs.id) }.map { |rs| [rs.name, rs.id] }] }.reject { |g| g[1].empty? }
+- repair_service_options = repair_services_grouped_collection(only_active_services: true, except_ids: existing_repair_service_ids)
 
 .row-fluid
   .span12
