@@ -10,4 +10,18 @@ module WeeklyMarkupDashboardsHelper
   def markup_quantity(value)
     number_with_delimiter(value.to_s('F').sub(/\.0+\z/, ''), delimiter: ' ', separator: ',')
   end
+  def activity_count(value)
+    value.nil? ? '—' : number_with_delimiter(value, delimiter: ' ')
+  end
+
+  def activity_growth(value)
+    return '—' if value.nil?
+    "#{value.positive? ? '+' : ''}#{number_with_precision(value, precision: 1, separator: ',')}%"
+  end
+
+  def activity_growth_class(value)
+    return 'muted' if value.nil? || value.zero?
+    value.positive? ? 'activity-counts-up' : 'activity-counts-down'
+  end
+
 end

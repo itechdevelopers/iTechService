@@ -3,6 +3,9 @@ Sidekiq.configure_server do |config|
 
   if Sidekiq.server? && File.exists?((schedule_file = Rails.root.join('config/schedule.yml')))
     Sidekiq::Cron::Job.load_from_hash YAML.load_file(schedule_file)
+    # Registered in code: production schedule.yml is a shared, operator-managed file.
+    Sidekiq::Cron::Job.create(name: 'refresh_repair_counts', cron: '45 8 * * * Asia/Vladivostok',
+      class: 'RefreshRepairCountsJob', queue: 'reports', active_job: true)
   end
 end
 

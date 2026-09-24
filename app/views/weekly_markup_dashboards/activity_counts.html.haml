@@ -1,0 +1,93 @@
+- data = @activity_counts
+- months = %w[Январь Февраль Март Апрель Май Июнь Июль Август Сентябрь Октябрь Ноябрь Декабрь]
+.weekly-markup-dashboard.activity-counts-dashboard
+  .page-header
+    = link_to '← Dashboard', weekly_markup_dashboard_path
+    %h2= data[:title]
+    %p.muted= data[:metric] == 'receipts' ? 'Количество пробитых чеков · источник: 1С' : 'Количество выданных клиентам заказов · источник: AIS'
+  = form_tag activity_counts_weekly_markup_dashboard_path, method: :get, class: 'form-inline iphone-sales-filters' do
+    = hidden_field_tag :metric, data[:metric]
+    = label_tag :year, 'Год'
+    = select_tag :year, options_for_select(data[:years].reverse, data[:year]), class: 'input-small'
+    = label_tag :branch_id, 'Магазин'
+    = select_tag :branch_id, options_for_select([['Все магазины', '']] + data[:branch_names].map { |id, name| [name, id] }.sort, data[:branch_id]), class: 'input-large'
+    = submit_tag 'Показать', class: 'btn btn-primary'
+  - if data[:stale]
+    .alert.alert-warning Ожидается обновление. Сохранён последний успешно загруженный период.
+  - unless data[:coverage_complete]
+    .alert.alert-info
+      Полный итог пока недоступен. Пропущено дней выбранного периода: #{data[:missing_days]}. Пропуски не считаются нулём.
+  .iphone-sales-summary
+    .iphone-sales-card
+      %span #{data[:title]} · #{data[:year]}
+      %strong= activity_count(data[:quantity])
+      - if data[:through]
+        %small С 1 января по #{l(Date.iso8601(data[:through]))}
+    .iphone-sales-card
+      %span К такому же периоду прошлого года
+      %strong{class: activity_growth_class(data[:comparison][:change_percent])}= activity_growth(data[:comparison][:change_percent])
+      %small Было: #{activity_count(data[:comparison][:previous_quantity])}
+  %h3 По месяцам · #{data[:year]}
+  .iphone-sales-table-wrap
+    %table.table.table-striped.table-bordered
+      %thead
+        %tr
+          %th Месяц
+          %th Количество
+          %th Прошлый год
+          %th Изменение
+      %tbody
+        - data[:months].each do |month|
+          %tr
+            %th
+              = months[month[:month] - 1]
+              - if month[:through] && !month[:period_closed]
+                %small.muted по #{l(Date.iso8601(month[:through]))}
+            %td= activity_count(month[:quantity])
+            %td= activity_count(month[:previous_quantity])
+            %td{class: activity_growth_class(month[:change_percent])}= activity_growth(month[:change_percent])
+  %h3 Последние пять лет и текущий год
+  - unless data[:historical_complete]
+    .alert.alert-info История предыдущих лет ещё не полностью загружена. Сравнения появятся после загрузки всех дней соответствующих периодов.
+  %p.muted Завершённые годы сравниваются целиком; текущий — с таким же периодом прошлого года. Фильтр магазина применяется ко всем годам.
+  .iphone-sales-table-wrap
+    %table.table.table-striped.table-bordered
+      %thead
+        %tr
+          %th Год
+          %th Период
+          %th Количество
+          %th Предыдущий год
+          %th Рост / падение
+      %tbody
+        - data[:history].reverse.each do |year|
+          %tr
+            %th= link_to year[:year], activity_counts_weekly_markup_dashboard_path(metric: data[:metric], year: year[:year], branch_id: data[:branch_id])
+            %td= year[:period_closed] ? 'Полный год' : (year[:through] ? "По #{l(Date.iso8601(year[:through]))}" : 'Нет завершённых дней')
+            %td= activity_count(year[:quantity])
+            %td= activity_count(year[:previous_quantity])
+            %td{class: activity_growth_class(year[:change_percent])}= activity_growth(year[:change_percent])
+  %h3 Магазины · #{data[:year]}
+  .iphone-sales-table-wrap
+    %table.table.table-striped.table-bordered
+      %thead
+        %tr
+          %th Магазин
+          %th Количество
+          %th Такой же период прошлого года
+          %th Рост / падение
+      %tbody
+        - data[:branches].each do |branch|
+          %tr
+            %th= link_to branch[:name], activity_counts_weekly_markup_dashboard_path(metric: data[:metric], year: data[:year], branch_id: branch[:id])
+            %td= activity_count(branch[:quantity])
+            %td= activity_count(branch[:previous_quantity])
+            %td{class: activity_growth_class(branch[:change_percent])}= activity_growth(branch[:change_percent])
+  .well
+    %p «—» означает отсутствие полного периода или невозможность вычислить процент при нулевой базе. Это не нулевое количество. Учитываются завершённые дни по времени Владивостока.
+    - if data[:metric] == 'receipts'
+      %p Одна продажа — один проведённый, не помеченный на удаление чек 1С со статусом «Пробит», включая архивные. Чеки возврата не уменьшают число пробитых чеков продаж. Это не количество товаров и не сумма выручки.
+    - else
+      %p Один ремонт — один заказ AIS, впервые переведённый из неархивной локации в архив. Магазин определяется по месту этой выдачи. Повторная выдача того же заказа не увеличивает счётчик. Сюда входят выданные заказы независимо от результата ремонта; готовность и плановая дата возврата не используются.
+    - if data[:updated_at]
+      %p.muted Последняя загрузка текущего периода: #{data[:updated_at].in_time_zone('Asia/Vladivostok').strftime('%d.%m.%Y %H:%M')}.

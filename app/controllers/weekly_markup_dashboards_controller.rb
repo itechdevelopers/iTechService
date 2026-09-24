@@ -7,6 +7,15 @@ class WeeklyMarkupDashboardsController < ApplicationController
   def show
     @yearly_markup_summary = WeeklyMarkup::YearSummary.new.call
     @iphone_sales = IphoneSales::Dashboard.new.call
+    @receipt_counts = ActivityCounts::Dashboard.new(metric: 'receipts').call
+    @repair_counts = ActivityCounts::Dashboard.new(metric: 'issued_repairs').call
+  end
+
+  def activity_counts
+    year = params[:year].present? ? Integer(params[:year]) : Time.current.in_time_zone('Asia/Vladivostok').year
+    @activity_counts = ActivityCounts::Dashboard.new(metric: params[:metric].to_s, year: year, branch_id: params[:branch_id]).call
+  rescue ArgumentError
+    redirect_to weekly_markup_dashboard_path, alert: 'Некорректный показатель, год или магазин.'
   end
 
   def iphone_sales
