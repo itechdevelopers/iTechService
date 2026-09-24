@@ -12,7 +12,11 @@ module ActivityCounts
       locked = connection.select_value('SELECT pg_try_advisory_lock(734243)')
       return unless locked == true || locked == 't'
       begin
-        first = Date.new(today.year - ((full || !ActivityCountDay.where(metric: 'issued_repairs').exists?) ? 6 : 0), 1, 1)
+        historical_from = Date.new(today.year - 6, 1, 1)
+        historical_to = Date.new(today.year, 1, 1) - 1
+        historical_days = ActivityCountDay.where(metric: 'issued_repairs', date: historical_from..historical_to).count
+        historical_complete = historical_days == (historical_to - historical_from).to_i + 1
+        first = (full || !historical_complete) ? historical_from : Date.new(today.year, 1, 1)
         last = today - 1
         return if last < first
         stamp = Time.current

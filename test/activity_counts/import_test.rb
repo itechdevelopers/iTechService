@@ -105,6 +105,19 @@ class ActivityCountImportTest < Minitest::Test
     connection.execute('ALTER TABLE activity_count_days DROP CONSTRAINT IF EXISTS test_count_limit')
   end
 
+  def test_partial_initial_history_is_resumed_by_an_ordinary_run
+    partial = report(0)
+    partial['metric'] = 'issued_repairs'
+    partial['methodology_version'] = 'first-archive-issue-1.0'
+    partial['period'] = {'from'=>'2020-01-01','to'=>'2020-01-01'}
+    partial['days'] = [{'date'=>'2020-01-01','quantity'=>0,'branches'=>[]}]
+    ActivityCounts::Import.call(delivery_id:'d'*64,report:partial,allowed_metric:'issued_repairs')
+    ActivityCounts::RefreshRepairs.call(full:false,today:Date.new(2026,1,6))
+    assert_equal 366, ActivityCountDay.where(date: Date.new(2020,1,1)..Date.new(2020,12,31)).count
+    assert_equal 365, ActivityCountDay.where(date: Date.new(2025,1,1)..Date.new(2025,12,31)).count
+    assert_equal 5, ActivityCountDay.where(date: Date.new(2026,1,1)..Date.new(2026,1,5)).count
+  end
+
   def test_first_issue_and_historical_branch_not_current_job_location
     c=ActiveRecord::Base.connection
     c.execute("INSERT INTO departments VALUES (1,'Первый'),(2,'Второй')")

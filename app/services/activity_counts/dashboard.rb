@@ -20,10 +20,13 @@ module ActivityCounts
           {date: row.date.iso8601, quantity: row.quantity,
            branches: row.branches.map { |b| b.merge('name' => names.fetch(b['id'])) }}
         end
+        historical_from = Date.new(@today.year - 6, 1, 1)
+        historical_to = Date.new(@today.year, 1, 1) - 1
+        historical_complete = rows.count { |row| row.date.between?(historical_from, historical_to) } == (historical_to - historical_from).to_i + 1
         last_current = rows.select { |row| row.date.year == @today.year }.last
         effective_today = last_current ? [@today, last_current.date + 1].min : @today
         data = PeriodCounts.new(days: days, today: effective_today, year: @year, branch_id: @branch_id).result
-        data.merge(metric: @metric, title: LABELS.fetch(@metric),
+        data.merge(metric: @metric, title: LABELS.fetch(@metric), historical_complete: historical_complete,
           years: ((@today.year - 5)..@today.year).to_a, branch_names: names,
           updated_at: last_current&.activity_count_import&.calculated_at,
           stale: !last_current || last_current.date < @today - 1)

@@ -47,6 +47,8 @@
             %td= activity_count(month[:previous_quantity])
             %td{class: activity_growth_class(month[:change_percent])}= activity_growth(month[:change_percent])
   %h3 Последние пять лет и текущий год
+  - unless data[:historical_complete]
+    .alert.alert-info История предыдущих лет ещё не полностью загружена. Сравнения появятся после загрузки всех дней соответствующих периодов.
   %p.muted Завершённые годы сравниваются целиком; текущий — с таким же периодом прошлого года. Фильтр магазина применяется ко всем годам.
   .iphone-sales-table-wrap
     %table.table.table-striped.table-bordered

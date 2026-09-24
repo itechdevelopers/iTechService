@@ -30,7 +30,7 @@ class ActivityCountsViewTest < Minitest::Test
     end
     ActivityCounts::PeriodCounts.new(days:days,today:Date.new(2026,9,24)).result.merge(
       metric:'receipts',title:'Продажи',years:(2021..2026).to_a,
-      branch_names:{'shop'=>'Магазин <script>alert(1)</script>'},updated_at:Time.now,stale:false)
+      branch_names:{'shop'=>'Магазин <script>alert(1)</script>'},updated_at:Time.now,stale:false,historical_complete:true)
   end
 
   def test_real_haml_templates_render_counts_comparisons_and_escaped_labels

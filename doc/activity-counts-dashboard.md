@@ -76,7 +76,7 @@ this change does not silently install launchd jobs on a developer machine.
 
 Repair counts run daily at 08:45 in Sidekiq's `reports` queue, registered by the
 initializer because production `schedule.yml` is a shared operator-managed file.
-Monthly refresh rebuilds history; ordinary runs rebuild YTD. Initial load:
+Monthly refresh rebuilds history; ordinary runs rebuild YTD. An interrupted historical load is detected by complete daily coverage and is rebuilt on the next ordinary run. Initial load:
 
 ```
 RAILS_ENV=production bundle exec rake activity_counts:refresh_repairs
@@ -98,8 +98,8 @@ features and final production revision. No database reset/seeds and no force pus
 
 ## Local verification on 2026-09-24
 
-Calendar: 11 tests / 56 assertions. Database/import/repair reconstruction: 6 tests /
-26 assertions (including simultaneous import publication). Template/policy: 2 tests /
+Calendar: 11 tests / 56 assertions. Database/import/repair reconstruction: 7 tests /
+29 assertions (including simultaneous import publication). Template/policy: 2 tests /
 15 assertions; rendered in headless Chrome using synthetic data. Collector: 4 tests.
 Migration applied on an isolated PostgreSQL loaded with the complete existing schema;
 regenerated schema differs only by new tables, FK and schema version.
