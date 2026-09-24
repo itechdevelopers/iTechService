@@ -34,9 +34,10 @@
           = f.input :barcode_num
           = f.input :article
           = f.input :repair_service_ids,
-            collection: RepairGroup.not_archived,
+            collection: repair_services_grouped_collection,
             as: :grouped_select,
-            group_method: :repair_services, 
+            group_method: :last,
+            group_label_method: :first,
             input_html: { multiple: true, class: 'multiselect-rep-services' }
           = f.input :warranty_term
           = f.input :quantity_threshold

@@ -3,9 +3,10 @@
   .row-fluid
     .span6
       = f.input :repair_service_ids,
-        collection: RepairGroup.not_archived,
+        collection: repair_services_grouped_collection,
         as: :grouped_select,
-        group_method: :repair_services,
+        group_method: :last,
+        group_label_method: :first,
         label: 'Прикрепить виды ремонта',
         input_html: { class: 'multiselect-rep-services optional', multiple: true }
     .span6

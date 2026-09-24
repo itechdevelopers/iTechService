@@ -47,4 +47,62 @@ module RepairGroupsHelper
 
     end.join.html_safe
   end
+
+  # Группы для выпадающих списков: плоский список пар [подпись, группа] в порядке
+  # обхода дерева. `RepairGroup.not_archived` сам по себе приходит из базы без
+  # ORDER BY, то есть в физическом порядке строк — он меняется после каждого
+  # UPDATE, и список выглядит перетасованным.
+  def ordered_repair_groups(scope = RepairGroup.not_archived)
+    groups = scope.to_a
+    children = groups.group_by(&:parent_id)
+    # Родитель мог быть архивирован отдельно от потомка — такой потомок иначе
+    # выпал бы из списка совсем, поэтому считаем его корнем.
+    known_ids = groups.map(&:id)
+    roots = groups.reject { |group| known_ids.include?(group.parent_id) }
+
+    labeled_repair_groups(roots, children)
+  end
+
+  # Виды ремонта для `grouped_select`: [[подпись группы, [[название, id], ...]], ...].
+  # Услуги висят на дочерних группах, поэтому корни без услуг выкидываем —
+  # иначе в списке остаются заголовки, по которым нечего выбрать.
+  def repair_services_grouped_collection(only_active_services: false, except_ids: [])
+    scope = RepairGroup.not_archived.includes(:repair_services)
+
+    ordered_repair_groups(scope).map { |label, group|
+      services = group.repair_services.to_a
+      services = services.reject(&:archived?) if only_active_services
+      services = services.reject { |service| except_ids.include?(service.id) }
+      options = services.sort_by { |service| repair_natural_sort_key(service.name) }
+                        .map { |service| [service.name, service.id] }
+      [label, options]
+    }.reject { |_label, options| options.empty? }
+  end
+
+  def repair_groups_options
+    ordered_repair_groups.map { |label, group| [label, group.id] }
+  end
+
+  private
+
+  def labeled_repair_groups(nodes, children, prefix = nil)
+    nodes.sort_by { |group| repair_group_sort_key(group) }.flat_map do |group|
+      label = [prefix, group.name].compact.join(' / ')
+      [[label, group]] + labeled_repair_groups(children.fetch(group.id, []), children, label)
+    end
+  end
+
+  # Айфоны — основной поток ремонтов, их держим в начале списка, остальное по алфавиту.
+  def repair_group_sort_key(group)
+    [group.name.to_s =~ /iphone/i ? 0 : 1, repair_natural_sort_key(group.name)]
+  end
+
+  # Числа внутри названия сравниваем как числа, иначе «iPhone 8» встаёт после
+  # «iPhone 15», а регистр раскладывает латиницу до кириллицы вперемешку
+  # (в базе C-collation, 'M' < 'i').
+  def repair_natural_sort_key(name)
+    name.to_s.downcase.scan(/\d+|\D+/).map do |chunk|
+      chunk =~ /\A\d/ ? [1, chunk.to_i, ''] : [0, 0, chunk]
+    end
+  end
 end
