@@ -53,8 +53,11 @@ python3 script/analytics/receipt_counts.py --connector /path/to/1c-odata-agent \
 python3 script/analytics/receipt_counts.py --connector /path/to/1c-odata-agent \
   --output /persistent/private/receipt-counts --from 2026-01-01
 python3 script/analytics/deliver_receipt_counts.py --connector /path/to/1c-odata-agent \
-  --sha256 <checksum-from-latest.json> report.json
+  --sha256 "$ACTIVITY_SNAPSHOT_SHA256" report.json
 ```
+
+For manual delivery, set `ACTIVITY_SNAPSHOT_SHA256` to the `sha256` in the matching
+`.latest.json` state; the scheduled wrapper reads and verifies this automatically.
 
 The collector reads fresh metadata once, uses explicit scalar fields and filters,
 100-row pages, interval splitting on truncation, one stream and 250ms pauses.
@@ -99,9 +102,9 @@ features and final production revision. No database reset/seeds and no force pus
 
 ## Local verification on 2026-09-24
 
-Calendar: 11 tests / 56 assertions. Database/import/repair reconstruction: 7 tests /
-29 assertions (including simultaneous import publication). Template/policy: 2 tests /
-15 assertions; rendered in headless Chrome using synthetic data. Collector: 4 tests.
+Calendar: 11 tests / 56 assertions. Database/import/repair reconstruction: 10 tests /
+43 assertions (including simultaneous import publication). Template/policy: 2 tests /
+15 assertions; rendered in headless Chrome using synthetic data. Collector/delivery: 8 tests.
 Migration applied on an isolated PostgreSQL loaded with the complete existing schema;
 regenerated schema differs only by new tables, FK and schema version.
 
