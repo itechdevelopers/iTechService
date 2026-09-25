@@ -342,7 +342,9 @@ module ServiceJobsHelper
     return true if checkout.present? && !checkout.cancelled?
     return false if service_job.sale.present?
 
-    Setting.one_c_service_payment
+    # Департамент передаём явно: без аргумента Setting читает только глобальную
+    # строку, и отдельно включённый отдел остался бы незамеченным.
+    Setting.one_c_service_payment(service_job.department)
   end
 
   def ready_for_payment?(service_job)
