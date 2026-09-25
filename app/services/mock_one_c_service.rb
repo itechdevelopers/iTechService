@@ -404,8 +404,16 @@ class MockOneCService
     { success: true, data: { 'Executed' => true, 'Error' => '' } }
   end
 
+  # По умолчанию «чек не найден»: сверка ходит по расписанию, и мок, который
+  # всегда находит чек, закрывал бы в dev каждую отправленную работу.
+  # Положительный ответ включается переменной ONE_C_MOCK_CHECK_FOUND=1.
   def mock_service_check_search_response(path)
     job_number = path.split('/').last
+
+    unless %w[1 true yes].include?(ENV['ONE_C_MOCK_CHECK_FOUND'].to_s.downcase)
+      Rails.logger.info "[Mock1C] Service check for job #{job_number} not found (set ONE_C_MOCK_CHECK_FOUND=1 to find it)"
+      return { success: true, data: { 'found' => false, 'job_number' => job_number } }
+    end
 
     {
       success: true,
