@@ -102,6 +102,11 @@ class ServiceJob < ApplicationRecord
 
   accepts_nested_attributes_for :device_tasks, allow_destroy: true
 
+  # Возврат из архива обычно доступен только админу. Чек возврата, пришедший из
+  # 1С, — единственный случай, когда работу возвращает система: оплаты больше
+  # нет, и устройство снова на руках у сервиса.
+  attr_accessor :system_archive_return
+
   delegate :name, :short_name, :full_name, :surname, to: :client, prefix: true, allow_nil: true
   delegate :name, to: :department, prefix: true
   delegate :name, to: :location, prefix: true, allow_nil: true
@@ -790,7 +795,7 @@ kind: 'device_return', content: id.to_s)
     end
 
     if old_location.present?
-      if (old_location&.is_archive? && User.current.not_admin?) ||
+      if (old_location&.is_archive? && User.current.not_admin? && !system_archive_return) ||
          (location.is_special? && User.current.not_admin?) ||
          (old_location&.is_special? && !User.current.superadmin?)
         errors.add :location_id, I18n.t('service_jobs.errors.not_allowed')
