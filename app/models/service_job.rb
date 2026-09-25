@@ -842,6 +842,9 @@ kind: 'device_return', content: id.to_s)
   def presence_of_payment
     return true unless location_id_changed? && location&.is_archive?
     return true unless tasks_cost.positive?
+    # Оплата теперь приходит двумя путями: проведённая продажа в кассе Айса и
+    # подтверждённый чек 1С. Достаточно любого.
+    return true if checkouts.settled.exists?
     return true unless sale.nil? || !sale.is_posted?
 
     errors.add :base, :not_paid
