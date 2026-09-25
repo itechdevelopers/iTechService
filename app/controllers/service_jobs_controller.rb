@@ -447,6 +447,36 @@ class ServiceJobsController < ApplicationController
     end
   end
 
+  def manual_archive_form
+    @service_job = find_record ServiceJob
+    @modal = "manual-archive-#{@service_job.id}"
+    params[:form_name] = 'manual_archive_modal_content'
+    render 'shared/show_modal_form'
+  end
+
+  def manual_archive
+    service_job = find_record ServiceJob
+    check_number = params[:check_number].to_s.strip
+
+    respond_to do |format|
+      if check_number.blank?
+        format.html { redirect_to service_job, alert: t('service_jobs.one_c_checkout.manual_number_required') }
+      elsif service_job.phone_substituted?
+        format.html { redirect_to service_job, alert: t('service_jobs.one_c_checkout.substitute_pending') }
+      else
+        result = ServiceJobs::RegisterManualCheck.call(service_job: service_job,
+                                                      user: current_user,
+                                                      check_number: check_number)
+        message = if result[:archived]
+                    t('service_jobs.one_c_checkout.manual_archived', number: check_number)
+                  else
+                    t('service_jobs.one_c_checkout.manual_not_archived', reason: result[:reason])
+                  end
+        format.html { redirect_to service_job, notice: message }
+      end
+    end
+  end
+
   def quick_search
     @service_jobs = policy_scope(ServiceJob).quick_search(params[:quick_search])
     respond_to do |format|

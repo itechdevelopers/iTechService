@@ -1,0 +1,13 @@
+.modal-header
+  %a.close{'data-dismiss' => 'modal', href: '#'}
+    %i.fa.fa-times-circle
+  %h3= t('service_jobs.one_c_checkout.manual_title')
+
+= form_with url: manual_archive_service_job_path(@service_job), method: :post, local: true do |f|
+  .modal-body
+    %p.muted= t('service_jobs.one_c_checkout.manual_hint')
+    = f.label :check_number, t('service_jobs.one_c_checkout.manual_number')
+    = f.text_field :check_number, class: 'input-block-level', required: true, autofocus: true
+  .modal-footer
+    = f.submit t('service_jobs.one_c_checkout.manual_submit'), class: 'btn btn-primary'
+    = link_to t('helpers.links.close'), '#', 'data-dismiss' => 'modal', class: 'btn'

@@ -368,6 +368,8 @@ Rails.application.routes.draw do
     post :create_sale, on: :member
     post :checkout, on: :member
     post :cancel_checkout, on: :member
+    get :manual_archive_form, on: :member, defaults: { format: 'js' }
+    post :manual_archive, on: :member
     patch :set_keeper, on: :member, defaults: { format: 'js' }
     patch :repair_status, on: :member, defaults: { format: 'js' }, action: :update_repair_status
     patch :seize_repair, on: :member, defaults: { format: 'js' }

@@ -44,6 +44,14 @@ class ServiceJobPolicy < CommonPolicy
     checkout?
   end
 
+  def manual_archive_form?
+    checkout?
+  end
+
+  def manual_archive?
+    checkout?
+  end
+
   def read_tech_notice?
     any_admin?(:technician)
   end

@@ -19,3 +19,7 @@
     %span.label.label-important= t('service_jobs.one_c_checkout.not_archived', reason: checkout.not_archived_reason)
 - if checkout&.cancellable? && can?(:cancel_checkout, service_job)
   = link_to t('service_jobs.one_c_checkout.cancel'), cancel_checkout_service_job_path(service_job), method: :post, data: { confirm: t('confirmation') }, class: 'btn btn-warning'
+-# Обрыв связи не должен запирать кассу: чек пробивают в 1С руками, а здесь
+-# вводят его номер. Доступно, пока расчёт не завершён.
+- if !service_job.phone_substituted? && (checkout.nil? || checkout.cancellable? || checkout.cancelled?) && can?(:manual_archive, service_job)
+  = link_to t('service_jobs.one_c_checkout.manual'), manual_archive_form_service_job_path(service_job), remote: true, class: 'btn btn-inverse'
