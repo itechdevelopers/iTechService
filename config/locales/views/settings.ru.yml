@@ -24,6 +24,7 @@ ru:
     legal_address: 'Юридический адрес'
     meda_menu_database: 'База Медиа меню'
     ogrn_inn: 'ОГРН/ИНН'
+    one_c_service_payment: 'Оплата ремонта через 1С (чек в РМК вместо кассы Айса)'
     organization: 'Организация'
     print_sale_check: 'Печатать чеки продаж'
     schedule: 'График работы'

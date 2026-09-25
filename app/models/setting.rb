@@ -21,6 +21,7 @@ class Setting < ApplicationRecord
     legal_address: 'string',
     meda_menu_database: 'string',
     ogrn_inn: 'string',
+    one_c_service_payment: 'boolean',
     organization: 'string',
     print_sale_check: 'boolean',
     schedule: 'string',
