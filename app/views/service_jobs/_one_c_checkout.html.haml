@@ -1,6 +1,8 @@
 - checkout = service_job.current_checkout
 - if checkout.nil? || checkout.cancelled?
-  - if can? :checkout, service_job
+  - if service_job.phone_substituted?
+    %span.label.label-warning= t('service_jobs.one_c_checkout.substitute_pending')
+  - elsif can? :checkout, service_job
     = link_to glyph(:money) + t('service_jobs.one_c_checkout.send').html_safe, checkout_service_job_path(service_job), method: :post, class: 'btn btn-success'
 - elsif checkout.draft?
   %span.label.label-info= t('service_jobs.one_c_checkout.sending')

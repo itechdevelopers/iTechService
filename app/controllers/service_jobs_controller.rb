@@ -418,6 +418,8 @@ class ServiceJobsController < ApplicationController
     respond_to do |format|
       if service_job.department != current_department
         format.html { redirect_to service_job, alert: t('service_jobs.one_c_checkout.other_department') }
+      elsif service_job.phone_substituted?
+        format.html { redirect_to service_job, alert: t('service_jobs.one_c_checkout.substitute_pending') }
       elsif checkout.nil? || checkout.send_failed?
         checkout ||= service_job.checkouts.create!(initiator: current_user)
         SendServiceCheckJob.perform_later(checkout.id)
