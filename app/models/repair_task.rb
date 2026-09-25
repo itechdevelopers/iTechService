@@ -21,6 +21,7 @@ class RepairTask < ApplicationRecord
   # validates_numericality_of :price, greater_than_or_equal_to: :repair_service_price, if: :is_positive_price
   validates :repair_service_id, uniqueness: {scope: [:device_task_id]}
   validates_associated :repair_parts
+  validate :checkout_not_locked, if: :price_changed?
   before_destroy :return_spare_parts
 
   after_initialize do
@@ -52,6 +53,12 @@ class RepairTask < ApplicationRecord
   end
 
   private
+
+  def checkout_not_locked
+    return unless service_job&.checkout_locked?
+
+    errors.add :base, I18n.t('service_jobs.one_c_checkout.locked')
+  end
 
   def return_spare_parts
     repair_parts.all? do |repair_part|

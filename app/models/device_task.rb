@@ -55,6 +55,10 @@ class DeviceTask < ApplicationRecord
                                 }
 
   validates :task, :cost, presence: true
+  # Одной регистрацией на оба случая: колбэки с одинаковым символом
+  # схлопываются, и вторая строка просто вытеснила бы первую.
+  validate :checkout_not_locked, if: -> { new_record? || cost_changed? }
+  before_destroy :refuse_while_checkout_locked
   validates :cost, numericality: true
   validate :valid_repair if :is_repair?
   validates_associated :repair_tasks
@@ -116,6 +120,19 @@ class DeviceTask < ApplicationRecord
 
   def performer_name
     performer.present? ? performer.short_name : ''
+  end
+
+  def checkout_not_locked
+    return unless service_job&.checkout_locked?
+
+    errors.add :base, I18n.t('service_jobs.one_c_checkout.locked')
+  end
+
+  def refuse_while_checkout_locked
+    return unless service_job&.checkout_locked?
+
+    errors.add :base, I18n.t('service_jobs.one_c_checkout.locked')
+    throw :abort
   end
 
   def repair_cost

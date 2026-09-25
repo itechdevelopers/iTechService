@@ -383,6 +383,10 @@ class ServiceJob < ApplicationRecord
     end
   end
 
+  def checkout_locked?
+    checkouts.locking.exists?
+  end
+
   def at_done?
     location.try(:is_done?)
     # reload.location.try(:is_done?)

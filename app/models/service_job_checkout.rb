@@ -17,6 +17,10 @@ class ServiceJobCheckout < ApplicationRecord
   scope :in_progress, -> { where(state: [states[:sent], states[:send_failed]]) }
   # «Деньги получены» — этого достаточно, чтобы закрыть работу.
   scope :settled, -> { where(state: [states[:paid], states[:archived]]) }
+  # Пока чек живёт в РМК, состав работы трогать нельзя: кассир рассчитает по
+  # тому, что мы уже отправили. Черновик тоже держим — очередь может забрать
+  # его в любой момент.
+  scope :locking, -> { where(state: [states[:draft], states[:sent]]) }
   scope :awaiting_confirmation, -> { where(manual: true, confirmed_at: nil) }
   scope :needs_parts_review, -> { where(parts_review_required: true) }
 
