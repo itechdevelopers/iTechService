@@ -34,6 +34,12 @@ class ServiceJobCheckout < ApplicationRecord
     sent? || send_failed?
   end
 
+  # Пока денег нет, расчёт можно отозвать — в том числе не уехавший черновик:
+  # очередь может стоять, а работу надо разблокировать.
+  def cancellable?
+    draft? || sent? || send_failed?
+  end
+
   # Оплачено, но работа осталась открытой: валидации архива не пропустили.
   def stuck_after_payment?
     paid? && not_archived_reason.present?

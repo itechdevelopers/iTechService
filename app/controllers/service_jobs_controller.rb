@@ -410,6 +410,41 @@ class ServiceJobsController < ApplicationController
     end
   end
 
+  def checkout
+    service_job = find_record ServiceJob
+    checkout = service_job.current_checkout
+    checkout = nil if checkout&.cancelled?
+
+    respond_to do |format|
+      if service_job.department != current_department
+        format.html { redirect_to service_job, alert: t('service_jobs.one_c_checkout.other_department') }
+      elsif checkout.nil? || checkout.send_failed?
+        checkout ||= service_job.checkouts.create!(initiator: current_user)
+        SendServiceCheckJob.perform_later(checkout.id)
+        format.html { redirect_to service_job, notice: t('service_jobs.one_c_checkout.created') }
+      else
+        format.html { redirect_to service_job, alert: t('service_jobs.one_c_checkout.already_started') }
+      end
+    end
+  end
+
+  def cancel_checkout
+    service_job = find_record ServiceJob
+    checkout = service_job.current_checkout
+
+    respond_to do |format|
+      if checkout&.cancellable?
+        checkout.update!(state: :cancelled,
+                         cancelled_at: Time.current,
+                         cancel_reason: "Отозвал #{current_user.short_name}")
+        CancelServiceCheckJob.perform_later(checkout.id)
+        format.html { redirect_to service_job, notice: t('service_jobs.one_c_checkout.cancelled') }
+      else
+        format.html { redirect_to service_job, alert: t('service_jobs.one_c_checkout.nothing_to_cancel') }
+      end
+    end
+  end
+
   def quick_search
     @service_jobs = policy_scope(ServiceJob).quick_search(params[:quick_search])
     respond_to do |format|

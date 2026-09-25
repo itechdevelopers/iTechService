@@ -1,0 +1,19 @@
+- checkout = service_job.current_checkout
+- if checkout.nil? || checkout.cancelled?
+  - if can? :checkout, service_job
+    = link_to glyph(:money) + t('service_jobs.one_c_checkout.send').html_safe, checkout_service_job_path(service_job), method: :post, class: 'btn btn-success'
+- elsif checkout.draft?
+  %span.label.label-info= t('service_jobs.one_c_checkout.sending')
+- elsif checkout.sent?
+  %span.label.label-info= t('service_jobs.one_c_checkout.sent')
+- elsif checkout.send_failed?
+  %span.label.label-important= t('service_jobs.one_c_checkout.send_failed')
+  %span.muted= checkout.last_error
+  - if can? :checkout, service_job
+    = link_to t('service_jobs.one_c_checkout.resend'), checkout_service_job_path(service_job), method: :post, class: 'btn btn-success'
+- elsif checkout.settled?
+  %span.label.label-success= t('service_jobs.one_c_checkout.paid', number: checkout.check_number)
+  - if checkout.not_archived_reason.present?
+    %span.label.label-important= t('service_jobs.one_c_checkout.not_archived', reason: checkout.not_archived_reason)
+- if checkout&.cancellable? && can?(:cancel_checkout, service_job)
+  = link_to t('service_jobs.one_c_checkout.cancel'), cancel_checkout_service_job_path(service_job), method: :post, data: { confirm: t('confirmation') }, class: 'btn btn-warning'

@@ -334,6 +334,17 @@ module ServiceJobsHelper
             remote: true) if RecordEdit.any_edits?(note)
   end
 
+  # Способ расчёта выбирается один раз, в момент его начала: уже открытый
+  # документ доигрывается по своим правилам, даже если настройку переключили
+  # посреди дела.
+  def one_c_checkout?(service_job)
+    checkout = service_job.current_checkout
+    return true if checkout.present? && !checkout.cancelled?
+    return false if service_job.sale.present?
+
+    Setting.one_c_service_payment
+  end
+
   def ready_for_payment?(service_job)
     (service_job.work_order_filled? && service_job.completion_act_printed_at.present?) || !service_job.work_order_filled?
   end
