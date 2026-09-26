@@ -13,6 +13,7 @@
 
       = drop_down t('.service') do
         = menu_item t('service_jobs.link', default: 'Service jobs'), service_jobs_path if can? :read, ServiceJob
+        = menu_item t('service_job_checkouts.link'), service_job_checkouts_path if policy(ServiceJobCheckout).index?
         = menu_item 'Контроль KPI', kpi_audit_episodes_path if policy(:kpi_audit).index?
         = menu_item t('repair_services.index.title'), repair_services_path if can? :read, RepairService
         = menu_item t('repair_time_standards.index.title'), repair_time_standards_path if policy(:repair_time_standard).index?

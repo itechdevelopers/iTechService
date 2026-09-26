@@ -1,0 +1,41 @@
+- job = checkout.service_job
+%tr
+  %td
+    = link_to job.ticket_number, job
+    %div.muted= job.item&.product&.name || job.device_type&.name
+  %td= job.client&.full_name
+  %td
+    = checkout.initiator&.short_name
+    %div.muted= l(checkout.created_at, format: :short)
+  %td
+    = t('service_jobs.one_c_checkout.summary_sum', sum: (checkout.paid_total || checkout.expected_total).to_i)
+    - if checkout.total_mismatch?
+      %div
+        %span.label.label-warning= t('service_jobs.one_c_checkout.summary_mismatch', expected: checkout.expected_total.to_i)
+  %td
+    = checkout.check_number.presence || '—'
+    - if checkout.manual? && checkout.matched_at.present?
+      %div
+        %span.label.label-success= t('.matched')
+    - elsif checkout.manual?
+      %div
+        %span.label= t('.not_matched')
+  %td
+    = t("service_job_checkouts.states.#{checkout.state}")
+    - if checkout.not_archived_reason.present?
+      %div.muted= checkout.not_archived_reason
+    - if checkout.last_error.present?
+      %div.muted= checkout.last_error
+    - if checkout.cancel_reason.present?
+      %div.muted= checkout.cancel_reason
+  - if @tab == 'awaiting_confirmation'
+    %td
+      = form_with url: confirm_service_job_checkout_path(checkout), method: :patch, local: true, class: 'form-inline' do |f|
+        = f.text_field :check_number, value: checkout.check_number, class: 'input-medium'
+        = f.submit t('.confirm'), class: 'btn btn-primary'
+  - elsif @tab == 'returned'
+    %td
+      - if checkout.parts_review_required?
+        = link_to t('.resolve_parts'), resolve_parts_service_job_checkout_path(checkout), method: :patch, class: 'btn btn-warning'
+      - else
+        %span.muted= t('.parts_resolved')

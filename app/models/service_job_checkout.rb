@@ -22,6 +22,10 @@ class ServiceJobCheckout < ApplicationRecord
   # его в любой момент.
   scope :locking, -> { where(state: [states[:draft], states[:sent]]) }
   scope :awaiting_confirmation, -> { where(manual: true, confirmed_at: nil) }
+  # Расчёт начат, денег нет: кто-то нажал «В оплату» и не довёл до кассы.
+  scope :awaiting_payment, -> { where(state: [states[:draft], states[:sent], states[:send_failed]]) }
+  # Возврат — это отмена уже оплаченного чека; отзыв до оплаты сюда не попадает.
+  scope :returned, -> { where(state: states[:cancelled]).where.not(paid_at: nil) }
   scope :needs_parts_review, -> { where(parts_review_required: true) }
 
   validates :uid, presence: true, uniqueness: true
