@@ -148,6 +148,11 @@
       %tr
         %td= t 'service_jobs.sales_info'
         %td= sales_info @service_job
+      - one_c_checkout = @service_job.checkouts.settled.recent_first.first
+      - if one_c_checkout.present?
+        %tr.service-job-one-c-check
+          %td= t 'service_jobs.one_c_checkout.summary_label'
+          %td= render 'one_c_check_summary', checkout: one_c_checkout
       - if @service_job.sold_by_us_at.present?
         %tr.service-job-sale-info
           %td= t('service_jobs.sold_by_us_at')

@@ -1,0 +1,13 @@
+= t('service_jobs.one_c_checkout.summary_check', number: checkout.check_number.presence || '—')
+- if checkout.paid_at.present?
+  %span.muted= l(checkout.paid_at, format: :short)
+- if checkout.payment_kinds.any?
+  %span= checkout.payment_kinds.map { |kind| t("payments.kinds.#{kind}", default: kind) }.join(', ')
+- if checkout.paid_total.present?
+  %span= t('service_jobs.one_c_checkout.summary_sum', sum: checkout.paid_total.to_i)
+- if checkout.total_mismatch?
+  %span.label.label-warning= t('service_jobs.one_c_checkout.summary_mismatch', expected: checkout.expected_total.to_i)
+- if checkout.manual?
+  %span.label= t('service_jobs.one_c_checkout.summary_manual')
+  - if checkout.confirmed_at.blank?
+    %span.label.label-warning= t('service_jobs.one_c_checkout.summary_unconfirmed')
