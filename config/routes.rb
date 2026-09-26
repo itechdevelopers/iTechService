@@ -351,6 +351,10 @@ Rails.application.routes.draw do
     resource :inventory, only: %i[new show create]
   end
 
+  resources :service_job_checkouts, only: :index do
+    patch :confirm, on: :member
+  end
+
   resources :service_jobs do
     get :stale, on: :collection, format: 'js'
     get :history, on: :member, defaults: { format: 'js' }
@@ -366,6 +370,10 @@ Rails.application.routes.draw do
     get :work_order, on: :member
     get :completion_act, on: :member
     post :create_sale, on: :member
+    post :checkout, on: :member
+    post :cancel_checkout, on: :member
+    get :manual_archive_form, on: :member, defaults: { format: 'js' }
+    post :manual_archive, on: :member
     patch :set_keeper, on: :member, defaults: { format: 'js' }
     patch :repair_status, on: :member, defaults: { format: 'js' }, action: :update_repair_status
     patch :seize_repair, on: :member, defaults: { format: 'js' }

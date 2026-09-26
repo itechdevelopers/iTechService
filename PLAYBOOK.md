@@ -175,7 +175,15 @@ Setting.my_new_flag?          # для boolean — алиас, тоже рабо
 Setting.get_value(:my_new_flag)  # сырая строка без typecast — полезно для дат и edge-cases
 ```
 
-`method_missing` смотрит сначала на department-scoped запись (`Department.current`), затем на глобальную (`department_id: nil`). Для системных флагов всегда используем глобальную.
+`method_missing` **не** подставляет `Department.current` сам: он передаёт `arguments.first` (то есть `nil`) в `get_value`, и вызов без аргумента читает **только глобальную** строку (`department_id: nil`). Значение отдела возвращается, лишь когда департамент передан явно:
+
+```ruby
+Setting.my_new_flag                          # только глобальная строка
+Setting.my_new_flag(service_job.department)  # сначала строка отдела, потом глобальная
+Setting.get_value(:my_new_flag)              # здесь дефолт Department.current работает
+```
+
+Поэтому у параметра, который может включаться по отделам, аргумент обязателен — иначе отдельно включённый отдел останется незамеченным. Для системных флагов используем глобальную строку.
 
 ### Запись из кода (нет class-level setter'а!)
 

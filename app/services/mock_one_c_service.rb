@@ -27,6 +27,12 @@ class MockOneCService
       mock_device_status_response(body)
     when '/UT/hs/ice_int/v1/info/'
       mock_product_info_response(body)
+    when '/UT/hs/ice_int/v2/CreateServiceCheck/'
+      mock_service_check_creation_response(body)
+    when %r{/UT/hs/ice_int/v2/DeleteServiceCheck/.*}
+      mock_service_check_deletion_response
+    when %r{/UT/hs/ice_int/v2/FindServiceCheck/.*}
+      mock_service_check_search_response(path)
     else
       { success: false, error: "Unknown mock endpoint: #{path}" }
     end
@@ -372,6 +378,54 @@ class MockOneCService
     {
       success: false,
       error: 'Product not found in 1C (MOCK)'
+    }
+  end
+
+  def mock_service_check_creation_response(body)
+    check = body && body['check']
+    if check
+      Rails.logger.info "[Mock1C] Service check uid: #{check['uid']}, job: #{check['job_number']}"
+      Rails.logger.info "[Mock1C] Service check total: #{check['total']}, items: #{check['items']&.size}"
+    end
+
+    {
+      success: true,
+      data: {
+        'Executed' => true,
+        'Error' => '',
+        'check_guid' => SecureRandom.uuid,
+        'check_number' => "MOCK-CHK-#{rand(100_000..999_999)}",
+        'already_existed' => false
+      }
+    }
+  end
+
+  def mock_service_check_deletion_response
+    { success: true, data: { 'Executed' => true, 'Error' => '' } }
+  end
+
+  # По умолчанию «чек не найден»: сверка ходит по расписанию, и мок, который
+  # всегда находит чек, закрывал бы в dev каждую отправленную работу.
+  # Положительный ответ включается переменной ONE_C_MOCK_CHECK_FOUND=1.
+  def mock_service_check_search_response(path)
+    job_number = path.split('/').last
+
+    unless %w[1 true yes].include?(ENV['ONE_C_MOCK_CHECK_FOUND'].to_s.downcase)
+      Rails.logger.info "[Mock1C] Service check for job #{job_number} not found (set ONE_C_MOCK_CHECK_FOUND=1 to find it)"
+      return { success: true, data: { 'found' => false, 'job_number' => job_number } }
+    end
+
+    {
+      success: true,
+      data: {
+        'found' => true,
+        'job_number' => job_number,
+        'check_number' => "MOCK-CHK-#{rand(100_000..999_999)}",
+        'check_guid' => SecureRandom.uuid,
+        'paid_at' => Time.current.iso8601,
+        'total' => rand(500..9000).to_f,
+        'payments' => [{ 'kind' => 'card', 'sum' => rand(500..9000).to_f }]
+      }
     }
   end
 end

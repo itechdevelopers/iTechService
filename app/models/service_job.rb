@@ -89,6 +89,8 @@ class ServiceJob < ApplicationRecord
   has_one :substitute_phone, dependent: :nullify
   has_many :viewings, class_name: ServiceJobViewing.name, dependent: :destroy
   has_many :breakage_reports, dependent: :destroy
+  has_many :checkouts, class_name: 'ServiceJobCheckout', dependent: :destroy
+  has_one :current_checkout, -> { order(id: :desc) }, class_name: 'ServiceJobCheckout'
   has_many :videos, class_name: ServiceJobVideo.name, dependent: :destroy
   has_one :review
 
@@ -99,6 +101,11 @@ class ServiceJob < ApplicationRecord
                           dependent: :destroy
 
   accepts_nested_attributes_for :device_tasks, allow_destroy: true
+
+  # Возврат из архива обычно доступен только админу. Чек возврата, пришедший из
+  # 1С, — единственный случай, когда работу возвращает система: оплаты больше
+  # нет, и устройство снова на руках у сервиса.
+  attr_accessor :system_archive_return
 
   delegate :name, :short_name, :full_name, :surname, to: :client, prefix: true, allow_nil: true
   delegate :name, to: :department, prefix: true
@@ -379,6 +386,10 @@ class ServiceJob < ApplicationRecord
     records.map do |record|
       [record.created_at, record.new_value, record.user_id]
     end
+  end
+
+  def checkout_locked?
+    checkouts.locking.exists?
   end
 
   def at_done?
@@ -784,7 +795,7 @@ kind: 'device_return', content: id.to_s)
     end
 
     if old_location.present?
-      if (old_location&.is_archive? && User.current.not_admin?) ||
+      if (old_location&.is_archive? && User.current.not_admin? && !system_archive_return) ||
          (location.is_special? && User.current.not_admin?) ||
          (old_location&.is_special? && !User.current.superadmin?)
         errors.add :location_id, I18n.t('service_jobs.errors.not_allowed')
@@ -836,6 +847,9 @@ kind: 'device_return', content: id.to_s)
   def presence_of_payment
     return true unless location_id_changed? && location&.is_archive?
     return true unless tasks_cost.positive?
+    # Оплата теперь приходит двумя путями: проведённая продажа в кассе Айса и
+    # подтверждённый чек 1С. Достаточно любого.
+    return true if checkouts.settled.exists?
     return true unless sale.nil? || !sale.is_posted?
 
     errors.add :base, :not_paid

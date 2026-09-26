@@ -88,6 +88,7 @@ class API < Grape::API
   mount RepairApi
   mount OrderApi
   mount OneCOrderApi
+  mount OneCServiceCheckApi
   mount TradeInApi
   mount TranscriptionApi
   mount ReviewAgentApi

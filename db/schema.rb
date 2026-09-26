@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20260924050000) do
+ActiveRecord::Schema.define(version: 20260925090000) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -2194,6 +2194,41 @@ ActiveRecord::Schema.define(version: 20260924050000) do
     t.string "code"
   end
 
+  create_table "service_job_checkouts", force: :cascade do |t|
+    t.bigint "service_job_id", null: false
+    t.string "uid", null: false
+    t.integer "state", default: 0, null: false
+    t.bigint "initiator_id"
+    t.decimal "expected_total", precision: 10, scale: 2, default: "0.0", null: false
+    t.decimal "paid_total", precision: 10, scale: 2
+    t.jsonb "items_snapshot", default: [], null: false
+    t.string "check_number"
+    t.string "check_guid"
+    t.jsonb "payments", default: [], null: false
+    t.string "cashier_name"
+    t.boolean "manual", default: false, null: false
+    t.datetime "matched_at"
+    t.bigint "confirmed_by_id"
+    t.datetime "confirmed_at"
+    t.boolean "parts_review_required", default: false, null: false
+    t.datetime "sent_at"
+    t.datetime "paid_at"
+    t.datetime "archived_at"
+    t.datetime "cancelled_at"
+    t.string "cancel_reason"
+    t.string "not_archived_reason"
+    t.integer "attempts", default: 0, null: false
+    t.text "last_error"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["check_number"], name: "index_service_job_checkouts_on_check_number"
+    t.index ["confirmed_by_id"], name: "index_service_job_checkouts_on_confirmed_by_id"
+    t.index ["initiator_id"], name: "index_service_job_checkouts_on_initiator_id"
+    t.index ["service_job_id"], name: "index_service_job_checkouts_on_service_job_id"
+    t.index ["state"], name: "index_service_job_checkouts_on_state"
+    t.index ["uid"], name: "index_service_job_checkouts_on_uid", unique: true
+  end
+
   create_table "service_job_sortings", force: :cascade do |t|
     t.string "title"
     t.string "direction"
@@ -3175,6 +3210,9 @@ ActiveRecord::Schema.define(version: 20260924050000) do
   add_foreign_key "service_free_jobs", "service_free_tasks", column: "task_id"
   add_foreign_key "service_free_jobs", "users", column: "performer_id"
   add_foreign_key "service_free_jobs", "users", column: "receiver_id"
+  add_foreign_key "service_job_checkouts", "service_jobs"
+  add_foreign_key "service_job_checkouts", "users", column: "confirmed_by_id"
+  add_foreign_key "service_job_checkouts", "users", column: "initiator_id"
   add_foreign_key "service_job_videos", "service_jobs"
   add_foreign_key "service_job_videos", "users", column: "author_id"
   add_foreign_key "service_job_viewings", "service_jobs"

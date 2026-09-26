@@ -36,6 +36,22 @@ class ServiceJobPolicy < CommonPolicy
     same_department? && any_manager?(:software, :universal)
   end
 
+  def checkout?
+    create_sale?
+  end
+
+  def cancel_checkout?
+    checkout?
+  end
+
+  def manual_archive_form?
+    checkout?
+  end
+
+  def manual_archive?
+    checkout?
+  end
+
   def read_tech_notice?
     any_admin?(:technician)
   end

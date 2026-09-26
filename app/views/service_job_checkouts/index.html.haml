@@ -1,0 +1,29 @@
+.page-header
+  %h2= t('.title')
+
+%ul.nav.nav-tabs.one-c-checkouts__tabs
+  - ServiceJobCheckoutsController::TABS.each do |tab|
+    %li{ class: ('active' if tab == @tab) }
+      = link_to service_job_checkouts_path(tab: tab) do
+        = t(".tabs.#{tab}")
+        %span.badge= @counts[tab]
+
+%table.table.table-hover.table-bordered.one-c-checkouts
+  %thead
+    %tr
+      %th= t('.columns.job')
+      %th= t('.columns.client')
+      %th= t('.columns.initiator')
+      %th= t('.columns.sum')
+      %th= t('.columns.check')
+      %th= t('.columns.state')
+      - if @tab == 'awaiting_confirmation'
+        %th= t('.columns.action')
+      - elsif @tab == 'returned'
+        %th= t('.columns.parts')
+  %tbody
+    - if @checkouts.empty?
+      %tr
+        %td{ colspan: 7 }= t('.empty')
+    - @checkouts.each do |checkout|
+      = render 'checkout', checkout: checkout

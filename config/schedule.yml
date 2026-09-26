@@ -123,3 +123,9 @@ close_stale_client_conversations:
   class: 'CloseStaleClientConversationsJob'
   queue: 'default'
   active_job: true
+
+reconcile_service_checks:
+  cron: '*/15 * * * * Asia/Vladivostok'
+  class: 'ReconcileServiceChecksJob'
+  queue: 'default'
+  active_job: true

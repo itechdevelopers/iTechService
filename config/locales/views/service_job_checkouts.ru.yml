@@ -1,0 +1,33 @@
+ru:
+  service_job_checkouts:
+    link: 'Оплата через 1С'
+    states:
+      draft: 'Отправляется'
+      sent: 'Ждёт оплаты в РМК'
+      send_failed: 'Не отправился'
+      paid: 'Оплачен'
+      archived: 'Закрыт'
+      cancelled: 'Отменён'
+    index:
+      title: 'Оплата ремонта через 1С'
+      empty: 'Пусто'
+      tabs:
+        awaiting_payment: 'Ожидают оплаты'
+        awaiting_confirmation: 'Ручные переносы'
+        returned: 'Возвраты'
+      columns:
+        job: 'Работа'
+        client: 'Клиент'
+        initiator: 'Кто начал'
+        sum: 'Сумма'
+        check: 'Чек 1С'
+        state: 'Состояние'
+        action: 'Действие'
+        parts: 'Запчасти'
+    checkout:
+      matched: 'Чек найден в 1С'
+      not_matched: 'Чек в 1С не найден'
+      confirm: 'Подтвердить'
+      parts_review: 'Разобраться с запчастями'
+    confirm:
+      confirmed: 'Перенос подтверждён, чек № %{number}'
