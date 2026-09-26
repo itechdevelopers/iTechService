@@ -71,7 +71,13 @@ module ServiceJobs
 
       {
         line_id: device_task.id,
+        task_id: device_task.task_id,
         article: product&.article,
+        # Артикулы задачам в Айсе не заполняют, а сопоставлять строку с
+        # номенклатурой 1С по названию нельзя — они не уникальны и их
+        # переименовывают. code генерируется на задачу автоматически (task<id>)
+        # и переживает переименование, поэтому отдаём его тоже.
+        code: product&.code,
         name: device_task.task&.name,
         quantity: 1,
         price: device_task.cost.to_f,
