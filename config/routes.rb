@@ -353,7 +353,6 @@ Rails.application.routes.draw do
 
   resources :service_job_checkouts, only: :index do
     patch :confirm, on: :member
-    patch :resolve_parts, on: :member
   end
 
   resources :service_jobs do

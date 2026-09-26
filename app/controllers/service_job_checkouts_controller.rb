@@ -27,13 +27,6 @@ class ServiceJobCheckoutsController < ApplicationController
                 notice: t('.confirmed', number: checkout.check_number)
   end
 
-  def resolve_parts
-    checkout = authorize ServiceJobCheckout.find(params[:id])
-    checkout.update!(parts_review_required: false)
-
-    redirect_to service_job_checkouts_path(tab: 'returned'), notice: t('.resolved')
-  end
-
   private
 
   def scope_for(tab)

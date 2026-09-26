@@ -36,6 +36,4 @@
   - elsif @tab == 'returned'
     %td
       - if checkout.parts_review_required?
-        = link_to t('.resolve_parts'), resolve_parts_service_job_checkout_path(checkout), method: :patch, class: 'btn btn-warning'
-      - else
-        %span.muted= t('.parts_resolved')
+        %span.label.label-warning= t('.parts_review')

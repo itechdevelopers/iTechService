@@ -23,13 +23,11 @@ ru:
         check: 'Чек 1С'
         state: 'Состояние'
         action: 'Действие'
+        parts: 'Запчасти'
     checkout:
       matched: 'Чек найден в 1С'
       not_matched: 'Чек в 1С не найден'
       confirm: 'Подтвердить'
-      resolve_parts: 'С запчастями разобрались'
-      parts_resolved: 'Запчасти разобраны'
+      parts_review: 'Разобраться с запчастями'
     confirm:
       confirmed: 'Перенос подтверждён, чек № %{number}'
-    resolve_parts:
-      resolved: 'Отметка о запчастях снята'

@@ -14,10 +14,6 @@ class ServiceJobCheckoutPolicy < ApplicationPolicy
     index?
   end
 
-  def resolve_parts?
-    index?
-  end
-
   def read_from_one_c?
     update_from_one_c? || read?
   end
