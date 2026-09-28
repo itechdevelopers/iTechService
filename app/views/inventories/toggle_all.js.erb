@@ -1,0 +1,13 @@
+<%# Дерево перерисовываем целиком: состояние сменилось у всех узлов сразу,
+    точечными правками пути тут не обойтись. Раскрытые ветки схлопываются —
+    их разметка осталась бы со старыми галочками. %>
+$('#groups_tree').html('<%= j render partial: "group_node", collection: @root_groups, as: :group,
+                                     locals: { selected_ids: @inventory.selected_group_ids,
+                                               inventory: @inventory, covered: false,
+                                               expandable_ids: expandable_group_ids(@root_groups),
+                                               partial_ids: @partial_group_ids } %>');
+inventorySelection.applyPartial('#groups_tree');
+$('#selection_summary').html('<%= j render "selection_summary", inventory: @inventory %>');
+<%# Состояние всех позиций одинаково — весь каталог либо отмечен, либо нет,
+    поэтому кнопки в результатах поиска переключаются без нового запроса. %>
+$('#found_products .btn').html('<%= j glyph(@inventory.selection? ? 'minus' : 'plus') %>');

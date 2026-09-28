@@ -60,6 +60,7 @@ class InventoriesController < ApplicationController
     @inventory = find_record Inventory
     @root_groups = ProductGroup.spare_parts.roots.ordered
     @found_products = search_products
+    @partial_group_ids = @inventory.partially_selected_group_ids
 
     respond_to do |format|
       format.html
@@ -76,6 +77,7 @@ class InventoriesController < ApplicationController
     @children = @group ? @group.children.ordered : ProductGroup.none
     @products = @group ? @group.products.name_asc : Product.none
     @covered = covered_by_selection?(@group)
+    @partial_group_ids = @inventory.partially_selected_group_ids
 
     respond_to(&:js)
   end
@@ -86,13 +88,32 @@ class InventoriesController < ApplicationController
   def update_selection
     @inventory = find_record Inventory
 
-    update_selectable(ProductGroup, params[:group_id])
-    update_selectable(Product, params[:product_id])
+    @state_updates = update_selectable(ProductGroup, params[:group_id]) ||
+                     update_selectable(Product, params[:product_id]) || []
 
     respond_to do |format|
       format.js
       format.html { redirect_to selection_inventory_path(@inventory) }
     end
+  end
+
+  # Весь каталог одним нажатием. «Снять всё» стирает отметки напрямую, не
+  # переключая корни по одному: разворачивать ветку, которую тут же выбросят,
+  # незачем.
+  def toggle_all
+    @inventory = find_record Inventory
+    @root_groups = ProductGroup.spare_parts.roots.ordered
+
+    if params[:selected] == '1'
+      @root_groups.each { |root| InventorySelectionToggle.call(@inventory, root, selected: true) }
+    else
+      @inventory.selections.destroy_all
+      @inventory.reload
+    end
+
+    @partial_group_ids = @inventory.partially_selected_group_ids
+
+    respond_to(&:js)
   end
 
   # Разворот выбора в пронумерованные строки. Пересборка стирает прежние строки
@@ -306,8 +327,8 @@ class InventoriesController < ApplicationController
   end
 
   # Всё содержимое ветки уже в ревизии, если отмечена сама группа или любой её
-  # предок: выбранная группа тянет за собой весь свой subtree. Точечные галочки
-  # внутри такой ветки ничего не изменили бы, поэтому показываем их запертыми.
+  # предок: выбранная группа тянет за собой весь свой subtree. Такие узлы
+  # показываем отмеченными, хотя собственной строки выбора у них нет.
   def covered_by_selection?(group)
     return false if group.blank?
 
@@ -322,13 +343,24 @@ class InventoriesController < ApplicationController
     record = klass.find_by(id: id)
     return if record.blank?
 
-    selection = @inventory.selections.find_by(selectable: record)
-    wanted = params.key?(:selected) ? params[:selected] == '1' : selection.nil?
+    wanted = params.key?(:selected) ? params[:selected] == '1' : !@inventory.selected?(record)
 
-    if wanted
-      @inventory.selections.create(selectable: record) if selection.nil?
-    else
-      selection&.destroy
+    InventorySelectionToggle.call(@inventory, record, selected: wanted)
+    selection_state_updates(record)
+  end
+
+  # Что перерисовать в дереве после клика. Разворот и схлопывание меняют
+  # состояние ровно на пути от узла к корню: братья своё состояние сохраняют,
+  # они как были посчитанными, так и остались — просто теперь по собственной
+  # отметке, а не по отметке предка.
+  def selection_state_updates(record)
+    partial_ids = @inventory.partially_selected_group_ids
+    path_ids = record.is_a?(ProductGroup) ? record.ancestor_ids : Array(record.product_group&.path_ids)
+    nodes = ProductGroup.where(id: path_ids).to_a << record
+
+    nodes.map do |node|
+      { type: node.is_a?(ProductGroup) ? 'group' : 'product', id: node.id,
+        state: @inventory.node_state(node, partial_ids: partial_ids) }
     end
   end
 

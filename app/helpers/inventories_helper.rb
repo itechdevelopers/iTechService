@@ -4,6 +4,9 @@ module InventoriesHelper
   # Сколько цветов в палитре подсветки авторов (см. inventories.css.scss).
   AUTHOR_COLORS_COUNT = 8
 
+  # Сколько имён показывать в сводке выбора, прежде чем свернуть хвост в счётчик.
+  SELECTION_NAMES_LIMIT = 12
+
   # Цвет закрепляется за человеком по его id, а не по порядку появления в
   # ревизии: иначе после перезагрузки страницы или в соседней ревизии тот же
   # технарь оказался бы другого цвета, и подсветка перестала бы что-то значить.
@@ -31,6 +34,16 @@ module InventoriesHelper
     return Set.new if groups.empty?
 
     groups_with_children(groups) | groups_with_products(groups.map(&:id))
+  end
+
+  # Отмеченные узлы для сводки: иконка + имя, с обрезкой хвоста. После
+  # исключения одной позиции внутри большой линейки отметок становятся десятки,
+  # и полный список вытеснил бы со страницы всё остальное.
+  def inventory_selection_names(inventory, limit: SELECTION_NAMES_LIMIT)
+    names = inventory.selected_groups.map { |group| ['folder-open', group.name] } +
+            inventory.selected_products.map { |product| ['tag', product.name] }
+
+    { shown: names.first(limit), rest: [names.size - limit, 0].max }
   end
 
   def inventory_lines_progress(inventory)
