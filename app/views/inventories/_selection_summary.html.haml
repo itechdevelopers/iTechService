@@ -12,13 +12,12 @@
       = t('inventories.selection.summary_total', count: InventoryLinesBuilder.preview_count(inventory))
     %p.inventories__hint
       = t('inventories.selection.summary_catalog', count: inventory.selected_products_scope.count)
-    - if inventory.selected_groups.any?
-      %ul.unstyled
-        - inventory.selected_groups.each do |group|
-          %li= glyph('folder-open') + " #{group.name}"
-    - if inventory.selected_products.any?
-      %ul.unstyled
-        - inventory.selected_products.each do |product|
-          %li= glyph('tag') + " #{product.name}"
+
+    - names = inventory_selection_names(inventory)
+    %ul.unstyled
+      - names[:shown].each do |icon, name|
+        %li= glyph(icon) + " #{name}"
+    - if names[:rest].positive?
+      %p.inventories__hint= t('inventories.selection.summary_rest', count: names[:rest])
   - else
     %p.inventories__hint= t('inventories.selection.summary_empty')

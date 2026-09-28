@@ -2,6 +2,7 @@
 -# содержимое приходит по клику из selection_node.js.erb.
 - expandable = expandable_ids.include?(group.id)
 - checked = covered || selected_ids.include?(group.id)
+- partial = !checked && partial_ids.include?(group.id)
 
 %li.inventories__tree-node
   .inventories__tree-row
@@ -15,9 +16,12 @@
     %label.checkbox
       -# Имя чекбокса роли не играет: он не сабмитится формой, а сам шлёт запрос
       -# со своим состоянием (см. JS на странице выбора).
+      -# indeterminate — свойство элемента, а не атрибут: разметкой его не
+      -# выставить, поэтому состояние едет в data и применяется скриптом.
       = check_box_tag "group_#{group.id}", group.id, checked,
                       id: "group_#{group.id}", class: 'inventories__tree-check',
-                      data: { url: update_selection_inventory_path(inventory), group: group.id }
+                      data: { url: update_selection_inventory_path(inventory), group: group.id,
+                              partial: partial }
       = group.name
 
   %ul.inventories__tree-children{ id: "group_children_#{group.id}" }

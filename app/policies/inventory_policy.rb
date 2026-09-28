@@ -48,6 +48,10 @@ class InventoryPolicy < ApplicationPolicy
     update?
   end
 
+  def toggle_all?
+    update?
+  end
+
   def build_lines?
     update? && record.selection?
   end

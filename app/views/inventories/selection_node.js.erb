@@ -11,11 +11,13 @@
   # подгруппы за пределы экрана.
   parts << render(partial: 'inventories/group_node', collection: @children, as: :group,
                   locals: { selected_ids: @inventory.selected_group_ids, inventory: @inventory,
-                            covered: @covered, expandable_ids: expandable_group_ids(@children) })
+                            covered: @covered, expandable_ids: expandable_group_ids(@children),
+                            partial_ids: @partial_group_ids })
 
   parts << render(partial: 'inventories/group_product', collection: @products, as: :product,
                   locals: { selected_ids: @inventory.selected_product_ids,
                             inventory: @inventory, covered: @covered })
 %>
 $('#group_children_<%= @group.id %>').html('<%= j safe_join(parts.compact) %>');
+inventorySelection.applyPartial('#group_children_<%= @group.id %>');
 <% end %>

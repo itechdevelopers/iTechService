@@ -627,6 +627,7 @@ Rails.application.routes.draw do
     get :selection, on: :member
     get :selection_node, on: :member
     patch :update_selection, on: :member
+    patch :toggle_all, on: :member
     post :build_lines, on: :member
     get :send_picker, on: :member
     patch :send_to_branch, on: :member

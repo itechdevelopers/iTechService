@@ -112,6 +112,29 @@ class Inventory < ApplicationRecord
     end
   end
 
+  # Группы, внутри которых отметки есть, а на них самих нет: ветка посчитается
+  # не целиком. Чекбокс такой группы показывается частично выбранным — иначе
+  # свёрнутая ветка выглядела бы как «не считаем», хотя внутри выбрано почти
+  # всё.
+  #
+  # Считается по отметкам, а не обходом дерева: ancestry держит путь предков
+  # прямо в строке, поэтому ни одного запроса на подъём вверх не нужно.
+  def partially_selected_group_ids
+    product_group_ids = selected_products.map(&:product_group_id).compact.uniq
+
+    (selected_groups.flat_map(&:ancestor_ids) +
+      ProductGroup.where(id: product_group_ids).flat_map(&:path_ids)).uniq
+  end
+
+  # Состояние чекбокса узла. partial_ids передаётся снаружи, чтобы отрисовка
+  # уровня не пересчитывала одно и то же на каждый узел.
+  def node_state(selectable, partial_ids: partially_selected_group_ids)
+    return :checked if selected?(selectable)
+    return :partial if selectable.is_a?(ProductGroup) && partial_ids.include?(selectable.id)
+
+    :unchecked
+  end
+
   # Сплошная нумерация 1..N: номера строк печатаются в бланке и по ним технари
   # диктуют результаты, поэтому дырок после удаления оставаться не должно.
   def renumber_lines!

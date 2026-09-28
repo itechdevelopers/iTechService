@@ -105,15 +105,8 @@
     font-size: 12px;
   }
 
-  &__tree-check[disabled] {
-    opacity: 0.6;
-  }
-
-  &__tree-hint {
-    color: #999;
-    font-size: 11px;
-    font-style: italic;
-    padding: 2px 0 2px 18px;
+  &__tree-actions {
+    margin-bottom: 6px;
   }
 
   &__found {
