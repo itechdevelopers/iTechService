@@ -9,6 +9,10 @@ class InventoryLinesBuilder
   # Глубина истории для сортировки «по частоте использования».
   USAGE_PERIOD = 6.months
 
+  # Куда девать позицию, у которой не осталось группы каталога: в конец списка,
+  # а не в начало — иначе ревизия начиналась бы с обломков номенклатуры.
+  LAST_IN_CATALOG = [[Float::INFINITY, 0]].freeze
+
   def self.call(inventory)
     new(inventory).call
   end
@@ -89,6 +93,9 @@ class InventoryLinesBuilder
 
   def sort_items(items, usage)
     case inventory.sort_mode
+    when 'catalog'
+      keys = catalog_keys(items)
+      items.sort_by { |item| [keys[item.product&.product_group_id] || LAST_IN_CATALOG, sort_name(item)] }
     when 'cost_desc'
       # Позиции без цены — в конец: сортировать их как ноль значит утверждать,
       # что они дешёвые, а на деле цена просто не заведена.
@@ -97,6 +104,24 @@ class InventoryLinesBuilder
       items.sort_by { |item| [-usage[item.id].to_i, sort_name(item)] }
     else
       items.sort_by { |item| sort_name(item) }
+    end
+  end
+
+  # Место группы в каталоге: позиции всех её предков сверху вниз. Сравнение
+  # идёт поэлементно, поэтому линейка со всеми своими подгруппами и позициями
+  # оказывается сплошным куском, а сами линейки идут в том же порядке, что и в
+  # дереве выбора.
+  #
+  # Каждое звено — пара «позиция, id»: позиция уникальна только среди соседей
+  # по уровню, и без id две разные группы с одинаковым путём позиций слились бы
+  # в один ключ и перемешались бы между собой.
+  def catalog_keys(items)
+    group_ids = items.map { |item| item.product&.product_group_id }.compact.uniq
+    groups = ProductGroup.where(id: group_ids).to_a
+    positions = ProductGroup.where(id: groups.flat_map(&:path_ids).uniq).pluck(:id, :position).to_h
+
+    groups.each_with_object({}) do |group, keys|
+      keys[group.id] = group.path_ids.map { |id| [positions[id] || 0, id] }
     end
   end
 

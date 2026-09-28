@@ -56,13 +56,17 @@ class Inventory < ApplicationRecord
   enum sort_mode: {
     alphabetical: 0,
     cost_desc: 1,
-    usage_desc: 2
+    usage_desc: 2,
+    catalog: 3
   }, _prefix: :sorted
 
-  # Учитывать ли модель при сортировке — вопрос только для алфавитного порядка:
-  # в остальных режимах имя в сравнении не участвует.
+  # Режимы, где позиции сравниваются по имени, — только в них осмысленна опция
+  # «без учёта модели»: при сортировке по себестоимости или частоте имя в
+  # сравнении не участвует вовсе.
+  NAME_SORTED_MODES = %w[alphabetical catalog].freeze
+
   def ignore_model_in_sort?
-    sorted_alphabetical? && self[:ignore_model_in_sort]
+    NAME_SORTED_MODES.include?(sort_mode) && self[:ignore_model_in_sort]
   end
 
   # Статусы, в которых ревизия уже видна филиалу.
