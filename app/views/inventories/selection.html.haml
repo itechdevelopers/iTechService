@@ -8,8 +8,7 @@
     %p.inventories__hint= t('.groups_hint')
 
     %ul.inventories__tree#groups_tree
-      -# covered: false — у корня предков нет, а собственная отметка группы её
-      -# же чекбокс не запирает, иначе снять её было бы нечем.
+      -# covered: false — у корня предков нет, наследовать отметку не от кого.
       = render partial: 'group_node', collection: @root_groups, as: :group,
                locals: { selected_ids: @inventory.selected_group_ids, inventory: @inventory,
                          covered: false, expandable_ids: expandable_group_ids(@root_groups) }

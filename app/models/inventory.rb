@@ -98,6 +98,20 @@ class Inventory < ApplicationRecord
     selections.exists?
   end
 
+  # Узел выбран и собственной отметкой, и отметкой любого предка: отметка на
+  # группе означает всю её ветку.
+  def selected?(selectable)
+    case selectable
+    when ProductGroup
+      (selectable.path_ids & selected_group_ids).any?
+    when Product
+      selected_product_ids.include?(selectable.id) ||
+        (Array(selectable.product_group&.path_ids) & selected_group_ids).any?
+    else
+      false
+    end
+  end
+
   # Сплошная нумерация 1..N: номера строк печатаются в бланке и по ним технари
   # диктуют результаты, поэтому дырок после удаления оставаться не должно.
   def renumber_lines!

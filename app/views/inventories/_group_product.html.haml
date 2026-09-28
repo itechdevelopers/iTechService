@@ -7,6 +7,6 @@
     %span.inventories__tree-toggle.inventories__tree-toggle--leaf
     %label.checkbox
       = check_box_tag "product_#{product.id}", product.id, checked,
-                      id: "product_#{product.id}", class: 'inventories__tree-check', disabled: covered,
+                      id: "product_#{product.id}", class: 'inventories__tree-check',
                       data: { url: update_selection_inventory_path(inventory), product: product.id }
       = product.name

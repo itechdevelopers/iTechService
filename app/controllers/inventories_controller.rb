@@ -306,8 +306,8 @@ class InventoriesController < ApplicationController
   end
 
   # Всё содержимое ветки уже в ревизии, если отмечена сама группа или любой её
-  # предок: выбранная группа тянет за собой весь свой subtree. Точечные галочки
-  # внутри такой ветки ничего не изменили бы, поэтому показываем их запертыми.
+  # предок: выбранная группа тянет за собой весь свой subtree. Такие узлы
+  # показываем отмеченными, хотя собственной строки выбора у них нет.
   def covered_by_selection?(group)
     return false if group.blank?
 
@@ -322,14 +322,9 @@ class InventoriesController < ApplicationController
     record = klass.find_by(id: id)
     return if record.blank?
 
-    selection = @inventory.selections.find_by(selectable: record)
-    wanted = params.key?(:selected) ? params[:selected] == '1' : selection.nil?
+    wanted = params.key?(:selected) ? params[:selected] == '1' : !@inventory.selected?(record)
 
-    if wanted
-      @inventory.selections.create(selectable: record) if selection.nil?
-    else
-      selection&.destroy
-    end
+    InventorySelectionToggle.call(@inventory, record, selected: wanted)
   end
 
   def inventory_params

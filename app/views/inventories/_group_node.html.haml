@@ -16,7 +16,7 @@
       -# Имя чекбокса роли не играет: он не сабмитится формой, а сам шлёт запрос
       -# со своим состоянием (см. JS на странице выбора).
       = check_box_tag "group_#{group.id}", group.id, checked,
-                      id: "group_#{group.id}", class: 'inventories__tree-check', disabled: covered,
+                      id: "group_#{group.id}", class: 'inventories__tree-check',
                       data: { url: update_selection_inventory_path(inventory), group: group.id }
       = group.name
 
