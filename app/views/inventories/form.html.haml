@@ -18,8 +18,9 @@
                 collection: Inventory.sort_modes.keys.map { |m| [t("inventories.sort_modes.#{m}"), m] },
                 include_blank: false
 
-      -# Опция осмысленна только при алфавитном порядке — при сортировке по
-      -# себестоимости или частоте имя вообще не участвует в сравнении.
+      -# Опция осмысленна только там, где позиции сравниваются по имени — при
+      -# сортировке по себестоимости или частоте имя в сравнении не участвует.
+      -# Список режимов дублирует Inventory::NAME_SORTED_MODES.
       .inventories__sort-option{ id: 'ignore_model_option' }
         = f.input :ignore_model_in_sort, as: :boolean, hint: t('.ignore_model_hint')
 
@@ -37,7 +38,8 @@
     if (!mode || !option) return;
 
     function sync() {
-      option.style.display = mode.value === 'alphabetical' ? '' : 'none';
+      var nameSorted = ['alphabetical', 'catalog'];
+      option.style.display = nameSorted.indexOf(mode.value) >= 0 ? '' : 'none';
     }
 
     mode.addEventListener('change', sync);
