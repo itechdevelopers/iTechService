@@ -10,9 +10,6 @@ class Client < ApplicationRecord
     3 => 'friend'
   }.freeze
 
-  RESTRICTED_ATTRIBUTES = %w[surname name patronymic birthday card_number phone_number full_phone_number
-                             client_characteristic_id category email contact_phone].freeze
-
   scope :id_asc, -> { order('id asc') }
   scope :in_department, ->(department) { where department_id: department }
   scope :in_city, ->(city) { where department_id: Department.in_city(city) }
@@ -53,7 +50,6 @@ class Client < ApplicationRecord
   validates_inclusion_of :category, in: CATEGORIES.keys
   validates_associated :comments
   validates_associated :client_characteristic
-  validate :restricted_attributes, unless: proc { User.current.any_admin? or User.current.able_to?(:edit_clients) }
   validates_acceptance_of :phone_number_checked, if: :full_phone_number_changed?
   before_destroy :send_mail
 
@@ -142,12 +138,6 @@ class Client < ApplicationRecord
   end
 
   private
-
-  def restricted_attributes
-    if (changed_attrs = changed & RESTRICTED_ATTRIBUTES).any? && persisted?
-      changed_attrs.each { |a| errors.add(a.to_sym, I18n.t('errors.messages.changing_denied')) }
-    end
-  end
 
   def send_mail
     DeletionMailer.notice({ presentation: presentation }, User.current.presentation, DateTime.current).deliver_later

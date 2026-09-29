@@ -74,8 +74,6 @@
 
         = f.association :case_color, as: :dropdown, collection: CaseColor.ordered_by_name, label_method: lambda{|c|case_color_presentation(c)}, wrapper_html: {class: 'v2-compact-field'}
 
-        = f.input :email, hint: t('.email_hint'), wrapper_html: {class: 'v2-compact-field'}
-
         -if f.error(:device_tasks).present?
           .control-group.required.error
             .controls

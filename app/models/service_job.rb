@@ -280,6 +280,11 @@ class ServiceJob < ApplicationRecord
     client.try(:presentation) || '-'
   end
 
+  # Адрес на самой работе приоритетнее: его вбивали при приёмке именно для этого письма.
+  def notification_email
+    email.presence || client&.email.presence
+  end
+
   def user_name
     (user || User.current).name
   end
@@ -824,7 +829,7 @@ kind: 'device_return', content: id.to_s)
     if changed_attributes['location_id'].present?
       if at_done?
         Announcement.find_by_kind_and_content('device_return', id.to_s).try(:destroy)
-        ServiceJobsMailer.done_notice(id).deliver_later if email.present?
+        ServiceJobsMailer.done_notice(id).deliver_later if notification_email.present?
       end
     end
     #TODO implement via cable

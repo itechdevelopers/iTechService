@@ -4,7 +4,7 @@ class ClientPolicy < CommonPolicy
   end
 
   def update?
-    any_manager?(:marketing) || able_to?(:edit_clients)
+    true
   end
 
   def destroy?
@@ -15,7 +15,10 @@ class ClientPolicy < CommonPolicy
 
   def find?; read?; end
 
-  def show_caller?; update?; end
+  # Не алиас update?: редактирование карточки открыто всем, экран входящего звонка — нет.
+  def show_caller?
+    any_manager?(:marketing) || able_to?(:edit_clients)
+  end
 
   def history?; read?; end
 

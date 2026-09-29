@@ -12,9 +12,9 @@
     = f.input :phone_number
     = f.input :category, collection: client_categories_for_select if can? :change_category, @client
     = f.input :card_number
+    = f.input :email
 
     #client_questionnaire_input.hidden
-      = f.input :email
       = f.input :birthday, as: :my_date, viewmode: 'years'
       .control-group
         %label.control-label= t 'clients.questionnaire'
