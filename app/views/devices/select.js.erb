@@ -26,6 +26,7 @@ $imei_inputs.addClass('hidden');
 <% end %>
 
 $('.popover-content', '#client_devices').html("<%= j service_tasks_list(@device.last_service_job) %>");
+App.Inputs.Device.fillProductGroupFields("<%= j @device.product_group&.trademark %>", "<%= j @device.product_group&.product_line %>");
 
 App.DeviceInput.check_imei();
 App.DeviceInput.check_1c_status();

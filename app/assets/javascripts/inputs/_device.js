@@ -44,6 +44,13 @@
     _save1cSoldStatus: function(statusText) {
       const sold = statusText && statusText.toLowerCase().indexOf('продано') !== -1;
       $('.device_input').attr('data-1c-sold', sold ? 'true' : 'false');
+    },
+    // Поля есть только в новой приёмке. Пустое значение у группы не затирает
+    // то, что приёмщик уже вписал руками.
+    fillProductGroupFields: function(trademark, productLine) {
+      if ($('form.service_job_form').data('form-version') !== 'v2') return
+      if (trademark) $('#service_job_trademark').val(trademark)
+      if (productLine) $('#service_job_device_group').val(productLine)
     }
   }
 
@@ -77,16 +84,7 @@
         // Save IMEI for Find My iPhone check
         $('.device_input').attr('data-device-imei', ui.item.imei || '')
 
-        // Auto-populate trademark and device_group from product_group (v2 only)
-        var $form = $(this).closest('form.service_job_form')
-        if ($form.data('form-version') === 'v2') {
-          if (ui.item.trademark !== undefined && ui.item.trademark !== null) {
-            $('#service_job_trademark').val(ui.item.trademark)
-          }
-          if (ui.item.product_line !== undefined && ui.item.product_line !== null) {
-            $('#service_job_device_group').val(ui.item.product_line)
-          }
-        }
+        App.Inputs.Device.fillProductGroupFields(ui.item.trademark, ui.item.product_line)
 
         return false
       },
