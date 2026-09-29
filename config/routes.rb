@@ -486,6 +486,7 @@ Rails.application.routes.draw do
   end
 
   resources :settings, except: [:show]
+  resources :legal_entities, except: [:show]
 
   resources :find_my_device_checks, only: [:index] do
     post :check, on: :collection, defaults: { format: :json }

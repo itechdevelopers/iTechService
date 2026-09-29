@@ -1,0 +1,6 @@
+<% if @legal_entity.errors.any? %>
+$('#modal_form').html('<%= j render 'modal_form_content' %>');
+<% else %>
+$('#modal_form').modal('hide');
+$('#legal_entities_list').html('<%= j render 'entities', legal_entities: @legal_entities %>');
+<% end %>

@@ -1,0 +1,14 @@
+.modal-header
+  = button_to_close_modal
+  %h3= t(@legal_entity.new_record? ? '.new_title' : '.edit_title')
+
+= simple_form_for @legal_entity, remote: true, html: { class: 'form-horizontal' } do |f|
+  .modal-body
+    = f.error_notification
+    = f.input :name, input_html: { class: 'input-xlarge' }
+    = f.input :ogrn_inn, input_html: { class: 'input-xlarge' }
+    = f.input :legal_address, hint: t('.legal_address_hint'), input_html: { class: 'input-xlarge' }
+
+  .modal-footer
+    = submit_button f, name: t('helpers.links.save')
+    = link_to t('helpers.links.close'), '#', 'data-dismiss' => 'modal', class: 'btn'
