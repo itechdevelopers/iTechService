@@ -1,0 +1,12 @@
+.modal-header
+  = button_to_close_modal
+  %h3= t('.title')
+
+.modal-body
+  %p= t('.applied', entity: @legal_entity.name, department: @department.full_name)
+  %p= t('.question')
+
+.modal-footer
+  = link_to t('.open'), sample_act_legal_entities_path(department_id: @department.id, format: :pdf),
+            target: '_blank', class: 'btn btn-primary legal-entities-board__open-act'
+  = link_to t('helpers.links.close'), '#', 'data-dismiss' => 'modal', class: 'btn'

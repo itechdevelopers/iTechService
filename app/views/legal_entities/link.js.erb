@@ -1,0 +1,5 @@
+<%= render 'refresh' %>
+if ($('#modal_form').length === 0) {
+  $('body').append('<div id="modal_form" class="modal large fade hide"></div>');
+}
+$('#modal_form').html('<%= j render 'linked_modal_content' %>').modal('show');

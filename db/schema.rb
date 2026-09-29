@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20260925090000) do
+ActiveRecord::Schema.define(version: 20260929120000) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -564,9 +564,11 @@ ActiveRecord::Schema.define(version: 20260925090000) do
     t.string "code_one_c"
     t.boolean "participates_in_repair_services", default: true, null: false
     t.boolean "strict_repair", default: false, null: false
+    t.bigint "legal_entity_id"
     t.index ["brand_id"], name: "index_departments_on_brand_id"
     t.index ["city_id"], name: "index_departments_on_city_id"
     t.index ["code"], name: "index_departments_on_code"
+    t.index ["legal_entity_id"], name: "index_departments_on_legal_entity_id"
     t.index ["role"], name: "index_departments_on_role"
   end
 
@@ -1190,6 +1192,14 @@ ActiveRecord::Schema.define(version: 20260925090000) do
     t.integer "karma_group_id"
     t.index ["karma_group_id"], name: "index_karmas_on_karma_group_id"
     t.index ["user_id"], name: "index_karmas_on_user_id"
+  end
+
+  create_table "legal_entities", force: :cascade do |t|
+    t.string "name", null: false
+    t.string "ogrn_inn", null: false
+    t.string "legal_address", null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
   end
 
   create_table "locations", id: :serial, force: :cascade do |t|
@@ -3093,6 +3103,7 @@ ActiveRecord::Schema.define(version: 20260925090000) do
   add_foreign_key "department_working_hours", "departments"
   add_foreign_key "departments", "brands"
   add_foreign_key "departments", "cities"
+  add_foreign_key "departments", "legal_entities", on_delete: :nullify
   add_foreign_key "device_tasks", "repair_causes", column: "expected_repair_cause_id"
   add_foreign_key "device_tasks", "repair_services", column: "expected_repair_service_id"
   add_foreign_key "device_unlock_requests", "clients"

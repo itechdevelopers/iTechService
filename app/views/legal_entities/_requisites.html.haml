@@ -1,0 +1,7 @@
+%dl.dl-horizontal.legal-entities-board__requisites
+  - requisites.fields.each do |field|
+    %dt= t("settings.#{field.name}")
+    %dd
+      = field.value.presence || '—'
+      - if show_source && field.value.present? && !field.own
+        %span.legal-entities-board__source= t('.global_source')

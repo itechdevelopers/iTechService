@@ -48,6 +48,7 @@ ru:
       kanban/card: 'Канбан Карточка'
       kanban/column: 'Канбан Колонка'
       karma: 'Карма'
+      legal_entity: 'Организация'
       location: 'Локация'
       media_order: 'Заказ медиа'
       movement_act: 'Акт Перемещения'
@@ -204,6 +205,7 @@ ru:
         archive: Архивный
         participates_in_repair_services: Участвует в видах ремонта
         strict_repair: Строгий ремонт
+        legal_entity: :activerecord.models.legal_entity
 
       device:
         app_store_pass: 'Пароль на учетную запись в App Store'
@@ -362,6 +364,11 @@ ru:
       karma:
         good: 'good'  #g
         user: :activerecord.models.user  #g
+
+      legal_entity:
+        name: 'Организация'
+        ogrn_inn: 'ОГРН/ИНН'
+        legal_address: 'Юридический адрес'
 
       location:
         ancestry: 'Предок'
@@ -800,6 +807,11 @@ ru:
           attributes:
             nominal:
               multiple_of: 'должен быть кратным %{step}'
+        legal_entity:
+          attributes:
+            base:
+              restrict_dependent_destroy:
+                has_many: 'Нельзя удалить: организация привязана к подразделениям. Сначала отвяжите её.'
         product:
           no_retail_price: 'Нет розничной цены'
         quick_order:

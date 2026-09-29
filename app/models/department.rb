@@ -24,6 +24,7 @@ class Department < ApplicationRecord
 
   belongs_to :city
   belongs_to :brand
+  belongs_to :legal_entity, optional: true
   has_many :users, dependent: :nullify
   has_many :stores, dependent: :nullify
   has_many :cash_drawers, dependent: :nullify

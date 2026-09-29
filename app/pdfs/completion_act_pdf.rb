@@ -4,7 +4,7 @@ require "prawn/measurement_extensions"
 class CompletionActPdf < Prawn::Document
   attr_reader :view_context
 
-  def initialize(service_job, view_context)
+  def initialize(service_job, view_context, sample: false)
     super page_size: 'A4', page_layout: :portrait
     @view_context = view_context
     department = service_job.department
@@ -24,7 +24,7 @@ class CompletionActPdf < Prawn::Document
               size: base_font_size*2
 
     # Logo
-    image department.logo_path, fit: [100, 30], at: [20, cursor]
+    image department.logo_path, fit: [100, 30], at: [20, cursor] if department.logo_path.present?
 
     # Organization info
     organization = Setting.organization(department)
@@ -164,7 +164,13 @@ class CompletionActPdf < Prawn::Document
     draw_text "Подпись", at: [200, cursor]
     draw_text "Штамп исполнителя", at: [400, cursor]
 
-    service_job.update_column :completion_act_printed_at, Time.zone.now
+    if sample
+      move_down font_size * 3
+      text 'Проверочный акт — образец для сверки реквизитов, клиенту не выдаётся',
+           align: :center, style: :bold, color: '999999'
+    else
+      service_job.update_column :completion_act_printed_at, Time.zone.now
+    end
   end
 
   private

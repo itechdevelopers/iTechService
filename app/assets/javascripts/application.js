@@ -80,3 +80,4 @@
 //= require technician_repairs
 //= require strict_repair
 //= require client_conversations
+//= require legal_entities

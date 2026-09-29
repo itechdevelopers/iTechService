@@ -486,6 +486,11 @@ Rails.application.routes.draw do
   end
 
   resources :settings, except: [:show]
+  resources :legal_entities, except: [:show] do
+    patch :link, on: :member
+    patch :unlink, on: :collection
+    get :sample_act, on: :collection
+  end
 
   resources :find_my_device_checks, only: [:index] do
     post :check, on: :collection, defaults: { format: :json }

@@ -1,0 +1,63 @@
+.legal-entities-board__entity {
+  cursor: pointer;
+
+  &:hover {
+    border-color: #999;
+  }
+}
+
+.legal-entities-board__entity--selected {
+  border-color: #0088cc;
+  background-color: #eef6fb;
+  box-shadow: 0 0 0 2px rgba(0, 136, 204, 0.35);
+
+  &:hover {
+    border-color: #0088cc;
+  }
+}
+
+.legal-entities-board__entity-details {
+  color: #666;
+}
+
+.legal-entities-board__entity-links {
+  margin-top: 4px;
+  color: #999;
+  font-size: 11px;
+}
+
+.legal-entities-board__hint {
+  color: #666;
+}
+
+.legal-entities-board__global {
+  background-color: #fcfcfc;
+}
+
+.legal-entities-board__requisites {
+  margin: 6px 0 0;
+
+  dt {
+    width: 140px;
+    font-weight: normal;
+    color: #666;
+  }
+
+  dd {
+    margin-left: 155px;
+  }
+}
+
+.legal-entities-board__source {
+  margin-left: 4px;
+  color: #999;
+  font-size: 11px;
+}
+
+.legal-entities-board__link-button {
+  display: none;
+}
+
+.legal-entities-board__link-button--active {
+  display: inline-block;
+}

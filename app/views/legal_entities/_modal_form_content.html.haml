@@ -1,0 +1,21 @@
+- linked_departments = @legal_entity.persisted? ? @legal_entity.departments.includes(:city).to_a : []
+
+.modal-header
+  = button_to_close_modal
+  %h3= t(@legal_entity.new_record? ? '.new_title' : '.edit_title')
+
+= simple_form_for @legal_entity, remote: true, html: { class: 'form-horizontal' } do |f|
+  .modal-body
+    = f.error_notification
+    - if linked_departments.any?
+      .alert.alert-info
+        = t('.linked_warning', total: linked_departments.size,
+                               departments: linked_departments.map(&:full_name).join(', '))
+    = f.input :name, input_html: { class: 'input-xlarge' }
+    = f.input :ogrn_inn, input_html: { class: 'input-xlarge' }
+    = f.input :legal_address, hint: t('.legal_address_hint'), input_html: { class: 'input-xlarge' }
+
+  .modal-footer
+    - confirm = linked_departments.any? ? { confirm: t('.linked_confirm', total: linked_departments.size) } : {}
+    = submit_button f, name: t('helpers.links.save'), data: confirm
+    = link_to t('helpers.links.close'), '#', 'data-dismiss' => 'modal', class: 'btn'
