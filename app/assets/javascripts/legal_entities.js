@@ -44,5 +44,12 @@ var legalEntitiesBoard = (function () {
     apply();
   });
 
+  // Вкладку с актом открывает сам клик по ссылке: window.open из ответа сервера
+  // браузер заблокировал бы как всплывающее окно. Модалку закрываем отдельно —
+  // data-dismiss у Bootstrap отменил бы переход по ссылке.
+  $(document).on('click', '.legal-entities-board__open-act', function () {
+    $('#modal_form').modal('hide');
+  });
+
   return { apply: apply };
 })();

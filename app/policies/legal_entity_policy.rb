@@ -12,4 +12,8 @@ class LegalEntityPolicy < ApplicationPolicy
   def unlink?
     manage?
   end
+
+  def sample_act?
+    manage?
+  end
 end

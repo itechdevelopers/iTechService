@@ -53,6 +53,17 @@ class LegalEntitiesController < ApplicationController
     load_board
   end
 
+  def sample_act
+    authorize LegalEntity
+    department = Department.find(params[:department_id])
+    pdf = CompletionActPdf.new(CompletionActSample.new(department), view_context, sample: true)
+
+    send_data pdf.render,
+              filename: "sample_completion_act_#{department.id}.pdf",
+              type: 'application/pdf',
+              disposition: 'inline'
+  end
+
   private
 
   def load_board

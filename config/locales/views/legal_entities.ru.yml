@@ -16,8 +16,14 @@ ru:
       link_confirm: 'Привязать «%{entity}» к «%{department}»? Реквизиты подразделения в параметрах, заказ-нарядах и актах заменятся.'
       unlink: 'Отвязать'
       unlink_confirm: 'Отвязать организацию от «%{department}»? Подразделение вернётся к общим параметрам.'
+      sample_act: 'Проверочный акт'
     requisites:
       global_source: 'из общих параметров'
+    linked_modal_content:
+      title: 'Реквизиты применены'
+      applied: 'Реквизиты «%{entity}» применены к «%{department}».'
+      question: 'Открыть акт выполненных работ, чтобы проверить, как применились изменения?'
+      open: 'Открыть акт'
     modal_form_content:
       new_title: 'Новая организация'
       edit_title: 'Организация'

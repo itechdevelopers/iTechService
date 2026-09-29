@@ -489,6 +489,7 @@ Rails.application.routes.draw do
   resources :legal_entities, except: [:show] do
     patch :link, on: :member
     patch :unlink, on: :collection
+    get :sample_act, on: :collection
   end
 
   resources :find_my_device_checks, only: [:index] do

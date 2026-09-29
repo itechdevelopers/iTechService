@@ -14,6 +14,8 @@
                 data: { url_template: link_legal_entity_path('__ID__', department_id: department.id),
                         confirm_template: t('.link_confirm', entity: '__ENTITY__', department: department.full_name),
                         linked_entity_id: department.legal_entity_id }
+      = link_to t('.sample_act'), sample_act_legal_entities_path(department_id: department.id, format: :pdf),
+                target: '_blank', class: 'btn btn-small'
       - if department.legal_entity
         = link_to t('.unlink'), unlink_legal_entities_path(department_id: department.id),
                   remote: true, method: :patch, class: 'btn btn-small',
