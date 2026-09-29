@@ -2,6 +2,13 @@
 module ServiceJobsHelper
   TG_URL = 'https://t.me/'
 
+  # Чипы быстрого выбора под полями новой приёмки; клик заменяет значение поля целиком.
+  V2_QUICK_PICKS = {
+    trademark: %w[Apple SMEG JBL Яндекс Xiaomi],
+    device_group: ['iPhone', 'iPad', 'Ноутбук', 'Фен/Стайлер', 'Кухонная техника'],
+    completeness: ['Только аппарат', 'Аппарат и коробка', 'Аппарат, коробка и все комплектующие']
+  }.freeze
+
   # «Ход ремонта»: событие таймлайна → человекочитаемая строка.
   # Для взятия в работу дописываем имя мастера, для паузы — её вид.
   def repair_progress_event_label(event)
@@ -243,6 +250,21 @@ module ServiceJobsHelper
       trigger: 'manual',
       title: t('service_jobs.form.templates'),
       content: templates_list.gsub('"', '').html_safe
+    }
+  end
+
+  # Опции для f.input: чипы встают на место подсказки, то есть внутрь .controls
+  # сразу под полем и ровно по его левому краю. tabindex -1 — чтобы Tab шёл
+  # от поля к полю, а не по каждому чипу.
+  def service_job_quick_picks(field)
+    chips = V2_QUICK_PICKS.fetch(field).map do |value|
+      button_tag value, type: 'button', name: nil, tabindex: -1, class: 'sj-quick-picks__chip', data: { value: value }
+    end
+
+    {
+      hint: safe_join(chips),
+      hint_tag: :div,
+      hint_html: { class: 'sj-quick-picks', data: { target: "service_job_#{field}" } }
     }
   end
 

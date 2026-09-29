@@ -49,8 +49,8 @@
     // то, что приёмщик уже вписал руками.
     fillProductGroupFields: function(trademark, productLine) {
       if ($('form.service_job_form').data('form-version') !== 'v2') return
-      if (trademark) $('#service_job_trademark').val(trademark)
-      if (productLine) $('#service_job_device_group').val(productLine)
+      if (trademark) $('#service_job_trademark').val(trademark).trigger('change')
+      if (productLine) $('#service_job_device_group').val(productLine).trigger('change')
     }
   }
 

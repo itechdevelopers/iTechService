@@ -883,3 +883,22 @@ $(document).on 'click', '.preview-work-order-btn', (e) ->
   document.body.appendChild(previewForm)
   previewForm.submit()
   document.body.removeChild(previewForm)
+
+# ========== Quick picks under new intake fields ==========
+
+# Подсвечиваем чип, совпадающий со значением поля, — в том числе вписанным руками
+# или подставленным из продуктовой группы при выборе устройства.
+refreshQuickPicks = ($group) ->
+  value = $.trim($("##{$group.data('target')}").val()).toLowerCase()
+  $group.find('.sj-quick-picks__chip').each ->
+    $(this).toggleClass 'sj-quick-picks__chip--active', $(this).attr('data-value').toLowerCase() == value
+
+$(document).on 'click', '.sj-quick-picks__chip', ->
+  $chip = $(this)
+  $("##{$chip.closest('.sj-quick-picks').data('target')}").val($chip.attr('data-value')).trigger('change')
+
+$(document).on 'input change', '.v2-form-container input, .v2-form-container textarea', ->
+  $group = $(".sj-quick-picks[data-target='#{this.id}']")
+  refreshQuickPicks($group) if $group.length
+
+$ -> $('.sj-quick-picks').each -> refreshQuickPicks($(this))
