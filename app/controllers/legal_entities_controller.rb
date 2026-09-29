@@ -67,7 +67,7 @@ class LegalEntitiesController < ApplicationController
   private
 
   def load_board
-    @legal_entities = LegalEntity.ordered
+    @legal_entities = LegalEntity.ordered.includes(departments: :city)
     @departments = Department.joins(:city).preload(:city, :legal_entity)
                              .reorder('cities.name ASC, departments.name ASC')
     @requisites = DepartmentRequisites.by_department(@departments)

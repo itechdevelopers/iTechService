@@ -15,6 +15,10 @@ class LegalEntity < ApplicationRecord
 
   validates :name, :ogrn_inn, :legal_address, presence: true
 
+  # В той же транзакции, что и сохранение: параметры привязанных подразделений
+  # не должны расходиться с организацией даже на время.
+  after_update :sync_linked_departments, if: :requisites_changed?
+
   def self.unlink!(department)
     transaction do
       department.update_column(:legal_entity_id, nil)
@@ -32,6 +36,14 @@ class LegalEntity < ApplicationRecord
   end
 
   private
+
+  def requisites_changed?
+    (saved_changes.keys & SETTING_FIELDS.values.map(&:to_s)).any?
+  end
+
+  def sync_linked_departments
+    departments.each { |department| write_settings!(department) }
+  end
 
   def write_settings!(department)
     SETTING_FIELDS.each do |setting_name, attribute|

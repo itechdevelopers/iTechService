@@ -6,6 +6,8 @@
   = render 'requisites', requisites: global_requisites, show_source: false
 
 - departments.each do |department|
+  - legal_entity = department.legal_entity
+  - mismatch = legal_entity.present? && !requisites[department.id].match?(legal_entity)
   .well.well-small.legal-entities-board__department
     .pull-right
       -# href и текст подтверждения подставляет legal_entities.js, когда слева выбрана организация
@@ -14,13 +16,19 @@
                 data: { url_template: link_legal_entity_path('__ID__', department_id: department.id),
                         confirm_template: t('.link_confirm', entity: '__ENTITY__', department: department.full_name),
                         linked_entity_id: department.legal_entity_id }
+      - if mismatch
+        = link_to t('.reapply'), link_legal_entity_path(legal_entity, department_id: department.id),
+                  remote: true, method: :patch, class: 'btn btn-small btn-warning',
+                  data: { confirm: t('.reapply_confirm', entity: legal_entity.name, department: department.full_name) }
       = link_to t('.sample_act'), sample_act_legal_entities_path(department_id: department.id, format: :pdf),
                 target: '_blank', class: 'btn btn-small'
-      - if department.legal_entity
+      - if legal_entity
         = link_to t('.unlink'), unlink_legal_entities_path(department_id: department.id),
                   remote: true, method: :patch, class: 'btn btn-small',
                   data: { confirm: t('.unlink_confirm', department: department.full_name) }
     %strong= department.full_name
-    - if department.legal_entity
-      %span.label.label-info= department.legal_entity.name
+    - if legal_entity
+      %span.label.label-info= legal_entity.name
+    - if mismatch
+      %span.label.label-warning= t('.mismatch')
     = render 'requisites', requisites: requisites[department.id], show_source: true

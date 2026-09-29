@@ -3,10 +3,16 @@
     .well.well-small.legal-entities-board__entity{ data: { legal_entity_id: legal_entity.id, legal_entity_name: legal_entity.name } }
       .btn-group.pull-right
         = link_to_edit_small legal_entity, remote: true
-        = link_to_destroy_small legal_entity
+        - if legal_entity.departments.empty?
+          = link_to_destroy_small legal_entity
       %strong.legal-entities-board__entity-name= legal_entity.name
       .legal-entities-board__entity-details
         = "#{LegalEntity.human_attribute_name(:ogrn_inn)}: #{legal_entity.ogrn_inn}"
       .legal-entities-board__entity-details= legal_entity.legal_address
+      .legal-entities-board__entity-links
+        - if legal_entity.departments.any?
+          = t('.linked_to', departments: legal_entity.departments.map(&:full_name).join(', '))
+        - else
+          = t('.not_linked')
 - else
   %p.muted= t('.empty')
