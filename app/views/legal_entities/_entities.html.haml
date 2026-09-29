@@ -1,6 +1,6 @@
 - if legal_entities.any?
   - legal_entities.each do |legal_entity|
-    .well.well-small.legal-entities-board__entity{ data: { legal_entity_id: legal_entity.id } }
+    .well.well-small.legal-entities-board__entity{ data: { legal_entity_id: legal_entity.id, legal_entity_name: legal_entity.name } }
       .btn-group.pull-right
         = link_to_edit_small legal_entity, remote: true
         = link_to_destroy_small legal_entity

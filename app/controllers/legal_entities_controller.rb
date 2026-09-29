@@ -3,7 +3,7 @@
 class LegalEntitiesController < ApplicationController
   def index
     authorize LegalEntity
-    @legal_entities = LegalEntity.ordered
+    load_board
   end
 
   def new
@@ -14,7 +14,8 @@ class LegalEntitiesController < ApplicationController
   def create
     @legal_entity = authorize LegalEntity.new(legal_entity_params)
     @legal_entity.save
-    render_save_response
+    load_board
+    render 'save'
   end
 
   def edit
@@ -25,7 +26,8 @@ class LegalEntitiesController < ApplicationController
   def update
     @legal_entity = find_record LegalEntity
     @legal_entity.update(legal_entity_params)
-    render_save_response
+    load_board
+    render 'save'
   end
 
   def destroy
@@ -38,11 +40,27 @@ class LegalEntitiesController < ApplicationController
     end
   end
 
+  def link
+    @legal_entity = find_record LegalEntity
+    @department = Department.find(params[:department_id])
+    @legal_entity.link!(@department)
+    load_board
+  end
+
+  def unlink
+    authorize LegalEntity
+    LegalEntity.unlink!(Department.find(params[:department_id]))
+    load_board
+  end
+
   private
 
-  def render_save_response
+  def load_board
     @legal_entities = LegalEntity.ordered
-    render 'save'
+    @departments = Department.joins(:city).preload(:city, :legal_entity)
+                             .reorder('cities.name ASC, departments.name ASC')
+    @requisites = DepartmentRequisites.by_department(@departments)
+    @global_requisites = DepartmentRequisites.global
   end
 
   def legal_entity_params

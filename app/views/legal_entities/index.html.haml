@@ -7,3 +7,8 @@
   .span5
     %h4= t('.entities')
     #legal_entities_list= render 'entities', legal_entities: @legal_entities
+  .span7
+    %h4= t('.departments')
+    #legal_entities_departments
+      = render 'departments', departments: @departments, requisites: @requisites,
+                              global_requisites: @global_requisites

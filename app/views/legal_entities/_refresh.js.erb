@@ -1,0 +1,3 @@
+$('#legal_entities_list').html('<%= j render 'entities', legal_entities: @legal_entities %>');
+$('#legal_entities_departments').html('<%= j render 'departments', departments: @departments, requisites: @requisites, global_requisites: @global_requisites %>');
+legalEntitiesBoard.apply();
