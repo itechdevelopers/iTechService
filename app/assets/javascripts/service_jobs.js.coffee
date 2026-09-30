@@ -522,6 +522,7 @@ window.hideRepairSelection = ($extended) ->
     resetRepairBlock($(this))
   $container.removeData('chosen-repair-group-id')
   $container.find('.repair-group-select').val('')
+  $container.find('.chosen-repair-group-input').val('')
   $container.find('.repair-group-select-group').hide()
   $container.find('.choose-repair-group-btn').show()
   $container.find('.manual-causes-checkbox').prop('checked', false)
@@ -553,6 +554,7 @@ $(document).on 'click', '.choose-repair-group-btn', (e) ->
 $(document).on 'change', '.repair-group-select', ->
   $container = $(this).closest('.repair-selection-container')
   $container.data('chosen-repair-group-id', $(this).val() || null)
+  $container.find('.chosen-repair-group-input').val($(this).val())
   loadRepairCauseGroups $container, ->
     # Causes and services picked for the previous repair group are gone — rebuild the fields
     updateClaimedDefectField()

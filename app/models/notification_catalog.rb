@@ -166,6 +166,13 @@ module NotificationCatalog
           audience: 'суперадмины',
           visible_to: SUPERADMIN),
 
+    entry('repair_catalog_bypass',
+          group: :repair,
+          title: 'Причины ремонта не из справочника',
+          hint: 'В новой приёмке разово выбрали вид ремонта или вписали причины вручную',
+          audience: 'суперадмины',
+          visible_to: SUPERADMIN),
+
     entry('location_overstay',
           group: :repair,
           title: 'Устройство залежалось на локации',

@@ -14,6 +14,9 @@
       options_for_select(intake_repair_group_options),
       class: 'repair-group-select form-control',
       prompt: 'Как в справочнике'
+    -# Уходит на сервер только ради уведомления суперадминам. Пустое при каждой
+    -# отрисовке: после ошибки валидации выбор вида ремонта в блоке тоже сброшен.
+    = hidden_field_tag "#{f.object_name}[chosen_repair_group_id]", nil, id: nil, class: 'chosen-repair-group-input'
 
   .repair-selection-blocks
     .repair-selection-block.well.well-small

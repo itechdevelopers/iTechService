@@ -213,6 +213,7 @@ class ServiceJobsController < ApplicationController
       if @service_job.save
         create_phone_substitution if @service_job.phone_substituted?
         Service::Feedback::Create.call(service_job: @service_job)
+        RepairCatalogBypassNotifier.call(service_job: @service_job, user: current_user)
 
         processor = CheckListResponsesProcessor.new(@service_job, 'service_job')
         processor.process(params, strategy: :create)
@@ -913,7 +914,7 @@ class ServiceJobsController < ApplicationController
       :replaced, :return_at, :sale_id, :security_code, :serial_number, :status, :tech_notice,
       :ticket_number, :trademark, :type_of_work, :user_id, :substitute_phone_id, :substitute_phone_icloud_connected,
       data_storages: [],
-      device_tasks_attributes: [:id, :_destroy, :task_id, :cost, :comment, :user_comment, :performer_id, :expected_repair_cause_id, :expected_repair_service_id, :repair_causes_filled_manually, expected_repair_cause_ids: [], expected_repair_service_ids: []],
+      device_tasks_attributes: [:id, :_destroy, :task_id, :cost, :comment, :user_comment, :performer_id, :expected_repair_cause_id, :expected_repair_service_id, :repair_causes_filled_manually, :chosen_repair_group_id, expected_repair_cause_ids: [], expected_repair_service_ids: []],
       check_list_responses_attributes: [:id, :check_list_id, responses: {}, comments: {}]
     )
   end
