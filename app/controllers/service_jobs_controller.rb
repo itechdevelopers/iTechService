@@ -202,6 +202,7 @@ class ServiceJobsController < ApplicationController
   def create_v2
     @service_job = authorize ServiceJob.new(service_job_params), :create_v2?
     @service_job.initial_department = current_user.department
+    @service_job.created_without_return_at = true
     fill_blank_task_costs(@service_job)
 
     if (existing = recent_duplicate_of(@service_job))

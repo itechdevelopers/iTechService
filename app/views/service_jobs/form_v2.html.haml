@@ -68,8 +68,6 @@
         - else
           = f.input :location, as: :string, disabled: true, input_html: {class: 'input-medium'}, wrapper_html: {class: 'v2-compact-field'}
 
-        = f.input :return_at, as: :datetime_quick_select, wrapper_html: {class: 'v2-compact-field'}
-
         = f.input :substitute_phone, as: :substitute_phone, wrapper_html: {class: 'v2-compact-field'}
 
         = f.association :case_color, as: :dropdown, collection: CaseColor.ordered_by_name, label_method: lambda{|c|case_color_presentation(c)}, wrapper_html: {class: 'v2-compact-field'}
