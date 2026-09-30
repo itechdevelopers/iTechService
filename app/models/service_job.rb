@@ -107,6 +107,9 @@ class ServiceJob < ApplicationRecord
   # нет, и устройство снова на руках у сервиса.
   attr_accessor :system_archive_return
 
+  # Новая приёмка создаёт работу без времени возврата — см. return_at_required?.
+  attr_accessor :created_without_return_at
+
   delegate :name, :short_name, :full_name, :surname, to: :client, prefix: true, allow_nil: true
   delegate :name, to: :department, prefix: true
   delegate :name, to: :location, prefix: true, allow_nil: true
@@ -114,8 +117,9 @@ class ServiceJob < ApplicationRecord
   delegate :color, to: :city, prefix: true, allow_nil: true
   delegate :pending_substitution, to: :substitute_phone, allow_nil: true
   alias_attribute :received_at, :created_at
-  validates_presence_of :ticket_number, :user, :client, :location, :device_tasks, :return_at, :department,
+  validates_presence_of :ticket_number, :user, :client, :location, :device_tasks, :department,
                         :device_condition
+  validates_presence_of :return_at, if: :return_at_required?
   validates_presence_of :contact_phone, on: :create
   validates_presence_of :device_type, if: proc { |sj| sj.item.nil? }
   validates_presence_of :item, if: proc { |sj| sj.device_type.nil? }
@@ -711,6 +715,13 @@ kind: 'device_return', content: id.to_s)
   end
 
   private
+
+  # При создании время возврата обязательно везде, кроме новой приёмки. У сохранённой
+  # работы проверяем только смену значения: работа из новой приёмки без времени возврата
+  # должна дальше сохраняться (смена локации, статусов), а стереть заданное время нельзя.
+  def return_at_required?
+    new_record? ? !created_without_return_at : return_at_changed?
+  end
 
   # «Качели статуса»: закрывающая смена `in_progress → waiting` тем же юзером,
   # что и предыдущая `* → in_progress`, быстрее порога. Один индексный SELECT
