@@ -524,6 +524,23 @@ window.hideRepairSelection = ($extended) ->
   $container.find('.repair-group-select').val('')
   $container.find('.repair-group-select-group').hide()
   $container.find('.choose-repair-group-btn').show()
+  $container.find('.manual-causes-checkbox').prop('checked', false)
+  $container.find('.manual-causes-text').val('')
+  $container.find('.manual-causes-group').hide()
+
+# The text field for own causes opens only with the "Самостоятельно заполнено" mark,
+# so hand-written causes never reach the job without the mark on the task
+$(document).on 'change', '.manual-causes-checkbox', ->
+  $group = $(this).closest('.manual-causes').find('.manual-causes-group')
+  if this.checked
+    $group.fadeIn()
+    $group.find('.manual-causes-text').focus()
+  else
+    $group.hide().find('.manual-causes-text').val('')
+  updateClaimedDefectField()
+
+$(document).on 'input', '.manual-causes-text', ->
+  updateClaimedDefectField()
 
 # One-off repair group for this intake: the catalog may map the product to the wrong
 # repair group (causes of other models) or to none (no causes at all)
@@ -711,6 +728,15 @@ collectRepairCauseNames = ->
       names.push(name) if name
   names
 
+# Causes the receiver typed in by hand (the "Самостоятельно заполнено" option)
+collectManualCauses = ->
+  texts = []
+  $('.v2-form-container .manual-causes').each ->
+    return unless $(this).find('.manual-causes-checkbox').is(':checked')
+    text = $.trim($(this).find('.manual-causes-text').val())
+    texts.push(text) if text
+  texts
+
 # Update "Заявленный дефект" field with collected repair cause names
 updateClaimedDefectField = ->
   return unless $('.v2-form-container').length > 0
@@ -718,7 +744,7 @@ updateClaimedDefectField = ->
   $field = $('#service_job_claimed_defect')
   return unless $field.length > 0
 
-  names = collectRepairCauseNames()
+  names = collectRepairCauseNames().concat(collectManualCauses())
   $field.val(names.join(', '))
   autoResizeField($field)
   highlightField($field)
