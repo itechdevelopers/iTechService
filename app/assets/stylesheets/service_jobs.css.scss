@@ -36,8 +36,8 @@ form.service_job_form{
     }
     width: 625px;
 
-    // Extended row for task-specific behavior (e.g., repair selection)
-    .task-extended-row {
+    // Repair selection inside the task row (new intake form only)
+    .task_repair {
       .task-extended-content {
         padding: 10px 0;
 

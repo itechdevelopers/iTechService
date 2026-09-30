@@ -37,7 +37,7 @@ jQuery ->
       task_code = $(this).data('code')
       task_name = $(this).text().trim()
       $row = $(this).parents('.device_task')
-      $extendedRow = $row.next('.task-extended-row')
+      $extended = $row.find('.task-extended-content')
       task_cost = $row.find('.device_task_cost')
       is_change_location = $row.is(':first-child')
       item_id = $('#service_job_item_id').val()
@@ -62,9 +62,9 @@ jQuery ->
 
         # Show extended block for "Ремонт" task
         if task_code == 'repair' || task_name == 'Ремонт'
-          showRepairSelection($extendedRow)
+          showRepairSelection($extended)
         else
-          hideRepairSelection($extendedRow)
+          hideRepairSelection($extended)
 
       $.getJSON "/tasks/#{task_id}/device_validation", {item_id: item_id}, (data)->
         alert(data['message']) if data['message']
@@ -462,8 +462,8 @@ initRepairCauseMultiselect = ($container) ->
   $select.data('multiselect-initialized', true)
 
 # Show repair selection form and load cause groups
-window.showRepairSelection = ($extendedRow) ->
-  $container = $extendedRow.find('.repair-selection-container')
+window.showRepairSelection = ($extended) ->
+  $container = $extended.find('.repair-selection-container')
 
   # Dynamically get item_id from form
   item_id = $('#service_job_item_id').val()
@@ -503,12 +503,12 @@ window.showRepairSelection = ($extendedRow) ->
       # Store groups data for cloning new blocks
       $container.data('repair-groups', groups)
 
-      # Show extended row
-      $extendedRow.fadeIn()
+      # Show repair selection in the task row
+      $extended.fadeIn()
 
-window.hideRepairSelection = ($extendedRow) ->
-  $extendedRow.fadeOut()
-  $container = $extendedRow.find('.repair-selection-container')
+window.hideRepairSelection = ($extended) ->
+  $extended.fadeOut()
+  $container = $extended.find('.repair-selection-container')
   $container.find('.repair-selection-block').each ->
     resetRepairBlock($(this))
 
@@ -782,9 +782,7 @@ updateClientCommentField = ->
 updateDeviceTaskCost = ($block) ->
   return unless $('.v2-form-container').length > 0
 
-  # Find the parent task row (device_task)
-  $extendedRow = $block.closest('.task-extended-row')
-  $taskRow = $extendedRow.prev('.device_task')
+  $taskRow = $block.closest('.device_task')
 
   return unless $taskRow.length > 0
 

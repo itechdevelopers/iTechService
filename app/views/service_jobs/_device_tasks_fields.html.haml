@@ -4,16 +4,20 @@
   %thead
     %tr
       %th.task_type= DeviceTask.human_attribute_name :task
-      %th.task_cost= DeviceTask.human_attribute_name :cost
-      %th.task_comment= DeviceTask.human_attribute_name :comment
+      - if intake_v2_task_table?
+        %th.task_repair= t('.repair_cause')
+      - else
+        %th.task_cost= DeviceTask.human_attribute_name :cost
+        %th.task_comment= DeviceTask.human_attribute_name :comment
       %th.task_actions
   %tbody
     = f.simple_fields_for :device_tasks do |ff|
       = render 'device_task_fields', f: ff
-  %tfoot
-    %tr
-      %td= t 'total'
-      %td.align_right= @service_job.tasks_cost
-      %td
-      %td
+  - unless intake_v2_task_table?
+    %tfoot
+      %tr
+        %td= t 'total'
+        %td.align_right= @service_job.tasks_cost
+        %td
+        %td
 = link_to_add_fields t('service_jobs.add_task'), '#device_tasks tbody', f, :device_tasks

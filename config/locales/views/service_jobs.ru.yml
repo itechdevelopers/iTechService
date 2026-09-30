@@ -110,6 +110,9 @@ ru:
       pending: 'Не готово'
       important: 'Важно'
 
+    device_tasks_fields:
+      repair_cause: 'Причина ремонта'
+
     tasks:
       device_model_not_found: 'Для задачи "%{task_name}" модель %{device_name} не найдена!'
       valid_device_model: 'Для задачи "%{task_name}" модель "%{device_name}" должна быть "%{model_name}"!'

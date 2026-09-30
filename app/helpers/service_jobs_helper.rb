@@ -253,6 +253,12 @@ module ServiceJobsHelper
     }
   end
 
+  # Таблица задач новой приёмки рисуется иначе, чем в старой. По action_name, а не по
+  # пути: после ошибки валидации форма перерисовывается уже на create_v2.
+  def intake_v2_task_table?
+    @service_job&.new_record? && action_name.to_s.include?('v2')
+  end
+
   # Опции для f.input: чипы встают на место подсказки, то есть внутрь .controls
   # сразу под полем и ровно по его левому краю. tabindex -1 — чтобы Tab шёл
   # от поля к полю, а не по каждому чипу.

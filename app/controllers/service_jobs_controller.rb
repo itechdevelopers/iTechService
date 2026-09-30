@@ -202,6 +202,7 @@ class ServiceJobsController < ApplicationController
   def create_v2
     @service_job = authorize ServiceJob.new(service_job_params), :create_v2?
     @service_job.initial_department = current_user.department
+    fill_blank_task_costs(@service_job)
 
     if (existing = recent_duplicate_of(@service_job))
       return respond_with_duplicate(existing)
@@ -890,6 +891,15 @@ class ServiceJobsController < ApplicationController
     respond_to do |format|
       format.html { redirect_to existing, alert: t('service_jobs.duplicate_prevented') }
       format.json { render json: existing, status: :ok, location: existing }
+    end
+  end
+
+  # В новой приёмке поля стоимости нет — её подставляет JS. Если у задачи нет цены
+  # или форму отправили раньше, чем вернулся ответ с ценой, стоимость пустая, и
+  # обязательная валидация DeviceTask упала бы на поле, которого приёмщик не видит.
+  def fill_blank_task_costs(service_job)
+    service_job.device_tasks.each do |device_task|
+      device_task.cost = device_task.task&.cost || 0 if device_task.cost.blank?
     end
   end
 
