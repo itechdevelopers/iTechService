@@ -4,6 +4,16 @@
     Выбор ремонта
     %button.btn.btn-mini.btn-success.add-repair-block-btn{type: 'button', style: 'margin-left: 10px;'}
       %i.icon-plus.icon-white
+    %button.btn.btn-mini.choose-repair-group-btn{type: 'button', style: 'margin-left: 6px;'} Выбрать вид ремонта
+
+  -# Разово для этой приёмки, справочник не меняется: когда вид ремонта у продукта
+  -# задан неверно или не задан, причины подтягиваются от выбранного здесь.
+  .control-group.repair-group-select-group{style: 'display:none;'}
+    %label Вид ремонта для этого устройства
+    = select_tag nil,
+      options_for_select(intake_repair_group_options),
+      class: 'repair-group-select form-control',
+      prompt: 'Как в справочнике'
 
   .repair-selection-blocks
     .repair-selection-block.well.well-small

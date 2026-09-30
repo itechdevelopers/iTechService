@@ -382,6 +382,7 @@ getRepairContainerData = ($block) ->
     product_id: $container.data('product-id')
     department_id: $container.data('department-id')
     field_name: $container.data('field-name')
+    repair_group_id: $container.data('chosen-repair-group-id')
   }
 
 # Load services for multiple selected causes (must be defined before initRepairCauseMultiselect)
@@ -397,7 +398,7 @@ loadServicesForSelectedCauses = ($block) ->
 
   if cause_ids.length > 0
     $.getJSON "/repair_causes/repair_services_for_causes",
-      { cause_ids: cause_ids, product_id: product_id, department_id: department_id },
+      { cause_ids: cause_ids, product_id: product_id, department_id: department_id, repair_group_id: data.repair_group_id },
       (services) ->
         $radioList = $block.find('.repair-service-radio-list')
         $radioList.empty()
@@ -485,32 +486,61 @@ window.showRepairSelection = ($extended) ->
     $container.data('product-id', product_id)
     $container.data('department-id', department_id)
 
-    # Load repair cause groups for product (for the first block)
-    $.getJSON "/repair_causes/for_product/#{product_id}", (groups) ->
-      $container.find('.repair-selection-block').each ->
-        $block = $(this)
-        $select = $block.find('.repair-cause-group-select')
-        $select.html('<option value="">Выберите категорию</option>')
-
-        $.each groups, (i, group) ->
-          $select.append("<option value='#{group.id}'>#{group.title}</option>")
-
-        # Reset dependent fields
-        resetRepairCauseSelection($block)
-        resetRepairServiceSelection($block)
-        hideRepairInfo($block)
-
-      # Store groups data for cloning new blocks
-      $container.data('repair-groups', groups)
-
+    loadRepairCauseGroups $container, ->
       # Show repair selection in the task row
       $extended.fadeIn()
+
+# Load cause groups into every block of the container — by the product, or by the
+# repair group the receiver picked once for this intake (see .repair-group-select)
+loadRepairCauseGroups = ($container, done) ->
+  params = {}
+  repairGroupId = $container.data('chosen-repair-group-id')
+  params.repair_group_id = repairGroupId if repairGroupId
+
+  $.getJSON "/repair_causes/for_product/#{$container.data('product-id')}", params, (groups) ->
+    $container.find('.repair-selection-block').each ->
+      $block = $(this)
+      $select = $block.find('.repair-cause-group-select')
+      $select.html('<option value="">Выберите категорию</option>')
+
+      $.each groups, (i, group) ->
+        $select.append("<option value='#{group.id}'>#{group.title}</option>")
+
+      # Reset dependent fields
+      resetRepairCauseSelection($block)
+      resetRepairServiceSelection($block)
+      hideRepairInfo($block)
+
+    # Store groups data for cloning new blocks
+    $container.data('repair-groups', groups)
+    done?()
 
 window.hideRepairSelection = ($extended) ->
   $extended.fadeOut()
   $container = $extended.find('.repair-selection-container')
   $container.find('.repair-selection-block').each ->
     resetRepairBlock($(this))
+  $container.removeData('chosen-repair-group-id')
+  $container.find('.repair-group-select').val('')
+  $container.find('.repair-group-select-group').hide()
+  $container.find('.choose-repair-group-btn').show()
+
+# One-off repair group for this intake: the catalog may map the product to the wrong
+# repair group (causes of other models) or to none (no causes at all)
+$(document).on 'click', '.choose-repair-group-btn', (e) ->
+  e.preventDefault()
+  $container = $(this).closest('.repair-selection-container')
+  $(this).hide()
+  $container.find('.repair-group-select-group').fadeIn()
+
+$(document).on 'change', '.repair-group-select', ->
+  $container = $(this).closest('.repair-selection-container')
+  $container.data('chosen-repair-group-id', $(this).val() || null)
+  loadRepairCauseGroups $container, ->
+    # Causes and services picked for the previous repair group are gone — rebuild the fields
+    updateClaimedDefectField()
+    updateTypeOfWorkField()
+    updateEstimatedCostField()
 
 # Step 1: When cause GROUP selected → load causes into multiselect
 $(document).on 'change', '.repair-cause-group-select', ->
@@ -526,7 +556,7 @@ $(document).on 'change', '.repair-cause-group-select', ->
   hideRepairInfo($block)
 
   if group_id
-    $.getJSON "/repair_causes/for_group/#{group_id}", {product_id: product_id}, (causes) ->
+    $.getJSON "/repair_causes/for_group/#{group_id}", {product_id: product_id, repair_group_id: data.repair_group_id}, (causes) ->
       $causeSelect = $block.find('.repair-cause-select')
       $causeSelect.html('')
 

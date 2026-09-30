@@ -253,6 +253,14 @@ module ServiceJobsHelper
     }
   end
 
+  # Дерево видов ремонта для разового выбора в приёмке; отступ показывает вложенность.
+  # Блок выбора ремонта рисуется в каждой строке задачи — список строим один раз на запрос.
+  def intake_repair_group_options
+    @intake_repair_group_options ||=
+      RepairGroup.sort_by_ancestry(RepairGroup.not_archived.order(:name))
+                 .map { |group| ["#{'— ' * group.depth}#{group.name}", group.id] }
+  end
+
   # Таблица задач новой приёмки рисуется иначе, чем в старой. По action_name, а не по
   # пути: после ошибки валидации форма перерисовывается уже на create_v2.
   def intake_v2_task_table?
