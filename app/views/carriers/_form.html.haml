@@ -1,5 +1,20 @@
-= simple_form_for @carrier, html: {class: 'form-horizontal'} do |f|
+= simple_form_for @carrier, html: {class: 'form-horizontal', multipart: true} do |f|
   = f.input :name
+
+  .control-group
+    = f.label :logo, class: 'control-label'
+    .controls
+      - if @carrier.logo?
+        = image_tag @carrier.logo.small.url, alt: '', class: 'carriers-form__logo-preview'
+      = f.file_field :logo, accept: 'image/png,image/jpeg,image/gif'
+      = f.error :logo, class: 'help-inline'
+      %p.help-block= t('.logo_hint')
+      -# logo_cache сохраняет уже загруженный файл, если форма вернулась с ошибкой.
+      = f.hidden_field :logo_cache
+      - if @carrier.logo? && @carrier.persisted?
+        %label.checkbox
+          = f.check_box :remove_logo
+          = Carrier.human_attribute_name(:remove_logo)
 
   .form-actions
     = submit_button f

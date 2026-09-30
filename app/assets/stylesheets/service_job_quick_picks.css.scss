@@ -1,0 +1,40 @@
+// Чипы быстрого выбора под полями новой приёмки (ServiceJobsHelper#service_job_quick_picks).
+// Контейнер рендерится как .help-block, которому Bootstrap правилом
+// `.form-horizontal input + .help-block` даёт отступ 10px сверху — из-за него подсказка
+// визуально «отрывается» от своего поля. Селектор ниже специфичнее и прижимает чипы к полю.
+.form-horizontal .controls .sj-quick-picks {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px 5px;
+  max-width: 300px;
+  margin: 4px 0 0;
+}
+
+.sj-quick-picks__chip {
+  margin: 0;
+  padding: 1px 9px;
+  font-size: 12px;
+  line-height: 18px;
+  color: #005580;
+  white-space: nowrap;
+  background: #f2f7fb;
+  border: 1px solid #c5d9e8;
+  border-radius: 10px;
+  cursor: pointer;
+
+  &:hover {
+    background: #e1edf6;
+    border-color: #8fb4d0;
+  }
+
+  &:focus {
+    outline: none;
+  }
+}
+
+.sj-quick-picks__chip--active,
+.sj-quick-picks__chip--active:hover {
+  color: #fff;
+  background: #0088cc;
+  border-color: #0077b3;
+}

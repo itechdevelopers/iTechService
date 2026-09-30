@@ -2,6 +2,13 @@
 module ServiceJobsHelper
   TG_URL = 'https://t.me/'
 
+  # Чипы быстрого выбора под полями новой приёмки; клик заменяет значение поля целиком.
+  V2_QUICK_PICKS = {
+    trademark: %w[Apple SMEG JBL Яндекс Xiaomi],
+    device_group: ['iPhone', 'iPad', 'Ноутбук', 'Фен/Стайлер', 'Кухонная техника'],
+    completeness: ['Только аппарат', 'Аппарат и коробка', 'Аппарат, коробка и все комплектующие']
+  }.freeze
+
   # «Ход ремонта»: событие таймлайна → человекочитаемая строка.
   # Для взятия в работу дописываем имя мастера, для паузы — её вид.
   def repair_progress_event_label(event)
@@ -243,6 +250,35 @@ module ServiceJobsHelper
       trigger: 'manual',
       title: t('service_jobs.form.templates'),
       content: templates_list.gsub('"', '').html_safe
+    }
+  end
+
+  # Дерево видов ремонта для разового выбора в приёмке; отступ показывает вложенность.
+  # Блок выбора ремонта рисуется в каждой строке задачи — список строим один раз на запрос.
+  def intake_repair_group_options
+    @intake_repair_group_options ||=
+      RepairGroup.sort_by_ancestry(RepairGroup.not_archived.order(:name))
+                 .map { |group| ["#{'— ' * group.depth}#{group.name}", group.id] }
+  end
+
+  # Таблица задач новой приёмки рисуется иначе, чем в старой. По action_name, а не по
+  # пути: после ошибки валидации форма перерисовывается уже на create_v2.
+  def intake_v2_task_table?
+    @service_job&.new_record? && action_name.to_s.include?('v2')
+  end
+
+  # Опции для f.input: чипы встают на место подсказки, то есть внутрь .controls
+  # сразу под полем и ровно по его левому краю. tabindex -1 — чтобы Tab шёл
+  # от поля к полю, а не по каждому чипу.
+  def service_job_quick_picks(field)
+    chips = V2_QUICK_PICKS.fetch(field).map do |value|
+      button_tag value, type: 'button', name: nil, tabindex: -1, class: 'sj-quick-picks__chip', data: { value: value }
+    end
+
+    {
+      hint: safe_join(chips),
+      hint_tag: :div,
+      hint_html: { class: 'sj-quick-picks', data: { target: "service_job_#{field}" } }
     }
   end
 

@@ -47,13 +47,13 @@ class RepairCausesController < ApplicationController
     respond_to(&:js)
   end
 
-  # GET /repair_causes/for_product/:product_id
+  # GET /repair_causes/for_product/:product_id(?repair_group_id=Z)
   # Возвращает RepairCauseGroup'ы, у которых есть причины, связанные с repair_services данного продукта
+  # (или выбранного вида ремонта — см. repair_service_ids_in_scope)
   def for_product
     authorize ServiceJob, :create?
-    product = Product.find(params[:product_id])
 
-    repair_service_ids = product.repair_service_ids
+    repair_service_ids = repair_service_ids_in_scope
     repair_cause_ids = RepairCause.joins(:repair_services)
                                   .where(repair_services: { id: repair_service_ids })
                                   .distinct.pluck(:id)
@@ -71,12 +71,9 @@ class RepairCausesController < ApplicationController
   def for_group
     authorize ServiceJob, :create?
     group = RepairCauseGroup.find(params[:group_id])
-    product_id = params[:product_id]
+    repair_service_ids = repair_service_ids_in_scope
 
-    if product_id.present?
-      product = Product.find(product_id)
-      repair_service_ids = product.repair_service_ids
-
+    if repair_service_ids
       causes = group.repair_causes
                     .joins(:repair_services)
                     .where(repair_services: { id: repair_service_ids })
@@ -94,7 +91,6 @@ class RepairCausesController < ApplicationController
   def repair_services_for_causes
     authorize ServiceJob, :create?
     cause_ids = params[:cause_ids] || []
-    product_id = params[:product_id]
     department_id = params[:department_id]
 
     return render json: [] if cause_ids.empty?
@@ -103,10 +99,8 @@ class RepairCausesController < ApplicationController
     service_ids = causes.flat_map(&:repair_service_ids).uniq
     services = RepairService.where(id: service_ids).not_archived.includes(:spare_parts)
 
-    if product_id.present?
-      product = Product.find(product_id)
-      services = services.where(id: product.repair_service_ids)
-    end
+    scope_ids = repair_service_ids_in_scope
+    services = services.where(id: scope_ids) if scope_ids
 
     department = Department.find_by(id: department_id)
     store = department&.spare_parts_store
@@ -135,15 +129,12 @@ class RepairCausesController < ApplicationController
   def repair_services
     authorize ServiceJob, :create?
     cause = RepairCause.find(params[:id])
-    product_id = params[:product_id]
     department_id = params[:department_id]
 
     services = cause.repair_services.not_archived
 
-    if product_id.present?
-      product = Product.find(product_id)
-      services = services.where(id: product.repair_service_ids)
-    end
+    scope_ids = repair_service_ids_in_scope
+    services = services.where(id: scope_ids) if scope_ids
 
     result = services.map do |s|
       price = s.price(Department.find_by(id: department_id))
@@ -161,6 +152,18 @@ class RepairCausesController < ApplicationController
   end
 
   private
+
+  # Ремонты, среди которых подбираются причины и виды ремонта. Если вид ремонта у продукта
+  # в справочнике неверный или не задан, приёмщик разово выбирает свой — тогда берём ремонты
+  # этого вида и его потомков, так же как их получает сам продукт
+  # (Product#sync_repair_services_from_product_group). nil — без ограничения.
+  def repair_service_ids_in_scope
+    if params[:repair_group_id].present?
+      RepairService.where(repair_group_id: RepairGroup.find(params[:repair_group_id]).subtree_ids).pluck(:id)
+    elsif params[:product_id].present?
+      Product.find(params[:product_id]).repair_service_ids
+    end
+  end
 
   def new_rcg_params
     params.require(:repair_cause).permit(:repair_cause_group_name)

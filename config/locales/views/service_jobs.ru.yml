@@ -95,7 +95,7 @@ ru:
 Задачи которые заполняются по принципу: "надо поменять батарею".
 Являются не корректными.'
       icloud_connected: 'Данные iCloud введены'
-      substitution_note: 'Введите в настройки телефона данные iCloud компании iTech. Их вы можете узнать у старших на магазине.'
+      substitution_note: 'Введите в настройки телефона данные iCloud компании Айтек. Их вы можете узнать у старших на магазине.'
       templates: 'Шаблоны'
 
     new:
@@ -109,6 +109,9 @@ ru:
       done: 'Готово'
       pending: 'Не готово'
       important: 'Важно'
+
+    device_tasks_fields:
+      repair_cause: 'Причина ремонта'
 
     tasks:
       device_model_not_found: 'Для задачи "%{task_name}" модель %{device_name} не найдена!'

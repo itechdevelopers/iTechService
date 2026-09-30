@@ -37,7 +37,7 @@ jQuery ->
       task_code = $(this).data('code')
       task_name = $(this).text().trim()
       $row = $(this).parents('.device_task')
-      $extendedRow = $row.next('.task-extended-row')
+      $extended = $row.find('.task-extended-content')
       task_cost = $row.find('.device_task_cost')
       is_change_location = $row.is(':first-child')
       item_id = $('#service_job_item_id').val()
@@ -62,9 +62,9 @@ jQuery ->
 
         # Show extended block for "Ремонт" task
         if task_code == 'repair' || task_name == 'Ремонт'
-          showRepairSelection($extendedRow)
+          showRepairSelection($extended)
         else
-          hideRepairSelection($extendedRow)
+          hideRepairSelection($extended)
 
       $.getJSON "/tasks/#{task_id}/device_validation", {item_id: item_id}, (data)->
         alert(data['message']) if data['message']
@@ -382,6 +382,7 @@ getRepairContainerData = ($block) ->
     product_id: $container.data('product-id')
     department_id: $container.data('department-id')
     field_name: $container.data('field-name')
+    repair_group_id: $container.data('chosen-repair-group-id')
   }
 
 # Load services for multiple selected causes (must be defined before initRepairCauseMultiselect)
@@ -397,7 +398,7 @@ loadServicesForSelectedCauses = ($block) ->
 
   if cause_ids.length > 0
     $.getJSON "/repair_causes/repair_services_for_causes",
-      { cause_ids: cause_ids, product_id: product_id, department_id: department_id },
+      { cause_ids: cause_ids, product_id: product_id, department_id: department_id, repair_group_id: data.repair_group_id },
       (services) ->
         $radioList = $block.find('.repair-service-radio-list')
         $radioList.empty()
@@ -462,8 +463,8 @@ initRepairCauseMultiselect = ($container) ->
   $select.data('multiselect-initialized', true)
 
 # Show repair selection form and load cause groups
-window.showRepairSelection = ($extendedRow) ->
-  $container = $extendedRow.find('.repair-selection-container')
+window.showRepairSelection = ($extended) ->
+  $container = $extended.find('.repair-selection-container')
 
   # Dynamically get item_id from form
   item_id = $('#service_job_item_id').val()
@@ -485,32 +486,80 @@ window.showRepairSelection = ($extendedRow) ->
     $container.data('product-id', product_id)
     $container.data('department-id', department_id)
 
-    # Load repair cause groups for product (for the first block)
-    $.getJSON "/repair_causes/for_product/#{product_id}", (groups) ->
-      $container.find('.repair-selection-block').each ->
-        $block = $(this)
-        $select = $block.find('.repair-cause-group-select')
-        $select.html('<option value="">Выберите категорию</option>')
+    loadRepairCauseGroups $container, ->
+      # Show repair selection in the task row
+      $extended.fadeIn()
 
-        $.each groups, (i, group) ->
-          $select.append("<option value='#{group.id}'>#{group.title}</option>")
+# Load cause groups into every block of the container — by the product, or by the
+# repair group the receiver picked once for this intake (see .repair-group-select)
+loadRepairCauseGroups = ($container, done) ->
+  params = {}
+  repairGroupId = $container.data('chosen-repair-group-id')
+  params.repair_group_id = repairGroupId if repairGroupId
 
-        # Reset dependent fields
-        resetRepairCauseSelection($block)
-        resetRepairServiceSelection($block)
-        hideRepairInfo($block)
+  $.getJSON "/repair_causes/for_product/#{$container.data('product-id')}", params, (groups) ->
+    $container.find('.repair-selection-block').each ->
+      $block = $(this)
+      $select = $block.find('.repair-cause-group-select')
+      $select.html('<option value="">Выберите категорию</option>')
 
-      # Store groups data for cloning new blocks
-      $container.data('repair-groups', groups)
+      $.each groups, (i, group) ->
+        $select.append("<option value='#{group.id}'>#{group.title}</option>")
 
-      # Show extended row
-      $extendedRow.fadeIn()
+      # Reset dependent fields
+      resetRepairCauseSelection($block)
+      resetRepairServiceSelection($block)
+      hideRepairInfo($block)
 
-window.hideRepairSelection = ($extendedRow) ->
-  $extendedRow.fadeOut()
-  $container = $extendedRow.find('.repair-selection-container')
+    # Store groups data for cloning new blocks
+    $container.data('repair-groups', groups)
+    done?()
+
+window.hideRepairSelection = ($extended) ->
+  $extended.fadeOut()
+  $container = $extended.find('.repair-selection-container')
   $container.find('.repair-selection-block').each ->
     resetRepairBlock($(this))
+  $container.removeData('chosen-repair-group-id')
+  $container.find('.repair-group-select').val('')
+  $container.find('.chosen-repair-group-input').val('')
+  $container.find('.repair-group-select-group').hide()
+  $container.find('.choose-repair-group-btn').show()
+  $container.find('.manual-causes-checkbox').prop('checked', false)
+  $container.find('.manual-causes-text').val('')
+  $container.find('.manual-causes-group').hide()
+
+# The text field for own causes opens only with the "Самостоятельно заполнено" mark,
+# so hand-written causes never reach the job without the mark on the task
+$(document).on 'change', '.manual-causes-checkbox', ->
+  $group = $(this).closest('.manual-causes').find('.manual-causes-group')
+  if this.checked
+    $group.fadeIn()
+    $group.find('.manual-causes-text').focus()
+  else
+    $group.hide().find('.manual-causes-text').val('')
+  updateClaimedDefectField()
+
+$(document).on 'input', '.manual-causes-text', ->
+  updateClaimedDefectField()
+
+# One-off repair group for this intake: the catalog may map the product to the wrong
+# repair group (causes of other models) or to none (no causes at all)
+$(document).on 'click', '.choose-repair-group-btn', (e) ->
+  e.preventDefault()
+  $container = $(this).closest('.repair-selection-container')
+  $(this).hide()
+  $container.find('.repair-group-select-group').fadeIn()
+
+$(document).on 'change', '.repair-group-select', ->
+  $container = $(this).closest('.repair-selection-container')
+  $container.data('chosen-repair-group-id', $(this).val() || null)
+  $container.find('.chosen-repair-group-input').val($(this).val())
+  loadRepairCauseGroups $container, ->
+    # Causes and services picked for the previous repair group are gone — rebuild the fields
+    updateClaimedDefectField()
+    updateTypeOfWorkField()
+    updateEstimatedCostField()
 
 # Step 1: When cause GROUP selected → load causes into multiselect
 $(document).on 'change', '.repair-cause-group-select', ->
@@ -526,7 +575,7 @@ $(document).on 'change', '.repair-cause-group-select', ->
   hideRepairInfo($block)
 
   if group_id
-    $.getJSON "/repair_causes/for_group/#{group_id}", {product_id: product_id}, (causes) ->
+    $.getJSON "/repair_causes/for_group/#{group_id}", {product_id: product_id, repair_group_id: data.repair_group_id}, (causes) ->
       $causeSelect = $block.find('.repair-cause-select')
       $causeSelect.html('')
 
@@ -681,6 +730,15 @@ collectRepairCauseNames = ->
       names.push(name) if name
   names
 
+# Causes the receiver typed in by hand (the "Самостоятельно заполнено" option)
+collectManualCauses = ->
+  texts = []
+  $('.v2-form-container .manual-causes').each ->
+    return unless $(this).find('.manual-causes-checkbox').is(':checked')
+    text = $.trim($(this).find('.manual-causes-text').val())
+    texts.push(text) if text
+  texts
+
 # Update "Заявленный дефект" field with collected repair cause names
 updateClaimedDefectField = ->
   return unless $('.v2-form-container').length > 0
@@ -688,7 +746,7 @@ updateClaimedDefectField = ->
   $field = $('#service_job_claimed_defect')
   return unless $field.length > 0
 
-  names = collectRepairCauseNames()
+  names = collectRepairCauseNames().concat(collectManualCauses())
   $field.val(names.join(', '))
   autoResizeField($field)
   highlightField($field)
@@ -782,9 +840,7 @@ updateClientCommentField = ->
 updateDeviceTaskCost = ($block) ->
   return unless $('.v2-form-container').length > 0
 
-  # Find the parent task row (device_task)
-  $extendedRow = $block.closest('.task-extended-row')
-  $taskRow = $extendedRow.prev('.device_task')
+  $taskRow = $block.closest('.device_task')
 
   return unless $taskRow.length > 0
 
@@ -883,3 +939,22 @@ $(document).on 'click', '.preview-work-order-btn', (e) ->
   document.body.appendChild(previewForm)
   previewForm.submit()
   document.body.removeChild(previewForm)
+
+# ========== Quick picks under new intake fields ==========
+
+# Подсвечиваем чип, совпадающий со значением поля, — в том числе вписанным руками
+# или подставленным из продуктовой группы при выборе устройства.
+refreshQuickPicks = ($group) ->
+  value = $.trim($("##{$group.data('target')}").val()).toLowerCase()
+  $group.find('.sj-quick-picks__chip').each ->
+    $(this).toggleClass 'sj-quick-picks__chip--active', $(this).attr('data-value').toLowerCase() == value
+
+$(document).on 'click', '.sj-quick-picks__chip', ->
+  $chip = $(this)
+  $("##{$chip.closest('.sj-quick-picks').data('target')}").val($chip.attr('data-value')).trigger('change')
+
+$(document).on 'input change', '.v2-form-container input, .v2-form-container textarea', ->
+  $group = $(".sj-quick-picks[data-target='#{this.id}']")
+  refreshQuickPicks($group) if $group.length
+
+$ -> $('.sj-quick-picks').each -> refreshQuickPicks($(this))

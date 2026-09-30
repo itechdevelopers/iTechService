@@ -202,6 +202,8 @@ class ServiceJobsController < ApplicationController
   def create_v2
     @service_job = authorize ServiceJob.new(service_job_params), :create_v2?
     @service_job.initial_department = current_user.department
+    @service_job.created_without_return_at = true
+    fill_blank_task_costs(@service_job)
 
     if (existing = recent_duplicate_of(@service_job))
       return respond_with_duplicate(existing)
@@ -211,6 +213,7 @@ class ServiceJobsController < ApplicationController
       if @service_job.save
         create_phone_substitution if @service_job.phone_substituted?
         Service::Feedback::Create.call(service_job: @service_job)
+        RepairCatalogBypassNotifier.call(service_job: @service_job, user: current_user)
 
         processor = CheckListResponsesProcessor.new(@service_job, 'service_job')
         processor.process(params, strategy: :create)
@@ -893,6 +896,15 @@ class ServiceJobsController < ApplicationController
     end
   end
 
+  # В новой приёмке поля стоимости нет — её подставляет JS. Если у задачи нет цены
+  # или форму отправили раньше, чем вернулся ответ с ценой, стоимость пустая, и
+  # обязательная валидация DeviceTask упала бы на поле, которого приёмщик не видит.
+  def fill_blank_task_costs(service_job)
+    service_job.device_tasks.each do |device_task|
+      device_task.cost = device_task.task&.cost || 0 if device_task.cost.blank?
+    end
+  end
+
   def service_job_params
     params.require(:service_job).permit(
       :app_store_pass, :carrier_id, :case_color_id, :claimed_defect, :client_address, :client_comment,
@@ -902,7 +914,7 @@ class ServiceJobsController < ApplicationController
       :replaced, :return_at, :sale_id, :security_code, :serial_number, :status, :tech_notice,
       :ticket_number, :trademark, :type_of_work, :user_id, :substitute_phone_id, :substitute_phone_icloud_connected,
       data_storages: [],
-      device_tasks_attributes: [:id, :_destroy, :task_id, :cost, :comment, :user_comment, :performer_id, :expected_repair_cause_id, :expected_repair_service_id, expected_repair_cause_ids: [], expected_repair_service_ids: []],
+      device_tasks_attributes: [:id, :_destroy, :task_id, :cost, :comment, :user_comment, :performer_id, :expected_repair_cause_id, :expected_repair_service_id, :repair_causes_filled_manually, :chosen_repair_group_id, expected_repair_cause_ids: [], expected_repair_service_ids: []],
       check_list_responses_attributes: [:id, :check_list_id, responses: {}, comments: {}]
     )
   end

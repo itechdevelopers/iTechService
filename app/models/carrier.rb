@@ -3,4 +3,6 @@
 class Carrier < ApplicationRecord
   default_scope { order('name asc') }
   validates_presence_of :name
+
+  mount_uploader :logo, CarrierLogoUploader
 end

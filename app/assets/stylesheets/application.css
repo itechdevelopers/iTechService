@@ -100,4 +100,6 @@
  *= require client_conversations
  *= require notification_settings
  *= require legal_entities
+ *= require service_job_quick_picks
+ *= require carriers
  */

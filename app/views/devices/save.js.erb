@@ -7,6 +7,7 @@ $input.find('.edit_item_btn').attr('href', "<%= edit_device_path(@device) %>").a
 $input.find('.show_item_btn').attr('href', "<%= device_path(@device) %>").attr('data-remote', true);
 
 $('#service_job_app_store_pass').val("<%= device.app_store_pass %>");
+App.Inputs.Device.fillProductGroupFields("<%= j device.product_group&.trademark %>", "<%= j device.product_group&.product_line %>");
 
 $imei_inputs = $('.imei_input, .tray_input, .carrier_input');
 <% if device.has_imei? %>

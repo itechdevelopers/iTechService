@@ -57,6 +57,7 @@
         wrapper_html: {class: "tray_input#{' hidden' unless @service_job.has_imei?}"}
 
       = f.association :carrier, as: :radio_buttons, collection: Carrier.all, required: true,
+        label_method: ->(carrier) { carrier_label(carrier) },
         wrapper_html: {class: "carrier_input#{' hidden' unless @service_job.has_imei?}"}
 
       = f.association :case_color, as: :dropdown, collection: CaseColor.ordered_by_name, label_method: lambda{|c|case_color_presentation(c)}

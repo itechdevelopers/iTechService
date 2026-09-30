@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20260930064854) do
+ActiveRecord::Schema.define(version: 20260930180242) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -222,6 +222,7 @@ ActiveRecord::Schema.define(version: 20260930064854) do
     t.string "name", limit: 255, null: false
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.string "logo"
   end
 
   create_table "case_colors", id: :serial, force: :cascade do |t|
@@ -597,6 +598,7 @@ ActiveRecord::Schema.define(version: 20260930064854) do
     t.bigint "expected_repair_cause_id"
     t.bigint "expected_repair_service_id"
     t.bigint "creator_id"
+    t.boolean "repair_causes_filled_manually", default: false, null: false
     t.index ["creator_id"], name: "index_device_tasks_on_creator_id"
     t.index ["done"], name: "index_device_tasks_on_done"
     t.index ["done_at"], name: "index_device_tasks_on_done_at"
