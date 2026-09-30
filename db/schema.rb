@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20260929120000) do
+ActiveRecord::Schema.define(version: 20260930064854) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -211,6 +211,7 @@ ActiveRecord::Schema.define(version: 20260929120000) do
     t.datetime "updated_at", null: false
     t.string "sentiment", default: [], array: true
     t.string "called_number"
+    t.text "summary"
     t.index ["call_date"], name: "index_call_transcriptions_on_call_date"
     t.index ["call_unique_id"], name: "index_call_transcriptions_on_call_unique_id", unique: true
     t.index ["caller_number"], name: "index_call_transcriptions_on_caller_number"
