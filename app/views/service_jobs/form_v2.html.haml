@@ -60,7 +60,7 @@
           wrapper_html: {class: "tray_input#{' hidden' unless @service_job.has_imei?}"}
 
         = f.association :carrier, as: :dropdown, collection: Carrier.all, required: true,
-          label_method: ->(item) { item&.name || '-' },
+          label_method: ->(item) { carrier_label(item) },
           wrapper_html: {class: "carrier_input#{' hidden' unless @service_job.has_imei?}"}
 
         - if can?(:update, @service_job) || current_user.able_to_move_transfers?

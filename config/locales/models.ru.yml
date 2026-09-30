@@ -124,6 +124,11 @@ ru:
         user: 'Кто сломал'
         user_id: 'Кто сломал'
 
+      carrier:
+        name: 'Название'
+        logo: 'Логотип'
+        remove_logo: 'Удалить логотип'
+
       cash_operation:
         value: 'Сумма'
 

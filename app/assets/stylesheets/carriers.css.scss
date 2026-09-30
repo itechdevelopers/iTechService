@@ -1,0 +1,29 @@
+// Логотип оператора рядом с названием (CarriersHelper#carrier_label):
+// выпадающий список новой приёмки, радиокнопки старой, список в параметрах.
+// vertical-align: top — при middle inline-flex раздувает строку, и кнопка выбора
+// оператора становится на 1px выше соседних дропдаунов формы.
+.carrier-label {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  vertical-align: top;
+}
+
+.carrier-label__logo-slot {
+  display: inline-flex;
+  flex: none;
+  align-items: center;
+  justify-content: center;
+  width: 48px;
+  height: 18px;
+}
+
+.carrier-label__logo {
+  max-width: 48px;
+  max-height: 18px;
+}
+
+.carriers-form__logo-preview {
+  display: block;
+  margin-bottom: 8px;
+}

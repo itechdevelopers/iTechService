@@ -63,6 +63,6 @@ class CarriersController < ApplicationController
   end
 
   def carrier_params
-    params.require(:carrier).permit(:name)
+    params.require(:carrier).permit(:name, :logo, :logo_cache, :remove_logo)
   end
 end

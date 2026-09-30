@@ -4,6 +4,7 @@
   %thead
     %tr
       %th= Carrier.human_attribute_name :id
+      %th= Carrier.human_attribute_name :logo
       %th= Carrier.human_attribute_name :name
       %th
 
@@ -11,6 +12,9 @@
     - @carriers.each do |carrier|
       %tr
         %td= carrier.id
+        %td
+          - if carrier.logo?
+            = image_tag carrier.logo.small.url, alt: ''
         %td= carrier.name
         %td.btn-group
           = link_to_edit_small carrier
