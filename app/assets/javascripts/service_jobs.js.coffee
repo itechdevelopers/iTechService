@@ -385,7 +385,7 @@ getRepairContainerData = ($block) ->
     repair_group_id: $container.data('chosen-repair-group-id')
   }
 
-# Load services for multiple selected causes (must be defined before initRepairCauseMultiselect)
+# Load services for multiple selected causes (must be defined before the cause checkboxes handler)
 loadServicesForSelectedCauses = ($block) ->
   $select = $block.find('.repair-cause-select')
   cause_ids = $select.val() || []
@@ -435,32 +435,24 @@ loadServicesForSelectedCauses = ($block) ->
 
         $block.find('.repair-service-select-group').fadeIn()
 
-# Initialize multiselect for repair causes (Вариант A — простой стиль)
-initRepairCauseMultiselect = ($container) ->
-  $select = $container.find('.repair-cause-select')
-  return if $select.data('multiselect-initialized')
+# Causes as an inline checkbox list. A dropdown covered the repair services that load right
+# under it and had no obvious way to close. The hidden <select multiple> stays the source of
+# truth (form submit, collectRepairCauseNames); the checkboxes only drive it.
+renderRepairCauseCheckboxes = ($block) ->
+  $list = $block.find('.repair-cause-checkboxes').empty()
+  $block.find('.repair-cause-select option').each ->
+    $checkbox = $('<input type="checkbox">').val(this.value).prop('checked', this.selected)
+    $('<label class="checkbox repair-cause-checkbox"></label>')
+      .append($checkbox)
+      .append(document.createTextNode(' ' + $(this).text()))
+      .appendTo($list)
 
-  # Save container reference for callbacks
-  container = $container
-
-  $select.multiselect
-    enableClickableOptGroups: true
-    nonSelectedText: 'Выберите причины'
-    nSelectedText: ' выбрано'
-    allSelectedText: 'Все выбраны'
-    includeSelectAllOption: true
-    selectAllText: 'Выбрать все'
-    maxHeight: 300
-    onInitialized: ->
-      $select.closest('.repair-cause-select-group').find('.multiselect-group, .multiselect-option, .multiselect-all').each ->
-        $(this).attr('type', 'button')
-    onChange: (option, checked) ->
-      # Load services when selection changes
-      loadServicesForSelectedCauses(container)
-      # Update "Заявленный дефект" field with selected cause names
-      updateClaimedDefectField()
-
-  $select.data('multiselect-initialized', true)
+$(document).on 'change', '.repair-cause-checkboxes input[type="checkbox"]', ->
+  $block = $(this).closest('.repair-selection-block')
+  value = this.value
+  $block.find('.repair-cause-select option').filter(-> this.value == value).prop('selected', this.checked)
+  loadServicesForSelectedCauses($block)
+  updateClaimedDefectField()
 
 # Show repair selection form and load cause groups
 window.showRepairSelection = ($extended) ->
@@ -561,7 +553,7 @@ $(document).on 'change', '.repair-group-select', ->
     updateTypeOfWorkField()
     updateEstimatedCostField()
 
-# Step 1: When cause GROUP selected → load causes into multiselect
+# Step 1: When cause GROUP selected → load causes into the checkbox list
 $(document).on 'change', '.repair-cause-group-select', ->
   $select = $(this)
   group_id = $select.val()
@@ -582,11 +574,7 @@ $(document).on 'change', '.repair-cause-group-select', ->
       $.each causes, (i, cause) ->
         $causeSelect.append("<option value='#{cause.id}'>#{cause.title}</option>")
 
-      # Initialize or rebuild multiselect with new options
-      if $causeSelect.data('multiselect-initialized')
-        $causeSelect.multiselect('rebuild')
-      else
-        initRepairCauseMultiselect($block)
+      renderRepairCauseCheckboxes($block)
 
       $block.find('.repair-cause-select-group').fadeIn()
 
@@ -648,12 +636,10 @@ displayRepairInfo = ($container, data) ->
 
   $info.fadeIn()
 
-# Reset cause selection (step 2) - with multiselect support
+# Reset cause selection (step 2)
 resetRepairCauseSelection = ($container) ->
-  $causeSelect = $container.find('.repair-cause-select')
-  $causeSelect.html('')
-  if $causeSelect.data('multiselect-initialized')
-    $causeSelect.multiselect('rebuild')
+  $container.find('.repair-cause-select').html('')
+  $container.find('.repair-cause-checkboxes').empty()
   $container.find('.repair-cause-select-group').hide()
 
 # Reset service selection (step 3) - now uses radio buttons
@@ -863,12 +849,8 @@ resetRepairBlock = ($block) ->
   # Reset group select
   $block.find('.repair-cause-group-select').val('')
 
-  # Destroy multiselect if exists
-  $causeSelect = $block.find('.repair-cause-select')
-  if $causeSelect.data('multiselect-initialized')
-    $causeSelect.multiselect('destroy')
-    $causeSelect.removeData('multiselect-initialized')
-  $causeSelect.html('')
+  $block.find('.repair-cause-select').html('')
+  $block.find('.repair-cause-checkboxes').empty()
 
   # Hide and reset dependent fields
   $block.find('.repair-cause-select-group').hide()
@@ -896,9 +878,6 @@ $(document).on 'click', '.add-repair-block-btn', (e) ->
   if groups
     $.each groups, (i, group) ->
       $groupSelect.append("<option value='#{group.id}'>#{group.title}</option>")
-
-  # Remove any cloned multiselect UI elements
-  $newBlock.find('.btn-group').remove()
 
   # Append new block
   $blocks.append($newBlock)

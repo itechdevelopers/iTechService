@@ -83,9 +83,17 @@ form.service_job_form{
             max-width: 400px;
           }
 
-          // Hide native multi-select, Bootstrap Multiselect creates its own button
+          // Native multi-select stays hidden: the checkbox list below drives it
           select.repair-cause-select {
             display: none;
+          }
+
+          // Причины видны списком сразу — обычным шрифтом, иначе 6–10 жирных строк
+          // сливаются; длинные названия переносятся внутри узкой ячейки.
+          label.repair-cause-checkbox {
+            font-weight: normal;
+            margin-bottom: 4px;
+            overflow-wrap: break-word;
           }
         }
 
@@ -565,6 +573,17 @@ form.service_job_form{
     .highlight-autofill-fade {
       background-color: #fff !important;
       transition: background-color 1s ease-out;
+    }
+
+    /* Ячейка «Причина ремонта» узкая, а при автоматической раскладке таблица растёт под
+       самое длинное содержимое (название причины или ремонта) и заезжает на правую колонку
+       формы. Фиксированная раскладка держит ширины колонок, текст переносится внутри. */
+    #device_tasks {
+      table-layout: fixed;
+
+      td {
+        overflow-wrap: break-word;
+      }
     }
 
     /* Зебра в поповере шаблонов: многострочные пункты длинного списка иначе сливаются. */
