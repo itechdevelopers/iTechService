@@ -988,3 +988,24 @@ $(document).on 'input change', '.v2-form-container input, .v2-form-container tex
   refreshQuickPicks($group) if $group.length
 
 $ -> $('.sj-quick-picks').each -> refreshQuickPicks($(this))
+
+# ========== Return time picker (new intake) ==========
+
+# A chip writes its precomputed time into the field; any other value (typed or picked in the
+# calendar) leaves no chip highlighted
+refreshReturnAtChips = ($picker) ->
+  value = $picker.find('.return-at-picker__input').val()
+  $picker.find('.return-at-picker__chip').each ->
+    $(this).toggleClass 'return-at-picker__chip--active', $(this).attr('data-value') == value
+
+$(document).on 'click', '.return-at-picker__chip', ->
+  $picker = $(this).closest('.return-at-picker')
+  $picker.find('.return-at-picker__input').val($(this).attr('data-value'))
+  refreshReturnAtChips($picker)
+
+$(document).on 'input change', '.return-at-picker__input', ->
+  refreshReturnAtChips($(this).closest('.return-at-picker'))
+
+# The calendar sets the value without an input event and reports it on its own container
+$(document).on 'changeDate', '.return-at-picker .datetimepicker', ->
+  refreshReturnAtChips($(this).closest('.return-at-picker'))

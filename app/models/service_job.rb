@@ -107,9 +107,6 @@ class ServiceJob < ApplicationRecord
   # нет, и устройство снова на руках у сервиса.
   attr_accessor :system_archive_return
 
-  # Новая приёмка создаёт работу без времени возврата — см. return_at_required?.
-  attr_accessor :created_without_return_at
-
   delegate :name, :short_name, :full_name, :surname, to: :client, prefix: true, allow_nil: true
   delegate :name, to: :department, prefix: true
   delegate :name, to: :location, prefix: true, allow_nil: true
@@ -716,11 +713,11 @@ kind: 'device_return', content: id.to_s)
 
   private
 
-  # При создании время возврата обязательно везде, кроме новой приёмки. У сохранённой
-  # работы проверяем только смену значения: работа из новой приёмки без времени возврата
-  # должна дальше сохраняться (смена локации, статусов), а стереть заданное время нельзя.
+  # При создании время возврата обязательно. У сохранённой работы проверяем только смену
+  # значения: работы, созданные в новой приёмке без времени возврата, пока его там не
+  # было, должны дальше сохраняться (смена локации, статусов), а стереть время нельзя.
   def return_at_required?
-    new_record? ? !created_without_return_at : return_at_changed?
+    new_record? || return_at_changed?
   end
 
   # «Качели статуса»: закрывающая смена `in_progress → waiting` тем же юзером,

@@ -81,6 +81,10 @@
 
         = render @service_job.new_record? ? 'device_tasks_fields' : 'device_tasks', f: f
 
+        -# required явно: у проверки есть условие (ServiceJob#return_at_required?), а simple_form
+        -# условные проверки звёздочкой не помечает
+        = f.input :return_at, as: :return_at_picker, required: true, wrapper_html: {class: 'return-at-picker-group'}
+
       .form-column-right
         #additional-fields
           -# TODO: make input for fields with templates

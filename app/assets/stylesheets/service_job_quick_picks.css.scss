@@ -38,3 +38,54 @@
   background: #0088cc;
   border-color: #0077b3;
 }
+
+// Время возврата в новой приёмке (ReturnAtPickerInput): чипы «через N часов / дней» того же
+// вида, что под полями марки и группы, и ручной выбор даты в конце.
+// Стоит под таблицей задач и выровнено по её левому краю: подпись над чипами, а не в
+// колонке подписей формы (form-horizontal сдвигает поле на 180px).
+.form-horizontal .return-at-picker-group {
+  margin-top: 35px;
+
+  .control-label {
+    float: none;
+    width: auto;
+    padding-top: 0;
+    margin-bottom: 8px;
+    text-align: left;
+    font-weight: bold;
+  }
+
+  .controls {
+    margin-left: 0;
+  }
+}
+
+.return-at-picker__row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px 5px;
+  margin-bottom: 6px;
+}
+
+.return-at-picker__chip {
+  @extend .sj-quick-picks__chip;
+}
+
+.return-at-picker__chip--active {
+  @extend .sj-quick-picks__chip--active;
+}
+
+.return-at-picker__manual {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-top: 2px;
+}
+
+.return-at-picker__manual-label {
+  color: #777;
+}
+
+.return-at-picker input.return-at-picker__input {
+  width: 140px;
+}
