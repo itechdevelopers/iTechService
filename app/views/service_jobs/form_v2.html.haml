@@ -81,13 +81,19 @@
 
         = render @service_job.new_record? ? 'device_tasks_fields' : 'device_tasks', f: f
 
+        -# required явно: у проверки есть условие (ServiceJob#return_at_required?), а simple_form
+        -# условные проверки звёздочкой не помечает
+        = f.input :return_at, as: :return_at_picker, required: true, wrapper_html: {class: 'return-at-picker-group'}
+
       .form-column-right
         #additional-fields
           -# TODO: make input for fields with templates
           = f.input :client_address, label_html: {class: 'important'}, input_html: {class: 'input-xlarge'}
-          = f.input :trademark, label_html: {class: 'important'}, input_html: {class: 'input-xlarge has-templates', data: service_job_template_field_data('trademark', @job_templates)}, **service_job_quick_picks(:trademark)
-          = f.input :device_group, label_html: {class: 'important'}, input_html: {class: 'input-xlarge has-templates', data: service_job_template_field_data('device_group', @job_templates)}, **service_job_quick_picks(:device_group)
-          = f.input :completeness, label_html: {class: 'important'}, input_html: {class: 'input-xlarge has-templates', data: service_job_template_field_data('completeness', @job_templates)}, **service_job_quick_picks(:completeness)
+          -# Только чипы: поповер шаблонов дописывал значение через пробел, а чип заменяет —
+          -# два способа с разным поведением путали. В старой приёмке шаблоны остаются.
+          = f.input :trademark, label_html: {class: 'important'}, input_html: {class: 'input-xlarge'}, **service_job_quick_picks(:trademark)
+          = f.input :device_group, label_html: {class: 'important'}, input_html: {class: 'input-xlarge'}, **service_job_quick_picks(:device_group)
+          = f.input :completeness, label_html: {class: 'important'}, input_html: {class: 'input-xlarge'}, **service_job_quick_picks(:completeness)
           = f.input :claimed_defect, as: :text, label_html: {class: 'important'}, input_html: {class: 'input-xlarge has-templates auto-resize-textarea', rows: 2, data: service_job_template_field_data('claimed_defect', @job_templates)}
           = f.input :device_condition, label_html: {class: 'important'}, input_html: {class: 'input-xlarge has-templates', data: service_job_template_field_data('device_condition', @job_templates)}
           = f.input :client_comment, as: :text, label_html: {class: 'important'}, input_html: {class: 'input-xlarge has-templates auto-resize-textarea', rows: 1, data: service_job_template_field_data('client_comment', @job_templates)}

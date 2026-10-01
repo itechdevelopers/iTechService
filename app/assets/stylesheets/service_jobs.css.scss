@@ -38,6 +38,15 @@ form.service_job_form{
 
     // Repair selection inside the task row (new intake form only)
     .task_repair {
+      .task-comment {
+        margin-top: 10px;
+      }
+
+      .task-comment__label {
+        font-weight: bold;
+        margin-bottom: 5px;
+      }
+
       .task-extended-content {
         padding: 10px 0;
 

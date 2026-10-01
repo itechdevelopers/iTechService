@@ -44,6 +44,12 @@ class DeviceTask < ApplicationRecord
   # (RepairCatalogBypassNotifier).
   attr_accessor :chosen_repair_group_id
 
+  # В новой приёмке ремонт выбирается в каждом блоке причин; один и тот же ремонт из двух
+  # блоков — это один ремонт, а не две строки связи.
+  def expected_repair_service_ids=(ids)
+    super(Array(ids).reject(&:blank?).uniq)
+  end
+
   # attr_accessible :done, :done_at, :comment, :user_comment, :cost, :task, :service_job, :service_job_id, :task_id, :performer_id, :performer, :task, :service_job_attributes, :repair_tasks_attributes
 
   accepts_nested_attributes_for :service_job, reject_if: proc { |attr|

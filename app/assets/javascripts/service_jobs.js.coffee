@@ -48,6 +48,8 @@ jQuery ->
 
       $.getJSON "/tasks/#{task_id}.json", {department_id: department_id}, (data)->
         task_cost.val data.cost
+        # The cost falls back to this when no repair is picked (recalcDeviceTaskCost)
+        $row.data('task-cost', data.cost)
 
         # Save location_code for Find My iPhone check on submit
         $row.attr('data-location-code', data.location_code || '')
@@ -385,6 +387,15 @@ getRepairContainerData = ($block) ->
     repair_group_id: $container.data('chosen-repair-group-id')
   }
 
+# Each block picks its own repair, so its radios need a group of their own. The name sits
+# outside service_job[...]: the pick is submitted through the block's hidden input.
+repairPickSeq = 0
+repairPickGroupName = ($block) ->
+  unless $block.data('pick-group')
+    repairPickSeq += 1
+    $block.data('pick-group', "repair_service_pick[#{repairPickSeq}]")
+  $block.data('pick-group')
+
 # Load services for multiple selected causes (must be defined before the cause checkboxes handler)
 loadServicesForSelectedCauses = ($block) ->
   $select = $block.find('.repair-cause-select')
@@ -403,8 +414,7 @@ loadServicesForSelectedCauses = ($block) ->
         $radioList = $block.find('.repair-service-radio-list')
         $radioList.empty()
 
-        # Get field name from data attribute
-        fieldName = $block.find('.repair-service-select-group').data('field-name')
+        groupName = repairPickGroupName($block)
 
         $.each services, (i, service) ->
           # Build status indicator class
@@ -419,7 +429,7 @@ loadServicesForSelectedCauses = ($block) ->
           $item = $("""
             <label class="repair-service-radio-item">
               <input type="radio"
-                     name="#{fieldName}"
+                     name="#{groupName}"
                      value="#{service.id}"
                      data-price="#{service.price || ''}"
                      data-time="#{service.time_standard || ''}"
@@ -582,6 +592,7 @@ $(document).on 'change', '.repair-cause-group-select', ->
 $(document).on 'change', '.repair-service-radio-item input[type="radio"]', ->
   $radio = $(this)
   $block = $radio.closest('.repair-selection-block')
+  $block.find('.repair-service-selected-input').val($radio.val())
 
   displayRepairInfo($block, {
     price: $radio.data('price')
@@ -596,8 +607,7 @@ $(document).on 'change', '.repair-service-radio-item input[type="radio"]', ->
   updateEstimatedCostField()
   # Update "Ориентировочный срок ремонта / Комментарии / Особые отметки" field (v2 only)
   updateClientCommentField()
-  # Update device task cost in table (v2 only)
-  updateDeviceTaskCost($block)
+  recalcDeviceTaskCost($block.closest('.device_task'))
 
 # Format minutes to hours and minutes
 formatDuration = (minutes) ->
@@ -644,8 +654,16 @@ resetRepairCauseSelection = ($container) ->
 
 # Reset service selection (step 3) - now uses radio buttons
 resetRepairServiceSelection = ($container) ->
+  # Fields filled from a picked repair are rebuilt only when a pick actually goes away:
+  # a reset also runs when the task is chosen, and must not wipe text typed by hand
+  hadPick = $container.find('.repair-service-radio-item input[type="radio"]:checked').length > 0
   $container.find('.repair-service-radio-list').empty()
+  $container.find('.repair-service-selected-input').val('')
   $container.find('.repair-service-select-group').hide()
+  recalcDeviceTaskCost($container.closest('.device_task'))
+  if hadPick
+    updateTypeOfWorkField()
+    updateEstimatedCostField()
 
 # Hide repair info
 hideRepairInfo = ($container) ->
@@ -663,12 +681,21 @@ resetRepairSelection = ($container) ->
 # Collect all selected repair service names from all blocks (now uses radio buttons)
 collectRepairServiceNames = ->
   names = []
+  eachPickedRepair ($radio) ->
+    name = $radio.closest('.repair-service-radio-item').find('.service-name').text().trim()
+    names.push(name) if name
+  names
+
+# Picked repairs across all blocks, each repair once: the same repair picked for two
+# cause blocks is one repair in the type of work, the estimate and the special marks
+eachPickedRepair = (callback) ->
+  seen = {}
   $('.v2-form-container .repair-selection-block').each ->
     $radio = $(this).find('.repair-service-radio-item input[type="radio"]:checked')
-    if $radio.length
-      name = $radio.closest('.repair-service-radio-item').find('.service-name').text().trim()
-      names.push(name) if name
-  names
+    return unless $radio.length
+    return if seen[$radio.val()]
+    seen[$radio.val()] = true
+    callback($radio)
 
 # Auto-resize textarea to fit content
 autoResizeField = ($field) ->
@@ -760,12 +787,9 @@ parsePriceString = (priceStr) ->
 # Collect all prices from selected repair services (now uses radio buttons)
 collectRepairPrices = ->
   prices = []
-  $('.v2-form-container .repair-selection-block').each ->
-    $radio = $(this).find('.repair-service-radio-item input[type="radio"]:checked')
-    if $radio.length
-      priceStr = $radio.data('price')
-      parsed = parsePriceString(priceStr)
-      prices.push(parsed) if parsed
+  eachPickedRepair ($radio) ->
+    parsed = parsePriceString($radio.data('price'))
+    prices.push(parsed) if parsed
   prices
 
 # Sum prices and format result
@@ -799,12 +823,10 @@ updateEstimatedCostField = ->
 # Collect all special marks from selected repair services
 collectSpecialMarks = ->
   marks = []
-  $('.v2-form-container .repair-selection-block').each ->
-    $radio = $(this).find('.repair-service-radio-item input[type="radio"]:checked')
-    if $radio.length
-      specialMarks = $radio.data('special-marks')
-      if specialMarks && String(specialMarks).trim() != ''
-        marks.push(String(specialMarks).trim())
+  eachPickedRepair ($radio) ->
+    specialMarks = $radio.data('special-marks')
+    if specialMarks && String(specialMarks).trim() != ''
+      marks.push(String(specialMarks).trim())
   marks
 
 # Update "Ориентировочный срок ремонта / Комментарии / Особые отметки" field
@@ -822,27 +844,33 @@ updateClientCommentField = ->
 
 # ========== Device Task Cost Update (v2 only) ==========
 
-# Update device task cost in the tasks table when repair service is selected
-updateDeviceTaskCost = ($block) ->
+# Task cost = sum of the repairs picked in its blocks, each repair once (the same repair
+# from two blocks is one repair). With none picked it falls back to the task's own price,
+# remembered when the task was chosen; rows re-rendered after a validation error don't
+# have it, and their cost is left as is.
+recalcDeviceTaskCost = ($taskRow) ->
   return unless $('.v2-form-container').length > 0
-
-  $taskRow = $block.closest('.device_task')
-
   return unless $taskRow.length > 0
 
-  # Get selected radio and its price
-  $radio = $block.find('.repair-service-radio-item input[type="radio"]:checked')
-  return unless $radio.length > 0
+  $costField = $taskRow.find('.device_task_cost')
+  seen = {}
+  total = 0
+  picked = false
+  $taskRow.find('.repair-service-radio-item input[type="radio"]:checked').each ->
+    return if seen[this.value]
+    seen[this.value] = true
+    picked = true
+    total += firstPriceNumber($(this).data('price'))
 
-  priceStr = $radio.data('price')
+  if picked
+    $costField.val(total)
+  else if $taskRow.data('task-cost') isnt undefined
+    $costField.val($taskRow.data('task-cost') ? '')
 
-  # Parse price - extract numeric value from string like "1500 руб." or "1000 - 2000"
-  if priceStr
-    # If it's a range, take the first number
-    numericPrice = String(priceStr).replace(/[^\d\-]/g, ' ').trim().split(/\s+/)[0]
-    if numericPrice
-      $costField = $taskRow.find('.device_task_cost')
-      $costField.val(numericPrice)
+# Price may be "1500", "1500.0" or a range "1000 - 2000"; a range counts by its lower bound
+firstPriceNumber = (priceStr) ->
+  number = parseInt(String(priceStr || '').replace(/[^\d\-]/g, ' ').trim().split(/\s+/)[0], 10)
+  if isNaN(number) then 0 else number
 
 # Reset a single repair block (for cloning)
 resetRepairBlock = ($block) ->
@@ -855,8 +883,11 @@ resetRepairBlock = ($block) ->
   # Hide and reset dependent fields
   $block.find('.repair-cause-select-group').hide()
   $block.find('.repair-service-radio-list').empty()
+  $block.find('.repair-service-selected-input').val('')
   $block.find('.repair-service-select-group').hide()
   $block.find('.repair-info').hide()
+  # A clone is reset before it is attached and has no task row yet — nothing to recalc then
+  recalcDeviceTaskCost($block.closest('.device_task'))
 
 # Add new repair block
 $(document).on 'click', '.add-repair-block-btn', (e) ->
@@ -879,8 +910,28 @@ $(document).on 'click', '.add-repair-block-btn', (e) ->
     $.each groups, (i, group) ->
       $groupSelect.append("<option value='#{group.id}'>#{group.title}</option>")
 
+  # Only added blocks can be removed: the first one is the task's main repair selection
+  $newBlock.prepend('<button type="button" class="close repair-selection-block__remove" title="Убрать блок">&times;</button>')
+
   # Append new block
   $blocks.append($newBlock)
+
+# Remove an added repair block and rebuild the fields assembled from all blocks
+$(document).on 'click', '.repair-selection-block__remove', (e) ->
+  e.preventDefault()
+  $taskRow = $(this).closest('.device_task')
+  $block = $(this).closest('.repair-selection-block')
+  # An empty block leaves the fields alone, so text typed by hand there survives
+  hadCauses = $block.find('.repair-cause-select option:selected').length > 0
+  hadPick = $block.find('.repair-service-radio-item input[type="radio"]:checked').length > 0
+  $block.remove()
+
+  updateClaimedDefectField() if hadCauses
+  if hadPick
+    updateTypeOfWorkField()
+    updateEstimatedCostField()
+    updateClientCommentField()
+  recalcDeviceTaskCost($taskRow)
 
 # ========== Preview Work Order PDF ==========
 
@@ -937,3 +988,24 @@ $(document).on 'input change', '.v2-form-container input, .v2-form-container tex
   refreshQuickPicks($group) if $group.length
 
 $ -> $('.sj-quick-picks').each -> refreshQuickPicks($(this))
+
+# ========== Return time picker (new intake) ==========
+
+# A chip writes its precomputed time into the field; any other value (typed or picked in the
+# calendar) leaves no chip highlighted
+refreshReturnAtChips = ($picker) ->
+  value = $picker.find('.return-at-picker__input').val()
+  $picker.find('.return-at-picker__chip').each ->
+    $(this).toggleClass 'return-at-picker__chip--active', $(this).attr('data-value') == value
+
+$(document).on 'click', '.return-at-picker__chip', ->
+  $picker = $(this).closest('.return-at-picker')
+  $picker.find('.return-at-picker__input').val($(this).attr('data-value'))
+  refreshReturnAtChips($picker)
+
+$(document).on 'input change', '.return-at-picker__input', ->
+  refreshReturnAtChips($(this).closest('.return-at-picker'))
+
+# The calendar sets the value without an input event and reports it on its own container
+$(document).on 'changeDate', '.return-at-picker .datetimepicker', ->
+  refreshReturnAtChips($(this).closest('.return-at-picker'))

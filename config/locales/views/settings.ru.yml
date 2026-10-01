@@ -41,6 +41,7 @@ ru:
     request_review_time_out: Таймаут отправки смс запроса оценки работы сотрудника, мин
     warranty_overstay_thresholds: 'Пороги уведомлений о долго лежащих устройствах, купленных у нас (дни, массив)'
     find_my_device_check_enabled: 'Проверка «Найти iPhone» при приёмке'
+    new_intake_enabled: 'Новая приёмка: ссылка в меню рядом со старой'
     transcription_silence_threshold_hours: 'Порог тишины транскрибированных диалогов (часы)'
     transcription_silence_last_notified_on: 'Дата последнего уведомления о тишине транскрипций (служебное)'
     repair_status_flip_seconds: 'Порог «качелей статуса» — быстрый возврат in_progress → в ожидании (секунды, дефолт 300)'
