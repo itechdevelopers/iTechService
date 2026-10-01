@@ -17,6 +17,12 @@
                    product_id: @service_job.item&.product_id,
                    department_id: @service_job.department_id %>
       </div>
+      <%# Вне блока ремонта: комментарий нужен и задачам, которые не ремонт. %>
+      <div class="task-comment">
+        <%= f.label :comment, DeviceTask.human_attribute_name(:comment), class: 'task-comment__label' %>
+        <%= f.text_area :comment, rows: 2, class: 'task-comment__input input-xlarge',
+                        placeholder: 'Если нужно что-то уточнить' %>
+      </div>
     </td>
   <% else %>
     <td class="task_cost">
