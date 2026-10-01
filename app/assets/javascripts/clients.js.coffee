@@ -81,7 +81,7 @@ jQuery ->
           top: $('#client_input').offset().top + $('#client_input').outerHeight()
 
     $('#client_devices_resize_button').click ->
-      $('.client_devices_list,#device_tasks_list').slideToggle(100)
+      $('#client_devices .popover-content').slideToggle(100)
 
     placeClientDevices()
 
@@ -97,3 +97,21 @@ placeClientDevices = ()->
     $devices.show()
   else
     $devices.hide()
+
+# После выбора устройства поповер «Девайсы клиента» показывает историю его задач. Список
+# устройств при этом не стираем, а прячем: ссылка над историей возвращает его, если
+# устройство выбрали не то.
+window.showClientDeviceHistory = (historyHtml) ->
+  $content = $('#client_devices .popover-content')
+  $content.find('.client-devices__history').remove()
+  $list = $content.find('.client_devices_list').hide()
+  $history = $('<div class="client-devices__history"></div>').html(historyHtml)
+  if $list.length
+    $history.prepend('<a href="#" class="client-devices__back">← Другое устройство клиента</a>')
+  $content.append($history)
+
+$(document).on 'click', '.client-devices__back', (event) ->
+  event.preventDefault()
+  $content = $(this).closest('.popover-content')
+  $content.find('.client-devices__history').remove()
+  $content.find('.client_devices_list').show()

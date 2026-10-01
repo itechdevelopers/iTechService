@@ -123,3 +123,9 @@
     background-color: salmon;
   }
 }
+
+// Ссылка над историей устройства в поповере «Девайсы клиента» — возвращает список устройств
+.client-devices__back {
+  display: inline-block;
+  margin-bottom: 8px;
+}
