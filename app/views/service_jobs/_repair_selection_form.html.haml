@@ -36,6 +36,8 @@
           class: 'repair-cause-select form-control',
           multiple: true,
           data: { placeholder: 'Выберите причины' }
+        -# Галочки рисует JS по опциям скрытого select'а выше (renderRepairCauseCheckboxes)
+        .repair-cause-checkboxes
 
       -# 3. Выбор вида ремонта (скрыто по умолчанию, radio buttons)
       .control-group.repair-service-select-group{style: 'display:none;', data: { 'field-name': "#{f.object_name}[expected_repair_service_ids][]" }}
