@@ -38,6 +38,7 @@ class Setting < ApplicationRecord
     request_review_time_out: 'integer',
     warranty_overstay_thresholds: 'json',
     find_my_device_check_enabled: 'boolean',
+    new_intake_enabled: 'boolean',
     transcription_silence_threshold_hours: 'integer',
     transcription_silence_last_notified_on: 'string',
     repair_status_flip_seconds: 'integer'

@@ -82,6 +82,7 @@ ru:
       sale: 'Продажа'
       service: 'Сервис'
       service_job: 'Приёмка'
+      service_job_v2: 'Приёмка (новая)'
       staff: 'Персонал'
       trade: 'Торговля'
       trade_in: 'Trade-in'
