@@ -46,6 +46,12 @@ module InventoriesHelper
     { shown: names.first(limit), rest: [names.size - limit, 0].max }
   end
 
+  # Сданную ревизию товаровед разбирает по расхождениям, поэтому они открываются сразу, а весь
+  # список — по ?lines=all. Когда разбирать нечего, фильтр дал бы пустую таблицу.
+  def inventory_lines_filter(review_count)
+    params[:lines] == 'all' || review_count.zero? ? :all : :discrepancies
+  end
+
   def inventory_lines_progress(inventory)
     t('inventories.index.progress_value',
       counted: inventory.counted_lines_count,

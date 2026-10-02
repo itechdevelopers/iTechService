@@ -33,6 +33,10 @@ ru:
       ignore_model_on: 'модель не учитывается при сортировке'
       include_zero_on: 'с нулевыми остатками'
       lines_title: 'Список позиций'
+      lines_filter:
+        discrepancies: 'Только расхождения (%{count})'
+        all: 'Все позиции (%{count})'
+      check_all: 'Отметить все расхождения'
       lines_count:
         zero: 'позиций нет'
         one: '%{count} позиция'

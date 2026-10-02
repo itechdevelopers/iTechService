@@ -4,9 +4,13 @@
 - private_columns = policy(inventory).see_private_columns?
 -# При пересчёте технарь видит только возвращённые позиции — остальные он уже
 -# посчитал, и показывать их значило бы предлагать пересчитать всё заново.
--# Товароведу список урезать нельзя: он разбирает ревизию целиком, а админ
--# проходит обе проверки сразу.
+-# Товароведу до возвращённых позиций список не урезаем: он разбирает ревизию
+-# целиком, а админ проходит обе проверки сразу. Его собственный фильтр — по
+-# расхождениям, и весь список остаётся в один клик (inventory_lines_filter).
 - lines = (countable && !reviewing) ? inventory.lines_to_count : inventory.lines
+- review_count = reviewing ? inventory.lines.needing_review.count : 0
+- lines_filter = inventory_lines_filter(review_count)
+- lines = lines.needing_review if lines_filter == :discrepancies
 -# Номер, наименование и факт видны всем; остальные колонки появляются по праву.
 - columns = 3 + [private_columns ? 3 : 0, reviewing ? 2 : 0,
                  (editable || countable || reviewing) ? 1 : 0].sum
@@ -22,6 +26,12 @@
               data: { confirm: (t('inventories.show.rebuild_confirm') if inventory.lines.any?) },
               class: 'btn btn-primary btn-small' do
       = inventory.lines.any? ? t('inventories.show.rebuild_lines') : t('inventories.show.build_lines')
+  - if review_count.positive?
+    .btn-group
+      - { discrepancies: review_count, all: inventory.lines.size }.each do |filter, count|
+        = link_to t("inventories.show.lines_filter.#{filter}", count: count),
+                  inventory_path(inventory, lines: filter, anchor: 'inventory_lines'),
+                  class: ['btn btn-small', ('active' if lines_filter == filter)]
 
 - if countable
   %p.inventories__hint= t(inventory.recount? ? 'inventories.show.recount_hint' : 'inventories.show.counting_hint')

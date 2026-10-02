@@ -91,7 +91,22 @@
 - can_start = policy(@inventory).start?
 
 - if sees_lines
-  #inventory_lines= render 'lines_table', inventory: @inventory
+  #inventory_lines.inventories__lines-wrap= render 'lines_table', inventory: @inventory
+
+  - if policy(@inventory).request_recount?
+    -# Чекбокс в шапке отмечает все доступные строки; снятая вручную строка
+    -# снимает и его, чтобы он не утверждал «отмечено всё», когда это не так.
+    :javascript
+      $(function() {
+        var lineBoxes = function() { return $('#inventory_review_form input[name="line_ids[]"]'); };
+        $(document).off('.inventoryCheckAll')
+          .on('change.inventoryCheckAll', '.inventories__check-all', function() {
+            lineBoxes().prop('checked', this.checked);
+          })
+          .on('change.inventoryCheckAll', '#inventory_review_form input[name="line_ids[]"]', function() {
+            $('.inventories__check-all').prop('checked', lineBoxes().length === lineBoxes().filter(':checked').length);
+          });
+      });
 
   - if policy(@inventory).count_lines?
     -# Обработчик делегирован на document: строки перерисовываются после каждого
