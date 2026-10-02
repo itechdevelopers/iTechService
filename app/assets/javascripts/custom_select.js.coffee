@@ -17,6 +17,13 @@ paintOption = ($el, color) ->
     'background-color': color or ''
     'color': contrastColor(color)
 
+# The trigger repeats the option's emoji and boldness but not its row size, so the closed field
+# keeps the height of the other fields in the row. The emoji lives in data-emoji (drawn by CSS),
+# because .html()/.text() of the option carry only the label.
+copyOptionLook = ($trigger, $option) ->
+  $trigger.find('span').attr('data-emoji', $option.attr('data-emoji') or null)
+  $trigger.toggleClass('custom-select__trigger--bold', $option.hasClass('custom-option--bold'))
+
 # Hides options that don't match every whitespace-separated token of the
 # query, so "попов дми" finds "Дмитрий Попов" regardless of word order. The
 # prompt option (empty data-value) is hidden while searching — it matches
@@ -67,6 +74,7 @@ window.initCustomSelects = (context = document) ->
         $trigger = $wrapper.find('.custom-select__trigger')
         $span = $trigger.find('span')
         paintOption($trigger, optionColor)
+        copyOptionLook($trigger, $option)
         $span.text(optionText)
       else
         $option.removeClass('selected')
@@ -99,6 +107,7 @@ $ ->
 
     trigger.find('span').html($(this).html())
     paintOption(trigger, selectedColor)
+    copyOptionLook(trigger, $(this))
     select.find('.custom-option').removeClass('selected')
     hiddenInput
       .val(selectedValue)

@@ -53,13 +53,26 @@ class CustomSelectInput < SimpleForm::Inputs::Base
   def select_options
     collection.map do |item|
       @builder.template.content_tag(:span, item_label(item),
-                                    class: 'custom-option',
+                                    class: item_classes(item),
                                     data: {
                                       value: item_value(item),
-                                      color: item_color(item)
+                                      color: item_color(item),
+                                      emoji: item.try(:emoji).presence
                                     }
       )
     end.join.html_safe
+  end
+
+  # Emoji, boldness and row size exist only on Task: for the other collections (employees in
+  # faults, merits, uniform issues) `try` returns nil and the option stays plain.
+  # The emoji goes to data-emoji rather than into the label: CSS draws it as a pseudo-element,
+  # and the intake JS recognises the "Ремонт" task by the option's .text().
+  def item_classes(item)
+    classes = ['custom-option']
+    classes << 'custom-option--bold' if item.try(:bold)
+    row_size = item.try(:row_size)
+    classes << "custom-option--#{row_size}" if row_size.present? && row_size != 'normal'
+    classes
   end
 
   def collection
