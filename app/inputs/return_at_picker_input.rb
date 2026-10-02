@@ -3,12 +3,16 @@
 # отрисовке страницы в часовом поясе сотрудника — как у пунктов «через» в старой приёмке.
 class ReturnAtPickerInput < SimpleForm::Inputs::Base
   HOURS = (1..5).freeze
-  DAYS = (1..5).freeze
+  # Длинные сроки — своим рядом: в общем ряду с 1–5 днями последний чип переносится на строку
+  # в одиночку, и место переноса зависит от ширины экрана
+  DAY_ROWS = [(1..5), [7, 14, 45]].freeze
 
   def input(_wrapper_options = nil)
     template.content_tag(:div, class: 'return-at-picker') do
       chips_row(HOURS) { |count| [I18n.t('datetime_select.x_hours', count: count), count.hours.since] } +
-        chips_row(DAYS) { |count| [I18n.t('datetime_select.x_days', count: count), count.days.since] } +
+        template.safe_join(DAY_ROWS.map do |days|
+          chips_row(days) { |count| [I18n.t('datetime_select.x_days', count: count), count.days.since] }
+        end) +
         manual_input
     end
   end
