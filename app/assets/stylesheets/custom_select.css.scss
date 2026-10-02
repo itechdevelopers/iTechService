@@ -102,3 +102,27 @@
   transition: border-color 0.15s ease-in-out, box-shadow 0.15s ease-in-out;
 }
 
+// Per-task option look (CustomSelectInput#item_classes). The emoji is a pseudo-element read
+// from data-emoji, so the option's .text() stays the bare task name.
+.custom-option[data-emoji]::before,
+.custom-select__trigger span[data-emoji]::before {
+  content: attr(data-emoji);
+  margin-right: 0.35em;
+}
+
+.custom-option--bold,
+.custom-select__trigger--bold {
+  font-weight: bold;
+}
+
+.custom-option--large {
+  padding: 7px 8px;
+  font-size: 16px;
+  line-height: 22px;
+}
+
+.custom-option--xlarge {
+  padding: 10px 10px;
+  font-size: 19px;
+  line-height: 26px;
+}

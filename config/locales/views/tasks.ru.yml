@@ -8,4 +8,11 @@ ru:
       title: 'Новая задача'
     index:
       title: 'Задачи'
+    form:
+      dropdown_style: 'Вид в списке выбора задачи'
+      emoji_hint: 'Показывается перед названием. На Mac панель эмодзи открывается по Ctrl+Cmd+Пробел, на Windows — по Win+.'
+    row_sizes:
+      normal: 'Обычная'
+      large: 'Крупная'
+      xlarge: 'Очень крупная'
     link: 'Задачи'

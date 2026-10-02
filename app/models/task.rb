@@ -16,7 +16,13 @@ class Task < ApplicationRecord
   delegate :is_repair?, :is_service?, to: :product, allow_nil: true
   delegate :name, :id, to: :location, prefix: true, allow_nil: true
 
+  # Оформление пункта в дропдауне выбора задачи (CustomSelectInput). _prefix — иначе large?/normal?
+  # и scope'ы Task.large / Task.normal читались бы как свойства самой задачи.
+  enum row_size: { normal: 0, large: 1, xlarge: 2 }, _prefix: true
+
   validates :position, presence: true, numericality: { greater_than: 0 }
+  # 10 символов, а не 1–2: составные эмодзи (👨‍🔧, флаги) — это несколько кодпоинтов
+  validates :emoji, length: { maximum: 10 }
 
   before_validation :set_position, on: :create
   before_validation :sanitize_roles

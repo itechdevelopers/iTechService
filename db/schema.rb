@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20260930180242) do
+ActiveRecord::Schema.define(version: 20261002164145) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -2610,6 +2610,9 @@ ActiveRecord::Schema.define(version: 20260930180242) do
     t.integer "position", null: false
     t.string "roles", default: [], array: true
     t.boolean "require_reception_photo", default: false, null: false
+    t.string "emoji"
+    t.boolean "bold", default: false, null: false
+    t.integer "row_size", default: 0, null: false
     t.index ["name"], name: "index_tasks_on_name"
     t.index ["product_id"], name: "index_tasks_on_product_id"
     t.index ["role"], name: "index_tasks_on_role"
