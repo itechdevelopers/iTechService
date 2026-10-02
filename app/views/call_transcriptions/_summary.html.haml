@@ -1,0 +1,11 @@
+-# Саммари обрезается CSS до трёх строк. Кнопку «Увидеть все» показывает
+-# call_transcription_summary.js — только если текст в эти строки не поместился.
+-# Без саммари (старые звонки, или сервис его не прислал) — начало диалога, приглушённо.
+- if transcription.summary.present?
+  .call-transcription-summary
+    .call-transcription-summary__text= transcription.summary
+    %a.call-transcription-summary__toggle{href: '#', data: {expand_text: t('call_transcriptions.summary.expand'),
+                                                            collapse_text: t('call_transcriptions.summary.collapse')}}
+      = t('call_transcriptions.summary.expand')
+- else
+  .call-transcription-summary__fallback= truncate(transcription.transcript_text, length: fallback_length)

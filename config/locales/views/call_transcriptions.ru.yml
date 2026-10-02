@@ -12,6 +12,9 @@ ru:
       address_book: 'Адресная книжка'
     show:
       title: 'Транскрипция #%{id}'
+    summary:
+      expand: 'Увидеть все'
+      collapse: 'Свернуть'
     audio:
       not_available: 'Аудиозапись недоступна'
       connection_timeout: 'Не удалось подключиться к серверу записей (таймаут)'

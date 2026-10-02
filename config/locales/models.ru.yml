@@ -168,7 +168,7 @@ ru:
         recording_url: 'Ссылка на запись'
         client: 'Клиент'
         sentiment: 'Настроение'
-        summary: 'Краткое содержание'
+        summary: 'Саммари диалога'
 
       phone_label:
         phone_number: 'Номер телефона'
