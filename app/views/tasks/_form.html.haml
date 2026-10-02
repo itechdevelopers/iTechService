@@ -13,6 +13,13 @@
   = f.input :require_reception_photo
 
   %fieldset
+    %legend= t('.dropdown_style')
+    = f.input :emoji, input_html: { class: 'input-mini', autocomplete: 'off' }, hint: t('.emoji_hint')
+    = f.input :bold
+    = f.input :row_size, collection: Task.row_sizes.keys.map { |size| [t("tasks.row_sizes.#{size}"), size] },
+                         include_blank: false
+
+  %fieldset
     %legend Пункты условий для заказ-наряда
     .service-conditions-checkboxes
       - ServiceCondition.all.each do |sc|

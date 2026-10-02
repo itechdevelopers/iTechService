@@ -653,8 +653,10 @@ ru:
         sum: 'Сумма'
 
       task:
+        bold: 'Жирный шрифт'
         cost: 'Стоимость'
         duration: 'Длительность'
+        emoji: 'Эмодзи'
         hidden: 'Скрытая'
         location: 'Локация'
         location_code: 'Код локации'
@@ -662,6 +664,7 @@ ru:
         require_reception_photo: 'Требовать фото при приёмке'
         role: 'Роль'
         roles: 'Роли'
+        row_size: 'Размер строки'
 
       timesheet_day:
         date: "Дата"
