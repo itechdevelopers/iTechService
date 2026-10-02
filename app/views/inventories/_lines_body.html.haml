@@ -3,11 +3,15 @@
     %tr
       - if reviewing
         %th.inventories__line-check
+          -# Без name: в params не уходит, только отмечает чекбоксы строк (show.html.haml)
+          - if policy(inventory).request_recount?
+            %input.inventories__check-all{ type: 'checkbox', title: t('inventories.show.check_all') }
       %th.inventories__lines-position= t('inventories.show.columns.position')
       %th= t('inventories.show.columns.name')
       - if private_columns
         %th= t('inventories.show.columns.purchase_price')
         %th= t('inventories.show.columns.usage')
+      - if expected_column
         %th= t('inventories.show.columns.expected')
       %th= t('inventories.show.columns.counted')
       - if reviewing

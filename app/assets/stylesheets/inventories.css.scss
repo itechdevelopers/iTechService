@@ -201,6 +201,11 @@
   &__review-actions {
     margin-bottom: 20px;
 
+    // Галочка относится к кнопке пересчёта слева, а не к приёму справа
+    .inventories__show-expected {
+      margin-right: 18px;
+    }
+
     .inventories__hint {
       display: inline-block;
       margin-left: 12px;
@@ -307,6 +312,12 @@
     background: #f7f7f7;
     border: 1px solid #e3e3e3;
     border-radius: 4px;
+  }
+
+  // Сюда ведёт якорь переключателя «Только расхождения / Все позиции». Навбар фиксированный
+  // (на узком экране — в две строки, ~215px), и без отступа шапка таблицы уходила бы под него.
+  &__lines-wrap {
+    scroll-margin-top: 230px;
   }
 
   &__lines-header {

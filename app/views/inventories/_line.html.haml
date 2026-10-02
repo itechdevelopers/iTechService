@@ -6,6 +6,7 @@
 - countable = policy(inventory).count_lines?
 - reviewing = policy(inventory).review?
 - private_columns = policy(inventory).see_private_columns?
+- expected_column = policy(inventory).see_expected?
 - author = line.counted_by
 
 %tr{ id: "inventory_line_#{line.id}",
@@ -33,6 +34,7 @@
   - if private_columns
     %td= number_to_currency(line.snapshot_purchase_price, precision: 0) if line.snapshot_purchase_price.present?
     %td= line.usage_count
+  - if expected_column
     %td= line.expected_quantity
   %td.inventories__line-counted
     - if countable

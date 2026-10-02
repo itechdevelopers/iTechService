@@ -20,6 +20,15 @@ class InventoryLine < ApplicationRecord
   scope :counted, -> { where.not(counted_quantity: nil) }
   scope :uncounted, -> { where(counted_quantity: nil) }
   scope :requested_for_recount, -> { where(recount_requested: true) }
+  # Что товаровед разбирает после сдачи: расхождения и позиции, которые сейчас на пересчёте.
+  # У пересчитываемой строки факт стёрт (request_recount!), и как расхождение она не считается,
+  # но скрыть её — значит спрятать то, что сейчас в работе. Флаг recount_requested после
+  # пересчёта не сбрасывается, поэтому «сейчас на пересчёте» — это флаг плюс пустой факт.
+  # IS DISTINCT FROM, а не <>: совпадает с discrepancy? и при пустом expected_quantity.
+  scope :needing_review, lambda {
+    where(recount_requested: true, counted_quantity: nil)
+      .or(where.not(counted_quantity: nil).where('counted_quantity IS DISTINCT FROM expected_quantity'))
+  }
 
   validates :item, :position, presence: true
   validates :counted_quantity, numericality: {

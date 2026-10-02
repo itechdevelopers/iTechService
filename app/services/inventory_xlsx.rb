@@ -8,8 +8,11 @@ class InventoryXlsx
 
   COLUMN_WIDTHS = [6, 55, 12].freeze
 
-  def initialize(inventory)
+  # lines и only_discrepancies — как у InventoryPdf: бланк всего списка или только расхождений
+  def initialize(inventory, lines: inventory.lines, only_discrepancies: false)
     @inventory = inventory
+    @lines = lines
+    @only_discrepancies = only_discrepancies
   end
 
   def to_xlsx(workbook)
@@ -19,10 +22,14 @@ class InventoryXlsx
       sheet.add_row ["Ревизия №#{inventory.number} от #{I18n.l(inventory.created_at.to_date)}"],
                     style: styles[:title]
       sheet.add_row ["Склад: #{inventory.store&.name}"]
+      if @only_discrepancies
+        sheet.add_row [I18n.t('inventories.pdf.discrepancies_only', count: lines.size, total: inventory.lines.size)],
+                      style: styles[:note]
+      end
       sheet.add_row []
 
       sheet.add_row HEADERS, style: styles[:header]
-      inventory.lines.each { |line| sheet.add_row(row_for(line), style: row_styles(styles)) }
+      lines.each { |line| sheet.add_row(row_for(line), style: row_styles(styles)) }
 
       sheet.column_widths(*COLUMN_WIDTHS)
     end
@@ -30,7 +37,7 @@ class InventoryXlsx
 
   private
 
-  attr_reader :inventory
+  attr_reader :inventory, :lines
 
   # Графа «Факт» пустая — её заполняют руками на складе. Учётного количества в
   # бланке нет по той же причине, что и в PDF: его перепишут вместо подсчёта.
@@ -48,6 +55,7 @@ class InventoryXlsx
 
     {
       title: sheet_styles.add_style(b: true, sz: 14),
+      note: sheet_styles.add_style(b: true),
       header: sheet_styles.add_style(b: true, bg_color: 'E6E6E6', border: border,
                                      alignment: { horizontal: :center, wrap_text: true }),
       text: sheet_styles.add_style(border: border),
