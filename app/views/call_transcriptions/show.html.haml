@@ -34,11 +34,10 @@
       %dt= CallTranscription.human_attribute_name(:sentiment)
       %dd= sentiment_dots(@call_transcription)
 
-- if @call_transcription.summary.present?
-  .row-fluid
-    .span12
-      %h3= CallTranscription.human_attribute_name(:summary)
-      .well
+  - if @call_transcription.summary.present?
+    .span8
+      %h4= CallTranscription.human_attribute_name(:summary)
+      .well.well-small
         = simple_format @call_transcription.summary
 
 .row-fluid
