@@ -1,8 +1,6 @@
 # frozen_string_literal: true
 
 class RepairServiceMark < ApplicationRecord
-  NOTIFICATION_CODE = 'notification'
-
   default_scope { order(:position, :id) }
 
   # Отметку, которая стоит у видов ремонта, не удаляем: она молча слетела бы со всех
@@ -11,8 +9,4 @@ class RepairServiceMark < ApplicationRecord
 
   validates :name, presence: true
   validates :position, numericality: { only_integer: true }, allow_nil: true
-
-  def self.notification
-    find_by(code: NOTIFICATION_CODE)
-  end
 end

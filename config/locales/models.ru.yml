@@ -516,6 +516,7 @@ ru:
 
       repair_service:
         client_info: 'Информация для клиента'
+        repair_service_mark: 'Отметка'
         repair_time: 'Объективное время ремонта'
         special_marks: 'Особые отметки'
         repair_cause_ids: 'Причины ремонта'
