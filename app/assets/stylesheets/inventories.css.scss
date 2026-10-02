@@ -201,6 +201,11 @@
   &__review-actions {
     margin-bottom: 20px;
 
+    // Галочка относится к кнопке пересчёта слева, а не к приёму справа
+    .inventories__show-expected {
+      margin-right: 18px;
+    }
+
     .inventories__hint {
       display: inline-block;
       margin-left: 12px;

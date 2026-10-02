@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20261002164145) do
+ActiveRecord::Schema.define(version: 20261002180605) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -1028,6 +1028,7 @@ ActiveRecord::Schema.define(version: 20261002164145) do
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.string "notify_location_codes", default: [], array: true
+    t.boolean "recount_shows_expected", default: false, null: false
     t.index ["department_id"], name: "index_inventories_on_department_id"
     t.index ["status"], name: "index_inventories_on_status"
     t.index ["store_id"], name: "index_inventories_on_store_id"

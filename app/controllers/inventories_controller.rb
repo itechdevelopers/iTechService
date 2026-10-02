@@ -148,9 +148,11 @@ class InventoriesController < ApplicationController
       return
     end
 
+    # Остатки по учёту открываются на один раунд: флаг перезаписывается при каждой
+    # отправке, и следующий пересчёт снова уходит вслепую, если галочку не поставить.
     Inventory.transaction do
       lines.each(&:request_recount!)
-      @inventory.update!(status: :recount)
+      @inventory.update!(status: :recount, recount_shows_expected: params[:show_expected] == '1')
     end
 
     InventoryNotifier.notify_recount(@inventory, lines.size)

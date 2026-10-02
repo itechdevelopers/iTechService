@@ -2,6 +2,7 @@
 - countable = policy(inventory).count_lines?
 - reviewing = policy(inventory).review?
 - private_columns = policy(inventory).see_private_columns?
+- expected_column = policy(inventory).see_expected?
 -# При пересчёте технарь видит только возвращённые позиции — остальные он уже
 -# посчитал, и показывать их значило бы предлагать пересчитать всё заново.
 -# Товароведу до возвращённых позиций список не урезаем: он разбирает ревизию
@@ -12,7 +13,7 @@
 - lines_filter = inventory_lines_filter(review_count)
 - lines = lines.needing_review if lines_filter == :discrepancies
 -# Номер, наименование и факт видны всем; остальные колонки появляются по праву.
-- columns = 3 + [private_columns ? 3 : 0, reviewing ? 2 : 0,
+- columns = 3 + [private_columns ? 2 : 0, expected_column ? 1 : 0, reviewing ? 2 : 0,
                  (editable || countable || reviewing) ? 1 : 0].sum
 
 .inventories__lines-header
@@ -34,13 +35,14 @@
                   class: ['btn btn-small', ('active' if lines_filter == filter)]
 
 - if countable
-  %p.inventories__hint= t(inventory.recount? ? 'inventories.show.recount_hint' : 'inventories.show.counting_hint')
+  - count_hint = if !inventory.recount? then 'counting_hint' elsif expected_column then 'recount_with_expected_hint' else 'recount_hint' end
+  %p.inventories__hint= t("inventories.show.#{count_hint}")
 - if reviewing
   %p.inventories__hint= t('inventories.show.review_hint', count: inventory.discrepancy_lines.count)
 
 - table_locals = { inventory: inventory, lines: lines, columns: columns,
                    editable: editable, countable: countable, reviewing: reviewing,
-                   private_columns: private_columns }
+                   private_columns: private_columns, expected_column: expected_column }
 
 -# Форму разбора вешаем только на режим товароведа: при подсчёте у каждой
 -# строки своя форма автосохранения, а вложенные формы браузер выбрасывает.
@@ -50,6 +52,11 @@
     .inventories__review-actions
       = submit_tag t('inventories.show.request_recount'), class: 'btn btn-warning',
                    data: { confirm: t('inventories.show.request_recount_confirm') }
+      -# Читает только request_recount: приёмы недостач и излишков уходят в свои
+      -# экшены через formaction и параметр игнорируют.
+      %label.checkbox.inline.inventories__show-expected{ title: t('inventories.show.show_expected_title') }
+        = check_box_tag :show_expected, '1', false
+        = t('inventories.show.show_expected')
       -# formaction: все кнопки работают с одним набором чекбоксов, но ведут в
       -# разные экшены — второй набор галочек для того же списка только запутал бы.
       = submit_tag t('inventories.show.accept_shortages'), class: 'btn btn-danger',

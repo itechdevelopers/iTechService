@@ -11,6 +11,7 @@
       - if private_columns
         %th= t('inventories.show.columns.purchase_price')
         %th= t('inventories.show.columns.usage')
+      - if expected_column
         %th= t('inventories.show.columns.expected')
       %th= t('inventories.show.columns.counted')
       - if reviewing
