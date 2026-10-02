@@ -46,6 +46,15 @@ module InventoriesHelper
     { shown: names.first(limit), rest: [names.size - limit, 0].max }
   end
 
+  # Сколько строк ждут разбора (InventoryLine.needing_review). Ноль, если ревизию разбирает
+  # не текущий пользователь: фильтр расхождений — инструмент автора, а остальным список
+  # расходящихся позиций подсказал бы, где факт не сошёлся с учётом.
+  def inventory_review_count(inventory)
+    return 0 unless policy(inventory).review?
+
+    inventory.lines.needing_review.count
+  end
+
   # Сданную ревизию товаровед разбирает по расхождениям, поэтому они открываются сразу, а весь
   # список — по ?lines=all. Когда разбирать нечего, фильтр дал бы пустую таблицу.
   def inventory_lines_filter(review_count)

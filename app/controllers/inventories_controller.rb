@@ -182,17 +182,22 @@ class InventoriesController < ApplicationController
   # файл товароведа с фактом и разницей.
   def export
     @inventory = find_record Inventory
+    # Фильтр расхождений — инструмент того, кто разбирает ревизию (тот же review?, что и
+    # на экране): остальным список расходящихся позиций подсказал бы ответ.
+    only_discrepancies = params[:lines] == 'discrepancies' && policy(@inventory).review?
+    lines = only_discrepancies ? @inventory.lines.needing_review : @inventory.lines
 
     respond_to do |format|
       format.pdf do
-        pdf = InventoryPdf.new(@inventory, view_context)
-        send_data pdf.render, filename: export_filename('pdf'),
+        pdf = InventoryPdf.new(@inventory, view_context, lines: lines, only_discrepancies: only_discrepancies)
+        send_data pdf.render, filename: export_filename('pdf', only_discrepancies),
                               type: 'application/pdf', disposition: 'inline'
       end
       format.xlsx do
         package = Axlsx::Package.new
-        InventoryXlsx.new(@inventory).to_xlsx(package.workbook)
-        send_data package.to_stream.read, filename: export_filename('xlsx'),
+        InventoryXlsx.new(@inventory, lines: lines, only_discrepancies: only_discrepancies)
+                     .to_xlsx(package.workbook)
+        send_data package.to_stream.read, filename: export_filename('xlsx', only_discrepancies),
                   type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
       end
     end
@@ -285,8 +290,9 @@ class InventoriesController < ApplicationController
     SparePartSearch.call(params[:q])
   end
 
-  def export_filename(extension)
-    "inventory_#{@inventory.number}_#{Time.current.strftime('%Y%m%d_%H%M')}.#{extension}"
+  def export_filename(extension, only_discrepancies = false)
+    suffix = '_discrepancies' if only_discrepancies
+    "inventory_#{@inventory.number}#{suffix}_#{Time.current.strftime('%Y%m%d_%H%M')}.#{extension}"
   end
 
   # Каждая кнопка разбирает только «свою» половину отмеченного. Пропущенное

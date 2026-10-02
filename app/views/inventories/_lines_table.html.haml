@@ -9,7 +9,7 @@
 -# целиком, а админ проходит обе проверки сразу. Его собственный фильтр — по
 -# расхождениям, и весь список остаётся в один клик (inventory_lines_filter).
 - lines = (countable && !reviewing) ? inventory.lines_to_count : inventory.lines
-- review_count = reviewing ? inventory.lines.needing_review.count : 0
+- review_count = inventory_review_count(inventory)
 - lines_filter = inventory_lines_filter(review_count)
 - lines = lines.needing_review if lines_filter == :discrepancies
 -# Номер, наименование и факт видны всем; остальные колонки появляются по праву.

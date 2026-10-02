@@ -8,9 +8,13 @@ class InventoryPdf < Prawn::Document
 
   COLUMN_WIDTHS = [30, 400, 80].freeze
 
-  def initialize(inventory, view)
+  # lines — что печатать: весь список или только расхождения (тогда это бланк пересчёта,
+  # и шапка говорит об этом, чтобы лист не приняли за полную ревизию).
+  def initialize(inventory, view, lines: inventory.lines, only_discrepancies: false)
     @inventory = inventory
     @view = view
+    @lines = lines
+    @only_discrepancies = only_discrepancies
 
     super page_size: 'A4', page_layout: :portrait, margin: [20.mm, 15.mm, 20.mm, 15.mm]
 
@@ -29,7 +33,7 @@ class InventoryPdf < Prawn::Document
 
   private
 
-  attr_reader :inventory, :view
+  attr_reader :inventory, :view, :lines
 
   def draw_header
     font_size 14 do
@@ -39,11 +43,15 @@ class InventoryPdf < Prawn::Document
     text view.t('inventories.pdf.store', store: inventory.store&.name)
     text view.t('inventories.pdf.date', date: I18n.l(inventory.created_at.to_date))
     text view.t('inventories.pdf.sort_mode', mode: view.t("inventories.sort_modes.#{inventory.sort_mode}"))
+    if @only_discrepancies
+      text view.t('inventories.pdf.discrepancies_only', count: lines.size, total: inventory.lines.size),
+           style: :bold
+    end
     move_down 10
   end
 
   def draw_lines
-    rows = [header_row] + inventory.lines.map { |line| line_row(line) }
+    rows = [header_row] + lines.map { |line| line_row(line) }
 
     table(rows, column_widths: COLUMN_WIDTHS, header: true) do
       row(0).font_style = :bold

@@ -6,12 +6,16 @@
   - if policy(@inventory).edit?
     = link_to t('helpers.links.edit'), edit_inventory_path(@inventory), class: 'btn pull-right'
   - if policy(@inventory).export?
-    = link_to export_inventory_path(@inventory, format: :xlsx), class: 'btn pull-right' do
+    -# Выгрузка повторяет экран: в режиме «Только расхождения» это бланк для их пересчёта
+    - export_lines = (:discrepancies if inventory_lines_filter(inventory_review_count(@inventory)) == :discrepancies)
+    = link_to export_inventory_path(@inventory, format: :xlsx, lines: export_lines), class: 'btn pull-right' do
       = glyph('file-excel-o')
       = t('.export_xlsx')
-    = link_to export_inventory_path(@inventory, format: :pdf), target: '_blank', class: 'btn pull-right' do
+      = t('.export_discrepancies') if export_lines
+    = link_to export_inventory_path(@inventory, format: :pdf, lines: export_lines), target: '_blank', class: 'btn pull-right' do
       = glyph('print')
       = t('.export_pdf')
+      = t('.export_discrepancies') if export_lines
   - if policy(@inventory).send_picker?
     = link_to t('.send_to_branch'), send_picker_inventory_path(@inventory, form_name: 'send_picker_modal'),
               remote: true, class: 'btn btn-success pull-right'

@@ -92,6 +92,7 @@ ru:
       finished_at: 'Закрыта'
       export_pdf: 'Печать'
       export_xlsx: 'Excel'
+      export_discrepancies: '(расхождения)'
       finish: 'Ревизия закончена'
       finish_confirm: 'Закрыть ревизию? После этого разбирать расхождения будет нельзя.'
       finish_confirm_unresolved: 'Осталось неразобранных расхождений: %{count}. Закрыть ревизию всё равно? После закрытия разобрать их будет нельзя.'
@@ -163,6 +164,7 @@ ru:
       date: 'Дата: %{date}'
       sort_mode: 'Порядок позиций: %{mode}'
       fact_column: 'Факт'
+      discrepancies_only: 'Только позиции с расхождениями: %{count} из %{total}'
     finish:
       finished: 'Ревизия закрыта, итоги подведены'
     accept_surplus:
