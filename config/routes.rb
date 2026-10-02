@@ -238,6 +238,7 @@ Rails.application.routes.draw do
   end
 
   resources :dismissal_reasons, except: :show
+  resources :repair_service_marks, except: :show
 
   resources :faults, only: %i[new create]
 

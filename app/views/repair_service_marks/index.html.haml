@@ -1,0 +1,26 @@
+= auto_header_tag
+
+%p.muted= t('.hint')
+
+%table.table.table-hover
+  %thead
+    %tr
+      %th= RepairServiceMark.human_attribute_name :id
+      %th= RepairServiceMark.human_attribute_name :name
+      %th= RepairServiceMark.human_attribute_name :title
+      %th= RepairServiceMark.human_attribute_name :position
+      %th= t('.services_count')
+      %th
+  %tbody
+    - @repair_service_marks.each do |mark|
+      - services_count = @services_count.fetch(mark.id, 0)
+      %tr
+        %td= mark.id
+        %td= mark.name
+        %td= mark.title
+        %td= mark.position
+        %td= services_count
+        %td.btn-group
+          = link_to_edit_small mark
+          -# Используемую отметку модель удалить не даст (restrict_with_error) — кнопку не показываем
+          = link_to_destroy_small mark if services_count.zero?

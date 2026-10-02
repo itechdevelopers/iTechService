@@ -1,0 +1,7 @@
+= auto_header_tag @repair_service_mark
+= simple_form_for @repair_service_mark, html: { class: 'form-horizontal' } do |f|
+  = f.input :name, hint: t('repair_service_marks.form.name_hint')
+  = f.input :title, hint: t('repair_service_marks.form.title_hint')
+  = f.input :position, input_html: { class: 'input-mini' }
+  .form-actions
+    = submit_button f

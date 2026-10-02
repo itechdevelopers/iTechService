@@ -65,6 +65,7 @@ ru:
       quick_task: 'Быстрая задача'
       repair_group: 'Группа ремонта'
       repair_service: 'Вид ремонта'
+      repair_service_mark: 'Отметка вида ремонта'
       repair_task: 'Ремонтная работа'
       repair_part: 'Запчасть'
       user_repair_capability: 'Навык ремонта'
@@ -507,8 +508,15 @@ ru:
       repair_part:
         defect_qty: 'Кол-во брака'
 
+      repair_service_mark:
+        id: 'ID'
+        name: 'Название'
+        title: 'Подпись в форме'
+        position: 'Порядок'
+
       repair_service:
         client_info: 'Информация для клиента'
+        repair_service_mark: 'Отметка'
         repair_time: 'Объективное время ремонта'
         special_marks: 'Особые отметки'
         repair_cause_ids: 'Причины ремонта'
@@ -821,6 +829,11 @@ ru:
             base:
               restrict_dependent_destroy:
                 has_many: 'Нельзя удалить: организация привязана к подразделениям. Сначала отвяжите её.'
+        repair_service_mark:
+          attributes:
+            base:
+              restrict_dependent_destroy:
+                has_many: 'Нельзя удалить: отметка стоит у видов ремонта. Сначала снимите её с них.'
         product:
           no_retail_price: 'Нет розничной цены'
         quick_order:

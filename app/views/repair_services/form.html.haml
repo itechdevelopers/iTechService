@@ -33,14 +33,14 @@
   = f.input :is_body_repair
   = f.input :is_popular
   = f.input :special_marks
-  - if (notification_mark = RepairServiceMark.notification)
-    .control-group
-      %label.control-label Отметки
-      .controls
-        = hidden_field_tag 'repair_service[repair_service_mark_id]', '', id: nil
-        %label.checkbox.inline
-          = check_box_tag 'repair_service[repair_service_mark_id]', notification_mark.id, f.object.repair_service_mark_id == notification_mark.id, id: 'repair_service_notification_mark'
-          = notification_mark.title.presence || notification_mark.name
+  -# Отметка у вида ремонта одна (внешний ключ), поэтому переключатель, а не галочки.
+  -# Пустое значение — «без отметки»: AR приводит '' к nil.
+  - marks = RepairServiceMark.all.to_a
+  - if marks.any?
+    = f.input :repair_service_mark_id, as: :radio_buttons,
+              collection: [['', t('.no_mark')]] + marks.map { |mark| [mark.id, mark.title.presence || mark.name] },
+              value_method: :first, label_method: :last,
+              label: RepairService.human_attribute_name(:repair_service_mark)
   = f.input :repair_cause_ids,
     collection: RepairCauseGroup.all,
     as: :grouped_select,
