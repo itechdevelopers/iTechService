@@ -1,0 +1,32 @@
+// Саммари транскрипции в таблице транскрипций и в карточке клиента
+// (call_transcriptions/_summary). Три строки, остальное — по кнопке «Увидеть все».
+
+// pre-line: переносы строк из саммари сохраняются, а HTML из внешнего сервиса экранирует HAML
+.call-transcription-summary__text {
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 3;
+  overflow: hidden;
+  white-space: pre-line;
+}
+
+.call-transcription-summary--expanded .call-transcription-summary__text {
+  display: block;
+  -webkit-line-clamp: unset;
+  overflow: visible;
+}
+
+// Кнопка видна, только когда JS пометил саммари как не поместившееся
+.call-transcription-summary__toggle {
+  display: none;
+  margin-top: 2px;
+  font-size: 12px;
+}
+
+.call-transcription-summary--overflowing .call-transcription-summary__toggle {
+  display: inline-block;
+}
+
+.call-transcription-summary__fallback {
+  color: #999;
+}

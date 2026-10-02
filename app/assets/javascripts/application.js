@@ -81,3 +81,4 @@
 //= require strict_repair
 //= require client_conversations
 //= require legal_entities
+//= require call_transcription_summary

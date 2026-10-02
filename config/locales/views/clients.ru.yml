@@ -18,6 +18,7 @@ ru:
       new_device: "Новый девайс"
       new_sale: "Новая продажа"
       transcribed_dialogues: "Транскрибированные диалоги"
+      open_dialogue: "Открыть диалог"
     search:
       title: 'Поиск клиента'
     created: 'Клиент создан'

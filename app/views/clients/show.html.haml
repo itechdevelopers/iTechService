@@ -73,9 +73,10 @@
       .client-transcriptions-list
         - @client.call_transcriptions.order(call_date: :desc).each do |transcription|
           .client-transcription-item
-            %small.text-muted= l transcription.call_date, format: :date_time
-            %br
-            = link_to truncate(transcription.transcript_text, length: 200), call_transcription_path(transcription)
+            .client-transcription-item__header
+              %small.text-muted= l transcription.call_date, format: :date_time
+              = link_to t('clients.show.open_dialogue'), call_transcription_path(transcription)
+            = render 'call_transcriptions/summary', transcription: transcription, fallback_length: 200
 
 :css
   .client-transcriptions-list {
@@ -92,6 +93,12 @@
   }
   .client-transcription-item:last-child {
     border-bottom: none;
+  }
+  .client-transcription-item__header {
+    display: flex;
+    gap: 10px;
+    align-items: baseline;
+    margin-bottom: 2px;
   }
 
 #client_devices
