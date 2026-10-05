@@ -11,7 +11,7 @@
       %th= DeviceTask.human_attribute_name :created_at
       %th
   %tbody
-    - service_job.device_tasks.ordered.each do |device_task|
+    - service_job.device_tasks.ordered.includes(:expected_repair_causes, :expected_repair_services).each do |device_task|
       %tr{class: row_class_for_task(device_task)}
         %td= device_task.task_name
         %td= h device_task.comment
@@ -23,6 +23,24 @@
         %td{style: "background:none; display: flex; flex-direction: column;"}
           = history_link_to history_device_task_path(service_job, device_task)
           = policy(device_task).edit? ? link_to_edit_device_task_colored(device_task) : nil
+      -# Одну и ту же причину или ремонт можно отметить в двух блоках приёмки
+      - intake_causes = device_task.expected_repair_causes.map(&:title).uniq
+      - intake_services = device_task.expected_repair_services.map(&:name).uniq
+      - if intake_causes.any? || device_task.manual_repair_causes.present? || intake_services.any?
+        %tr.task-intake-choice{class: row_class_for_task(device_task)}
+          %td{colspan: 7}
+            - if intake_causes.any?
+              .task-intake-choice__line
+                %span.task-intake-choice__label= t('.intake_causes')
+                = intake_causes.join(', ')
+            - if device_task.manual_repair_causes.present?
+              .task-intake-choice__line
+                %span.task-intake-choice__label= t('.intake_manual_causes')
+                %span.task-intake-choice__manual= device_task.manual_repair_causes
+            - if intake_services.any?
+              .task-intake-choice__line
+                %span.task-intake-choice__label= t('.intake_repair_services')
+                = intake_services.join(', ')
       - if device_task.is_repair? && device_task.done?
         %tr.repair-passport-row
           %td{colspan: 7}

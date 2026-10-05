@@ -13,6 +13,10 @@ ru:
         question: 'Вы открыли суть задачи. Берёте устройство в работу?'
         confirm: 'Да, беру в работу'
         decline: 'Нет'
+    device_tasks_show:
+      intake_causes: 'Причины:'
+      intake_manual_causes: 'Своими словами:'
+      intake_repair_services: 'Вид ремонта при приёмке:'
     repair_passport:
       title: 'Паспорт ремонта:'
       repair_kinds: 'Вид ремонта:'
