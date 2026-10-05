@@ -2,6 +2,14 @@ require 'sidekiq/web'
 require 'sidekiq/cron/web'
 
 Rails.application.routes.draw do
+  get '/.well-known/oauth-authorization-server', to: 'mcp/oauth#metadata'
+  get '/mcp/oauth/authorize', to: 'mcp/oauth#authorize'
+  post '/mcp/oauth/consent', to: 'mcp/oauth#consent'
+  post '/mcp/oauth/token', to: 'mcp/oauth#token'
+  post '/mcp/oauth/revoke', to: 'mcp/oauth#revoke'
+  get '/mcp/ais/identity', to: 'mcp/tools#identity'
+  post '/mcp/ais/call', to: 'mcp/tools#call'
+
   namespace :kpi_audit do
     resources :episodes, only: %i[index show] do
       post :analyze, on: :collection

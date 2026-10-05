@@ -200,7 +200,7 @@ class User < ApplicationRecord
 
   attr_accessor :login, :auth_token
 
-  cattr_accessor :current
+  thread_mattr_accessor :current
 
   accepts_nested_attributes_for :schedule_days, :duty_days, allow_destroy: true, reject_if: :all_blank
   accepts_nested_attributes_for :karmas, allow_destroy: true

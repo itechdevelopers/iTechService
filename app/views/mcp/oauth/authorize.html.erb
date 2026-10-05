@@ -1,0 +1,8 @@
+<!doctype html><html lang="ru"><head><meta charset="utf-8"><title>Подключить АИС</title><%= csrf_meta_tags %></head>
+<body><h1>Подключить АИС к ChatGPT Work</h1>
+<p>Вы входите как <%= current_user.full_name %>. Доступ действует с вашими текущими правами АИС.</p>
+<ul><li>Поиск и просмотр заказов.</li>
+<% if @oauth['scope'].split.include?('ais:write') %><li>Добавление комментариев и изменение статусов. Штатные уведомления и синхронизация АИС сохраняются.</li><% end %>
+<% if @oauth['scope'].split.include?('ais:revenue') %><li>Сводка выручки, если разрешён финансовый отчёт.</li><% end %></ul>
+<%= form_tag('/mcp/oauth/consent') do %><button name="approve" value="yes">Разрешить</button><button name="approve" value="no">Отказать</button><% end %>
+<p>Для отключения обратитесь к администратору АИС или отключите плагин с отзывом доступа.</p></body></html>
