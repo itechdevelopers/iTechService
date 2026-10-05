@@ -58,13 +58,13 @@
           %span.repair-time
 
   -# Подходящих причин в справочнике нет — приёмщик пишет свои. Поле открывается только
-  -# с отметкой, текст уходит в «Заявленный клиентом дефект» вместе с выбранными причинами,
-  -# а в задаче остаётся отметка, что причины заполнены вручную.
+  -# с отметкой, текст уходит в «Заявленный клиентом дефект» вместе с выбранными причинами
+  -# и отдельно сохраняется в задаче: дефект потом правят руками, а здесь он остаётся как ввели.
   .manual-causes
     %label.checkbox
       = f.check_box :repair_causes_filled_manually, class: 'manual-causes-checkbox'
       Самостоятельно заполнено
     .control-group.manual-causes-group{style: ('display:none;' unless f.object.repair_causes_filled_manually)}
       %label Причины своими словами
-      = text_area_tag nil, nil, rows: 2, class: 'manual-causes-text input-xlarge',
+      = f.text_area :manual_repair_causes, rows: 2, class: 'manual-causes-text input-xlarge',
         placeholder: 'Например: после падения не включается'
