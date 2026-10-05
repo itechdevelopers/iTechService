@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20261002180605) do
+ActiveRecord::Schema.define(version: 20261005000000) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -1241,6 +1241,42 @@ ActiveRecord::Schema.define(version: 20261002180605) do
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.index ["word"], name: "index_marker_words_on_word", unique: true
+  end
+
+  create_table "mcp_credentials", force: :cascade do |t|
+    t.bigint "user_id", null: false
+    t.string "kind", null: false
+    t.string "family_id", null: false
+    t.string "digest", null: false
+    t.string "client_id", null: false
+    t.string "resource", null: false
+    t.string "scope", null: false
+    t.string "redirect_uri"
+    t.string "code_challenge"
+    t.datetime "expires_at", null: false
+    t.datetime "revoked_at"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["digest"], name: "index_mcp_credentials_on_digest", unique: true
+    t.index ["family_id"], name: "index_mcp_credentials_on_family_id"
+    t.index ["user_id"], name: "index_mcp_credentials_on_user_id"
+  end
+
+  create_table "mcp_writes", force: :cascade do |t|
+    t.bigint "user_id", null: false
+    t.string "request_key", null: false
+    t.string "fingerprint", null: false
+    t.string "tool", null: false
+    t.string "record_type", null: false
+    t.bigint "record_id", null: false
+    t.string "outcome", default: "started", null: false
+    t.jsonb "result", default: {}, null: false
+    t.jsonb "outbox", default: [], null: false
+    t.datetime "dispatched_at"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["user_id", "request_key"], name: "index_mcp_writes_on_user_id_and_request_key", unique: true
+    t.index ["user_id"], name: "index_mcp_writes_on_user_id"
   end
 
   create_table "media_orders", id: :serial, force: :cascade do |t|
@@ -3160,6 +3196,8 @@ ActiveRecord::Schema.define(version: 20261002180605) do
   add_foreign_key "kanban_columns", "kanban_boards", column: "board_id"
   add_foreign_key "kanban_money_entries", "kanban_cards", column: "card_id"
   add_foreign_key "lost_devices", "service_jobs"
+  add_foreign_key "mcp_credentials", "users"
+  add_foreign_key "mcp_writes", "users"
   add_foreign_key "merits", "faults"
   add_foreign_key "merits", "users", column: "issued_by_id"
   add_foreign_key "merits", "users", column: "recipient_id"

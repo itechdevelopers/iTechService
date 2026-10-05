@@ -590,30 +590,15 @@ class ServiceJobsController < ApplicationController
       end
     end
 
-    change = nil
-    testing_session = nil
-    approval_request = nil
-    ServiceJob.transaction do
-      change = @service_job.change_repair_status!(new_status, user: current_user, pause_reason: pause_reason, displaced_by: displaced_by, gluing_hours: gluing_hours)
-      # Сессия/запрос рождаются по НАМЕРЕНИЮ сотрудника, а не по факту смены
-      # статуса: устройство может уже стоять на этой самой паузе (второе
-      # согласование подряд, повторная отправка на тест), и тогда идемпотентный
-      # change_repair_status! вернёт nil — раньше действие молча терялось.
-      if pause_reason&.testing?
-        testing_session = @service_job.testing_sessions.create!(
-          sender: current_user,
-          target_location: testing_target_location,
-          what_to_test: testing_what_to_test
-        )
-      end
-      if pause_reason&.waiting_approval?
-        # @-переменная нужна вьюхе: она перерисует блок «Согласования» на
-        # странице ремонта — при повторном запросе статус не меняется, и без
-        # этого технарю не за что зацепиться, чтобы понять, что запрос ушёл.
-        approval_request = @approval_request =
-          @service_job.approval_requests.create!(requester: current_user, question: approval_question)
-      end
-    end
+    result = ServiceJobs::RepairStatusTransition.call(
+      service_job: @service_job, status: new_status, user: current_user,
+      pause_reason: pause_reason, displaced_by: displaced_by, gluing_hours: gluing_hours,
+      testing_target: testing_target_location, what_to_test: testing_what_to_test,
+      approval_question: approval_question
+    )
+    change = result[:change]
+    testing_session = result[:testing]
+    approval_request = @approval_request = result[:approval]
     if change && pause_reason&.gluing? && gluing_hours
       RepairGluingReminderJob.set(wait: gluing_hours.hours).perform_later(change.id)
     end
