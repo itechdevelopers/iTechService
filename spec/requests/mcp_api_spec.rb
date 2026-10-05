@@ -65,5 +65,58 @@ RSpec.describe 'AIS MCP Rails API' do
     expect(response).to have_http_status(:forbidden)
     expect(Fault.where(causer_id: recipient.id)).to be_empty
   end
+
+  it 'searches repair options from the existing model, price and spare-part records' do
+    user = create(:user, role: 'technician')
+    product_group = create(:product_group, repair_group: create(:repair_group))
+    product = create(
+      :product,
+      name: 'iPhone 16 Pro Max',
+      product_group: product_group,
+      product_category: product_group.product_category
+    )
+    service = RepairService.create!(repair_group: create(:repair_group), name: 'Замена экрана')
+    product.repair_services << service
+    spare_group = create(:spare_part_product_group, repair_group: create(:repair_group))
+    spare_product = create(
+      :product,
+      :spare_part,
+      name: 'OLED экран',
+      product_group: spare_group,
+      product_category: spare_group.product_category
+    )
+    service.spare_parts.create!(product: spare_product, quantity: 1)
+    RepairPrice.create!(repair_service: service, department: user.department, value: 18_000)
+
+    get '/api/v1/repairs/options',
+        params: { model_query: 'iPhone 16', repair_query: 'экран' }, headers: auth_headers(user)
+
+    expect(response).to have_http_status(:success)
+    payload = JSON.parse(response.body)
+    expect(payload['options'].map { |option| option['repair_service_id'] }).to include(service.id)
+    expect(payload['options'].first['client_price']).to eq('18000.0')
+  end
+
+  it 'changes an unlock workflow status and appends a separate comment idempotently' do
+    user = create(:user, role: 'technician')
+    client = create(:client, surname: 'Клиент', department: user.department)
+    item_group = create(:product_group, repair_group: create(:repair_group))
+    item_product = create(:product, product_group: item_group, product_category: item_group.product_category)
+    item = create(:item, product: item_product)
+    unlock = DeviceUnlockRequest.create!(client: client, item: item, user: user,
+                                         department: user.department, reason: 'Проверить заявку')
+    headers = auth_headers(user)
+
+    patch "/api/v1/unlock_requests/#{unlock.id}/status",
+          params: { status: 'approved', idempotency_key: 'unlock-status-1' }, headers: headers
+    expect(response).to have_http_status(:success)
+    expect(unlock.reload.status).to eq('approved')
+
+    body = { content: 'Согласовано с клиентом', idempotency_key: 'unlock-comment-1' }
+    post "/api/v1/unlock_requests/#{unlock.id}/comments", params: body, headers: headers
+    post "/api/v1/unlock_requests/#{unlock.id}/comments", params: body, headers: headers
+    expect(response).to have_http_status(:success)
+    expect(unlock.comments.reload.where(content: body[:content]).count).to eq(1)
+  end
 end
 # rubocop:enable Metrics/BlockLength

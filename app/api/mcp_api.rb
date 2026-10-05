@@ -72,6 +72,46 @@ class McpApi < Grape::API
       error!({ error: record.errors.full_messages }, 422) unless record.update(attrs)
       record
     end
+
+    def department_for!(requested_id = nil)
+      department_id = requested_id.presence || current_user.department_id
+      allowed = current_user.superadmin? || current_user.able_to?(:access_all_departments) || department_id.to_i == current_user.department_id
+      error!({ error: 'department is outside your access scope' }, 403) unless allowed
+      Department.find(department_id)
+    end
+
+    def unlock_access!(request)
+      allowed = current_user.superadmin? || request.department_id == current_user.department_id
+      error!({ error: 'You are not allowed to access this request.' }, 403) unless allowed
+      request
+    end
+
+    def unlock_payload(request)
+      {
+        id: request.id, status: request.status, status_options: DeviceUnlockRequest.statuses.keys,
+        reason: request.reason, created_at: request.created_at&.iso8601,
+        client: { id: request.client_id, name: request.client.full_name },
+        device: { id: request.item_id, name: request.item.name, serial_number: request.item.serial_number, imei: request.item.imei },
+        department: { id: request.department_id, name: request.department.name },
+        comments: request.comments.newest.limit(50).map { |comment| { id: comment.id, content: comment.content, user_id: comment.user_id, created_at: comment.created_at&.iso8601 } }
+      }
+    end
+
+    def repair_option_payload(service, product, department)
+      price = service.price(department)
+      parts = service.spare_parts.includes(:product).map do |part|
+        purchase_price = part.product&.purchase_price
+        { id: part.id, product_id: part.product_id, name: part.product&.name, description: part.product&.comment,
+          quantity: part.quantity, purchase_price: purchase_price, purchase_price_source: 'Product#purchase_price' }
+      end
+      { repair_service_id: service.id, repair_name: service.name, model: product.name, model_id: product.id,
+        part_variants: parts, client_price: price&.shown_price, client_price_value: price&.value,
+        client_price_range: price && price.is_range_price? ? { from: price.value_from, to: price.value_to } : nil,
+        cost: parts.sum { |part| (part[:purchase_price] || 0).to_d * part[:quantity].to_i },
+        cost_definition: 'Сумма текущих Product#purchase_price по настроенным запчастям с учётом quantity; это не скидка и не автоматически чистая прибыль.',
+        time: { standard: service.time_standard, from: service.time_standard_from, to: service.time_standard_to, repair_time: service.repair_time, unit: 'minutes unless the service configuration says otherwise' },
+        technical_notes: [service.client_info, service.special_marks].compact.reject(&:blank?), availability: service.remnants_s(department.spare_parts_store), price_updated_at: price&.updated_at&.iso8601 }
+    end
   end
 
   namespace 'clients' do
@@ -161,6 +201,116 @@ class McpApi < Grape::API
           { success: true, request: request_payload(request) }
         end
       end
+    end
+  end
+
+  namespace 'repairs' do
+    get :options do
+      department = department_for!(params[:department_id])
+      model_query = params[:model_query].to_s.strip
+      error!({ error: 'model_query is required' }, 422) if model_query.blank?
+      products = Product.search(query: model_query).not_archived.limit(limit)
+      repair_query = params[:repair_query].to_s.strip
+      options = products.flat_map do |product|
+        services = product.repair_services.not_archived
+        services = services.where('repair_services.name ILIKE ?', "%#{repair_query}%") if repair_query.present?
+        services.map do |service|
+          authorize :read, service
+          repair_option_payload(service, product, department)
+        end
+      end
+      { models: products.map { |product| { id: product.id, name: product.name } }, options: options }
+    end
+  end
+
+  namespace 'unlock_requests' do
+    get :statuses do
+      { statuses: DeviceUnlockRequest.statuses.keys.map { |key| { key: key, label: key } }, actions: %w[show update_status add_comment] }
+    end
+
+    get :search do
+      scope = DeviceUnlockRequest.active.includes(:client, :item, :department, comments: :user)
+      scope = scope.where(status: params[:status]) if params[:status].present? && DeviceUnlockRequest.statuses.key?(params[:status].to_s)
+      scope = scope.where(client_id: params[:client_id]) if params[:client_id].present?
+      scope = scope.where(item_id: params[:device_id]) if params[:device_id].present?
+      scope = scope.where('device_unlock_requests.created_at >= ?', Time.zone.parse(params[:from].to_s)) if params[:from].present?
+      scope = scope.where('device_unlock_requests.created_at < ?', Time.zone.parse(params[:to].to_s)) if params[:to].present?
+      scope = scope.where(department_id: current_user.department_id) unless current_user.superadmin?
+      { requests: scope.recent.limit(limit).map { |request| unlock_payload(request) } }
+    end
+
+    route_param :id, type: Integer do
+      get { unlock_payload(unlock_access!(DeviceUnlockRequest.includes(:client, :item, :department, comments: :user).find(params[:id]))) }
+
+      patch :status do
+        request = unlock_access!(DeviceUnlockRequest.find(params[:id])); status = params[:status].to_s
+        error!({ error: 'unknown status', allowed: DeviceUnlockRequest.statuses.keys }, 422) unless DeviceUnlockRequest.statuses.key?(status)
+        idempotent!('update_unlock_request_status') do
+          error!({ error: request.errors.full_messages }, 422) unless request.update(status: status)
+          request.notify_status_change
+          { success: true, request: unlock_payload(request.reload) }
+        end
+      end
+
+      post :comments do
+        request = unlock_access!(DeviceUnlockRequest.find(params[:id])); content = params[:content].to_s.strip
+        error!({ error: 'content is required' }, 422) if content.blank?
+        idempotent!('add_unlock_request_comment') do
+          comment = request.comments.build(content: content, user: current_user)
+          error!({ error: comment.errors.full_messages }, 422) unless comment.save
+          request.notify_new_comment
+          { success: true, request_id: request.id, comment_id: comment.id, content: comment.content }
+        end
+      end
+    end
+  end
+
+  namespace 'reports' do
+    get :catalog do
+      error!({ error: 'reports access is required' }, 403) unless current_user.superadmin? || current_user.able_to?(:view_reports)
+      cards = current_user.superadmin? ? ReportCard.includes(:report_column).all : current_user.accessible_report_cards.includes(:report_column)
+      { reports: cards.map { |card| { id: card.id, key: card.content, annotation: card.annotation, column: card.report_column&.name, class_name: "#{card.content.to_s.camelize}Report" } } }
+    end
+
+    get :electronic_queue do
+      error!({ error: 'reports access is required' }, 403) unless current_user.superadmin? || current_user.able_to?(:view_reports)
+      department = department_for!(params[:department_id])
+      begin
+        start_date = Date.iso8601(params[:from].to_s)
+        end_date = Date.iso8601(params[:to].to_s)
+      rescue ArgumentError
+        error!({ error: 'from and to must be ISO dates' }, 422)
+      end
+      error!({ error: 'to must not be before from' }, 422) if end_date < start_date
+      report = ElqueueTicketsReport.new(start_date: start_date.iso8601, end_date: end_date.iso8601,
+                                        department_id: department.id, start_time: params[:start_time].presence || '00:00',
+                                        end_time: params[:end_time].presence || '23:59')
+      report.call
+      { report: report.result, source: 'ElqueueTicketsReport', timezone: Time.zone.name, limitations: ['Показатели отражают только события, сохранённые электронной очередью; интерпретация качества сотрудника не является частью отчёта.'] }
+    end
+  end
+
+  namespace 'equipment_orders' do
+    get :search do
+      authorize :read, Order
+      scope = current_user.superadmin? || current_user.able_to?(:access_all_departments) ? Order.all : Order.where(department_id: current_user.department_id)
+      scope = scope.where(object_kind: 'device')
+      scope = scope.where('orders.created_at >= ?', Time.zone.parse(params[:from].to_s)) if params[:from].present?
+      scope = scope.where('orders.created_at < ?', Time.zone.parse(params[:to].to_s)) if params[:to].present?
+      scope = scope.where(status: params[:status]) if params[:status].present? && Order::STATUSES.include?(params[:status].to_s)
+      scope = scope.where('orders.number LIKE ?', "%#{params[:number]}%") if params[:number].present?
+      orders = scope.includes(:department, :customer).order(created_at: :desc).limit(limit)
+      { orders: orders.map { |order| { id: order.id, number: order.number, model: order.model, object: order.object, quantity: order.quantity, status: order.status, created_at: order.created_at&.iso8601, desired_date: order.desired_date&.iso8601, department: order.department_name, customer: order.customer_type == 'Client' ? { id: order.customer_id, name: order.customer&.full_name } : nil } }, statuses: Order::STATUSES }
+    end
+
+    get :summary do
+      authorize :read, Order
+      scope = current_user.superadmin? || current_user.able_to?(:access_all_departments) ? Order.all : Order.where(department_id: current_user.department_id)
+      scope = scope.where(object_kind: 'device')
+      from = params[:from].present? ? Time.zone.parse(params[:from].to_s) : 1.year.ago.beginning_of_day
+      to = params[:to].present? ? Time.zone.parse(params[:to].to_s) : Time.current
+      grouped = scope.where(created_at: from...to).group(:model, :status).sum(:quantity)
+      { from: from.iso8601, to: to.iso8601, by_model_and_status: grouped.map { |(model, status), quantity| { model: model, status: status, units: quantity } }, definition: 'units — сумма поля Order#quantity, а не число заявок; даты — created_at; это заказы техники, не подтверждённые продажи.' }
     end
   end
 
