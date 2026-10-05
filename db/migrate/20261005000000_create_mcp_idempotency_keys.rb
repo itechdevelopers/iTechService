@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 # Creates retry protection records for MCP write operations.
-class CreateMcpIdempotencyKeys < ActiveRecord::Migration
+class CreateMcpIdempotencyKeys < ActiveRecord::Migration[5.1]
   # rubocop:disable Metrics/MethodLength
   def change
     create_table :mcp_idempotency_keys do |t|

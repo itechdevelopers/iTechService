@@ -8,6 +8,14 @@ class McpApi < Grape::API
   format :json
   before { authenticate! }
 
+  rescue_from Pundit::NotAuthorizedError do
+    error!({ error: 'You are not allowed to perform this operation.' }, 403)
+  end
+
+  rescue_from ActiveRecord::RecordNotFound do
+    error!({ error: 'Record not found.' }, 404)
+  end
+
   helpers do
     CLIENT_FIELDS = %w[name surname patronymic email contact_phone admin_info].freeze
     ITEM_FIELDS = %w[barcode_num].freeze
@@ -172,7 +180,7 @@ class McpApi < Grape::API
     post ':id/merits' do
       user = User.find(params[:id])
       idempotent!('add_merit') do
-        result = Merit::Create.call({ user_id: user.id, merit: { comment: params[:comment], date: params[:date] } }, current_user: current_user)
+        result = Merit::Create.(user_id: user.id, merit: { comment: params[:comment], date: params[:date] }, current_user: current_user)
         error!({ error: 'merit could not be created' }, 422) unless result.success?; merit = result['model'] || result[:model]
         { success: true, merit: { id: merit.id, recipient_id: merit.recipient_id, comment: merit.comment, date: merit.date&.iso8601 } }
       end
@@ -180,7 +188,7 @@ class McpApi < Grape::API
     post ':id/faults' do
       user = User.find(params[:id])
       idempotent!('add_fault') do
-        result = Fault::Create.call({ user_id: user.id, fault: { comment: params[:comment], date: params[:date], kind_id: params[:kind_id], issued_by_id: current_user.id } }, current_user: current_user)
+        result = Fault::Create.(user_id: user.id, fault: { comment: params[:comment], date: params[:date], kind_id: params[:kind_id], issued_by_id: current_user.id }, current_user: current_user)
         error!({ error: 'fault could not be created' }, 422) unless result.success?; fault = result['model'] || result[:model]
         { success: true, fault: { id: fault.id, causer_id: fault.causer_id, kind_id: fault.kind_id, comment: fault.comment, date: fault.date&.iso8601, penalty: fault.penalty } }
       end

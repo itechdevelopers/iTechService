@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20261002180605) do
+ActiveRecord::Schema.define(version: 20261005000000) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -1241,6 +1241,18 @@ ActiveRecord::Schema.define(version: 20261002180605) do
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.index ["word"], name: "index_marker_words_on_word", unique: true
+  end
+
+  create_table "mcp_idempotency_keys", force: :cascade do |t|
+    t.string "key", null: false
+    t.string "operation", null: false
+    t.integer "user_id", null: false
+    t.string "payload_digest", null: false
+    t.text "response_json", null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["created_at"], name: "index_mcp_idempotency_keys_on_created_at"
+    t.index ["user_id", "operation", "key"], name: "index_mcp_idempotency_keys_on_user_operation_key", unique: true
   end
 
   create_table "media_orders", id: :serial, force: :cascade do |t|
