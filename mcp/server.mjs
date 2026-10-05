@@ -1,4 +1,5 @@
 import { createServer } from 'node:http';
+import { createHash, randomBytes, timingSafeEqual } from 'node:crypto';
 import { McpServer } from '@modelcontextprotocol/sdk/server/mcp.js';
 import { StreamableHTTPServerTransport } from '@modelcontextprotocol/sdk/server/streamableHttp.js';
 import { z } from 'zod';
@@ -6,8 +7,31 @@ import { z } from 'zod';
 const port = Number(process.env.PORT || 8787);
 const aisApiUrl = (process.env.MCP_AIS_API_URL || 'http://127.0.0.1:3000/api/v1').replace(/\/$/, '');
 const oauthIssuer = process.env.MCP_OAUTH_ISSUER;
+const oauthClientId = process.env.MCP_OAUTH_CLIENT_ID || 'chatgpt-work';
+const oauthRedirectUris = new Set((process.env.MCP_OAUTH_REDIRECT_URIS || '').split(',').map((value) => value.trim()).filter(Boolean));
+const authorizationCodes = new Map();
+const accessTokens = new Map();
+const tokenLifetimeSeconds = 3600;
 
 function bearerToken(req) { const match = (req.headers.authorization || '').match(/^Bearer\s+(.+)$/i); return match?.[1]?.trim(); }
+function randomToken() { return randomBytes(32).toString('base64url'); }
+function constantTimeEqual(left, right) {
+  const a = Buffer.from(left || ''); const b = Buffer.from(right || '');
+  return a.length === b.length && timingSafeEqual(a, b);
+}
+function safeRedirect(uri) { return oauthRedirectUris.has(uri); }
+function htmlEscape(value) { return String(value).replace(/[&<>"']/g, (char) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[char])); }
+async function bodyParams(req) {
+  let body = ''; for await (const chunk of req) body += chunk;
+  return new URLSearchParams(body);
+}
+function oauthError(res, status, error, description) {
+  res.writeHead(status, { 'content-type': 'application/json', 'cache-control': 'no-store' }).end(JSON.stringify({ error, ...(description ? { error_description: description } : {}) }));
+}
+function oauthMetadata(url) {
+  const issuer = oauthIssuer || url.origin;
+  return { issuer, authorization_endpoint: `${issuer}/oauth/authorize`, token_endpoint: `${issuer}/oauth/token`, revocation_endpoint: `${issuer}/oauth/revoke`, response_types_supported: ['code'], grant_types_supported: ['authorization_code'], code_challenge_methods_supported: ['S256'], token_endpoint_auth_methods_supported: ['none'] };
+}
 function toolError(error) {
   const message = error.status === 401 ? 'AIS authorization failed.' : error.status === 403 ? 'You are not allowed to perform this operation.' : error.message || 'AIS request failed.';
   return { isError: true, content: [{ type: 'text', text: message }] };
@@ -21,6 +45,19 @@ async function readJson(response) {
 function aisClient(token) {
   const call = async (path, method = 'GET', body) => readJson(await fetch(`${aisApiUrl}${path}`, { method, headers: { authorization: `Token token=${token}`, accept: 'application/json', ...(body ? { 'content-type': 'application/json' } : {}) }, body: body ? JSON.stringify(body) : undefined }));
   return { call };
+}
+
+async function signInToAis(username, password) {
+  const response = await fetch(`${aisApiUrl}/signin`, { method: 'POST', headers: { accept: 'application/json', 'content-type': 'application/json' }, body: JSON.stringify({ username, password }) });
+  const body = await readJson(response);
+  if (!body.token) { const error = new Error('AIS authorization failed.'); error.status = 401; throw error; }
+  return body.token;
+}
+
+function tokenRecord(token) {
+  const record = accessTokens.get(token);
+  if (!record || record.expiresAt <= Date.now()) { accessTokens.delete(token); return null; }
+  return record;
 }
 function registerTools(server, client) {
   const read = { readOnlyHint: true, destructiveHint: false, openWorldHint: false };
@@ -52,18 +89,52 @@ export function createHttpServer() {
   return createServer(async (req, res) => {
     const url = new URL(req.url || '/', `http://${req.headers.host || 'localhost'}`);
     if (req.method === 'GET' && url.pathname === '/') return res.writeHead(200, { 'content-type': 'text/plain' }).end('iTechService AIS MCP server');
-    if (req.method === 'GET' && url.pathname === '/.well-known/oauth-protected-resource') return res.writeHead(200, { 'content-type': 'application/json' }).end(JSON.stringify({ resource: `${url.origin}/mcp`, ...(oauthIssuer ? { authorization_servers: [oauthIssuer] } : {}) }));
+    if (req.method === 'GET' && url.pathname === '/.well-known/oauth-protected-resource') return res.writeHead(200, { 'content-type': 'application/json', 'cache-control': 'no-store' }).end(JSON.stringify({ resource: `${url.origin}/mcp`, authorization_servers: [oauthIssuer || url.origin] }));
+    if (req.method === 'GET' && url.pathname === '/.well-known/oauth-authorization-server') return res.writeHead(200, { 'content-type': 'application/json', 'cache-control': 'no-store' }).end(JSON.stringify(oauthMetadata(url)));
+    if (req.method === 'GET' && url.pathname === '/oauth/authorize') {
+      const { client_id: clientId, redirect_uri: redirectUri, response_type: responseType, code_challenge: challenge, code_challenge_method: method, state } = Object.fromEntries(url.searchParams);
+      if (clientId !== oauthClientId || responseType !== 'code' || method !== 'S256' || !challenge || !safeRedirect(redirectUri)) return oauthError(res, 400, 'invalid_request', 'Invalid OAuth client, redirect URI or PKCE parameters.');
+      const form = `<form method="post" action="/oauth/authorize"><input type="hidden" name="client_id" value="${htmlEscape(clientId)}"><input type="hidden" name="redirect_uri" value="${htmlEscape(redirectUri)}"><input type="hidden" name="code_challenge" value="${htmlEscape(challenge)}"><input type="hidden" name="state" value="${htmlEscape(state || '')}"><label>Логин AIS <input name="username" autocomplete="username" required></label><label>Пароль AIS <input name="password" type="password" autocomplete="current-password" required></label><button type="submit">Разрешить доступ</button></form>`;
+      return res.writeHead(200, { 'content-type': 'text/html; charset=utf-8', 'cache-control': 'no-store' }).end(`<!doctype html><title>Вход в AIS</title>${form}`);
+    }
+    if (req.method === 'POST' && url.pathname === '/oauth/authorize') {
+      const params = await bodyParams(req); const redirectUri = params.get('redirect_uri'); const state = params.get('state');
+      if (params.get('client_id') !== oauthClientId || !safeRedirect(redirectUri) || !params.get('code_challenge')) return oauthError(res, 400, 'invalid_request');
+      try {
+        const aisToken = await signInToAis(params.get('username'), params.get('password'));
+        const code = randomToken(); authorizationCodes.set(code, { aisToken, clientId: params.get('client_id'), redirectUri, challenge: params.get('code_challenge'), expiresAt: Date.now() + 60_000 });
+        const location = new URL(redirectUri); location.searchParams.set('code', code); if (state) location.searchParams.set('state', state);
+        return res.writeHead(302, { location: location.toString(), 'cache-control': 'no-store' }).end();
+      } catch (_) { return res.writeHead(401, { 'content-type': 'text/html; charset=utf-8', 'cache-control': 'no-store' }).end('<p>Не удалось войти в AIS.</p>'); }
+    }
+    if (req.method === 'POST' && url.pathname === '/oauth/token') {
+      const params = await bodyParams(req); const record = authorizationCodes.get(params.get('code')); authorizationCodes.delete(params.get('code'));
+      if (!record || record.expiresAt <= Date.now() || record.clientId !== params.get('client_id') || record.redirectUri !== params.get('redirect_uri') || params.get('grant_type') !== 'authorization_code') return oauthError(res, 400, 'invalid_grant');
+      const expected = Buffer.from(record.challenge); const actual = Buffer.from(createHash('sha256').update(params.get('code_verifier') || '').digest('base64url'));
+      if (!constantTimeEqual(actual.toString(), expected.toString())) return oauthError(res, 400, 'invalid_grant', 'PKCE verification failed.');
+      const accessToken = randomToken(); accessTokens.set(accessToken, { aisToken: record.aisToken, audience: `${url.origin}/mcp`, expiresAt: Date.now() + tokenLifetimeSeconds * 1000 });
+      return res.writeHead(200, { 'content-type': 'application/json', 'cache-control': 'no-store', pragma: 'no-cache' }).end(JSON.stringify({ access_token: accessToken, token_type: 'Bearer', expires_in: tokenLifetimeSeconds, scope: 'mcp' }));
+    }
+    if (req.method === 'POST' && url.pathname === '/oauth/revoke') {
+      const params = await bodyParams(req); accessTokens.delete(params.get('token')); return res.writeHead(200, { 'cache-control': 'no-store' }).end();
+    }
     if (req.method === 'OPTIONS' && url.pathname === '/mcp') return res.writeHead(204, { 'access-control-allow-origin': '*', 'access-control-allow-methods': 'GET,POST,DELETE,OPTIONS', 'access-control-allow-headers': 'authorization,content-type,mcp-session-id', 'access-control-expose-headers': 'Mcp-Session-Id' }).end();
     if (url.pathname !== '/mcp' || !['GET', 'POST', 'DELETE'].includes(req.method || '')) return res.writeHead(404).end('Not Found');
-    const token = bearerToken(req);
-    if (!token) return res.writeHead(401, { 'content-type': 'application/json', 'www-authenticate': 'Bearer realm="AIS MCP"' }).end(JSON.stringify({ error: 'authorization_required' }));
+    const presented = bearerToken(req); const record = tokenRecord(presented);
+    if (!record || (record.audience !== 'test' && record.audience !== `${url.origin}/mcp`)) return res.writeHead(401, { 'content-type': 'application/json', 'www-authenticate': `Bearer realm="AIS MCP", resource_metadata="${url.origin}/.well-known/oauth-protected-resource"` }).end(JSON.stringify({ error: 'authorization_required' }));
     res.setHeader('access-control-allow-origin', '*'); res.setHeader('access-control-expose-headers', 'Mcp-Session-Id');
     const server = new McpServer({ name: 'itechservice-ais', version: '0.2.0' });
-    registerTools(server, aisClient(token));
+    registerTools(server, aisClient(record.aisToken));
     const transport = new StreamableHTTPServerTransport({ sessionIdGenerator: undefined, enableJsonResponse: true });
     res.on('close', () => { transport.close(); server.close(); });
     try { await server.connect(transport); await transport.handleRequest(req, res); } catch (error) { console.error('MCP request failed', { name: error.name, status: error.status }); if (!res.headersSent) res.writeHead(500).end('Internal server error'); }
   });
+}
+
+export function issueTestAccessToken(aisToken) {
+  const token = randomToken();
+  accessTokens.set(token, { aisToken, audience: 'test', expiresAt: Date.now() + 60_000 });
+  return token;
 }
 
 if (process.argv[1] && new URL(`file://${process.argv[1]}`).href === import.meta.url) createHttpServer().listen(port, () => console.log(`iTechService AIS MCP listening on :${port}/mcp`));

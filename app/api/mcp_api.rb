@@ -1,6 +1,8 @@
 # frozen_string_literal: true
 # rubocop:disable all
 
+require 'digest'
+
 class McpApi < Grape::API
   version 'v1', using: :path
   format :json
@@ -20,13 +22,18 @@ class McpApi < Grape::API
     def idempotent!(operation)
       key = params[:idempotency_key].to_s
       error!({ error: 'idempotency_key is required for write operations' }, 422) if key.blank?
-      old = McpIdempotencyKey.find_by(user_id: current_user.id, key: key)
+      digest = Digest::SHA256.hexdigest(params.to_h.deep_stringify_keys.except('idempotency_key').to_json)
+      old = McpIdempotencyKey.find_by(user_id: current_user.id, operation: operation, key: key)
+      if old && old.payload_digest != digest
+        error!({ error: 'idempotency_key was already used with a different payload' }, 409)
+      end
       return JSON.parse(old.response_json) if old
       result = yield
-      McpIdempotencyKey.create!(user: current_user, operation: operation, key: key, response_json: result.to_json)
+      McpIdempotencyKey.create!(user: current_user, operation: operation, key: key,
+                                payload_digest: digest, response_json: result.to_json)
       result
     rescue ActiveRecord::RecordNotUnique
-      JSON.parse(McpIdempotencyKey.find_by!(user_id: current_user.id, key: key).response_json)
+      JSON.parse(McpIdempotencyKey.find_by!(user_id: current_user.id, operation: operation, key: key).response_json)
     end
     def item_payload(item)
       { id: item.id, name: item.name, code: item.code, barcode: item.barcode_num, serial_number: item.serial_number,
@@ -71,7 +78,9 @@ class McpApi < Grape::API
         client = find_record!(Client, params[:id], :update); content = params[:content].to_s.strip
         error!({ error: 'content is required' }, 422) if content.blank?
         idempotent!('add_client_note') do
-          note = client.comments.build(content: content, user: current_user); error!({ error: note.errors.full_messages }, 422) unless note.save
+          note = client.comments.build(content: content, user: current_user)
+          authorize :create, note
+          error!({ error: note.errors.full_messages }, 422) unless note.save
           { success: true, client_id: client.id, comment_id: note.id, content: note.content }
         end
       end
@@ -91,7 +100,9 @@ class McpApi < Grape::API
         error!({ error: 'a service job is required to store a device note' }, 422) unless job
         authorize :read, job; content = params[:content].to_s.strip; error!({ error: 'content is required' }, 422) if content.blank?
         idempotent!('add_device_note') do
-          note = job.device_notes.build(content: content, user: current_user); error!({ error: note.errors.full_messages }, 422) unless note.save
+          note = job.device_notes.build(content: content, user: current_user)
+          authorize :create, note
+          error!({ error: note.errors.full_messages }, 422) unless note.save
           { success: true, device_id: params[:id].to_i, service_job_id: job.id, note_id: note.id, content: note.content }
         end
       end
@@ -108,7 +119,9 @@ class McpApi < Grape::API
       post :notes do
         job = find_record!(ServiceJob, params[:id]); content = params[:content].to_s.strip; error!({ error: 'content is required' }, 422) if content.blank?
         idempotent!('add_request_note') do
-          note = job.device_notes.build(content: content, user: current_user); error!({ error: note.errors.full_messages }, 422) unless note.save
+          note = job.device_notes.build(content: content, user: current_user)
+          authorize :create, note
+          error!({ error: note.errors.full_messages }, 422) unless note.save
           { success: true, request_id: job.id, note_id: note.id, content: note.content }
         end
       end
