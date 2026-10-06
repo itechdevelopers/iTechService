@@ -17,6 +17,25 @@ class ClientMaxPhoneWebhookController < ApplicationController
   skip_after_action :verify_authorized
 
   CHANNEL = 'max_phone'
+  TEXT_TYPES = %w[textMessage extendedTextMessage quotedMessage].freeze
+  # Не новые реплики, а действия над уже отправленными. Реакция приходит
+  # обычным входящим, и без этого списка лайк клиента на ответ сотрудника
+  # снова ставил бы диалог в «Без ответа».
+  IGNORED_TYPES = %w[reactionMessage editedMessage deletedMessage].freeze
+  # Вложения, которых мы пока не показываем в Айсе. Картинки разбираются
+  # отдельно, здесь только то, на что отвечаем отказом.
+  UNSUPPORTED = {
+    'videoMessage' => 'видео',
+    'audioMessage' => 'аудиофайлы',
+    'documentMessage' => 'файлы',
+    'stickerMessage' => 'стикеры',
+    'contactMessage' => 'контакты',
+    'locationMessage' => 'геопозицию',
+    'pollMessage' => 'опросы'
+  }.freeze
+  # Незнакомый тип — скорее новый вид вложения, чем пустое событие: лучше
+  # показать заглушку, чем потерять реплику, на которую клиент ждёт ответа.
+  UNSUPPORTED_FALLBACK = 'вложение'
 
   def update
     return head :unauthorized unless authentic?
@@ -52,22 +71,46 @@ class ClientMaxPhoneWebhookController < ApplicationController
   end
 
   def handle_incoming
-    text = incoming_text
-    return if text.blank?
+    data = params[:messageData] || {}
+    type = data[:typeMessage].to_s
 
-    handle_inbound(kind: 'text', text: text)
+    if TEXT_TYPES.include?(type)
+      text = message_text(data, type)
+      handle_inbound(kind: 'text', text: text) if text.present?
+    elsif type == 'imageMessage'
+      store_photo(data[:fileMessageData] || {})
+    elsif type.present? && !IGNORED_TYPES.include?(type)
+      store_unsupported(data, UNSUPPORTED.fetch(type, UNSUPPORTED_FALLBACK))
+    end
   end
 
   # Ссылка и ответ с цитатой приходят своими типами, но текст у них лежит в
   # одном и том же поле.
-  def incoming_text
-    data = params[:messageData] || {}
-    text =
-      case data[:typeMessage].to_s
-      when 'textMessage' then data.dig(:textMessageData, :textMessage)
-      when 'extendedTextMessage', 'quotedMessage' then data.dig(:extendedTextMessageData, :text)
-      end
+  def message_text(data, type)
+    text = type == 'textMessage' ? data.dig(:textMessageData, :textMessage) : data.dig(:extendedTextMessageData, :text)
     text.to_s.strip
+  end
+
+  # Фото кладём в ленту сразу, а файл догружаем джобой: скачивание не
+  # укладывается во время ответа на уведомление.
+  def store_photo(file)
+    record = handle_inbound(kind: 'photo', text: file[:caption].to_s.strip)
+    return if record.nil?
+
+    AttachClientPhotoJob.perform_later(record.id, file[:downloadUrl].to_s)
+  end
+
+  # Вложение, которое мы пока не умеем показывать. Строку в ленту всё равно
+  # кладём — иначе сотрудник не узнает, что клиент вообще писал, а клиент
+  # будет ждать ответа на сообщение, которого для нас не существовало.
+  def store_unsupported(data, label)
+    caption = data.dig(:fileMessageData, :caption).to_s.strip
+    line = ["[клиент прислал: #{label}]", caption.presence].compact.join(' ')
+    return if handle_inbound(kind: 'text', text: line).nil?
+
+    MaxPhoneReplyJob.perform_later(
+      chat_id, "Мы пока не умеем открывать #{label}. Опишите вопрос текстом или пришлите фото."
+    )
   end
 
   # Побочные эффекты нового входящего. Повторная доставка уведомления сюда не
