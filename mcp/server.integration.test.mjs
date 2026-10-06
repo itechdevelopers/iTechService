@@ -10,6 +10,13 @@ test('MCP rejects anonymous calls and supports initialize/tools/list/tools/call'
   const ais = createHttp((req, res) => {
     if (req.url === '/signin') {
       res.writeHead(200, { 'content-type': 'application/json' }).end(JSON.stringify({ token: 'ais-user-token' }));
+    } else if (req.url === '/products/cost_by_barcode?barcode=00123') {
+      assert.equal(req.headers.authorization, 'Token token=ais-user-token');
+      res.writeHead(200, { 'content-type': 'application/json' }).end(JSON.stringify({ barcode: '00123', status: 'ok', source: 'AccumulationRegister_СебестоимостьТоваров/Balance', breakdown: [{ cost_per_unit: '25.125' }] }));
+    } else if (req.url === '/products/cost_by_barcode?barcode=denied') {
+      res.writeHead(403, { 'content-type': 'application/json' }).end(JSON.stringify({ error: 'forbidden' }));
+    } else if (req.url === '/products/cost_by_barcode?barcode=error') {
+      res.writeHead(502, { 'content-type': 'application/json' }).end(JSON.stringify({ error: 'Чтение 1С недоступно' }));
     } else if (req.url === '/clients/search?query=alice&limit=20') {
       res.writeHead(200, { 'content-type': 'application/json' }).end(JSON.stringify({ clients: [{ id: 1 }] }));
     } else {
@@ -44,6 +51,16 @@ test('MCP rejects anonymous calls and supports initialize/tools/list/tools/call'
   const called = await fetch(base, { method: 'POST', headers, body: JSON.stringify({ jsonrpc: '2.0', id: 3, method: 'tools/call', params: { name: 'search_clients', arguments: { query: 'alice' } } }) });
   const call = await called.json();
   assert.equal(call.result.structuredContent.clients[0].id, 1);
+  const costTool = list.result.tools.find((tool) => tool.name === 'get_product_cost_by_barcode');
+  assert.equal(costTool.annotations.readOnlyHint, true);
+  assert.equal(costTool.inputSchema.properties.barcode.type, 'string');
+  const invokeCost = async (barcode) => (await (await fetch(base, { method: 'POST', headers, body: JSON.stringify({ jsonrpc: '2.0', id: 5, method: 'tools/call', params: { name: 'get_product_cost_by_barcode', arguments: { barcode } } }) })).json());
+  const cost = await invokeCost('00123');
+  assert.equal(cost.result.structuredContent.barcode, '00123');
+  assert.equal(cost.result.structuredContent.breakdown[0].cost_per_unit, '25.125');
+  assert.equal((await invokeCost('denied')).result.isError, true);
+  assert.equal((await invokeCost('error')).result.isError, true);
+  assert.equal((await invokeCost(123)).result.isError, true);
   const revoked = await fetch(`http://127.0.0.1:${mcpPort}/oauth/revoke`, { method: 'POST', headers: { 'content-type': 'application/x-www-form-urlencoded' }, body: new URLSearchParams({ token: access.access_token }) });
   assert.equal(revoked.status, 200);
   const afterRevoke = await fetch(base, { method: 'POST', headers, body: JSON.stringify({ jsonrpc: '2.0', id: 4, method: 'tools/list', params: {} }) });

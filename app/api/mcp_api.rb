@@ -114,6 +114,23 @@ class McpApi < Grape::API
     end
   end
 
+  namespace 'products' do
+    get :cost_by_barcode do
+      # The employee's existing sensitive product-price permission is checked
+      # before starting the connector; the shared 1C identity grants no AIS rights.
+      authorize :view_purchase_price, Product
+      arguments = params.slice('barcode', 'product_id', 'characteristic_id', 'package_id',
+                               'organization_id', 'warehouse_id', 'party_id', 'as_of').to_h
+      begin
+        OneCProductCost.call(arguments)
+      rescue OneCProductCost::InvalidArguments => exception
+        error!({ error: exception.message }, 422)
+      rescue OneCProductCost::Unavailable
+        error!({ error: 'Чтение 1С недоступно или результат неполный; стоимость не определена.' }, 502)
+      end
+    end
+  end
+
   namespace 'clients' do
     get :search do
       q = params[:query].to_s.strip; error!({ error: 'query is required' }, 422) if q.blank?

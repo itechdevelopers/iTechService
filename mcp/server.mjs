@@ -64,6 +64,16 @@ function registerTools(server, client) {
   const write = { readOnlyHint: false, destructiveHint: false, openWorldHint: false };
   const id = z.number().int().positive(); const key = z.string().trim().min(1).max(200);
   const call = (fn) => async (args) => { try { return { structuredContent: await fn(args) }; } catch (e) { return toolError(e); } };
+  server.registerTool('get_product_cost_by_barcode', {
+    title: 'Себестоимость товара по штрихкоду',
+    description: 'Read 1C accounting inventory unit cost directly by exact barcode string, preserving leading zeros. Requires the employee AIS product purchase-price permission. Return ambiguous product/characteristic/package variants for selection; never choose one. Return separate accounting groups by organization, storage, party and other dimensions. Missing cost is not zero. Cost may change after period closing. Do not describe balance cost as purchase or retail price.',
+    inputSchema: {
+      barcode: z.string().min(1).max(128), product_id: z.string().uuid().optional(),
+      characteristic_id: z.string().uuid().optional(), package_id: z.string().uuid().optional(),
+      organization_id: z.string().uuid().optional(), warehouse_id: z.string().uuid().optional(),
+      party_id: z.string().max(200).optional(), as_of: z.string().max(19).optional()
+    }, annotations: read
+  }, call((args) => client.call(`/products/cost_by_barcode?${new URLSearchParams(args)}`)));
   server.registerTool('search_clients', { title: 'Search clients', description: 'Find AIS clients by the existing phone/name/card search. Return all matches; never choose an ambiguous client for a write.', inputSchema: { query: z.string().trim().min(1), limit: z.number().int().min(1).max(50).optional() }, annotations: read }, call(({ query, limit }) => client.call(`/clients/search?query=${encodeURIComponent(query)}&limit=${limit || 20}`)));
   server.registerTool('get_client', { title: 'Get client', description: 'Read one unambiguous client and related devices and service jobs.', inputSchema: { client_id: id }, annotations: read }, call(({ client_id }) => client.call(`/clients/${client_id}`)));
   server.registerTool('update_client', { title: 'Update client fields', description: 'Replace only explicitly supplied allowed client fields; use add_client_note to append history instead of replacing it.', inputSchema: { client_id: id, name: z.string().optional(), surname: z.string().optional(), patronymic: z.string().optional(), email: z.string().optional(), contact_phone: z.string().optional(), admin_info: z.string().optional(), idempotency_key: key }, annotations: write }, call(({ client_id, idempotency_key, ...fields }) => client.call(`/clients/${client_id}`, 'PATCH', { ...fields, idempotency_key })));
