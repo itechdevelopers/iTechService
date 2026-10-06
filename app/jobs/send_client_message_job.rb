@@ -36,6 +36,7 @@ class SendClientMessageJob < ApplicationJob
 
     if outcome.success?
       message.update!(delivery_status: 'sent', sent_at: Time.current)
+      remember_external_id(message, outcome)
     elsif adapter.class.transient_error?(outcome.error)
       # Отказы самого мессенджера (клиент заблокировал бота, чат удалён)
       # постоянны — повторять их четыре раза бессмысленно.
@@ -43,5 +44,24 @@ class SendClientMessageJob < ApplicationJob
     else
       message.update!(delivery_status: 'failed', delivery_error: outcome.result)
     end
+  end
+
+  private
+
+  # id сообщения в мессенджере: по нему GREEN-API позже присылает отказ
+  # доставки, и по нему же отсеивается эхо собственного ответа. Пишется
+  # отдельно от статуса: отправка уже состоялась, и конфликт уникального
+  # индекса не должен ронять джобу.
+  #
+  # Занятый id проверяем заранее, а не только ловим исключение: в Postgres
+  # нарушение индекса обрывает всю транзакцию, и внутри чужой транзакции
+  # пойманная ошибка всё равно сломала бы следующий запрос.
+  def remember_external_id(message, outcome)
+    id = outcome.respond_to?(:message_id) ? outcome.message_id.to_s : ''
+    return if id.blank? || ClientMessage.exists?(client_conversation_id: message.client_conversation_id, external_id: id)
+
+    message.update_columns(external_id: id)
+  rescue ActiveRecord::RecordNotUnique
+    nil
   end
 end

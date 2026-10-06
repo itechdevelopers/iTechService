@@ -39,6 +39,13 @@ class ClientMaxPhoneWebhookController < ApplicationController
   # Незнакомый тип — скорее новый вид вложения, чем пустое событие: лучше
   # показать заглушку, чем потерять реплику, на которую клиент ждёт ответа.
   UNSUPPORTED_FALLBACK = 'вложение'
+  # Окончательные отказы, о которых GREEN-API узнаёт уже после того, как
+  # принял сообщение. sent/delivered/read ничего не меняют: «отправлено» мы
+  # ставим сами, когда GREEN-API принял сообщение к отправке.
+  FAILED_STATUSES = {
+    'failed' => 'MAX не принял сообщение',
+    'noAccount' => 'у получателя нет аккаунта MAX'
+  }.freeze
 
   def update
     return head :unauthorized unless authentic?
@@ -46,6 +53,8 @@ class ClientMaxPhoneWebhookController < ApplicationController
     case params[:typeWebhook]
     when 'incomingMessageReceived', 'outgoingMessageReceived'
       handle_message if personal_chat?
+    when 'outgoingMessageStatus' then handle_status
+    when 'stateInstanceChanged' then log_state
     end
 
     head :ok
@@ -195,6 +204,32 @@ class ClientMaxPhoneWebhookController < ApplicationController
     # Повтор того же уведомления параллельно с первым: exists? выше его не
     # видит, а уникальный индекс ловит.
     nil
+  end
+
+  # Отказ доставки ответа, уже показанного в ленте как отправленный. Сотрудник
+  # должен его увидеть, а не ждать реакции на сообщение, которого клиент не
+  # получил. Ищем по id, который SendClientMessageJob запомнил при отправке.
+  def handle_status
+    reason = FAILED_STATUSES[params[:status].to_s]
+    return if reason.nil?
+
+    message = ClientMessage.joins(:conversation)
+                           .where(client_conversations: { channel: CHANNEL })
+                           .find_by(direction: 'out', external_id: params[:idMessage].to_s)
+    return if message.nil?
+
+    message.update!(delivery_status: 'failed',
+                    delivery_error: [reason, params[:description].presence].compact.join(': '))
+    # Открытая карточка подменит строку: «доставлено» сменится на отказ.
+    ClientConversationChannel.broadcast_message(message)
+  end
+
+  # Аккаунт вышел из authorized — канал молчит, пока его заново не подключат
+  # по QR. Лог показывает, с какого момента перестали приходить сообщения.
+  def log_state
+    state = params[:stateInstance].to_s
+    line = "[ClientMaxPhoneWebhook] состояние инстанса: #{state}"
+    state == 'authorized' ? Rails.logger.info(line) : Rails.logger.warn(line)
   end
 
   # Время у GREEN-API в секундах — в отличие от бота MAX, где миллисекунды.
