@@ -176,6 +176,25 @@ class ClientConversation < ApplicationRecord
     true
   end
 
+  # Опознание по номеру: карточка клиента из базы и город его последнего
+  # ремонта. Город берём, только если он ещё не задан: ссылка или выбор самого
+  # клиента точнее — они говорят, куда человек обращается сейчас, а не куда
+  # приносил устройство в прошлый раз.
+  #
+  # Связь без отметки в ленте, в отличие от bind_client!: это не решение
+  # сотрудника, а то, что система узнала сама.
+  def identify_by_phone(phone)
+    return false if phone.blank?
+
+    found = Client.find_by(full_phone_number: phone)
+    return false if found.nil?
+
+    attrs = { client: found }
+    attrs[:city] = found.service_jobs.order(created_at: :desc).first&.department&.city if city.nil?
+    update!(attrs.compact)
+    true
+  end
+
   # Город определяется автоматически (ссылка, выбор клиента, опознание по
   # телефону), но ошибиться легко, а у диалога без города автоответ вне
   # рабочих часов не уходит вовсе — сотруднику нужен способ это поправить.
