@@ -13,7 +13,8 @@ require 'tempfile'
 module ClientMessenger
   ADAPTERS = {
     'telegram' => 'ClientMessenger::TelegramAdapter',
-    'max' => 'ClientMessenger::MaxAdapter'
+    'max' => 'ClientMessenger::MaxAdapter',
+    'max_phone' => 'ClientMessenger::MaxPhoneAdapter'
   }.freeze
 
   class UnknownChannel < StandardError; end

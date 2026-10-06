@@ -23,7 +23,8 @@ ru:
       back: К списку
       channels:
         telegram: Telegram
-        max: MAX
+        max: MAX (бот)
+        max_phone: MAX (номер)
     card:
       phone: Телефон
       city: Город
@@ -71,7 +72,8 @@ ru:
       no_messages: Сообщений ещё не было
       channels:
         telegram: Telegram
-        max: MAX
+        max: MAX (бот)
+        max_phone: MAX (номер)
       statuses:
         open: Открыт
         closed: Закрыт

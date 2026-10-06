@@ -4,7 +4,10 @@
 # и тайминги существуют исключительно здесь, потому что Bot API про наших
 # сотрудников ничего не знает.
 class ClientConversation < ApplicationRecord
-  CHANNELS = %w[telegram max].freeze
+  # max — бот MAX, max_phone — обычный номер в MAX через GREEN-API. Это разные
+  # каналы, а не два вида одного: у них свои пространства id чатов, и
+  # совпадение чисел не должно склеить двух людей в один диалог.
+  CHANNELS = %w[telegram max max_phone].freeze
   STATUSES = %w[open closed].freeze
 
   # Сутки тишины — и диалог считается завершённым (закрывает cron-джоб).
