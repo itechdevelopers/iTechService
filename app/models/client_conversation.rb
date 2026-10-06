@@ -4,7 +4,10 @@
 # и тайминги существуют исключительно здесь, потому что Bot API про наших
 # сотрудников ничего не знает.
 class ClientConversation < ApplicationRecord
-  CHANNELS = %w[telegram max].freeze
+  # max — бот MAX, max_phone — обычный номер в MAX через GREEN-API. Это разные
+  # каналы, а не два вида одного: у них свои пространства id чатов, и
+  # совпадение чисел не должно склеить двух людей в один диалог.
+  CHANNELS = %w[telegram max max_phone].freeze
   STATUSES = %w[open closed].freeze
 
   # Сутки тишины — и диалог считается завершённым (закрывает cron-джоб).
@@ -173,6 +176,25 @@ class ClientConversation < ApplicationRecord
     true
   end
 
+  # Опознание по номеру: карточка клиента из базы и город его последнего
+  # ремонта. Город берём, только если он ещё не задан: ссылка или выбор самого
+  # клиента точнее — они говорят, куда человек обращается сейчас, а не куда
+  # приносил устройство в прошлый раз.
+  #
+  # Связь без отметки в ленте, в отличие от bind_client!: это не решение
+  # сотрудника, а то, что система узнала сама.
+  def identify_by_phone(phone)
+    return false if phone.blank?
+
+    found = Client.find_by(full_phone_number: phone)
+    return false if found.nil?
+
+    attrs = { client: found }
+    attrs[:city] = found.service_jobs.order(created_at: :desc).first&.department&.city if city.nil?
+    update!(attrs.compact)
+    true
+  end
+
   # Город определяется автоматически (ссылка, выбор клиента, опознание по
   # телефону), но ошибиться легко, а у диалога без города автоответ вне
   # рабочих часов не уходит вовсе — сотруднику нужен способ это поправить.
@@ -230,7 +252,7 @@ class ClientConversation < ApplicationRecord
     if message.inbound?
       attrs[:started_at] = message.created_at if started_at.blank?
       attrs[:last_inbound_at] = message.created_at
-    elsif message.from_employee?
+    elsif message.human_reply?
       attrs[:first_reply_at] = message.created_at if first_reply_at.blank?
       attrs[:last_reply_at] = message.created_at
     end
