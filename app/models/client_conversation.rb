@@ -252,7 +252,7 @@ class ClientConversation < ApplicationRecord
     if message.inbound?
       attrs[:started_at] = message.created_at if started_at.blank?
       attrs[:last_inbound_at] = message.created_at
-    elsif message.from_employee?
+    elsif message.human_reply?
       attrs[:first_reply_at] = message.created_at if first_reply_at.blank?
       attrs[:last_reply_at] = message.created_at
     end

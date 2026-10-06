@@ -57,6 +57,13 @@ class ClientMessage < ApplicationRecord
     outbound? && !system? && user_id.present?
   end
 
+  # Ответ живого человека: из Айса или прямо с телефона, к которому подключён
+  # канал (sent_from_phone). После любого из них клиент получил ответ, и
+  # диалог больше не ждёт; автор известен только у ответа из Айса.
+  def human_reply?
+    from_employee? || (outbound? && !system? && sent_from_phone?)
+  end
+
   private
 
   def register_in_conversation

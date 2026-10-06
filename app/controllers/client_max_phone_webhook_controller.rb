@@ -7,6 +7,9 @@
 # клиент просто пишет человеку по номеру. Зато номер отправителя приходит в
 # каждом уведомлении, и по нему клиент опознаётся сам.
 #
+# Аккаунт живой, и ответить с него можно прямо в MAX на телефоне, мимо Айса.
+# Такие ответы тоже приходят сюда и попадают в ленту: клиент их получил.
+#
 # Обработчик не ходит в сеть, всё исходящее — джобами. Недоставленное
 # уведомление GREEN-API повторяет раз в минуту в течение суток, поэтому
 # отвечаем 200 на всё, что разобрали или сознательно пропустили, а от
@@ -41,7 +44,8 @@ class ClientMaxPhoneWebhookController < ApplicationController
     return head :unauthorized unless authentic?
 
     case params[:typeWebhook]
-    when 'incomingMessageReceived' then handle_incoming if personal_chat?
+    when 'incomingMessageReceived', 'outgoingMessageReceived'
+      handle_message if personal_chat?
     end
 
     head :ok
@@ -70,13 +74,18 @@ class ClientMaxPhoneWebhookController < ApplicationController
       params.dig(:senderData, :chatType).to_s.in?(['', 'user'])
   end
 
-  def handle_incoming
+  # Отправлено с телефона канала — то есть ответ клиенту мимо Айса.
+  def from_phone?
+    params[:typeWebhook] == 'outgoingMessageReceived'
+  end
+
+  def handle_message
     data = params[:messageData] || {}
     type = data[:typeMessage].to_s
 
     if TEXT_TYPES.include?(type)
       text = message_text(data, type)
-      handle_inbound(kind: 'text', text: text) if text.present?
+      record_message(kind: 'text', text: text) if text.present?
     elsif type == 'imageMessage'
       store_photo(data[:fileMessageData] || {})
     elsif type.present? && !IGNORED_TYPES.include?(type)
@@ -94,7 +103,7 @@ class ClientMaxPhoneWebhookController < ApplicationController
   # Фото кладём в ленту сразу, а файл догружаем джобой: скачивание не
   # укладывается во время ответа на уведомление.
   def store_photo(file)
-    record = handle_inbound(kind: 'photo', text: file[:caption].to_s.strip)
+    record = record_message(kind: 'photo', text: file[:caption].to_s.strip)
     return if record.nil?
 
     AttachClientPhotoJob.perform_later(record.id, file[:downloadUrl].to_s)
@@ -103,28 +112,30 @@ class ClientMaxPhoneWebhookController < ApplicationController
   # Вложение, которое мы пока не умеем показывать. Строку в ленту всё равно
   # кладём — иначе сотрудник не узнает, что клиент вообще писал, а клиент
   # будет ждать ответа на сообщение, которого для нас не существовало.
+  # Отказ уходит только клиенту: отказывать собственному телефону незачем.
   def store_unsupported(data, label)
     caption = data.dig(:fileMessageData, :caption).to_s.strip
-    line = ["[клиент прислал: #{label}]", caption.presence].compact.join(' ')
-    return if handle_inbound(kind: 'text', text: line).nil?
+    prefix = from_phone? ? 'отправлено' : 'клиент прислал'
+    line = ["[#{prefix}: #{label}]", caption.presence].compact.join(' ')
+    return if record_message(kind: 'text', text: line).nil? || from_phone?
 
     MaxPhoneReplyJob.perform_later(
       chat_id, "Мы пока не умеем открывать #{label}. Опишите вопрос текстом или пришлите фото."
     )
   end
 
-  # Побочные эффекты нового входящего. Повторная доставка уведомления сюда не
-  # доходит: store_inbound в таком случае возвращает nil.
-  def handle_inbound(kind:, text:)
-    record = store_inbound(kind: kind, body: text.presence)
+  # Побочные эффекты новой записи. Повторная доставка уведомления сюда не
+  # доходит: store_message в таком случае возвращает nil. Автоответ — только
+  # на реплику клиента: ответ с телефона сам по себе ответ.
+  def record_message(kind:, text:)
+    record = store_message(kind: kind, body: text.presence)
     return if record.nil?
 
-    ClientChat::AutoReply.call(conversation)
+    ClientChat::AutoReply.call(conversation) unless from_phone?
     record
   end
 
-  # Открытый диалог этого чата либо новый. Имя перечитываем на каждом
-  # уведомлении: человек меняет его в профиле когда угодно.
+  # Открытый диалог этого чата либо новый.
   #
   # Клиента по номеру ищем только у нового диалога. В открытом сотрудник мог
   # уже перепривязать карточку руками (номер, например, у родственника), и
@@ -134,17 +145,26 @@ class ClientMaxPhoneWebhookController < ApplicationController
       record = ClientConversation.open_for(CHANNEL, chat_id) ||
                ClientConversation.new(channel: CHANNEL, external_chat_id: chat_id)
       fresh = record.new_record?
-      record.assign_attributes(contact_attributes)
+      record.assign_attributes(contact_attributes(fresh))
       record.save!
       record.identify_by_phone(record.contact_phone) if fresh
       record
     end
   end
 
-  # Имя из профиля надёжнее имени из записной книжки аккаунта: книжку на этом
-  # номере никто не ведёт.
-  def contact_attributes
+  # У входящего sender* — это клиент; имя перечитываем каждый раз, человек
+  # меняет его в профиле когда угодно, а имя из профиля надёжнее имени из
+  # записной книжки, которую на этом номере никто не ведёт.
+  #
+  # У ответа с телефона sender* — наш же аккаунт, о клиенте там только имя
+  # чата. Оно годится лишь новому диалогу: в существующем лучше имя, которое
+  # клиент сам указал в профиле.
+  def contact_attributes(fresh)
     sender = params[:senderData] || {}
+    if from_phone?
+      return fresh ? { contact_name: sender[:chatName].presence }.compact : {}
+    end
+
     {
       contact_name: sender[:senderName].presence || sender[:senderContactName].presence ||
                     sender[:chatName].presence,
@@ -156,17 +176,18 @@ class ClientMaxPhoneWebhookController < ApplicationController
     params.dig(:senderData, :chatId).to_s
   end
 
-  def store_inbound(kind:, body:)
+  def store_message(kind:, body:)
     external_id = params[:idMessage].to_s
     return if external_id.blank? || conversation.messages.exists?(external_id: external_id)
 
     conversation.messages.create!(
-      direction: 'in',
+      direction: from_phone? ? 'out' : 'in',
+      sent_from_phone: from_phone?,
       kind: kind,
       body: body,
       external_id: external_id,
-      # Входящее доставлено самим фактом уведомления; delivery_status
-      # осмыслен только для исходящих.
+      # Пришедшее уведомлением уже доставлено: входящее — нам, ответ с
+      # телефона — клиенту.
       delivery_status: 'sent',
       sent_at: message_time
     )

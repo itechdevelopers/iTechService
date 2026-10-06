@@ -67,6 +67,7 @@ ru:
       photo_pending: "[фото загружается…]"
       pending: отправляется
       failed: не доставлено
+      sent_from_phone: отправлено с телефона
     conversation:
       photo: "[фото]"
       no_messages: Сообщений ещё не было
