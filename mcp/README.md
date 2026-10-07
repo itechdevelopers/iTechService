@@ -8,7 +8,9 @@ The server provides read tools for clients, devices, service requests, client re
 
 Repair options use the existing `Product` → `RepairService` → `SparePart`/`RepairPrice` data shown by the AIS repair screens. Internal cost is explicitly labelled as current `Product#purchase_price` summed with configured quantities; it is not a discount or automatically a profit. Unlock workflow tools expose the existing enum statuses and the existing status/comment operations, but never perform a technical device unlock. Queue metrics call `ElqueueTicketsReport`; report and department access are checked server-side. Equipment-order analytics use the existing `Order` entity with `object_kind=device`, and distinguish `Order#quantity` from order count and from sales.
 
-The Rails API uses the existing AIS `Authorization: Token token=...` identity. The MCP service implements a small OAuth 2.1 authorization-code + PKCE broker: the employee signs in on `/oauth/authorize`, the service calls the existing AIS `/api/v1/signin`, and exchanges a one-time code at `/oauth/token`. The resulting short-lived MCP token maps to that employee's AIS token in memory; every Rails call forwards that employee token and therefore re-runs AIS authentication and Pundit authorization. No administrator token is used. Configure a single ChatGPT client and its exact redirect URI; for a multi-instance deployment move the short-lived code/token store to the project's existing private shared store before scaling horizontally.
+The Rails API authorizes each employee using a separate, expiring MCP credential. `/api/v1/mcp_sessions` verifies the existing AIS password before issuing it; it does not call the legacy `/signin` endpoint or rotate `User#authentication_token`. Rails stores only the SHA-256 digest in `mcp_api_tokens`. Each connection has its own one-hour token. Fired employees, expired credentials and credentials with `revoked_at` set are rejected. The MCP broker checks `/mcp_sessions/current` before discovery and every MCP request; an AIS 401 prompts OAuth reconnection, including when a token becomes invalid during a tool call. `/oauth/revoke` revokes the corresponding Rails credential as well as the broker token.
+
+OAuth authorization codes and bearer-to-AIS mappings remain in the Node process memory. A restart invalidates current connections and requires reconnection; run one process. Multiple processes require a private shared code/token store before deployment. Revocation in Rails is persistent and survives restarts. Do not use a load-balanced multi-process setup with the current broker.
 
 ## Configuration
 
@@ -16,11 +18,12 @@ Set these variables in the existing protected runtime mechanism (never in git):
 
 * `PORT` (default `8787`)
 * `MCP_AIS_API_URL` (for example `https://ais.example/api/v1`)
-* `MCP_OAUTH_ISSUER` (public OAuth issuer URL)
+* `MCP_PUBLIC_URL` (exact public HTTPS MCP URL, for example `https://ais-mcp.example/mcp`; required behind HTTPS proxy)
+* `MCP_OAUTH_ISSUER` (public OAuth issuer URL; defaults to the origin of `MCP_PUBLIC_URL`)
 * `MCP_OAUTH_CLIENT_ID` (registered ChatGPT client ID, default `chatgpt-work`)
 * `MCP_OAUTH_REDIRECT_URIS` (comma-separated exact HTTPS redirect URIs)
 
-The Rails application continues to use its existing database, token authentication and policy configuration. The idempotency migration `20261005000000_create_mcp_idempotency_keys.rb` is required.
+The Rails application continues to use its existing database, token authentication and policy configuration. Both migrations are required: `20261005000000_create_mcp_idempotency_keys.rb` and `20261007000000_create_mcp_api_tokens.rb`. No legacy API token is modified by them.
 
 ## Local checks
 
@@ -31,15 +34,17 @@ npm test
 node --check server.mjs
 ```
 
-Test the MCP endpoint with MCP Inspector or an MCP client. `POST /mcp` must return `401` without a bearer token; with a valid user token, `initialize`, `tools/list`, and `tools/call` are supported. The Rails API is mounted at `/api/v1/mcp` behind the existing API authentication.
+Test the MCP endpoint with MCP Inspector or an MCP client. `POST /mcp` must return `401` without a bearer token; with a valid user token, `initialize`, `tools/list`, and `tools/call` are supported. The Rails business endpoints are mounted under `/api/v1` behind the existing API authentication.
 
 ## Deployment handoff
 
 1. Run the Rails migration in the normal Capistrano workflow; no production data is needed by the migration.
 2. Deploy the Rails revision and the `mcp/` service using the existing process manager.
 3. Put the service behind HTTPS at `/mcp`; proxy `Authorization`, `Content-Type`, and `Mcp-Session-Id` headers.
-4. Configure `MCP_OAUTH_ISSUER`, `MCP_OAUTH_CLIENT_ID` and `MCP_OAUTH_REDIRECT_URIS`. Publish `/oauth/authorize`, `/oauth/token`, `/oauth/revoke` and both OAuth metadata endpoints over the same HTTPS host. The service rejects missing/expired/revoked tokens, invalid audience, invalid redirect URIs and failed PKCE.
+4. Configure `MCP_PUBLIC_URL`, `MCP_OAUTH_ISSUER`, `MCP_OAUTH_CLIENT_ID` and `MCP_OAUTH_REDIRECT_URIS`. Publish `/oauth/authorize`, `/oauth/token`, `/oauth/revoke` and both OAuth metadata endpoints over the same HTTPS host. The service rejects missing/expired/revoked tokens, invalid audience, invalid redirect URIs and failed PKCE.
 5. Verify unauthenticated rejection, `tools/list`, a read call, a forbidden write, and an idempotent repeated write in a test environment.
+
+Existing OAuth connections created by the earlier broker must reconnect once after this upgrade.
 
 Rollback: stop the MCP service and revert the Rails revision; leave existing AIS data untouched. Revoke a user's access by revoking/rotating the existing AIS token or disabling the AIS account through the normal admin process.
 
@@ -166,3 +171,18 @@ Rails: только отдельная loopback БД `ais_mcp_cost_test`, `RAILS
 `bundle exec ruby test/mcp/product_cost_test.rb`. Helper загружает schema только в эту
 БД и блокирует внешний HTTP; browser helper пропускается только в этом процессе
 из-за существующей несовместимости Selenium. Обычную/production БД не использовать.
+
+## API behavior and review corrections
+
+- Merit/Fault creation uses Trailblazer 2.0 positional runtime options, checks policy failure separately (403), and defaults an omitted date to the employee-local current date. Contract errors return 422.
+- Service-request search unions separate ticket, device and client subqueries inside the employee policy scope, including archived jobs; the result limit applies after deduplication.
+- Merits/faults can be read by the employee themselves or any administrator, matching profile tabs. Client-request reads use the existing index/show policies. Report discovery uses ReportPolicy, including individual report access.
+- Repair purchase prices and total cost are null with `cost_visibility=hidden_by_permissions` unless ProductPolicy permits them. A missing permitted price also yields a null total, not an invented zero.
+- Write results and reserved idempotency keys share one transaction. A PostgreSQL transaction advisory lock serializes the same employee/operation/key across processes. Changed payloads return 409; Grape validation/policy aborts roll back the reservation and business writes. Appended diagnostic notes enqueue the existing subscriber notification once on a successful retry sequence.
+- Search clients returns summaries; get_client includes bounded devices/jobs without job notes (use get_request for notes). Unlock-request search omits comments; get_unlock_request returns up to 50 newest comments.
+- Date filters accept real ISO dates/timestamps, reject impossible dates/reversed ranges with 422 and use the employee time zone. Times with offsets preserve that offset. The request restores the previous Rails thread time zone even on failure.
+- The Node entrypoint resolves symlinks, so Capistrano `current/mcp/server.mjs` starts normally. Metadata, OAuth audience and authentication challenges use the configured public URL, without trusting forwarded headers.
+
+Manual acceptance (test/staging only): sign in twice through `/mcp_sessions`, ensure both tokens work and the legacy token is unchanged; try an incorrect password and ensure no credential changes; revoke one token and check the other still works. Repeat notes with the same idempotency key both sequentially and concurrently; verify one record and one notification job. Verify 403 for denied merit/fault creation and 201 for authorized creation without date. Search by ticket alone, serial/IMEI alone and client alone. Compare own/other employee read permissions, technician client-request access, restricted repair cost fields, individual report access and invalid date filters. Verify HTTPS metadata/challenges using `MCP_PUBLIC_URL`, and startup through a symlink.
+
+Request RSpec currently needs an explicit test-only compatibility shim for the existing chromedriver-helper/Selenium blocker. The workaround does not fix normal RSpec startup and is not used at runtime. Record the exact command and shim files when reporting test results.

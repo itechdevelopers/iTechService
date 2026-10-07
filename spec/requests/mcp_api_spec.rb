@@ -66,6 +66,24 @@ RSpec.describe 'AIS MCP Rails API' do
     expect(Fault.where(causer_id: recipient.id)).to be_empty
   end
 
+  it 'lets an admin create one merit without a date and replays the same result' do
+    actor = create(:user, role: 'admin')
+    recipient = create(:user, role: 'technician', department: actor.department)
+    headers = auth_headers(actor)
+    body = { comment: 'За проверку', idempotency_key: 'merit-allowed' }
+
+    post "/api/v1/employees/#{recipient.id}/merits", params: body, headers: headers
+    expect(response).to have_http_status(:created)
+    merit = Merit.find(JSON.parse(response.body).dig('merit', 'id'))
+    expect(merit.recipient_id).to eq(recipient.id)
+    expect(merit.issued_by_id).to eq(actor.id)
+    expect(merit.date.to_date).to eq(Date.current)
+
+    post "/api/v1/employees/#{recipient.id}/merits", params: body, headers: headers
+    expect(response).to have_http_status(:created)
+    expect(Merit.where(recipient_id: recipient.id, comment: body[:comment]).count).to eq(1)
+  end
+
   it 'searches repair options from the existing model, price and spare-part records' do
     user = create(:user, role: 'technician')
     product_group = create(:product_group, repair_group: create(:repair_group))

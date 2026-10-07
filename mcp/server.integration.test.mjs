@@ -8,7 +8,7 @@ function close(server) { return new Promise((resolve) => server.close(resolve));
 
 test('MCP rejects anonymous calls and supports initialize/tools/list/tools/call', async () => {
   const ais = createHttp((req, res) => {
-    if (req.url === '/signin') {
+    if (req.url === '/mcp_sessions') {
       res.writeHead(200, { 'content-type': 'application/json' }).end(JSON.stringify({ token: 'ais-user-token' }));
     } else if (req.url === '/products/cost_by_barcode?barcode=00123') {
       assert.equal(req.headers.authorization, 'Token token=ais-user-token');
