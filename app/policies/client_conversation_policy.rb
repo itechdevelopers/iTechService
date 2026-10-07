@@ -42,6 +42,11 @@ class ClientConversationPolicy < ApplicationPolicy
     index?
   end
 
+  # Написать клиенту первым могут те же, кто отвечает.
+  def start?
+    index?
+  end
+
   private
 
   # Location#is_media? — это code == 'content'. Роль `media` у пользователя —

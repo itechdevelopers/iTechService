@@ -29,6 +29,8 @@ class ClientConversation < ApplicationRecord
   belongs_to :city, optional: true
   belongs_to :assigned_user, class_name: 'User', optional: true
   belongs_to :closed_by, class_name: 'User', optional: true
+  # Заполнен, только если диалог начал сотрудник, а не клиент.
+  belongs_to :started_by, class_name: 'User', optional: true
 
   has_many :messages, -> { order(:created_at) },
            class_name: 'ClientMessage', dependent: :destroy, inverse_of: :conversation
@@ -112,6 +114,11 @@ class ClientConversation < ApplicationRecord
     opened.find_by(channel: channel, external_chat_id: external_chat_id)
   end
 
+  # Город последнего ремонта — лучшая догадка, куда клиент обратится сейчас.
+  def self.last_repair_city(client)
+    client.service_jobs.order(created_at: :desc).first&.department&.city
+  end
+
   def open?
     status == 'open'
   end
@@ -190,7 +197,7 @@ class ClientConversation < ApplicationRecord
     return false if found.nil?
 
     attrs = { client: found }
-    attrs[:city] = found.service_jobs.order(created_at: :desc).first&.department&.city if city.nil?
+    attrs[:city] = self.class.last_repair_city(found) if city.nil?
     update!(attrs.compact)
     true
   end
@@ -253,7 +260,10 @@ class ClientConversation < ApplicationRecord
       attrs[:started_at] = message.created_at if started_at.blank?
       attrs[:last_inbound_at] = message.created_at
     elsif message.human_reply?
-      attrs[:first_reply_at] = message.created_at if first_reply_at.blank?
+      # Ответ — это реплика после сообщения клиента. Первое сообщение диалога,
+      # который начал сотрудник, ответом не является: когда клиент откликнется,
+      # время первого ответа вышло бы отрицательным.
+      attrs[:first_reply_at] = message.created_at if first_reply_at.blank? && started_at.present?
       attrs[:last_reply_at] = message.created_at
     end
 

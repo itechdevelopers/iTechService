@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20261007194234) do
+ActiveRecord::Schema.define(version: 20261007194528) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -389,11 +389,13 @@ ActiveRecord::Schema.define(version: 20261007194234) do
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.bigint "city_id"
+    t.bigint "started_by_id"
     t.index ["assigned_user_id"], name: "index_client_conversations_on_assigned_user_id"
     t.index ["channel", "external_chat_id"], name: "index_client_conversations_on_open_chat", unique: true, where: "((status)::text = 'open'::text)"
     t.index ["city_id"], name: "index_client_conversations_on_city_id"
     t.index ["client_id"], name: "index_client_conversations_on_client_id"
     t.index ["closed_by_id"], name: "index_client_conversations_on_closed_by_id"
+    t.index ["started_by_id"], name: "index_client_conversations_on_started_by_id"
     t.index ["status", "last_message_at"], name: "index_client_conversations_on_status_and_last_message_at"
   end
 
@@ -3113,6 +3115,7 @@ ActiveRecord::Schema.define(version: 20261007194234) do
   add_foreign_key "client_conversations", "clients"
   add_foreign_key "client_conversations", "users", column: "assigned_user_id"
   add_foreign_key "client_conversations", "users", column: "closed_by_id"
+  add_foreign_key "client_conversations", "users", column: "started_by_id"
   add_foreign_key "client_messages", "client_conversations"
   add_foreign_key "client_messages", "users"
   add_foreign_key "client_requests", "clients"
