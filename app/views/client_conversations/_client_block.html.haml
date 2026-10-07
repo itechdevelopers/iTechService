@@ -1,8 +1,19 @@
 -# Переписки клиента в мессенджерах — блок на его карточке. Показываем только
 -# тем, у кого есть доступ к разделу диалогов: содержимое переписки чувствительнее
 -# списка ремонтов.
+-#
+-# Написать первым можно только в MAX по номеру: боты Telegram и MAX не умеют
+-# начинать переписку сами. Если открытый диалог там уже есть, кнопка ведёт в
+-# него — без проверки номера в MAX.
+- open_max = conversations.detect { |conversation| conversation.open? && conversation.channel == 'max_phone' }
+%h4
+  = t('.title')
+  - if policy(ClientConversation).start?
+    - if open_max
+      = link_to t('.open_max'), client_conversation_path(open_max), class: 'btn btn-small pull-right'
+    - else
+      = link_to t('.write_max'), new_client_max_chat_path(client), remote: true, class: 'btn btn-small pull-right'
 - if conversations.any?
-  %h4= t('.title')
   %table.table.table-bordered.table-hover.table-condensed
     %thead
       %tr
@@ -23,3 +34,5 @@
               %span.label.label-info= t('client_conversations.card.statuses.open')
             - else
               %span.label= t('client_conversations.card.statuses.closed')
+- else
+  %p.muted= t('.empty')

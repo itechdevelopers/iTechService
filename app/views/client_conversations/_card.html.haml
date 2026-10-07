@@ -35,7 +35,10 @@
         = t('.statuses.open')
       - else
         = t('.statuses.closed')
-        = "(#{ClientConversation.human_duration(conversation.duration_seconds)})"
+        -# Длительность считается от первого сообщения клиента: у диалога,
+        -# который начал сотрудник и на который не ответили, её нет.
+        - if conversation.duration_seconds
+          = "(#{ClientConversation.human_duration(conversation.duration_seconds)})"
     - if conversation.first_reply_seconds
       %dt= t('.first_reply')
       %dd= ClientConversation.human_duration(conversation.first_reply_seconds)

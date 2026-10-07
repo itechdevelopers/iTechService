@@ -1,0 +1,5 @@
+<% if @result.success? %>
+window.location.href = '<%= j client_conversation_path(@result.conversation) %>';
+<% else %>
+$('#modal_form').html('<%= j render 'modal_form_content' %>');
+<% end %>

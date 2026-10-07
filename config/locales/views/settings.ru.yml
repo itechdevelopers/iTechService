@@ -1,6 +1,8 @@
 ru:
   settings:
     client_chat_after_hours_reply: Автоответ клиенту вне рабочих часов
+    max_phone_lookup_paused_until: MAX ограничил проверку номеров — пауза до
+    client_chat_max_phone_daily_starts: Сколько новых диалогов в MAX можно начать за сутки (0 — нельзя)
     edit:
       title: 'Редактирование параметра'
     index:
