@@ -63,7 +63,7 @@ jQuery ->
           notifyCheckbox.checked = true if notifyCheckbox
 
         # Show extended block for "Ремонт" task
-        if task_code == 'repair' || task_name == 'Ремонт'
+        if isRepairTask(task_code, task_name)
           showRepairSelection($extended)
         else
           hideRepairSelection($extended)
@@ -377,6 +377,10 @@ showFindMyModal = ($form, imei) ->
 
 # ========== Repair Selection Functions (Cascading) ==========
 
+# The task options carry no code, so the repair task is recognised by its label
+isRepairTask = (code, name) ->
+  code == 'repair' || $.trim(name) == 'Ремонт'
+
 # Get product_id and department_id from parent container
 getRepairContainerData = ($block) ->
   $container = $block.closest('.repair-selection-container')
@@ -397,7 +401,7 @@ repairPickGroupName = ($block) ->
   $block.data('pick-group')
 
 # Load services for multiple selected causes (must be defined before the cause checkboxes handler)
-loadServicesForSelectedCauses = ($block) ->
+loadServicesForSelectedCauses = ($block, done) ->
   $select = $block.find('.repair-cause-select')
   cause_ids = $select.val() || []
   data = getRepairContainerData($block)
@@ -444,6 +448,7 @@ loadServicesForSelectedCauses = ($block) ->
           $radioList.append($item)
 
         $block.find('.repair-service-select-group').fadeIn()
+        done?()
 
 # Causes as an inline checkbox list. A dropdown covered the repair services that load right
 # under it and had no obvious way to close. The hidden <select multiple> stays the source of
@@ -465,7 +470,7 @@ $(document).on 'change', '.repair-cause-checkboxes input[type="checkbox"]', ->
   updateClaimedDefectField()
 
 # Show repair selection form and load cause groups
-window.showRepairSelection = ($extended) ->
+window.showRepairSelection = ($extended, done) ->
   $container = $extended.find('.repair-selection-container')
 
   # Dynamically get item_id from form
@@ -491,6 +496,7 @@ window.showRepairSelection = ($extended) ->
     loadRepairCauseGroups $container, ->
       # Show repair selection in the task row
       $extended.fadeIn()
+      done?()
 
 # Load cause groups into every block of the container — by the product, or by the
 # repair group the receiver picked once for this intake (see .repair-group-select)
@@ -566,40 +572,34 @@ $(document).on 'change', '.repair-group-select', ->
 # Step 1: When cause GROUP selected → load causes into the checkbox list
 $(document).on 'change', '.repair-cause-group-select', ->
   $select = $(this)
-  group_id = $select.val()
   $block = $select.closest('.repair-selection-block')
-  data = getRepairContainerData($block)
-  product_id = data.product_id
 
   # Reset dependent fields
   resetRepairCauseSelection($block)
   resetRepairServiceSelection($block)
   hideRepairInfo($block)
 
-  if group_id
-    $.getJSON "/repair_causes/for_group/#{group_id}", {product_id: product_id, repair_group_id: data.repair_group_id}, (causes) ->
-      $causeSelect = $block.find('.repair-cause-select')
-      $causeSelect.html('')
+  loadCausesForGroup($block, $select.val()) if $select.val()
 
-      $.each causes, (i, cause) ->
-        $causeSelect.append("<option value='#{cause.id}'>#{cause.title}</option>")
+loadCausesForGroup = ($block, group_id, done) ->
+  data = getRepairContainerData($block)
+  $.getJSON "/repair_causes/for_group/#{group_id}", {product_id: data.product_id, repair_group_id: data.repair_group_id}, (causes) ->
+    $causeSelect = $block.find('.repair-cause-select')
+    $causeSelect.html('')
 
-      renderRepairCauseCheckboxes($block)
+    $.each causes, (i, cause) ->
+      $causeSelect.append("<option value='#{cause.id}'>#{cause.title}</option>")
 
-      $block.find('.repair-cause-select-group').fadeIn()
+    renderRepairCauseCheckboxes($block)
+
+    $block.find('.repair-cause-select-group').fadeIn()
+    done?()
 
 # Step 3: When REPAIR SERVICE radio button selected → show info
 $(document).on 'change', '.repair-service-radio-item input[type="radio"]', ->
   $radio = $(this)
   $block = $radio.closest('.repair-selection-block')
-  $block.find('.repair-service-selected-input').val($radio.val())
-
-  displayRepairInfo($block, {
-    price: $radio.data('price')
-    time_standard: $radio.data('time')
-    time_standard_from: $radio.data('time-from')
-    time_standard_to: $radio.data('time-to')
-  })
+  applyRepairPick($block, $radio)
 
   # Update "Вид работы" field (v2 only)
   updateTypeOfWorkField()
@@ -608,6 +608,17 @@ $(document).on 'change', '.repair-service-radio-item input[type="radio"]', ->
   # Update "Ориентировочный срок ремонта / Комментарии / Особые отметки" field (v2 only)
   updateClientCommentField()
   recalcDeviceTaskCost($block.closest('.device_task'))
+
+# The block's repair goes to the server through its hidden input; price and time are shown under it
+applyRepairPick = ($block, $radio) ->
+  $block.find('.repair-service-selected-input').val($radio.val())
+
+  displayRepairInfo($block, {
+    price: $radio.data('price')
+    time_standard: $radio.data('time')
+    time_standard_from: $radio.data('time-from')
+    time_standard_to: $radio.data('time-to')
+  })
 
 # Format minutes to hours and minutes
 formatDuration = (minutes) ->
@@ -846,8 +857,8 @@ updateClientCommentField = ->
 
 # Task cost = sum of the repairs picked in its blocks, each repair once (the same repair
 # from two blocks is one repair). With none picked it falls back to the task's own price,
-# remembered when the task was chosen; rows re-rendered after a validation error don't
-# have it, and their cost is left as is.
+# remembered when the task was chosen or, for a row rendered again after a validation
+# error, when its repair blocks are restored (rememberTaskCost).
 recalcDeviceTaskCost = ($taskRow) ->
   return unless $('.v2-form-container').length > 0
   return unless $taskRow.length > 0
@@ -932,6 +943,105 @@ $(document).on 'click', '.repair-selection-block__remove', (e) ->
     updateEstimatedCostField()
     updateClientCommentField()
   recalcDeviceTaskCost($taskRow)
+
+# ========== Repair blocks through a validation error (v2 only) ==========
+
+# The blocks are built here, not by the server: on submit they are written into the task's
+# hidden field, the server sends it back with a validation error, and they are rebuilt from it.
+# Bound to the form itself, so it runs even when the Find My check holds the submit: that
+# check submits again without a submit event, and the blocks don't change in between.
+jQuery ->
+  $('.v2-form-container form.service_job_form').on 'submit', ->
+    $(this).find('.repair-selection-container').each ->
+      $(this).find('.intake-repair-blocks-input').val(JSON.stringify(collectRepairBlocksState($(this))))
+
+  $('.v2-form-container tr.device_task').each ->
+    $row = $(this)
+    taskId = String($row.data('task-id') || '')
+    return unless taskId
+    taskName = $row.find('.device_task_task .custom-option').filter(-> String($(this).data('value')) == taskId).text()
+    restoreRepairSelection($row) if isRepairTask(null, taskName)
+
+collectRepairBlocksState = ($container) ->
+  blocks = []
+  $container.find('.repair-selection-block').each ->
+    $block = $(this)
+    groupId = $block.find('.repair-cause-group-select').val()
+    return unless groupId
+    blocks.push
+      group_id: groupId
+      cause_ids: $block.find('.repair-cause-select').val() || []
+      service_id: $block.find('.repair-service-selected-input').val() || null
+  { repair_group_id: $container.data('chosen-repair-group-id') || null, blocks: blocks }
+
+# The field comes back from the client, so only numeric ids are taken from it: they go into
+# selectors and requests
+parseRepairBlocksState = (json) ->
+  toId = (value) ->
+    id = parseInt(value, 10)
+    if isNaN(id) then null else id
+  try
+    raw = JSON.parse(json || '{}') || {}
+  catch
+    raw = {}
+  blocks = []
+  for block in (raw.blocks || []) when toId(block.group_id)
+    causeIds = (String(toId(id)) for id in (block.cause_ids || []) when toId(id))
+    blocks.push(group_id: toId(block.group_id), cause_ids: causeIds, service_id: toId(block.service_id))
+  { repair_group_id: toId(raw.repair_group_id), blocks: blocks }
+
+# The repair task's row rendered again by the server: its block opens by itself and gets back
+# what was picked in it. The fields filled from the picks (defect, type of work, estimate) came
+# back as they were sent, maybe edited by hand, so the restore leaves them alone.
+restoreRepairSelection = ($row) ->
+  $extended = $row.find('.task-extended-content')
+  $container = $extended.find('.repair-selection-container')
+  return unless $container.length
+  state = parseRepairBlocksState($container.find('.intake-repair-blocks-input').val())
+
+  if state.repair_group_id
+    $container.data('chosen-repair-group-id', state.repair_group_id)
+    $container.find('.repair-group-select').val(String(state.repair_group_id))
+    $container.find('.chosen-repair-group-input').val(state.repair_group_id)
+    $container.find('.repair-group-select-group').show()
+    $container.find('.choose-repair-group-btn').hide()
+
+  rememberTaskCost($row)
+  showRepairSelection $extended, ->
+    restoreRepairBlocks($container, state.blocks)
+
+restoreRepairBlocks = ($container, blocks) ->
+  # Added blocks are clones of the first one, so they are added while it is still empty
+  if blocks.length > 1
+    $container.find('.add-repair-block-btn').trigger('click') for i in [1...blocks.length]
+  $blocks = $container.find('.repair-selection-block')
+  $.each blocks, (i, block) -> restoreRepairBlock($blocks.eq(i), block)
+
+restoreRepairBlock = ($block, block) ->
+  $groupSelect = $block.find('.repair-cause-group-select')
+  $groupSelect.val(String(block.group_id))
+  # The category may be gone from the catalog since the form was sent
+  return unless $groupSelect.val() == String(block.group_id)
+
+  loadCausesForGroup $block, block.group_id, ->
+    $block.find('.repair-cause-select option').prop 'selected', ->
+      block.cause_ids.indexOf(this.value) > -1
+    renderRepairCauseCheckboxes($block)
+    return unless ($block.find('.repair-cause-select').val() || []).length
+
+    loadServicesForSelectedCauses $block, ->
+      $radio = $block.find('.repair-service-radio-item input[type="radio"]').filter(-> this.value == String(block.service_id))
+      return unless $radio.length
+      $radio.prop('checked', true)
+      applyRepairPick($block, $radio)
+      recalcDeviceTaskCost($block.closest('.device_task'))
+
+# The cost to fall back to with no repair picked (recalcDeviceTaskCost) is remembered when the
+# task is chosen; a row rendered by the server never went through that
+rememberTaskCost = ($row) ->
+  department_id = $('[name="service_job[department_id]"]:checked').val()
+  $.getJSON "/tasks/#{$row.data('task-id')}.json", {department_id: department_id}, (data) ->
+    $row.data('task-cost', data.cost)
 
 # ========== Preview Work Order PDF ==========
 

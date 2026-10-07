@@ -15,8 +15,12 @@
       class: 'repair-group-select form-control',
       prompt: 'Как в справочнике'
     -# Уходит на сервер только ради уведомления суперадминам. Пустое при каждой
-    -# отрисовке: после ошибки валидации выбор вида ремонта в блоке тоже сброшен.
+    -# отрисовке: после ошибки валидации его заполняет JS вместе с блоками (ниже).
     = hidden_field_tag "#{f.object_name}[chosen_repair_group_id]", nil, id: nil, class: 'chosen-repair-group-input'
+
+  -# Состояние блоков пишет JS при отправке формы; после ошибки валидации сервер возвращает
+  -# его как было, и JS собирает по нему блоки заново (restoreRepairSelection).
+  = hidden_field_tag "#{f.object_name}[intake_repair_blocks]", f.object.intake_repair_blocks, id: nil, class: 'intake-repair-blocks-input'
 
   .repair-selection-blocks
     .repair-selection-block.well.well-small
