@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20261006193603) do
+ActiveRecord::Schema.define(version: 20261007194234) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -1243,6 +1243,17 @@ ActiveRecord::Schema.define(version: 20261006193603) do
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.index ["word"], name: "index_marker_words_on_word", unique: true
+  end
+
+  create_table "max_phone_lookups", force: :cascade do |t|
+    t.string "phone", null: false
+    t.boolean "found", default: false, null: false
+    t.string "chat_id"
+    t.string "max_name"
+    t.datetime "checked_at", null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["phone"], name: "index_max_phone_lookups_on_phone", unique: true
   end
 
   create_table "media_orders", id: :serial, force: :cascade do |t|

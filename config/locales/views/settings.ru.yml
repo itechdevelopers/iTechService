@@ -1,6 +1,7 @@
 ru:
   settings:
     client_chat_after_hours_reply: Автоответ клиенту вне рабочих часов
+    max_phone_lookup_paused_until: MAX ограничил проверку номеров — пауза до
     edit:
       title: 'Редактирование параметра'
     index:
