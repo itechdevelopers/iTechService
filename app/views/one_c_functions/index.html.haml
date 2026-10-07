@@ -15,38 +15,75 @@
   .alert.alert-danger= @error
 - if @result
   %h2= "Результат по артикулу #{@result['article']}"
-  %p= "Прямое чтение 1С на #{@result['as_of']} (Владивосток). Склады всех филиалов; показан положительный остаток в наличии."
+  %p= "Прямое чтение 1С на #{@result['as_of']} (Владивосток). Склады всех филиалов; показаны остатки и фактические брони."
   - if @result['products'].empty?
     .alert.alert-info Товар с таким артикулом или кодом в 1С не найден.
-  - @result['products'].each do |product|
-    %h3= product['Description']
-    %p= "Артикул: #{product['Артикул'].presence || 'не указан'} · Код 1С: #{product['Code']}"
-    - if product['unit']
-      %p= "Единица товара: #{product['unit']['Description']}"
-    - if product['locations'].empty?
-      %p Положительных остатков на складах 1С нет.
-    - else
+  - @result['products'].select { |product| product['locations'].empty? }.each do |product|
+    %p= "#{product['Description']} — положительных остатков и броней на складах 1С нет."
+  - @result['stores'].each do |store|
+    %section.one-c-store
+      %h3= store['warehouse']['Description']
       %table.table.table-striped
         %thead
           %tr
-            %th Филиал / склад 1С
+            %th Товар
             %th Характеристика
-            %th В наличии (ед. товара)
+            %th Количество в наличии (ед. товара)
             %th К отгрузке
             %th Штрихкоды товара
         %tbody
-          - product['locations'].each do |location|
+          - store['items'].each do |item|
+            - product = item['product']
             %tr
-              %td= location['warehouse'] && location['warehouse']['Description']
-              %td= location['characteristic'] && location['characteristic']['Description']
-              %td= location['quantity']
-              %td= location['reserved']
               %td
-                - if location['barcodes'].empty?
+                %strong= product['Description']
+                %div= "Артикул: #{product['Артикул'].presence || 'не указан'} · Код 1С: #{product['Code']}"
+                - if product['unit']
+                  %div= "Единица: #{product['unit']['Description']}"
+              %td= item['characteristic'] && item['characteristic']['Description']
+              %td
+                %strong= item['quantity'].nil? ? 'Нет положительного остатка' : item['quantity']
+              %td= item['reserved'].nil? ? 'Нет данных' : item['reserved']
+              %td
+                - if item['barcodes'].empty?
                   Штрихкоды не зарегистрированы
-                - location['barcodes'].each do |entry|
+                - item['barcodes'].each do |entry|
                   %div
                     %code= entry['barcode']
+                    - unless item['quantity'].nil?
+                      %span= " — количество товара: #{item['quantity']} #{product['unit'] && product['unit']['Description']}"
                     - if entry['package']
                       = " — #{entry['package']['Description']}"
-  %p.help-block Штрихкоды относятся к товару и характеристике, могут совпадать на разных складах и не обозначают конкретный экземпляр. В наличии — остаток 1С, а не гарантия свободного остатка после резервов.
+      - booked_items = store['items'].select { |item| item['reservations'].any? }
+      - if booked_items.any?
+        %h4 Забронировано
+        %table.table.table-bordered.one-c-reservations
+          %thead
+            %tr
+              %th Товар / характеристика
+              %th Количество
+              %th Номер брони (заказа 1С)
+              %th ФИО / клиент в 1С
+              %th Телефон
+          %tbody
+            - booked_items.each do |item|
+              - item['reservations'].each do |booking|
+                %tr
+                  %td
+                    = item['product']['Description']
+                    - if item['characteristic']
+                      %div= item['characteristic']['Description']
+                  %td= booking['quantity']
+                  %td
+                    %code= booking['number'].presence || 'Не определён'
+                    - if booking['notice']
+                      %div.text-warning= booking['notice']
+                  %td= booking['customer_name'].presence || 'Не указано в 1С'
+                  %td
+                    - if booking['phones'].empty?
+                      Не указан в 1С
+                    - booking['phones'].each do |phone|
+                      %div= phone
+                    - if booking['phones'].any? && booking['phone_source']
+                      %small= booking['phone_source']
+  %p.help-block Штрихкоды относятся к товару и характеристике, могут совпадать на разных складах и не обозначают конкретный экземпляр. «Забронировано» — положительный резерв регистра 1С, «К отгрузке» — отдельный показатель. ФИО и телефоны показаны только по связанному заказу клиента; отсутствующие данные не подставляются.
