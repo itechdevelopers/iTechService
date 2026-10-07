@@ -3,9 +3,12 @@
     = menu_group do
       .elqueue_navbar= render 'shared/elqueue_navbar'
 
-      = menu_item t('.service_job'), new_service_job_path if can? :create, ServiceJob
-      -# Включается в «Параметрах» общей строкой или отдельно для подразделения
-      = menu_item t('.service_job_v2'), new_v2_service_jobs_path if Setting.new_intake_enabled?(current_department) && can?(:new_v2, ServiceJob)
+      -# Новая приёмка заменяет старую, когда включена в «Параметрах» общей строкой или для
+      -# подразделения; старый адрес тогда тоже ведёт в неё (ServiceJobsController#new)
+      - if Setting.new_intake_enabled?(current_department)
+        = menu_item t('.service_job'), new_v2_service_jobs_path if can?(:new_v2, ServiceJob)
+      - else
+        = menu_item t('.service_job'), new_service_job_path if can? :create, ServiceJob
       = menu_item t('.free_service'), new_service_free_job_path if can? :create, Service::FreeJob
 
       = drop_down t('.quick_order') do

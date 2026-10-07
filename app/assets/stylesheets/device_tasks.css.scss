@@ -31,3 +31,13 @@
 .task-intake-choice__manual {
   white-space: pre-line;
 }
+
+.task-intake-choice__countdown {
+  margin-left: 8px;
+  color: #3a87ad;
+}
+
+.task-intake-choice__countdown--overdue {
+  color: #b94a48;
+  font-weight: bold;
+}

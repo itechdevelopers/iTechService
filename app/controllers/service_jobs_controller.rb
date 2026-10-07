@@ -142,7 +142,15 @@ class ServiceJobsController < ApplicationController
     prepare_check_list_data
 
     respond_to do |format|
-      format.html { render_form }
+      format.html do
+        # Включённая новая приёмка заменяет старую целиком: сюда ведут и кнопки у клиента,
+        # и закладки. Параметры (клиент) уходят дальше как есть.
+        if Setting.new_intake_enabled?(current_department)
+          redirect_to new_v2_service_jobs_path(request.query_parameters)
+        else
+          render_form
+        end
+      end
       format.json { render json: @service_job }
     end
   end
@@ -913,7 +921,7 @@ class ServiceJobsController < ApplicationController
       :replaced, :return_at, :sale_id, :security_code, :serial_number, :status, :tech_notice,
       :ticket_number, :trademark, :type_of_work, :user_id, :substitute_phone_id, :substitute_phone_icloud_connected,
       data_storages: [],
-      device_tasks_attributes: [:id, :_destroy, :task_id, :cost, :comment, :user_comment, :performer_id, :expected_repair_cause_id, :expected_repair_service_id, :repair_causes_filled_manually, :manual_repair_causes, :chosen_repair_group_id, expected_repair_cause_ids: [], expected_repair_service_ids: []],
+      device_tasks_attributes: [:id, :_destroy, :task_id, :cost, :comment, :user_comment, :performer_id, :expected_repair_cause_id, :expected_repair_service_id, :repair_causes_filled_manually, :manual_repair_causes, :chosen_repair_group_id, :intake_repair_blocks, expected_repair_cause_ids: [], expected_repair_service_ids: []],
       check_list_responses_attributes: [:id, :check_list_id, responses: {}, comments: {}]
     )
   end

@@ -316,6 +316,14 @@ module ServiceJobsHelper
     time_string_ru.join(' ')
   end
 
+  # «осталось 3 часа 20 минут» до срока возврата или «просрочено на …», с точностью до минуты
+  def return_at_countdown_tag(return_at)
+    seconds = (return_at - Time.current).to_i
+    key = seconds.negative? ? :overdue : :left
+    content_tag(:span, t("service_jobs.return_at_countdown.#{key}", time: human_repair_duration(seconds.abs)),
+                class: "task-intake-choice__countdown task-intake-choice__countdown--#{key}")
+  end
+
   def warranty_days_badge(service_job)
     return unless service_job.sold_by_us_at.present?
 
