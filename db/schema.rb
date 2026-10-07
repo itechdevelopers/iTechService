@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20261006193603) do
+ActiveRecord::Schema.define(version: 20261007000000) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -1243,6 +1243,30 @@ ActiveRecord::Schema.define(version: 20261006193603) do
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.index ["word"], name: "index_marker_words_on_word", unique: true
+  end
+
+  create_table "mcp_api_tokens", force: :cascade do |t|
+    t.bigint "user_id", null: false
+    t.string "token_digest", null: false
+    t.datetime "expires_at", null: false
+    t.datetime "revoked_at"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["expires_at"], name: "index_mcp_api_tokens_on_expires_at"
+    t.index ["token_digest"], name: "index_mcp_api_tokens_on_token_digest", unique: true
+    t.index ["user_id"], name: "index_mcp_api_tokens_on_user_id"
+  end
+
+  create_table "mcp_idempotency_keys", force: :cascade do |t|
+    t.string "key", null: false
+    t.string "operation", null: false
+    t.integer "user_id", null: false
+    t.string "payload_digest", null: false
+    t.text "response_json", null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["created_at"], name: "index_mcp_idempotency_keys_on_created_at"
+    t.index ["user_id", "operation", "key"], name: "index_mcp_idempotency_keys_on_user_operation_key", unique: true
   end
 
   create_table "media_orders", id: :serial, force: :cascade do |t|
@@ -3162,6 +3186,7 @@ ActiveRecord::Schema.define(version: 20261006193603) do
   add_foreign_key "kanban_columns", "kanban_boards", column: "board_id"
   add_foreign_key "kanban_money_entries", "kanban_cards", column: "card_id"
   add_foreign_key "lost_devices", "service_jobs"
+  add_foreign_key "mcp_api_tokens", "users"
   add_foreign_key "merits", "faults"
   add_foreign_key "merits", "users", column: "issued_by_id"
   add_foreign_key "merits", "users", column: "recipient_id"

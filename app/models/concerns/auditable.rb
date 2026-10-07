@@ -15,6 +15,7 @@ module Auditable
   def update_audit_metadata
     department_id = User.current&.department_id
     audit = Audited::Audit.last
+    return true unless audit
 
     if should_audit_elqueue_work?
       audit.update(metadata: audit.metadata.merge(
