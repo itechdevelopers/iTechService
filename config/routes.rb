@@ -13,6 +13,8 @@ Rails.application.routes.draw do
   # The priority is based upon order of creation: first created -> highest priority.
   # See how all your routes lay out with "rake routes".
 
+  resources :one_c_functions, only: :index
+
   root to: 'dashboard#index'
   get 'dashboard', to: 'dashboard#index'
   resource :weekly_markup_dashboard, only: :show do

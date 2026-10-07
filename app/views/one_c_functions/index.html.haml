@@ -1,0 +1,52 @@
+%h1 Функция 1С
+%button.btn.btn-primary{type: 'button', 'data-toggle' => 'modal', 'data-target' => '#one-c-article-modal'} Поиск по артикулу
+#one-c-article-modal.modal.hide.fade{tabindex: '-1', role: 'dialog', 'aria-labelledby' => 'one-c-article-title'}
+  .modal-header
+    %button.close{type: 'button', 'data-dismiss' => 'modal', 'aria-label' => 'Закрыть'} ×
+    %h3#one-c-article-title Поиск по артикулу
+  = form_tag one_c_functions_path, method: :get do
+    .modal-body
+      = label_tag :article, 'Артикул или код товара 1С'
+      = text_field_tag :article, @article, required: true, maxlength: 128, class: 'input-block-level', autocomplete: 'off'
+    .modal-footer
+      %button.btn{type: 'button', 'data-dismiss' => 'modal'} Отмена
+      = submit_tag 'Найти', class: 'btn btn-primary', data: { disable_with: 'Поиск…' }
+- if @error
+  .alert.alert-danger= @error
+- if @result
+  %h2= "Результат по артикулу #{@result['article']}"
+  %p= "Прямое чтение 1С на #{@result['as_of']} (Владивосток). Склады всех филиалов; показан положительный остаток в наличии."
+  - if @result['products'].empty?
+    .alert.alert-info Товар с таким артикулом или кодом в 1С не найден.
+  - @result['products'].each do |product|
+    %h3= product['Description']
+    %p= "Артикул: #{product['Артикул'].presence || 'не указан'} · Код 1С: #{product['Code']}"
+    - if product['unit']
+      %p= "Единица товара: #{product['unit']['Description']}"
+    - if product['locations'].empty?
+      %p Положительных остатков на складах 1С нет.
+    - else
+      %table.table.table-striped
+        %thead
+          %tr
+            %th Филиал / склад 1С
+            %th Характеристика
+            %th В наличии (ед. товара)
+            %th К отгрузке
+            %th Штрихкоды товара
+        %tbody
+          - product['locations'].each do |location|
+            %tr
+              %td= location['warehouse'] && location['warehouse']['Description']
+              %td= location['characteristic'] && location['characteristic']['Description']
+              %td= location['quantity']
+              %td= location['reserved']
+              %td
+                - if location['barcodes'].empty?
+                  Штрихкоды не зарегистрированы
+                - location['barcodes'].each do |entry|
+                  %div
+                    %code= entry['barcode']
+                    - if entry['package']
+                      = " — #{entry['package']['Description']}"
+  %p.help-block Штрихкоды относятся к товару и характеристике, могут совпадать на разных складах и не обозначают конкретный экземпляр. В наличии — остаток 1С, а не гарантия свободного остатка после резервов.
