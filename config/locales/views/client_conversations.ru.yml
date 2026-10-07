@@ -23,7 +23,8 @@ ru:
       back: К списку
       channels:
         telegram: Telegram
-        max: MAX
+        max: MAX (бот)
+        max_phone: MAX (номер)
     card:
       phone: Телефон
       city: Город
@@ -66,12 +67,14 @@ ru:
       photo_pending: "[фото загружается…]"
       pending: отправляется
       failed: не доставлено
+      sent_from_phone: отправлено с телефона
     conversation:
       photo: "[фото]"
       no_messages: Сообщений ещё не было
       channels:
         telegram: Telegram
-        max: MAX
+        max: MAX (бот)
+        max_phone: MAX (номер)
       statuses:
         open: Открыт
         closed: Закрыт

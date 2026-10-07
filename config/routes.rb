@@ -116,6 +116,9 @@ Rails.application.routes.draw do
   # Секрет вебхука проверяет сам контроллер, поэтому маршрут существует всегда:
   # иначе подписку в MAX было бы не на что нацелить до выкладки токена.
   post 'client_max_webhook' => 'client_max_webhook#update'
+  # То же для MAX по номеру: токен уведомлений сверяет контроллер, а адрес
+  # нужен заранее, чтобы прописать его в настройки инстанса GREEN-API.
+  post 'client_max_phone_webhook' => 'client_max_phone_webhook#update'
   resources :client_conversations, only: %i[index show] do
     get :counter, on: :collection
     member do

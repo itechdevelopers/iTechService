@@ -161,24 +161,10 @@ class ClientTelegramWebhookController < Telegram::Bot::UpdatesController
     return if phone.blank?
 
     conversation.update!(contact_phone: phone)
-    bind_client(phone)
+    conversation.identify_by_phone(phone)
     return if handle_inbound(message, kind: 'text', body: "[клиент прислал номер: #{phone}]").nil?
 
     respond_with :message, text: 'Спасибо, номер сохранён.'
-  end
-
-  # Опознанный клиент подтягивает и филиал — но только если тот ещё не задан:
-  # deep link точнее, он говорит, куда человек обратился сейчас, а не куда
-  # приносил устройство в прошлый раз.
-  def bind_client(phone)
-    client = Client.find_by(full_phone_number: phone)
-    return if client.nil?
-
-    attrs = { client: client }
-    if conversation.city.nil?
-      attrs[:city] = client.service_jobs.order(created_at: :desc).first&.department&.city
-    end
-    conversation.update!(attrs.compact)
   end
 
   # Побочные эффекты нового входящего. Повторная доставка апдейта сюда не

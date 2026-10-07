@@ -410,6 +410,7 @@ ActiveRecord::Schema.define(version: 20261007000000) do
     t.datetime "sent_at"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.boolean "sent_from_phone", default: false, null: false
     t.index ["client_conversation_id", "created_at"], name: "index_client_messages_on_client_conversation_id_and_created_at"
     t.index ["client_conversation_id", "external_id"], name: "index_client_messages_on_conversation_and_external_id", unique: true, where: "(external_id IS NOT NULL)"
     t.index ["client_conversation_id"], name: "index_client_messages_on_client_conversation_id"
@@ -599,6 +600,7 @@ ActiveRecord::Schema.define(version: 20261007000000) do
     t.bigint "expected_repair_service_id"
     t.bigint "creator_id"
     t.boolean "repair_causes_filled_manually", default: false, null: false
+    t.text "manual_repair_causes"
     t.index ["creator_id"], name: "index_device_tasks_on_creator_id"
     t.index ["done"], name: "index_device_tasks_on_done"
     t.index ["done_at"], name: "index_device_tasks_on_done_at"

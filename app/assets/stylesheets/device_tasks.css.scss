@@ -10,3 +10,24 @@
     margin-bottom: 0;
   }
 }
+
+// Что выбрали при приёмке (причины, свой текст, вид ремонта) — строка под задачей в таблице
+// задач ServiceJob. Цвет строки как у задачи, верхней границы нет: читается как её продолжение.
+.table .task-intake-choice td {
+  border-top: 0;
+  padding-top: 0;
+}
+
+.task-intake-choice__line {
+  line-height: 1.6;
+}
+
+.task-intake-choice__label {
+  font-weight: bold;
+  margin-right: 4px;
+}
+
+// Текст приёмщика из textarea: переносы строк сохраняем
+.task-intake-choice__manual {
+  white-space: pre-line;
+}
