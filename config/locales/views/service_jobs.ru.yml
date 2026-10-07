@@ -17,6 +17,10 @@ ru:
       intake_causes: 'Причины:'
       intake_manual_causes: 'Своими словами:'
       intake_repair_services: 'Вид ремонта при приёмке:'
+      intake_return_at: 'Возврат:'
+    return_at_countdown:
+      left: 'осталось %{time}'
+      overdue: 'просрочено на %{time}'
     repair_passport:
       title: 'Паспорт ремонта:'
       repair_kinds: 'Вид ремонта:'

@@ -142,7 +142,15 @@ class ServiceJobsController < ApplicationController
     prepare_check_list_data
 
     respond_to do |format|
-      format.html { render_form }
+      format.html do
+        # Включённая новая приёмка заменяет старую целиком: сюда ведут и кнопки у клиента,
+        # и закладки. Параметры (клиент) уходят дальше как есть.
+        if Setting.new_intake_enabled?(current_department)
+          redirect_to new_v2_service_jobs_path(request.query_parameters)
+        else
+          render_form
+        end
+      end
       format.json { render json: @service_job }
     end
   end

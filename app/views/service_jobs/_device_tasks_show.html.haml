@@ -41,6 +41,12 @@
               .task-intake-choice__line
                 %span.task-intake-choice__label= t('.intake_repair_services')
                 = intake_services.join(', ')
+            - if service_job.return_at.present?
+              .task-intake-choice__line
+                %span.task-intake-choice__label= t('.intake_return_at')
+                = human_datetime(service_job.return_at)
+                -# Сколько осталось, важно, пока работа не сделана; после — только срок
+                = return_at_countdown_tag(service_job.return_at) if device_task.pending?
       - if device_task.is_repair? && device_task.done?
         %tr.repair-passport-row
           %td{colspan: 7}
