@@ -1,0 +1,45 @@
+-# Модалка «Написать в MAX». Поле сообщения появляется, только если номер
+-# нашёлся в MAX; в остальных исходах объясняем, почему написать нельзя.
+- found = !@limit_reached && @search&.found?
+.modal-header
+  = button_to_close_modal
+  %h3= t('client_max_chats.form.title')
+
+= form_tag client_max_chat_path(@client), remote: true do
+  .modal-body
+    %p
+      = t('client_max_chats.form.phone')
+      %strong= @client.human_phone_number
+    - if @limit_reached
+      - limit = ClientChat::StartConversation.daily_limit
+      .alert= limit.zero? ? t('client_max_chats.form.limit_zero') : t('client_max_chats.form.limit_reached', limit: limit)
+    - elsif found
+      .alert.alert-success
+        - if @search.name.present?
+          = t('client_max_chats.form.found_named', name: @search.name)
+        - else
+          = t('client_max_chats.form.found')
+      - if @result&.status == :empty_body
+        .alert.alert-error= t('client_max_chats.form.empty_body')
+      = text_area_tag :body, @body, rows: 5, class: 'input-block-level', autofocus: true,
+        placeholder: t('client_max_chats.form.placeholder')
+    - elsif @search.status == :not_found
+      .alert
+        - if @search.checked_at
+          = t('client_max_chats.form.not_found_on', date: l(@search.checked_at.to_date))
+        - else
+          = t('client_max_chats.form.not_found')
+    - elsif @search.status == :paused
+      .alert.alert-error= t('client_max_chats.form.paused', time: @search.retry_at.in_time_zone.strftime('%H:%M'))
+    - else
+      .alert.alert-error= t("client_max_chats.form.#{@search.status}")
+    -# Отправка не удалась уже после набора текста (кончился лимит, MAX
+    -# ограничил проверки) — текст остаётся, чтобы его можно было скопировать.
+    - if !found && @body.present?
+      = text_area_tag :typed_body, @body, rows: 3, class: 'input-block-level', readonly: true
+
+  .modal-footer
+    - if found
+      = submit_tag t('client_max_chats.form.send'), class: 'btn btn-primary',
+        data: { disable_with: t('client_max_chats.form.sending') }
+    = link_to t('helpers.links.close'), '#', 'data-dismiss' => 'modal', class: 'btn'

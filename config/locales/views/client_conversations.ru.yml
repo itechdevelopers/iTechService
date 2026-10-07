@@ -58,6 +58,9 @@ ru:
       nothing_found: Ничего не найдено
     client_block:
       title: Переписки в мессенджерах
+      write_max: Написать в MAX
+      open_max: Открыть диалог в MAX
+      empty: Переписок пока нет.
       started: Начата
       channel: Канал
       last_message: Последнее сообщение

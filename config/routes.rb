@@ -270,6 +270,8 @@ Rails.application.routes.draw do
     get :show_caller, on: :member
     get :export, on: :collection
     get :history, on: :member, defaults: { format: 'js' }
+    # Написать клиенту в MAX первым: модалка с поиском номера и отправка.
+    resource :max_chat, only: %i[new create], controller: 'client_max_chats'
   end
 
   resources :client_requests do
