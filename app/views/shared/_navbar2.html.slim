@@ -30,6 +30,7 @@ nav#navbar.navbar.navbar-default.navbar-static-top@navigation
           = dropdown_divider
 
         = navbar_dropdown t('.trade') do
+          = navbar_item 'Функция 1С', one_c_functions_path if policy(:one_c_function).index?
           = navbar_resource :sales
           = navbar_resource :purchases
           = navbar_resource :revaluation_acts
