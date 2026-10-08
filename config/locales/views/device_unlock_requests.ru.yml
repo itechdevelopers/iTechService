@@ -71,6 +71,7 @@ ru:
       usd_rate_label: "Курс, ₽/$:"
       cost_from_usd_hint: Если заданы цена в $ и курс, себестоимость считается из них
       cost_from_usd: "%{usd} $ × %{rate} ₽"
+      cbr_rate_hint: "ЦБ на %{date}"
       comments_link_title: Показать все комментарии
       new_request_btn: Новый
       in_progress_btn: В работу

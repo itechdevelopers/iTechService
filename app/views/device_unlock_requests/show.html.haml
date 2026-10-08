@@ -28,11 +28,24 @@
 -# DeviceUnlockRequest#calculate_cost_from_usd; после «OK» строка придёт с
 -# сервера уже с его значением. Делегирование с document, а не обработчики на
 -# полях: строку заменяют целиком (replaceWith), и навешенное на поля пропало бы.
+-# Курс ЦБ (data-cbr-rate) становится значением, когда начали вводить цену в $,
+-# и убирается обратно, если цену стёрли, а курс так и остался подставленным, —
+-# иначе он сохранился бы без цены и при следующем вводе устаревший курс
+-# перекрыл бы свежий курс ЦБ.
 :javascript
   $(document).on('input', '.device-unlock-requests__usd-input', function() {
     var form = $(this).closest('form');
-    var usd = parseFloat(form.find('[name="device_unlock_request[unlock_cost_usd]"]').val());
-    var rate = parseFloat(form.find('[name="device_unlock_request[usd_rate]"]').val());
+    var usdField = form.find('[name="device_unlock_request[unlock_cost_usd]"]');
+    var rateField = form.find('[name="device_unlock_request[usd_rate]"]');
+    var cbrRate = rateField.attr('data-cbr-rate');
+
+    if (this === usdField[0] && cbrRate) {
+      if (usdField.val() !== '' && rateField.val() === '') rateField.val(cbrRate);
+      if (usdField.val() === '' && rateField.val() === cbrRate) rateField.val('');
+    }
+
+    var usd = parseFloat(usdField.val());
+    var rate = parseFloat(rateField.val());
     var cost = form.find('[name="device_unlock_request[unlock_cost]"]');
     var fromUsd = !isNaN(usd) && !isNaN(rate);
 
