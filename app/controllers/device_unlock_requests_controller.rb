@@ -220,6 +220,6 @@ class DeviceUnlockRequestsController < ApplicationController
 
   # Пустая строка из поля → nil (снятие себестоимости), иначе целое число рублей.
   def cost_params
-    params.require(:device_unlock_request).permit(:unlock_cost)
+    params.require(:device_unlock_request).permit(:unlock_cost, :unlock_cost_usd, :usd_rate)
   end
 end

@@ -67,6 +67,10 @@ ru:
       cost_label: "Себестоимость:"
       cost_placeholder: "0"
       cost_btn: OK
+      cost_usd_label: "Цена, $:"
+      usd_rate_label: "Курс, ₽/$:"
+      cost_from_usd_hint: Если заданы цена в $ и курс, себестоимость считается из них
+      cost_from_usd: "%{usd} $ × %{rate} ₽"
       comments_link_title: Показать все комментарии
       new_request_btn: Новый
       in_progress_btn: В работу
