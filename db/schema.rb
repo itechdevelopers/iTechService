@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20261007194528) do
+ActiveRecord::Schema.define(version: 20261008100000) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -1517,6 +1517,30 @@ ActiveRecord::Schema.define(version: 20261007194528) do
     t.index ["sale_id"], name: "index_payments_on_sale_id"
   end
 
+  create_table "phone_calls", force: :cascade do |t|
+    t.string "call_unique_id", null: false
+    t.datetime "started_at", null: false
+    t.string "caller_number", null: false
+    t.string "caller_employee_name"
+    t.bigint "caller_user_id"
+    t.string "called_number"
+    t.string "answered_extension"
+    t.string "answered_employee_name"
+    t.bigint "answered_user_id"
+    t.string "direction", null: false
+    t.string "status", null: false
+    t.integer "duration", default: 0, null: false
+    t.integer "billsec", default: 0, null: false
+    t.string "recording_path"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["answered_user_id"], name: "index_phone_calls_on_answered_user_id"
+    t.index ["call_unique_id"], name: "index_phone_calls_on_call_unique_id", unique: true
+    t.index ["caller_number"], name: "index_phone_calls_on_caller_number"
+    t.index ["caller_user_id"], name: "index_phone_calls_on_caller_user_id"
+    t.index ["started_at", "id"], name: "index_phone_calls_on_started_at_and_id"
+  end
+
   create_table "phone_labels", force: :cascade do |t|
     t.string "phone_number", null: false
     t.string "label", null: false
@@ -2981,6 +3005,8 @@ ActiveRecord::Schema.define(version: 20261007194528) do
     t.string "telegram_username"
     t.bigint "telegram_chat_id"
     t.string "telegram_link_token"
+    t.string "telephony_extension"
+    t.string "pbx_extension"
     t.index ["authentication_token"], name: "index_users_on_authentication_token", unique: true
     t.index ["card_number"], name: "index_users_on_card_number"
     t.index ["department_id"], name: "index_users_on_department_id"
@@ -2992,11 +3018,13 @@ ActiveRecord::Schema.define(version: 20261007194528) do
     t.index ["location_id"], name: "index_users_on_location_id"
     t.index ["name"], name: "index_users_on_name"
     t.index ["patronymic"], name: "index_users_on_patronymic"
+    t.index ["pbx_extension"], name: "index_users_on_pbx_extension", unique: true, where: "(pbx_extension IS NOT NULL)"
     t.index ["reset_password_token"], name: "index_users_on_reset_password_token", unique: true
     t.index ["schedule"], name: "index_users_on_schedule"
     t.index ["store_id"], name: "index_users_on_store_id"
     t.index ["surname"], name: "index_users_on_surname"
     t.index ["telegram_link_token"], name: "index_users_on_telegram_link_token", unique: true
+    t.index ["telephony_extension"], name: "index_users_on_telephony_extension", unique: true, where: "(telephony_extension IS NOT NULL)"
     t.index ["username"], name: "index_users_on_username"
   end
 
@@ -3191,6 +3219,8 @@ ActiveRecord::Schema.define(version: 20261007194528) do
   add_foreign_key "package_stocks", "package_designs"
   add_foreign_key "package_withdrawals", "package_stocks"
   add_foreign_key "package_withdrawals", "users"
+  add_foreign_key "phone_calls", "users", column: "answered_user_id"
+  add_foreign_key "phone_calls", "users", column: "caller_user_id"
   add_foreign_key "phone_substitutions", "service_jobs"
   add_foreign_key "phone_substitutions", "substitute_phones"
   add_foreign_key "phone_substitutions", "users", column: "issuer_id"

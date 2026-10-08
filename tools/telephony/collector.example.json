@@ -1,0 +1,10 @@
+{
+  "pbx_export_command": ["ssh", "-i", "/PRIVATE/ais-cdr-readonly", "-o", "HostKeyAlgorithms=+ssh-rsa", "-o", "StrictHostKeyChecking=yes", "-o", "UserKnownHostsFile=/PRIVATE/pbx-known-hosts", "root@192.168.1.145"],
+  "gateway_cdr_command": ["/PRIVATE/vm.sh", "shell", "p", "sudo", "cat", "/var/log/asterisk/cdr-csv/Master.csv"],
+  "ais_url": "https://ise.itech.pw/api/v1/telephony/calls",
+  "ingest_secret": "REPLACE_WITH_DISTINCT_RANDOM_SECRET_AT_LEAST_32_BYTES",
+  "state_path": "/PRIVATE/telephony-collector-state.json",
+  "pbx_timezone": "Asia/Vladivostok",
+  "recording_root": "/var/spool/asterisk/monitor",
+  "start_day": "2026-10-08"
+}

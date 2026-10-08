@@ -1,0 +1,16 @@
+[Unit]
+Description=AIS authenticated browser phone broker
+After=asterisk.service ais-telephony-control.service
+Requires=ais-telephony-control.service
+[Service]
+User=asterisk
+Group=asterisk
+ExecStart=/usr/bin/python3 /opt/ais-telephony/gateway.py
+Restart=on-failure
+RestartSec=5
+NoNewPrivileges=true
+PrivateTmp=true
+ProtectSystem=strict
+ProtectHome=true
+[Install]
+WantedBy=multi-user.target

@@ -19,6 +19,9 @@
   <div id="modal" class="modal large hide fade"></div>
   <% if user_signed_in? %>
     <%= render 'shared/topbar' %>
+    <% if policy(:telephony).use? %>
+      <div class="container-fluid"><a class="btn btn-small" href="<%= telephony_path %>" target="ais-telephony" onclick="window.open(this.href, 'ais-telephony', 'width=460,height=740,resizable=yes,scrollbars=yes'); return false;">Включить телефонию · <%= current_user.telephony_extension %></a></div>
+    <% end %>
     <%= render 'shared/navbar' %>
     <%= render 'shared/elqueue_service_widget' if current_user.working_electronic_queue? %>
     <%= render 'shared/user_subscriptions' %>

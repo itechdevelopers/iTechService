@@ -1,6 +1,15 @@
 # frozen_string_literal: true
 
 class User < ApplicationRecord
+  TELEPHONY_EXTENSIONS = (7771..7780).map(&:to_s).freeze
+  before_validation do
+    self.telephony_extension = telephony_extension.presence
+    self.pbx_extension = pbx_extension.presence
+  end
+  validates :telephony_extension, inclusion: { in: TELEPHONY_EXTENSIONS }, uniqueness: true, allow_nil: true
+  validates :pbx_extension, exclusion: { in: TELEPHONY_EXTENSIONS }, allow_nil: true
+  validates :pbx_extension, format: { with: /\A\d{3,4}\z/ }, uniqueness: true, allow_nil: true
+
   ROLES = %w[
     admin
     software

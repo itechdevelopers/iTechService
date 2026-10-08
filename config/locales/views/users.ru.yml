@@ -1,6 +1,7 @@
 ru:
   users:
     abilities:
+      work_with_telephony: 'Может работать с телефонией'
       work_with_one_c_articles: 'Возможность работать с артикулами через 1С'
       access_all_departments: 'Доступ ко всем подразделениям'
       comment_users: 'Комментировать сотрудников'

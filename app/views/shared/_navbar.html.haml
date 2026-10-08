@@ -17,6 +17,7 @@
         = menu_item t('.completed_quick_orders'), quick_orders_path(done: true), class: 'navbar_completed' if can? :read, QuickOrder
 
       = drop_down t('.service') do
+        = menu_item 'История вызовов', phone_calls_path if policy(PhoneCall).index?
         = menu_item t('service_jobs.link', default: 'Service jobs'), service_jobs_path if can? :read, ServiceJob
         = menu_item t('service_job_checkouts.link'), service_job_checkouts_path if policy(ServiceJobCheckout).index?
         = menu_item 'Контроль KPI', kpi_audit_episodes_path if policy(:kpi_audit).index?
