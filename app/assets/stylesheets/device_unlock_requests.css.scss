@@ -105,7 +105,19 @@
     padding: 2px 4px;
     margin: 0 2px;
     font-size: 12px;
+
+    &[readonly] { background-color: #f5f5f5; cursor: default; }
   }
+
+  // Цена в $ и курс — только в таблице на show (модификатор --detailed ниже).
+  &__usd {
+    display: none;
+    margin: 4px 0;
+
+    label { display: block; margin: 4px 0 0; }
+  }
+
+  &--detailed &__usd { display: block; }
 
   // ── Инлайн-добавление комментария в ячейке «последний» (Цикл 4) ────────────
   .device-unlock-requests__last-comment { margin-bottom: 6px; }

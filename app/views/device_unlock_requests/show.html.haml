@@ -6,7 +6,8 @@
     = history_link_to history_device_unlock_request_path(@device_unlock_request)
     = t('.created_by', user: @device_unlock_request.user.short_name)
 
-%table.table.table-bordered.table-hover.device-unlock-requests
+-# --detailed открывает в строке блок «цена в $ × курс» под себестоимостью.
+%table.table.table-bordered.table-hover.device-unlock-requests.device-unlock-requests--detailed
   %thead
     %tr
       %th= t('device_unlock_requests.index.columns.id')
@@ -22,3 +23,32 @@
 %h3= t('.comments')
 #comments.comments_list= comments_list_for @device_unlock_request
 = comment_form_for @device_unlock_request
+
+-# Живой пересчёт себестоимости из $ × курс — то же правило, что
+-# DeviceUnlockRequest#calculate_cost_from_usd; после «OK» строка придёт с
+-# сервера уже с его значением. Делегирование с document, а не обработчики на
+-# полях: строку заменяют целиком (replaceWith), и навешенное на поля пропало бы.
+-# Курс ЦБ (data-cbr-rate) становится значением, когда начали вводить цену в $,
+-# и убирается обратно, если цену стёрли, а курс так и остался подставленным, —
+-# иначе он сохранился бы без цены и при следующем вводе устаревший курс
+-# перекрыл бы свежий курс ЦБ.
+:javascript
+  $(document).on('input', '.device-unlock-requests__usd-input', function() {
+    var form = $(this).closest('form');
+    var usdField = form.find('[name="device_unlock_request[unlock_cost_usd]"]');
+    var rateField = form.find('[name="device_unlock_request[usd_rate]"]');
+    var cbrRate = rateField.attr('data-cbr-rate');
+
+    if (this === usdField[0] && cbrRate) {
+      if (usdField.val() !== '' && rateField.val() === '') rateField.val(cbrRate);
+      if (usdField.val() === '' && rateField.val() === cbrRate) rateField.val('');
+    }
+
+    var usd = parseFloat(usdField.val());
+    var rate = parseFloat(rateField.val());
+    var cost = form.find('[name="device_unlock_request[unlock_cost]"]');
+    var fromUsd = !isNaN(usd) && !isNaN(rate);
+
+    if (fromUsd) cost.val(Math.round(usd * rate));
+    cost.prop('readonly', fromUsd);
+  });

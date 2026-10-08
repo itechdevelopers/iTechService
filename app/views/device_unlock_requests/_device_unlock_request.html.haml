@@ -7,7 +7,10 @@
 - archived = local_assigns.fetch(:archived, false)
 %tr.device-unlock-requests__row{ class: "device-unlock-requests__row--#{status_mod}", id: "device_unlock_request_#{r.id}" }
   %td= link_to r.id, device_unlock_request_path(r)
-  %td= human_datetime r.created_at
+  %td
+    = human_datetime r.created_at
+    %br
+    %small.muted= r.user.short_name
   %td= link_to r.client.short_name, client_path(r.client)
   %td
     = r.item.name
@@ -21,17 +24,40 @@
     -# право view_unlock_cost); форму ВВОДА — update_cost? (только суперадмин, и не
     -# в архиве). Обладатель права видит значение read-only; суперадмин правит инлайн
     -# (пустое поле → nil). В архиве форму не показываем даже суперадмину.
+    -# Блок «цена в $ × курс» (__usd) выводится всегда, а виден только в таблице с
+    -# модификатором --detailed (show): строку перерисовывают update_status,
+    -# add_comment и update_cost, и флаг «показать калькулятор» пришлось бы
+    -# протаскивать через все три. Пока себестоимость считается из $, рублёвое поле
+    -# read-only — сервер всё равно перезапишет его в before_validation.
     - if policy(r).see_cost?
       .device-unlock-requests__cost
         - if policy(r).update_cost? && !archived
+          -# number_field принимает только точку и без разделителя тысяч.
+          - usd_input = number_with_precision(r.unlock_cost_usd, precision: 2, strip_insignificant_zeros: true, separator: '.', delimiter: '')
+          - rate_input = number_with_precision(r.usd_rate, precision: 4, strip_insignificant_zeros: true, separator: '.', delimiter: '')
+          -# Курс ЦБ — только подсказкой (placeholder): значением его делает JS на show,
+          -# когда начинают вводить цену в $. Стоял бы значением — ушёл бы в БД и при
+          -# ручном вводе одних рублей.
+          - cbr = CbrUsdRate.call if r.usd_rate.blank?
+          - cbr_rate = cbr && cbr[:rate].to_s
           = form_tag update_cost_device_unlock_request_path(r), method: :patch, remote: true, class: 'device-unlock-requests__cost-form' do
             %span.device-unlock-requests__cost-label= t('.cost_label')
-            = number_field_tag 'device_unlock_request[unlock_cost]', r.unlock_cost, min: 0, id: "duq_cost_#{r.id}", placeholder: t('.cost_placeholder'), class: 'device-unlock-requests__cost-input'
+            = number_field_tag 'device_unlock_request[unlock_cost]', r.unlock_cost, min: 0, id: "duq_cost_#{r.id}", placeholder: t('.cost_placeholder'), readonly: r.cost_from_usd?, title: t('.cost_from_usd_hint'), class: 'device-unlock-requests__cost-input'
             %span.muted ₽
+            .device-unlock-requests__usd
+              %label.device-unlock-requests__cost-label{ for: "duq_cost_usd_#{r.id}" }= t('.cost_usd_label')
+              = number_field_tag 'device_unlock_request[unlock_cost_usd]', usd_input, min: 0, step: 'any', id: "duq_cost_usd_#{r.id}", class: 'device-unlock-requests__cost-input device-unlock-requests__usd-input'
+              %label.device-unlock-requests__cost-label{ for: "duq_usd_rate_#{r.id}" }= t('.usd_rate_label')
+              = number_field_tag 'device_unlock_request[usd_rate]', rate_input, min: 0, step: 'any', id: "duq_usd_rate_#{r.id}", placeholder: cbr_rate, data: { cbr_rate: cbr_rate }, class: 'device-unlock-requests__cost-input device-unlock-requests__usd-input'
+              - if cbr
+                %small.muted= t('.cbr_rate_hint', date: cbr[:date].strftime('%d.%m'))
             = submit_tag t('.cost_btn'), class: 'btn btn-mini'
         - elsif r.unlock_cost.present?
           %span.device-unlock-requests__cost-label= t('.cost_label')
           %strong= "#{number_with_delimiter(r.unlock_cost)} ₽"
+          - if r.cost_from_usd?
+            .device-unlock-requests__usd.muted
+              = t('.cost_from_usd', usd: number_with_precision(r.unlock_cost_usd, precision: 2, strip_insignificant_zeros: true), rate: number_with_precision(r.usd_rate, precision: 4, strip_insignificant_zeros: true))
   %td= r.reason
   %td.device-unlock-requests__comment-cell
     - if r.last_comment

@@ -47,6 +47,11 @@ class DeviceUnlockRequest < ApplicationRecord
     client_declined: 4
   }
 
+  # Заданы и цена в $, и курс → рубли считаются из них и перекрывают введённое
+  # руками, иначе три поля могут разойтись. Пока любое из двух пустое,
+  # unlock_cost остаётся таким, как его ввели.
+  before_validation :calculate_cost_from_usd, if: :cost_from_usd?
+
   scope :recent, -> { order(created_at: :desc) }
 
   # Архивация (Цикл 8) — паттерн kanban-досок: boolean-колонка + явные scope'ы.
@@ -222,5 +227,16 @@ class DeviceUnlockRequest < ApplicationRecord
 
   def unarchive!
     update!(archived: false)
+  end
+
+  def cost_from_usd?
+    unlock_cost_usd.present? && usd_rate.present?
+  end
+
+  private
+
+  # BigDecimal#round без аргументов возвращает Integer — под колонку рублей.
+  def calculate_cost_from_usd
+    self.unlock_cost = (unlock_cost_usd * usd_rate).round
   end
 end

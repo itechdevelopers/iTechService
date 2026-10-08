@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20261008100000) do
+ActiveRecord::Schema.define(version: 20261008172427) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -664,6 +664,8 @@ ActiveRecord::Schema.define(version: 20261008100000) do
     t.boolean "archived", default: false, null: false
     t.datetime "stale_notified_at"
     t.integer "unlock_cost"
+    t.decimal "unlock_cost_usd", precision: 10, scale: 2
+    t.decimal "usd_rate", precision: 10, scale: 4
     t.index ["archived"], name: "index_device_unlock_requests_on_archived"
     t.index ["client_id"], name: "index_device_unlock_requests_on_client_id"
     t.index ["department_id"], name: "index_device_unlock_requests_on_department_id"
