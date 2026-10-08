@@ -53,7 +53,19 @@
         = link_to t('.assign'), assign_client_conversation_path(conversation), method: :post, remote: true, class: 'btn btn-small btn-primary'
       = link_to t('.close'), close_client_conversation_path(conversation), method: :post, remote: true, class: 'btn btn-small'
 
+  -# Лента — вся переписка чата: прошлые диалоги сверху, текущий внизу, у формы
+  -# ответа. Новые реплики дописываются в конец контейнера, то есть всегда в
+  -# текущий диалог.
   #client_chat_feed.client-chat__feed{ data: { conversation_id: conversation.id } }
+    - if history.hidden_count.positive?
+      .client-chat__history-more
+        = link_to t('.history_more', count: history.hidden_count), client_conversation_path(conversation, history: 'all')
+    - history.conversations.each do |past|
+      = render 'history_divider', conversation: past
+      .client-chat__past
+        = render partial: 'message', collection: history.messages_of(past), as: :message
+    - if history.any?
+      = render 'history_divider', conversation: conversation, current: true
     - if messages.empty?
       %p.muted= t('.empty')
     = render partial: 'message', collection: messages, as: :message
@@ -67,4 +79,8 @@
         = file_field_tag 'client_message[photo]', accept: 'image/*', class: 'client-chat__reply-photo'
         = submit_tag t('.send'), class: 'btn btn-primary'
   - else
-    %p.muted.client-chat__closed-note= t('.closed_note')
+    %p.muted.client-chat__closed-note
+      = t('.closed_note')
+      - if history.newer
+        = link_to t('.history_next', date: human_datetime(history.newer.started_at || history.newer.created_at)),
+          client_conversation_path(history.newer)

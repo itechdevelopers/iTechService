@@ -1,0 +1,11 @@
+-# Граница диалогов в ленте чата. Прошлый диалог — ссылкой на его собственную
+-# карточку: метрики и ответственный у каждого диалога свои.
+- current = local_assigns[:current]
+- started = human_datetime(conversation.started_at || conversation.created_at)
+.client-chat__divider{ class: ('client-chat__divider--current' if current) }
+  - if current
+    = t('client_conversations.history_divider.current', date: started)
+  - else
+    = link_to t('client_conversations.history_divider.past', date: started), client_conversation_path(conversation)
+    - if conversation.assigned_user
+      = "· #{t('client_conversations.history_divider.assigned', name: conversation.assigned_user.short_name)}"

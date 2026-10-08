@@ -69,6 +69,39 @@
     color: #c09853;
   }
 
+  // История чата: прошлые диалоги над текущим. Каждый отделён чертой с датой,
+  // а их реплики приглушены, чтобы глаз сразу находил текущий разговор.
+  &__divider {
+    margin: 14px 0 6px;
+    padding-top: 6px;
+    border-top: 1px dashed #ccc;
+    text-align: center;
+    font-size: 12px;
+    color: #888;
+  }
+
+  &__divider--current {
+    border-top: 2px solid #bbb;
+    color: #555;
+    font-weight: bold;
+  }
+
+  &__past {
+    opacity: 0.7;
+  }
+
+  // Последняя запись прошлого диалога — отметка о его закрытии. В истории она
+  // и есть граница между разговорами, поэтому заметнее обычной серой строки.
+  &__past &__row--system:last-child .client-chat__bubble {
+    color: #666;
+    font-weight: bold;
+  }
+
+  &__history-more {
+    text-align: center;
+    font-size: 12px;
+  }
+
   &__header-facts {
     margin-bottom: 12px;
 
