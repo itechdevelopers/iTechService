@@ -7,7 +7,10 @@
 - archived = local_assigns.fetch(:archived, false)
 %tr.device-unlock-requests__row{ class: "device-unlock-requests__row--#{status_mod}", id: "device_unlock_request_#{r.id}" }
   %td= link_to r.id, device_unlock_request_path(r)
-  %td= human_datetime r.created_at
+  %td
+    = human_datetime r.created_at
+    %br
+    %small.muted= r.user.short_name
   %td= link_to r.client.short_name, client_path(r.client)
   %td
     = r.item.name

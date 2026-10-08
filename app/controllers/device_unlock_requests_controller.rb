@@ -13,7 +13,7 @@ class DeviceUnlockRequestsController < ApplicationController
     @status_counts = status_counts
 
     # Архивные (Цикл 8) в основной таблице не показываем — только .active.
-    scope = DeviceUnlockRequest.active.recent.includes(:client, :item, :comments)
+    scope = DeviceUnlockRequest.active.recent.includes(:client, :item, :user, :comments)
     if @priority_statuses.any?
       codes = @priority_statuses.map { |s| DeviceUnlockRequest.statuses[s] }
       # reorder (не order): перебиваем created_at из scope `recent` ведущим
@@ -174,7 +174,7 @@ class DeviceUnlockRequestsController < ApplicationController
   def archived_requests
     authorize DeviceUnlockRequest
     @device_unlock_requests =
-      DeviceUnlockRequest.archived.recent.includes(:client, :item, :comments)
+      DeviceUnlockRequest.archived.recent.includes(:client, :item, :user, :comments)
   end
 
   # История изменений (иконка часов) — читает HistoryRecord, как в clients#history.
