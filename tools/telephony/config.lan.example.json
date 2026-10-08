@@ -1,0 +1,11 @@
+{
+  "ais_origin": "https://ise.itech.pw",
+  "gateway_host": "192.168.1.109:18444",
+  "port": 8444,
+  "shared_secret": "REPLACE_WITH_RANDOM_SECRET_AT_LEAST_32_BYTES",
+  "turn_secret": "COPY_EXISTING_LOCAL_TURN_SECRET_PRIVATELY",
+  "wss": "wss://192.168.1.109:18089/ws",
+  "turn_url": "turn:192.168.1.109:3478?transport=tcp",
+  "certificate": "/etc/asterisk/keys/telephony-lan.crt",
+  "private_key": "/etc/asterisk/keys/telephony-lan.key"
+}

@@ -1,0 +1,13 @@
+[Unit]
+Description=AIS local SIP lease control
+After=asterisk.service
+[Service]
+ExecStart=/usr/bin/python3 /opt/ais-telephony/sip_control.py
+Restart=on-failure
+RestartSec=5
+RuntimeDirectory=ais-telephony
+NoNewPrivileges=true
+PrivateTmp=true
+ProtectHome=true
+[Install]
+WantedBy=multi-user.target

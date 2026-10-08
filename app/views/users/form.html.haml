@@ -132,6 +132,9 @@
 
     #account_tab.tab-pane
       = f.input :username
+      - if can? :manage_limited_rights, User
+        = f.input :telephony_extension, collection: User::TELEPHONY_EXTENSIONS, include_blank: 'Не назначен', label: 'Номер браузерной телефонии'
+        = f.input :pbx_extension, label: 'Номер обычного телефона АТС', hint: 'Для определения сотрудника в истории вызовов, например 101.'
 
       = f.input :role, collection: accessible_roles, value_method: :to_s, label_method: lambda{|role|t("users.roles.#{role}")}
       = f.input :is_senior, as: :boolean, checked_value: :true, unchecked_value: :false

@@ -1,0 +1,24 @@
+<% content_for :title, 'История вызовов' %>
+<h3>История вызовов</h3>
+<%= form_tag phone_calls_path, method: :get, class: 'form-inline' do %>
+  <%= text_field_tag :number, params[:number], placeholder: 'Телефон или внутренний номер' %>
+  <%= submit_tag 'Найти', class: 'btn' %>
+  <%= link_to 'Сбросить', phone_calls_path, class: 'btn' %>
+<% end %>
+<table class="table table-striped table-condensed">
+  <thead><tr><th>Дата</th><th>Откуда</th><th>Куда</th><th>Кто ответил</th><th>Результат</th><th>Разговор</th><th>Запись</th></tr></thead>
+  <tbody>
+    <% @phone_calls.each do |call| %>
+      <tr>
+        <td><%= l(call.started_at, format: :short) %></td>
+        <td><%= call.caller_number %><br><%= call.caller_employee_name %></td><td><%= call.called_number %></td>
+        <td><%= call.answered_extension.presence || '—' %><br><%= call.answered_employee_name %></td>
+        <td><%= { 'answered' => 'Отвечен', 'missed' => 'Пропущен', 'busy' => 'Занято', 'failed' => 'Не состоялся' }[call.status] %></td>
+        <td><%= call.billsec %> сек.</td>
+        <td><% if call.recording_path.present? && policy(call).audio? %><%= link_to 'Слушать', audio_phone_call_path(call), target: '_blank', rel: 'noopener' %><% else %>—<% end %></td>
+      </tr>
+    <% end %>
+  </tbody>
+</table>
+<% if @phone_calls.empty? %><p>Вызовов пока нет.</p><% end %>
+<%= paginate @phone_calls %>

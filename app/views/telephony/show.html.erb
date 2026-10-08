@@ -1,0 +1,21 @@
+<!doctype html>
+<html lang="ru"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Телефон АИС</title><%= csrf_meta_tags %><%= stylesheet_link_tag 'telephony/phone' %>
+<%= javascript_include_tag 'telephony/jssip.min', defer: true %><%= javascript_include_tag 'telephony/phone', defer: true %>
+</head><body><main id="ais-phone" data-extension="<%= current_user.telephony_extension %>">
+<h1>Телефон · <%= current_user.telephony_extension %></h1>
+<input type="hidden" id="identity" value="<%= current_user.telephony_extension %>">
+<label for="microphone">Микрофон</label><select id="microphone"><option value="">Системный по умолчанию</option></select>
+<div class="actions"><button id="enable">Включить телефонию</button><button id="disable" disabled>Выключить</button></div>
+<p class="hint">Разрешите микрофон и, если браузер запросит, доступ АИС к локальной сети.</p>
+<p id="status" role="status">Телефония выключена</p><p id="error" role="alert"></p>
+<section><h2 id="call-title">Нет активного звонка</h2><p id="duration">00:00</p>
+<div id="caller-context" hidden></div>
+<div class="actions"><button id="answer" disabled>Ответить</button><button id="reject" disabled>Отклонить</button><button id="hangup" disabled>Завершить</button><button id="mute" disabled>Выключить микрофон</button></div>
+<label for="target">Кому позвонить</label><input id="target" type="tel" placeholder="Номер телефона или внутренний номер" autocomplete="off"><button id="test-call" disabled>Позвонить</button>
+<audio id="remote" autoplay playsinline></audio><button id="play-audio">Включить звук</button>
+<label>Микрофон</label><div id="mic-meter" class="meter-bars" role="meter" aria-label="Уровень микрофона" aria-valuemin="0" aria-valuemax="100"></div><p id="mic-meter-hint"></p>
+<label>Собеседник</label><div id="remote-meter" class="meter-bars" role="meter" aria-label="Уровень собеседника" aria-valuemin="0" aria-valuemax="100"></div>
+<details><summary>Состояние звука</summary><p id="mic-status"></p><p id="audio-status"></p><p id="rtp-status"></p></details>
+</section><p><a href="<%= phone_calls_path %>" target="_blank" rel="noopener">История вызовов</a></p>
+</main></body></html>

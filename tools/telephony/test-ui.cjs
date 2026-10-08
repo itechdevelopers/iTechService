@@ -1,0 +1,56 @@
+const path=require('path');
+const pilot=process.env.AIS_TELEPHONY_PILOT_ROOT||'/Users/mac/Library/Application Support/com.itech.call-pipeline/runtime/work/webrtc-pilot';
+const {chromium}=require(path.join(pilot,'test-tools/node_modules/playwright'));
+const {execFileSync}=require('child_process');const vm=path.join(pilot,'vm.sh');
+const run=(...args)=>execFileSync(vm,['shell','p','sudo',...args],{encoding:'utf8'});
+const setup=`import secrets,json\nfrom pathlib import Path\np=Path('/etc/asterisk/pjsip.conf');password=secrets.token_urlsafe(32);s=p.read_text().split(';temporary-audio-check')[0];p.write_text(s+';temporary-audio-check\\n[7799]\\ntype=endpoint\\ncontext=pilot-only\\ndisallow=all\\nallow=ulaw,alaw\\nwebrtc=yes\\nmedia_encryption=dtls\\ndtls_auto_generate_cert=yes\\ndirect_media=no\\nrtp_symmetric=yes\\nforce_rport=yes\\nrewrite_contact=yes\\nauth=auth-7799\\naors=7799\\n[auth-7799]\\ntype=auth\\nauth_type=userpass\\nusername=7799\\npassword='+password+'\\n[7799]\\ntype=aor\\nmax_contacts=1\\nremove_existing=no\\n');print(json.dumps({'user':'7799','password':password,'token':'test','uri':'sip:7799@localhost','wss':'wss://localhost:18089/ws'}))`;
+(async()=>{
+ const c=JSON.parse(run('python3','-c',setup));c.user='7771';c.pcConfig=JSON.parse(run('python3','-c',"import json,time,hmac,hashlib,base64;from pathlib import Path;u=str(int(time.time())+3600)+':7799';s=Path('/etc/ais-pilot-phone/turn-secret').read_text().strip();print(json.dumps({'iceServers':[{'urls':'turn:localhost:3478?transport=tcp','username':u,'credential':base64.b64encode(hmac.new(s.encode(),u.encode(),hashlib.sha1).digest()).decode()}],'iceTransportPolicy':'relay'}))"));run('asterisk','-rx','pjsip reload');
+ let browser;
+ try{
+  browser=await chromium.launch({executablePath:process.env.CHROME_EXECUTABLE||'/Applications/Google Chrome.app/Contents/MacOS/Google Chrome',headless:true,args:['--use-fake-ui-for-media-stream','--use-fake-device-for-media-stream']});
+  const ctx=await browser.newContext({permissions:['microphone','local-network-access']});const p=await ctx.newPage();
+  p.on('pageerror',e=>console.log('UI script error:',e.message));
+  p.on('console',m=>{if(m.type()==='error')console.log('Browser error:',m.text());});
+  const cors={'Access-Control-Allow-Origin':'https://localhost:18443','Access-Control-Allow-Methods':'POST,OPTIONS','Access-Control-Allow-Headers':'Content-Type','Access-Control-Allow-Private-Network':'true'};
+  await p.route('**/enable',r=>r.fulfill({contentType:'application/json',body:JSON.stringify(c)}));
+  await p.route('**/heartbeat',r=>r.fulfill({headers:cors,contentType:'application/json',body:'{"ok":true}'}));
+  await p.route('**/disable',r=>r.fulfill({headers:cors,contentType:'application/json',body:'{"ok":true}'}));
+  const fs=require('fs');const root=path.resolve(__dirname,'../..');
+  let html=fs.readFileSync(root+'/app/views/telephony/show.html.erb','utf8');
+  html=html.replace(/<%= csrf_meta_tags %>/g,'<meta name="csrf-token" content="test-csrf">').replace(/<%= stylesheet_link_tag 'telephony\/phone' %>/g,'<link rel="stylesheet" href="/phone.css">').replace(/<%= javascript_include_tag 'telephony\/jssip.min', defer: true %>/g,'<script src="/jssip.min.js" defer></script>').replace(/<%= javascript_include_tag 'telephony\/phone', defer: true %>/g,'<script src="/phone.js" defer></script>').replace(/<%= current_user.telephony_extension %>/g,'7771').replace(/<%= phone_calls_path %>/g,'/phone_calls');
+  await p.route('https://localhost:18443/',r=>r.fulfill({contentType:'text/html',body:html}));
+  await p.route('**/phone.js',r=>r.fulfill({contentType:'text/javascript',body:fs.readFileSync(root+'/app/assets/javascripts/telephony/phone.js','utf8')}));
+  await p.route('**/phone.css',r=>r.fulfill({contentType:'text/css',body:fs.readFileSync(root+'/app/assets/stylesheets/telephony/phone.css','utf8')}));
+  await p.route('**/telephony/ticket',r=>r.fulfill({contentType:'application/json',body:JSON.stringify({ticket:'signed-test-ticket',extension:'7771',gateway:'https://localhost:18444'})}));
+  await p.route('**/ais/enable',r=>{if(r.request().method()==='OPTIONS')return r.fulfill({status:204,headers:cors});const data=r.request().postDataJSON();if(data.ticket!=='signed-test-ticket')throw Error('Ticket missing');return r.fulfill({headers:cors,contentType:'application/json',body:JSON.stringify(c)});});
+  await p.goto('https://localhost:18443/');await p.click('#enable');
+  await p.waitForFunction(()=>document.querySelector('#status').textContent.includes('Готов к звонкам'),{},{timeout:15000}).catch(async e=>{console.log('UI state:',await p.locator('#status').innerText(),await p.locator('#error').innerText());throw e;});
+  await p.waitForFunction(()=>Number(document.querySelector('#mic-meter').getAttribute('aria-valuenow'))>0,{},{timeout:10000});console.log('Microphone meter responds to actual synthetic audio');
+  await p.fill('#target','779');await p.click('#test-call');
+  await p.waitForFunction(()=>document.querySelector('#call-title').textContent.startsWith('Разговор с'),{},{timeout:15000});
+  await p.waitForFunction(async()=>{const d=await pilotDiagnostics();const a=document.querySelector('#remote');return d.inbound>0&&d.outbound>0&&d.remoteTracks>0&&d.playback==='running'&&d.remoteLevel>0;},{},{timeout:20000});
+  await p.waitForFunction(()=>Number(document.querySelector('#remote-meter').getAttribute('aria-valuenow'))>0,{},{timeout:10000});console.log('Remote audio meter responds to echo');
+  await p.click('#play-audio');if(await p.locator('#play-audio').innerText()!=='Звук включён')throw Error('Playback button feedback failed');
+  console.log('779 echo: bidirectional RTP, remote audio track attached, Web Audio running with nonzero audio level, button responds');
+  await p.click('#hangup');
+  await p.route('**/telephony/caller?**',r=>r.fulfill({contentType:'application/json',body:JSON.stringify({number:'79991234567',clients:[{name:'Тестовый клиент <img>',url:'/clients/1',entities:[{kind:'order',title:'Актуальная заявка на iPhone',url:'/orders/1'},{kind:'service_job',title:'Устройство в работе',url:'/service_jobs/1'}]}]})}));
+  const incomingDialplan='\n[ais-ui-test]\nexten => 7799,1,Set(CALLERID(num)=сакх79991234567)\n same => n,Dial(PJSIP/7799,20)\n same => n,Hangup()\n';
+  run('python3','-c',"from pathlib import Path;p=Path('/etc/asterisk/extensions.conf');p.write_text(p.read_text()+"+JSON.stringify(incomingDialplan)+")");run('asterisk','-rx','dialplan reload');
+  run('asterisk','-rx','channel originate Local/7799@ais-ui-test application Echo');
+  await p.waitForFunction(()=>!document.querySelector('#answer').disabled,{},{timeout:15000});
+  await p.waitForFunction(()=>document.querySelector('#caller-context').textContent.includes('Актуальная заявка'),{},{timeout:10000});
+  const links=await p.locator('#caller-context a').allTextContents();if(links[0]!=='Актуальная заявка на iPhone'||links[2]!=='Тестовый клиент <img>')throw Error('Client priority or escaping failed');
+  if(await p.locator('#caller-context img').count())throw Error('Unescaped client content');
+  await p.locator('#caller-context a').last().evaluate(e=>e.textContent='Иван Тестовый');
+  await p.setViewportSize({width:460,height:740});
+  await p.screenshot({path:root+'/doc/telephony/phone-preview.png',fullPage:true});
+  await p.click('#answer');await p.waitForFunction(()=>document.querySelector('#call-title').textContent.startsWith('Разговор с'),{},{timeout:10000});
+  console.log('AIS UI: signed-ticket request, incoming call, active entities before client, safe client rendering, answer verified');
+  await p.click('#hangup');await p.click('#disable');
+ }finally{
+  if(browser)await browser.close();
+  run('python3','-c',"from pathlib import Path;p=Path('/etc/asterisk/extensions.conf');p.write_text(p.read_text().split('\\n[ais-ui-test]')[0])");run('asterisk','-rx','dialplan reload');
+  run('python3','-c',"from pathlib import Path;p=Path('/etc/asterisk/pjsip.conf');p.write_text(p.read_text().split(';temporary-audio-check')[0])");run('asterisk','-rx','pjsip reload');
+ }
+})().catch(e=>{console.error(e.message);process.exit(1);});

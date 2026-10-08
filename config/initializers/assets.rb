@@ -53,3 +53,5 @@ Rails.application.config.assets.precompile += %w[
   rating_bar_static.js
   sortablejs.min.js
 ]
+
+Rails.application.config.assets.precompile += %w[telephony/jssip.min.js telephony/phone.js telephony/phone.css]

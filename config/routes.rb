@@ -106,6 +106,14 @@ Rails.application.routes.draw do
   resources :departments
   resources :brands, except: :show
   resources :reports, only: [:index, :new, :create]
+  get 'telephony', to: 'telephony#show', as: :telephony
+  post 'telephony/ticket', to: 'telephony#ticket'
+  get 'telephony/caller', to: 'telephony#caller'
+  post 'api/v1/telephony/calls', to: 'telephony_imports#create'
+  resources :phone_calls, only: [:index] do
+    get :audio, on: :member
+  end
+
   resources :call_transcriptions, only: %i[index show] do
     get :audio, on: :member
   end

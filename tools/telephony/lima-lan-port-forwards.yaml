@@ -1,0 +1,13 @@
+# Merge into the existing VM p configuration after approval. Restrict the Mac
+# firewall to office/VPN networks; do not forward these ports from the Internet.
+portForwards:
+- guestPort: 8089
+  hostPort: 18089
+  hostIP: 0.0.0.0
+- guestPort: 8444
+  hostPort: 18444
+  hostIP: 0.0.0.0
+- guestPort: 3478
+  hostPort: 3478
+  hostIP: 0.0.0.0
+  proto: tcp

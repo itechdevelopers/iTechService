@@ -1,0 +1,7 @@
+__pycache__/
+*.pyc
+config.json
+collector.json
+*.key
+*.pem
+*-state.json
