@@ -124,6 +124,7 @@ class ClientConversationsController < ApplicationController
   # которые её перерисовывают.
   def load_card
     @messages = @conversation.messages.chronological.includes(:user)
+    @history = ClientChat::History.new(@conversation, all: params[:history] == 'all')
     @cities = City.with_real_departments
   end
 

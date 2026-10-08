@@ -28,6 +28,12 @@ $(function () {
   var feed = document.getElementById('client_chat_feed');
   if (!feed || !feed.dataset.conversationId) { return; }
 
+  // Над текущим диалогом лежит история чата, а отвечают на последние реплики —
+  // карточка открывается прокрученной вниз. Второй раз — после загрузки
+  // картинок: они добавляют ленте высоту уже после первой прокрутки.
+  feed.scrollTop = feed.scrollHeight;
+  $(window).on('load', function () { feed.scrollTop = feed.scrollHeight; });
+
   App.cable.subscriptions.create(
     { channel: 'ClientConversationChannel', id: feed.dataset.conversationId },
     {

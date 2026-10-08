@@ -40,6 +40,8 @@ ru:
       reply_placeholder: Напишите ответ…
       send: Отправить
       closed_note: Диалог закрыт — новые сообщения в него не отправляются.
+      history_more: 'Показать более раннюю переписку (ещё диалогов: %{count})'
+      history_next: 'Продолжение — в диалоге от %{date} →'
       assign: Взять в работу
       take_over: Перехватить
       assigned_to_me: Диалог за вами
@@ -66,6 +68,10 @@ ru:
       last_message: Последнее сообщение
       messages: Сообщений
       status: Статус
+    history_divider:
+      past: 'Диалог от %{date}'
+      assigned: 'ответственный: %{name}'
+      current: 'Текущий диалог · с %{date}'
     message:
       photo_pending: "[фото загружается…]"
       pending: отправляется
