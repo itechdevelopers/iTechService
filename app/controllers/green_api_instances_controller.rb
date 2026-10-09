@@ -56,7 +56,53 @@ class GreenApiInstancesController < ApplicationController
     redirect_to green_api_instances_path, webhook_flash(webhook, error)
   end
 
+  # Страница спрашивает код снова и снова, пока аккаунт не подключится.
+  def qr
+    authorize GreenApiInstance, :update?
+    render json: qr_payload(GreenApi::InstanceApi.for(@channel.key).qr)
+  end
+
+  def logout
+    authorize GreenApiInstance, :update?
+    response = GreenApi::InstanceApi.for(@channel.key).logout
+    redirect_to green_api_instances_path, action_flash('logout', response, response['isLogout'] == true)
+  end
+
+  def reboot
+    authorize GreenApiInstance, :update?
+    response = GreenApi::InstanceApi.for(@channel.key).reboot
+    redirect_to green_api_instances_path, action_flash('reboot', response, response['isReboot'] == true)
+  end
+
+  def password
+    authorize GreenApiInstance, :update?
+    response = GreenApi::InstanceApi.for(@channel.key).send_password(params[:password].to_s)
+    return redirect_to(green_api_instances_path, notice: t('.accepted')) if response['status'] == true
+
+    reason = response.dig('data', 'reason').presence
+    error = reason ? t(".reasons.#{reason}", default: reason) : GreenApi::InstanceApi.failure_text(response)
+    redirect_to green_api_instances_path, alert: t('.failed', error: error)
+  end
+
   private
+
+  # У MAX «уже подключён» в документации встречается под двумя именами.
+  def qr_payload(response)
+    return { status: 'error', text: GreenApi::InstanceApi.failure_text(response) } unless response['http_code'] == 200
+
+    case response['type']
+    when 'qrCode' then { status: 'qr', image: "data:image/png;base64,#{response['message']}" }
+    when 'alreadyLogged', 'already_registered' then { status: 'authorized', text: t('green_api_instances.qr.authorized') }
+    when 'passkeyRequired' then { status: 'passkey', text: t('green_api_instances.qr.passkey') }
+    else { status: 'error', text: response['message'].presence || response['type'].to_s }
+    end
+  end
+
+  def action_flash(action, response, done)
+    return { notice: t("green_api_instances.#{action}.done") } if done
+
+    { alert: t("green_api_instances.#{action}.failed", error: GreenApi::InstanceApi.failure_text(response)) }
+  end
 
   def set_channel
     @channel = GreenApi::Channel.fetch(params[:channel])

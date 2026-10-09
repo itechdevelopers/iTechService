@@ -507,6 +507,10 @@ Rails.application.routes.draw do
       get :status
       post :import_env
       post :configure
+      get :qr
+      post :logout
+      post :reboot
+      post :password
     end
   end
   resources :legal_entities, except: [:show] do

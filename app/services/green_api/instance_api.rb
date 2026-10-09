@@ -65,6 +65,27 @@ module GreenApi
       request(:get, method_name)
     end
 
+    # Картинка QR-кода для входа в аккаунт (base64 PNG). Код живёт секунды —
+    # его запрашивают снова, пока аккаунт не подключится.
+    def qr
+      request(:get, 'qr')
+    end
+
+    def logout
+      request(:get, 'logout')
+    end
+
+    def reboot
+      request(:get, 'reboot')
+    end
+
+    # Облачный пароль аккаунта MAX: после QR-кода, если аккаунт им защищён
+    # (состояние pendingPassword).
+    def send_password(password)
+      request(:post, 'sendAuthorizationPassword', body: { password: password }.to_json,
+                                                  headers: { 'Content-Type' => 'application/json' })
+    end
+
     # Токен обязателен: контроллер отвергает уведомления без него, и настройка
     # без токена создала бы мёртвый эндпоинт.
     def configure(webhook_url:, webhook_token:)

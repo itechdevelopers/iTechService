@@ -37,10 +37,3 @@
     - if credentials.configured?
       = link_to t('.configure'), configure_green_api_instance_path(channel.key), method: :post, class: 'btn',
         data: { confirm: t('.configure_confirm') }
-
-:javascript
-  $(function() {
-    $('[data-green-api-status]').each(function() {
-      $.getScript($(this).data('green-api-status'));
-    });
-  });
