@@ -12,7 +12,13 @@ module GreenApi
       REGISTRY.fetch(key.to_s)
     end
 
-    def initialize(key:, webhook_path:, env_prefix:)
+    def self.all
+      REGISTRY.values
+    end
+
+    # env_prefix — у канала, реквизиты которого жили в окружении сервера до
+    # того, как их стали вводить в Айсе.
+    def initialize(key:, webhook_path:, env_prefix: nil)
       @key = key
       @webhook_path = webhook_path
       @env_prefix = env_prefix
@@ -22,7 +28,19 @@ module GreenApi
       I18n.t("client_conversations.conversation.channels.#{key}", default: key)
     end
 
+    def instance_record
+      GreenApiInstance.find_by(channel: key)
+    end
+
+    # Введённое в Айсе главнее окружения: окружение читается, только пока
+    # инстанс в Айсе не сохранён, — так выкладка не ломает работающий канал.
     def credentials
+      instance_record&.credentials || env_credentials
+    end
+
+    def env_credentials
+      return Credentials.new(api_url: '', media_url: '', instance_id: '', token: '', webhook_token: '', source: :none) if @env_prefix.nil?
+
       Credentials.new(api_url: env('API_URL').chomp('/'), media_url: env('MEDIA_URL').chomp('/'),
                       instance_id: env('INSTANCE_ID'), token: env('API_TOKEN'),
                       webhook_token: env('WEBHOOK_TOKEN'), source: :env)
