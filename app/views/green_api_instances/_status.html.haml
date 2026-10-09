@@ -1,0 +1,38 @@
+- if status.error
+  %span.label.label-important= t('green_api_instances.status.unreachable')
+  %span.muted= status.error
+- else
+  %span.label{ class: green_api_state_class(status.state) }
+    = t("green_api_instances.status.states.#{status.state}", default: status.state)
+  - if status.suspended_until
+    %span.muted= t('green_api_instances.status.suspended_until', time: l(status.suspended_until, format: :short))
+  - if status.phone
+    %span= t('green_api_instances.status.phone', phone: status.phone)
+  %br
+  %span.label{ class: green_api_webhook_class(status.webhook) }
+    = t("green_api_instances.status.webhook.#{status.webhook}", url: status.webhook_url)
+
+  - if status.state == 'notAuthorized'
+    %div{ data: { 'green-api-qr' => qr_green_api_instance_path(channel.key, format: :json),
+                  'green-api-qr-hint' => t('green_api_instances.status.qr_hint'),
+                  'green-api-qr-expired' => t('green_api_instances.status.qr_expired'),
+                  'green-api-qr-failed' => t('green_api_instances.status.qr_failed') } }
+      %p
+        = link_to t('green_api_instances.status.show_qr'), '#', class: 'btn btn-small btn-success',
+          data: { 'green-api-qr-start' => true }
+      .green-api-instances__qr-box{ style: 'display: none;' }
+        %img.green-api-instances__qr-image{ alt: 'QR', style: 'display: none;' }
+        %p.green-api-instances__qr-text.muted
+
+  - if status.state == 'pendingPassword'
+    = form_tag password_green_api_instance_path(channel.key), class: 'form-inline' do
+      = password_field_tag :password, nil, placeholder: t('green_api_instances.status.password_placeholder'),
+        autocomplete: 'new-password', class: 'input-medium'
+      = submit_tag t('green_api_instances.status.password_submit'), class: 'btn btn-small btn-primary'
+
+  %p
+    - if status.state.present? && status.state != 'notAuthorized'
+      = link_to t('green_api_instances.status.logout'), logout_green_api_instance_path(channel.key), method: :post,
+        class: 'btn btn-small', data: { confirm: t('green_api_instances.status.logout_confirm') }
+    = link_to t('green_api_instances.status.reboot'), reboot_green_api_instance_path(channel.key), method: :post,
+      class: 'btn btn-small', data: { confirm: t('green_api_instances.status.reboot_confirm') }

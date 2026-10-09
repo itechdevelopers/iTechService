@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20261008172427) do
+ActiveRecord::Schema.define(version: 20261009190750) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -950,6 +950,20 @@ ActiveRecord::Schema.define(version: 20261008172427) do
     t.index ["recipient_id"], name: "index_glass_sticking_notifications_on_recipient_id"
     t.index ["sender_id", "created_at"], name: "idx_glass_sticking_sender_created"
     t.index ["sender_id"], name: "index_glass_sticking_notifications_on_sender_id"
+  end
+
+  create_table "green_api_instances", force: :cascade do |t|
+    t.string "channel", null: false
+    t.string "api_url", null: false
+    t.string "media_url"
+    t.string "id_instance", null: false
+    t.text "encrypted_api_token", null: false
+    t.text "encrypted_webhook_token", null: false
+    t.bigint "updated_by_id"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["channel"], name: "index_green_api_instances_on_channel", unique: true
+    t.index ["updated_by_id"], name: "index_green_api_instances_on_updated_by_id"
   end
 
   create_table "history_records", id: :serial, force: :cascade do |t|
@@ -3187,6 +3201,7 @@ ActiveRecord::Schema.define(version: 20261008172427) do
   add_foreign_key "glass_sticking_notifications", "departments"
   add_foreign_key "glass_sticking_notifications", "users", column: "recipient_id"
   add_foreign_key "glass_sticking_notifications", "users", column: "sender_id"
+  add_foreign_key "green_api_instances", "users", column: "updated_by_id"
   add_foreign_key "inventories", "departments"
   add_foreign_key "inventories", "stores"
   add_foreign_key "inventories", "users"

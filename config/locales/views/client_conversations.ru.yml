@@ -25,6 +25,7 @@ ru:
         telegram: Telegram
         max: MAX (бот)
         max_phone: MAX (номер)
+        whatsapp: WhatsApp
     card:
       phone: Телефон
       city: Город
@@ -84,6 +85,7 @@ ru:
         telegram: Telegram
         max: MAX (бот)
         max_phone: MAX (номер)
+        whatsapp: WhatsApp
       statuses:
         open: Открыт
         closed: Закрыт

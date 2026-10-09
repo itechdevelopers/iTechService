@@ -50,7 +50,9 @@ class MaxPhoneAccountSearch
 
     paused = self.class.paused_until
     return result(:paused, retry_at: paused) if paused
-    return result(:not_configured) unless MaxPhoneApi.configured?
+
+    @credentials = GreenApi::Channel.fetch('max_phone').credentials
+    return result(:not_configured) unless @credentials.configured?
 
     check_account
   end
@@ -134,9 +136,9 @@ class MaxPhoneAccountSearch
   end
 
   def post(name, payload)
-    HTTParty.post(MaxPhoneApi.method_url(name), body: payload.to_json,
-                                                headers: { 'Content-Type' => 'application/json' },
-                                                open_timeout: OPEN_TIMEOUT, read_timeout: READ_TIMEOUT)
+    HTTParty.post(@credentials.method_url(name), body: payload.to_json,
+                                                 headers: { 'Content-Type' => 'application/json' },
+                                                 open_timeout: OPEN_TIMEOUT, read_timeout: READ_TIMEOUT)
   end
 
   def body(response)
