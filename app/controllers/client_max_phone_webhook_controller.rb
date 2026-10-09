@@ -68,12 +68,13 @@ class ClientMaxPhoneWebhookController < ApplicationController
   # (того же WhatsApp для рассылок), направленные сюда по ошибке, не должны
   # превращаться в диалоги.
   def authentic?
-    token = MaxPhoneApi.webhook_token
+    credentials = GreenApi::Channel.fetch(CHANNEL).credentials
+    token = credentials.webhook_token
     return false if token.blank?
 
     presented = request.headers['Authorization'].to_s.sub(/\A(Bearer|Basic)\s+/i, '')
     ActiveSupport::SecurityUtils.variable_size_secure_compare(presented, token) &&
-      params.dig(:instanceData, :idInstance).to_s == MaxPhoneApi.instance_id
+      params.dig(:instanceData, :idInstance).to_s == credentials.instance_id
   end
 
   # Номер могут добавить в группу — переписка там к диалогам с клиентами не
@@ -128,8 +129,8 @@ class ClientMaxPhoneWebhookController < ApplicationController
     line = ["[#{prefix}: #{label}]", caption.presence].compact.join(' ')
     return if record_message(kind: 'text', text: line).nil? || from_phone?
 
-    MaxPhoneReplyJob.perform_later(
-      chat_id, "Мы пока не умеем открывать #{label}. Опишите вопрос текстом или пришлите фото."
+    GreenApiReplyJob.perform_later(
+      CHANNEL, chat_id, "Мы пока не умеем открывать #{label}. Опишите вопрос текстом или пришлите фото."
     )
   end
 
