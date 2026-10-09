@@ -1,0 +1,13 @@
+- if status.error
+  %span.label.label-important= t('green_api_instances.status.unreachable')
+  %span.muted= status.error
+- else
+  %span.label{ class: green_api_state_class(status.state) }
+    = t("green_api_instances.status.states.#{status.state}", default: status.state)
+  - if status.suspended_until
+    %span.muted= t('green_api_instances.status.suspended_until', time: l(status.suspended_until, format: :short))
+  - if status.phone
+    %span= t('green_api_instances.status.phone', phone: status.phone)
+  %br
+  %span.label{ class: green_api_webhook_class(status.webhook) }
+    = t("green_api_instances.status.webhook.#{status.webhook}", url: status.webhook_url)

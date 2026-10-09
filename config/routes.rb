@@ -502,6 +502,13 @@ Rails.application.routes.draw do
   end
 
   resources :settings, except: [:show]
+  resources :green_api_instances, only: %i[index edit update], param: :channel do
+    member do
+      get :status
+      post :import_env
+      post :configure
+    end
+  end
   resources :legal_entities, except: [:show] do
     patch :link, on: :member
     patch :unlink, on: :collection

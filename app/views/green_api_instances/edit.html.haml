@@ -1,0 +1,25 @@
+- content_for :title, t('.title', channel: @channel.title)
+
+%h3= t('.title', channel: @channel.title)
+
+.row-fluid
+  .span8
+    %p= t('.hint')
+    - if @instance.persisted? || @channel.env_credentials.configured?
+      .alert= t('.replace_warning')
+
+    = simple_form_for @instance, url: green_api_instance_path(@channel.key), method: :patch,
+      html: { class: 'form-horizontal', autocomplete: 'off' } do |f|
+      - if f.object.errors.any?
+        .alert.alert-error= f.object.errors.full_messages.join('. ')
+
+      = f.input :api_url, placeholder: 'https://1103.api.green-api.com'
+      = f.input :media_url, placeholder: 'https://1103.media.green-api.com'
+      = f.input :id_instance, placeholder: '1103123456'
+      = f.input :api_token, as: :password, required: f.object.new_record?,
+        hint: (t('.token_keep') if f.object.persisted?),
+        input_html: { value: nil, autocomplete: 'new-password' }
+
+      .form-actions
+        = f.button :submit, t('.save'), class: 'btn-primary', data: { disable_with: t('.saving') }
+        = link_to t('helpers.links.cancel'), green_api_instances_path, class: 'btn'

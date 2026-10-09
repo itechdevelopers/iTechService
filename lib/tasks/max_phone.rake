@@ -11,12 +11,12 @@
       puts "API: #{credentials.api_url.presence || '—'}, файлы: #{credentials.media_url.presence || '—'}"
       puts "инстанс: #{credentials.instance_id.presence || '—'}, реквизиты заданы: #{credentials.configured?}"
       puts "токен уведомлений задан: #{credentials.webhook_token.present?}"
-      puts "состояние: #{GreenApi::InstanceApi.new(key).state.inspect}"
+      puts "состояние: #{GreenApi::InstanceApi.for(key).state.inspect}"
     end
 
     desc "#{key}: текущие настройки инстанса (токен уведомлений скрыт)"
     task settings: :environment do
-      current = GreenApi::InstanceApi.new(key).current_settings
+      current = GreenApi::InstanceApi.for(key).current_settings
       current['webhookUrlToken'] = '***' if current['webhookUrlToken'].present?
       puts current.inspect
     end
@@ -26,7 +26,7 @@
       channel = GreenApi::Channel.fetch(key)
       url = args[:url].presence || channel.webhook_url
       puts "настраиваю уведомления на #{url.inspect}"
-      result = GreenApi::InstanceApi.new(key).configure(webhook_url: url,
+      result = GreenApi::InstanceApi.for(key).configure(webhook_url: url,
                                                         webhook_token: channel.credentials.webhook_token)
       puts result.inspect
       next unless result['http_code'] == 200

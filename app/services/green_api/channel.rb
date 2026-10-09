@@ -6,7 +6,7 @@ module GreenApi
   # waInstance в адресе), поэтому каналы различаются только реквизитами
   # инстанса и адресом, на который он шлёт уведомления.
   class Channel
-    attr_reader :key, :webhook_path
+    attr_reader :key, :webhook_path, :account_method
 
     def self.fetch(key)
       REGISTRY.fetch(key.to_s)
@@ -16,11 +16,13 @@ module GreenApi
       REGISTRY.values
     end
 
-    # env_prefix — у канала, реквизиты которого жили в окружении сервера до
-    # того, как их стали вводить в Айсе.
-    def initialize(key:, webhook_path:, env_prefix: nil)
+    # account_method — метод GREEN-API с номером и состоянием аккаунта: у
+    # каждого мессенджера он свой. env_prefix — у канала, реквизиты которого
+    # жили в окружении сервера до того, как их стали вводить в Айсе.
+    def initialize(key:, webhook_path:, account_method:, env_prefix: nil)
       @key = key
       @webhook_path = webhook_path
+      @account_method = account_method
       @env_prefix = env_prefix
     end
 
@@ -59,7 +61,8 @@ module GreenApi
     end
 
     REGISTRY = {
-      'max_phone' => new(key: 'max_phone', webhook_path: '/client_max_phone_webhook', env_prefix: 'CLIENT_MAX_PHONE')
+      'max_phone' => new(key: 'max_phone', webhook_path: '/client_max_phone_webhook',
+                         account_method: 'getAccountSettings', env_prefix: 'CLIENT_MAX_PHONE')
     }.freeze
   end
 end

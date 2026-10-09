@@ -1,0 +1,46 @@
+- content_for :title, t('.title')
+
+%h3= t('.title')
+%p.muted= t('.description')
+
+- @channels.each do |channel|
+  - record = channel.instance_record
+  - credentials = record ? record.credentials : channel.env_credentials
+  .well
+    %h4= channel.title
+    %dl.dl-horizontal
+      %dt= t('.source')
+      %dd
+        = t(".sources.#{credentials.source}")
+        - if record
+          %span.muted= t('.updated', time: l(record.updated_at, format: :short), user: record.updated_by&.short_name || '—')
+      - if record && record.api_token.nil?
+        %dd.text-error= t('.unreadable')
+      - if credentials.instance_id.present?
+        %dt idInstance
+        %dd= credentials.instance_id
+        %dt apiUrl
+        %dd= credentials.api_url
+        %dt mediaUrl
+        %dd= credentials.media_url.presence || '—'
+        %dt apiTokenInstance
+        %dd= credentials.token.present? ? "…#{credentials.token.last(4)}" : '—'
+      - if credentials.configured?
+        %dt= t('.state')
+        %dd{ id: "green_api_status_#{channel.key}", data: { 'green-api-status' => status_green_api_instance_path(channel.key, format: :js) } }
+          %span.muted= t('.checking')
+
+    = link_to (record ? t('.change') : t('.connect')), edit_green_api_instance_path(channel.key), class: 'btn btn-primary'
+    - if record.nil? && credentials.configured?
+      = link_to t('.import_env'), import_env_green_api_instance_path(channel.key), method: :post, class: 'btn',
+        data: { confirm: t('.import_env_confirm') }
+    - if credentials.configured?
+      = link_to t('.configure'), configure_green_api_instance_path(channel.key), method: :post, class: 'btn',
+        data: { confirm: t('.configure_confirm') }
+
+:javascript
+  $(function() {
+    $('[data-green-api-status]').each(function() {
+      $.getScript($(this).data('green-api-status'));
+    });
+  });
