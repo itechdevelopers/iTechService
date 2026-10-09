@@ -146,17 +146,21 @@ class ClientMaxPhoneWebhookController < ApplicationController
 
   # Открытый диалог этого чата либо новый.
   #
-  # Клиента по номеру ищем только у нового диалога. В открытом сотрудник мог
-  # уже перепривязать карточку руками (номер, например, у родственника), и
-  # каждое следующее сообщение не должно отменять его решение.
+  # Клиента по номеру ищем, когда номер стал известен впервые: в новом диалоге
+  # или в открытом, который начался с ответа с телефона, — у такого номера ещё
+  # не было. Позже не ищем: сотрудник мог перепривязать карточку руками (номер,
+  # например, у родственника), и следующее сообщение не должно отменять его
+  # решение.
   def conversation
     @conversation ||= begin
       record = ClientConversation.open_for(CHANNEL, chat_id) ||
                ClientConversation.new(channel: CHANNEL, external_chat_id: chat_id)
-      fresh = record.new_record?
-      record.assign_attributes(contact_attributes(fresh))
+      phone_was_known = record.contact_phone.present?
+      record.assign_attributes(contact_attributes(record.new_record?))
       record.save!
-      record.identify_by_phone(record.contact_phone) if fresh
+      if !phone_was_known && record.contact_phone.present? && record.client_id.nil?
+        record.identify_by_phone(record.contact_phone)
+      end
       record
     end
   end
@@ -177,7 +181,7 @@ class ClientMaxPhoneWebhookController < ApplicationController
     {
       contact_name: sender[:senderName].presence || sender[:senderContactName].presence ||
                     sender[:chatName].presence,
-      contact_phone: PhoneNormalizer.normalize(sender[:senderPhoneNumber]).presence
+      contact_phone: ClientChat::Phone.normalize(sender[:senderPhoneNumber])
     }.compact
   end
 

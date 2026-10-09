@@ -20,8 +20,6 @@ class MaxPhoneAccountSearch
 
   PAUSE = 2.hours
   PAUSE_SETTING = 'max_phone_lookup_paused_until'
-  # Международный формат: 11 цифр у России, 12 — у Беларуси.
-  PHONE_FORMAT = /\A\d{11,12}\z/
   OPEN_TIMEOUT = 10
   READ_TIMEOUT = 30
 
@@ -38,11 +36,11 @@ class MaxPhoneAccountSearch
   end
 
   def initialize(phone)
-    @phone = PhoneNormalizer.normalize(phone).to_s
+    @phone = ClientChat::Phone.normalize(phone).to_s
   end
 
   def call
-    return result(:invalid_phone) unless @phone.match?(PHONE_FORMAT)
+    return result(:invalid_phone) if @phone.empty?
 
     known = known_from_conversation
     return known if known

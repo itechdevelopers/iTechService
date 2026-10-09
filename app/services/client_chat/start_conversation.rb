@@ -92,7 +92,14 @@ module ClientChat
       post_into(existing, search)
     end
 
+    # Диалог с этим чатом мог идти без карточки клиента: человек писал первым,
+    # и опознать его не вышло. Сотрудник пишет из карточки — значит, знает, кто
+    # это, и без привязки диалог так и не появился бы в карточке клиента.
     def post_into(conversation, search = nil)
+      if conversation.client_id.nil?
+        conversation.bind_client!(@client)
+        conversation.update!(city: ClientConversation.last_repair_city(@client)) if conversation.city.nil?
+      end
       deliver(outgoing(conversation))
       result(:existing, conversation: conversation, search: search)
     end

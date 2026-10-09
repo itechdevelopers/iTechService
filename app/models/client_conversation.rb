@@ -191,9 +191,7 @@ class ClientConversation < ApplicationRecord
   # Связь без отметки в ленте, в отличие от bind_client!: это не решение
   # сотрудника, а то, что система узнала сама.
   def identify_by_phone(phone)
-    return false if phone.blank?
-
-    found = Client.find_by(full_phone_number: phone)
+    found = ClientChat::Phone.find_client(phone)
     return false if found.nil?
 
     attrs = { client: found }
