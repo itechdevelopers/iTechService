@@ -3,7 +3,7 @@
 # Настройка каналов GREEN-API на сервере. GREEN-API шлёт уведомления только
 # туда, куда указано в настройках инстанса, поэтому после подключения
 # инстанса их надо прописать — отсюда эти задачи.
-%w[max_phone].each do |key|
+%w[max_phone whatsapp].each do |key|
   namespace key do
     desc "#{key}: реквизиты канала и состояние инстанса (authorized — аккаунт подключён)"
     task info: :environment do

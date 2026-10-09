@@ -105,7 +105,7 @@ class ClientGreenApiWebhookController < ApplicationController
     elsif type == 'imageMessage'
       store_photo(data[:fileMessageData] || {})
     elsif type.present? && !IGNORED_TYPES.include?(type)
-      store_unsupported(data, UNSUPPORTED.fetch(type, UNSUPPORTED_FALLBACK))
+      store_unsupported(data, self.class::UNSUPPORTED.fetch(type, UNSUPPORTED_FALLBACK))
     end
   end
 

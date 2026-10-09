@@ -62,7 +62,8 @@ module GreenApi
 
     REGISTRY = {
       'max_phone' => new(key: 'max_phone', webhook_path: '/client_max_phone_webhook',
-                         account_method: 'getAccountSettings', env_prefix: 'CLIENT_MAX_PHONE')
+                         account_method: 'getAccountSettings', env_prefix: 'CLIENT_MAX_PHONE'),
+      'whatsapp' => new(key: 'whatsapp', webhook_path: '/client_whatsapp_webhook', account_method: 'getWaSettings')
     }.freeze
   end
 end

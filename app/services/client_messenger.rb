@@ -14,7 +14,8 @@ module ClientMessenger
   ADAPTERS = {
     'telegram' => 'ClientMessenger::TelegramAdapter',
     'max' => 'ClientMessenger::MaxAdapter',
-    'max_phone' => 'ClientMessenger::MaxPhoneAdapter'
+    'max_phone' => 'ClientMessenger::MaxPhoneAdapter',
+    'whatsapp' => 'ClientMessenger::WhatsappAdapter'
   }.freeze
 
   class UnknownChannel < StandardError; end
