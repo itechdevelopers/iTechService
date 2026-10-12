@@ -23,6 +23,7 @@ class TelephonyTest < Minitest::Test
   end
 
   def setup
+    Rails.cache = ActiveSupport::Cache::MemoryStore.new
     ActiveRecord::Base.connection.begin_transaction(joinable: false)
     ENV['TELEPHONY_ENABLED'] = 'true'
     ENV['TELEPHONY_SHARED_SECRET'] = 't' * 48
@@ -239,6 +240,143 @@ class TelephonyTest < Minitest::Test
     assert_equal 416, last_response.status
   ensure
     File.delete(cache) if cache && File.exist?(cache)
+  end
+
+  def test_live_call_updates_stale_events_and_final_cdr
+    live = call_attrs.merge('source' => 'ami', 'status' => 'ringing', 'observed_at' => Time.current.iso8601(6), 'answered_extension' => nil, 'legs' => [{ 'unique_id' => '1791417600.123', 'number' => '101', 'state' => 'ringing' }])
+    record = Telephony::ImportCall.call(live)
+    assert_equal 'ringing', record.status
+    Telephony::ImportCall.call(live.merge('status' => 'talking', 'observed_at' => (Time.current - 10).iso8601(6)))
+    assert_equal 'ringing', record.reload.status
+    Telephony::ImportCall.call(call_attrs)
+    assert record.reload.finalized_at
+    Telephony::ImportCall.call(live.merge('observed_at' => (Time.current + 1).iso8601(6)))
+    assert_equal 'answered', record.reload.status
+  end
+
+  def test_cdr_child_enriches_one_logical_call
+    live = call_attrs.merge('source' => 'ami', 'status' => 'talking', 'observed_at' => Time.current.iso8601(6), 'legs' => [{ 'unique_id' => '1791417600.124', 'number' => '101', 'state' => 'talking' }])
+    record = Telephony::ImportCall.call(live)
+    Telephony::ImportCall.call(call_attrs('1791417600.124'))
+    assert_equal 1, PhoneCall.count
+    assert_equal 'answered', record.reload.status
+  end
+
+  def test_history_fragment_and_signed_sync_heartbeat
+    login_as(@user, scope: :user)
+    get '/phone_calls', fragment: '1'
+    assert_equal 200, last_response.status
+    refute_includes last_response.body, '<html'
+    body = JSON.generate(calls: [], health: { source: 'ami', connected: true, observed_at: Time.current.iso8601 })
+    stamp = Time.now.to_i.to_s
+    signature = OpenSSL::HMAC.hexdigest('SHA256', ENV['TELEPHONY_INGEST_SECRET'], stamp + '.' + body)
+    post '/api/v1/telephony/calls', body, 'CONTENT_TYPE' => 'application/json', 'HTTP_X_AIS_TIMESTAMP' => stamp, 'HTTP_X_AIS_SIGNATURE' => signature
+    assert_equal 200, last_response.status
+    assert TelephonySyncState.find_by!(source: 'ami').connected
+  end
+
+  def test_live_merge_retires_only_provisional_rows
+    stamp = Time.current.iso8601(6)
+    child = call_attrs('1791417600.124').merge('source' => 'ami', 'status' => 'ringing', 'observed_at' => stamp, 'legs' => [{ 'unique_id' => '1791417600.124', 'number' => '101', 'state' => 'ringing' }])
+    Telephony::ImportCall.call(child)
+    parent = call_attrs.merge('source' => 'ami', 'status' => 'ringing', 'observed_at' => stamp, 'supersedes' => ['1791417600.124'], 'legs' => child['legs'])
+    Telephony::ImportCall.call(parent)
+    assert_equal 1, PhoneCall.count
+    assert_nil PhoneCall.find_by(call_unique_id: '1791417600.124')
+    Telephony::ImportCall.call(call_attrs('1791417600.125'))
+    Telephony::ImportCall.call(parent.merge('observed_at' => (Time.current + 1).iso8601(6), 'supersedes' => ['1791417600.125']))
+    assert_equal 2, PhoneCall.count
+    assert PhoneCall.find_by!(call_unique_id: '1791417600.125').finalized_at
+  end
+
+  def test_history_links_legacy_client_on_outgoing_call
+    client = insert(Client, name: 'Иван', surname: 'Тестовый', phone_number: '9991234567', department_id: @department.id)
+    Telephony::ImportCall.call(call_attrs.merge('caller_number' => '101', 'called_number' => '79991234567', 'direction' => 'outgoing'))
+    login_as(@user, scope: :user)
+    get '/phone_calls'
+    assert_equal 200, last_response.status
+    assert_includes last_response.body, "href=\"/clients/#{client.id}\""
+  end
+
+  def test_external_status_dates_and_directory_filters
+    @user.update_columns(role: 'admin')
+    label = PhoneLabel.create!(phone_number: '101', label: 'Продажи', group_name: 'Продажи', department_id: @department.id, user_id: @user.id)
+    Telephony::ImportCall.call(call_attrs)
+    Telephony::ImportCall.call(call_attrs('1791417600.125').merge('caller_number' => '102', 'called_number' => '103', 'direction' => 'internal', 'answered_extension' => '103'))
+    login_as(@user, scope: :user)
+    get '/phone_calls', external_only: '1', group_name: 'Продажи', directory_id: label.id, department_id: @department.id, date_from: Date.current.iso8601, date_to: Date.current.iso8601
+    assert_equal 200, last_response.status
+    assert_includes last_response.body, 'label label-info'
+    assert_equal 1, last_response.body.scan('79991234567').length
+    get '/phone_calls', status: 'missed'
+    assert_equal 200, last_response.status
+    assert_includes last_response.body, 'Вызовов пока нет'
+  end
+
+  def test_directory_admin_management_and_employee_denial
+    assert TelephonyDirectoryPolicy.new(@user, :telephony_directory).index?
+    refute TelephonyDirectoryPolicy.new(@user, :telephony_directory).manage?
+    login_as(@user, scope: :user)
+    post '/telephony_directory', phone_label: { phone_number: '101', label: 'Недопустимо' }
+    assert_equal 302, last_response.status
+    assert_equal 0, PhoneLabel.count
+    @user.update_columns(role: 'admin')
+    login_as(@user, scope: :user)
+    get '/telephony_directory'
+    assert_equal 200, last_response.status
+    csrf = last_response.body[/name="csrf-token" content="([^"]+)"/, 1]
+    post '/telephony_directory', { phone_label: { phone_number: '101', label: 'Ремонт', department_id: @department.id, user_id: @user.id } }, 'HTTP_X_CSRF_TOKEN' => csrf
+    assert_equal 302, last_response.status
+    record = PhoneLabel.find_by!(phone_number: '101')
+    patch "/telephony_directory/#{record.id}", { phone_label: { phone_number: '101', label: 'Сервис' } }, 'HTTP_X_CSRF_TOKEN' => csrf
+    assert_equal 'Сервис', record.reload.label
+    get '/telephony_directory'
+    assert_equal 200, last_response.status
+    delete "/telephony_directory/#{record.id}", {}, 'HTTP_X_CSRF_TOKEN' => csrf
+    assert_equal 0, PhoneLabel.count
+  end
+
+  def test_directory_assignment_is_snapshotted_for_future_calls
+    @user.update_columns(pbx_extension: nil)
+    label = PhoneLabel.create!(phone_number: '101', label: 'Сервис', user_id: @user.id)
+    record = Telephony::ImportCall.call(call_attrs.merge('answered_extension' => '101'))
+    assert_equal @user.id, record.answered_user_id
+    label.update!(user_id: nil)
+    Telephony::ImportCall.call(call_attrs.merge('answered_extension' => '101'))
+    assert_equal @user.id, record.reload.answered_user_id
+  end
+
+  def test_directory_filter_includes_unanswered_group_participant
+    label = PhoneLabel.create!(phone_number: '101', label: 'Общая линия отдела', department_id: @department.id)
+    Telephony::ImportCall.call(call_attrs.merge('source' => 'ami', 'status' => 'ringing', 'called_number' => '600', 'answered_extension' => nil, 'observed_at' => Time.current.iso8601(6), 'legs' => [{ 'unique_id' => '1791417600.124', 'number' => '101', 'state' => 'ringing' }]))
+    login_as(@user, scope: :user)
+    get '/phone_calls', directory_id: label.id
+    assert_equal 200, last_response.status
+    assert_equal 1, last_response.body.scan('79991234567').length
+    assert_includes last_response.body, 'Участники'
+  end
+
+  def test_profile_ownership_takes_priority_over_directory_caption
+    other = insert(User, username: 'directory-owner', name: 'Другой', surname: 'Сотрудник', role: 'software', department_id: @department.id)
+    PhoneLabel.create!(phone_number: '7771', label: 'Подпись линии', user_id: other.id)
+    call = Telephony::ImportCall.call(call_attrs)
+    assert_equal @user.id, call.answered_user_id
+  end
+
+  def test_recording_link_and_player_preserve_permissions
+    record = Telephony::ImportCall.call(call_attrs.merge('recording_path' => '/var/spool/asterisk/monitor/2026/10/12/test.wav'))
+    login_as(@user, scope: :user)
+    get '/phone_calls'
+    assert_equal 200, last_response.status
+    assert_includes last_response.body, 'preload="none"'
+    assert_includes last_response.body, "data-call-recording=\"#{record.id}\""
+    other = insert(User, username: 'audio-reader', name: 'Другой', role: 'software', department_id: @department.id)
+    insert(UserSettings, user_id: other.id)
+    other.abilities << @ability
+    login_as(other, scope: :user)
+    get '/phone_calls'
+    assert_equal 200, last_response.status
+    refute_includes last_response.body, "data-call-recording=\"#{record.id}\""
   end
 
 end

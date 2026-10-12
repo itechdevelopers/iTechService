@@ -1,0 +1,26 @@
+<% content_for :title, 'Справочник номеров' %>
+<h3>Справочник номеров</h3>
+<p>Подпись номера может обозначать отдел, сотрудника или назначение линии. Несколько номеров одного отдела добавляются отдельными строками. Справочник не меняет маршрутизацию АТС.</p>
+<%= link_to 'История вызовов', phone_calls_path, class: 'btn' %>
+<% if policy(:telephony_directory).manage? %>
+  <% @entry.errors.full_messages.each do |message| %><p class="text-error"><%= message %></p><% end %>
+  <%= form_for @entry, url: @entry.persisted? ? telephony_directory_path(@entry) : telephony_directory_index_path, method: @entry.persisted? ? :patch : :post do |f| %>
+    <%= f.label :phone_number, 'Номер' %><%= f.text_field :phone_number, required: true, placeholder: '101 или 79991234567' %>
+    <%= f.label :label, 'Подпись' %><%= f.text_field :label, required: true, placeholder: 'Продажи, общая линия' %>
+    <%= f.label :group_name, 'Группа / отдел (например, Продажи)' %><%= f.text_field :group_name %>
+    <%= f.label :department_id, 'Подразделение АИС' %><%= f.collection_select :department_id, @departments, :id, :name, include_blank: 'Не назначен' %>
+    <%= f.label :user_id, 'Сотрудник' %><%= f.collection_select :user_id, @employees, :id, :full_name, include_blank: 'Не назначен' %>
+    <%= f.submit 'Сохранить', class: 'btn btn-primary' %>
+  <% end %>
+<% end %>
+<table class="table table-striped">
+  <thead><tr><th>Номер</th><th>Подпись</th><th>Группа / отдел</th><th>Подразделение АИС</th><th>Сотрудник</th><th></th></tr></thead>
+  <tbody><% @entries.each do |entry| %><tr>
+    <td><%= entry.phone_number %></td><td><%= entry.label %></td><td><%= entry.group_name %></td><td><%= entry.department&.name %></td><td><%= entry.user&.full_name %></td>
+    <td><% if policy(:telephony_directory).manage? %>
+      <%= link_to 'Изменить', telephony_directory_index_path(edit: entry.id) %>
+      <%= link_to 'Удалить', telephony_directory_path(entry), method: :delete, data: { confirm: 'Удалить подпись номера?' } %>
+    <% end %></td>
+  </tr><% end %></tbody>
+</table>
+<%= paginate @entries %>

@@ -16,9 +16,23 @@ class TelephonyImportsController < ActionController::Base
     payload = JSON.parse(body)
     return head(:unprocessable_entity) unless payload.is_a?(Hash)
     calls = payload.fetch('calls')
+    health = payload['health']
+    if health
+      raise ArgumentError unless health.is_a?(Hash) && %w[ami cdr].include?(health['source']) && [true, false].include?(health['connected'])
+      observed_at = Time.iso8601(health.fetch('observed_at'))
+      raise ArgumentError if observed_at > Time.current + 30.seconds
+    end
     return head(:unprocessable_entity) unless calls.is_a?(Array) && calls.length <= 100 && calls.all? { |c| c.is_a?(Hash) }
     # Whole batch commits or none; sender can retry a failed request safely.
-    PhoneCall.transaction { calls.each { |attrs| Telephony::ImportCall.call(attrs) } }
+    PhoneCall.transaction do
+      calls.each { |attrs| Telephony::ImportCall.call(attrs) }
+      if health
+        state = TelephonySyncState.find_or_initialize_by(source: health['source'])
+        if !state.observed_at || state.observed_at < observed_at
+          state.update!(observed_at: observed_at, connected: health['connected'])
+        end
+      end
+    end
     render json: { accepted: calls.length }
   rescue JSON::ParserError, KeyError, ActiveRecord::RecordInvalid, ArgumentError
     render json: { error: 'Invalid call batch' }, status: :unprocessable_entity

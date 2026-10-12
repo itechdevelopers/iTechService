@@ -118,6 +118,7 @@ Rails.application.routes.draw do
     get :audio, on: :member
   end
   resources :marker_words, only: %i[index create destroy]
+  resources :telephony_directory, only: %i[index create update destroy]
   resources :phone_labels, only: %i[index create destroy]
   telegram_webhook TelegramWebhookController if ENV['TELEGRAM_BOT_TOKEN'].present?
   # Второй бот переименовывает роуты в default_/client_telegram_webhook, но путь
