@@ -21,11 +21,6 @@ ru:
         status: Статус
     show:
       back: К списку
-      channels:
-        telegram: Telegram
-        max: MAX (бот)
-        max_phone: MAX (номер)
-        whatsapp: WhatsApp
     card:
       phone: Телефон
       city: Город

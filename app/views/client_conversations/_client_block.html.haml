@@ -32,7 +32,7 @@
       - conversations.each do |conversation|
         %tr
           %td= link_to human_datetime(conversation.started_at || conversation.created_at), client_conversation_path(conversation)
-          %td= t("client_conversations.conversation.channels.#{conversation.channel}", default: conversation.channel)
+          %td= client_channel_label(conversation.channel)
           %td= human_datetime conversation.last_message_at
           %td= conversation.messages.size
           %td

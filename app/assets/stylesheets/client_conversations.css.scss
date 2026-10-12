@@ -273,3 +273,16 @@
   border-top: 1px solid #eee;
   text-align: right;
 }
+
+// Значок мессенджера перед названием канала. Размер в em — значок подстраивается
+// и под мелкую подпись в списке, и под заголовок карточки диалога.
+.client-channel {
+  white-space: nowrap;
+}
+
+.client-channel__icon {
+  width: 1.35em;
+  height: 1.35em;
+  margin-right: 0.3em;
+  vertical-align: -0.35em;
+}
