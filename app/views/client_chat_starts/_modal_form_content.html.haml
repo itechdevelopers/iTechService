@@ -9,7 +9,7 @@
 - if @reach.nil?
   = form_tag check_client_chat_starts_path, method: :get, remote: true do
     .modal-body
-      %p.muted= t("#{scope}.who_hint")
+      %p.muted= t(address_book_visible? ? "#{scope}.who_hint_book" : "#{scope}.who_hint")
       - if @who_error
         .alert.alert-error= t("#{scope}.who_invalid")
       .client-chat__client-picker.client-chat-start__picker{ data: { url: clients_client_chat_starts_path } }
@@ -25,7 +25,14 @@
   = form_tag client_chat_starts_path, remote: true do
     = hidden_field_tag :client_id, @reach.client&.id
     = hidden_field_tag :phone, @reach.phone
+    = hidden_field_tag :label_id, @label&.id
     .modal-body
+      - if @label
+        %p
+          = t("#{scope}.address_book")
+          %strong= @label.label
+          - if @label.group_name.present?
+            %span.muted= "(#{@label.group_name})"
       %p
         - if @reach.client
           = t("#{scope}.client")

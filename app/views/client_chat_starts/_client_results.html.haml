@@ -1,6 +1,13 @@
--# Подсказки клиентов в модалке «Новый диалог»: выбор клиента сразу проверяет,
--# где ему можно написать.
-- if clients.empty?
+-# Подсказки в модалке «Новый диалог»: клиенты, затем «Адресная книжка».
+-# Выбор сразу проверяет, где человеку можно написать.
+- if clients.empty? && labels.empty?
   %li.muted= t('client_chat_starts.client_results.nothing_found')
 - clients.each do |client|
   %li= link_to client_presentation(client), check_client_chat_starts_path(client_id: client.id), remote: true
+- if labels.any?
+  %li.client-chat-start__results-heading= t('client_chat_starts.client_results.address_book')
+  - labels.each do |label|
+    %li
+      = link_to "#{label.label} · +#{label.phone_number}", check_client_chat_starts_path(label_id: label.id), remote: true
+      - if label.group_name.present?
+        %span.muted= label.group_name

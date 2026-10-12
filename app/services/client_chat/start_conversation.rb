@@ -24,8 +24,10 @@ module ClientChat
       end
     end
 
-    def self.call(channel:, user:, body:, client: nil, phone: nil)
-      new(channel: channel, user: user, body: body, client: client, phone: phone).call
+    # name — как называть человека, если мессенджер имени не сообщит:
+    # например, подпись номера в «Адресной книжке».
+    def self.call(channel:, user:, body:, client: nil, phone: nil, name: nil)
+      new(channel: channel, user: user, body: body, client: client, phone: phone, name: name).call
     end
 
     def self.limit_setting(channel)
@@ -48,12 +50,13 @@ module ClientChat
       started_last_day(channel) >= daily_limit(channel)
     end
 
-    def initialize(channel:, user:, body:, client: nil, phone: nil)
+    def initialize(channel:, user:, body:, client: nil, phone: nil, name: nil)
       @channel = channel.to_s
       raise ArgumentError, "нельзя начать диалог в канале #{channel.inspect}" unless ClientConversation::CHANNELS.include?(@channel)
 
       @phone = Phone.normalize(phone.presence || client&.full_phone_number)
       @client = client || (@phone && Phone.find_client(@phone))
+      @name = name
       @user = user
       @body = body.to_s.strip
     end
@@ -106,7 +109,7 @@ module ClientChat
       ClientConversation.transaction(requires_new: true) do
         conversation = ClientConversation.create!(
           channel: @channel, external_chat_id: chat_id, client: @client,
-          contact_phone: phone, contact_name: name.presence || @client&.short_name,
+          contact_phone: phone, contact_name: name.presence || @name.presence || @client&.short_name,
           city: (@client && ClientConversation.last_repair_city(@client)) || city,
           started_by: @user, assigned_user: @user
         )
