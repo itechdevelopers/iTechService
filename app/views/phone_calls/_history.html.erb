@@ -30,7 +30,7 @@
             <% call.legs.each do |leg| %><div><%= leg['number'] %><% if (entry = @number_labels[leg['number']]) %> <span class="label label-info"><%= entry.label %><% if entry.group_name.present? %> · <%= entry.group_name %><% end %></span><% end %> · <%= { 'ringing' => 'Звонит', 'talking' => 'Разговор', 'ended' => 'Завершён' }[leg['state']] %></div><% end %>
           </details><% end %>
         </td>
-        <td><% if call.recording_path.present? && policy(call).audio? %><%= link_to 'Слушать', audio_phone_call_path(call), target: '_blank', rel: 'noopener' %><% else %>—<% end %></td>
+        <td><% if call.recording_path.present? && policy(call).audio? %><%= link_to 'Слушать', audio_phone_call_path(call), target: '_blank', rel: 'noopener', data: { call_recording: call.id } %><% else %>—<% end %></td>
       </tr>
     <% end %>
   </tbody>

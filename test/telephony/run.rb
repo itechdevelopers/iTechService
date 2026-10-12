@@ -363,4 +363,20 @@ class TelephonyTest < Minitest::Test
     assert_equal @user.id, call.answered_user_id
   end
 
+  def test_recording_link_and_player_preserve_permissions
+    record = Telephony::ImportCall.call(call_attrs.merge('recording_path' => '/var/spool/asterisk/monitor/2026/10/12/test.wav'))
+    login_as(@user, scope: :user)
+    get '/phone_calls'
+    assert_equal 200, last_response.status
+    assert_includes last_response.body, 'preload="none"'
+    assert_includes last_response.body, "data-call-recording=\"#{record.id}\""
+    other = insert(User, username: 'audio-reader', name: 'Другой', role: 'software', department_id: @department.id)
+    insert(UserSettings, user_id: other.id)
+    other.abilities << @ability
+    login_as(other, scope: :user)
+    get '/phone_calls'
+    assert_equal 200, last_response.status
+    refute_includes last_response.body, "data-call-recording=\"#{record.id}\""
+  end
+
 end

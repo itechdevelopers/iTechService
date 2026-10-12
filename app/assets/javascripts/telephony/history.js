@@ -104,3 +104,41 @@
   document.addEventListener('turbolinks:load', setupFilters);
   setupFilters();
 })();
+(function () {
+  'use strict';
+  function initializePlayer() {
+    var history = document.getElementById('call-history-live');
+    var player = document.getElementById('call-history-audio');
+    var container = document.getElementById('call-history-player');
+    var status = document.getElementById('call-history-audio-status');
+    if (!history || !player || history.getAttribute('data-audio-ready') === '1') return;
+    history.setAttribute('data-audio-ready', '1');
+    // One player stays outside refreshed HTML so polling never interrupts audio.
+    history.addEventListener('click', function (event) {
+      var link = event.target.closest('a[data-call-recording]');
+      if (!link || event.ctrlKey || event.metaKey || event.shiftKey || event.button !== 0) return;
+      var url = new URL(link.href, window.location.href);
+      if (url.origin !== window.location.origin) return;
+      event.preventDefault();
+      container.hidden = false;
+      status.textContent = '';
+      document.getElementById('call-history-audio-link').href = link.href;
+      if (player.getAttribute('src') !== url.pathname) player.src = url.pathname;
+      var promise = player.play();
+      if (promise && promise.catch) promise.catch(function () {
+        status.textContent = 'Нажмите Play в плеере или откройте запись отдельно.';
+      });
+    });
+    player.onerror = function () { status.textContent = 'Запись пока недоступна. Попробуйте открыть ссылку отдельно.'; };
+  }
+  document.addEventListener('turbolinks:load', initializePlayer);
+  document.addEventListener('turbolinks:before-cache', function () {
+    var history = document.getElementById('call-history-live');
+    var player = document.getElementById('call-history-audio');
+    if (history) history.removeAttribute('data-audio-ready');
+    if (player) { player.pause(); player.removeAttribute('src'); player.load(); }
+    var container = document.getElementById('call-history-player');
+    if (container) container.hidden = true;
+  });
+  initializePlayer();
+})();

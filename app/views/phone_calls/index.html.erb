@@ -19,6 +19,11 @@
   <%= link_to 'Сбросить', phone_calls_path(defaults: '1'), class: 'btn' %>
 <% end %>
 <p>Все звонки АТС. Обновление каждые 2 секунды; итог и запись уточняются после завершения.</p>
+<div id="call-history-player" hidden style="position:sticky;top:40px;z-index:10;background:white;padding:8px;border-bottom:1px solid #ddd">
+  <p>Прослушивание записи <span id="call-history-audio-status" role="status"></span></p>
+  <audio id="call-history-audio" controls preload="none" style="max-width:100%"></audio>
+  <%= link_to 'Открыть запись отдельно', '#', id: 'call-history-audio-link', target: '_blank', rel: 'noopener' %>
+</div>
 <p id="call-history-warning" role="alert"></p>
 <div id="call-history-live" data-refresh-url="<%= phone_calls_path(request.query_parameters.merge(fragment: '1')) %>">
   <%= render 'history' %>
