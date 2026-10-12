@@ -2,6 +2,7 @@ ru:
   client_conversations:
     index:
       title: Диалоги с клиентами
+      new_dialog: Новый диалог
     list:
       empty: Диалогов пока нет.
       all_cities: Все города
@@ -21,11 +22,6 @@ ru:
         status: Статус
     show:
       back: К списку
-      channels:
-        telegram: Telegram
-        max: MAX (бот)
-        max_phone: MAX (номер)
-        whatsapp: WhatsApp
     card:
       phone: Телефон
       city: Город
@@ -61,12 +57,7 @@ ru:
       nothing_found: Ничего не найдено
     client_block:
       title: Переписки в мессенджерах
-      write:
-        max_phone: Написать в MAX
-        whatsapp: Написать в WhatsApp
-      open:
-        max_phone: Открыть диалог в MAX
-        whatsapp: Открыть диалог в WhatsApp
+      write: Написать клиенту
       empty: Переписок пока нет.
       started: Начата
       channel: Канал

@@ -9,7 +9,7 @@
       %br
       %small= link_to conversation.client.short_name, client_path(conversation.client)
     %br
-    %small.muted= t(".channels.#{conversation.channel}", default: conversation.channel)
+    %small.muted= client_channel_label(conversation.channel)
   %td= conversation.city&.name
   %td
     - if last_message

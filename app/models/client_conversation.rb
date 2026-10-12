@@ -9,6 +9,9 @@ class ClientConversation < ApplicationRecord
   # них свои пространства id чатов, и совпадение чисел не должно склеить двух
   # людей в один диалог.
   CHANNELS = %w[telegram max max_phone whatsapp].freeze
+  # Боты пишут только тем, кто им уже писал: найти человека по номеру и
+  # написать незнакомцу они не могут по правилам своих платформ.
+  BOT_CHANNELS = %w[telegram max].freeze
   STATUSES = %w[open closed].freeze
 
   # Сутки тишины — и диалог считается завершённым (закрывает cron-джоб).

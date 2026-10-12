@@ -1,15 +1,19 @@
 # frozen_string_literal: true
 
 module ClientChat
-  # Диалог, который начинает сотрудник: находим клиента в мессенджере по
-  # номеру и пишем первым. Только каналы GREEN-API (MAX и WhatsApp по номеру) —
-  # боты по правилам своих платформ не могут написать человеку, пока тот сам
-  # их не запустил.
+  # Диалог, который начинает сотрудник: пишем человеку первым в выбранном
+  # канале. Человек — карточка клиента или просто номер; карточку с этим
+  # номером находим сами.
+  #
+  # Каналы GREEN-API (MAX и WhatsApp по номеру) ищут человека по номеру в
+  # мессенджере. Боты незнакомцу написать не могут, но в чат человека, который
+  # им уже писал, — могут: туда и пишем.
   #
   # Сообщение человеку, который нам не писал, мессенджер считает похожим на
   # спам. Ограничение ляжет на весь аккаунт, а с ним и на переписку с
-  # клиентами, поэтому новых диалогов за сутки в каждом канале не больше, чем
-  # задано в настройках.
+  # клиентами, поэтому новых диалогов за сутки в каждом канале GREEN-API не
+  # больше, чем задано в настройках. Ботам лимит не нужен: они пишут только
+  # тем, кто им уже писал.
   class StartConversation
     # WhatsApp строже к сообщениям незнакомым людям, особенно с нового номера.
     DEFAULT_DAILY_LIMITS = { 'max_phone' => 30, 'whatsapp' => 10 }.freeze
@@ -20,8 +24,10 @@ module ClientChat
       end
     end
 
-    def self.call(channel:, client:, user:, body:)
-      new(channel: channel, client: client, user: user, body: body).call
+    # name — как называть человека, если мессенджер имени не сообщит:
+    # например, подпись номера в «Адресной книжке».
+    def self.call(channel:, user:, body:, client: nil, phone: nil, name: nil)
+      new(channel: channel, user: user, body: body, client: client, phone: phone, name: name).call
     end
 
     def self.limit_setting(channel)
@@ -44,9 +50,13 @@ module ClientChat
       started_last_day(channel) >= daily_limit(channel)
     end
 
-    def initialize(channel:, client:, user:, body:)
-      @channel = GreenApi::Channel.fetch(channel)
-      @client = client
+    def initialize(channel:, user:, body:, client: nil, phone: nil, name: nil)
+      @channel = channel.to_s
+      raise ArgumentError, "нельзя начать диалог в канале #{channel.inspect}" unless ClientConversation::CHANNELS.include?(@channel)
+
+      @phone = Phone.normalize(phone.presence || client&.full_phone_number)
+      @client = client || (@phone && Phone.find_client(@phone))
+      @name = name
       @user = user
       @body = body.to_s.strip
     end
@@ -54,37 +64,53 @@ module ClientChat
     def call
       return result(:empty_body) if @body.blank?
 
-      # Открытый диалог с клиентом уже есть — пишем в него: второй диалог с тем
+      # Открытый диалог с человеком уже есть — пишем в него: второй диалог с тем
       # же человеком расщепил бы переписку, а лимит тратить незачем.
-      existing = ClientConversation.opened.in_channel(channel).find_by(client_id: @client.id)
+      existing = PersonChats.latest(PersonChats.in(@channel, client: @client, phone: @phone).opened)
       return post_into(existing) if existing
-      return result(:limit_reached) if self.class.limit_reached?(channel)
 
-      search = @channel.account_search.call(@client.full_phone_number)
-      return result(search.status, search: search) unless search.found?
-
-      existing = ClientConversation.open_for(channel, search.chat_id)
-      return post_into(existing, search) if existing
-
-      start(search)
+      ClientConversation::BOT_CHANNELS.include?(@channel) ? start_in_bot : start_in_green_api
     end
 
     private
 
-    def channel
-      @channel.key
+    def start_in_green_api
+      return result(:limit_reached) if self.class.limit_reached?(@channel)
+
+      search = GreenApi::Channel.fetch(@channel).account_search.call(@phone)
+      return result(search.status, search: search) unless search.found?
+
+      existing = ClientConversation.open_for(@channel, search.chat_id)
+      return post_into(existing, search) if existing
+
+      start(chat_id: search.chat_id, phone: search.phone, name: search.name, search: search)
     end
 
-    def start(search)
+    # Чат, куда человек уже писал боту. Новый диалог в нём продолжает ту же
+    # переписку — прежние диалоги покажет история чата (ClientChat::History).
+    def start_in_bot
+      known = PersonChats.latest(PersonChats.in(@channel, client: @client, phone: @phone))
+      return result(:not_found) if known.nil?
+
+      existing = ClientConversation.open_for(@channel, known.external_chat_id)
+      return post_into(existing) if existing
+
+      start(chat_id: known.external_chat_id, phone: known.contact_phone || @phone,
+            name: known.contact_name, city: known.city)
+    end
+
+    # Город — по последнему ремонту клиента; у бота без карточки — тот, что был
+    # у прежнего диалога (его задаёт ссылка филиала, по которой человек пришёл).
+    def start(chat_id:, phone:, name:, city: nil, search: nil)
       conversation = nil
       message = nil
       # Своя точка сохранения: если создание упадёт на уникальном индексе,
       # откатится только она, а не транзакция того, кто нас вызвал.
       ClientConversation.transaction(requires_new: true) do
         conversation = ClientConversation.create!(
-          channel: channel, external_chat_id: search.chat_id, client: @client,
-          contact_phone: search.phone, contact_name: search.name.presence || @client.short_name,
-          city: ClientConversation.last_repair_city(@client),
+          channel: @channel, external_chat_id: chat_id, client: @client,
+          contact_phone: phone, contact_name: name.presence || @name.presence || @client&.short_name,
+          city: (@client && ClientConversation.last_repair_city(@client)) || city,
           started_by: @user, assigned_user: @user
         )
         conversation.add_system_message("Диалог начат: #{@user.short_name}")
@@ -93,19 +119,19 @@ module ClientChat
       deliver(message)
       result(:started, conversation: conversation, search: search)
     rescue ActiveRecord::RecordNotUnique
-      # Клиент написал, пока сотрудник набирал сообщение: открытый диалог этого
+      # Человек написал, пока сотрудник набирал сообщение: открытый диалог этого
       # чата появился между проверкой и созданием.
-      existing = ClientConversation.open_for(channel, search.chat_id)
+      existing = ClientConversation.open_for(@channel, chat_id)
       raise if existing.nil?
 
       post_into(existing, search)
     end
 
     # Диалог с этим чатом мог идти без карточки клиента: человек писал первым,
-    # и опознать его не вышло. Сотрудник пишет из карточки — значит, знает, кто
-    # это, и без привязки диалог так и не появился бы в карточке клиента.
+    # и опознать его не вышло. Сотрудник пишет клиенту из базы — значит, знает,
+    # кто это, и без привязки диалог так и не появился бы в карточке клиента.
     def post_into(conversation, search = nil)
-      if conversation.client_id.nil?
+      if conversation.client_id.nil? && @client
         conversation.bind_client!(@client)
         conversation.update!(city: ClientConversation.last_repair_city(@client)) if conversation.city.nil?
       end

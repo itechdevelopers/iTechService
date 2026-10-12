@@ -1,5 +1,7 @@
 .page-header
   %h2= t('.title')
+  - if policy(ClientConversation).start?
+    = link_to t('.new_dialog'), new_client_chat_start_path, remote: true, class: 'btn btn-primary'
 
 -# Вкладки и фильтр по филиалу меняют только эту часть страницы: список
 -# перечитывается AJAX-ом, шапка и меню не перерисовываются.

@@ -199,6 +199,24 @@
   margin-left: 8px;
 }
 
+// В модалке «Новый диалог» подсказки идут в потоке, под полем: .modal-body
+// прокручивается (overflow: auto) и обрезал бы выпадающий поверх список.
+.client-chat-start__picker .client-chat__client-results {
+  position: static;
+  margin-top: 4px;
+}
+
+.client-chat-start__results-heading {
+  margin-top: 4px;
+  color: #999;
+  font-size: 11px;
+  text-transform: uppercase;
+}
+
+.client-chat__client-results li.client-chat-start__results-heading:hover {
+  background: none;
+}
+
 // Иконка в топбаре. Размеры подогнаны под соседние ссылки-глифы, как у
 // .quack-control__nav-icon.
 #topbar .bar-buttons a.client-chat-nav-icon {
@@ -272,4 +290,17 @@
   padding-top: 6px;
   border-top: 1px solid #eee;
   text-align: right;
+}
+
+// Значок мессенджера перед названием канала. Размер в em — значок подстраивается
+// и под мелкую подпись в списке, и под заголовок карточки диалога.
+.client-channel {
+  white-space: nowrap;
+}
+
+.client-channel__icon {
+  width: 1.35em;
+  height: 1.35em;
+  margin-right: 0.3em;
+  vertical-align: -0.35em;
 }

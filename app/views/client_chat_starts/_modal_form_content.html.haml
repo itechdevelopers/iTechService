@@ -1,49 +1,68 @@
--# Модалка «Написать первым». Поле сообщения появляется, только если номер
--# нашёлся в мессенджере; в остальных исходах объясняем, почему написать нельзя.
-- found = !@limit_reached && @search&.found?
-- names = { messenger: t("client_chat_starts.messengers.#{@channel.key}"), channel: @channel.title }
+-# Модалка «Новый диалог». Шаг 1 — кто: номер или клиент из подсказок. Шаг 2
+-# (есть @reach) — где человек доступен; писать можно в один канал. У каждого
+-# шага своя форма, обёрнутая вокруг тела и подвала модалки.
+- scope = 'client_chat_starts.form'
 .modal-header
   = button_to_close_modal
-  %h3= t('client_chat_starts.form.title', **names)
+  %h3= t("#{scope}.title")
 
-= form_tag client_chat_start_path(@client, @channel.key), remote: true do
-  .modal-body
-    %p
-      = t('client_chat_starts.form.phone')
-      %strong= @client.human_phone_number
-    - if @limit_reached
-      - limit = ClientChat::StartConversation.daily_limit(@channel.key)
-      .alert= limit.zero? ? t('client_chat_starts.form.limit_zero', **names) : t('client_chat_starts.form.limit_reached', limit: limit, **names)
-    - elsif found
-      .alert.alert-success
-        - if @search.name.present?
-          = t('client_chat_starts.form.found_named', name: @search.name, **names)
-        - else
-          = t("client_chat_starts.form.found_unnamed.#{@channel.key}")
-      - hint = t("client_chat_starts.form.hint.#{@channel.key}", default: '')
-      - if hint.present?
-        %p.muted= hint
-      - if @result&.status == :empty_body
-        .alert.alert-error= t('client_chat_starts.form.empty_body')
-      = text_area_tag :body, @body, rows: 5, class: 'input-block-level', autofocus: true,
-        placeholder: t('client_chat_starts.form.placeholder')
-    - elsif @search.status == :not_found
-      .alert
-        - if @search.checked_at
-          = t('client_chat_starts.form.not_found_on', date: l(@search.checked_at.to_date), **names)
-        - else
-          = t('client_chat_starts.form.not_found', **names)
-    - elsif @search.status == :paused
-      .alert.alert-error= t('client_chat_starts.form.paused', time: @search.retry_at.in_time_zone.strftime('%H:%M'), **names)
-    - else
-      .alert.alert-error= t("client_chat_starts.form.#{@search.status}", **names)
-    -# Отправка не удалась уже после набора текста (кончился лимит, мессенджер
-    -# ограничил проверки) — текст остаётся, чтобы его можно было скопировать.
-    - if !found && @body.present?
-      = text_area_tag :typed_body, @body, rows: 3, class: 'input-block-level', readonly: true
-
-  .modal-footer
-    - if found
-      = submit_tag t('client_chat_starts.form.send'), class: 'btn btn-primary',
-        data: { disable_with: t('client_chat_starts.form.sending') }
-    = link_to t('helpers.links.close'), '#', 'data-dismiss' => 'modal', class: 'btn'
+- if @reach.nil?
+  = form_tag check_client_chat_starts_path, method: :get, remote: true do
+    .modal-body
+      %p.muted= t(address_book_visible? ? "#{scope}.who_hint_book" : "#{scope}.who_hint")
+      - if @who_error
+        .alert.alert-error= t("#{scope}.who_invalid")
+      .client-chat__client-picker.client-chat-start__picker{ data: { url: clients_client_chat_starts_path } }
+        = text_field_tag :phone, @phone_input, class: 'input-xlarge client-chat__client-query', autofocus: true,
+          placeholder: t("#{scope}.who_placeholder"), autocomplete: 'off'
+        %ul.client-chat__client-results
+    .modal-footer
+      = submit_tag t("#{scope}.check"), class: 'btn btn-primary', data: { disable_with: t("#{scope}.checking") }
+      = link_to t('helpers.links.close'), '#', 'data-dismiss' => 'modal', class: 'btn'
+- else
+  - available = @reach.available
+  - selected = @selected.presence_in(available.map(&:channel)) || @reach.default_channel
+  = form_tag client_chat_starts_path, remote: true do
+    = hidden_field_tag :client_id, @reach.client&.id
+    = hidden_field_tag :phone, @reach.phone
+    = hidden_field_tag :label_id, @label&.id
+    .modal-body
+      - if @label
+        %p
+          = t("#{scope}.address_book")
+          %strong= @label.label
+          - if @label.group_name.present?
+            %span.muted= "(#{@label.group_name})"
+      %p
+        - if @reach.client
+          = t("#{scope}.client")
+          = link_to @reach.client.short_name, client_path(@reach.client), target: '_blank'
+          ·
+        = t("#{scope}.phone")
+        %strong= @reach.phone ? "+#{@reach.phone}" : t("#{scope}.no_phone")
+        - if @reach.client.nil?
+          %span.muted= t("#{scope}.not_in_base")
+        = link_to t("#{scope}.change"), new_client_chat_start_path, remote: true
+      - if @result || @selected
+        .alert.alert-error= chat_start_refusal(@result)
+      - if available.empty?
+        .alert= t("#{scope}.nowhere")
+      - @reach.options.each do |option|
+        %label.radio.client-chat-start__option
+          = radio_button_tag :channel, option.channel, option.channel == selected, disabled: !option.available?
+          = client_channel_label(option.channel)
+          %span.muted= chat_start_option_status(option)
+          - if option.status == :open
+            = link_to t("#{scope}.statuses.open_link"), client_conversation_path(option.conversation), target: '_blank'
+      - if available.any? { |option| option.channel == 'whatsapp' }
+        %p.muted= t("#{scope}.whatsapp_hint")
+      - if available.any?
+        = text_area_tag :body, @body, rows: 4, class: 'input-block-level', placeholder: t("#{scope}.placeholder")
+      - elsif @body.present?
+        -# Отправить уже некуда (например, кончился лимит) — набранный текст
+        -# остаётся, чтобы его можно было скопировать.
+        = text_area_tag :typed_body, @body, rows: 3, class: 'input-block-level', readonly: true
+    .modal-footer
+      - if available.any?
+        = submit_tag t("#{scope}.send"), class: 'btn btn-primary', data: { disable_with: t("#{scope}.sending") }
+      = link_to t('helpers.links.close'), '#', 'data-dismiss' => 'modal', class: 'btn'
