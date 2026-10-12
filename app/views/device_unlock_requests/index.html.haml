@@ -20,7 +20,8 @@
     - if @priority_statuses.any?
       = link_to t('.priority_reset'), device_unlock_requests_path, class: 'device-unlock-requests__chip-reset'
 
-%table#device_unlock_requests_table.table.table-hover.table-bordered.device-unlock-requests
+-# --detailed открывает в строках блок «цена в $ × курс» под себестоимостью.
+%table#device_unlock_requests_table.table.table-hover.table-bordered.device-unlock-requests.device-unlock-requests--detailed
   %thead
     %tr
       %th= t('.columns.id')
@@ -35,3 +36,5 @@
       %tr
         %td{ colspan: 7 }= t('.empty')
     = render partial: 'device_unlock_request', collection: @device_unlock_requests, as: :device_unlock_request
+
+= render 'cost_calculator_script'
