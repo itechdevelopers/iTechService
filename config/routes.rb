@@ -282,7 +282,8 @@ Rails.application.routes.draw do
     get :export, on: :collection
     get :history, on: :member, defaults: { format: 'js' }
     # Написать клиенту в MAX первым: модалка с поиском номера и отправка.
-    resource :max_chat, only: %i[new create], controller: 'client_max_chats'
+    resource :max_chat, only: %i[new create], controller: 'client_chat_starts', defaults: { channel: 'max_phone' }
+    resource :whatsapp_chat, only: %i[new create], controller: 'client_chat_starts', defaults: { channel: 'whatsapp' }
   end
 
   resources :client_requests do
