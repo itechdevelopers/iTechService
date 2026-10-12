@@ -132,6 +132,12 @@ Rails.application.routes.draw do
   # инстанса.
   post 'client_max_phone_webhook' => 'client_max_phone_webhook#update'
   post 'client_whatsapp_webhook' => 'client_whatsapp_webhook#update'
+  resources :client_chat_starts, only: %i[new create] do
+    collection do
+      get :clients
+      get :check
+    end
+  end
   resources :client_conversations, only: %i[index show] do
     get :counter, on: :collection
     member do
@@ -282,8 +288,6 @@ Rails.application.routes.draw do
     get :export, on: :collection
     get :history, on: :member, defaults: { format: 'js' }
     # Написать клиенту в MAX первым: модалка с поиском номера и отправка.
-    resource :max_chat, only: %i[new create], controller: 'client_chat_starts', defaults: { channel: 'max_phone' }
-    resource :whatsapp_chat, only: %i[new create], controller: 'client_chat_starts', defaults: { channel: 'whatsapp' }
   end
 
   resources :client_requests do

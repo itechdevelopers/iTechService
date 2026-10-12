@@ -1,50 +1,69 @@
 # frozen_string_literal: true
 
-# Написать клиенту первым в мессенджере GREEN-API — из его карточки. Модалка
-# сначала показывает, нашёлся ли номер в мессенджере (и, если мессенджер это
-# сообщает, как человек там подписан), и только потом даёт отправить
-# сообщение. Канал приходит из маршрута: /clients/:id/max_chat или
-# /clients/:id/whatsapp_chat.
+# Написать человеку первым. Модалка в два шага: кто (номер или клиент из
+# базы) → где человек доступен и что написать. Открывается из шапки «Диалогов
+# с клиентами» — с пустым полем, и из карточки клиента — сразу со вторым
+# шагом.
 class ClientChatStartsController < ApplicationController
-  before_action :set_channel
+  before_action :authorize_start
 
   def new
-    authorize ClientConversation, :start?
     @client = find_client
-    load_search
+    @reach = ClientChat::Reachability.call(client: @client) if @client
     render 'shared/show_modal_form'
   end
 
-  def create
-    authorize ClientConversation, :start?
+  # Подсказки клиентов по мере набора имени или номера. Номера в карточках
+  # записаны как попало («+7 (914) 012-34-56»), и подстрока набранных цифр в
+  # таком виде не находится — поэтому цифры сравниваем с одними цифрами
+  # номера. Ведущие 7 и 8 отбрасываем: одни пишут номер с 8, другие с +7.
+  def clients
+    digits = params[:q].to_s.gsub(/\D/, '').sub(/\A[78](?=\d{3})/, '')
+    scope = policy_scope(Client)
+    scope = if digits.length >= 4
+              scope.where("regexp_replace(clients.full_phone_number, '[^0-9]', '', 'g') LIKE ?", "%#{digits}%")
+            else
+              scope.search(client_q: params[:q])
+            end
+    @clients = scope.limit(10)
+  end
+
+  # Проверка идёт только по кнопке, а не на каждую набранную цифру: каждая —
+  # обращение к мессенджерам, за частые обращения они ограничивают аккаунт.
+  def check
     @client = find_client
-    @result = ClientChat::StartConversation.call(channel: @channel.key, client: @client, user: current_user,
-                                                 body: params[:body])
-    return if @result.success?
+    @phone_input = params[:phone].to_s.strip
+    if @client || ClientChat::Phone.normalize(@phone_input)
+      @reach = ClientChat::Reachability.call(client: @client, phone: @phone_input)
+    else
+      @who_error = true
+    end
+    render :refresh
+  end
+
+  def create
+    @client = find_client
+    channel = params[:channel].to_s
+    if ClientConversation::CHANNELS.include?(channel)
+      @result = ClientChat::StartConversation.call(channel: channel, client: @client, phone: params[:phone],
+                                                   user: current_user, body: params[:body])
+      return if @result.success?
+    end
 
     # Модалку показываем заново с тем же текстом — набранное не должно
     # пропасть из-за того, что, например, кончился суточный лимит.
     @body = params[:body]
-    @search = @result.search
-    load_search if @search.nil?
+    @selected = channel
+    @reach = ClientChat::Reachability.call(client: @client, phone: params[:phone])
   end
 
   private
 
-  def set_channel
-    @channel = GreenApi::Channel.fetch(params[:channel])
-  rescue KeyError
-    raise ActiveRecord::RecordNotFound
+  def authorize_start
+    authorize ClientConversation, :start?
   end
 
   def find_client
-    policy_scope(Client).find(params[:client_id])
-  end
-
-  # При исчерпанном лимите в мессенджер не идём вовсе: проверка номера — тоже
-  # обращение, за которое мессенджер может ограничить аккаунт.
-  def load_search
-    @limit_reached = ClientChat::StartConversation.limit_reached?(@channel.key)
-    @search = @channel.account_search.call(@client.full_phone_number) unless @limit_reached
+    policy_scope(Client).find(params[:client_id]) if params[:client_id].present?
   end
 end

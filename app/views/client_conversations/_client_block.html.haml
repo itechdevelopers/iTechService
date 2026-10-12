@@ -2,23 +2,12 @@
 -# тем, у кого есть доступ к разделу диалогов: содержимое переписки чувствительнее
 -# списка ремонтов.
 -#
--# Написать первым можно только по номеру — в MAX и WhatsApp через GREEN-API:
--# боты Telegram и MAX не умеют начинать переписку сами. Если открытый диалог в
--# канале уже есть, кнопка ведёт в него — без проверки номера в мессенджере.
--# Кнопка WhatsApp — только когда его инстанс подключён: иначе она вела бы в
--# «канал не настроен».
-- channels = %w[max_phone]
-- channels << 'whatsapp' if GreenApi::Channel.fetch('whatsapp').credentials.configured?
+-# «Написать клиенту» открывает ту же модалку, что «Новый диалог» в списке,
+-# сразу со вторым шагом: где клиенту можно написать и что.
 %h4
   = t('.title')
   - if policy(ClientConversation).start?
-    .btn-group.pull-right
-      - channels.each do |channel|
-        - open = conversations.detect { |conversation| conversation.open? && conversation.channel == channel }
-        - if open
-          = link_to t(".open.#{channel}"), client_conversation_path(open), class: 'btn btn-small'
-        - else
-          = link_to t(".write.#{channel}"), new_client_chat_start_path(client, channel), remote: true, class: 'btn btn-small'
+    = link_to t('.write'), new_client_chat_start_path(client_id: client.id), remote: true, class: 'btn btn-small pull-right'
 - if conversations.any?
   %table.table.table-bordered.table-hover.table-condensed
     %thead
