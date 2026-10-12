@@ -7,6 +7,7 @@ class Setting < ApplicationRecord
     max_phone_lookup_paused_until: 'string',
     whatsapp_lookup_paused_until: 'string',
     client_chat_max_phone_daily_starts: 'integer',
+    client_chat_whatsapp_daily_starts: 'integer',
     address_for_check: 'string',
     app_logo_filename: 'string',
     forma_filename: 'string',

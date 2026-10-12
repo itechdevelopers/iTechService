@@ -11,7 +11,7 @@
       = t('client_max_chats.form.phone')
       %strong= @client.human_phone_number
     - if @limit_reached
-      - limit = ClientChat::StartConversation.daily_limit
+      - limit = ClientChat::StartConversation.daily_limit('max_phone')
       .alert= limit.zero? ? t('client_max_chats.form.limit_zero') : t('client_max_chats.form.limit_reached', limit: limit)
     - elsif found
       .alert.alert-success

@@ -14,7 +14,8 @@ class ClientMaxChatsController < ApplicationController
   def create
     authorize ClientConversation, :start?
     @client = find_client
-    @result = ClientChat::StartConversation.call(client: @client, user: current_user, body: params[:body])
+    @result = ClientChat::StartConversation.call(channel: 'max_phone', client: @client, user: current_user,
+                                                 body: params[:body])
     return if @result.success?
 
     # Модалку показываем заново с тем же текстом — набранное не должно
@@ -33,7 +34,7 @@ class ClientMaxChatsController < ApplicationController
   # При исчерпанном лимите в MAX не идём вовсе: проверка номера — тоже
   # обращение, за которое MAX может ограничить аккаунт.
   def load_search
-    @limit_reached = ClientChat::StartConversation.limit_reached?
+    @limit_reached = ClientChat::StartConversation.limit_reached?('max_phone')
     @search = GreenApi::MaxPhoneAccountSearch.call(@client.full_phone_number) unless @limit_reached
   end
 end
