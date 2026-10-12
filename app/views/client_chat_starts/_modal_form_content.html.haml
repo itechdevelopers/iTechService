@@ -12,7 +12,7 @@
       %p.muted= t("#{scope}.who_hint")
       - if @who_error
         .alert.alert-error= t("#{scope}.who_invalid")
-      .client-chat__client-picker{ data: { url: clients_client_chat_starts_path } }
+      .client-chat__client-picker.client-chat-start__picker{ data: { url: clients_client_chat_starts_path } }
         = text_field_tag :phone, @phone_input, class: 'input-xlarge client-chat__client-query', autofocus: true,
           placeholder: t("#{scope}.who_placeholder"), autocomplete: 'off'
         %ul.client-chat__client-results
@@ -30,6 +30,7 @@
         - if @reach.client
           = t("#{scope}.client")
           = link_to @reach.client.short_name, client_path(@reach.client), target: '_blank'
+          ·
         = t("#{scope}.phone")
         %strong= @reach.phone ? "+#{@reach.phone}" : t("#{scope}.no_phone")
         - if @reach.client.nil?

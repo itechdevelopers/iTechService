@@ -199,6 +199,13 @@
   margin-left: 8px;
 }
 
+// В модалке «Новый диалог» подсказки идут в потоке, под полем: .modal-body
+// прокручивается (overflow: auto) и обрезал бы выпадающий поверх список.
+.client-chat-start__picker .client-chat__client-results {
+  position: static;
+  margin-top: 4px;
+}
+
 // Иконка в топбаре. Размеры подогнаны под соседние ссылки-глифы, как у
 // .quack-control__nav-icon.
 #topbar .bar-buttons a.client-chat-nav-icon {
