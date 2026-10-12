@@ -98,6 +98,11 @@ def run(config, state):
             state['fingerprints'].pop(day.isoformat(),None)
         save_state(config['state_path'],state)
         day += datetime.timedelta(days=1)
+    health=json.dumps({'calls':[], 'health':{'source':'cdr','connected':True,'observed_at':datetime.datetime.now(datetime.timezone.utc).isoformat()}}).encode()
+    timestamp=str(int(time.time()))
+    signature=hmac.new(config['ingest_secret'].encode(),timestamp.encode()+b'.'+health,hashlib.sha256).hexdigest()
+    req=urllib.request.Request(config['ais_url'],data=health,headers={'Content-Type':'application/json','X-AIS-Timestamp':timestamp,'X-AIS-Signature':signature})
+    with urllib.request.urlopen(req,timeout=30) as response:assert json.loads(response.read())['accepted']==0
 
 
 def save_state(path, state):

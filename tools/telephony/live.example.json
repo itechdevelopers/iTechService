@@ -1,0 +1,6 @@
+{
+  "ami_command": ["ssh", "-T", "-i", "/PRIVATE/ais-ami-readonly", "-o", "BatchMode=yes", "-o", "ServerAliveInterval=15", "-o", "ServerAliveCountMax=2", "-o", "HostKeyAlgorithms=+ssh-rsa", "-o", "PubkeyAcceptedAlgorithms=+ssh-rsa", "-o", "StrictHostKeyChecking=yes", "-o", "UserKnownHostsFile=/PRIVATE/pbx-known-hosts", "root@192.168.1.145"],
+  "ais_url": "https://ise.itech.pw/api/v1/telephony/calls",
+  "ingest_secret": "REPLACE_WITH_DISTINCT_RANDOM_SECRET_AT_LEAST_32_BYTES",
+  "state_path": "/PRIVATE/telephony-live.sqlite3"
+}

@@ -55,3 +55,5 @@ Rails.application.config.assets.precompile += %w[
 ]
 
 Rails.application.config.assets.precompile += %w[telephony/jssip.min.js telephony/phone.js telephony/phone.css]
+
+Rails.application.config.assets.precompile += %w[telephony/history.js]

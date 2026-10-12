@@ -1,0 +1,33 @@
+<% ami = @sync_states['ami']; cdr = @sync_states['cdr'] %>
+<p role="status">
+  <% if ami && ami.connected && ami.observed_at > 45.seconds.ago %>
+    Онлайн · обновлено <%= l(ami.observed_at, format: :short) %>
+  <% else %>
+    Онлайн-связь с АТС недоступна. Текущие состояния могут быть устаревшими.
+  <% end %>
+  <% if cdr %><br>Сверка истории: <%= l(cdr.observed_at, format: :short) %><% end %>
+</p>
+<table class="table table-striped table-condensed">
+  <thead><tr><th>Дата</th><th>Направление</th><th>Откуда</th><th>Клиент</th><th>Куда</th><th>Кто ответил</th><th>Результат</th><th>Разговор</th><th>Запись</th></tr></thead>
+  <tbody>
+    <% @phone_calls.each do |call| %>
+      <tr>
+        <td><%= l(call.started_at, format: :short) %></td>
+        <td><%= { 'incoming' => 'Входящий', 'outgoing' => 'Исходящий', 'internal' => 'Внутренний' }[call.direction] %></td>
+        <td><%= call.caller_number %><br><%= call.caller_employee_name %></td><td><% @call_clients[Telephony::Number.normalize(call.caller_number) || Telephony::Number.normalize(call.called_number)].each do |client| %>
+          <%= link_to client.full_name, client_path(client) %><br>
+        <% end %></td><td><%= call.called_number %></td>
+        <td><%= call.answered_extension.presence || '—' %><br><%= call.answered_employee_name %></td>
+        <td><%= { 'ringing' => 'Звонит', 'talking' => 'Разговор', 'ended' => 'Завершён, сверяется', 'interrupted' => 'Связь потеряна, сверяется', 'answered' => 'Отвечен', 'missed' => 'Пропущен', 'busy' => 'Занято', 'failed' => 'Не состоялся' }[call.status] %></td>
+        <td><%= call.active? ? 'В процессе' : "#{call.billsec} сек." %>
+          <% if call.legs.any? %><details data-call-id="<%= call.call_unique_id %>"><summary>Участники</summary>
+            <% call.legs.each do |leg| %><div><%= leg['number'] %> · <%= { 'ringing' => 'Звонит', 'talking' => 'Разговор', 'ended' => 'Завершён' }[leg['state']] %></div><% end %>
+          </details><% end %>
+        </td>
+        <td><% if call.recording_path.present? && policy(call).audio? %><%= link_to 'Слушать', audio_phone_call_path(call), target: '_blank', rel: 'noopener' %><% else %>—<% end %></td>
+      </tr>
+    <% end %>
+  </tbody>
+</table>
+<% if @phone_calls.empty? %><p>Вызовов пока нет.</p><% end %>
+<%= paginate @phone_calls %>

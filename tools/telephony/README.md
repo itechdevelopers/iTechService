@@ -32,3 +32,5 @@ node tools/telephony/test-group.cjs
 Playwright is loaded from that pilot's existing `test-tools/node_modules`, not installed globally. Set `CHROME_EXECUTABLE` to override the Mac Chrome path. The UI test mocks AIS ticket/client and broker HTTP responses; other tests exercise real SIP control and the reviewed group dialplan. None places a paid call or rings an existing employee's phone.
 
 The source JsSIP 3.10.0 vendor bundle preserves its MIT header and is the same checksum-verified dependency used in the tested pilot.
+
+Общий CDR импорт и онлайн-события: ../../doc/telephony/live-history.md. AMI reader поддерживает Python 2.6; reducer/outbox — Python 3.9+. Live сервис включать после новой миграции, отдельно от TELEPHONY_ENABLED.

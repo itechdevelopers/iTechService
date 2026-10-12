@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20261009190750) do
+ActiveRecord::Schema.define(version: 20261012140000) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -1550,10 +1550,14 @@ ActiveRecord::Schema.define(version: 20261009190750) do
     t.string "recording_path"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.datetime "live_updated_at"
+    t.datetime "finalized_at"
+    t.jsonb "legs", default: [], null: false
     t.index ["answered_user_id"], name: "index_phone_calls_on_answered_user_id"
     t.index ["call_unique_id"], name: "index_phone_calls_on_call_unique_id", unique: true
     t.index ["caller_number"], name: "index_phone_calls_on_caller_number"
     t.index ["caller_user_id"], name: "index_phone_calls_on_caller_user_id"
+    t.index ["legs"], name: "index_phone_calls_on_legs", using: :gin
     t.index ["started_at", "id"], name: "index_phone_calls_on_started_at_and_id"
   end
 
@@ -2716,6 +2720,15 @@ ActiveRecord::Schema.define(version: 20261009190750) do
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.index ["chat_id"], name: "index_telegram_chats_on_chat_id", unique: true
+  end
+
+  create_table "telephony_sync_states", force: :cascade do |t|
+    t.string "source", null: false
+    t.datetime "observed_at", null: false
+    t.boolean "connected", default: false, null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["source"], name: "index_telephony_sync_states_on_source", unique: true
   end
 
   create_table "testing_sessions", force: :cascade do |t|
