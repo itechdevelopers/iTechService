@@ -55,7 +55,7 @@ module ClientChat
       return post_into(existing) if existing
       return result(:limit_reached) if self.class.limit_reached?
 
-      search = MaxPhoneAccountSearch.call(@client.full_phone_number)
+      search = GreenApi::MaxPhoneAccountSearch.call(@client.full_phone_number)
       return result(search.status, search: search) unless search.found?
 
       existing = ClientConversation.open_for(CHANNEL, search.chat_id)

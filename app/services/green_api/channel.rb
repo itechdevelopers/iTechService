@@ -17,13 +17,20 @@ module GreenApi
     end
 
     # account_method — метод GREEN-API с номером и состоянием аккаунта: у
-    # каждого мессенджера он свой. env_prefix — у канала, реквизиты которого
-    # жили в окружении сервера до того, как их стали вводить в Айсе.
-    def initialize(key:, webhook_path:, account_method:, env_prefix: nil)
+    # каждого мессенджера он свой. account_search — класс поиска человека по
+    # номеру (строкой: реестр собирается при загрузке, до автозагрузки
+    # классов). env_prefix — у канала, реквизиты которого жили в окружении
+    # сервера до того, как их стали вводить в Айсе.
+    def initialize(key:, webhook_path:, account_method:, account_search:, env_prefix: nil)
       @key = key
       @webhook_path = webhook_path
       @account_method = account_method
+      @account_search = account_search
       @env_prefix = env_prefix
+    end
+
+    def account_search
+      @account_search.constantize
     end
 
     def title
@@ -62,8 +69,10 @@ module GreenApi
 
     REGISTRY = {
       'max_phone' => new(key: 'max_phone', webhook_path: '/client_max_phone_webhook',
-                         account_method: 'getAccountSettings', env_prefix: 'CLIENT_MAX_PHONE'),
-      'whatsapp' => new(key: 'whatsapp', webhook_path: '/client_whatsapp_webhook', account_method: 'getWaSettings')
+                         account_method: 'getAccountSettings', account_search: 'GreenApi::MaxPhoneAccountSearch',
+                         env_prefix: 'CLIENT_MAX_PHONE'),
+      'whatsapp' => new(key: 'whatsapp', webhook_path: '/client_whatsapp_webhook',
+                        account_method: 'getWaSettings', account_search: 'GreenApi::WhatsappAccountSearch')
     }.freeze
   end
 end

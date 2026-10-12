@@ -34,6 +34,6 @@ class ClientMaxChatsController < ApplicationController
   # обращение, за которое MAX может ограничить аккаунт.
   def load_search
     @limit_reached = ClientChat::StartConversation.limit_reached?
-    @search = MaxPhoneAccountSearch.call(@client.full_phone_number) unless @limit_reached
+    @search = GreenApi::MaxPhoneAccountSearch.call(@client.full_phone_number) unless @limit_reached
   end
 end
