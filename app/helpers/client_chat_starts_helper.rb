@@ -35,7 +35,7 @@ module ClientChatStartsHelper
   def chat_start_available_status(option, scope)
     if ClientConversation::BOT_CHANNELS.include?(option.channel)
       date = option.last_activity_at
-      return date ? t("#{scope}.bot_known", date: l(date.to_date)) : t("#{scope}.available")
+      return date ? t("#{scope}.bot_known", date: l(date.to_date)) : t("#{scope}.bot_chat")
     end
     return t("#{scope}.available_named", name: option.name) if option.name.present?
 
