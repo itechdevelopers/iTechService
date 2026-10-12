@@ -7,6 +7,26 @@ class PhoneCallsController < ApplicationController
       number = Telephony::Number.normalize(params[:number]) || params[:number].to_s.gsub(/\D/, '')
       @phone_calls = @phone_calls.where('caller_number = :number OR called_number = :number OR answered_extension = :number', number: number)
     end
+    @phone_calls = @phone_calls.where.not(direction: 'internal') if params[:external_only] == '1'
+    @phone_calls = @phone_calls.where(direction: params[:direction]) if PhoneCall::DIRECTIONS.include?(params[:direction])
+    @phone_calls = @phone_calls.where(status: params[:status]) if PhoneCall::STATUSES.include?(params[:status])
+    @phone_calls = @phone_calls.where('started_at >= ?', Date.iso8601(params[:date_from]).beginning_of_day) if params[:date_from].present?
+    @phone_calls = @phone_calls.where('started_at < ?', Date.iso8601(params[:date_to]).tomorrow.beginning_of_day) if params[:date_to].present?
+    @directory_entries = PhoneLabel.includes(:department, :user).order(:label)
+    @number_groups = PhoneLabel.where.not(group_name: [nil, '']).distinct.order(:group_name).pluck(:group_name)
+    selected = @directory_entries
+    selected = selected.where(group_name: params[:group_name]) if params[:group_name].present?
+    selected = selected.where(id: params[:directory_id]) if params[:directory_id].present?
+    selected = selected.where('phone_labels.department_id = :id OR phone_labels.user_id IN (SELECT id FROM users WHERE department_id = :id)', id: params[:department_id]) if params[:department_id].present?
+    selected = selected.where(user_id: params[:employee_id]) if params[:employee_id].present?
+    if params.values_at(:directory_id, :department_id, :employee_id, :group_name).any?(&:present?)
+      linked = User.all
+      linked = linked.where(department_id: params[:department_id]) if params[:department_id].present?
+      linked = linked.where(id: params[:employee_id]) if params[:employee_id].present?
+      numbers = selected.pluck(:phone_number)
+      numbers += linked.pluck(:telephony_extension, :pbx_extension).flatten.compact unless params[:directory_id].present? || params[:group_name].present?
+      @phone_calls = @phone_calls.where("caller_number IN (:numbers) OR called_number IN (:numbers) OR answered_extension IN (:numbers) OR EXISTS (SELECT 1 FROM jsonb_array_elements(phone_calls.legs) AS leg WHERE leg->>'number' IN (:numbers))", numbers: numbers)
+    end
     @phone_calls = @phone_calls.page(params[:page]).per(100)
     numbers = @phone_calls.flat_map { |call| [call.caller_number, call.called_number] }.map { |value| Telephony::Number.normalize(value) }.compact.uniq
     @call_clients = Hash.new { |hash, number| hash[number] = [] }
@@ -27,9 +47,18 @@ class PhoneCallsController < ApplicationController
         end
       end
     end
+    visible_numbers = @phone_calls.flat_map { |call| [call.caller_number, call.called_number, call.answered_extension] + call.legs.map { |leg| leg['number'] } }.compact.uniq
+    @number_labels = @directory_entries.where(phone_number: visible_numbers).index_by(&:phone_number)
+    @departments = Department.order(:name)
+    @employees = User.active.order(:surname, :name)
     @sync_states = TelephonySyncState.all.index_by(&:source)
     render partial: 'history' if params[:fragment] == '1'
-
+  rescue ArgumentError
+    if params[:fragment] == '1'
+      head :unprocessable_entity
+    else
+      redirect_to phone_calls_path(defaults: '1'), alert: 'Проверьте даты фильтра.'
+    end
   end
   def audio
     call = authorize PhoneCall.find(params[:id])

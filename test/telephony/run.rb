@@ -298,4 +298,62 @@ class TelephonyTest < Minitest::Test
     assert_includes last_response.body, "href=\"/clients/#{client.id}\""
   end
 
+  def test_external_status_dates_and_directory_filters
+    @user.update_columns(role: 'admin')
+    label = PhoneLabel.create!(phone_number: '101', label: 'Продажи', group_name: 'Продажи', department_id: @department.id, user_id: @user.id)
+    Telephony::ImportCall.call(call_attrs)
+    Telephony::ImportCall.call(call_attrs('1791417600.125').merge('caller_number' => '102', 'called_number' => '103', 'direction' => 'internal', 'answered_extension' => '103'))
+    login_as(@user, scope: :user)
+    get '/phone_calls', external_only: '1', group_name: 'Продажи', directory_id: label.id, department_id: @department.id, date_from: Date.current.iso8601, date_to: Date.current.iso8601
+    assert_equal 200, last_response.status
+    assert_includes last_response.body, 'label label-info'
+    assert_equal 1, last_response.body.scan('79991234567').length
+    get '/phone_calls', status: 'missed'
+    assert_equal 200, last_response.status
+    assert_includes last_response.body, 'Вызовов пока нет'
+  end
+
+  def test_directory_admin_management_and_employee_denial
+    assert TelephonyDirectoryPolicy.new(@user, :telephony_directory).index?
+    refute TelephonyDirectoryPolicy.new(@user, :telephony_directory).manage?
+    login_as(@user, scope: :user)
+    post '/telephony_directory', phone_label: { phone_number: '101', label: 'Недопустимо' }
+    assert_equal 302, last_response.status
+    assert_equal 0, PhoneLabel.count
+    @user.update_columns(role: 'admin')
+    login_as(@user, scope: :user)
+    get '/telephony_directory'
+    assert_equal 200, last_response.status
+    csrf = last_response.body[/name="csrf-token" content="([^"]+)"/, 1]
+    post '/telephony_directory', { phone_label: { phone_number: '101', label: 'Ремонт', department_id: @department.id, user_id: @user.id } }, 'HTTP_X_CSRF_TOKEN' => csrf
+    assert_equal 302, last_response.status
+    record = PhoneLabel.find_by!(phone_number: '101')
+    patch "/telephony_directory/#{record.id}", { phone_label: { phone_number: '101', label: 'Сервис' } }, 'HTTP_X_CSRF_TOKEN' => csrf
+    assert_equal 'Сервис', record.reload.label
+    get '/telephony_directory'
+    assert_equal 200, last_response.status
+    delete "/telephony_directory/#{record.id}", {}, 'HTTP_X_CSRF_TOKEN' => csrf
+    assert_equal 0, PhoneLabel.count
+  end
+
+  def test_directory_assignment_is_snapshotted_for_future_calls
+    @user.update_columns(pbx_extension: nil)
+    label = PhoneLabel.create!(phone_number: '101', label: 'Сервис', user_id: @user.id)
+    record = Telephony::ImportCall.call(call_attrs.merge('answered_extension' => '101'))
+    assert_equal @user.id, record.answered_user_id
+    label.update!(user_id: nil)
+    Telephony::ImportCall.call(call_attrs.merge('answered_extension' => '101'))
+    assert_equal @user.id, record.reload.answered_user_id
+  end
+
+  def test_directory_filter_includes_unanswered_group_participant
+    label = PhoneLabel.create!(phone_number: '101', label: 'Общая линия отдела', department_id: @department.id)
+    Telephony::ImportCall.call(call_attrs.merge('source' => 'ami', 'status' => 'ringing', 'called_number' => '600', 'answered_extension' => nil, 'observed_at' => Time.current.iso8601(6), 'legs' => [{ 'unique_id' => '1791417600.124', 'number' => '101', 'state' => 'ringing' }]))
+    login_as(@user, scope: :user)
+    get '/phone_calls', directory_id: label.id
+    assert_equal 200, last_response.status
+    assert_equal 1, last_response.body.scan('79991234567').length
+    assert_includes last_response.body, 'Участники'
+  end
+
 end

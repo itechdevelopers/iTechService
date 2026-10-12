@@ -2,6 +2,11 @@
 module Telephony
   class ImportCall
     FIELDS = %w[call_unique_id started_at caller_number called_number answered_extension direction status duration billsec recording_path].freeze
+    def self.employee_for(number)
+      return nil if number.blank?
+      PhoneLabel.find_by(phone_number: number)&.user || User.where('telephony_extension = :n OR pbx_extension = :n', n: number).first
+    end
+
     def self.call(attributes)
       source = attributes.fetch('source', 'cdr')
       raise ArgumentError unless %w[ami cdr].include?(source)
@@ -43,13 +48,13 @@ module Telephony
               record.finalized_at ||= Time.current
             end
             if record.new_record?
-              caller = User.where('telephony_extension = :n OR pbx_extension = :n', n: attrs[:caller_number]).first
+              caller = employee_for(attrs[:caller_number])
               record.caller_user = caller
               record.caller_employee_name = caller&.full_name
             end
             extension = attrs[:answered_extension]
             if extension.present? && (record.answered_extension.blank? || record.finalized_at_changed?)
-              employee = User.where('telephony_extension = :n OR pbx_extension = :n', n: extension).first
+              employee = employee_for(extension)
               record.answered_user = employee
               record.answered_employee_name = employee&.full_name
             elsif record.answered_extension.present?

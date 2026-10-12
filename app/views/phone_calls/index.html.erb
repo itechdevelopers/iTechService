@@ -1,9 +1,22 @@
 <% content_for :title, 'История вызовов' %>
 <h3>История вызовов</h3>
-<%= form_tag phone_calls_path, method: :get, class: 'form-inline' do %>
+<%= link_to 'Справочник номеров', telephony_directory_index_path, class: 'btn' %>
+<%= form_tag phone_calls_path, method: :get, class: 'form-inline', id: 'call-history-filters', data: { employee: current_user.id } do %>
   <%= text_field_tag :number, params[:number], placeholder: 'Телефон или внутренний номер' %>
-  <%= submit_tag 'Найти', class: 'btn' %>
-  <%= link_to 'Сбросить', phone_calls_path, class: 'btn' %>
+  <label><%= check_box_tag :external_only, '1', params[:external_only] == '1' %> Только внешние</label>
+  <%= select_tag :direction, options_for_select([['Все направления', ''], ['Входящие', 'incoming'], ['Исходящие', 'outgoing'], ['Внутренние', 'internal']], params[:direction]) %>
+  <%= select_tag :status, options_for_select([['Все результаты', ''], ['Звонит', 'ringing'], ['Разговор', 'talking'], ['Отвечен', 'answered'], ['Пропущен', 'missed'], ['Занято', 'busy'], ['Не состоялся', 'failed']], params[:status]) %>
+  <%= select_tag :group_name, options_for_select(@number_groups, params[:group_name]), include_blank: 'Все группы / отделы' %>
+  <%= select_tag :department_id, options_from_collection_for_select(@departments, :id, :name, params[:department_id]), include_blank: 'Все подразделения' %>
+  <%= select_tag :employee_id, options_from_collection_for_select(@employees, :id, :full_name, params[:employee_id]), include_blank: 'Все сотрудники' %>
+  <%= select_tag :directory_id, options_from_collection_for_select(@directory_entries, :id, :label, params[:directory_id]), include_blank: 'Все номера справочника' %>
+  <label>С <%= date_field_tag :date_from, params[:date_from] %></label>
+  <label>По <%= date_field_tag :date_to, params[:date_to] %></label>
+  <button type="button" id="call-history-save" class="btn">Запомнить фильтры</button>
+  <button type="button" id="call-history-forget" class="btn">Забыть фильтры</button>
+  <span id="call-history-saved" role="status"></span>
+  <%= submit_tag 'Найти' , class: 'btn' %>
+  <%= link_to 'Сбросить', phone_calls_path(defaults: '1'), class: 'btn' %>
 <% end %>
 <p>Все звонки АТС. Обновление каждые 2 секунды; итог и запись уточняются после завершения.</p>
 <p id="call-history-warning" role="alert"></p>

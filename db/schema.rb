@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20261012140000) do
+ActiveRecord::Schema.define(version: 20261012150000) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -1566,7 +1566,13 @@ ActiveRecord::Schema.define(version: 20261012140000) do
     t.string "label", null: false
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.string "group_name"
+    t.bigint "department_id"
+    t.bigint "user_id"
+    t.index ["department_id"], name: "index_phone_labels_on_department_id"
+    t.index ["group_name"], name: "index_phone_labels_on_group_name"
     t.index ["phone_number"], name: "index_phone_labels_on_phone_number", unique: true
+    t.index ["user_id"], name: "index_phone_labels_on_user_id"
   end
 
   create_table "phone_substitutions", id: :serial, force: :cascade do |t|
@@ -3251,6 +3257,8 @@ ActiveRecord::Schema.define(version: 20261012140000) do
   add_foreign_key "package_withdrawals", "users"
   add_foreign_key "phone_calls", "users", column: "answered_user_id"
   add_foreign_key "phone_calls", "users", column: "caller_user_id"
+  add_foreign_key "phone_labels", "departments"
+  add_foreign_key "phone_labels", "users"
   add_foreign_key "phone_substitutions", "service_jobs"
   add_foreign_key "phone_substitutions", "substitute_phones"
   add_foreign_key "phone_substitutions", "users", column: "issuer_id"

@@ -53,3 +53,54 @@
   }
   initialize();
 })();
+(function () {
+  'use strict';
+  function setupFilters() {
+    var form = document.getElementById('call-history-filters');
+    if (!form || form.getAttribute('data-ready') === '1') return;
+    form.setAttribute('data-ready', '1');
+    var fields = ['number', 'external_only', 'direction', 'status', 'department_id', 'employee_id', 'directory_id', 'group_name', 'date_from', 'date_to'];
+    var key = 'ais/call-history/filters/' + form.getAttribute('data-employee');
+    var status = document.getElementById('call-history-saved');
+    var query = new URLSearchParams(window.location.search);
+    try {
+      var stored = JSON.parse(localStorage.getItem(key) || 'null');
+      if (stored && !fields.some(function (field) { return query.has(field); }) && !query.has('defaults')) {
+        var saved = new URLSearchParams();
+        fields.forEach(function (field) { if (stored[field]) saved.set(field, stored[field]); });
+        saved.set('defaults', '1');
+        window.location.replace(window.location.pathname + '?' + saved.toString());
+        return;
+      }
+    } catch (error) { /* Storage may be unavailable; ordinary filters still work. */ }
+    form.elements.external_only.onchange = function () {
+      if (this.checked && form.elements.direction.value === 'internal') form.elements.direction.value = '';
+    };
+    form.elements.direction.onchange = function () {
+      if (this.value === 'internal') form.elements.external_only.checked = false;
+    };
+    document.getElementById('call-history-save').onclick = function () {
+      var values = {};
+      fields.forEach(function (field) {
+        var input = form.elements[field];
+        if (!input) return;
+        values[field] = input.type === 'checkbox' ? (input.checked ? input.value : '') : input.value;
+      });
+      try {
+        localStorage.setItem(key, JSON.stringify(values));
+        status.textContent = 'Фильтры запомнены для этого пользователя в этом браузере.';
+        form.submit();
+      } catch (error) { status.textContent = 'Браузер не разрешил сохранить фильтры.'; }
+    };
+    document.getElementById('call-history-forget').onclick = function () {
+      try { localStorage.removeItem(key); status.textContent = 'Сохранённые фильтры удалены.'; }
+      catch (error) { status.textContent = 'Браузер не разрешил удалить настройки.'; }
+    };
+  }
+  document.addEventListener('turbolinks:before-cache', function () {
+    var form = document.getElementById('call-history-filters');
+    if (form) form.removeAttribute('data-ready');
+  });
+  document.addEventListener('turbolinks:load', setupFilters);
+  setupFilters();
+})();
