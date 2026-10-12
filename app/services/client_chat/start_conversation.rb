@@ -1,18 +1,18 @@
 # frozen_string_literal: true
 
 module ClientChat
-  # Диалог, который начинает сотрудник: находим клиента в MAX по номеру и
-  # пишем первым. Только канал max_phone — боты по правилам своих платформ не
-  # могут написать человеку, пока тот сам их не запустил.
+  # Диалог, который начинает сотрудник: находим клиента в мессенджере по
+  # номеру и пишем первым. Только каналы GREEN-API (MAX и WhatsApp по номеру) —
+  # боты по правилам своих платформ не могут написать человеку, пока тот сам
+  # их не запустил.
   #
   # Сообщение человеку, который нам не писал, мессенджер считает похожим на
   # спам. Ограничение ляжет на весь аккаунт, а с ним и на переписку с
-  # клиентами, поэтому новых диалогов за сутки не больше, чем задано в
-  # настройках.
+  # клиентами, поэтому новых диалогов за сутки в каждом канале не больше, чем
+  # задано в настройках.
   class StartConversation
-    CHANNEL = 'max_phone'
-    DAILY_LIMIT_SETTING = :client_chat_max_phone_daily_starts
-    DEFAULT_DAILY_LIMIT = 30
+    # WhatsApp строже к сообщениям незнакомым людям, особенно с нового номера.
+    DEFAULT_DAILY_LIMITS = { 'max_phone' => 30, 'whatsapp' => 10 }.freeze
 
     Result = Struct.new(:status, :conversation, :search, keyword_init: true) do
       def success?
@@ -20,27 +20,32 @@ module ClientChat
       end
     end
 
-    def self.call(client:, user:, body:)
-      new(client: client, user: user, body: body).call
+    def self.call(channel:, client:, user:, body:)
+      new(channel: channel, client: client, user: user, body: body).call
+    end
+
+    def self.limit_setting(channel)
+      "client_chat_#{channel}_daily_starts"
     end
 
     # Пустая настройка — значение по умолчанию; 0 — начинать нельзя совсем.
-    def self.daily_limit
-      raw = Setting.get_value(DAILY_LIMIT_SETTING, nil).to_s.strip
-      raw.match?(/\A\d+\z/) ? raw.to_i : DEFAULT_DAILY_LIMIT
+    def self.daily_limit(channel)
+      raw = Setting.get_value(limit_setting(channel), nil).to_s.strip
+      raw.match?(/\A\d+\z/) ? raw.to_i : DEFAULT_DAILY_LIMITS.fetch(channel)
     end
 
     # Скользящие сутки, а не календарные: у сотрудников разных городов
     # «сегодня» начинается в разное время, а лимит у аккаунта один.
-    def self.started_last_day
-      ClientConversation.where.not(started_by_id: nil).where('created_at >= ?', 24.hours.ago).count
+    def self.started_last_day(channel)
+      ClientConversation.in_channel(channel).where.not(started_by_id: nil).where('created_at >= ?', 24.hours.ago).count
     end
 
-    def self.limit_reached?
-      started_last_day >= daily_limit
+    def self.limit_reached?(channel)
+      started_last_day(channel) >= daily_limit(channel)
     end
 
-    def initialize(client:, user:, body:)
+    def initialize(channel:, client:, user:, body:)
+      @channel = GreenApi::Channel.fetch(channel)
       @client = client
       @user = user
       @body = body.to_s.strip
@@ -51,20 +56,24 @@ module ClientChat
 
       # Открытый диалог с клиентом уже есть — пишем в него: второй диалог с тем
       # же человеком расщепил бы переписку, а лимит тратить незачем.
-      existing = ClientConversation.opened.in_channel(CHANNEL).find_by(client_id: @client.id)
+      existing = ClientConversation.opened.in_channel(channel).find_by(client_id: @client.id)
       return post_into(existing) if existing
-      return result(:limit_reached) if self.class.limit_reached?
+      return result(:limit_reached) if self.class.limit_reached?(channel)
 
-      search = MaxPhoneAccountSearch.call(@client.full_phone_number)
+      search = @channel.account_search.call(@client.full_phone_number)
       return result(search.status, search: search) unless search.found?
 
-      existing = ClientConversation.open_for(CHANNEL, search.chat_id)
+      existing = ClientConversation.open_for(channel, search.chat_id)
       return post_into(existing, search) if existing
 
       start(search)
     end
 
     private
+
+    def channel
+      @channel.key
+    end
 
     def start(search)
       conversation = nil
@@ -73,7 +82,7 @@ module ClientChat
       # откатится только она, а не транзакция того, кто нас вызвал.
       ClientConversation.transaction(requires_new: true) do
         conversation = ClientConversation.create!(
-          channel: CHANNEL, external_chat_id: search.chat_id, client: @client,
+          channel: channel, external_chat_id: search.chat_id, client: @client,
           contact_phone: search.phone, contact_name: search.name.presence || @client.short_name,
           city: ClientConversation.last_repair_city(@client),
           started_by: @user, assigned_user: @user
@@ -86,7 +95,7 @@ module ClientChat
     rescue ActiveRecord::RecordNotUnique
       # Клиент написал, пока сотрудник набирал сообщение: открытый диалог этого
       # чата появился между проверкой и созданием.
-      existing = ClientConversation.open_for(CHANNEL, search.chat_id)
+      existing = ClientConversation.open_for(channel, search.chat_id)
       raise if existing.nil?
 
       post_into(existing, search)
