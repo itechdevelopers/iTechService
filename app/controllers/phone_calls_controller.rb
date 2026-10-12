@@ -50,7 +50,7 @@ class PhoneCallsController < ApplicationController
     visible_numbers = @phone_calls.flat_map { |call| [call.caller_number, call.called_number, call.answered_extension] + call.legs.map { |leg| leg['number'] } }.compact.uniq
     @number_labels = @directory_entries.where(phone_number: visible_numbers).index_by(&:phone_number)
     @departments = Department.order(:name)
-    @employees = User.active.order(:surname, :name)
+    @employees = User.active.staff.order(:surname, :name)
     @sync_states = TelephonySyncState.all.index_by(&:source)
     render partial: 'history' if params[:fragment] == '1'
   rescue ArgumentError

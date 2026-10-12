@@ -4,7 +4,8 @@ module Telephony
     FIELDS = %w[call_unique_id started_at caller_number called_number answered_extension direction status duration billsec recording_path].freeze
     def self.employee_for(number)
       return nil if number.blank?
-      PhoneLabel.find_by(phone_number: number)&.user || User.where('telephony_extension = :n OR pbx_extension = :n', n: number).first
+      # Registered/profile ownership is authoritative; labels fill unassigned numbers.
+      User.where('telephony_extension = :n OR pbx_extension = :n', n: number).first || PhoneLabel.find_by(phone_number: number)&.user
     end
 
     def self.call(attributes)

@@ -26,7 +26,7 @@ class TelephonyDirectoryController < ApplicationController
   def load_entries
     @entries = PhoneLabel.includes(:department, :user).order(:label).page(params[:page]).per(100)
     @departments = Department.order(:name)
-    @employees = User.active.order(:surname, :name)
+    @employees = User.active.staff.order(:surname, :name)
   end
 
   def save_entry(entry)

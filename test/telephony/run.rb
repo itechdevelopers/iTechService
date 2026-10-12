@@ -356,4 +356,11 @@ class TelephonyTest < Minitest::Test
     assert_includes last_response.body, 'Участники'
   end
 
+  def test_profile_ownership_takes_priority_over_directory_caption
+    other = insert(User, username: 'directory-owner', name: 'Другой', surname: 'Сотрудник', role: 'software', department_id: @department.id)
+    PhoneLabel.create!(phone_number: '7771', label: 'Подпись линии', user_id: other.id)
+    call = Telephony::ImportCall.call(call_attrs)
+    assert_equal @user.id, call.answered_user_id
+  end
+
 end
