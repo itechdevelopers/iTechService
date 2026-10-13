@@ -257,3 +257,7 @@ saveTicketsSorting = (lis, idMoved) ->
   $('#ticket-ids').val(JSON.stringify(ticketIds))
   $('#id-moved').val(idMoved)
   $('#form-sort-tickets').submit()
+
+#  Страница «Озвучка»: файл загружается сразу после выбора
+$(document).on 'change', '.elqueue-sounds__file', ->
+  $(this).closest('form').submit() if @files.length

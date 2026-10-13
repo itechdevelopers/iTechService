@@ -1,0 +1,57 @@
+- content_for :title, t('.title')
+
+%h3= t('.title')
+%p.muted= t('.description')
+
+.alert.alert-info.elqueue-sounds__rules
+  %strong= t('.rules.title')
+  %ul
+    %li= t('.rules.format')
+    %li= t('.rules.one_phrase')
+    %li= t('.rules.silence')
+    %li= t('.rules.voice')
+    %li= t('.rules.check')
+    %li= t('.rules.tv_reload')
+
+- @phrases.each do |kind, phrases|
+  %h4= t(".groups.#{kind}")
+  - if phrases.empty?
+    %p.muted= t(".empty.#{kind}")
+  - else
+    %table.table.table-condensed.elqueue-sounds__table
+      %thead
+        %tr
+          %th= t('.columns.phrase')
+          %th= t('.columns.status')
+          %th= t('.columns.listen')
+          %th= t('.columns.file')
+      %tbody
+        - phrases.each do |phrase|
+          - sound = phrase.sound
+          - builtin = phrase.builtin_asset
+          %tr
+            %td.elqueue-sounds__phrase
+              = phrase.text
+              - unless phrase.in_use
+                %span.muted= t('.not_in_use')
+            %td
+              - if sound
+                %span.label.label-success= t('.status.uploaded')
+              - elsif builtin
+                %span.label= t('.status.builtin')
+              - else
+                %span.label.label-important= t('.status.missing')
+            %td
+              - src = sound ? audio_elqueue_sound_path(sound, v: sound.updated_at.to_i) : builtin && asset_path(builtin)
+              - if src
+                %audio.elqueue-sounds__player{ src: src, controls: true, preload: 'none' }
+            %td.elqueue-sounds__actions
+              = form_with url: elqueue_sounds_path, local: true, multipart: true, class: 'elqueue-sounds__form' do |f|
+                = f.hidden_field :kind, value: phrase.kind
+                = f.hidden_field :value, value: phrase.value
+                %label.btn.btn-small{ title: t('.file_hint') }
+                  = sound ? t('.replace') : t('.upload')
+                  = f.file_field :audio, accept: '.wav,.mp3', class: 'elqueue-sounds__file'
+              - if sound
+                = link_to t('.delete'), elqueue_sound_path(sound), method: :delete, class: 'btn btn-small btn-danger',
+                  data: { confirm: t(builtin ? '.confirm_delete_builtin' : '.confirm_delete', phrase: phrase.text) }

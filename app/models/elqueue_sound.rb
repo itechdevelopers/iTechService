@@ -6,6 +6,24 @@
 # app/assets/audios/notifications.
 class ElqueueSound < ApplicationRecord
   KINDS = %w[abbreviation number window].freeze
+  # ТВ произносит число талона кусками: до 19 целиком, дальше десятки + единицы.
+  NUMBER_VALUES = ((1..19).to_a + (20..90).step(10).to_a).map(&:to_s).freeze
+  BUILTIN_DIRS = {
+    'abbreviation' => 'abbreviations',
+    'number' => 'numbers',
+    'window' => 'windows'
+  }.freeze
+
+  # Одна строка на странице загрузки: фраза, которая может прозвучать на ТВ.
+  Phrase = Struct.new(:kind, :value, :sound, :in_use) do
+    def text
+      ElqueueSound.phrase_for(kind, value)
+    end
+
+    def builtin_asset
+      ElqueueSound.builtin_asset(kind, value)
+    end
+  end
 
   mount_uploader :audio, ElqueueSoundUploader
 
@@ -13,14 +31,45 @@ class ElqueueSound < ApplicationRecord
 
   validates :kind, inclusion: { in: KINDS }
   validates :value, presence: true, uniqueness: { scope: :kind }
+  validates :value, inclusion: { in: NUMBER_VALUES }, if: -> { kind == 'number' }
+  validates :value, format: { with: /\A[1-9]\d*\z/ }, if: -> { kind == 'window' }
   validates :audio, presence: true
 
-  # Текст, который звучит в записи: им фраза подписана на странице загрузки.
-  def phrase
+  def self.phrase_for(kind, value)
     case kind
     when 'abbreviation' then "Талон #{value}"
     when 'window' then "Окно номер #{value}"
     else value
     end
+  end
+
+  # Встроенные файлы названы ровно тем, что в них звучит, поэтому имя файла и
+  # есть текст фразы. nil — встроенной записи для фразы нет.
+  def self.builtin_asset(kind, value)
+    logical_path = "notifications/#{BUILTIN_DIRS.fetch(kind)}/#{phrase_for(kind, value)}.wav"
+    logical_path if Rails.root.join('app/assets/audios', logical_path).exist?
+  end
+
+  # Все фразы, которые могут прозвучать на ТВ, сгруппированные по виду. Загруженная
+  # запись фразы, которой больше нет в очередях, тоже в списке — иначе её
+  # не удалить.
+  def self.phrases
+    uploaded = all.group_by(&:kind)
+    needed = {
+      'abbreviation' => QueueItem.where(archived: false).where.not(ticket_abbreviation: [nil, ''])
+                                 .distinct.pluck(:ticket_abbreviation).map(&:strip),
+      'number' => NUMBER_VALUES,
+      'window' => (1..ElectronicQueue.maximum(:windows_count).to_i).map(&:to_s)
+    }
+
+    KINDS.each_with_object({}) do |kind, result|
+      sounds = (uploaded[kind] || []).index_by(&:value)
+      values = (needed[kind] | sounds.keys).sort_by { |value| kind == 'abbreviation' ? value : value.to_i }
+      result[kind] = values.map { |value| Phrase.new(kind, value, sounds[value], needed[kind].include?(value)) }
+    end
+  end
+
+  def phrase
+    self.class.phrase_for(kind, value)
   end
 end

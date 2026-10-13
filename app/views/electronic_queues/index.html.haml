@@ -3,6 +3,8 @@
 
 .row-fluid
   = link_to "#{glyph(:file)} #{t('.new_electronic_queue')}".html_safe, new_electronic_queue_path, class: 'btn btn-success'
+  - if policy(ElqueueSound).index?
+    = link_to "#{glyph('volume-up')} #{t('elqueue_sounds.index.title')}".html_safe, elqueue_sounds_path, class: 'btn'
 
 .row-fluid
   #electronic_queues

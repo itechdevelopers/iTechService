@@ -24,4 +24,14 @@ class ElqueueSoundUploader < CarrierWave::Uploader::Base
   def size_range
     1..2.megabytes
   end
+
+  private
+
+  # Стандартное сообщение перечисляет разрешённые типы, а у нас вместо списка
+  # регулярка — в форме она выглядела бы как «Разрешены: (?-mix:\Aaudio\/)».
+  def check_content_type_whitelist!(new_file)
+    super
+  rescue CarrierWave::IntegrityError
+    raise CarrierWave::IntegrityError, I18n.t('elqueue_sounds.errors.not_audio')
+  end
 end

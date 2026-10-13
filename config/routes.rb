@@ -777,7 +777,7 @@ Rails.application.routes.draw do
     get :find_ticket_by_called, on: :collection, defaults: { format: :js }
   end
 
-  resources :elqueue_sounds, only: [] do
+  resources :elqueue_sounds, only: %i[index create destroy] do
     get :audio, on: :member
   end
 
