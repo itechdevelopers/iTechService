@@ -8,13 +8,7 @@ class TelephonyController < ApplicationController
   def workspace
     authorize :telephony
     response.headers['Cache-Control'] = 'no-store'
-    path = params[:path].is_a?(String) ? params[:path] : ''
-    @workspace_path = if path.start_with?('/') && !path.start_with?('//') &&
-                         !path.match?(/[\\\x00-\x1f\x7f]/) && !path.match?(%r{\A/telephony(?:/|\?|#|$)})
-                        path
-                      else
-                        root_path
-                      end
+    @workspace_path = Telephony::WorkspacePath.valid?(params[:path]) ? params[:path] : root_path
     render layout: false
   end
 

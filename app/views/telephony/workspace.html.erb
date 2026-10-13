@@ -2,14 +2,16 @@
 <html lang="ru"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
 <script>window.AisTelephonyWorkspace=true;</script>
 <title>АИС · Телефония</title><%= csrf_meta_tags %><%= stylesheet_link_tag 'telephony/workspace' %><%= javascript_include_tag 'telephony/workspace', defer: true %>
-</head><body>
+</head><body data-workspace-path-pattern="<%= Telephony::WorkspacePath::PATTERN %>">
 <header class="phone-toolbar">
   <button id="phone-toggle" aria-expanded="false" aria-controls="phone-panel"><span id="phone-dot" data-state="off" aria-hidden="true"></span> Телефония · <%= current_user.telephony_extension %></button>
   <span id="phone-summary" role="status">Выключена</span>
   <span id="phone-call-summary"></span>
   <button id="phone-disable" hidden>Выключить</button>
-  <%= link_to 'Отдельное окно', telephony_path, target: 'ais-telephony', rel: 'noopener', id: 'phone-fallback' %>
+  <a id="workspace-page" href="<%= @workspace_path %>" target="_blank" rel="noopener">Открыть страницу для печати</a>
+  <%= link_to 'Отдельное окно', telephony_path, target: 'ais-telephony', id: 'phone-fallback' %>
 </header>
+<p id="workspace-notice" role="alert" hidden></p>
 <iframe id="ais-workspace-content" title="Рабочее место АИС" src="<%= @workspace_path %>"></iframe>
 <aside id="phone-panel" hidden aria-label="Телефон АИС">
   <div class="panel-heading"><strong>Телефон · <%= current_user.telephony_extension %></strong><button id="phone-close" aria-label="Свернуть телефон">×</button></div>

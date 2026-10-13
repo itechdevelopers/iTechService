@@ -12,7 +12,8 @@ the assigned extension and off/checking/registered/call/error state. Registratio
 not merely microphone permission or HTTPS availability, turns the status green.
 Client/entity links from the phone navigate the application frame. The phone
 continues when its panel is collapsed. Browser Back navigates the application
-frame without replacing the phone. Reloading or closing the entire workspace
+frame without replacing the phone. The workspace uses replaceState to mirror the child
+URL; it does not add duplicate joint-history entries or navigate on popstate. Reloading or closing the entire workspace
 still disconnects the call and prompts before leaving an active call.
 
 The phone frame reports UI state only to the same-origin parent. The parent accepts
@@ -31,7 +32,7 @@ requests shutdown and leaves the workspace.
 
 ## Verification
 
-- Isolated `ais_telephony_test`: 29 tests / 146 assertions, including workspace
+- Isolated `ais_telephony_test`: 29 tests / 161 assertions, including workspace
   authorization, local navigation URL validation, recursive workspace rejection,
   and actual rendered frame permissions/extension. No production data changes.
 - Chrome: `tools/telephony/test-workspace.cjs` uses actual generated Rails HTML,
@@ -53,3 +54,33 @@ set to `ais_telephony_test`. Set AIS_PHONE_BROWSER_FIXTURES to a writable direct
 so the test exports workspace.html / phone.html. Then run the Node test with the
 same fixture directory and AIS_TELEPHONY_PILOT_ROOT pointing to the local gateway
 runtime. The test never uses employee 7772 and releases 7779 on completion.
+
+## Review regressions (PR 767)
+
+`tools/telephony/test-workspace-review.cjs` uses the actual JsSIP 3.10.0 UA and its
+stop/unregistration timers with a stubbed Socket registrar. It confirms delayed
+stop events and old-UA events after re-enable do not alter the current phone,
+unchanged errors do not reopen a dismissed panel, explicit permission denial
+stops the phone and retains the original error, broker activation timeouts mark
+the correct check, AIS failure does not reuse an old gateway diagnosis, deferred
+workspace initialization observes a frame that already loaded, and the named
+standalone window is reused with its opener.
+
+The real-gateway test additionally holds an AIS ticket response for 16 seconds
+while echo audio continues and checks that renewals do not overlap. It traverses
+two Back and two Forward entries twice without growing history, and observes the
+status for 3.5 seconds after stopping to catch JsSIP's delayed disconnection.
+Renewals have no activation timeout; only explicit AIS/gateway access denial
+terminates the phone. Transient failure warns and retries, while the existing
+server lease deadline still applies. Shutdown cancels an outstanding renewal.
+
+Workspace paths share one server-defined pattern rendered into the client. Both
+raw and decoded pathname are checked, including dot segments and /telephony.html.
+Client-card navigation uses validated postMessage rather than parent DOM access.
+
+### Printing reports
+
+Browser Ctrl/Cmd+P in the workspace can print the shell and only the visible part
+of its application frame. Use **Открыть страницу для печати** in the toolbar,
+then print that separate AIS page. This does not reload the phone workspace.
+The workspace itself is not a full-document print surface.

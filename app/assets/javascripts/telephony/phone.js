@@ -5,7 +5,7 @@ let gateway=null, activeTicket=null, callerGeneration=0;
 const csrf=()=>document.querySelector('meta[name=csrf-token]').content;
 let ua=null,session=null,stream=null,lease=null,heartbeat=null,started=null,ringTimer=null,audioContext=null,busy=false,pcConfig={iceServers:[]},micAnalyser=null,micSamples=null,remoteSource=null,remoteAnalyser=null,remoteSamples=null,remoteMedia=null,micSource=null,micSilentGain=null;
 JsSIP.debug.disable();
-let linkState='off',disableAfterCall=false;
+let linkState='off',disableAfterCall=false,disableReason='',generation=0,renewingFor=null,renewalWarning=null,disableTask=null,renewalAbort=null;
 function publish(){
  if(window.parent===window)return;
  const state=$('error').textContent?'error':session&&session.isEstablished()?'call':linkState;
@@ -17,26 +17,37 @@ function check(id,text,state){const el=$('check-'+id);el.textContent=text;el.dat
 function status(text,state){if(state)linkState=state;$('status').textContent=text;publish();}
 function error(text){$('error').textContent=text||'';publish();}
 function controls(){const registered=!!ua&&ua.isRegistered();const call=!!session;const incoming=call&&session.direction==='incoming'&&!session.isEstablished();$('enable').disabled=!!ua||busy;$('identity').disabled=!!ua||busy;$('microphone').disabled=!!ua||busy;$('disable').disabled=!ua||call;$('answer').disabled=!incoming;$('reject').disabled=!incoming;$('hangup').disabled=!call;$('mute').disabled=!call||!session.isEstablished();$('test-call').disabled=!registered||call;publish();}
-async function request(url, options){
- const controller=new AbortController(),timer=setTimeout(()=>controller.abort(),15000);
+function accessFailure(message){const e=new Error(message);e.accessDenied=true;return e;}
+async function request(url,options,timeout=15000){
+ if(!timeout)return fetch(url,options);
+ const controller=new AbortController(),timer=setTimeout(()=>controller.abort(),timeout);
  try{return await fetch(url,Object.assign({},options,{signal:controller.signal}));}
  catch(e){if(e.name==='AbortError')throw new Error('Сервер не ответил за 15 секунд. Проверьте соединение и повторите включение.');throw e;}
  finally{clearTimeout(timer);}
 }
-async function getTicket(){
- const r=await request('/telephony/ticket',{method:'POST',credentials:'same-origin',headers:{'X-CSRF-Token':csrf(),'Accept':'application/json'}});
- if(!r.ok||!r.headers.get('Content-Type').includes('application/json'))throw new Error('Сессия АИС завершена или доступ к телефонии отозван.');
- const c=await r.json();gateway=c.gateway;activeTicket=c.ticket;$('gateway-check').href=gateway+'/';return c;
+async function getTicket(timeout=15000,version=generation,signal){
+ const r=await request('/telephony/ticket',{method:'POST',credentials:'same-origin',headers:{'X-CSRF-Token':csrf(),'Accept':'application/json'},signal},timeout);
+ if(version!==generation)throw new Error('Операция отменена.');
+ const json=(r.headers.get('Content-Type')||'').includes('application/json');
+ if(r.status===401||r.status===403||(r.redirected&&!json))throw accessFailure('Сессия АИС завершена или доступ к телефонии отозван.');
+ if(!r.ok||!json)throw new Error('АИС временно недоступна. Повторите проверку.');
+ const c=await r.json();if(version!==generation)throw new Error('Операция отменена.');
+ gateway=c.gateway;activeTicket=c.ticket;$('gateway-check').href=gateway+'/';return c;
 }
-async function api(path,data){
- const r=await request(gateway+'/ais'+path,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(Object.assign({},data,{ticket:activeTicket}))});
- const result=await r.json();if(!r.ok)throw new Error(result.error||'Ошибка шлюза');return result;
+async function api(path,data,timeout=15000,context={gateway,ticket:activeTicket},signal){
+ const r=await request(context.gateway+'/ais'+path,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(Object.assign({},data,{ticket:context.ticket})),signal},timeout);
+ let result={};try{result=await r.json();}catch(e){if(r.ok)throw new Error('Некорректный ответ шлюза.');}
+ if(!r.ok){const message=result.error||'Ошибка шлюза';const e=[401,403,409].includes(r.status)?accessFailure(message):new Error(message);e.gatewayResponded=true;throw e;}
+ return result;
 }
 function clientLink(title,url){
  const a=document.createElement('a');a.textContent=title;
  const address=new URL(url,location.origin);if(address.origin!==location.origin)return a;
  a.href=address.href;a.target='_blank';a.rel='noopener';
- a.onclick=e=>{try{if(window.parent!==window&&window.parent.AisTelephonyWorkspace){window.parent.document.getElementById('ais-workspace-content').src=address.pathname+address.search+address.hash;e.preventDefault();return;}if(window.opener&&!window.opener.closed){window.opener.location.assign(address.href);window.opener.focus();e.preventDefault();}}catch(err){}};
+ a.onclick=e=>{if(e.ctrlKey||e.metaKey||e.shiftKey||e.altKey)return;try{
+  if(window.parent!==window&&window.parent.AisTelephonyWorkspace){window.parent.postMessage({type:'ais-phone-navigate',path:address.pathname+address.search+address.hash},location.origin);e.preventDefault();return;}
+  if(window.opener&&!window.opener.closed){window.opener.location.assign(address.href);window.opener.focus();e.preventDefault();}
+ }catch(err){}};
  return a;
 }
 async function callerContext(raw){
@@ -55,7 +66,7 @@ async function callerContext(raw){
 function displayNumber(value){const raw=value.replace(/^(?:влд|сакх|vld|sakh)[\s:;_-]*/i,'');try{return dialNumber(raw);}catch(e){return value;}}
 function dialNumber(value){const raw=value.trim();if(/^\d{3,4}$/.test(raw))return raw;let digits=raw.replace(/[+()\s-]/g,'');if(/^8\d{10}$/.test(digits))digits='7'+digits.slice(1);if(!/^7\d{10}$/.test(digits))throw new Error('Введите номер с 7 или внутренний номер из 3–4 цифр.');return digits;}
 
-function micError(e){return ({NotAllowedError:'Разрешите доступ к микрофону в настройках этого сайта.',NotFoundError:'Микрофон не найден. Подключите гарнитуру.',NotReadableError:'Микрофон недоступен или занят другой программой.',TypeError:'Не удалось связаться со шлюзом. В Chrome разрешите АИС доступ к локальной сети и проверьте, что шлюз включён.'})[e.name]||e.message||'Не удалось включить телефон.';}
+function micError(e){return ({NotAllowedError:'Разрешите доступ к микрофону в настройках этого сайта.',NotFoundError:'Микрофон не найден. Подключите гарнитуру.',NotReadableError:'Микрофон недоступен или занят другой программой.',TypeError:'Не удалось включить микрофон. Проверьте защищённое подключение и выбранное устройство.'})[e.name]||e.message||'Не удалось включить телефон.';}
 function ring(){if(!audioContext)return;ringTimer=setInterval(()=>{const o=audioContext.createOscillator(),g=audioContext.createGain();o.frequency.value=480;g.gain.value=.04;o.connect(g);g.connect(audioContext.destination);o.start();o.stop(audioContext.currentTime+.2);},1200);}
 function stopRing(){clearInterval(ringTimer);ringTimer=null;}
 const attached=new WeakSet();
@@ -78,21 +89,104 @@ function connectRemote(pc,eventStream){
  else{$('remote').muted=false;$('remote').volume=1;$('remote').play().then(()=>{$('play-audio').textContent='Звук включён';}).catch(()=>error('Нажмите «Включить звук».'));}
  return true;
 }
-function attach(pc){if(attached.has(pc))return;attached.add(pc);pc.addEventListener('track',e=>connectRemote(pc,e.streams[0]||new MediaStream([e.track])));pc.addEventListener('iceconnectionstatechange',()=>{const state=pc.iceConnectionState;$('audio-status').textContent='Аудиосоединение: '+state;if(state==='failed')error('Не удалось установить звук. Завершите тест и проверьте сеть.');if(state==='connected'||state==='completed')connectRemote(pc);});connectRemote(pc);}
+function attach(pc){if(attached.has(pc))return;attached.add(pc);pc.addEventListener('track',e=>connectRemote(pc,e.streams[0]||new MediaStream([e.track])));pc.addEventListener('iceconnectionstatechange',()=>{if(!session||session.connection!==pc)return;const state=pc.iceConnectionState;$('audio-status').textContent='Аудиосоединение: '+state;if(state==='failed')error('Не удалось установить звук. Завершите тест и проверьте сеть.');if(state==='connected'||state==='completed')connectRemote(pc);});connectRemote(pc);}
 async function microphones(){const devices=await navigator.mediaDevices.enumerateDevices();const selected=$('microphone').value;$('microphone').replaceChildren(new Option('Системный по умолчанию',''));for(const d of devices.filter(d=>d.kind==='audioinput'))$('microphone').add(new Option(d.label||'Микрофон '+($('microphone').length),d.deviceId));$('microphone').value=selected;}
 
-function finish(text){++callerGeneration;$('caller-context').hidden=true;stopRing();if(remoteSource)remoteSource.disconnect();if(remoteAnalyser)remoteAnalyser.disconnect();remoteSource=null;remoteAnalyser=null;remoteMedia=null;remoteSamples=null;session=null;started=null;$('call-title').textContent=text;$('mute').textContent='Выключить микрофон';$('remote').srcObject=null;$('play-audio').textContent='Включить звук';controls();if(disableAfterCall){disableAfterCall=false;disable();}}
+function finish(text){++callerGeneration;$('caller-context').hidden=true;stopRing();if(remoteSource)remoteSource.disconnect();if(remoteAnalyser)remoteAnalyser.disconnect();remoteSource=null;remoteAnalyser=null;remoteMedia=null;remoteSamples=null;session=null;started=null;$('call-title').textContent=text;$('mute').textContent='Выключить микрофон';$('remote').srcObject=null;$('play-audio').textContent='Включить звук';controls();if(disableAfterCall){disableAfterCall=false;const reason=disableReason;disableReason='';disable().then(()=>{if(reason)error(reason);});}}
 function handleSession(e){const s=e.session;if(session){s.terminate({status_code:486,reason_phrase:'Busy Here'});return;}session=s;started=null;error('');$('duration').textContent='00:00';$('audio-status').textContent='';$('call-title').textContent=(s.direction==='incoming'?'Входящий: ':'Вызов: ')+displayNumber(s.remote_identity.uri.user);
- s.on('peerconnection',e=>attach(e.peerconnection));if(s.connection)attach(s.connection);
- s.on('confirmed',()=>{if(s.connection)connectRemote(s.connection);stopRing();started=Date.now();$('call-title').textContent='Разговор с '+displayNumber(s.remote_identity.uri.user);controls();});
- s.on('ended',()=>finish('Разговор завершён'));
- s.on('failed',e=>{const reason=e.message&&e.message.getHeader&&e.message.getHeader('Reason');const other=reason&&/cause\s*=\s*200/.test(reason);finish(other?'Отвечен другим':s.direction==='incoming'&&e.cause==='Canceled'?'Звонящий отменил вызов':'Вызов завершён: '+e.cause);});
+ const on=(name,handler)=>s.on(name,event=>{if(session===s)handler(event);});
+ on('peerconnection',e=>attach(e.peerconnection));if(s.connection)attach(s.connection);
+ on('confirmed',()=>{if(s.connection)connectRemote(s.connection);stopRing();started=Date.now();$('call-title').textContent='Разговор с '+displayNumber(s.remote_identity.uri.user);controls();});
+ on('ended',()=>finish('Разговор завершён'));
+ on('failed',e=>{const reason=e.message&&e.message.getHeader&&e.message.getHeader('Reason');const other=reason&&/cause\s*=\s*200/.test(reason);finish(other?'Отвечен другим':s.direction==='incoming'&&e.cause==='Canceled'?'Звонящий отменил вызов':'Вызов завершён: '+e.cause);});
  if(s.direction==='incoming'){ring();callerContext(s.remote_identity.uri.user);}controls();
 }
-async function disable(){if(session)return;clearInterval(heartbeat);heartbeat=null;if(ua){ua.stop();ua=null;}if(stream){stream.getTracks().forEach(t=>t.stop());stream=null;if(micSource)micSource.disconnect();if(micSilentGain)micSilentGain.disconnect();micSource=null;micSilentGain=null;micAnalyser=null;micSamples=null;$('mic-status').textContent='Микрофон не включён';}if(lease){const old=lease;lease=null;await api('/disable',old).catch(()=>{});}$('phone-settings').open=true;check('registration','Регистрация: выключена','off');status('Телефония выключена','off');controls();}
-$('enable').onclick=async()=>{busy=true;controls();error('');status('Проверяем микрофон…','checking');$('gateway-help').hidden=true;check('microphone','Микрофон: проверяется','checking');check('gateway','Шлюз: не проверен','off');check('registration','Регистрация: не проверена','off');try{if(!navigator.mediaDevices)throw new Error('Микрофон доступен только через защищённое подключение.');stream=await navigator.mediaDevices.getUserMedia({audio:$('microphone').value?{deviceId:{exact:$('microphone').value}}:true,video:false});check('microphone','Микрофон: доступ разрешён','ok');await microphones();audioContext=audioContext||new(window.AudioContext||window.webkitAudioContext)();await audioContext.resume();micAnalyser=audioContext.createAnalyser();micAnalyser.fftSize=256;micSource=audioContext.createMediaStreamSource(stream);micSource.connect(micAnalyser);micSilentGain=audioContext.createGain();micSilentGain.gain.value=0;micAnalyser.connect(micSilentGain);micSilentGain.connect(audioContext.destination);micSamples=new Uint8Array(micAnalyser.fftSize);status('Проверяем защищённое соединение со шлюзом…','checking');await getTicket();check('gateway','Шлюз: проверяется','checking');const c=await api('/enable',{});check('gateway','Шлюз: защищённое соединение установлено','ok');check('registration','Регистрация: подключается','checking');lease={user:c.user,token:c.token};pcConfig=c.pcConfig||{iceServers:[]};ua=new JsSIP.UA({sockets:[new JsSIP.WebSocketInterface(c.wss)],uri:c.uri,password:c.password,contact_uri:c.contact_uri,register:true,register_expires:120,session_timers:false});c.password=null;
- ua.on('connecting',()=>status('Подключение…','checking'));ua.on('connected',()=>status('Соединение установлено, регистрация…','checking'));ua.on('registered',()=>{if(document.body.classList.contains('embedded')){$('phone-settings').open=false;$('phone-meters').open=false;}api('/heartbeat',lease).catch(e=>error(e.message));check('registration','Регистрация: готов к звонкам','ok');status('Готов к звонкам · '+lease.user,'ready');error('');controls();});ua.on('unregistered',()=>{check('registration','Регистрация: отсутствует','error');status('Не зарегистрирован','error');controls();});ua.on('registrationFailed',e=>{check('registration','Регистрация: ошибка','error');status('Регистрация не выполнена','error');error(e.response&&e.response.status_code===403?'Этот телефон уже зарегистрирован в другом окне.': 'Ошибка регистрации: '+e.cause);controls();});ua.on('disconnected',()=>{check('registration','Регистрация: соединение потеряно','error');status('Соединение потеряно · повторное подключение…','checking');error('Проверьте доступность шлюза. В Chrome разрешите сайту АИС доступ к локальной сети.');controls();});ua.on('newRTCSession',handleSession);heartbeat=setInterval(()=>{if(lease)getTicket().then(()=>api('/heartbeat',lease)).catch(async e=>{if(session)session.terminate();await disable();error(e.message);});},15000);ua.start();
-}catch(e){const message=micError(e);if(e.name==='TypeError'&&gateway){check('gateway','Шлюз: соединение не установлено','error');$('gateway-help').hidden=false;}else if(!stream)check('microphone','Микрофон: нет доступа','error');await disable();error(message);}finally{busy=false;controls();}};
+function disable(){
+ if(session)return Promise.resolve();
+ if(disableTask)return disableTask;
+ disableTask=shutdown().finally(()=>{disableTask=null;});return disableTask;
+}
+async function shutdown(){
+ ++generation;busy=true;
+ clearInterval(heartbeat);heartbeat=null;
+ const oldUa=ua,oldLease=lease,context={gateway,ticket:activeTicket};
+ ua=null;lease=null;if(renewalAbort)renewalAbort.abort(); // JsSIP emits delayed events after stop; this UA is no longer current.
+ if(oldUa)oldUa.stop();
+ if(stream){stream.getTracks().forEach(t=>t.stop());stream=null;}
+ if(micSource)micSource.disconnect();if(micSilentGain)micSilentGain.disconnect();
+ micSource=null;micSilentGain=null;micAnalyser=null;micSamples=null;
+ $('mic-status').textContent='Микрофон не включён';$('phone-settings').open=true;
+ error('');check('registration','Регистрация: выключена','off');status('Телефония выключена','off');controls();
+ try{if(oldLease)await api('/disable',oldLease,15000,context);}catch(e){/* Lease also expires server-side. */}
+ finally{busy=false;controls();}
+}
+function stopWithError(message){
+ if(session){if(disableAfterCall){if(message)disableReason=message;return;}disableAfterCall=true;disableReason=message;session.terminate();}
+ else disable().then(()=>error(message));
+}
+async function renew(currentUa,version){
+ if(ua!==currentUa||!lease||renewingFor===currentUa)return;
+ renewingFor=currentUa;const abort=new AbortController();renewalAbort=abort;
+ const currentLease=lease;
+ try{
+  const context=await getTicket(0,version,abort.signal);
+  if(ua!==currentUa||lease!==currentLease)return;
+  await api('/heartbeat',currentLease,0,context,abort.signal);
+  if(ua!==currentUa||lease!==currentLease||version!==generation)return;
+  if(ua===currentUa&&renewalWarning&&$('error').textContent===renewalWarning)error('');
+  renewalWarning=null;
+ }catch(e){
+  if(ua!==currentUa||version!==generation)return;
+  if(e.accessDenied)stopWithError(e.message);
+  else{renewalWarning='Не удалось обновить доступ к телефонии. Повторяем проверку; текущий разговор продолжается.';error(renewalWarning);}
+ }finally{if(renewingFor===currentUa){renewingFor=null;renewalAbort=null;}}
+}
+$('enable').onclick=async()=>{
+ if(ua||busy)return;
+ const version=++generation;let stage='microphone';
+ gateway=null;activeTicket=null;busy=true;controls();error('');
+ status('Проверяем микрофон…','checking');$('gateway-help').hidden=true;
+ check('microphone','Микрофон: проверяется','checking');check('gateway','Шлюз: не проверен','off');check('registration','Регистрация: не проверена','off');
+ try{
+  if(!navigator.mediaDevices)throw new Error('Микрофон доступен только через защищённое подключение.');
+  const candidate=await navigator.mediaDevices.getUserMedia({audio:$('microphone').value?{deviceId:{exact:$('microphone').value}}:true,video:false});
+  if(version!==generation){candidate.getTracks().forEach(t=>t.stop());return;}
+  stream=candidate;check('microphone','Микрофон: доступ разрешён','ok');await microphones();
+  audioContext=audioContext||new(window.AudioContext||window.webkitAudioContext)();await audioContext.resume();
+  if(version!==generation)return;
+  micAnalyser=audioContext.createAnalyser();micAnalyser.fftSize=256;micSource=audioContext.createMediaStreamSource(stream);micSource.connect(micAnalyser);
+  micSilentGain=audioContext.createGain();micSilentGain.gain.value=0;micAnalyser.connect(micSilentGain);micSilentGain.connect(audioContext.destination);micSamples=new Uint8Array(micAnalyser.fftSize);
+  stage='ais';status('Проверяем доступ в АИС…','checking');
+  const context=await getTicket(15000,version);
+  stage='gateway';status('Проверяем защищённое соединение со шлюзом…','checking');check('gateway','Шлюз: проверяется','checking');
+  const c=await api('/enable',{},15000,context);
+  if(version!==generation){await api('/disable',{user:c.user,token:c.token},15000,context).catch(()=>{});return;}
+  stage='registration';check('gateway','Шлюз: защищённое соединение установлено','ok');check('registration','Регистрация: подключается','checking');
+  lease={user:c.user,token:c.token};pcConfig=c.pcConfig||{iceServers:[]};
+  const currentUa=new JsSIP.UA({sockets:[new JsSIP.WebSocketInterface(c.wss)],uri:c.uri,password:c.password,contact_uri:c.contact_uri,register:true,register_expires:120,session_timers:false});
+  ua=currentUa;c.password=null;
+  const on=(name,handler)=>currentUa.on(name,event=>{if(currentUa===ua)handler(event);});
+  on('connecting',()=>status('Подключение…','checking'));
+  on('connected',()=>status('Соединение установлено, регистрация…','checking'));
+  on('registered',()=>{
+   if(document.body.classList.contains('embedded')){$('phone-settings').open=false;$('phone-meters').open=false;}
+   check('registration','Регистрация: готов к звонкам','ok');status('Готов к звонкам · '+lease.user,'ready');error('');controls();renew(currentUa,version);
+  });
+  on('unregistered',()=>{check('registration','Регистрация: отсутствует','error');status('Не зарегистрирован','error');controls();});
+  on('registrationFailed',e=>{check('registration','Регистрация: ошибка','error');status('Регистрация не выполнена','error');error(e.response&&e.response.status_code===403?'Этот телефон уже зарегистрирован в другом окне.':'Ошибка регистрации: '+e.cause);controls();});
+  on('disconnected',()=>{check('registration','Регистрация: соединение потеряно','error');status('Соединение потеряно · повторное подключение…','checking');error('Проверьте доступность шлюза. В Chrome разрешите сайту АИС доступ к локальной сети.');controls();});
+  on('newRTCSession',handleSession);
+  heartbeat=setInterval(()=>renew(currentUa,version),15000);currentUa.start();
+ }catch(e){
+  if(version!==generation)return;
+  await disable();
+  if(stage==='gateway'){if(e.gatewayResponded){check('gateway','Шлюз: защищённое соединение установлено','ok');check('registration','Регистрация: шлюз отклонил включение','error');}else{check('gateway','Шлюз: соединение не установлено','error');$('gateway-help').hidden=false;}}
+  else if(stage==='registration')check('registration','Регистрация: не выполнена','error');
+  else if(stage==='microphone')check('microphone','Микрофон: нет доступа','error');
+  else check('gateway','Шлюз: не проверен — нет ответа АИС','off');
+  error(stage==='microphone'?micError(e):e.message);
+ }finally{if(version===generation){busy=false;controls();}}
+};
 $('disable').onclick=disable;
 $('answer').onclick=()=>{error('');stopRing();try{session.answer({mediaStream:stream,mediaConstraints:{audio:true,video:false},pcConfig:pcConfig});}catch(e){error(e.message);}};
 $('reject').onclick=()=>{if(session)session.terminate({status_code:486,reason_phrase:'Busy Here'});};
@@ -117,7 +211,7 @@ window.addEventListener('beforeunload',e=>{if(session){e.preventDefault();e.retu
 window.addEventListener('pagehide',()=>{if(ua)ua.stop();if(lease)fetch(gateway+'/ais/disable',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(Object.assign({},lease,{ticket:activeTicket})),keepalive:true}).catch(()=>{});});
 window.addEventListener('message',async e=>{
  if(window.parent===window||e.origin!==location.origin||e.source!==window.parent||!e.data||e.data.type!=='ais-phone-command')return;
- if(e.data.action==='terminate-disable'){if(session){disableAfterCall=true;session.terminate();}else await disable();}
+ if(e.data.action==='terminate-disable')stopWithError('');
  else if(e.data.action==='disable'&&!session)await disable();
 });
 controls();

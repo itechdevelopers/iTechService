@@ -198,7 +198,7 @@ class TelephonyTest < Minitest::Test
       assert_includes last_response.body, 'class="embedded"'
       File.write(File.join(ENV.fetch('AIS_PHONE_BROWSER_FIXTURES'), 'phone.html'), last_response.body)
     end
-    ['https://example.test', '//example.test', '/\\example.test', '/telephony/workspace', "/clients\n", "/\t/example.test", '/telephony#x'].each do |path|
+    ['https://example.test', '//example.test', '/\\example.test', '/telephony/workspace', "/clients\n", "/\t/example.test", '/telephony#x', '/x/../telephony/workspace', '/./telephony/workspace', '/telephony.html?embedded=1', '/%74elephony/workspace', '/x/%2e%2e/telephony/workspace'].each do |path|
       get '/telephony/workspace', path: path
       assert_equal 200, last_response.status
       assert_includes last_response.body, 'title="Рабочее место АИС" src="/"'

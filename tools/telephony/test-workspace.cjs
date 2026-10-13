@@ -15,7 +15,9 @@ const pin=crypto.createHash('sha256').update(der).digest('base64');
   browser=await chromium.launch({executablePath:'/Applications/Google Chrome.app/Contents/MacOS/Google Chrome',headless:true,args:['--ignore-certificate-errors-spki-list='+pin,'--use-fake-ui-for-media-stream','--use-fake-device-for-media-stream']});
   const context=await browser.newContext({permissions:['microphone','local-network-access']});
   const errors=[];
-  await context.route('https://ise.itech.pw/**',route=>{
+  let delayNextTicket=false,slowTicketInFlight=false,overlappingTickets=0,startSlow;
+  const slowStarted=new Promise(resolve=>{startSlow=resolve;});
+  await context.route('https://ise.itech.pw/**',async route=>{
    const u=new URL(route.request().url());let file;
    if(u.pathname.startsWith('/assets/telephony/')){
     const name=['workspace.js','workspace.css','phone.js','phone.css','jssip.min.js'].find(n=>u.pathname.endsWith(n.endsWith('.js')?'.js':'.css') && u.pathname.includes(n.replace(/\.(js|css)$/, '')));
@@ -23,7 +25,12 @@ const pin=crypto.createHash('sha256').update(der).digest('base64');
     file=path.join(repo,name==='jssip.min.js'?'vendor/assets/javascripts/telephony':name.endsWith('.js')?'app/assets/javascripts/telephony':'app/assets/stylesheets/telephony',name);
     return route.fulfill({contentType:name.endsWith('.js')?'application/javascript':'text/css',body:fs.readFileSync(file)});
    }
-   if(u.pathname==='/telephony/ticket')return route.fulfill({contentType:'application/json',body:JSON.stringify({ticket:signed(),extension:'7779',gateway:'https://192.168.1.109:18444'})});
+   if(u.pathname==='/telephony/ticket'){
+    const payload={ticket:signed(),extension:'7779',gateway:'https://192.168.1.109:18444'};
+    if(slowTicketInFlight)overlappingTickets++;
+    if(delayNextTicket){delayNextTicket=false;slowTicketInFlight=true;startSlow();await new Promise(resolve=>setTimeout(resolve,16000));slowTicketInFlight=false;}
+    return route.fulfill({contentType:'application/json',body:JSON.stringify(payload)});
+   }
    if(u.pathname==='/telephony/caller')return route.fulfill({contentType:'application/json',body:JSON.stringify({number:'7779',clients:[{name:'Тестовый клиент <img>',url:'/clients/1',entities:[{title:'Актуальная заявка',url:'/orders/1'}]}]})});
    if(u.pathname==='/telephony/workspace')file=path.join(fixtures,'workspace.html');
    if(u.pathname==='/telephony')file=path.join(fixtures,'phone.html');
@@ -42,13 +49,25 @@ const pin=crypto.createHash('sha256').update(der).digest('base64');
   const stats=()=>phone().evaluate(()=>window.pilotDiagnostics());
   await phone().waitForFunction(async()=>{const s=await window.pilotDiagnostics();return s.active&&s.inbound>0&&s.remoteLevel>0;},{},{timeout:25000});
   const before=await stats(), engine=await phone().evaluate(()=>window.performance.timeOrigin);
+  delayNextTicket=true;
+  await Promise.race([slowStarted,new Promise((_,reject)=>setTimeout(()=>reject(Error('Renewal did not start')),20000))]);
+  await phone().waitForTimeout(17000);
+  if(!((await stats()).active)||overlappingTickets)throw Error('Slow AIS renewal dropped call or overlapped requests');
+  console.log('16-second AIS renewal preserves real audio and does not overlap heartbeat requests');
   await p.click('#phone-close');
   let main=p.frames().find(f=>f.parentFrame() && f.url().includes('/clients'));
   await main.click('a[href="/orders"]');
   await p.waitForURL(/path=%2Forders/);
   main=p.frames().find(f=>f.url().endsWith('/orders'));
   await main.click('button');await p.waitForURL(/path=%2Fservice_jobs/);
-  await p.goBack();await p.waitForFunction(()=>document.getElementById('ais-workspace-content').contentWindow.location.pathname==='/orders');
+  const historyLength=await p.evaluate(()=>history.length);
+  for(let i=0;i<2;i++){
+   await p.goBack();await p.waitForFunction(()=>document.getElementById('ais-workspace-content').contentWindow.location.pathname==='/orders');
+   await p.goBack();await p.waitForFunction(()=>document.getElementById('ais-workspace-content').contentWindow.location.pathname==='/clients');
+   await p.goForward();await p.waitForFunction(()=>document.getElementById('ais-workspace-content').contentWindow.location.pathname==='/orders');
+   await p.goForward();await p.waitForFunction(()=>document.getElementById('ais-workspace-content').contentWindow.location.pathname==='/service_jobs');
+  }
+  if(await p.evaluate(()=>history.length)!==historyLength)throw Error('Back/Forward created new history entries');
   await phone().waitForTimeout(2000);
   const after=await stats();
   if(await phone().evaluate(()=>window.performance.timeOrigin)!==engine||!after.active||after.inbound<=before.inbound||after.outbound<=before.outbound)throw Error('Navigation interrupted actual audio');
@@ -72,7 +91,7 @@ const pin=crypto.createHash('sha256').update(der).digest('base64');
   console.log('Incoming panel opens, client links navigate workspace, incoming answer has actual audio');
   p.once('dialog',d=>d.dismiss());await p.click('#phone-disable');if(!(await stats()).active)throw Error('Cancel disable ended call');
   p.once('dialog',d=>d.accept());await p.click('#phone-disable');
-  await p.waitForFunction(()=>document.getElementById('phone-dot').dataset.state==='off',{},{timeout:10000});
+  await p.waitForFunction(()=>document.getElementById('phone-dot').dataset.state==='off',{},{timeout:10000});await p.waitForTimeout(3500);if(await p.locator('#phone-dot').getAttribute('data-state')!=='off')throw Error('Delayed stop changed disabled state');
   await phone().evaluate(()=>{if(document.getElementById('remote').srcObject)throw Error('Remote media retained');});
   console.log('Disable confirmation keeps call on cancel, ends and unregisters on confirm');
   await context.route('https://192.168.1.109:18444/**',r=>r.abort('failed'));

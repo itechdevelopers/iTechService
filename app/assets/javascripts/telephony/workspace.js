@@ -1,11 +1,17 @@
 'use strict';
 (() => {
-window.AisTelephonyWorkspace = true;
 const $ = id => document.getElementById(id);
 const content = $('ais-workspace-content'), phone = $('ais-workspace-phone');
-let activeCall = false, enabled = false, ready = false, lastPath = null;
+const pathPattern = new RegExp(document.body.dataset.workspacePathPattern);
+let activeCall = false, enabled = false, lastIncoming = false, lastError = '', fallbackNotice = false;
 const panel = open => { $('phone-panel').hidden = !open; $('phone-toggle').setAttribute('aria-expanded', String(open)); };
 const command = action => phone.contentWindow.postMessage({type:'ais-phone-command', action}, location.origin);
+const notice = text => { $('workspace-notice').textContent=text; $('workspace-notice').hidden=!text; };
+function validPath(path){
+ if(typeof path!=='string'||!pathPattern.test(path))return false;
+ try{return pathPattern.test(decodeURIComponent(path.split(/[?#]/,1)[0]));}catch(e){return false;}
+}
+function navigate(path){if(validPath(path)){content.src=path;notice('');fallbackNotice=false;}}
 $('phone-toggle').onclick = () => panel($('phone-panel').hidden);
 $('phone-close').onclick = () => panel(false);
 $('phone-disable').onclick = () => {
@@ -13,10 +19,15 @@ $('phone-disable').onclick = () => {
  command(activeCall ? 'terminate-disable' : 'disable');
 };
 $('phone-fallback').onclick = e => {
- if(enabled){ e.preventDefault(); panel(true); $('phone-summary').textContent='Сначала выключите телефон здесь'; }
+ e.preventDefault();
+ if(enabled){panel(true);fallbackNotice=true;notice('Сначала выключите телефон здесь');return;}
+ notice('');fallbackNotice=false;
+ window.open(e.currentTarget.href,'ais-telephony','width=460,height=740,resizable=yes,scrollbars=yes');
 };
 window.addEventListener('message', event => {
- if(event.origin !== location.origin || event.source !== phone.contentWindow || !event.data || event.data.type !== 'ais-phone-state') return;
+ if(event.origin !== location.origin || event.source !== phone.contentWindow || !event.data) return;
+ if(event.data.type==='ais-phone-navigate'){navigate(event.data.path);return;}
+ if(event.data.type!=='ais-phone-state')return;
  const state = event.data;
  if(!['off','checking','ready','call','error'].includes(state.state)) return;
  activeCall = state.call === true; enabled = state.enabled === true;
@@ -24,23 +35,22 @@ window.addEventListener('message', event => {
  $('phone-summary').textContent = state.error || state.status || 'Выключена';
  $('phone-call-summary').textContent = activeCall ? (state.callTitle || '') + (state.duration ? ' · '+state.duration : '') : '';
  $('phone-disable').hidden = !enabled;
- if(state.incoming || state.error) panel(true);
+ if((state.incoming&&!lastIncoming)||(state.error&&state.error!==lastError))panel(true);
+ lastIncoming=!!state.incoming;lastError=state.error||'';
+ if(!enabled&&fallbackNotice){notice('');fallbackNotice=false;}
 });
-function pathOf(frame){
- try { const w=frame.contentWindow; if(w.location.origin !== location.origin) return null; return w.location.pathname+w.location.search+w.location.hash; } catch(e){return null;}
+function updatePage(){
+ let path;
+ try{const w=content.contentWindow;if(w.location.origin!==location.origin)return;path=w.location.pathname+w.location.search+w.location.hash;}catch(e){return;}
+ if(path.startsWith('/users/sign_in')){command('terminate-disable');window.location.assign('/users/sign_in');return;}
+ if(!validPath(path))return;
+ try{document.title=content.contentDocument.title||'АИС · Телефония';}catch(e){}
+ $('workspace-page').href=path;
+ // iframe navigation already owns a joint history entry; adding another traps Back.
+ history.replaceState({path},'', '/telephony/workspace?path='+encodeURIComponent(path));
 }
-content.addEventListener('load', () => {
- const path=pathOf(content); if(!path) return;
- if(path.startsWith('/users/sign_in')){ command('terminate-disable'); window.location.assign('/users/sign_in'); return; }
- try { document.title=content.contentDocument.title || 'АИС · Телефония'; } catch(e){}
- if(!ready){ready=true;lastPath=path;return;}
- if(path !== lastPath){lastPath=path;history.pushState({path},'', '/telephony/workspace?path='+encodeURIComponent(path));}
-});
-window.addEventListener('popstate', () => {
- const path=new URL(location.href).searchParams.get('path') || '/';
- if(path.startsWith('/') && !path.startsWith('//') && !/[\\\x00-\x1f\x7f]/.test(path) && !/^\/telephony(?:\/|\?|#|$)/.test(path)){
-  lastPath=path;content.src=path;
- }
-});
+content.addEventListener('load',updatePage);
+// The initial frame may have loaded before this deferred script.
+updatePage();
 window.addEventListener('beforeunload', event => {if(activeCall){event.preventDefault();event.returnValue='';}});
 })();
