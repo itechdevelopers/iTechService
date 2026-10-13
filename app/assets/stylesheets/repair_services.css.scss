@@ -28,6 +28,38 @@
   .repair_causes{
     width: 25%;
   }
+  .rs-time{
+    width: 130px;
+  }
+  // Строки запчастей идут под видом ремонта без отступов, и с тонкой границей
+  // соседние виды сливаются — жирная линия над главной строкой отделяет вид целиком.
+  tbody > tr.repair-service-row:not(:first-child) > td{
+    border-top: 3px solid #999;
+  }
+}
+
+.rs-purchase {
+  margin-top: 4px;
+  font-size: 12px;
+  font-weight: bold;
+  color: #d00;
+
+  &__value {
+    white-space: nowrap;
+  }
+}
+
+.rs-time {
+  &__value {
+    font-weight: bold;
+  }
+
+  &__note {
+    margin-top: 3px;
+    font-size: 11px;
+    line-height: 13px;
+    color: #999;
+  }
 }
 
 .rs-causes {

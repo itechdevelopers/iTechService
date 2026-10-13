@@ -8,6 +8,7 @@
       <th><%= RepairService.human_attribute_name(:price) %></th>
       <th class="repair_causes"><%= RepairService.human_attribute_name(:repair_causes) %></th>
       <th><%= RepairService.human_attribute_name(:client_info) %></th>
+      <th class="rs-time">Время выполнения</th>
       <th><%= RepairService.human_attribute_name(:is_popular) %></th>
       <%= tag(:th) if(can? :manage, RepairService) %>
     </tr>
@@ -15,6 +16,7 @@
 
     <tbody>
     <% show_qty = current_user.able_to?(:show_spare_parts_qty) || current_user.superadmin? # Setting.show_spare_parts_qty %>
+    <% show_purchase = current_user.superadmin? %>
     <% @repair_services.find_each do |repair_service| %>
       <% parts_qty = repair_service.spare_parts.count %>
       <% can_move = can?(:manage, RepairService) %>
@@ -26,7 +28,13 @@
           <span class="label label-info"><%= repair_service.name %></span>
         </td>
         <td class="warranty"><%= repair_service_warranty_display(repair_service) %></td>
-        <td class="price"><%= human_currency repair_service.price(params[:department_id])&.shown_price, false %></td>
+        <td class="price">
+          <%= human_currency repair_service.price(params[:department_id])&.shown_price, false %>
+          <% purchase = show_purchase ? repair_service.total_cost : 0 %>
+          <% if purchase.positive? %>
+            <div class="rs-purchase">Закуп: <span class="rs-purchase__value"><%= human_currency purchase, false %></span></div>
+          <% end %>
+        </td>
         <td class="repair_causes" rowspan="<%= parts_qty+1 %>">
           <% causes = repair_service.repair_causes.to_a %>
           <% visible_causes = causes.first(RepairService::VISIBLE_CAUSES_IN_TABLE) %>
@@ -48,6 +56,14 @@
           </div>
         </td>
         <td class="client_info text-info" rowspan="<%= parts_qty+1 %>"><%= repair_service.client_info %></td>
+        <td class="rs-time" rowspan="<%= parts_qty+1 %>">
+          <% if (time = repair_service_time_display(repair_service)) %>
+            <div class="rs-time__value"><%= time %></div>
+            <div class="rs-time__note">Время работы ориентировочное. Зависит от загруженности технических специалистов.</div>
+          <% else %>
+            -
+          <% end %>
+        </td>
         <td class="is_popular text-center" rowspan="<%= parts_qty+1 %>">
           <%= '✓' if repair_service.is_popular %>
         </td>
