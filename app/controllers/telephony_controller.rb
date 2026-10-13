@@ -5,6 +5,13 @@ class TelephonyController < ApplicationController
     response.headers['Cache-Control'] = 'no-store'
     render layout: false
   end
+  def workspace
+    authorize :telephony
+    response.headers['Cache-Control'] = 'no-store'
+    @workspace_path = Telephony::WorkspacePath.valid?(params[:path]) ? params[:path] : root_path
+    render layout: false
+  end
+
   def ticket
     authorize :telephony
     response.headers['Cache-Control'] = 'no-store'

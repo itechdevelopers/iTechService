@@ -96,6 +96,14 @@
     <%= header_link_to_birthdays %>
     <%= header_link_to_quack_control %>
     <%= header_link_to_client_conversations %>
+    <% if policy(:telephony).use? %>
+      <%= link_to telephony_workspace_path(path: request.fullpath), class: 'ais-telephony-launcher',
+                  title: "Включить телефонию · номер #{current_user.telephony_extension}",
+                  aria: { label: "Включить телефонию, номер #{current_user.telephony_extension}" } do %>
+        <%= icon_tag(:phone) %><span class="ais-telephony-extension"><%= current_user.telephony_extension %></span>
+      <% end %>
+      <script>try { if (window.parent !== window && window.parent.AisTelephonyWorkspace) document.querySelector('.ais-telephony-launcher').hidden = true; } catch (e) {}</script>
+    <% end %>
     <%= header_link_to_notifications %>
     <%= header_fault_button if can? :create, Fault %>
     <%= header_merit_button if can? :create, Merit %>
