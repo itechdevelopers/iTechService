@@ -182,6 +182,32 @@ class TelephonyTest < Minitest::Test
     assert_equal 302, last_response.status
   end
 
+  def test_workspace_retains_phone_and_rejects_external_or_recursive_paths
+    login_as(@user, scope: :user)
+    get '/telephony/workspace', path: '/clients?search=test'
+    assert_equal 200, last_response.status
+    assert_equal 'no-store', last_response.headers['Cache-Control']
+    assert_includes last_response.body, 'src="/clients?search=test"'
+    assert_includes last_response.body, 'id="ais-workspace-phone"'
+    assert_includes last_response.body, 'allow="microphone; autoplay"'
+    assert_includes last_response.body, 'Телефония · 7771'
+    if ENV['AIS_PHONE_BROWSER_FIXTURES']
+      File.write(File.join(ENV.fetch('AIS_PHONE_BROWSER_FIXTURES'), 'workspace.html'), last_response.body)
+      get '/telephony', embedded: '1'
+      assert_equal 200, last_response.status
+      assert_includes last_response.body, 'class="embedded"'
+      File.write(File.join(ENV.fetch('AIS_PHONE_BROWSER_FIXTURES'), 'phone.html'), last_response.body)
+    end
+    ['https://example.test', '//example.test', '/\\example.test', '/telephony/workspace', "/clients\n", "/\t/example.test", '/telephony#x'].each do |path|
+      get '/telephony/workspace', path: path
+      assert_equal 200, last_response.status
+      assert_includes last_response.body, 'title="Рабочее место АИС" src="/"'
+    end
+    @user.abilities.delete(@ability)
+    get '/telephony/workspace'
+    assert_equal 302, last_response.status
+  end
+
   def test_regular_employee_cannot_assign_telephony_numbers
     controller = UsersController.new
     controller.define_singleton_method(:current_user) { @test_user }

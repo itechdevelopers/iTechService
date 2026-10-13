@@ -106,6 +106,7 @@ Rails.application.routes.draw do
   resources :departments
   resources :brands, except: :show
   resources :reports, only: [:index, :new, :create]
+  get 'telephony/workspace', to: 'telephony#workspace', as: :telephony_workspace
   get 'telephony', to: 'telephony#show', as: :telephony
   post 'telephony/ticket', to: 'telephony#ticket'
   get 'telephony/caller', to: 'telephony#caller'

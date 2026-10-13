@@ -5,6 +5,19 @@ class TelephonyController < ApplicationController
     response.headers['Cache-Control'] = 'no-store'
     render layout: false
   end
+  def workspace
+    authorize :telephony
+    response.headers['Cache-Control'] = 'no-store'
+    path = params[:path].is_a?(String) ? params[:path] : ''
+    @workspace_path = if path.start_with?('/') && !path.start_with?('//') &&
+                         !path.match?(/[\\\x00-\x1f\x7f]/) && !path.match?(%r{\A/telephony(?:/|\?|#|$)})
+                        path
+                      else
+                        root_path
+                      end
+    render layout: false
+  end
+
   def ticket
     authorize :telephony
     response.headers['Cache-Control'] = 'no-store'
