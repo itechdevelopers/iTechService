@@ -2,7 +2,7 @@
 
 class ScheduleGroupsController < ApplicationController
   before_action :set_city, only: %i[index new create]
-  before_action :set_schedule_group, only: %i[show edit update destroy history save_week send_to_telegram]
+  before_action :set_schedule_group, only: %i[show edit update destroy history save_week send_to_telegram reorder_members]
 
   def index
     authorize :schedule
@@ -39,7 +39,7 @@ class ScheduleGroupsController < ApplicationController
     @week_dates = (@week_start..(@week_start + 6.days)).to_a
     @members = @schedule_group.members
                                .where('users.is_fired IS NOT TRUE OR users.dismissed_date >= ?', @week_start)
-                               .reorder('users.created_at ASC')
+                               .reorder('schedule_group_memberships.position ASC, users.created_at ASC')
     @dismissed_dates = @members.where.not(dismissed_date: nil)
                                .pluck(:id, :dismissed_date)
                                .map { |id, date| [id, date.to_date] }
@@ -209,6 +209,12 @@ class ScheduleGroupsController < ApplicationController
     end
   end
 
+  def reorder_members
+    authorize :schedule
+    @schedule_group.reorder_members(Array(params[:user_ids]))
+    render json: { success: true }
+  end
+
   private
 
   def set_city
@@ -249,8 +255,9 @@ class ScheduleGroupsController < ApplicationController
     existing_member_ids = @schedule_group.memberships.pluck(:user_id)
     new_member_ids = member_ids - existing_member_ids
 
-    new_member_ids.each do |user_id|
-      @schedule_group.memberships.create(user_id: user_id)
+    next_position = @schedule_group.memberships.maximum(:position)&.succ || 0
+    new_member_ids.each_with_index do |user_id, index|
+      @schedule_group.memberships.create(user_id: user_id, position: next_position + index)
     end
   end
 

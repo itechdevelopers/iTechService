@@ -103,6 +103,8 @@
         - @members.each do |member|
           - dismissed = @dismissed_dates[member.id]
           %th.member-header{'data-user-id' => member.id, style: dismissed ? 'text-decoration: line-through' : nil}
+            - if @can_edit
+              %span.schedule-member-sort__handle{'data-html2canvas-ignore' => true, title: t('.reorder_member_hint')}= glyph(:'arrows-h')
             = member.short_name
     %tbody
       - @week_dates.each do |date|
@@ -378,6 +380,18 @@
   .schedule-table[data-can-edit="true"] .member-header:hover,
   .schedule-table[data-can-edit="true"] .date-cell:hover {
     background-color: #f5f5f5;
+  }
+  .schedule-member-sort__handle {
+    cursor: move;
+    margin-right: 4px;
+    opacity: 0.35;
+  }
+  .schedule-member-sort__handle:hover {
+    opacity: 1;
+  }
+  .schedule-member-sort__ghost {
+    opacity: 0.4;
+    background-color: #d9edf7 !important;
   }
 
   /* Weekly hours footer */
@@ -737,7 +751,8 @@
 
     // Batch fill: click on member header → fill entire row (all week for this user)
     if (canEditBool) {
-      $table.on('click', '.member-header', function() {
+      $table.on('click', '.member-header', function(e) {
+        if ($(e.target).closest('.schedule-member-sort__handle').length) return;
         var userId = $(this).data('user-id');
         if (!userId) return;
 
@@ -834,6 +849,44 @@
           },
           success: function() { window.markScheduleUnsaved && window.markScheduleUnsaved(); }
         });
+      });
+    }
+
+    // Member column reordering: Sortable moves only the header <th>, so the
+    // body and footer cells are moved by hand to follow it.
+    var $memberHeaderRow = $table.find('thead tr');
+    if (canEditBool && $memberHeaderRow.length && typeof Sortable !== 'undefined') {
+      new Sortable($memberHeaderRow[0], {
+        draggable: '.member-header',
+        handle: '.schedule-member-sort__handle',
+        direction: 'horizontal',
+        animation: 150,
+        ghostClass: 'schedule-member-sort__ghost',
+        onEnd: function(evt) {
+          if (evt.oldIndex === evt.newIndex) return;
+
+          var userIds = $memberHeaderRow.children('.member-header').map(function() {
+            return $(this).data('user-id');
+          }).get();
+
+          $table.find('tbody tr, tfoot tr').each(function() {
+            var $row = $(this);
+            userIds.forEach(function(id) {
+              $row.append($row.children('[data-user-id="' + id + '"]'));
+            });
+          });
+
+          $.ajax({
+            url: '/schedule_groups/' + scheduleGroupId + '/reorder_members',
+            method: 'PATCH',
+            dataType: 'json',
+            data: { user_ids: userIds },
+            error: function() {
+              alert('#{j t('.reorder_member_failed')}');
+              window.location.reload();
+            }
+          });
+        }
       });
     }
 

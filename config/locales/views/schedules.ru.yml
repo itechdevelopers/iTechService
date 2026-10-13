@@ -35,6 +35,8 @@ ru:
       shift: 'Смена'
       occupation_type: 'Занятость'
       dismissed: 'Уволен'
+      reorder_member_hint: 'Перетащите, чтобы поменять сотрудника местами'
+      reorder_member_failed: 'Не удалось сохранить порядок сотрудников. Страница будет перезагружена.'
       clear_cell: 'Очистить ячейку'
       custom_shift: 'Кастомная смена'
       custom_shift_from: 'С'
