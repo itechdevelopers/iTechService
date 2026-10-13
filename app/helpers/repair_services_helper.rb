@@ -33,4 +33,14 @@ module RepairServicesHelper
     end
   end
 
+  # Кнопки фильтра — только группы, которые встречаются у видов ремонта в таблице.
+  # reorder(nil): у RepairService сортировка в default_scope, а поиск добавляет DISTINCT,
+  # и Postgres не даёт сортировать DISTINCT-подзапрос по колонке вне списка выборки.
+  def repair_cause_groups_for(repair_services)
+    cause_group_ids = RepairCause.joins(:repair_services)
+                                 .where(repair_services: { id: repair_services.reorder(nil).select(:id) })
+                                 .select(:repair_cause_group_id)
+    RepairCauseGroup.where(id: cause_group_ids).order(:title)
+  end
+
 end
