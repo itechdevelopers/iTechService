@@ -18,6 +18,13 @@ class TelephonyController < ApplicationController
     render json: { ticket: Telephony::Ticket.issue(current_user), extension: current_user.telephony_extension,
                    gateway: Telephony::Configuration.gateway_origin }
   end
+  def directory
+    authorize :telephony
+    response.headers['Cache-Control'] = 'no-store'
+    render json: { entries: PhoneLabel.order(:group_name, :label, :phone_number).map { |entry|
+      { number: entry.phone_number, label: entry.label, group: entry.group_name }
+    } }
+  end
   def caller
     authorize :telephony
     response.headers['Cache-Control'] = 'no-store'

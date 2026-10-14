@@ -13,10 +13,20 @@
 <ul id="phone-checks" aria-label="Проверка телефонии"><li id="check-microphone">Микрофон: не проверен</li><li id="check-gateway">Шлюз: не проверен</li><li id="check-registration">Регистрация: выключена</li></ul>
 <p id="gateway-help" hidden><a id="gateway-check" target="_blank" rel="noopener">Проверить защищённое соединение со шлюзом</a></p>
 <p id="status" role="status">Телефония выключена</p><p id="error" role="alert"></p>
-<section><h2 id="call-title">Нет активного звонка</h2><p id="duration">00:00</p>
+<section><p id="original-caller" class="hint" hidden></p><h2 id="call-title">Нет активного звонка</h2><p id="duration">00:00</p>
 <div id="caller-context" hidden></div>
 <div class="actions"><button id="answer" disabled>Ответить</button><button id="reject" disabled>Отклонить</button><button id="hangup" disabled>Завершить</button><button id="mute" disabled>Выключить микрофон</button></div>
 <label for="target">Кому позвонить</label><input id="target" type="tel" placeholder="Номер телефона или внутренний номер" autocomplete="off"><button id="test-call" disabled>Позвонить</button>
+<button id="directory-open" type="button" aria-expanded="false" aria-controls="phone-directory">Адресная книга</button>
+<div id="phone-directory" hidden>
+  <label for="directory-search">Поиск по номеру, подписи или адресу</label><input id="directory-search" type="search" autocomplete="off">
+  <p id="directory-status" role="status"></p><div id="directory-list"></div>
+</div>
+<div id="transfer-panel" hidden>
+  <label for="transfer-target">Перевести разговор на внутренний номер</label><input id="transfer-target" type="tel" placeholder="Например, 104" autocomplete="off">
+  <button id="transfer-directory" type="button">Выбрать из адресной книги</button><button id="transfer-call" type="button" disabled>Перевести звонок</button>
+  <p class="hint">Прямой перевод без предварительного разговора с получателем.</p><p id="transfer-status" role="status"></p>
+</div>
 <audio id="remote" autoplay playsinline></audio><button id="play-audio">Включить звук</button>
 <details id="phone-meters" open><summary>Уровни микрофона и собеседника</summary>
 <label>Микрофон</label><div id="mic-meter" class="meter-bars" role="meter" aria-label="Уровень микрофона" aria-valuemin="0" aria-valuemax="100"></div><p id="mic-meter-hint"></p>
