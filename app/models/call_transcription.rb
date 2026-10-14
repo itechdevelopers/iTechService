@@ -8,6 +8,10 @@ class CallTranscription < ApplicationRecord
 
   VALID_SENTIMENTS = %w[positive negative neutral].freeze
 
+  # Цифры внутри обычного текста («iPhone 15») не ищем по номерам — иначе в выдачу
+  # попадает любой звонок, где в номере встречается «15».
+  PHONE_QUERY_FORMAT = /\A[\d\s()+\-]+\z/
+
   before_validation :normalize_caller_number
   before_validation :normalize_called_number
   before_validation :find_and_link_client, on: :create
@@ -18,7 +22,7 @@ class CallTranscription < ApplicationRecord
 
   # TODO: Replace with Full-Text Search when needed
   scope :search, ->(query, whole_word: false) {
-    phone_query = query.gsub(/\D/, '')
+    phone_query = PhoneNormalizer.normalize(query).presence if query.match?(PHONE_QUERY_FORMAT)
 
     if whole_word
       escaped = query.gsub(/([.\\+*?\[\](){}|^$])/, '\\\\\1')
@@ -28,9 +32,10 @@ class CallTranscription < ApplicationRecord
       text_condition = ['transcript_text ILIKE ?', "%#{sanitized}%"]
     end
 
-    if phone_query.present?
-      where("#{text_condition[0]} OR caller_number LIKE :phone",
-            text_condition[1], phone: "%#{phone_query}%")
+    if phone_query
+      phone_pattern = "%#{phone_query}%"
+      where("#{text_condition[0]} OR caller_number LIKE ? OR called_number LIKE ?",
+            text_condition[1], phone_pattern, phone_pattern)
     else
       where(*text_condition)
     end
