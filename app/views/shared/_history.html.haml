@@ -22,8 +22,12 @@
               = "#{Client.human_attribute_name(:client_characteristic)}: #{ClientCharacteristic.human_attribute_name(rec.column_name)}"
             - else
               = rec.object.class.human_attribute_name rec.column_name.to_s
-          %td= human_history_change rec
-          %td= "#{rec.user.try(:short_name)} [#{rec.user.try(:username)}]"
+          - # Rows rebuilt from photo meta (unsaved) know only how many photos were added
+          %td= rec.new_record? ? "+#{rec.new_value}" : human_history_change(rec)
+          - if rec.user.nil? && rec.author_name.present?
+            %td= rec.author_name
+          - else
+            %td= "#{rec.user.try(:short_name)} [#{rec.user.try(:username)}]"
       - if @history_creation
         %tr
           %td= human_datetime @history_creation.created_at
