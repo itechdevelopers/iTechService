@@ -59,7 +59,10 @@ class TelephonyTest < Minitest::Test
     assert_equal '79991234567', Telephony::Number.normalize('влд +7 (999) 123-45-67')
     assert_equal '79991234567', Telephony::Number.normalize('САКХ_89991234567')
     assert_equal '79991234567', Telephony::Number.normalize('7 999 123 45 67')
-    assert_equal '79146896537', Telephony::Number.normalize('VDK79146896537')
+    %w[VDK SAH USS vdk sah uss].each do |prefix|
+      assert_equal '79146896537', Telephony::Number.normalize(prefix + '79146896537')
+      assert_equal '79146896537', Telephony::Number.normalize(prefix + ': +7 (914) 689-65-37')
+    end
     assert_equal '79146896537', Telephony::Number.normalize('vdk: +7 (914) 689-65-37')
     assert_nil Telephony::Number.normalize('101')
     assert_nil Telephony::Number.normalize('unknown-79991234567')
@@ -136,9 +139,11 @@ class TelephonyTest < Minitest::Test
     assert_equal [], context[:clients].first[:entities]
     assert_equal '/clients/' + client.id.to_s, context[:clients].first[:url]
     login_as(@user, scope: :user)
-    get '/telephony/caller', number: 'VDK79991234567'
-    assert_equal 200, last_response.status
-    assert_equal client.id.to_s, JSON.parse(last_response.body)['clients'].first['url'].split('/').last
+    %w[VDK SAH USS].each do |prefix|
+      get '/telephony/caller', number: prefix + '79991234567'
+      assert_equal 200, last_response.status
+      assert_equal client.id.to_s, JSON.parse(last_response.body)['clients'].first['url'].split('/').last
+    end
   end
 
   def test_signed_ingestion_and_invalid_signature
