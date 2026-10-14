@@ -18,6 +18,7 @@ class DeviceTask < ApplicationRecord
   belongs_to :service_job, optional: true
   belongs_to :task, optional: true
   belongs_to :performer, class_name: 'User', optional: true
+  belongs_to :done_department, class_name: 'Department', optional: true
   belongs_to :creator, class_name: 'User', optional: true
   belongs_to :expected_repair_cause, class_name: 'RepairCause', optional: true
   belongs_to :expected_repair_service, class_name: 'RepairService', optional: true
@@ -89,8 +90,10 @@ class DeviceTask < ApplicationRecord
     if (dt.done != 0) && old_done.zero?
       dt.done_at = DateTime.current
       dt.performer_id ||= User.current&.id
+      dt.done_department_id = execution_department_id
     elsif (dt.done != 1) && (old_done == 1)
       dt.done_at = nil
+      dt.done_department_id = nil
     end
   end
 
@@ -178,6 +181,17 @@ class DeviceTask < ApplicationRecord
   # любой сотрудник, и отвечает за неё он.
   def set_creator
     self.creator_id ||= User.current&.id
+  end
+
+  # Филиал, где лежало устройство, когда задачу закрыли. service_job.department_id
+  # для этого не годится: он переписывается при каждом перемещении, и после возврата
+  # устройства на филиал приёмки ремонт числился бы там. В трансфере устройство
+  # не чинят — тогда засчитываем филиал исполнителя.
+  def execution_department_id
+    location_department = service_job&.location&.department
+    return location_department.id if location_department && !location_department.is_transfer?
+
+    performer&.department_id || service_job&.department_id
   end
 
   def update_service_job_done_attribute

@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20261013120000) do
+ActiveRecord::Schema.define(version: 20261014120000) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -603,9 +603,11 @@ ActiveRecord::Schema.define(version: 20261013120000) do
     t.bigint "creator_id"
     t.boolean "repair_causes_filled_manually", default: false, null: false
     t.text "manual_repair_causes"
+    t.bigint "done_department_id"
     t.index ["creator_id"], name: "index_device_tasks_on_creator_id"
     t.index ["done"], name: "index_device_tasks_on_done"
     t.index ["done_at"], name: "index_device_tasks_on_done_at"
+    t.index ["done_department_id", "done_at"], name: "index_device_tasks_on_done_department_id_and_done_at"
     t.index ["expected_repair_cause_id"], name: "index_device_tasks_on_expected_repair_cause_id"
     t.index ["expected_repair_service_id"], name: "index_device_tasks_on_expected_repair_service_id"
     t.index ["performer_id"], name: "index_device_tasks_on_performer_id"
@@ -3200,6 +3202,7 @@ ActiveRecord::Schema.define(version: 20261013120000) do
   add_foreign_key "departments", "brands"
   add_foreign_key "departments", "cities"
   add_foreign_key "departments", "legal_entities", on_delete: :nullify
+  add_foreign_key "device_tasks", "departments", column: "done_department_id"
   add_foreign_key "device_tasks", "repair_causes", column: "expected_repair_cause_id"
   add_foreign_key "device_tasks", "repair_services", column: "expected_repair_service_id"
   add_foreign_key "device_unlock_requests", "clients"
