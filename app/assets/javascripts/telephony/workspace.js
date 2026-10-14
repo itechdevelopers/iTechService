@@ -46,9 +46,29 @@ function updatePage(){
  if(!validPath(path))return;
  try{document.title=content.contentDocument.title||'АИС · Телефония';}catch(e){}
  $('workspace-page').href=path;
+ $('workspace-copy-status').textContent='';
  // iframe navigation already owns a joint history entry; adding another traps Back.
  history.replaceState({path},'', '/telephony/workspace?path='+encodeURIComponent(path));
 }
+$('workspace-copy').onclick = async () => {
+ const feedback = $('workspace-copy-status');
+ try {
+  const w = content.contentWindow;
+  const path = w.location.pathname + w.location.search + w.location.hash;
+  if(w.location.origin !== location.origin || !validPath(path)) throw new Error();
+  const url = new URL(path, location.origin).href;
+  if(navigator.clipboard && navigator.clipboard.writeText) {
+   await navigator.clipboard.writeText(url);
+  } else {
+   const input = document.createElement('textarea');
+   input.value = url; input.style.position = 'fixed'; input.style.opacity = '0';
+   document.body.appendChild(input);
+   try { input.select(); if(!document.execCommand('copy')) throw new Error(); }
+   finally { input.remove(); $('workspace-copy').focus(); }
+  }
+  feedback.textContent = 'Ссылка скопирована';
+ } catch(e) { feedback.textContent = 'Не удалось скопировать ссылку'; }
+};
 content.addEventListener('load',updatePage);
 // The initial frame may have loaded before this deferred script.
 updatePage();
