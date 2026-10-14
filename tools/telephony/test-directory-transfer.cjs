@@ -1,6 +1,9 @@
 // Isolated live-gateway regression: three unassigned browser extensions, no staff calls.
 const fs=require('fs'),path=require('path'),crypto=require('crypto'),assert=require('assert'),{execFileSync}=require('child_process');
 const root=process.env.AIS_TELEPHONY_PILOT_ROOT||'/Users/mac/Library/Application Support/com.itech.call-pipeline/runtime/work/webrtc-pilot';
+const fixtures=process.env.AIS_PHONE_BROWSER_FIXTURES||'/tmp/ais-native-fixtures';
+const phoneFixture=fs.readFileSync(path.join(fixtures,'phone.html'),'utf8');
+assert(phoneFixture.includes('id="hold-call"'),'Regenerate current phone fixtures with AIS_PHONE_BROWSER_FIXTURES and test/telephony/run.rb');
 const repo=path.resolve(__dirname,'../..'),{chromium}=require(path.join(root,'test-tools/node_modules/playwright'));
 const secret=JSON.parse(fs.readFileSync(path.join(root,'activation-private/ais-connection.json'))).shared_secret;
 const ticket=extension=>{const now=Math.floor(Date.now()/1000),body=Buffer.from(JSON.stringify({v:1,aud:'ais-telephony-gateway',user_id:2147400000+Number(extension),extension,iat:now,exp:now+60,jti:crypto.randomBytes(16).toString('hex')})).toString('base64url');return body+'.'+crypto.createHmac('sha256',secret).update(body).digest('hex');};
@@ -21,7 +24,7 @@ const pin=crypto.createHash('sha256').update(execFileSync('openssl',['pkey','-pu
    if(url.pathname==='/telephony/ticket')return route.fulfill({json:{ticket:ticket(extension),extension,gateway:'https://192.168.1.109:18444'}});
    if(url.pathname==='/telephony/caller')return route.fulfill({json:{number:url.searchParams.get('number'),clients:[]}});
    if(url.pathname==='/telephony/directory')return route.fulfill({json:{entries:[{number:'7778',label:'Тестовый получатель',group:'Тест'}, {number:'7776',label:'Тестовый перевод',group:'Тест'}, {number:'105',label:'<img src=x onerror=alert(1)>',group:'Океанский 90'}]}});
-   if(url.pathname==='/telephony')return route.fulfill({contentType:'text/html',body:fs.readFileSync('/tmp/ais-native-fixtures/phone.html','utf8').replaceAll('7771',extension)});
+   if(url.pathname==='/telephony')return route.fulfill({contentType:'text/html',body:phoneFixture.replaceAll('7771',extension)});
    throw Error('Unexpected AIS URL '+url.pathname);
   });
   await page.goto('https://ise.itech.pw/telephony');await page.click('#enable');
