@@ -5,7 +5,7 @@ module Telephony
     # Only known routing prefixes are removed. Do not turn an arbitrary label
     # containing digits into a customer's phone number.
     def normalize(value)
-      raw = value.to_s.strip.sub(/\A(?:влд|сакх|vld|sakh)[\s:;_\-]*/i, '')
+      raw = value.to_s.strip.sub(/\A(?:влд|сакх|vld|vdk|sakh|sah|uss)[\s:;_\-]*/i, '')
       return nil unless raw.match?(/\A\+?[\d\s()\-]+\z/)
       digits = raw.gsub(/\D/, '')
       digits = '7' + digits[1..-1] if digits.length == 11 && digits.start_with?('8')

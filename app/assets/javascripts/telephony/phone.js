@@ -63,7 +63,7 @@ async function callerContext(raw){
   }
  }catch(e){if(generation===callerGeneration){const p=document.createElement('p');p.textContent=raw+' · Карточка клиента сейчас недоступна';target.appendChild(p);}}
 }
-function displayNumber(value){const raw=value.replace(/^(?:влд|сакх|vld|sakh)[\s:;_-]*/i,'');try{return dialNumber(raw);}catch(e){return value;}}
+function displayNumber(value){const raw=value.replace(/^(?:влд|сакх|vld|vdk|sakh|sah|uss)[\s:;_-]*/i,'');try{return dialNumber(raw);}catch(e){return value;}}
 function dialNumber(value){const raw=value.trim();if(/^\d{3,4}$/.test(raw))return raw;let digits=raw.replace(/[+()\s-]/g,'');if(/^8\d{10}$/.test(digits))digits='7'+digits.slice(1);if(!/^7\d{10}$/.test(digits))throw new Error('Введите номер с 7 или внутренний номер из 3–4 цифр.');return digits;}
 
 function micError(e){return ({NotAllowedError:'Разрешите доступ к микрофону в настройках этого сайта.',NotFoundError:'Микрофон не найден. Подключите гарнитуру.',NotReadableError:'Микрофон недоступен или занят другой программой.',TypeError:'Не удалось включить микрофон. Проверьте защищённое подключение и выбранное устройство.'})[e.name]||e.message||'Не удалось включить телефон.';}
