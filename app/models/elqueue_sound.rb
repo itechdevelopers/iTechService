@@ -50,6 +50,21 @@ class ElqueueSound < ApplicationRecord
     logical_path if Rails.root.join('app/assets/audios', logical_path).exist?
   end
 
+  def self.builtin_values(kind)
+    prefix = phrase_for(kind, '')
+    Dir[Rails.root.join('app/assets/audios/notifications', BUILTIN_DIRS.fetch(kind), '*.wav')]
+      .map { |path| File.basename(path, '.wav').delete_prefix(prefix) }
+  end
+
+  # Всё, что ТВ может проиграть: загруженные записи и встроенные файлы, которые
+  # ничем не заменены. От настроек очередей не зависит, чтобы прозвучал и талон
+  # пункта, который заархивировали, пока по нему ещё ждали.
+  def self.playable
+    uploaded = all.index_by { |sound| [sound.kind, sound.value] }
+    builtin = KINDS.flat_map { |kind| builtin_values(kind).map { |value| [kind, value] } }
+    (uploaded.keys | builtin).map { |kind, value| Phrase.new(kind, value, uploaded[[kind, value]]) }
+  end
+
   # Все фразы, которые могут прозвучать на ТВ, сгруппированные по виду. Загруженная
   # запись фразы, которой больше нет в очередях, тоже в списке — иначе её
   # не удалить.
