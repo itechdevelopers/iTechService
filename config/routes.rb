@@ -109,6 +109,7 @@ Rails.application.routes.draw do
   get 'telephony/workspace', to: 'telephony#workspace', as: :telephony_workspace
   get 'telephony', to: 'telephony#show', as: :telephony
   post 'telephony/ticket', to: 'telephony#ticket'
+  get 'telephony/directory', to: 'telephony#directory'
   get 'telephony/caller', to: 'telephony#caller'
   post 'api/v1/telephony/calls', to: 'telephony_imports#create'
   resources :phone_calls, only: [:index] do

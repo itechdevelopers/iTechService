@@ -3,12 +3,16 @@ module Telephony
   class CallerContext
     def initialize(user, number)
       @user = user
-      @number = Number.normalize(number)
+      @number = Number.normalize(number) || Number.dialable(number)
       @routes = Rails.application.routes.url_helpers
     end
     def call
       result = { number: @number, clients: [] }
       return result unless @number
+      if (label = PhoneLabel.find_by(phone_number: @number))
+        result[:directory] = { label: label.label, group: label.group_name }
+      end
+      return result unless @number.match?(/\A7\d{10}\z/)
       # Match full normalized numbers and the legacy ten-digit phone field.
       variants = [@number, '8' + @number[1..-1], @number[1..-1]]
       clients = Client.where("REGEXP_REPLACE(full_phone_number, '[^0-9]', '', 'g') IN (:phones) OR REGEXP_REPLACE(phone_number, '[^0-9]', '', 'g') IN (:phones) OR REGEXP_REPLACE(contact_phone, '[^0-9]', '', 'g') IN (:phones)", phones: variants).order(:id).limit(10)

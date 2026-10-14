@@ -84,3 +84,13 @@ Browser Ctrl/Cmd+P in the workspace can print the shell and only the visible par
 of its application frame. Use **Открыть страницу для печати** in the toolbar,
 then print that separate AIS page. This does not reload the phone workspace.
 The workspace itself is not a full-document print surface.
+
+## Phone directory and direct transfer
+
+The phone fetches existing PhoneLabel entries from GET /telephony/directory, protected by TelephonyPolicy.use?. The directory is grouped by office/address and searchable by number, label and group. Selecting an entry fills the dial or transfer input; it never calls automatically. Incoming calls show the exact SIP caller number above the normalized number and client context. Directory captions are also shown for recognized internal callers. VLD/VDK, SAH/SAKH, USS, KHD and existing Cyrillic routing prefixes are handled for client lookup.
+
+The transfer button is available during established conversations and accepts internal numbers of 3–4 digits. It sends JsSIP RTCSession.refer with progress/failure/acceptance handlers and guards against duplicate requests and stale sessions. This is a direct transfer without a consultation call. Asterisk handles recipient routing and any unavailable-recipient behavior.
+
+The gateway installs ais-browser-transfer as TRANSFER_CONTEXT. Incoming Dial uses U(ais-browser-transfer-identity) to capture the actual answering browser extension on the original channel; outgoing Dial inherits the authenticated browser extension. Transfer routes require a currently active 7771–7780 lease before forwarding via pbx-bridge. Apply gateway-dialplan.conf with a backup and dialplan reload, without restarting Asterisk.
+
+Validation: test/telephony/run.rb covers directory authorization and internal caller labels. tools/telephony/test-directory-transfer.cjs uses three unassigned leases (7779, 7778, 7776), real Chrome, broker, gateway and PBX to verify incoming/outgoing transfer and two-way RTP. It also covers directory search/selection, literal HTML labels, raw caller display, invalid transfer input and confirmation cancellation. AIS API/HTML in this test is fixture-backed.
