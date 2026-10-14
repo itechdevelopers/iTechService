@@ -1,7 +1,7 @@
 'use strict';
 (() => {
 const $=id=>document.getElementById(id);
-let gateway=null, activeTicket=null, callerGeneration=0, directoryEntries=null, directoryLoading=false, directoryTarget='target', transferState=null;
+let gateway=null, activeTicket=null, callerGeneration=0, directoryEntries=null, directoryLoading=false, directoryTarget='target', transferState=null, holdTask=null;
 const csrf=()=>document.querySelector('meta[name=csrf-token]').content;
 let ua=null,session=null,stream=null,lease=null,heartbeat=null,started=null,ringTimer=null,audioContext=null,busy=false,pcConfig={iceServers:[]},micAnalyser=null,micSamples=null,remoteSource=null,remoteAnalyser=null,remoteSamples=null,remoteMedia=null,micSource=null,micSilentGain=null;
 JsSIP.debug.disable();
@@ -16,7 +16,7 @@ function publish(){
 function check(id,text,state){const el=$('check-'+id);el.textContent=text;el.dataset.state=state;}
 function status(text,state){if(state)linkState=state;$('status').textContent=text;publish();}
 function error(text){$('error').textContent=text||'';publish();}
-function controls(){const registered=!!ua&&ua.isRegistered();const call=!!session;const incoming=call&&session.direction==='incoming'&&!session.isEstablished();$('enable').disabled=!!ua||busy;$('identity').disabled=!!ua||busy;$('microphone').disabled=!!ua||busy;$('disable').disabled=!ua||call;$('answer').disabled=!incoming;$('reject').disabled=!incoming;$('hangup').disabled=!call;$('mute').disabled=!call||!session.isEstablished();$('test-call').disabled=!registered||call;$('transfer-panel').hidden=!call||!session.isEstablished();$('transfer-call').disabled=!call||!session.isEstablished()||!!transferState;$('transfer-target').disabled=!!transferState;$('transfer-directory').disabled=!!transferState;publish();}
+function controls(){const registered=!!ua&&ua.isRegistered();const call=!!session;const incoming=call&&session.direction==='incoming'&&!session.isEstablished();$('enable').disabled=!!ua||busy;$('identity').disabled=!!ua||busy;$('microphone').disabled=!!ua||busy;$('disable').disabled=!ua||call;$('answer').disabled=!incoming;$('reject').disabled=!incoming;$('hangup').disabled=!call;$('mute').disabled=!call||!session.isEstablished();$('test-call').disabled=!registered||call;$('transfer-panel').hidden=!call||!session.isEstablished();$('transfer-call').disabled=!call||!session.isEstablished()||!!transferState||!!holdTask;$('transfer-target').disabled=!!transferState;$('transfer-directory').disabled=!!transferState||!!holdTask;const held=call&&session.isOnHold().local;$('hold-call').disabled=!call||!session.isEstablished()||!!transferState||!!holdTask;$('hold-call').textContent=holdTask?'Подождите…':held?'Вернуться к разговору':'Удержать';$('hold-call').setAttribute('aria-pressed',String(!!held));publish();}
 function accessFailure(message){const e=new Error(message);e.accessDenied=true;return e;}
 async function request(url,options,timeout=15000){
  if(!timeout)return fetch(url,options);
@@ -64,7 +64,12 @@ async function callerContext(raw){
   }
  }catch(e){if(generation===callerGeneration){const p=document.createElement('p');p.textContent=raw+' · Карточка клиента сейчас недоступна';target.appendChild(p);}}
 }
-function displayNumber(value){const raw=value.replace(/^(?:влд|сакх|vld|vdk|sakh|sah|uss|khd)[\s:;_-]*/i,'');try{return dialNumber(raw);}catch(e){return value;}}
+function displayNumber(value){const raw=value.replace(/^(?:влд|сакх|vld|vdk|sakh|sah|ussf|uss|khd|hab)[\s:;_-]*/i,'');try{return dialNumber(raw);}catch(e){return value;}}
+function originalCallerText(value){
+ const match=value.trim().match(/^(VDK|VLD|ВЛД|SAKH|SAH|САКХ|USSF|USS|HAB|KHD)(?=[\s:;_+()\d-])/i);
+ const destinations={VDK:'во Владивосток',VLD:'во Владивосток','ВЛД':'во Владивосток',SAH:'в Южно-Сахалинск',SAKH:'в Южно-Сахалинск','САКХ':'в Южно-Сахалинск',USS:'в Уссурийск',USSF:'в Уссурийск',HAB:'в Хабаровск',KHD:'в Хабаровск'};
+ return 'Исходный номер: '+value+(match?' · Звонок '+destinations[match[1].toUpperCase()]:'');
+}
 function dialNumber(value){const raw=value.trim();if(/^\d{3,4}$/.test(raw))return raw;let digits=raw.replace(/[+()\s-]/g,'');if(/^8\d{10}$/.test(digits))digits='7'+digits.slice(1);if(!/^7\d{10}$/.test(digits))throw new Error('Введите номер с 7 или внутренний номер из 3–4 цифр.');return digits;}
 
 function micError(e){return ({NotAllowedError:'Разрешите доступ к микрофону в настройках этого сайта.',NotFoundError:'Микрофон не найден. Подключите гарнитуру.',NotReadableError:'Микрофон недоступен или занят другой программой.',TypeError:'Не удалось включить микрофон. Проверьте защищённое подключение и выбранное устройство.'})[e.name]||e.message||'Не удалось включить телефон.';}
@@ -93,11 +98,13 @@ function connectRemote(pc,eventStream){
 function attach(pc){if(attached.has(pc))return;attached.add(pc);pc.addEventListener('track',e=>connectRemote(pc,e.streams[0]||new MediaStream([e.track])));pc.addEventListener('iceconnectionstatechange',()=>{if(!session||session.connection!==pc)return;const state=pc.iceConnectionState;$('audio-status').textContent='Аудиосоединение: '+state;if(state==='failed')error('Не удалось установить звук. Завершите тест и проверьте сеть.');if(state==='connected'||state==='completed')connectRemote(pc);});connectRemote(pc);}
 async function microphones(){const devices=await navigator.mediaDevices.enumerateDevices();const selected=$('microphone').value;$('microphone').replaceChildren(new Option('Системный по умолчанию',''));for(const d of devices.filter(d=>d.kind==='audioinput'))$('microphone').add(new Option(d.label||'Микрофон '+($('microphone').length),d.deviceId));$('microphone').value=selected;}
 
-function finish(text){if(transferState){clearTimeout(transferState.timer);transferState=null;}$('original-caller').hidden=true;++callerGeneration;$('caller-context').hidden=true;stopRing();if(remoteSource)remoteSource.disconnect();if(remoteAnalyser)remoteAnalyser.disconnect();remoteSource=null;remoteAnalyser=null;remoteMedia=null;remoteSamples=null;session=null;started=null;$('call-title').textContent=text;$('mute').textContent='Выключить микрофон';$('remote').srcObject=null;$('play-audio').textContent='Включить звук';controls();if(disableAfterCall){disableAfterCall=false;const reason=disableReason;disableReason='';disable().then(()=>{if(reason)error(reason);});}}
-function handleSession(e){const s=e.session;if(session){s.terminate({status_code:486,reason_phrase:'Busy Here'});return;}session=s;started=null;$('transfer-status').textContent='';$('transfer-target').value='';$('original-caller').hidden=s.direction!=='incoming';$('original-caller').textContent=s.direction==='incoming'?'Исходный номер: '+s.remote_identity.uri.user:'';error('');$('duration').textContent='00:00';$('audio-status').textContent='';$('call-title').textContent=(s.direction==='incoming'?'Входящий: ':'Вызов: ')+displayNumber(s.remote_identity.uri.user);
+function finish(text){if(holdTask){clearTimeout(holdTask.timer);holdTask=null;}$('hold-status').textContent='';if(transferState){clearTimeout(transferState.timer);transferState=null;}$('original-caller').hidden=true;++callerGeneration;$('caller-context').hidden=true;stopRing();if(remoteSource)remoteSource.disconnect();if(remoteAnalyser)remoteAnalyser.disconnect();remoteSource=null;remoteAnalyser=null;remoteMedia=null;remoteSamples=null;session=null;started=null;$('call-title').textContent=text;$('mute').textContent='Выключить микрофон';$('remote').srcObject=null;$('play-audio').textContent='Включить звук';controls();if(disableAfterCall){disableAfterCall=false;const reason=disableReason;disableReason='';disable().then(()=>{if(reason)error(reason);});}}
+function handleSession(e){const s=e.session;if(session){s.terminate({status_code:486,reason_phrase:'Busy Here'});return;}session=s;started=null;$('hold-status').textContent='';$('transfer-status').textContent='';$('transfer-target').value='';$('original-caller').hidden=s.direction!=='incoming';$('original-caller').textContent=s.direction==='incoming'?originalCallerText(s.remote_identity.uri.user):'';error('');$('duration').textContent='00:00';$('audio-status').textContent='';$('call-title').textContent=(s.direction==='incoming'?'Входящий: ':'Вызов: ')+displayNumber(s.remote_identity.uri.user);
  const on=(name,handler)=>s.on(name,event=>{if(session===s)handler(event);});
  on('peerconnection',e=>attach(e.peerconnection));if(s.connection)attach(s.connection);
  on('confirmed',()=>{if(s.connection)connectRemote(s.connection);stopRing();started=Date.now();$('call-title').textContent='Разговор с '+displayNumber(s.remote_identity.uri.user);controls();});
+ on('hold',()=>{if(s.isOnHold().local){$('call-title').textContent='На удержании: '+displayNumber(s.remote_identity.uri.user);$('hold-status').textContent='Клиент на удержании';}controls();});
+ on('unhold',()=>{if(!s.isOnHold().local){$('call-title').textContent='Разговор с '+displayNumber(s.remote_identity.uri.user);$('hold-status').textContent='';}controls();});
  on('ended',()=>finish(s.data&&s.data.aisTransferTarget?'Разговор переведён на '+s.data.aisTransferTarget:'Разговор завершён'));
  on('failed',e=>{const reason=e.message&&e.message.getHeader&&e.message.getHeader('Reason');const other=reason&&/cause\s*=\s*200/.test(reason);finish(other?'Отвечен другим':s.direction==='incoming'&&e.cause==='Canceled'?'Звонящий отменил вызов':'Вызов завершён: '+e.cause);});
  if(s.direction==='incoming'){ring();callerContext(s.remote_identity.uri.user);}controls();
@@ -193,6 +200,16 @@ $('answer').onclick=()=>{error('');stopRing();try{session.answer({mediaStream:st
 $('reject').onclick=()=>{if(session)session.terminate({status_code:486,reason_phrase:'Busy Here'});};
 $('hangup').onclick=()=>{if(session)session.terminate();};
 $('mute').onclick=()=>{if(!session)return;if(session.isMuted().audio){session.unmute({audio:true});$('mute').textContent='Выключить микрофон';}else{session.mute({audio:true});$('mute').textContent='Включить микрофон';}};
+$('hold-call').onclick=()=>{
+ const s=session;if(!s||!s.isEstablished()||transferState||holdTask)return;
+ const held=s.isOnHold().local,task={session:s,timer:null};holdTask=task;
+ const complete=()=>{if(session!==s||holdTask!==task)return;clearTimeout(task.timer);holdTask=null;$('hold-status').textContent=s.isOnHold().local?'Клиент на удержании':'';controls();};
+ const failure=text=>{if(session!==s||holdTask!==task)return;clearTimeout(task.timer);holdTask=null;$('hold-status').textContent=text;controls();};
+ $('hold-status').textContent=held?'Возвращаем разговор…':'Включаем удержание…';controls();
+ task.timer=setTimeout(()=>failure('АТС не подтвердила изменение. Проверьте состояние звонка.'),15000);
+ try{if(!(held?s.unhold({},complete):s.hold({},complete)))failure('Сейчас нельзя изменить удержание. Повторите через несколько секунд.');}
+ catch(e){failure('Не удалось изменить удержание: '+e.message);}
+};
 $('test-call').onclick=()=>{error('');try{ua.call('sip:'+dialNumber($('target').value)+'@localhost',{mediaStream:stream,mediaConstraints:{audio:true,video:false},pcConfig:pcConfig});}catch(e){error(e.message);}};
 function renderDirectory(){
  const list=$('directory-list'), query=$('directory-search').value.trim().toLocaleLowerCase();
@@ -225,7 +242,7 @@ $('directory-open').onclick=()=>{$('phone-directory').hidden||directoryTarget!==
 $('transfer-directory').onclick=()=>openDirectory('transfer-target');
 $('directory-search').oninput=renderDirectory;
 $('transfer-call').onclick=()=>{
- const s=session;if(!s||!s.isEstablished()||transferState)return;
+ const s=session;if(!s||!s.isEstablished()||transferState||holdTask)return;
  const target=$('transfer-target').value.trim();
  if(!/^\d{3,4}$/.test(target)){$('transfer-status').textContent='Укажите внутренний номер из 3–4 цифр.';return;}
  if(target===$('identity').value){$('transfer-status').textContent='Выберите номер другого сотрудника.';return;}

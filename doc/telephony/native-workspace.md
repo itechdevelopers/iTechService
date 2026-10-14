@@ -94,3 +94,9 @@ The transfer button is available during established conversations and accepts in
 The gateway installs ais-browser-transfer as TRANSFER_CONTEXT. Incoming Dial uses U(ais-browser-transfer-identity) to capture the actual answering browser extension on the original channel; outgoing Dial inherits the authenticated browser extension. Transfer routes require a currently active 7771–7780 lease before forwarding via pbx-bridge. Apply gateway-dialplan.conf with a backup and dialplan reload, without restarting Asterisk.
 
 Validation: test/telephony/run.rb covers directory authorization and internal caller labels. tools/telephony/test-directory-transfer.cjs uses three unassigned leases (7779, 7778, 7776), real Chrome, broker, gateway and PBX to verify incoming/outgoing transfer and two-way RTP. It also covers directory search/selection, literal HTML labels, raw caller display, invalid transfer input and confirmation cancellation. AIS API/HTML in this test is fixture-backed.
+
+## Hold and incoming destination captions
+
+Incoming raw SIP caller IDs keep their full prefix and number. VDK/VLD/влд is captioned as Владивосток, SAH/SAKH/сакх as Южно-Сахалинск, USS/USSF as Уссурийск, HAB/KHD as Хабаровск. Unknown prefixes remain visible without guessing a city. HAB and USSF also normalize for client lookup.
+
+The established call has an Удержать / Вернуться к разговору toggle. Hold/unhold uses SIP renegotiation, guarded by an in-flight operation and the active session; pending negotiation blocks transfer and another hold request. The gateway generates music on hold from its default class. Tests in tools/telephony/test-hold.cjs verify Asterisk MOH start/stop alongside incoming RTP/audio at the held caller, repeated hold/resume and disconnect while held on two unassigned test extensions. The phone still permits a single call; consultation calls are a separate extension of the session model.

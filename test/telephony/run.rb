@@ -59,7 +59,7 @@ class TelephonyTest < Minitest::Test
     assert_equal '79991234567', Telephony::Number.normalize('влд +7 (999) 123-45-67')
     assert_equal '79991234567', Telephony::Number.normalize('САКХ_89991234567')
     assert_equal '79991234567', Telephony::Number.normalize('7 999 123 45 67')
-    %w[VDK SAH USS KHD vdk sah uss khd].each do |prefix|
+    %w[VDK SAH USS USSF KHD HAB vdk sah uss ussf khd hab].each do |prefix|
       assert_equal '79146896537', Telephony::Number.normalize(prefix + '79146896537')
       assert_equal '79146896537', Telephony::Number.normalize(prefix + ': +7 (914) 689-65-37')
     end
@@ -139,7 +139,7 @@ class TelephonyTest < Minitest::Test
     assert_equal [], context[:clients].first[:entities]
     assert_equal '/clients/' + client.id.to_s, context[:clients].first[:url]
     login_as(@user, scope: :user)
-    %w[VDK SAH USS KHD].each do |prefix|
+    %w[VDK SAH USS USSF KHD HAB].each do |prefix|
       get '/telephony/caller', number: prefix + '79991234567'
       assert_equal 200, last_response.status
       assert_equal client.id.to_s, JSON.parse(last_response.body)['clients'].first['url'].split('/').last
