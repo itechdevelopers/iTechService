@@ -8,6 +8,10 @@
 # так и не привязали. Без вторых цифра разошлась бы с отчётом, на который
 # смотрят в мастерской. Деньги (цена, стоимость запчастей, наценка) здесь
 # не считаются вовсе.
+#
+# Работа относится к филиалу, где её выполнили (device_tasks.done_department_id),
+# а не где сейчас лежит устройство, как в technicians_jobs: привезённое с другого
+# филиала и отвезённое обратно остаётся в рейтинге того, кто его чинил.
 class TechnicianRepairsQuery
   Work = Struct.new(:name, :service_job_id, :service_job_presentation, :done_at, keyword_init: true)
 
@@ -86,7 +90,9 @@ class TechnicianRepairsQuery
   end
 
   def done_device_tasks
-    DeviceTask.in_department(department).where(done_at: month_range)
+    return DeviceTask.none if department.nil?
+
+    DeviceTask.where(done_department_id: department.id, done_at: month_range)
   end
 
   def month_range
