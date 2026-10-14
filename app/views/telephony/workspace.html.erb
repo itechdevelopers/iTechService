@@ -8,6 +8,8 @@
   <span id="phone-summary" role="status">Выключена</span>
   <span id="phone-call-summary"></span>
   <button id="phone-disable" hidden>Выключить</button>
+  <button id="workspace-copy" type="button" title="Копировать прямую ссылку на открытую страницу">Копировать ссылку</button>
+  <span id="workspace-copy-status" role="status" aria-live="polite"></span>
   <a id="workspace-page" href="<%= @workspace_path %>" target="_blank" rel="noopener">Открыть страницу для печати</a>
   <%= link_to 'Отдельное окно', telephony_path, target: 'ais-telephony', id: 'phone-fallback' %>
 </header>
