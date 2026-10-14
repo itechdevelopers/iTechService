@@ -608,6 +608,10 @@ ru:
         location_id: :activerecord.models.location
         notify_client: 'Позвонить клиенту по готовности'
         receiver: 'Приемщик'
+        reception_photos: :service_jobs.photos.title_reception
+        in_operation_photos: :service_jobs.photos.title_in_operation
+        completed_photos: :service_jobs.photos.title_completed
+        breakage_photos: :service_jobs.photos.title_breakage
         repair_parts: 'Запчасти'
         replaced: 'Заменен'
         return_at: "Время возврата"

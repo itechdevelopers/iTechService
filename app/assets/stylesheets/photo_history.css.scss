@@ -1,0 +1,8 @@
+// Строка «часиков» работы о добавлении/удалении фото (shared/_history).
+.history-photo-row > td {
+  background-color: #fde3c6;
+}
+
+.history-photo-row > td:first-child {
+  box-shadow: inset 3px 0 0 #f89406;
+}

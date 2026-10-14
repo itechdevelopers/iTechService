@@ -83,7 +83,7 @@ class TelegramPhotoAttachJob < ApplicationJob
       container.add_photos(
         division,
         [tempfile],
-        author_name: author.short_name
+        author: author
       )
     end
 

@@ -11,7 +11,8 @@
         %th= HistoryRecord.human_attribute_name :user
     %tbody
       - @records.each do |rec|
-        %tr
+        - photo_row = rec.object_type == 'ServiceJob' && PhotoContainer::PHOTO_COLUMNS.include?(rec.column_name)
+        %tr{ class: ('history-photo-row' if photo_row) }
           %td= human_datetime rec.created_at
           %td
             - if rec.object.nil?
