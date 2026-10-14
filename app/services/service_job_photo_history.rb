@@ -1,7 +1,7 @@
-# Photo rows of a service job's history that predate HistoryRecord-based
-# tracking (PhotoContainer#record_photo_history), rebuilt from the photo meta
-# entries as unsaved HistoryRecords: one row per author and minute, with the
-# number of photos added as new_value.
+# Photo history of a service job across both sources: HistoryRecords written
+# by PhotoContainer#record_photo_history and, for photos that predate them,
+# the photo meta entries. Legacy rows are rebuilt as unsaved HistoryRecords:
+# one row per author and minute, with the number of photos added as new_value.
 class ServiceJobPhotoHistory
   # Meta entries are Hash#to_s strings: {:user=>"Имя Фамилия", :date=>"18.07.2026 18:52"}
   META_ENTRY = /:user=>"(?<user>(?:[^"\\]|\\.)*)", :date=>"(?<date>[^"]*)"/.freeze
@@ -20,6 +20,18 @@ class ServiceJobPhotoHistory
     end
     authors = resolve_authors(groups.map { |(_, entry, _)| entry[:user] })
     groups.map { |column, entry, count| build_record(column, entry, count, authors[entry[:user]]) }.compact
+  end
+
+  # When the division got its oldest photo still present. A first record that
+  # starts from zero is exact; otherwise the photos predate the records and
+  # only the oldest meta entry knows (to the minute). nil when unknown.
+  def first_photo_at(column)
+    first = recorded[column]&.first
+    return first.created_at if first && first.old_value.to_i.zero?
+    return if @container.nil?
+
+    entry = parse(Array(@container.public_send("#{column}_meta_data")).first)
+    entry && meta_time(entry[:date], resolve_authors([entry[:user]])[entry[:user]])
   end
 
   private
@@ -65,14 +77,20 @@ class ServiceJobPhotoHistory
     end
   end
 
+  def build_record(column, entry, count, author)
+    created_at = meta_time(entry[:date], author)
+    return if created_at.nil?
+
+    HistoryRecord.new(object: @job, column_name: column, column_type: 'integer', new_value: count,
+                      created_at: created_at, user: author, author_name: entry[:user])
+  end
+
   # The meta date was formatted in the uploader's time zone (requests run in
   # Time.use_zone(current_user.time_zone)); without a known author the job's
   # city is the closest guess.
-  def build_record(column, entry, count, author)
+  def meta_time(date, author)
     zone = Time.find_zone(author&.time_zone) || Time.find_zone(@job.department&.city&.time_zone) || Time.zone
-    HistoryRecord.new(object: @job, column_name: column, column_type: 'integer', new_value: count,
-                      created_at: zone.strptime(entry[:date], META_DATE_FORMAT),
-                      user: author, author_name: entry[:user])
+    zone.strptime(date, META_DATE_FORMAT)
   rescue ArgumentError
     nil
   end
