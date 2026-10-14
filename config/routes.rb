@@ -778,6 +778,10 @@ Rails.application.routes.draw do
     get :find_ticket_by_called, on: :collection, defaults: { format: :js }
   end
 
+  resources :elqueue_sounds, only: %i[index create destroy] do
+    get :audio, on: :member
+  end
+
   get 'elqueue/:permalink', to: 'electronic_queues#ipad_show', as: 'ipad_show'
   get 'TV/:permalink', to: 'electronic_queues#tv_show', as: 'tv_show'
 

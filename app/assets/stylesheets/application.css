@@ -74,6 +74,7 @@
  *= require electronic_queues
  *= require elqueue_service_widget
  *= require elqueue_ticket_movements
+ *= require elqueue_sounds
  *= require custom_select
  *= require achievements
  *= require schedule_mobile

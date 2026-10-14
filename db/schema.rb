@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20261012150001) do
+ActiveRecord::Schema.define(version: 20261013120000) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -758,6 +758,15 @@ ActiveRecord::Schema.define(version: 20261012150001) do
     t.index ["department_id"], name: "index_electronic_queues_on_department_id"
     t.index ["ipad_link"], name: "index_electronic_queues_on_ipad_link", unique: true
     t.index ["tv_link"], name: "index_electronic_queues_on_tv_link", unique: true
+  end
+
+  create_table "elqueue_sounds", force: :cascade do |t|
+    t.string "kind", null: false
+    t.string "value", null: false
+    t.string "audio", null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["kind", "value"], name: "index_elqueue_sounds_on_kind_and_value", unique: true
   end
 
   create_table "elqueue_ticket_movements", force: :cascade do |t|

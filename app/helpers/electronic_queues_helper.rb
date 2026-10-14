@@ -11,6 +11,23 @@ module ElectronicQueuesHelper
     result.html_safe
   end
 
+  ELQUEUE_TV_SOUND_KEYS = { 'abbreviation' => 'abbr', 'number' => 'number', 'window' => 'window' }.freeze
+
+  # Ключи совпадают с теми, что tv_show.js.coffee строит из номера талона и окна:
+  # abbr_<сокращение>, number_<число>, window_<окно>.
+  def elqueue_tv_audio_paths
+    paths = { 'ticket_called' => asset_path('notifications/ticket_called.mp3') }
+    ElqueueSound.playable.each do |phrase|
+      paths["#{ELQUEUE_TV_SOUND_KEYS.fetch(phrase.kind)}_#{phrase.value}"] =
+        if phrase.sound
+          audio_elqueue_sound_path(phrase.sound, v: phrase.sound.updated_at.to_i)
+        else
+          asset_path(phrase.builtin_asset)
+        end
+    end
+    paths
+  end
+
   def queue_items_trees_tag(queue_items, current_id = nil, options = {})
     queue_items.map do |queue_item|
       queue_items_tree_tag queue_item, current_id, options

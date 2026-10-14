@@ -174,20 +174,9 @@ $ ->
 
   class AudioPlayer
 
-    @ABBREVIATION_MAP = Object.freeze({
-      'К': 'k'
-      'П': 'p'
-      'З': 'z'
-      'С': 's'
-      'Д': 'd'
-      'А': 'a'
-      'Б': 'b'
-      'В': 'v'
-      'Г': 'g'
-      'У': 'u'
-    })
-
     constructor: ->
+      # Загруженные записи со страницы «Озвучка», а где их нет — встроенные файлы
+      @audioPaths = JSON.parse($('#audio_paths').val() || '{}')
       @audioBuffers = {}
       @audioContext = null
       @soundQueue = []
@@ -205,20 +194,21 @@ $ ->
       @loadInitialSounds()
 
     loadInitialSounds: ->
-      Object.keys(AUDIO_PATHS).forEach (soundName) =>
+      Object.keys(@audioPaths).forEach (soundName) =>
         @loadSound(soundName)
 
     # Преобразует номер талона в массив названий аудио-файлов
     getAudioPartsForTicket: (ticketNumber, windowNumber) ->
       audioParts = []
       
-      # Разбираем буквенную часть
-      letters = ticketNumber.match(/[А-Я]+/)?[0] || ''
+      # Буквенная часть — всё до номера в конце: сокращение бывает из нескольких
+      # букв и в разном регистре («ПХр»), и запись ищется по нему целиком
+      ticketNumber = String(ticketNumber)
+      letters = ticketNumber.replace(/\d+$/, '').trim()
       if letters
-        latinLetters = AudioPlayer.ABBREVIATION_MAP[letters]
-        audioParts.push("abbr_#{latinLetters}") 
+        audioParts.push("abbr_#{letters}")
 
-      numbers = ticketNumber.match(/\d+/)?[0] || ''
+      numbers = ticketNumber.match(/\d+$/)?[0] || ''
       if numbers
         numberInt = parseInt(numbers, 10)
         if numberInt > 0 && numberInt <= 99
@@ -254,24 +244,21 @@ $ ->
         sum + buffer.length
       , 0)
 
-      mergedBuffer = @audioContext.createBuffer(
-        buffers[0].numberOfChannels,
-        totalLength,
-        buffers[0].sampleRate
-      )
+      # Склейка всегда в моно: записи загружают разные люди, и стерео-кусок
+      # после моно-куска обращался бы к несуществующему каналу склейки —
+      # getChannelData бросает исключение, и пропадает всё объявление.
+      # Частоту приводить не нужно: decodeAudioData уже вернул все буферы
+      # в частоте аудиоконтекста.
+      mergedBuffer = @audioContext.createBuffer(1, totalLength, @audioContext.sampleRate)
+      outputData = mergedBuffer.getChannelData(0)
 
-      # Склеиваем буферы
       offset = 0
       for buffer in buffers
-        # Для каждого канала
-        for channel in [0...buffer.numberOfChannels]
-          inputData = buffer.getChannelData(channel)
-          outputData = mergedBuffer.getChannelData(channel)
-          
-          # Копируем данные с учётом смещения
-          for i in [0...inputData.length]
-            outputData[offset + i] = inputData[i]
-        
+        channels = (buffer.getChannelData(channel) for channel in [0...buffer.numberOfChannels])
+        for i in [0...buffer.length]
+          sum = 0
+          sum += data[i] for data in channels
+          outputData[offset + i] = sum / channels.length
         offset += buffer.length
 
       mergedBuffer
@@ -315,7 +302,7 @@ $ ->
       source.start()
 
     loadSound: (soundName) ->
-      audioPath = window.AUDIO_PATHS[soundName]
+      audioPath = @audioPaths[soundName]
       console.log('load sound')
       return Promise.reject("Звук #{soundName} не найден") unless audioPath
 
