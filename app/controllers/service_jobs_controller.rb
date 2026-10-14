@@ -342,7 +342,9 @@ class ServiceJobsController < ApplicationController
 
   def history
     service_job = find_record ServiceJob
-    @records = service_job.history_records
+    # Sorted in Ruby: rows rebuilt from photo meta are not in the table.
+    records = service_job.history_records.to_a + ServiceJobPhotoHistory.new(service_job).legacy_records
+    @records = records.sort_by { |rec| [rec.created_at, rec.id.to_i] }.reverse
     render 'shared/show_history'
   end
 

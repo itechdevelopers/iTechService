@@ -57,6 +57,7 @@
 //= require revaluation_acts
 //= require sales
 //= require service_jobs
+//= require reception_photo_timer
 //= require stores
 //= require supply_categories
 //= require supply_reports

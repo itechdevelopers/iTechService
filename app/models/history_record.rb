@@ -4,6 +4,10 @@ class HistoryRecord < ApplicationRecord
   belongs_to :object, polymorphic: true, optional: true
   # attr_accessible :column_name, :column_type, :deleted_at, :new_value, :old_value, :user, :object
 
+  # Author's name on rows rebuilt from photo meta (ServiceJobPhotoHistory)
+  # when it matches no single user.
+  attr_accessor :author_name
+
   scope :order_by_newest, -> { order('created_at desc') }
   scope :service_jobs, -> { where(object_type: 'ServiceJob') }
   scope :device_tasks, -> { where(object_type: 'DeviceTask') }
