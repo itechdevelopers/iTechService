@@ -32,6 +32,19 @@
     $modal.find('.repair-status-widget-modal__body')
           .prepend('<div class="repair-status-widget-modal__error"><%= j @approval_error %></div>');
   })();
+<% elsif @pause_duration_error.present? %>
+  (function() {
+    // Поле срока есть в окне любой причины паузы — ищем открытое окно этой
+    // работы, а не окно конкретной причины.
+    var $modal = $('#repair_status_widget_modal_host .repair-status-widget-modal[id$="_modal_<%= @service_job.id %>"]').first();
+    if ($modal.length === 0) {
+      alert("<%= j @pause_duration_error %>");
+      return;
+    }
+    $modal.find('.repair-status-widget-modal__error').remove();
+    $modal.find('.repair-status-widget-modal__body')
+          .prepend('<div class="repair-status-widget-modal__error"><%= j @pause_duration_error %></div>');
+  })();
 <% elsif @displace_confirm_target.present? %>
   (function() {
     $('#displace_confirm_modal_<%= @displace_new_for.id %>').remove();

@@ -26,6 +26,12 @@ module ServiceJobsHelper
     end
   end
 
+  # Срок паузы: сегодняшний — одним временем, иначе с датой.
+  def repair_pause_until_label(pause_until)
+    format = pause_until.to_date == Time.zone.today ? '%H:%M' : '%d.%m %H:%M'
+    t('service_jobs.repair_status.pause_until', time: pause_until.strftime(format))
+  end
+
   # Подстрочная длительность под событием: только «сколько лежало» (accepted)
   # и «сколько на паузе» (paused); под остальными — ничего.
   def repair_progress_duration_note(event)

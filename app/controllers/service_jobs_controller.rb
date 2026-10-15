@@ -524,6 +524,17 @@ class ServiceJobsController < ApplicationController
       return
     end
 
+    pause_until = nil
+    if pause_reason
+      pause_duration = RepairPauseDuration.new(amount: params[:pause_amount], unit: params[:pause_unit])
+      unless pause_duration.valid?
+        @pause_duration_error = pause_duration.error
+        respond_to(&:js)
+        return
+      end
+      pause_until = pause_duration.until_from(Time.zone.now)
+    end
+
     displaced_by = nil
     if pause_reason&.urgent_repair?
       raw = params[:displaced_by_ticket_number].to_s.strip
@@ -604,7 +615,7 @@ class ServiceJobsController < ApplicationController
     testing_session = nil
     approval_request = nil
     ServiceJob.transaction do
-      change = @service_job.change_repair_status!(new_status, user: current_user, pause_reason: pause_reason, displaced_by: displaced_by, gluing_hours: gluing_hours)
+      change = @service_job.change_repair_status!(new_status, user: current_user, pause_reason: pause_reason, displaced_by: displaced_by, gluing_hours: gluing_hours, pause_until: pause_until)
       # Сессия/запрос рождаются по НАМЕРЕНИЮ сотрудника, а не по факту смены
       # статуса: устройство может уже стоять на этой самой паузе (второе
       # согласование подряд, повторная отправка на тест), и тогда идемпотентный

@@ -9,6 +9,11 @@ ru:
       testing_target_required: 'Выберите, куда отправить устройство'
       testing_what_required: 'Укажите, что тестировать'
       approval_question_required: 'Напишите, что нужно согласовать с клиентом'
+      pause_until: 'до %{time}'
+      pause_duration:
+        invalid_amount: 'Срок паузы — целое число больше 0'
+        invalid_unit: 'Выберите единицу срока: минуты, часы или дни'
+        too_long: 'Срок паузы — не больше %{days} дней'
       seize: 'Забрать устройство у другого технического специалиста'
       seize_invalid: 'Устройство уже не в работе у другого специалиста'
       displaced_by_modal:

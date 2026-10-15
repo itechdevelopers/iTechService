@@ -533,6 +533,17 @@ kind: 'device_return', content: id.to_s)
       .first
   end
 
+  def current_pause_until
+    return nil unless repair_status&.paused?
+
+    repair_status_changes
+      .where(to_status_id: repair_status_id, repair_pause_reason_id: repair_pause_reason_id)
+      .order(changed_at: :desc)
+      .limit(1)
+      .pluck(:pause_until)
+      .first
+  end
+
   def current_in_progress_user
     return nil unless repair_status&.in_progress?
 
@@ -548,11 +559,17 @@ kind: 'device_return', content: id.to_s)
   # force: пропустить idempotency guard. Нужен для «перехвата» ремонта: заявка уже
   # in_progress под прежним техником, но новая in_progress-запись под другим user
   # закрывает его интервал и открывает свой (InProgressDurationService делит время сам).
-  def change_repair_status!(new_status, user:, pause_reason: nil, displaced_by: nil, gluing_hours: nil, changed_at: nil, force: false)
+  #
+  # Срок паузы участвует в проверке на повтор: ту же причину с новым сроком
+  # записываем новым переходом — так паузу продлевают или снимают с неё срок,
+  # не выходя из неё.
+  def change_repair_status!(new_status, user:, pause_reason: nil, displaced_by: nil, gluing_hours: nil, pause_until: nil, changed_at: nil, force: false)
     pause_reason = nil unless new_status.paused?
     displaced_by = nil unless pause_reason&.urgent_repair?
     gluing_hours = nil unless pause_reason&.gluing?
-    return if !force && repair_status_id == new_status.id && repair_pause_reason_id == pause_reason&.id
+    pause_until = nil unless pause_reason
+    same_state = repair_status_id == new_status.id && repair_pause_reason_id == pause_reason&.id
+    return if !force && same_state && pause_until.nil? && current_pause_until.nil?
 
     changed_at ||= Time.zone.now
     now = Time.zone.now
@@ -566,6 +583,7 @@ kind: 'device_return', content: id.to_s)
         repair_pause_reason: pause_reason,
         displaced_by_service_job: displaced_by,
         gluing_hours: gluing_hours,
+        pause_until: pause_until,
         user: user,
         changed_at: changed_at
       ).tap do
