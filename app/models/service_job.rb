@@ -533,6 +533,22 @@ kind: 'device_return', content: id.to_s)
       .first
   end
 
+  # То же, что #current_pause_until, для пачки работ одним запросом:
+  # { service_job_id => pause_until }, работы без срока в хеш не попадают.
+  def self.current_pause_untils(ids)
+    return {} if ids.blank?
+
+    RepairStatusChange
+      .joins(:service_job)
+      .where(service_job_id: ids)
+      .where('repair_status_changes.to_status_id = service_jobs.repair_status_id')
+      .where('repair_status_changes.repair_pause_reason_id = service_jobs.repair_pause_reason_id')
+      .select('DISTINCT ON (repair_status_changes.service_job_id) ' \
+              'repair_status_changes.service_job_id, repair_status_changes.pause_until')
+      .order('repair_status_changes.service_job_id, repair_status_changes.changed_at DESC, repair_status_changes.id DESC')
+      .each_with_object({}) { |change, map| map[change.service_job_id] = change.pause_until if change.pause_until }
+  end
+
   def current_in_progress_user
     return nil unless repair_status&.in_progress?
 

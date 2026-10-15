@@ -10,6 +10,7 @@ ru:
       testing_what_required: 'Укажите, что тестировать'
       approval_question_required: 'Напишите, что нужно согласовать с клиентом'
       pause_until: 'до %{time}'
+      pause_overdue: 'срок вышел %{time}'
       pause_duration:
         label: 'На какое время:'
         optional: 'необязательно'

@@ -18,7 +18,8 @@
           .subscriptions-group__list
             - paused_jobs.each do |service_job|
               = render 'shared/subscription_block', service_job: service_job,
-                                                    modifier: 'subscription-block--paused'
+                                                    modifier: 'subscription-block--paused',
+                                                    pause_until: user_paused_service_job_deadlines[service_job.id]
     - favorite_jobs = user_favorite_service_jobs
     - if favorite_jobs.any?
       / Избранное свёрнуто в чип и вынесено из скроллящейся части: колонок пауз

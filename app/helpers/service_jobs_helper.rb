@@ -26,10 +26,12 @@ module ServiceJobsHelper
     end
   end
 
-  # Срок паузы: сегодняшний — одним временем, иначе с датой.
+  # Срок паузы: сегодняшний — одним временем, иначе с датой. Прошедший срок
+  # видят у пауз без автоснятия (тест, согласование) — они остаются на паузе.
   def repair_pause_until_label(pause_until)
     format = pause_until.to_date == Time.zone.today ? '%H:%M' : '%d.%m %H:%M'
-    t('service_jobs.repair_status.pause_until', time: pause_until.strftime(format))
+    key = pause_until.past? ? 'pause_overdue' : 'pause_until'
+    t("service_jobs.repair_status.#{key}", time: pause_until.strftime(format))
   end
 
   # Подстрочная длительность под событием: только «сколько лежало» (accepted)
