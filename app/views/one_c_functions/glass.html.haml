@@ -1,0 +1,93 @@
+%h1 Каждое 5-е стекло
+%p= link_to '← Функции 1С', one_c_functions_path
+%p История по карте лояльности: продажи стекол, цена акции и новый цикл накоплений.
+= form_tag glass_search_one_c_functions_path, method: :post, class: 'form-inline' do
+  = label_tag :phone, 'Телефон клиента'
+  = telephone_field_tag :phone, nil, required: true, maxlength: 40, placeholder: '+7 999 123-45-67', autocomplete: 'off'
+  = submit_tag 'Проверить в 1С', class: 'btn btn-primary', data: { disable_with: 'Поиск…' }
+%p.help-block Запрос выполняется после нажатия кнопки. Повторные поиски в течение 90 секунд используют общий кеш. Карты одного телефона не объединяются.
+- if @lookup[:error]
+  .alert.alert-error= @lookup[:error]
+- if @lookup[:expired]
+  .alert История поиска истекла. Введите номер ещё раз.
+- if @lookup[:pending]
+  .alert.alert-info Получаем историю из 1С. Страница проверяет готовность, не отправляя повторные запросы в 1С.
+  :javascript
+    window.setTimeout(function () { window.location.reload(); }, 4000);
+- if @lookup[:stale]
+  .alert Данные устарели. До успешного обновления не используйте этот результат для подтверждения подарка.
+- if (result = @lookup[:result])
+  %p
+    %strong= result['program']
+    = " · Обновлено: #{result['read_at']} (Владивосток)"
+  %p= "Цена стекла по акции в настройке 1С: #{result['gift_price']} ₽. В истории отмечены строки с этой фактической ценой; это не нулевая оплата."
+  - if result['cards'].empty?
+    .alert.alert-info Карта лояльности по этому телефону не найдена. Это не означает отсутствие покупок без карты.
+  - result['cards'].each do |card|
+    %section.glass-loyalty-card
+      %h2= card['name']
+      %p= "Статус карты: #{card['status']}"
+      - card['warnings'].each do |warning|
+        .alert= warning
+      - if card['reconciled'] && card['status'] == 'Действует' && !@lookup[:stale]
+        .well
+          %strong= "В текущем цикле: #{card['progress']} из #{result['threshold']}"
+          %div
+            - if card['until_gift'] == 1
+              Следующее стекло — пятое по счётчику акции. Проверьте применение цены акции в чеке 1С.
+            - else
+              = "Стекло по акции — через #{card['until_gift']} стекла, включая само акционное."
+          %small Чеки сверены со счётчиком 1С. Это расчёт по учётным данным; окончательную цену применяет касса 1С.
+      - else
+        .well Право на следующее стекло по акции не подтверждено. История ниже показана для проверки.
+      %p= "Продано: #{card['receipt_quantity']} · С учётом возвратов: #{card['net_quantity']} · По цене акции (за вычетом возвратов): #{card['promotional_quantity']}"
+      %h3 Продажи / поклейки по чекам
+      %p.help-block Дата и сотрудник относятся к чеку продажи. Фактическое выполнение поклейки этими данными не подтверждается.
+      - if card['history'].empty?
+        %p Подходящие проведённые чеки не найдены.
+      - else
+        %table.table.table-striped.table-bordered
+          %thead
+            %tr
+              %th Когда / чек
+              %th Стекло
+              %th Количество
+              %th Сумма, ₽
+              %th Операция
+              %th Филиал
+              %th Сотрудник
+          %tbody
+            - card['history'].reverse_each do |entry|
+              %tr{class: entry['promotional_price'] ? 'success' : nil}
+                %td
+                  = entry['date'].tr('T', ' ')
+                  %div= entry['number']
+                %td= entry['product']
+                %td= entry['quantity']
+                %td= entry['amount']
+                %td
+                  = entry['kind'] == 'return' ? 'Возврат' : 'Продажа'
+                  - if entry['promotional_price']
+                    %div По цене акции
+                %td= entry['warehouse']
+                %td
+                  = entry['employee']
+                  %div.muted= entry['employee_source']
+      %h3 Перезапуски счётчика в 1С
+      %p.help-block Списание пяти накоплений может появиться при следующей покупке после пятого стекла, а также при начале учёта карты. Оно само по себе не доказывает выдачу подарка: смотрите цену в чеке выше.
+      - if card['resets'].empty?
+        %p Списания накоплений не зарегистрированы.
+      - else
+        %table.table.table-condensed
+          %thead
+            %tr
+              %th Дата движения 1С
+              %th Стекло
+              %th Списано накоплений
+          %tbody
+            - card['resets'].reverse_each do |reset|
+              %tr
+                %td= reset['date'].tr('T', ' ')
+                %td= reset['product']
+                %td= reset['quantity']
+      %p.help-block= "Исходный баланс регистра: #{card['raw_balance']}. Отрицательное значение сохранено как в 1С; накопления текущего цикла сверяются по чекам, а не считаются долгом клиента."

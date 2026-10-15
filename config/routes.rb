@@ -13,7 +13,10 @@ Rails.application.routes.draw do
   # The priority is based upon order of creation: first created -> highest priority.
   # See how all your routes lay out with "rake routes".
 
-  resources :one_c_functions, only: :index
+  resources :one_c_functions, only: :index do
+    get :glass, on: :collection
+    post :glass_search, on: :collection
+  end
 
   root to: 'dashboard#index'
   get 'dashboard', to: 'dashboard#index'
