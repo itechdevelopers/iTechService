@@ -21,6 +21,9 @@ ru:
     return_at_countdown:
       left: 'осталось %{time}'
       overdue: 'просрочено на %{time}'
+    reception_photo_timer:
+      running: 'Фото при приёмке ещё нет — столько прошло с приёмки'
+      done: 'Через столько после приёмки добавили первое фото при приёмке'
     repair_passport:
       title: 'Паспорт ремонта:'
       repair_kinds: 'Вид ремонта:'

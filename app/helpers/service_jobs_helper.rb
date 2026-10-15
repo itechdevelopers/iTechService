@@ -316,6 +316,48 @@ module ServiceJobsHelper
     time_string_ru.join(' ')
   end
 
+  # Пороги цвета таймера фото при приёмке — те же, что у напоминания (+30 мин)
+  # и авто-минуса (+60 мин) в ServiceJob#schedule_reception_photo_check.
+  RECEPTION_PHOTO_TIMER_WARN = 30.minutes
+  RECEPTION_PHOTO_TIMER_ALERT = 1.hour
+
+  # Сколько прошло от появления задачи «требует фото» (как и у напоминания:
+  # приёмка или задача, дописанная позже) до первого фото при приёмке. Пока фото
+  # нет, таймер тикает (reception_photo_timer.js), после — замирает на итоге.
+  def reception_photo_timer(service_job)
+    started_at = service_job.reception_photo_device_tasks.minimum('device_tasks.created_at')
+    return if started_at.nil?
+
+    unless service_job.reception_photo_absent?
+      photo_at = ServiceJobPhotoHistory.new(service_job).first_photo_at('reception_photos')
+      return if photo_at.nil?
+    end
+
+    seconds = [((photo_at || Time.current) - started_at).to_i, 0].max
+    content_tag(:span, class: ['reception-photo-timer', reception_photo_timer_level(seconds)].compact,
+                       title: t("service_jobs.reception_photo_timer.#{photo_at ? :done : :running}"),
+                       data: { started_at: started_at.iso8601, photo_at: photo_at&.iso8601,
+                               warn_after: RECEPTION_PHOTO_TIMER_WARN.to_i,
+                               alert_after: RECEPTION_PHOTO_TIMER_ALERT.to_i }) do
+      icon_tag('camera') + content_tag(:span, reception_photo_timer_value(seconds), class: 'reception-photo-timer__value')
+    end
+  end
+
+  def reception_photo_timer_level(seconds)
+    if seconds >= RECEPTION_PHOTO_TIMER_ALERT
+      'reception-photo-timer--alert'
+    elsif seconds >= RECEPTION_PHOTO_TIMER_WARN
+      'reception-photo-timer--warn'
+    end
+  end
+
+  # «2:05:09», а от суток — «3 д 2:05:09»; тот же формат в reception_photo_timer.js
+  def reception_photo_timer_value(seconds)
+    days, rest = seconds.divmod(1.day.to_i)
+    clock = '%d:%02d:%02d' % [rest / 3600, rest % 3600 / 60, rest % 60]
+    days.positive? ? "#{days} д #{clock}" : clock
+  end
+
   # «осталось 3 часа 20 минут» до срока возврата или «просрочено на …», с точностью до минуты
   def return_at_countdown_tag(return_at)
     seconds = (return_at - Time.current).to_i

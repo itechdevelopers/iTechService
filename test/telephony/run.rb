@@ -59,6 +59,11 @@ class TelephonyTest < Minitest::Test
     assert_equal '79991234567', Telephony::Number.normalize('влд +7 (999) 123-45-67')
     assert_equal '79991234567', Telephony::Number.normalize('САКХ_89991234567')
     assert_equal '79991234567', Telephony::Number.normalize('7 999 123 45 67')
+    %w[VDK SAH USS USSF KHD HAB vdk sah uss ussf khd hab].each do |prefix|
+      assert_equal '79146896537', Telephony::Number.normalize(prefix + '79146896537')
+      assert_equal '79146896537', Telephony::Number.normalize(prefix + ': +7 (914) 689-65-37')
+    end
+    assert_equal '79146896537', Telephony::Number.normalize('vdk: +7 (914) 689-65-37')
     assert_nil Telephony::Number.normalize('101')
     assert_nil Telephony::Number.normalize('unknown-79991234567')
     assert_nil Telephony::Number.dialable('7;System(rm)')
@@ -129,9 +134,16 @@ class TelephonyTest < Minitest::Test
   def test_unknown_and_completed_client_context
     client = insert(Client, name: 'Иван', surname: 'Тестовый', full_phone_number: '79991234567', phone_number: '9991234567', department_id: @department.id)
     insert(Order, customer_id: client.id, customer_type: 'Client', department_id: @department.id, object_kind: 'device', object: 'Old', status: 'archive', number: 'PHONE-2')
-    context = Telephony::CallerContext.new(@user, '79991234567').call
+    context = Telephony::CallerContext.new(@user, 'VDK79991234567').call
     assert_equal 1, context[:clients].length
     assert_equal [], context[:clients].first[:entities]
+    assert_equal '/clients/' + client.id.to_s, context[:clients].first[:url]
+    login_as(@user, scope: :user)
+    %w[VDK SAH USS USSF KHD HAB].each do |prefix|
+      get '/telephony/caller', number: prefix + '79991234567'
+      assert_equal 200, last_response.status
+      assert_equal client.id.to_s, JSON.parse(last_response.body)['clients'].first['url'].split('/').last
+    end
   end
 
   def test_signed_ingestion_and_invalid_signature
@@ -205,6 +217,25 @@ class TelephonyTest < Minitest::Test
     end
     @user.abilities.delete(@ability)
     get '/telephony/workspace'
+    assert_equal 302, last_response.status
+  end
+
+  def test_phone_directory_uses_existing_labels_and_requires_telephony_access
+    PhoneLabel.create!(phone_number: '105', label: 'Бармены', group_name: 'Океанский 90')
+    login_as(@user, scope: :user)
+    get '/telephony/directory'
+    assert_equal 200, last_response.status
+    assert_equal 'no-store', last_response.headers['Cache-Control']
+    entry = JSON.parse(last_response.body)['entries'].find { |e| e['number'] == '105' }
+    assert_equal 'Бармены', entry['label']
+    assert_equal 'Океанский 90', entry['group']
+    get '/telephony/caller', number: '105'
+    context = JSON.parse(last_response.body)
+    assert_equal '105', context['number']
+    assert_equal 'Бармены', context['directory']['label']
+    assert_equal [], context['clients']
+    @user.abilities.delete(@ability)
+    get '/telephony/directory'
     assert_equal 302, last_response.status
   end
 

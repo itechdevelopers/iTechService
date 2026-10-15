@@ -74,6 +74,7 @@
  *= require electronic_queues
  *= require elqueue_service_widget
  *= require elqueue_ticket_movements
+ *= require elqueue_sounds
  *= require custom_select
  *= require achievements
  *= require schedule_mobile
@@ -103,4 +104,5 @@
  *= require service_job_quick_picks
  *= require carriers
  *= require call_transcription_summary
+ *= require photo_history
  */

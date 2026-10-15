@@ -1,0 +1,36 @@
+.elqueue-sounds__rules ul {
+  margin-bottom: 0;
+}
+
+.elqueue-sounds__table {
+  width: auto;
+
+  td {
+    vertical-align: middle;
+  }
+}
+
+.elqueue-sounds__phrase {
+  min-width: 160px;
+}
+
+.elqueue-sounds__player {
+  display: block;
+  height: 32px;
+}
+
+.elqueue-sounds__actions {
+  white-space: nowrap;
+}
+
+// Bootstrap 2 даёт каждой форме нижний отступ 20px — в строке таблицы он
+// раздувает высоту и уводит кнопку «Удалить» на новую строку.
+.elqueue-sounds__form {
+  display: inline-block;
+  margin: 0;
+}
+
+// Файл выбирают кликом по кнопке-label, само поле не показываем.
+.elqueue-sounds__file {
+  display: none;
+}

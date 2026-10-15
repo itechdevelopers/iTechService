@@ -1,4 +1,13 @@
 <% if params[:group].present? || params[:query].present? %>
+  <% cause_groups = repair_cause_groups_for(@repair_services).to_a %>
+  <% if cause_groups.any? %>
+    <div class="btn-toolbar rs-cause-filter">
+      <button type="button" class="btn btn-small btn-info active rs-cause-filter__btn" data-cause-group-id="">Все</button>
+      <% cause_groups.each do |group| %>
+        <button type="button" class="btn btn-small rs-cause-filter__btn" data-cause-group-id="<%= group.id %>"><%= group.title %></button>
+      <% end %>
+    </div>
+  <% end %>
   <table id="repair_services_table" class="table table-hover">
     <thead>
     <tr>
@@ -8,6 +17,7 @@
       <th><%= RepairService.human_attribute_name(:price) %></th>
       <th class="repair_causes"><%= RepairService.human_attribute_name(:repair_causes) %></th>
       <th><%= RepairService.human_attribute_name(:client_info) %></th>
+      <th class="rs-time">Время выполнения</th>
       <th><%= RepairService.human_attribute_name(:is_popular) %></th>
       <%= tag(:th) if(can? :manage, RepairService) %>
     </tr>
@@ -15,18 +25,26 @@
 
     <tbody>
     <% show_qty = current_user.able_to?(:show_spare_parts_qty) || current_user.superadmin? # Setting.show_spare_parts_qty %>
+    <% show_purchase = current_user.superadmin? %>
     <% @repair_services.find_each do |repair_service| %>
       <% parts_qty = repair_service.spare_parts.count %>
       <% can_move = can?(:manage, RepairService) %>
       <tr class="repair-service-row<%= ' rs-draggable' if can_move %>"
           data-repair-service-id="<%= repair_service.id %>"
+          data-cause-group-ids="<%= repair_service.repair_causes.map(&:repair_cause_group_id).uniq.join(' ') %>"
           <%= 'draggable="true"'.html_safe if can_move %>>
         <td rowspan="<%= parts_qty+1 %>"><%= repair_service.id %></td>
         <td class="name">
           <span class="label label-info"><%= repair_service.name %></span>
         </td>
         <td class="warranty"><%= repair_service_warranty_display(repair_service) %></td>
-        <td class="price"><%= human_currency repair_service.price(params[:department_id])&.shown_price, false %></td>
+        <td class="price">
+          <span class="rs-price"><%= human_currency repair_service.price(params[:department_id])&.shown_price, false %></span>
+          <% purchase = show_purchase ? repair_service.total_cost : 0 %>
+          <% if purchase.positive? %>
+            <div class="rs-purchase">Закуп: <span class="rs-purchase__value"><%= human_currency purchase, false %></span></div>
+          <% end %>
+        </td>
         <td class="repair_causes" rowspan="<%= parts_qty+1 %>">
           <% causes = repair_service.repair_causes.to_a %>
           <% visible_causes = causes.first(RepairService::VISIBLE_CAUSES_IN_TABLE) %>
@@ -48,6 +66,14 @@
           </div>
         </td>
         <td class="client_info text-info" rowspan="<%= parts_qty+1 %>"><%= repair_service.client_info %></td>
+        <td class="rs-time" rowspan="<%= parts_qty+1 %>">
+          <% if (time = repair_service_time_display(repair_service)) %>
+            <div class="rs-time__value"><%= time %></div>
+            <div class="rs-time__note">Время работы ориентировочное. Зависит от загруженности технических специалистов.</div>
+          <% else %>
+            -
+          <% end %>
+        </td>
         <td class="is_popular text-center" rowspan="<%= parts_qty+1 %>">
           <%= '✓' if repair_service.is_popular %>
         </td>

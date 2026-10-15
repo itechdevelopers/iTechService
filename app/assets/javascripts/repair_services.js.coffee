@@ -13,6 +13,22 @@ $(document).on 'click', '.rs-causes__toggle', (event) ->
   collapsed = $rest.hasClass('rs-causes__rest--collapsed')
   $toggle.text(if collapsed then $toggle.data('more-text') else $toggle.data('less-text'))
 
+# Фильтр по группам причин. Причины каждого вида уже есть в таблице, поэтому
+# строки скрываются на месте, без запроса. Строки запчастей идут сразу за главной
+# строкой вида и скрываются вместе с ней. Повторный клик по выбранной группе — сброс.
+$(document).on 'click', '.rs-cause-filter__btn', (event) ->
+  event.preventDefault()
+  $btn = $(this)
+  groupId = if $btn.hasClass('active') then '' else $btn.attr('data-cause-group-id')
+  $buttons = $btn.closest('.rs-cause-filter').find('.rs-cause-filter__btn')
+  $buttons.removeClass('active btn-info')
+  $buttons.filter("[data-cause-group-id='#{groupId}']").addClass('active btn-info')
+
+  $('#repair_services_table tr.repair-service-row').each ->
+    $row = $(this)
+    visible = groupId == '' || groupId in $row.attr('data-cause-group-ids').split(' ')
+    $row.nextUntil('.repair-service-row').addBack().toggle(visible)
+
 $(document).on 'change', '#spare_parts .quantity>input', ->
   calculateTableTotal '#spare_parts', '.cost', '.quantity'
 

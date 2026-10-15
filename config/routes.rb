@@ -109,6 +109,7 @@ Rails.application.routes.draw do
   get 'telephony/workspace', to: 'telephony#workspace', as: :telephony_workspace
   get 'telephony', to: 'telephony#show', as: :telephony
   post 'telephony/ticket', to: 'telephony#ticket'
+  get 'telephony/directory', to: 'telephony#directory'
   get 'telephony/caller', to: 'telephony#caller'
   post 'api/v1/telephony/calls', to: 'telephony_imports#create'
   resources :phone_calls, only: [:index] do
@@ -776,6 +777,10 @@ Rails.application.routes.draw do
     get :filter_movements_by_called, on: :collection, defaults: { format: :js }
     get :detailed_ticket_info, on: :collection, defaults: { format: :js }
     get :find_ticket_by_called, on: :collection, defaults: { format: :js }
+  end
+
+  resources :elqueue_sounds, only: %i[index create destroy] do
+    get :audio, on: :member
   end
 
   get 'elqueue/:permalink', to: 'electronic_queues#ipad_show', as: 'ipad_show'

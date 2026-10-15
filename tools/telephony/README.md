@@ -34,3 +34,17 @@ Playwright is loaded from that pilot's existing `test-tools/node_modules`, not i
 The source JsSIP 3.10.0 vendor bundle preserves its MIT header and is the same checksum-verified dependency used in the tested pilot.
 
 Общий CDR импорт и онлайн-события: ../../doc/telephony/live-history.md. AMI reader поддерживает Python 2.6; reducer/outbox — Python 3.9+. Live сервис включать после новой миграции, отдельно от TELEPHONY_ENABLED.
+
+Native phone live tests require fresh Rails-rendered fixtures from the current checkout:
+
+```
+export AIS_PHONE_BROWSER_FIXTURES=/tmp/ais-native-fixtures
+# Include this variable in the isolated Rails test command above.
+bundle exec ruby test/telephony/run.rb
+node tools/telephony/test-workspace.cjs
+node tools/telephony/test-directory-transfer.cjs
+node tools/telephony/test-hold.cjs
+node tools/telephony/test-consultation.cjs
+```
+
+Run sequentially on verified unassigned 7776/7778/7779. These tests use fixture AIS responses with the real broker, gateway and PBX. Hold/consultation tests use the gateway remote console only to capture MOH events and close it afterward; they do not change Asterisk configuration.

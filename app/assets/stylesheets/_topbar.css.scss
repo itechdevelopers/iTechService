@@ -87,6 +87,10 @@
     color: white;
   }
   .bar-buttons {
+    // Keep these controls and their handlers available in code, but hide them in the header.
+    #scan_barcode_button, #lock_session {
+      display: none;
+    }
     a {
       float: none;
       padding: 10px 10px 10px;

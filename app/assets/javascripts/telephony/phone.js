@@ -1,7 +1,7 @@
 'use strict';
 (() => {
 const $=id=>document.getElementById(id);
-let gateway=null, activeTicket=null, callerGeneration=0;
+let gateway=null, activeTicket=null, callerGeneration=0, directoryEntries=null, directoryLoading=false, directoryTarget='target', transferState=null, holdTask=null, consultSession=null, consultIntent=null, consultReturning=false;
 const csrf=()=>document.querySelector('meta[name=csrf-token]').content;
 let ua=null,session=null,stream=null,lease=null,heartbeat=null,started=null,ringTimer=null,audioContext=null,busy=false,pcConfig={iceServers:[]},micAnalyser=null,micSamples=null,remoteSource=null,remoteAnalyser=null,remoteSamples=null,remoteMedia=null,micSource=null,micSilentGain=null;
 JsSIP.debug.disable();
@@ -11,12 +11,33 @@ function publish(){
  const state=$('error').textContent?'error':session&&session.isEstablished()?'call':linkState;
  window.parent.postMessage({type:'ais-phone-state',state,status:$('status').textContent,error:$('error').textContent,
   enabled:!!ua,call:!!session,incoming:!!session&&session.direction==='incoming'&&!session.isEstablished(),
-  callTitle:session?$('call-title').textContent:'',duration:$('duration').textContent},location.origin);
+  callTitle:session?$('call-title').textContent+(consultSession?' · '+$('consult-title').textContent:''):'',duration:$('duration').textContent},location.origin);
 }
 function check(id,text,state){const el=$('check-'+id);el.textContent=text;el.dataset.state=state;}
 function status(text,state){if(state)linkState=state;$('status').textContent=text;publish();}
 function error(text){$('error').textContent=text||'';publish();}
-function controls(){const registered=!!ua&&ua.isRegistered();const call=!!session;const incoming=call&&session.direction==='incoming'&&!session.isEstablished();$('enable').disabled=!!ua||busy;$('identity').disabled=!!ua||busy;$('microphone').disabled=!!ua||busy;$('disable').disabled=!ua||call;$('answer').disabled=!incoming;$('reject').disabled=!incoming;$('hangup').disabled=!call;$('mute').disabled=!call||!session.isEstablished();$('test-call').disabled=!registered||call;publish();}
+function audibleSession(){return consultSession||session;}
+function confirmedHold(s){return !!s&&s.isOnHold().local&&s.data.aisHoldConfirmed===true&&!s.data.aisHoldUncertain;}
+function controls(){
+ const registered=!!ua&&ua.isRegistered(),call=!!session,incoming=call&&session.direction==='incoming'&&!session.isEstablished();
+ const consulting=!!consultSession||!!consultIntent||consultReturning,established=call&&session.isEstablished(),active=audibleSession();
+ $('enable').disabled=!!ua||busy;$('identity').disabled=!!ua||busy;$('microphone').disabled=!!ua||busy;
+ $('disable').disabled=!ua||call;$('answer').disabled=!incoming;$('reject').disabled=!incoming;$('hangup').disabled=!call;
+ $('hangup').textContent=consulting?'Завершить все разговоры':'Завершить';
+ $('mute').disabled=!active||!active.isEstablished();$('mute').textContent=active&&active.isMuted().audio?'Включить микрофон':'Выключить микрофон';
+ $('test-call').disabled=!registered||consulting||!!holdTask||!!transferState||(call&&(!established||!!session.data.aisHoldUncertain));
+ $('test-call').textContent=call?'Позвонить коллеге':'Позвонить';
+ $('target').placeholder=call?'Внутренний номер коллеги':'Номер телефона или внутренний номер';
+ $('transfer-panel').hidden=!established||consulting;$('transfer-call').disabled=!established||!!transferState||!!holdTask||consulting;
+ $('transfer-target').disabled=!!transferState||!!holdTask;$('transfer-directory').disabled=!!transferState||!!holdTask;
+ $('hold-call').disabled=!established||!!transferState||!!holdTask||consulting;
+ $('hold-call').textContent=holdTask?'Подождите…':session&&session.isOnHold().local?'Вернуться к разговору':'Удержать';
+ $('hold-call').setAttribute('aria-pressed',String(confirmedHold(session)));
+ $('consult-panel').hidden=!consulting;$('consult-return').disabled=!!transferState||consultReturning;
+ $('consult-connect').disabled=!established||!consultSession||!consultSession.isEstablished()||!!transferState||!!holdTask||consultReturning;
+ if(session&&session.isEstablished())$('call-title').textContent=(confirmedHold(session)?'На удержании: ':'Разговор с ')+displayNumber(session.remote_identity.uri.user);
+ publish();
+}
 function accessFailure(message){const e=new Error(message);e.accessDenied=true;return e;}
 async function request(url,options,timeout=15000){
  if(!timeout)return fetch(url,options);
@@ -56,6 +77,7 @@ async function callerContext(raw){
   const r=await fetch('/telephony/caller?number='+encodeURIComponent(raw),{headers:{'Accept':'application/json'}});
   if(!r.ok)throw new Error();const c=await r.json();if(generation!==callerGeneration)return;
   const number=document.createElement('strong');number.textContent=c.number||raw;target.appendChild(number);
+  if(c.directory){const label=document.createElement('p');label.textContent=[c.directory.label,c.directory.group].filter(Boolean).join(' · ');target.appendChild(label);}
   for(const client of c.clients){
    const group=document.createElement('div');
    for(const entity of client.entities){group.appendChild(clientLink(entity.title,entity.url));}
@@ -63,7 +85,12 @@ async function callerContext(raw){
   }
  }catch(e){if(generation===callerGeneration){const p=document.createElement('p');p.textContent=raw+' · Карточка клиента сейчас недоступна';target.appendChild(p);}}
 }
-function displayNumber(value){const raw=value.replace(/^(?:влд|сакх|vld|sakh)[\s:;_-]*/i,'');try{return dialNumber(raw);}catch(e){return value;}}
+function displayNumber(value){const raw=value.replace(/^(?:влд|сакх|vld|vdk|sakh|sah|ussf|uss|khd|hab)[\s:;_-]*/i,'');try{return dialNumber(raw);}catch(e){return value;}}
+function originalCallerText(value){
+ const match=value.trim().match(/^(VDK|VLD|ВЛД|SAKH|SAH|САКХ|USSF|USS|HAB|KHD)(?=[\s:;_+()\d-])/i);
+ const destinations={VDK:'во Владивосток',VLD:'во Владивосток','ВЛД':'во Владивосток',SAH:'в Южно-Сахалинск',SAKH:'в Южно-Сахалинск','САКХ':'в Южно-Сахалинск',USS:'в Уссурийск',USSF:'в Уссурийск',HAB:'в Хабаровск',KHD:'в Хабаровск'};
+ return 'Исходный номер: '+value+(match?' · Звонок '+destinations[match[1].toUpperCase()]:'');
+}
 function dialNumber(value){const raw=value.trim();if(/^\d{3,4}$/.test(raw))return raw;let digits=raw.replace(/[+()\s-]/g,'');if(/^8\d{10}$/.test(digits))digits='7'+digits.slice(1);if(!/^7\d{10}$/.test(digits))throw new Error('Введите номер с 7 или внутренний номер из 3–4 цифр.');return digits;}
 
 function micError(e){return ({NotAllowedError:'Разрешите доступ к микрофону в настройках этого сайта.',NotFoundError:'Микрофон не найден. Подключите гарнитуру.',NotReadableError:'Микрофон недоступен или занят другой программой.',TypeError:'Не удалось включить микрофон. Проверьте защищённое подключение и выбранное устройство.'})[e.name]||e.message||'Не удалось включить телефон.';}
@@ -71,6 +98,7 @@ function ring(){if(!audioContext)return;ringTimer=setInterval(()=>{const o=audio
 function stopRing(){clearInterval(ringTimer);ringTimer=null;}
 const attached=new WeakSet();
 function connectRemote(pc,eventStream){
+ if(!audibleSession()||audibleSession().connection!==pc)return false;
  const tracks=eventStream?eventStream.getAudioTracks():pc.getReceivers().map(r=>r.track).filter(t=>t&&t.kind==='audio');
  if(!tracks.length)return false;
  const same=remoteMedia&&tracks.every(t=>remoteMedia.getTracks().includes(t));
@@ -89,17 +117,92 @@ function connectRemote(pc,eventStream){
  else{$('remote').muted=false;$('remote').volume=1;$('remote').play().then(()=>{$('play-audio').textContent='Звук включён';}).catch(()=>error('Нажмите «Включить звук».'));}
  return true;
 }
-function attach(pc){if(attached.has(pc))return;attached.add(pc);pc.addEventListener('track',e=>connectRemote(pc,e.streams[0]||new MediaStream([e.track])));pc.addEventListener('iceconnectionstatechange',()=>{if(!session||session.connection!==pc)return;const state=pc.iceConnectionState;$('audio-status').textContent='Аудиосоединение: '+state;if(state==='failed')error('Не удалось установить звук. Завершите тест и проверьте сеть.');if(state==='connected'||state==='completed')connectRemote(pc);});connectRemote(pc);}
+function attach(pc){if(attached.has(pc))return;attached.add(pc);pc.addEventListener('track',e=>connectRemote(pc,e.streams[0]||new MediaStream([e.track])));pc.addEventListener('iceconnectionstatechange',()=>{if(!audibleSession()||audibleSession().connection!==pc)return;const state=pc.iceConnectionState;$('audio-status').textContent='Аудиосоединение: '+state;if(state==='failed')error('Не удалось установить звук. Завершите тест и проверьте сеть.');if(state==='connected'||state==='completed')connectRemote(pc);});connectRemote(pc);}
 async function microphones(){const devices=await navigator.mediaDevices.enumerateDevices();const selected=$('microphone').value;$('microphone').replaceChildren(new Option('Системный по умолчанию',''));for(const d of devices.filter(d=>d.kind==='audioinput'))$('microphone').add(new Option(d.label||'Микрофон '+($('microphone').length),d.deviceId));$('microphone').value=selected;}
 
-function finish(text){++callerGeneration;$('caller-context').hidden=true;stopRing();if(remoteSource)remoteSource.disconnect();if(remoteAnalyser)remoteAnalyser.disconnect();remoteSource=null;remoteAnalyser=null;remoteMedia=null;remoteSamples=null;session=null;started=null;$('call-title').textContent=text;$('mute').textContent='Выключить микрофон';$('remote').srcObject=null;$('play-audio').textContent='Включить звук';controls();if(disableAfterCall){disableAfterCall=false;const reason=disableReason;disableReason='';disable().then(()=>{if(reason)error(reason);});}}
-function handleSession(e){const s=e.session;if(session){s.terminate({status_code:486,reason_phrase:'Busy Here'});return;}session=s;started=null;error('');$('duration').textContent='00:00';$('audio-status').textContent='';$('call-title').textContent=(s.direction==='incoming'?'Входящий: ':'Вызов: ')+displayNumber(s.remote_identity.uri.user);
+function callMedia(){
+ if(!stream)throw new Error('Микрофон не включён.');
+ const media=stream.clone();media.getAudioTracks().forEach(track=>{track.enabled=true;});return media;
+}
+function releaseMedia(s){if(s&&s.data.aisMicStream){s.data.aisMicStream.getTracks().forEach(track=>track.stop());s.data.aisMicStream=null;}}
+function clearRemote(){
+ if(remoteSource)remoteSource.disconnect();if(remoteAnalyser)remoteAnalyser.disconnect();
+ remoteSource=null;remoteAnalyser=null;remoteMedia=null;remoteSamples=null;$('remote').srcObject=null;previousAudio=null;
+}
+function finish(text){
+ const original=session,colleague=consultSession;session=null;consultSession=null;consultReturning=false;
+ if(consultIntent&&consultIntent.media)consultIntent.media.getTracks().forEach(track=>track.stop());consultIntent=null;
+ if(holdTask){clearTimeout(holdTask.timer);holdTask=null;}
+ if(transferState){clearTimeout(transferState.timer);transferState=null;}
+ if(colleague&&!colleague.isEnded()){try{colleague.terminate();}catch(e){}}
+ releaseMedia(original);releaseMedia(colleague);
+ if(stream)stream.getAudioTracks().forEach(track=>{track.enabled=true;});
+ $('hold-status').textContent='';$('consult-title').textContent='';$('consult-result').textContent='';$('original-caller').hidden=true;
+ ++callerGeneration;$('caller-context').hidden=true;stopRing();clearRemote();started=null;$('call-title').textContent=text;$('play-audio').textContent='Включить звук';controls();
+ if(disableAfterCall){disableAfterCall=false;const reason=disableReason;disableReason='';disable().then(()=>{if(reason)error(reason);});}
+}
+function holdEndMessage(s,e){
+ if(s.data.aisTransferTarget)return 'Разговор переведён на '+s.data.aisTransferTarget;
+ const failedHold=s.data.aisHoldAttempt||s.data.aisHoldUncertain;
+ if(failedHold&&[JsSIP.C.causes.WEBRTC_ERROR,JsSIP.C.causes.REQUEST_TIMEOUT].includes(e.cause))return 'Связь прервалась: АТС не приняла удержание. Перезвоните клиенту.';
+ return 'Разговор завершён';
+}
+function changeHold(s,wanted,done){
+ if(session!==s||!s.isEstablished()||holdTask||transferState)return false;
+ if(s.isOnHold().local===wanted&&s.data.aisHoldConfirmed===wanted&&!s.data.aisHoldUncertain){if(done)done();return true;}
+ const task={session:s,timer:null};holdTask=task;s.data.aisHoldAttempt=wanted?'hold':'unhold';
+ const failure=text=>{if(session!==s||holdTask!==task)return;clearTimeout(task.timer);holdTask=null;consultReturning=false;s.data.aisHoldUncertain=true;$('hold-status').textContent=text;controls();};
+ const complete=()=>{if(session!==s||holdTask!==task)return;clearTimeout(task.timer);holdTask=null;s.data.aisHoldConfirmed=s.isOnHold().local;s.data.aisHoldUncertain=false;s.data.aisHoldAttempt=null;$('hold-status').textContent=confirmedHold(s)?'Клиент на удержании':'';controls();if(done)done();};
+ $('hold-status').textContent=wanted?'Включаем удержание…':'Возвращаем разговор…';controls();
+ task.timer=setTimeout(()=>failure('АТС не подтвердила изменение. Если клиент вас не слышит, завершите звонок и перезвоните.'),15000);
+ try{if(!(wanted?s.hold({},complete):s.unhold({},complete)))failure('Сейчас нельзя изменить удержание. Если клиент вас не слышит, завершите звонок и перезвоните.');}
+ catch(e){failure('Не удалось изменить удержание: '+e.message);}
+ return true;
+}
+function finishConsult(s,message){
+ if(consultSession!==s)return;consultSession=null;consultIntent=null;releaseMedia(s);clearRemote();
+ const original=session;if(!original)return;
+ if(transferState){clearTimeout(transferState.timer);transferState=null;}
+ consultReturning=true;$('consult-title').textContent='Возвращаемся к клиенту…';$('consult-result').textContent=message+' Возвращаемся к клиенту…';controls();
+ const restored=()=>{if(session!==original)return;consultReturning=false;$('consult-result').textContent=message;connectRemote(original.connection);controls();};
+ if(!changeHold(original,false,restored)){consultReturning=false;$('consult-result').textContent=message+' Нажмите «Вернуться к разговору».';controls();}
+}
+function handleConsult(s){
+ if(consultIntent&&consultIntent.media&&!s.data.aisMicStream)s.data.aisMicStream=consultIntent.media;consultSession=s;consultIntent=null;clearRemote();$('consult-result').textContent='';$('consult-title').textContent='Звоним коллеге: '+displayNumber(s.remote_identity.uri.user);
+ const on=(name,handler)=>s.on(name,event=>{if(consultSession===s)handler(event);});
+ on('peerconnection',e=>attach(e.peerconnection));if(s.connection)attach(s.connection);
+ on('confirmed',()=>{$('consult-title').textContent='Консультация с '+displayNumber(s.remote_identity.uri.user);if(s.connection)connectRemote(s.connection);controls();});
+ on('ended',()=>finishConsult(s,'Консультация завершена.'));
+ on('failed',e=>finishConsult(s,e.cause==='Canceled'?'Консультация отменена.':'Коллега недоступен: '+e.cause+'.'));
+ controls();
+}
+function handleSession(e){
+ const s=e.session;
+ if(session){
+  if(s.direction==='outgoing'&&consultIntent&&consultIntent.original===session&&!consultSession&&confirmedHold(session)){handleConsult(s);return;}
+  s.terminate({status_code:486,reason_phrase:'Busy Here'});return;
+ }
+ session=s;s.data.aisHoldConfirmed=false;started=null;$('hold-status').textContent='';$('consult-result').textContent='';$('transfer-status').textContent='';$('transfer-target').value='';
+ $('original-caller').hidden=s.direction!=='incoming';$('original-caller').textContent=s.direction==='incoming'?originalCallerText(s.remote_identity.uri.user):'';error('');$('duration').textContent='00:00';$('audio-status').textContent='';$('call-title').textContent=(s.direction==='incoming'?'Входящий: ':'Вызов: ')+displayNumber(s.remote_identity.uri.user);
  const on=(name,handler)=>s.on(name,event=>{if(session===s)handler(event);});
  on('peerconnection',e=>attach(e.peerconnection));if(s.connection)attach(s.connection);
- on('confirmed',()=>{if(s.connection)connectRemote(s.connection);stopRing();started=Date.now();$('call-title').textContent='Разговор с '+displayNumber(s.remote_identity.uri.user);controls();});
- on('ended',()=>finish('Разговор завершён'));
+ on('confirmed',()=>{if(s.connection)connectRemote(s.connection);stopRing();started=Date.now();controls();});
+ on('hold',()=>controls());on('unhold',()=>controls());
+ on('ended',e=>finish(holdEndMessage(s,e)));
  on('failed',e=>{const reason=e.message&&e.message.getHeader&&e.message.getHeader('Reason');const other=reason&&/cause\s*=\s*200/.test(reason);finish(other?'Отвечен другим':s.direction==='incoming'&&e.cause==='Canceled'?'Звонящий отменил вызов':'Вызов завершён: '+e.cause);});
  if(s.direction==='incoming'){ring();callerContext(s.remote_identity.uri.user);}controls();
+}
+function startConsultation(target){
+ const original=session;if(!original||!original.isEstablished()||consultSession||consultIntent||consultReturning||holdTask||transferState)return;
+ if(!/^\d{3,4}$/.test(target)||target===$('identity').value){$('consult-result').textContent='Выберите внутренний номер другого сотрудника.';return;}
+ const begin=()=>{
+  if(session!==original||!confirmedHold(original)||consultSession)return;
+  let media;
+  try{media=callMedia();consultIntent={original,media};controls();
+   ua.call('sip:'+target+'@localhost',{mediaStream:media,data:{aisMicStream:media},mediaConstraints:{audio:true,video:false},pcConfig});
+  }catch(e){if(media)media.getTracks().forEach(track=>track.stop());consultIntent=null;$('consult-result').textContent='Не удалось позвонить коллеге: '+e.message;changeHold(original,false);controls();}
+ };
+ if(confirmedHold(original))begin();else changeHold(original,true,begin);
 }
 function disable(){
  if(session)return Promise.resolve();
@@ -188,14 +291,84 @@ $('enable').onclick=async()=>{
  }finally{if(version===generation){busy=false;controls();}}
 };
 $('disable').onclick=disable;
-$('answer').onclick=()=>{error('');stopRing();try{session.answer({mediaStream:stream,mediaConstraints:{audio:true,video:false},pcConfig:pcConfig});}catch(e){error(e.message);}};
+$('answer').onclick=()=>{error('');stopRing();try{const s=session,media=s.data.aisMicStream||callMedia();s.data.aisMicStream=media;s.answer({mediaStream:media,mediaConstraints:{audio:true,video:false},pcConfig:pcConfig});}catch(e){error(e.message);}};
 $('reject').onclick=()=>{if(session)session.terminate({status_code:486,reason_phrase:'Busy Here'});};
 $('hangup').onclick=()=>{if(session)session.terminate();};
-$('mute').onclick=()=>{if(!session)return;if(session.isMuted().audio){session.unmute({audio:true});$('mute').textContent='Выключить микрофон';}else{session.mute({audio:true});$('mute').textContent='Включить микрофон';}};
-$('test-call').onclick=()=>{error('');try{ua.call('sip:'+dialNumber($('target').value)+'@localhost',{mediaStream:stream,mediaConstraints:{audio:true,video:false},pcConfig:pcConfig});}catch(e){error(e.message);}};
-$('play-audio').onclick=async()=>{try{if(audioContext)await audioContext.resume();if(!session||!session.connection||!connectRemote(session.connection)){$('audio-status').textContent='Входящий аудиопоток ещё не получен';return;}if(audioContext)await audioContext.resume();else await $('remote').play();$('play-audio').textContent='Звук включён';error('');}catch(e){error('Не удалось включить звук: '+e.message);}};
+$('mute').onclick=()=>{const s=audibleSession();if(!s)return;if(s.isMuted().audio)s.unmute({audio:true});else s.mute({audio:true});controls();};
+$('hold-call').onclick=()=>{if(session&&!consultSession&&!consultIntent&&!consultReturning)changeHold(session,!session.isOnHold().local);};
+$('test-call').onclick=()=>{
+ error('');let media;
+ try{const target=dialNumber($('target').value);if(session){startConsultation(target);return;}
+  media=callMedia();ua.call('sip:'+target+'@localhost',{mediaStream:media,data:{aisMicStream:media},mediaConstraints:{audio:true,video:false},pcConfig:pcConfig});
+ }catch(e){if(media)media.getTracks().forEach(track=>track.stop());error(e.message);}
+};
+$('consult-return').onclick=()=>{if(transferState)return;if(consultSession)consultSession.terminate();else if(consultReturning&&session){consultReturning=false;changeHold(session,false);controls();}};
+$('consult-connect').onclick=()=>{
+ const original=session,colleague=consultSession;if(!original||!colleague||!original.isEstablished()||!colleague.isEstablished()||transferState||holdTask)return;
+ const target=colleague.remote_identity.uri.user;if(!window.confirm('Соединить клиента с коллегой '+target+'?'))return;
+ const state={session:original,target,timer:null};transferState=state;
+ const active=()=>session===original&&consultSession===colleague&&transferState===state;
+ const failure=text=>{if(!active())return;clearTimeout(state.timer);transferState=null;$('consult-result').textContent=text;controls();};
+ $('consult-result').textContent='Соединяем клиента с коллегой…';controls();
+ state.timer=setTimeout(()=>failure('АТС не подтвердила соединение. Не завершайте разговоры, проверьте их состояние.'),125000);
+ try{original.refer(colleague.remote_identity.uri.toString(),{replaces:colleague,eventHandlers:{
+  requestFailed:()=>failure('АТС отклонила соединение. Можно вернуться к клиенту.'),
+  failed:()=>failure('Не удалось соединить клиента с коллегой.'),
+  accepted:()=>{if(!active())return;clearTimeout(state.timer);transferState=null;original.data.aisTransferTarget=target;original.terminate();}
+ }});}catch(e){failure('Не удалось соединить: '+e.message);}
+};
+function renderDirectory(){
+ const list=$('directory-list'), query=$('directory-search').value.trim().toLocaleLowerCase();
+ list.replaceChildren();let group=null, count=0;
+ for(const entry of directoryEntries||[]){
+  if((directoryTarget==='transfer-target'||session)&&!/^\d{3,4}$/.test(entry.number))continue;
+  if(query&&!`${entry.number} ${entry.label} ${entry.group||''}`.toLocaleLowerCase().includes(query))continue;
+  const caption=entry.group||'Другие номера';
+  if(group!==caption){const title=document.createElement('h3');title.textContent=caption;list.appendChild(title);group=caption;}
+  const button=document.createElement('button');button.type='button';button.textContent=entry.number+' · '+entry.label;
+  button.onclick=()=>{if(directoryTarget==='transfer-target'&&(!session||!session.isEstablished()||transferState))return;
+   const input=$(directoryTarget);input.value=entry.number;input.focus();closeDirectory();};
+  list.appendChild(button);count++;
+ }
+ $('directory-status').textContent=count?'Выберите номер':'Номера не найдены';
+}
+function closeDirectory(){$('phone-directory').hidden=true;$('directory-open').setAttribute('aria-expanded','false');}
+async function openDirectory(target){
+ directoryTarget=target;$('phone-directory').hidden=false;$('directory-open').setAttribute('aria-expanded','true');$('directory-search').focus();
+ if(directoryEntries){renderDirectory();return;}
+ if(directoryLoading)return;
+ directoryLoading=true;$('directory-status').textContent='Загружаем адресную книгу…';
+ try{const response=await request('/telephony/directory',{credentials:'same-origin',headers:{'Accept':'application/json'}});
+  if(!response.ok)throw new Error();const data=await response.json();if(!Array.isArray(data.entries))throw new Error();
+  directoryEntries=data.entries;renderDirectory();
+ }catch(e){$('directory-status').textContent='Не удалось загрузить адресную книгу. Закройте и откройте её снова.';}
+ finally{directoryLoading=false;}
+}
+$('directory-open').onclick=()=>{$('phone-directory').hidden||directoryTarget!=='target'?openDirectory('target'):closeDirectory();};
+$('transfer-directory').onclick=()=>openDirectory('transfer-target');
+$('directory-search').oninput=renderDirectory;
+$('transfer-call').onclick=()=>{
+ const s=session;if(!s||!s.isEstablished()||transferState||holdTask||consultSession||consultIntent||consultReturning)return;
+ const target=$('transfer-target').value.trim();
+ if(!/^\d{3,4}$/.test(target)){$('transfer-status').textContent='Укажите внутренний номер из 3–4 цифр.';return;}
+ if(target===$('identity').value){$('transfer-status').textContent='Выберите номер другого сотрудника.';return;}
+ if(!window.confirm('Перевести разговор на '+target+' без предварительного разговора с получателем?'))return;
+ const state={session:s,target,timer:null};transferState=state;
+ const active=()=>session===s&&transferState===state;
+ const failure=text=>{if(!active())return;clearTimeout(state.timer);transferState=null;$('transfer-status').textContent=text;controls();};
+ $('transfer-status').textContent='Переводим на '+target+'…';controls();
+ state.timer=setTimeout(()=>failure('АТС не подтвердила перевод. Проверьте состояние разговора перед повтором.'),125000);
+ try{s.refer('sip:'+target+'@localhost',{eventHandlers:{
+  requestSucceeded:()=>{if(active())$('transfer-status').textContent='АТС приняла перевод на '+target+'…';},
+  requestFailed:()=>failure('АТС отклонила перевод. Проверьте номер и повторите.'),
+  progress:()=>{if(active())$('transfer-status').textContent='Вызов направлен на '+target+'…';},
+  failed:()=>failure('Получатель недоступен или не ответил.'),
+  accepted:()=>{if(!active())return;clearTimeout(state.timer);transferState=null;s.data=s.data||{};s.data.aisTransferTarget=target;$('transfer-status').textContent='Разговор переведён на '+target;s.terminate();}
+ }});}catch(e){failure('Не удалось отправить перевод: '+e.message);}
+};
+$('play-audio').onclick=async()=>{try{if(audioContext)await audioContext.resume();if(!audibleSession()||!audibleSession().connection||!connectRemote(audibleSession().connection)){$('audio-status').textContent='Входящий аудиопоток ещё не получен';return;}if(audioContext)await audioContext.resume();else await $('remote').play();$('play-audio').textContent='Звук включён';error('');}catch(e){error('Не удалось включить звук: '+e.message);}};
 $('remote').addEventListener('playing',()=>error(''));
-window.pilotDiagnostics=async()=>{if(!session||!session.connection)return {active:false};let inbound=0,outbound=0;const stats=await session.connection.getStats();let route='ожидание';for(const pair of stats.values())if(pair.type==='candidate-pair'&&pair.state==='succeeded'&&pair.nominated){const local=stats.get(pair.localCandidateId);route=local?local.candidateType:'неизвестен';}for(const r of stats.values()){if(r.type==='inbound-rtp'&&(r.kind==='audio'||r.mediaType==='audio'))inbound+=r.bytesReceived||0;if(r.type==='outbound-rtp'&&(r.kind==='audio'||r.mediaType==='audio'))outbound+=r.bytesSent||0;}let remoteLevel=0;if(remoteAnalyser&&remoteSamples){remoteAnalyser.getByteTimeDomainData(remoteSamples);remoteLevel=Math.max(...Array.from(remoteSamples,x=>Math.abs(x-128)));}return {active:true,ice:session.connection.iceConnectionState,route,inbound,outbound,remoteTracks:remoteMedia?remoteMedia.getAudioTracks().length:0,playback:audioContext?audioContext.state:'html',remoteLevel};};
+window.pilotDiagnostics=async()=>{const s=audibleSession();if(!s||!s.connection)return {active:false};let inbound=0,outbound=0;const stats=await s.connection.getStats();let route='ожидание';for(const pair of stats.values())if(pair.type==='candidate-pair'&&pair.state==='succeeded'&&pair.nominated){const local=stats.get(pair.localCandidateId);route=local?local.candidateType:'неизвестен';}for(const r of stats.values()){if(r.type==='inbound-rtp'&&(r.kind==='audio'||r.mediaType==='audio'))inbound+=r.bytesReceived||0;if(r.type==='outbound-rtp'&&(r.kind==='audio'||r.mediaType==='audio'))outbound+=r.bytesSent||0;}let remoteLevel=0;if(remoteAnalyser&&remoteSamples){remoteAnalyser.getByteTimeDomainData(remoteSamples);remoteLevel=Math.max(...Array.from(remoteSamples,x=>Math.abs(x-128)));}return {active:true,ice:s.connection.iceConnectionState,route,inbound,outbound,remoteTracks:remoteMedia?remoteMedia.getAudioTracks().length:0,playback:audioContext?audioContext.state:'html',remoteLevel};};
 setInterval(()=>{if(started){const seconds=Math.floor((Date.now()-started)/1000);$('duration').textContent=String(Math.floor(seconds/60)).padStart(2,'0')+':'+String(seconds%60).padStart(2,'0');}publish();},1000);
 for(const id of ['mic-meter','remote-meter'])for(let i=0;i<20;i++)$(id).appendChild(document.createElement('i'));
 function drawMeter(id,analyser,samples){let level=0;if(analyser&&samples&&audioContext&&audioContext.state==='running'){analyser.getByteTimeDomainData(samples);let power=0;for(const x of samples)power+=Math.pow((x-128)/128,2);const rms=Math.sqrt(power/samples.length);level=rms>0.002?Math.min(100,Math.round(Math.sqrt(rms)*160)):0;}const meter=$(id);meter.setAttribute('aria-valuenow',String(level));Array.from(meter.children).forEach((bar,i)=>bar.classList.toggle('on',level>i*5));return level;}
@@ -203,7 +376,7 @@ setInterval(()=>{const mic=drawMeter('mic-meter',micAnalyser,micSamples);drawMet
 let previousAudio=null;
 setInterval(async()=>{
  if(micAnalyser&&micSamples){micAnalyser.getByteTimeDomainData(micSamples);const level=Math.max(...Array.from(micSamples,x=>Math.abs(x-128)));$('mic-status').textContent='Микрофон: '+(stream.getAudioTracks()[0].label||'подключён')+' · уровень '+Math.round(level/128*100)+'%';}
- if(session&&session.isEstablished()){try{const d=await window.pilotDiagnostics();if(!d.active)return;const inbound=previousAudio&&d.inbound>previousAudio.inbound;const outbound=previousAudio&&d.outbound>previousAudio.outbound;$('rtp-status').textContent='Звук: отправка '+(outbound?'идёт':'ожидание')+' · получение '+(inbound?'идёт':'ожидание')+' · воспроизведение '+(audioContext?audioContext.state==='running'?'включено':'остановлено':$('remote').paused?'остановлено':'включено')+' · входящий уровень '+Math.round((d.remoteLevel||0)/128*100)+'% · маршрут '+d.route;previousAudio=d;if(!previousAudio.inbound&&started&&Date.now()-started>10000)error('Ответ получен, но звук не приходит со шлюза.');}catch(e){$('rtp-status').textContent='Диагностика звука пока недоступна';}}
+ if(audibleSession()&&audibleSession().isEstablished()){try{const d=await window.pilotDiagnostics();if(!d.active)return;const inbound=previousAudio&&d.inbound>previousAudio.inbound;const outbound=previousAudio&&d.outbound>previousAudio.outbound;$('rtp-status').textContent='Звук: отправка '+(outbound?'идёт':'ожидание')+' · получение '+(inbound?'идёт':'ожидание')+' · воспроизведение '+(audioContext?audioContext.state==='running'?'включено':'остановлено':$('remote').paused?'остановлено':'включено')+' · входящий уровень '+Math.round((d.remoteLevel||0)/128*100)+'% · маршрут '+d.route;previousAudio=d;if(!previousAudio.inbound&&started&&Date.now()-started>10000&&!consultSession&&!session.isOnHold().local)error('Ответ получен, но звук не приходит со шлюза.');}catch(e){$('rtp-status').textContent='Диагностика звука пока недоступна';}}
  else previousAudio=null;
 },1000);
 if(navigator.mediaDevices)microphones().catch(()=>{});

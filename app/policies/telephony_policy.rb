@@ -5,5 +5,6 @@ class TelephonyPolicy < ApplicationPolicy
   alias_method :workspace?, :use?
   alias_method :show?, :use?
   alias_method :ticket?, :use?
+  alias_method :directory?, :use?
   alias_method :caller?, :use?
 end
