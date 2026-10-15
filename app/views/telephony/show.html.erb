@@ -20,10 +20,11 @@
 <p class="hint">Звонок мог быть принят на обычной трубке. Итог и запись — в истории вызовов.</p></details>
 </section>
 <section><p id="original-caller" class="hint" hidden></p><h2 id="call-title">Нет активного звонка</h2><p id="duration">00:00</p>
+<button id="call-reference" class="call-reference" type="button" hidden></button><span id="reference-feedback" class="hint" role="status"></span>
 <div id="caller-context" hidden></div>
 <div class="actions"><button id="answer" disabled>Ответить</button><button id="reject" disabled>Отклонить</button><button id="hangup" disabled>Завершить</button><button id="hold-call" type="button" aria-pressed="false" disabled>Удержать</button><button id="mute" disabled>Выключить микрофон</button></div>
 <p id="hold-status" role="status"></p>
-<div id="consult-panel" hidden><strong>Клиент остаётся на удержании</strong><p id="consult-title" role="status"></p>
+<div id="consult-panel" hidden><strong>Клиент остаётся на удержании</strong><p id="consult-title" role="status"></p><button id="consult-reference" class="call-reference" type="button" hidden></button>
 <button id="consult-return" type="button">Завершить консультацию и вернуться</button><button id="consult-connect" type="button" disabled>Соединить клиента с коллегой</button></div>
 <p id="consult-result" role="status"></p>
 <label for="target">Кому позвонить</label><input id="target" type="tel" placeholder="Номер телефона или внутренний номер" autocomplete="off"><button id="test-call" disabled>Позвонить</button>

@@ -14,6 +14,29 @@ function publish(){
   enabled:!!ua,call:!!session,waiting:waitingCount,incoming:!!session&&session.direction==='incoming'&&!session.isEstablished(),
   callTitle:session?$('call-title').textContent+(consultSession?' · '+$('consult-title').textContent:''):'',duration:$('duration').textContent},location.origin);
 }
+function callReference(request){
+ const value=request&&(request.call_id||(request.getHeader&&request.getHeader('Call-ID')));
+ return typeof value==='string'&&/^[A-Za-z0-9@._+-]{1,256}$/.test(value)?value:null;
+}
+function showReference(id,value){
+ const button=$(id);button.hidden=!value;button.dataset.reference=value||'';
+ button.textContent=value?'ID: '+(value.length>16?value.slice(0,8)+'…'+value.slice(-6):value)+' ⧉':'';
+ button.title=value?'Скопировать ID звонка: '+value:'';
+ button.setAttribute('aria-label','Скопировать полный ID звонка');
+}
+async function copyReference(button){
+ const value=button.dataset.reference;if(!value)return;
+ try{
+  if(navigator.clipboard&&navigator.clipboard.writeText)await navigator.clipboard.writeText(value);
+  else{
+   const input=document.createElement('textarea');input.value=value;input.style.position='fixed';input.style.opacity='0';document.body.appendChild(input);
+   try{input.select();if(!document.execCommand('copy'))throw new Error();}finally{input.remove();button.focus();}
+  }
+  $('reference-feedback').textContent='ID скопирован';
+ }catch(e){$('reference-feedback').textContent='Не удалось скопировать ID: '+value;}
+}
+$('call-reference').onclick=()=>copyReference($('call-reference'));
+$('consult-reference').onclick=()=>copyReference($('consult-reference'));
 function check(id,text,state){const el=$('check-'+id);el.textContent=text;el.dataset.state=state;}
 function status(text,state){if(state)linkState=state;$('status').textContent=text;publish();}
 function error(text){$('error').textContent=text||'';publish();}
@@ -208,6 +231,7 @@ function finishConsult(s,message){
  if(!changeHold(original,false,restored)){consultReturning=false;$('consult-result').textContent=message+' Нажмите «Вернуться к разговору».';controls();}
 }
 function handleConsult(s){
+ showReference('consult-reference',s.data.aisSipReference);
  if(consultIntent&&consultIntent.media&&!s.data.aisMicStream)s.data.aisMicStream=consultIntent.media;consultSession=s;consultIntent=null;clearRemote();$('consult-result').textContent='';$('consult-title').textContent='Звоним коллеге: '+displayNumber(s.remote_identity.uri.user);
  const on=(name,handler)=>s.on(name,event=>{if(consultSession===s)handler(event);});
  on('peerconnection',e=>attach(e.peerconnection));if(s.connection)attach(s.connection);
@@ -217,11 +241,12 @@ function handleConsult(s){
  controls();
 }
 function handleSession(e){
- const s=e.session;
+ const s=e.session;s.data.aisSipReference=callReference(e.request);
  if(session){
   if(s.direction==='outgoing'&&consultIntent&&consultIntent.original===session&&!consultSession&&confirmedHold(session)){handleConsult(s);return;}
   s.terminate({status_code:486,reason_phrase:'Busy Here'});return;
  }
+ showReference('call-reference',s.data.aisSipReference);showReference('consult-reference',null);$('reference-feedback').textContent='';
  session=s;s.data.aisHoldConfirmed=false;started=null;$('hold-status').textContent='';$('consult-result').textContent='';$('transfer-status').textContent='';$('transfer-target').value='';
  $('original-caller').hidden=s.direction!=='incoming';$('original-caller').textContent=s.direction==='incoming'?originalCallerText(s.remote_identity.uri.user):'';error('');$('duration').textContent='00:00';$('audio-status').textContent='';$('call-title').textContent=(s.direction==='incoming'?'Входящий: ':'Вызов: ')+displayNumber(s.remote_identity.uri.user);
  const on=(name,handler)=>s.on(name,event=>{if(session===s)handler(event);});
