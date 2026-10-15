@@ -13,6 +13,12 @@
 <ul id="phone-checks" aria-label="Проверка телефонии"><li id="check-microphone">Микрофон: не проверен</li><li id="check-gateway">Шлюз: не проверен</li><li id="check-registration">Регистрация: выключена</li></ul>
 <p id="gateway-help" hidden><a id="gateway-check" target="_blank" rel="noopener">Проверить защищённое соединение со шлюзом</a></p>
 <p id="status" role="status">Телефония выключена</p><p id="error" role="alert"></p>
+<section id="waiting-panel" hidden aria-label="Очередь звонков">
+<h2 id="waiting-title">Ожидающие звонки</h2><p id="waiting-status" role="status"></p>
+<div id="waiting-list"></div>
+<details><summary>Недавно покинули очередь</summary><div id="waiting-recent"></div>
+<p class="hint">Звонок мог быть принят на обычной трубке. Итог и запись — в истории вызовов.</p></details>
+</section>
 <section><p id="original-caller" class="hint" hidden></p><h2 id="call-title">Нет активного звонка</h2><p id="duration">00:00</p>
 <div id="caller-context" hidden></div>
 <div class="actions"><button id="answer" disabled>Ответить</button><button id="reject" disabled>Отклонить</button><button id="hangup" disabled>Завершить</button><button id="hold-call" type="button" aria-pressed="false" disabled>Удержать</button><button id="mute" disabled>Выключить микрофон</button></div>

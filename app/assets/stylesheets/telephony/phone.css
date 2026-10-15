@@ -13,3 +13,5 @@ body.embedded{min-height:100vh}
 #hold-call[aria-pressed=true]{background:#fff1cf;color:#785300;border-color:#e5c771}#hold-status{font-size:13px;color:#785300}
 
 #consult-panel{background:#edf5fb;border:1px solid #cbd9e3;padding:10px;border-radius:8px;margin-top:10px}#consult-result{font-size:13px}
+
+.waiting-card{padding:12px;margin:8px 0;background:#edf5fb;border-radius:10px}.waiting-card p{margin:6px 0}.waiting-card a{display:block;margin-top:6px}#waiting-status{font-size:14px}

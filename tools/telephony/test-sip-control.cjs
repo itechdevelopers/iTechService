@@ -6,8 +6,9 @@ const run=(...args)=>execFileSync(vm,['shell','p','sudo',...args],{encoding:'utf
 const control=(payload)=>execFileSync(vm,['shell','p','sudo','python3','/tmp/lease-control-test.py'],{encoding:'utf8',input:JSON.stringify(payload)});
 (async()=>{
  execFileSync(vm,['copy',path.join(__dirname,'sip_control.py'),'p:/tmp/sip_control_review.py']);
+ execFileSync(vm,['copy',path.join(__dirname,'queue_state.py'),'p:/tmp/ais-lease-review-queue.py']);
  const endpoint='\n;temporary-lease-check\n[7798]\ntype=endpoint\ncontext=pilot-only\ndisallow=all\nallow=ulaw,alaw\nwebrtc=yes\nmedia_encryption=dtls\ndtls_auto_generate_cert=yes\ndirect_media=no\nrtp_symmetric=yes\nforce_rport=yes\nrewrite_contact=yes\nauth=auth-7798\naors=7798\n[7798]\ntype=aor\nmax_contacts=1\nremove_existing=yes\nmaximum_expiration=60\nminimum_expiration=30\n#include lease-test-auth.conf\n';
- const helper="import importlib.util,json,sys\nfrom pathlib import Path\ns=importlib.util.spec_from_file_location('ctl','/tmp/sip_control_review.py');m=importlib.util.module_from_spec(s);s.loader.exec_module(m);m.EXTENSIONS={'7798'};m.AUTH=Path('/etc/asterisk/lease-test-auth.conf');m.STATE=Path('/root/lease-test-state.json');m.handle(json.load(sys.stdin));print('ok')\n";
+ const helper="import importlib.util,json,sys\nfrom pathlib import Path\nqs=importlib.util.spec_from_file_location('queue_state','/tmp/ais-lease-review-queue.py');q=importlib.util.module_from_spec(qs);qs.loader.exec_module(q);sys.modules['queue_state']=q\ns=importlib.util.spec_from_file_location('ctl','/tmp/sip_control_review.py');m=importlib.util.module_from_spec(s);s.loader.exec_module(m);m.EXTENSIONS={'7798'};m.AUTH=Path('/etc/asterisk/lease-test-auth.conf');m.STATE=Path('/root/lease-test-state.json');m.handle(json.load(sys.stdin));print('ok')\n";
  run('python3','-c',"from pathlib import Path;p=Path('/etc/asterisk/pjsip.conf');assert ';temporary-lease-check' not in p.read_text();p.write_text(p.read_text()+"+JSON.stringify(endpoint)+");Path('/tmp/lease-control-test.py').write_text("+JSON.stringify(helper)+")");
  let browser;
  const make=()=>({action:'enable',extension:'7798',password:crypto.randomBytes(32).toString('base64url'),contact_user:'7798-'+crypto.randomBytes(16).toString('hex'),until:Math.floor(Date.now()/1000)+60});
@@ -28,7 +29,7 @@ const control=(payload)=>execFileSync(vm,['shell','p','sudo','python3','/tmp/lea
  }finally{
   if(browser)await browser.close();
   try{control({action:'disable',extension:'7798'});}catch(e){}
-  run('python3','-c',"from pathlib import Path;p=Path('/etc/asterisk/pjsip.conf');p.write_text(p.read_text().split(';temporary-lease-check')[0]);\nfor f in ['/etc/asterisk/lease-test-auth.conf','/root/lease-test-state.json','/tmp/lease-control-test.py','/tmp/sip_control_review.py']:Path(f).unlink(missing_ok=True)");
+  run('python3','-c',"from pathlib import Path;p=Path('/etc/asterisk/pjsip.conf');p.write_text(p.read_text().split(';temporary-lease-check')[0]);\nfor f in ['/etc/asterisk/lease-test-auth.conf','/root/lease-test-state.json','/tmp/lease-control-test.py','/tmp/sip_control_review.py','/tmp/ais-lease-review-queue.py']:Path(f).unlink(missing_ok=True)");
   run('asterisk','-rx','pjsip reload');run('asterisk','-rx','database deltree ais-telephony 7798');
  }
 })().catch(e=>{console.error('SIP lease test failed:',e.message.split('\n')[0]);process.exit(1);});

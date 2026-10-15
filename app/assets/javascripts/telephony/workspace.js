@@ -5,6 +5,7 @@ const content = $('ais-workspace-content'), phone = $('ais-workspace-phone');
 const pathPattern = new RegExp(document.body.dataset.workspacePathPattern);
 let activeCall = false, enabled = false, lastIncoming = false, lastError = '', fallbackNotice = false;
 const panel = open => { $('phone-panel').hidden = !open; $('phone-toggle').setAttribute('aria-expanded', String(open)); };
+let lastWaiting=0;
 const command = action => phone.contentWindow.postMessage({type:'ais-phone-command', action}, location.origin);
 const notice = text => { $('workspace-notice').textContent=text; $('workspace-notice').hidden=!text; };
 function validPath(path){
@@ -32,10 +33,12 @@ window.addEventListener('message', event => {
  if(!['off','checking','ready','call','error'].includes(state.state)) return;
  activeCall = state.call === true; enabled = state.enabled === true;
  $('phone-dot').dataset.state = state.state;
- $('phone-summary').textContent = state.error || state.status || 'Выключена';
+ $('phone-summary').textContent = (state.error || state.status || 'Выключена')+(Number.isInteger(state.waiting)&&state.waiting>0?' · Ожидают: '+state.waiting:'');
  $('phone-call-summary').textContent = activeCall ? (state.callTitle || '') + (state.duration ? ' · '+state.duration : '') : '';
  $('phone-disable').hidden = !enabled;
- if((state.incoming&&!lastIncoming)||(state.error&&state.error!==lastError))panel(true);
+ const waiting=Number.isInteger(state.waiting)&&state.waiting>0?state.waiting:0;
+ if((state.incoming&&!lastIncoming)||(state.error&&state.error!==lastError)||waiting>lastWaiting)panel(true);
+ lastWaiting=waiting;
  lastIncoming=!!state.incoming;lastError=state.error||'';
  if(!enabled&&fallbackNotice){notice('');fallbackNotice=false;}
 });
