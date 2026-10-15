@@ -37,6 +37,13 @@
     border-bottom-color: #d6f5e3;
   }
 
+  &__tab--reviews.active > a,
+  &__tab--reviews.active > a:hover,
+  &__tab--reviews.active > a:focus {
+    background-color: #fff0df;
+    border-bottom-color: #fff0df;
+  }
+
   &__panel {
     padding: 16px;
     border-radius: 0 4px 4px 4px;
@@ -45,6 +52,7 @@
     &--fast { background-color: #d6ebff; }
     &--long { background-color: #e8e4ff; }
     &--mac  { background-color: #d6f5e3; }
+    &--reviews { background-color: #fff0df; }
   }
 
   &__table {
