@@ -53,6 +53,10 @@ class SchedulePolicy < ApplicationPolicy
     manage?
   end
 
+  def reorder_members?
+    manage?
+  end
+
   def create_memo?
     manage?
   end

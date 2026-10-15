@@ -187,6 +187,7 @@ Rails.application.routes.draw do
     get :history, on: :member
     post :save_week, on: :member
     post :send_to_telegram, on: :member
+    patch :reorder_members, on: :member
     resources :schedule_entries, only: :destroy do
       collection do
         post :upsert
