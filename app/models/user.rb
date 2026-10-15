@@ -84,11 +84,8 @@ class User < ApplicationRecord
   # маски всех существующих пользователей.
   ACTIVITIES = %w[free fast long mac reviews].freeze
 
-  # Активности, по которым строится сводка «Статистика персонала» и планы.
-  # `reviews` туда не входит: отзывы 2ГИС считаются иначе (за всё время, а не за
-  # месяц) и своей сводной страницы пока не имеют — иконка в topbar ведёт
-  # в профиль сотрудника.
-  STATISTICS_ACTIVITIES = %w[free fast long mac].freeze
+  # Месячные показатели и планы. Порядок ACTIVITIES/битов не меняем.
+  STATISTICS_ACTIVITIES = %w[free fast long mac reviews].freeze
   UNIFORM_SEX = %w[мужская женская].freeze
   UNIFORM_SIZE = %w[XS S M L XL XXL XXXL].freeze
 

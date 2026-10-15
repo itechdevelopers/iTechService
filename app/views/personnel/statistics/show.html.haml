@@ -7,7 +7,7 @@
     = select_tag :month,
                  options_for_select(month_options, @month.to_s),
                  class: 'input-medium',
-                 onchange: 'this.form.submit()'
+                 onchange: "if(this.form.elements.from_date){this.form.elements.from_date.value='';this.form.elements.to_date.value='';}this.form.submit()"
 
     = label_tag :city_id, t('.city'), class: 'control-label'
     = select_tag :city_id,
@@ -15,6 +15,14 @@
                  class: 'input-medium',
                  onchange: 'this.form.submit()'
 
+    - if @metric == 'reviews'
+      = label_tag :department_id, t('.department'), class: 'control-label'
+      = select_tag :department_id, options_from_collection_for_select(@departments, :id, :name, @department&.id), include_blank: t('.all_departments'), class: 'input-large'
+      = label_tag :from_date, t('.from_date'), class: 'control-label'
+      = date_field_tag :from_date, @from_date, class: 'input-medium'
+      = label_tag :to_date, t('.to_date'), class: 'control-label'
+      = date_field_tag :to_date, @to_date, class: 'input-medium'
+      = submit_tag t('.apply'), class: 'btn'
     = hidden_field_tag :metric, @metric
 
 .employee-statistics
@@ -22,10 +30,20 @@
     - User::STATISTICS_ACTIVITIES.each do |m|
       %li{ class: "employee-statistics__tab--#{m} #{'active' if m == @metric}" }
         = link_to t("personnel.statistics.metrics.#{m}"),
-                  personnel_statistics_path(metric: m, month: @month.to_s, city_id: @city.id)
+                  personnel_statistics_path(metric: m, month: @month.to_s, city_id: @city.id, department_id: (m == 'reviews' ? @department&.id : nil), from_date: (m == 'reviews' ? @from_date : nil), to_date: (m == 'reviews' ? @to_date : nil))
 
   .employee-statistics__panel{ class: "employee-statistics__panel--#{@metric}" }
-    %h3= "#{t("personnel.statistics.metrics.#{@metric}")} — #{nominative_month_year(@month)}, #{@city.name}"
+    - period_title = @metric == 'reviews' && (@from_date != @month || @to_date != @month.end_of_month) ? "#{l(@from_date)} — #{l(@to_date)}" : nominative_month_year(@month)
+    %h3= "#{t("personnel.statistics.metrics.#{@metric}")} — #{period_title}, #{@city.name}"
+
+    - if @metric == 'reviews'
+      %p= t('.reviews_hint')
+      %p
+        = "#{l(@from_date)} — #{l(@to_date)}"
+        - if @department
+          = " · #{@department.name}"
+      - unless @show_plan
+        %p.muted= t('.scoped_plan_hint')
 
     - if @rows.empty?
       %p.muted= t('.empty')
@@ -37,7 +55,7 @@
             %th= t('.employee')
             %th{style: 'width: 120px; text-align: right;'}= t('.value')
         %tbody
-          - achieved = ->(count) { @plan.target.to_i.positive? && count >= @plan.target.to_i }
+          - achieved = ->(count) { @show_plan && @plan.target.to_i.positive? && count >= @plan.target.to_i }
           - @rows.each do |user, count|
             %tr{ class: ('employee-statistics__row--achieved' if achieved.call(count)) }
               %td
@@ -45,13 +63,14 @@
                   = image_tag user.photo.thumb.url, class: 'employee-statistics__avatar'
               %td= user.short_name
               %td{style: 'text-align: right;'}= count
-        %tfoot
-          %tr.employee-statistics__plan-row
-            %td
-            %td= t('.plan_value')
-            %td{style: 'text-align: right;'}
-              - if can?(:update, Plan)
-                - plan_data = { month: @month.to_s, 'city-id': @city.id, metric: @metric, url: personnel_plans_path }
-                = number_field_tag :target, @plan.target.to_i, min: 0, class: 'employee-statistics__plan-input', data: plan_data
-              - else
-                = @plan.target.to_i
+        - if @show_plan
+          %tfoot
+            %tr.employee-statistics__plan-row
+              %td
+              %td= t('.plan_value')
+              %td{style: 'text-align: right;'}
+                - if can?(:update, Plan)
+                  - plan_data = { month: @month.to_s, 'city-id': @city.id, metric: @metric, url: personnel_plans_path }
+                  = number_field_tag :target, @plan.target.to_i, min: 0, class: 'employee-statistics__plan-input', data: plan_data
+                - else
+                  = @plan.target.to_i
