@@ -35,6 +35,18 @@ qualify_frequency=0
 
 """
 
+def install_queues(root, source):
+    # Fresh provision must install the queues used by its dialplan too.
+    shutil.copy2(source, root/'ais-telephony-queues.conf')
+    (root/'ais-telephony-queues.conf').chmod(0o640)
+    os.chown(root/'ais-telephony-queues.conf', 0, grp.getgrnam('asterisk').gr_gid)
+    path = root/'queues.conf'
+    include = '#include ais-telephony-queues.conf'
+    if include not in path.read_text().splitlines():
+        with path.open('a') as handle:
+            handle.write('\n' + include + '\n')
+
+
 def main():
     import argparse
     parser = argparse.ArgumentParser();parser.add_argument('--activate', action='store_true')
@@ -44,12 +56,12 @@ def main():
     config = json.loads(Path('/etc/ais-telephony/config.json').read_text())
     assert len(config['shared_secret']) >= 32 and not config['shared_secret'].startswith('REPLACE')
     count = subprocess.check_output(['/usr/sbin/asterisk','-rx','core show channels count']).decode()
-    assert '0 active channels' in count, 'Finish active calls first'
+    assert re.search(r'^0 active channels$', count, re.M), 'Finish active calls first'
     pjsip = (ROOT/'pjsip.conf').read_text()
     assert 'ais-telephony-endpoints.conf' not in pjsip, 'Already provisioned: inspect before reapplying'
     backup = Path('/root/ais-telephony-backup-' + datetime.datetime.now().strftime('%Y%m%d-%H%M%S'))
     backup.mkdir(mode=0o700)
-    for name in ['pjsip.conf','extensions.conf','rtp.conf','cdr.conf','http.conf']:
+    for name in ['pjsip.conf','extensions.conf','rtp.conf','cdr.conf','http.conf','queues.conf','ais-telephony-queues.conf']:
         if (ROOT/name).exists():
             shutil.copy2(ROOT/name,backup/name);(backup/name).chmod(0o600)
     sections = re.split(r'(?m)(?=^\[)', pjsip)
@@ -71,6 +83,7 @@ def main():
     extensions = re.sub(r'(?ms)^\[from-pbx-pilot\]\n.*?(?=^\[|\Z)', '', extensions)
     (ROOT/'extensions.conf').write_text(extensions + '\n#include ais-telephony-dialplan.conf\n')
     (ROOT/'ais-telephony-dialplan.conf').write_text(Path('/opt/ais-telephony/gateway-dialplan.conf').read_text())
+    install_queues(ROOT, Path('/opt/ais-telephony/gateway-queues.conf'))
     (ROOT/'rtp.conf').write_text('[general]\nrtpstart=12000\nrtpend=12079\nicesupport=yes\n')
     cdr = '[general]\nenable=yes\nunanswered=yes\n[ csv ]\nusegmtime=yes\nloguniqueid=yes\nloguserfield=yes\n'
     (ROOT/'cdr.conf').write_text(cdr.replace('[ csv ]','[csv]'))

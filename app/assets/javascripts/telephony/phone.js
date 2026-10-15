@@ -6,11 +6,12 @@ const csrf=()=>document.querySelector('meta[name=csrf-token]').content;
 let ua=null,session=null,stream=null,lease=null,heartbeat=null,started=null,ringTimer=null,audioContext=null,busy=false,pcConfig={iceServers:[]},micAnalyser=null,micSamples=null,remoteSource=null,remoteAnalyser=null,remoteSamples=null,remoteMedia=null,micSource=null,micSilentGain=null;
 JsSIP.debug.disable();
 let linkState='off',disableAfterCall=false,disableReason='',generation=0,renewingFor=null,renewalWarning=null,disableTask=null,renewalAbort=null;
+let waitingTimer=null,waitingRequest=null,waitingCount=0,waitingClients=new Map();
 function publish(){
  if(window.parent===window)return;
  const state=$('error').textContent?'error':session&&session.isEstablished()?'call':linkState;
  window.parent.postMessage({type:'ais-phone-state',state,status:$('status').textContent,error:$('error').textContent,
-  enabled:!!ua,call:!!session,incoming:!!session&&session.direction==='incoming'&&!session.isEstablished(),
+  enabled:!!ua,call:!!session,waiting:waitingCount,incoming:!!session&&session.direction==='incoming'&&!session.isEstablished(),
   callTitle:session?$('call-title').textContent+(consultSession?' · '+$('consult-title').textContent:''):'',duration:$('duration').textContent},location.origin);
 }
 function check(id,text,state){const el=$('check-'+id);el.textContent=text;el.dataset.state=state;}
@@ -70,6 +71,45 @@ function clientLink(title,url){
   if(window.opener&&!window.opener.closed){window.opener.location.assign(address.href);window.opener.focus();e.preventDefault();}
  }catch(err){}};
  return a;
+}
+function waitingCard(item,active){
+ const card=document.createElement('div');card.className='waiting-card';
+ const number=document.createElement('strong');number.textContent=displayNumber(item.number);card.appendChild(number);
+ const original=document.createElement('p');original.className='hint';original.textContent=originalCallerText(item.number);card.appendChild(original);
+ const line=document.createElement('p');
+ const states={answered:'Принят в браузере',left:'Покинул очередь · итог уточняется',timeout:'Истекло ожидание на шлюзе · итог уточняется',unknown:'Состояние уточняется'};
+ line.textContent=(item.queue==='ais-browser-all'?'Общая очередь':'Личный номер')+' · '+(active?'Позиция '+item.position+' · ожидание '+Math.floor(item.wait_seconds/60)+':'+String(item.wait_seconds%60).padStart(2,'0'):states[item.state]||'Итог уточняется');
+ if(item.answered_extension)line.textContent+=' · '+item.answered_extension;card.appendChild(line);
+ const context=waitingClients.get(item.number);
+ if(context){
+  if(context.directory){const caption=document.createElement('p');caption.textContent=[context.directory.label,context.directory.group].filter(Boolean).join(' · ');card.appendChild(caption);}
+  for(const client of context.clients||[]){for(const entity of client.entities||[])card.appendChild(clientLink(entity.title,entity.url));card.appendChild(clientLink(client.name,client.url));}
+ }
+ return card;
+}
+async function pollWaiting(currentUa,version){
+ if(ua!==currentUa||!lease||waitingRequest)return;
+ const task={};waitingRequest=task;const currentLease=lease;
+ try{
+  const data=await api('/waiting',currentLease,5000);
+  if(ua!==currentUa||version!==generation||lease!==currentLease)return;
+  waitingCount=data.waiting.length;$('waiting-panel').hidden=false;
+  $('waiting-title').textContent='Ожидающие звонки · '+waitingCount;
+  $('waiting-status').textContent=waitingCount?'Вызовы в очереди могут уже звонить свободным коллегам или обычным трубкам.':'Нет ожидающих звонков';
+  $('waiting-list').replaceChildren(...data.waiting.map(item=>waitingCard(item,true)));
+  $('waiting-recent').replaceChildren(...data.recent.map(item=>waitingCard(item,false)));publish();
+  await Promise.allSettled(data.waiting.slice(0,10).map(async item=>{
+   if(waitingClients.has(item.number))return;waitingClients.set(item.number,null);
+   try{
+    const response=await request('/telephony/caller?number='+encodeURIComponent(item.number),{headers:{Accept:'application/json'}},5000);
+    if(!response.ok)throw new Error();const context=await response.json();
+    if(ua!==currentUa||version!==generation)return;
+    if(waitingClients.size>=100)waitingClients.delete(waitingClients.keys().next().value);waitingClients.set(item.number,context);
+   }catch(e){if(ua===currentUa&&version===generation)waitingClients.delete(item.number);}
+  }));
+ }catch(e){
+  if(ua===currentUa&&version===generation){$('waiting-panel').hidden=false;$('waiting-status').textContent='Очередь сейчас недоступна. Список может быть устаревшим; разговор продолжается.';}
+ }finally{if(waitingRequest===task)waitingRequest=null;}
 }
 async function callerContext(raw){
  const generation=++callerGeneration;const target=$('caller-context');target.replaceChildren();target.hidden=false;
@@ -212,6 +252,7 @@ function disable(){
 async function shutdown(){
  ++generation;busy=true;
  clearInterval(heartbeat);heartbeat=null;
+ clearInterval(waitingTimer);waitingTimer=null;waitingCount=0;waitingClients.clear();waitingRequest=null;$('waiting-panel').hidden=true;
  const oldUa=ua,oldLease=lease,context={gateway,ticket:activeTicket};
  ua=null;lease=null;if(renewalAbort)renewalAbort.abort(); // JsSIP emits delayed events after stop; this UA is no longer current.
  if(oldUa)oldUa.stop();
@@ -274,6 +315,7 @@ $('enable').onclick=async()=>{
   on('registered',()=>{
    if(document.body.classList.contains('embedded')){$('phone-settings').open=false;$('phone-meters').open=false;}
    check('registration','Регистрация: готов к звонкам','ok');status('Готов к звонкам · '+lease.user,'ready');error('');controls();renew(currentUa,version);
+   if(!waitingTimer)waitingTimer=setInterval(()=>pollWaiting(currentUa,version),2000);pollWaiting(currentUa,version);
   });
   on('unregistered',()=>{check('registration','Регистрация: отсутствует','error');status('Не зарегистрирован','error');controls();});
   on('registrationFailed',e=>{check('registration','Регистрация: ошибка','error');status('Регистрация не выполнена','error');error(e.response&&e.response.status_code===403?'Этот телефон уже зарегистрирован в другом окне.':'Ошибка регистрации: '+e.cause);controls();});

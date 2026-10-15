@@ -2,6 +2,7 @@
 """Root-owned local socket; only the asterisk UID may update managed auth."""
 import grp, json, os, pwd, re, secrets, socket, struct, subprocess, tempfile
 from pathlib import Path
+from queue_state import snapshot
 EXTENSIONS = {str(n) for n in range(7771, 7781)}
 AUTH = Path('/etc/asterisk/ais-telephony-auth.conf')
 STATE = Path('/var/lib/ais-telephony/auth.json')
@@ -25,8 +26,10 @@ def rotate(extension, password):
 def handle(payload):
     extension = payload.get('extension')
     action = payload.get('action')
-    if extension not in EXTENSIONS or action not in ('enable', 'heartbeat', 'disable'):
+    if extension not in EXTENSIONS or action not in ('enable', 'heartbeat', 'disable', 'waiting'):
         raise ValueError()
+    if action == 'waiting':
+        return snapshot(extension)
     if action == 'disable':
         cli('database put ais-telephony {}/active 0'.format(extension))
         rotate(extension, secrets.token_urlsafe(32))
@@ -82,8 +85,8 @@ def main():
                         if not part:break
                         data.extend(part)
                     if len(data) >= 4096:raise ValueError()
-                    handle(json.loads(data))
-                    client.sendall(b'{"ok":true}\n')
+                    result = handle(json.loads(data))
+                    client.sendall(json.dumps({'ok': True, 'result': result}).encode() + b'\n')
                 except (ValueError, TypeError, AttributeError, OSError, subprocess.SubprocessError):
                     client.sendall(b'{"ok":false}\n')
 if __name__ == '__main__':main()

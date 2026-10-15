@@ -32,9 +32,11 @@ window.addEventListener('message', event => {
  if(!['off','checking','ready','call','error'].includes(state.state)) return;
  activeCall = state.call === true; enabled = state.enabled === true;
  $('phone-dot').dataset.state = state.state;
- $('phone-summary').textContent = state.error || state.status || 'Выключена';
+ $('phone-summary').textContent = (state.error || state.status || 'Выключена')+(Number.isInteger(state.waiting)&&state.waiting>0?' · Ожидают: '+state.waiting:'');
  $('phone-call-summary').textContent = activeCall ? (state.callTitle || '') + (state.duration ? ' · '+state.duration : '') : '';
  $('phone-disable').hidden = !enabled;
+ // Queue count includes calls currently ringing colleagues/desk phones.
+ // Keep it visible without repeatedly opening a manually collapsed panel.
  if((state.incoming&&!lastIncoming)||(state.error&&state.error!==lastError))panel(true);
  lastIncoming=!!state.incoming;lastError=state.error||'';
  if(!enabled&&fallbackNotice){notice('');fallbackNotice=false;}
