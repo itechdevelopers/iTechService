@@ -38,22 +38,22 @@ class RepairPauseDuration
     return I18n.t('service_jobs.repair_status.pause_duration.invalid_amount') unless amount&.positive?
     return I18n.t('service_jobs.repair_status.pause_duration.invalid_unit') unless UNITS.key?(unit)
 
-    I18n.t('service_jobs.repair_status.pause_duration.too_long', days: MAX_DAYS) if length > MAX_DAYS.days
+    I18n.t('service_jobs.repair_status.pause_duration.too_long', days: MAX_DAYS) if raw_length > MAX_DAYS.days
   end
 
   def valid?
     error.nil?
   end
 
-  def until_from(time)
+  def length
     return if blank? || !valid?
 
-    time + length
+    raw_length
   end
 
   private
 
-  def length
+  def raw_length
     amount * UNITS.fetch(unit)
   end
 end

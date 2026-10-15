@@ -14,7 +14,7 @@
     $modal.find('.repair-status-widget-modal__error').remove();
     $modal.find('.repair-status-widget-modal__body')
           .prepend('<div class="repair-status-widget-modal__error"><%= j @gluing_error %></div>');
-    $modal.find('input[name="gluing_hours"]').focus();
+    $modal.find('input[name="pause_amount"]').focus();
   })();
 <% elsif @testing_error.present? %>
   (function() {

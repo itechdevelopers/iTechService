@@ -1,12 +1,15 @@
 -# Быстрые кнопки только заполняют число и единицу — сервер читает
--# pause_amount и pause_unit, откуда бы они ни пришли.
+-# pause_amount и pause_unit, откуда бы они ни пришли. Обязательность
+-# (required: true) проверяет сервер: HTML-атрибут подсвечивал бы поле
+-# красным сразу при открытии окна, пока оно пустое и в фокусе.
 - required = local_assigns.fetch(:required, false)
+- label = local_assigns[:label] || t('service_jobs.repair_status.pause_duration.label')
 - amount_id = "pause_amount_#{service_job.id}"
 - unit_options = RepairPauseDuration::UNITS.keys.map { |unit| [t("service_jobs.repair_status.pause_duration.units.#{unit}"), unit] }
 
 .repair-pause-duration
   %label.repair-status-widget-modal__label{ for: amount_id }
-    = t('service_jobs.repair_status.pause_duration.label')
+    = label
     - unless required
       %span.repair-pause-duration__optional= t('service_jobs.repair_status.pause_duration.optional')
   .repair-pause-duration__presets

@@ -524,7 +524,7 @@ class ServiceJobsController < ApplicationController
       return
     end
 
-    pause_until = nil
+    pause_for = nil
     if pause_reason
       pause_duration = RepairPauseDuration.new(amount: params[:pause_amount], unit: params[:pause_unit])
       unless pause_duration.valid?
@@ -532,7 +532,7 @@ class ServiceJobsController < ApplicationController
         respond_to(&:js)
         return
       end
-      pause_until = pause_duration.until_from(Time.zone.now)
+      pause_for = pause_duration.length
     end
 
     displaced_by = nil
@@ -551,15 +551,10 @@ class ServiceJobsController < ApplicationController
       end
     end
 
-    gluing_hours = nil
-    if pause_reason&.gluing?
-      raw = params[:gluing_hours].to_s.strip
-      gluing_hours = raw.to_i
-      if raw.blank? || gluing_hours < 1
-        @gluing_error = t('service_jobs.repair_status.gluing_hours_required', default: 'Введите количество часов (целое число больше 0)')
-        respond_to(&:js)
-        return
-      end
+    if pause_reason&.gluing? && pause_for.nil?
+      @gluing_error = t('service_jobs.repair_status.gluing_deadline_required')
+      respond_to(&:js)
+      return
     end
 
     testing_target_location = nil
@@ -615,7 +610,7 @@ class ServiceJobsController < ApplicationController
     testing_session = nil
     approval_request = nil
     ServiceJob.transaction do
-      change = @service_job.change_repair_status!(new_status, user: current_user, pause_reason: pause_reason, displaced_by: displaced_by, gluing_hours: gluing_hours, pause_until: pause_until)
+      change = @service_job.change_repair_status!(new_status, user: current_user, pause_reason: pause_reason, displaced_by: displaced_by, pause_for: pause_for)
       # Сессия/запрос рождаются по НАМЕРЕНИЮ сотрудника, а не по факту смены
       # статуса: устройство может уже стоять на этой самой паузе (второе
       # согласование подряд, повторная отправка на тест), и тогда идемпотентный
@@ -635,8 +630,8 @@ class ServiceJobsController < ApplicationController
           @service_job.approval_requests.create!(requester: current_user, question: approval_question)
       end
     end
-    if change && pause_reason&.gluing? && gluing_hours
-      RepairGluingReminderJob.set(wait: gluing_hours.hours).perform_later(change.id)
+    if change&.pause_until && pause_reason&.gluing?
+      RepairGluingReminderJob.set(wait_until: change.pause_until).perform_later(change.id)
     end
     # Уведомления — после коммита транзакции (иначе Sidekiq может не найти ещё
     # не сохранённую сессию). Telegram (общий чат с @-тегами) + in-app (по записи

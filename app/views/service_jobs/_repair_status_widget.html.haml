@@ -3,7 +3,6 @@
 - current_status = service_job.repair_status
 - current_reason = service_job.repair_pause_reason
 - displaced_by_sj = (current_reason&.urgent_repair? ? service_job.current_displaced_by_service_job : nil)
-- gluing_hours = (current_reason&.gluing? ? service_job.current_gluing_hours : nil)
 - pause_until = (current_status.paused? ? service_job.current_pause_until : nil)
 - in_progress_user = (current_status.in_progress? ? service_job.current_in_progress_user : nil)
 - seized_by_other = in_progress_user.present? && in_progress_user != current_user
@@ -26,8 +25,6 @@
             = current_reason.name
             - if displaced_by_sj
               %span.repair-status-badge__ref= " ##{displaced_by_sj.ticket_number}"
-            - if gluing_hours
-              %span.repair-status-badge__ref= " (#{gluing_hours} ч)"
             - if pause_until
               %span.repair-status-badge__ref= " · #{repair_pause_until_label(pause_until)}"
         - if in_progress_user
@@ -70,8 +67,6 @@
           = current_reason.name
           - if displaced_by_sj
             %span.repair-status-badge__ref= " ##{displaced_by_sj.ticket_number}"
-          - if gluing_hours
-            %span.repair-status-badge__ref= " (#{gluing_hours} ч)"
           - if pause_until
             %span.repair-status-badge__ref= " · #{repair_pause_until_label(pause_until)}"
       - if in_progress_user

@@ -17,16 +17,9 @@
       .repair-status-widget-modal__body
         - if local_assigns[:error].present?
           .repair-status-widget-modal__error= error
-        %label.repair-status-widget-modal__label{ for: "gluing_hours_#{service_job.id}" }
-          = t('service_jobs.repair_status.gluing_modal.label', default: 'Сколько часов устройство должно клеиться:')
-        = number_field_tag :gluing_hours,
-                            local_assigns[:gluing_hours],
-                            id: "gluing_hours_#{service_job.id}",
-                            min: 1,
-                            step: 1,
-                            class: 'repair-status-widget-modal__input',
-                            autocomplete: 'off',
-                            autofocus: true
+        = render 'pause_duration_field', service_job: service_job,
+                                         required: true,
+                                         label: t('service_jobs.repair_status.gluing_modal.label')
 
       .repair-status-widget-modal__footer
         %button.btn{ type: 'button', data: { repair_status_widget_modal_close_for: service_job.id } }

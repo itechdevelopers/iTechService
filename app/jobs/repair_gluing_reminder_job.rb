@@ -1,8 +1,8 @@
 require 'cgi'
 
-# Одноразовое напоминание: устройство пролежало на проклейке заданное
-# число часов. Планируется из ServiceJobsController#update_repair_status
-# через .set(wait: hours.hours).perform_later(change.id).
+# Одноразовое напоминание: срок проклейки истёк. Планируется из
+# ServiceJobsController#update_repair_status
+# через .set(wait_until: change.pause_until).perform_later(change.id).
 #
 # Идемпотентность: уведомление шлётся только если переданный
 # RepairStatusChange всё ещё описывает ТЕКУЩИЙ статус работы (последний
@@ -42,7 +42,7 @@ class RepairGluingReminderJob < ApplicationJob
       kind: 'repair_gluing',
       message: I18n.t('notifications.repair_gluing',
                       ticket: service_job.ticket_number,
-                      hours: change.gluing_hours),
+                      duration: gluing_duration(change)),
       url: url_helpers.service_job_path(service_job),
       referenceable: service_job,
       telegram_text: telegram_text(service_job, change)
@@ -64,16 +64,19 @@ class RepairGluingReminderJob < ApplicationJob
   def telegram_text(service_job, change)
     ticket = esc(service_job.ticket_number)
     device = esc(service_job.decorate.device_name)
-    hours  = change.gluing_hours
     sj_url = url_helpers.service_job_url(service_job, host: app_host)
 
     <<~MSG.strip
       🧴 <b>На проклейке</b> — талон №#{ticket}
 
-      Устройство «#{device}» на проклейке уже #{hours} ч — пора забирать.
+      Устройство «#{device}» на проклейке уже #{gluing_duration(change)} — пора забирать.
 
       <a href="#{sj_url}">Перейти к работе</a>
     MSG
+  end
+
+  def gluing_duration(change)
+    ApplicationController.helpers.human_repair_duration(change.pause_until - change.changed_at)
   end
 
   def esc(value)

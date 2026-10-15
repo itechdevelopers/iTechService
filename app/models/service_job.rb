@@ -522,17 +522,6 @@ kind: 'device_return', content: id.to_s)
       &.then { |id| ServiceJob.find_by(id: id) }
   end
 
-  def current_gluing_hours
-    return nil unless repair_status&.paused? && repair_pause_reason&.gluing?
-
-    repair_status_changes
-      .where(to_status_id: repair_status_id, repair_pause_reason_id: repair_pause_reason_id)
-      .order(changed_at: :desc)
-      .limit(1)
-      .pluck(:gluing_hours)
-      .first
-  end
-
   def current_pause_until
     return nil unless repair_status&.paused?
 
@@ -560,18 +549,20 @@ kind: 'device_return', content: id.to_s)
   # in_progress под прежним техником, но новая in_progress-запись под другим user
   # закрывает его интервал и открывает свой (InProgressDurationService делит время сам).
   #
-  # Срок паузы участвует в проверке на повтор: ту же причину с новым сроком
+  # pause_for — длительность паузы; срок считается от changed_at этого же
+  # перехода, чтобы срок минус начало было ровно выбранной длительностью.
+  # Срок участвует в проверке на повтор: ту же причину с новым сроком
   # записываем новым переходом — так паузу продлевают или снимают с неё срок,
   # не выходя из неё.
-  def change_repair_status!(new_status, user:, pause_reason: nil, displaced_by: nil, gluing_hours: nil, pause_until: nil, changed_at: nil, force: false)
+  def change_repair_status!(new_status, user:, pause_reason: nil, displaced_by: nil, pause_for: nil, changed_at: nil, force: false)
     pause_reason = nil unless new_status.paused?
     displaced_by = nil unless pause_reason&.urgent_repair?
-    gluing_hours = nil unless pause_reason&.gluing?
-    pause_until = nil unless pause_reason
+    pause_for = nil unless pause_reason
     same_state = repair_status_id == new_status.id && repair_pause_reason_id == pause_reason&.id
-    return if !force && same_state && pause_until.nil? && current_pause_until.nil?
+    return if !force && same_state && pause_for.nil? && current_pause_until.nil?
 
     changed_at ||= Time.zone.now
+    pause_until = pause_for && changed_at + pause_for
     now = Time.zone.now
     previous_status = repair_status
 
@@ -582,7 +573,6 @@ kind: 'device_return', content: id.to_s)
         to_status: new_status,
         repair_pause_reason: pause_reason,
         displaced_by_service_job: displaced_by,
-        gluing_hours: gluing_hours,
         pause_until: pause_until,
         user: user,
         changed_at: changed_at
