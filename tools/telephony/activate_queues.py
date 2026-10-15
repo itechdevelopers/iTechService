@@ -30,7 +30,7 @@ def main():
         return
     installed = Path('/opt/ais-telephony')
     assert SOURCE != installed, 'Use a separate staging directory so existing programs can be backed up'
-    assert '0 active channels' in run('/usr/sbin/asterisk', '-rx', 'core show channels count'), 'Finish calls first'
+    assert re.search(r'^0 active channels$', run('/usr/sbin/asterisk', '-rx', 'core show channels count'), re.M), 'Finish calls first'
     leases = run('/usr/sbin/asterisk', '-rx', 'database show ais-telephony')
     deadlines = re.findall(r'/ais-telephony/(?:777[1-9]|7780)/active\s*:\s*(\d+)', leases)
     assert not any(int(deadline) > time.time() for deadline in deadlines), 'Staff must disable browser phones before activation'
@@ -59,7 +59,7 @@ def main():
     if include not in path.read_text().splitlines():
         with path.open('a') as handle:
             handle.write('\n'+include+'\n')
-    assert '0 active channels' in run('/usr/sbin/asterisk', '-rx', 'core show channels count'), 'New call started: do not restart services'
+    assert re.search(r'^0 active channels$', run('/usr/sbin/asterisk', '-rx', 'core show channels count'), re.M), 'New call started: do not restart services'
     run('/usr/sbin/asterisk', '-rx', 'queue reload all')
     assert 'ais-browser-all' in run('/usr/sbin/asterisk', '-rx', 'queue show ais-browser-all')
     run('/usr/sbin/asterisk', '-rx', 'dialplan reload')

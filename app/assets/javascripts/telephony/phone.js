@@ -95,7 +95,7 @@ async function pollWaiting(currentUa,version){
   if(ua!==currentUa||version!==generation||lease!==currentLease)return;
   waitingCount=data.waiting.length;$('waiting-panel').hidden=false;
   $('waiting-title').textContent='Ожидающие звонки · '+waitingCount;
-  $('waiting-status').textContent=waitingCount?'Занятый телефон получит вызов после завершения разговора.':'Нет ожидающих звонков';
+  $('waiting-status').textContent=waitingCount?'Вызовы в очереди могут уже звонить свободным коллегам или обычным трубкам.':'Нет ожидающих звонков';
   $('waiting-list').replaceChildren(...data.waiting.map(item=>waitingCard(item,true)));
   $('waiting-recent').replaceChildren(...data.recent.map(item=>waitingCard(item,false)));publish();
   await Promise.allSettled(data.waiting.slice(0,10).map(async item=>{

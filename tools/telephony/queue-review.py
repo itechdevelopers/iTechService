@@ -23,7 +23,7 @@ def cli(command):
 def cancel():
     for row in cli('core show channels concise').splitlines():
         channel = row.split('!')[0]
-        if channel.startswith('Local/9797@ais-queue-review-'):
+        if channel.startswith(('Local/9797@ais-queue-review-', 'Local/9796@ais-queue-review-')):
             cli('channel request hangup ' + channel)
 
 
@@ -66,6 +66,8 @@ exten => shared,1,Gosub(ais-review-call-id,s,1)
  same => n,Hangup()
 exten => 9797,1,Set(CALLERID(num)=105)
  same => n,Goto(ais-queue-review,personal,1)
+exten => 9796,1,Set(CALLERID(num)=105)
+ same => n,Goto(ais-queue-review,shared,1)
 ''' + member + call_id)
     for base, include in MARKERS:
         path = ROOT/base

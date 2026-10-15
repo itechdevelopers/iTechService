@@ -78,6 +78,28 @@ const snapshot=extension=>JSON.parse(run('python3',review+'/queue-review.py','sn
  await agent.waitForFunction(()=>!document.getElementById('answer').disabled,{},{timeout:25000});await agent.click('#answer');await audio(caller);await audio(agent);
  console.log('SHARED_QUEUE_FREE_AGENT_AUDIO');
  await caller.click('#hangup');await agent.waitForFunction(()=>document.getElementById('hangup').disabled);
+ // Real REFER after answering through each queue; a local Echo caller must
+ // survive the Local;2 redirect and communicate with the new browser.
+ for(const [route,label] of [['9797','PERSONAL'],['9796','SHARED']]){
+  run('asterisk','-rx','channel originate Local/'+route+'@ais-queue-review/n application Echo');
+  await agent.waitForFunction(()=>!document.getElementById('answer').disabled,{},{timeout:20000});await agent.click('#answer');await audio(agent);
+  await caller.waitForFunction(()=>document.getElementById('answer').disabled,{},{timeout:15000});
+  await agent.fill('#transfer-target','7779');agent.once('dialog',dialog=>dialog.accept());await agent.click('#transfer-call');
+  await caller.waitForFunction(()=>!document.getElementById('answer').disabled,{},{timeout:25000});await caller.click('#answer');
+  await agent.waitForFunction(()=>document.getElementById('hangup').disabled,{},{timeout:20000});await audio(caller);
+  await caller.click('#hangup');await caller.waitForFunction(()=>document.getElementById('hangup').disabled);
+  console.log(label+'_QUEUE_REAL_BLIND_TRANSFER_AUDIO_PASSED');
+ }
+ // Consultation uses REFER/Replaces rather than the blind-transfer context.
+ run('asterisk','-rx','channel originate Local/9797@ais-queue-review/n application Echo');
+ await agent.waitForFunction(()=>!document.getElementById('answer').disabled,{},{timeout:20000});await agent.click('#answer');await audio(agent);
+ await agent.fill('#target','7779');await agent.click('#test-call');
+ await caller.waitForFunction(()=>!document.getElementById('answer').disabled,{},{timeout:25000});await caller.click('#answer');
+ await agent.waitForFunction(()=>!document.getElementById('consult-connect').disabled,{},{timeout:20000});await audio(agent);await audio(caller);
+ agent.once('dialog',dialog=>dialog.accept());await agent.click('#consult-connect');
+ await agent.waitForFunction(()=>document.getElementById('hangup').disabled,{},{timeout:20000});await audio(caller);
+ await caller.click('#hangup');await caller.waitForFunction(()=>document.getElementById('hangup').disabled);
+ console.log('QUEUE_REAL_ATTENDED_TRANSFER_AUDIO_PASSED');
  assert.deepEqual(errors,[]);console.log('LIVE_QUEUE_CHROME_PASSED');
  }finally{
   for(const page of pages){try{await page.evaluate(async()=>{document.getElementById('hangup').click();await document.getElementById('disable').onclick();});}catch(e){}}
