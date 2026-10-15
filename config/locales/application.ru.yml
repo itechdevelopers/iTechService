@@ -17,7 +17,10 @@ ru:
     repair_catalog_bypass_group: 'вид ремонта %{chosen} выбран вручную (в справочнике — %{catalog})'
     repair_catalog_bypass_manual: 'причины вписаны вручную, заявленный дефект: «%{text}»'
     repair_catalog_bypass_not_set: 'не задан'
-    repair_gluing: 'Устройство по талону №%{ticket} на проклейке уже %{hours} ч — пора забирать.'
+    repair_gluing: 'Устройство по талону №%{ticket} на проклейке уже %{duration} — пора забирать. Статус ремонта вернулся в «%{status}».'
+    repair_pause_expired:
+      resumed: 'Пауза «%{reason}» по талону №%{ticket} закончилась — статус ремонта вернулся в «%{status}».'
+      reminder: 'Срок паузы «%{reason}» по талону №%{ticket} вышел — устройство всё ещё на паузе.'
     testing_to_test: 'Устройство по талону №%{ticket} ждёт тестирования.'
     testing_returned: 'Устройство по талону №%{ticket} вернулось с тестирования.'
     approval_requested: 'Работа №%{ticket}: нужно согласовать с клиентом.'

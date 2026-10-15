@@ -40,9 +40,15 @@ def control(action, extension, password=None, until=0, contact_user=None):
         sock.settimeout(10)
         sock.connect('/run/ais-telephony/control.sock')
         sock.sendall(json.dumps(payload).encode() + b'\n')
-        reply = sock.recv(1024)
+        reply = bytearray()
+        while b'\n' not in reply:
+            part = sock.recv(16384)
+            if not part or len(reply) + len(part) > 131072:
+                raise RuntimeError('SIP control response incomplete')
+            reply.extend(part)
         if json.loads(reply).get('ok') is not True:
             raise RuntimeError('SIP control failed')
+        return json.loads(reply).get('result')
 
 
 class LeaseStore:
@@ -75,6 +81,8 @@ class LeaseStore:
                     or lease['user_id'] != claims['user_id']
                     or not hmac.compare_digest(str(token), lease['token'])):
                 raise Denied('Сессия телефона завершена.')
+            if action == 'waiting':
+                return self.controller('waiting', extension)
             if action == 'disable':
                 self.controller('disable', extension)
                 del self.leases[extension]
@@ -132,7 +140,7 @@ def main():
 
         def do_POST(self):
             if (not self.valid_origin() or self.headers.get('Content-Type') != 'application/json'
-                    or self.path not in ('/ais/enable', '/ais/heartbeat', '/ais/disable')):
+                    or self.path not in ('/ais/enable', '/ais/heartbeat', '/ais/disable', '/ais/waiting')):
                 return self.reply(403)
             try:
                 size = int(self.headers.get('Content-Length', '0'))

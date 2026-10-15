@@ -5,3 +5,6 @@
     = truncate(service_job.client&.presentation || '-', length: 20)
   .subscription-ticket
     = service_job.ticket_number
+  - if local_assigns[:pause_until]
+    .subscription-pause-until{ class: ('subscription-pause-until--overdue' if pause_until.past?) }
+      = repair_pause_until_label(pause_until)

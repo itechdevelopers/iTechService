@@ -2,3 +2,5 @@
 
 # Configure sensitive parameters which will be filtered from the log file.
 Rails.application.config.filter_parameters += [:password, :ticket, :gateway_ticket, :telephony_token, :calls, :api_token]
+
+Rails.application.config.filter_parameters += [:phone]

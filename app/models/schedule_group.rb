@@ -65,4 +65,22 @@ class ScheduleGroup < ApplicationRecord
   def latest_entry_update_for_week(week_start)
     schedule_entries.for_week(week_start).maximum(:updated_at)
   end
+
+  # The week table hides members fired before that week, so user_ids may be a
+  # subset. Hidden members keep their slots and only the slots of the listed
+  # ones are permuted — otherwise reordering one week would shift fired
+  # members around in the earlier weeks where they are still shown.
+  def reorder_members(user_ids)
+    ordered = memberships.to_a
+    queue = user_ids.map(&:to_i) & ordered.map(&:user_id)
+    by_user = ordered.index_by(&:user_id)
+    slots = ordered.each_index.select { |i| queue.include?(ordered[i].user_id) }
+    slots.zip(queue).each { |slot, user_id| ordered[slot] = by_user[user_id] }
+
+    transaction do
+      ordered.each_with_index do |membership, position|
+        membership.update_column(:position, position) unless membership.position == position
+      end
+    end
+  end
 end

@@ -48,3 +48,8 @@ node tools/telephony/test-consultation.cjs
 ```
 
 Run sequentially on verified unassigned 7776/7778/7779. These tests use fixture AIS responses with the real broker, gateway and PBX. Hold/consultation tests use the gateway remote console only to capture MOH events and close it afterward; they do not change Asterisk configuration.
+
+Waiting queues: [behaviour, activation and rollback](../../doc/telephony/waiting-queue.md).
+`node tools/telephony/test-queue.cjs` uses only verified unassigned 7778/7779,
+loads temporary queue/test-route includes, and removes them in `finally`.
+It does not replace working incoming routes or restart gateway services.

@@ -85,3 +85,6 @@ CLAUDE.md
 workflow-tasks-playbook-guide.md
 TODO.md
 .playwright-mcp/
+
+# Local Python bytecode for 1C tools
+/script/one_c/__pycache__/

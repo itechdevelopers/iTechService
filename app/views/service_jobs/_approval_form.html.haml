@@ -28,6 +28,7 @@
                         autocomplete: 'off',
                         autofocus: true
         %p.repair-status-widget-modal__hint= t('service_jobs.repair_status.approval_modal.hint')
+        = render 'pause_duration_field', service_job: service_job
 
       .repair-status-widget-modal__footer
         %button.btn{ type: 'button', data: { repair_status_widget_modal_close_for: service_job.id } }

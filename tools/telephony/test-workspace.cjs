@@ -55,6 +55,17 @@ const pin=crypto.createHash('sha256').update(der).digest('base64');
   if(!((await stats()).active)||overlappingTickets)throw Error('Slow AIS renewal dropped call or overlapped requests');
   console.log('16-second AIS renewal preserves real audio and does not overlap heartbeat requests');
   await p.click('#phone-close');
+  for(const waiting of [1,0,1,0,1,2]){
+   // Sample synchronously: the real phone publishes its own status every second.
+   const result=await phone().evaluate(waiting=>{
+    window.parent.dispatchEvent(new MessageEvent('message',{origin:location.origin,source:window,data:{type:'ais-phone-state',state:'call',enabled:true,call:true,waiting,status:'Разговор',callTitle:'Тест очереди'}}));
+    return {hidden:window.parent.document.getElementById('phone-panel').hidden,summary:window.parent.document.getElementById('phone-summary').textContent};
+   },waiting);
+   if(!result.hidden)throw Error('Queue count repeatedly opened collapsed phone');
+   if(waiting>0&&!result.summary.includes('Ожидают: '+waiting))throw Error('Queue count missing while panel collapsed');
+  }
+  if(!((await stats()).active))throw Error('Queue notification interrupted current audio');
+  console.log('Repeated queue notifications keep panel collapsed and current audio active');
   let main=p.frames().find(f=>f.parentFrame() && f.url().includes('/clients'));
   await main.click('a[href="/orders"]');
   await p.waitForURL(/path=%2Forders/);

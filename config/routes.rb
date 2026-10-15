@@ -13,7 +13,10 @@ Rails.application.routes.draw do
   # The priority is based upon order of creation: first created -> highest priority.
   # See how all your routes lay out with "rake routes".
 
-  resources :one_c_functions, only: :index
+  resources :one_c_functions, only: :index do
+    get :glass, on: :collection
+    post :glass_search, on: :collection
+  end
 
   root to: 'dashboard#index'
   get 'dashboard', to: 'dashboard#index'
@@ -187,6 +190,7 @@ Rails.application.routes.draw do
     get :history, on: :member
     post :save_week, on: :member
     post :send_to_telegram, on: :member
+    patch :reorder_members, on: :member
     resources :schedule_entries, only: :destroy do
       collection do
         post :upsert
@@ -407,6 +411,7 @@ Rails.application.routes.draw do
     post :dismiss_reveal, on: :member, defaults: { format: 'js' }
     get :displaced_by_prompt, on: :member, defaults: { format: 'js' }
     get :gluing_prompt, on: :member, defaults: { format: 'js' }
+    get :pause_prompt, on: :member, defaults: { format: 'js' }
     get :testing_prompt, on: :member, defaults: { format: 'js' }
     get :approval_prompt, on: :member, defaults: { format: 'js' }
     get :repair_passport, on: :member, defaults: { format: 'js' }

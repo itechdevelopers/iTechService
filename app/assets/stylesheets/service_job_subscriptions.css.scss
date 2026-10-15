@@ -130,6 +130,16 @@
     font-size: 0.78em;
     font-family: monospace;
   }
+
+  .subscription-pause-until {
+    color: #b9770e;
+    font-size: 0.78em;
+  }
+
+  .subscription-pause-until--overdue {
+    color: #c0392b;
+    font-weight: bold;
+  }
 }
 
 .subscription-block--in-progress {

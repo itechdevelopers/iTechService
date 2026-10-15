@@ -80,6 +80,7 @@
 //= require employee_statistics
 //= require technician_repairs
 //= require strict_repair
+//= require repair_pause_duration
 //= require client_conversations
 //= require legal_entities
 //= require green_api_instances

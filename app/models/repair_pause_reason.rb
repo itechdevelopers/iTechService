@@ -27,4 +27,10 @@ class RepairPauseReason < ApplicationRecord
   def waiting_approval?
     code == WAITING_APPROVAL
   end
+
+  # Тест и согласование заканчиваются своим событием — возвратом с теста или
+  # ответом клиента — и держат открытую запись; по сроку им только напоминаем.
+  def auto_resume?
+    !testing? && !waiting_approval?
+  end
 end

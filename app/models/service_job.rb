@@ -522,15 +522,31 @@ kind: 'device_return', content: id.to_s)
       &.then { |id| ServiceJob.find_by(id: id) }
   end
 
-  def current_gluing_hours
-    return nil unless repair_status&.paused? && repair_pause_reason&.gluing?
+  def current_pause_until
+    return nil unless repair_status&.paused?
 
     repair_status_changes
       .where(to_status_id: repair_status_id, repair_pause_reason_id: repair_pause_reason_id)
       .order(changed_at: :desc)
       .limit(1)
-      .pluck(:gluing_hours)
+      .pluck(:pause_until)
       .first
+  end
+
+  # То же, что #current_pause_until, для пачки работ одним запросом:
+  # { service_job_id => pause_until }, работы без срока в хеш не попадают.
+  def self.current_pause_untils(ids)
+    return {} if ids.blank?
+
+    RepairStatusChange
+      .joins(:service_job)
+      .where(service_job_id: ids)
+      .where('repair_status_changes.to_status_id = service_jobs.repair_status_id')
+      .where('repair_status_changes.repair_pause_reason_id = service_jobs.repair_pause_reason_id')
+      .select('DISTINCT ON (repair_status_changes.service_job_id) ' \
+              'repair_status_changes.service_job_id, repair_status_changes.pause_until')
+      .order('repair_status_changes.service_job_id, repair_status_changes.changed_at DESC, repair_status_changes.id DESC')
+      .each_with_object({}) { |change, map| map[change.service_job_id] = change.pause_until if change.pause_until }
   end
 
   def current_in_progress_user
@@ -548,13 +564,21 @@ kind: 'device_return', content: id.to_s)
   # force: пропустить idempotency guard. Нужен для «перехвата» ремонта: заявка уже
   # in_progress под прежним техником, но новая in_progress-запись под другим user
   # закрывает его интервал и открывает свой (InProgressDurationService делит время сам).
-  def change_repair_status!(new_status, user:, pause_reason: nil, displaced_by: nil, gluing_hours: nil, changed_at: nil, force: false)
+  #
+  # pause_for — длительность паузы; срок считается от changed_at этого же
+  # перехода, чтобы срок минус начало было ровно выбранной длительностью.
+  # Срок участвует в проверке на повтор: ту же причину с новым сроком
+  # записываем новым переходом — так паузу продлевают или снимают с неё срок,
+  # не выходя из неё.
+  def change_repair_status!(new_status, user:, pause_reason: nil, displaced_by: nil, pause_for: nil, changed_at: nil, force: false)
     pause_reason = nil unless new_status.paused?
     displaced_by = nil unless pause_reason&.urgent_repair?
-    gluing_hours = nil unless pause_reason&.gluing?
-    return if !force && repair_status_id == new_status.id && repair_pause_reason_id == pause_reason&.id
+    pause_for = nil unless pause_reason
+    same_state = repair_status_id == new_status.id && repair_pause_reason_id == pause_reason&.id
+    return if !force && same_state && pause_for.nil? && current_pause_until.nil?
 
     changed_at ||= Time.zone.now
+    pause_until = pause_for && changed_at + pause_for
     now = Time.zone.now
     previous_status = repair_status
 
@@ -565,7 +589,7 @@ kind: 'device_return', content: id.to_s)
         to_status: new_status,
         repair_pause_reason: pause_reason,
         displaced_by_service_job: displaced_by,
-        gluing_hours: gluing_hours,
+        pause_until: pause_until,
         user: user,
         changed_at: changed_at
       ).tap do

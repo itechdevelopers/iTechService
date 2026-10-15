@@ -20,10 +20,23 @@ module ServiceJobsHelper
     when :resumed
       t('service_jobs.repair_progress.events.resumed')
     when :paused
-      [t('service_jobs.repair_progress.events.paused'), event.reason_name].compact.join(' — ')
+      label = [t('service_jobs.repair_progress.events.paused'), event.reason_name].compact.join(' — ')
+      return label unless event.pause_for
+
+      "#{label} #{t('service_jobs.repair_progress.events.pause_for', value: human_repair_duration(event.pause_for))}"
+    when :expired
+      t('service_jobs.repair_progress.events.expired')
     when :completed
       t('service_jobs.repair_progress.events.completed')
     end
+  end
+
+  # Срок паузы: сегодняшний — одним временем, иначе с датой. Прошедший срок
+  # видят у пауз без автоснятия (тест, согласование) — они остаются на паузе.
+  def repair_pause_until_label(pause_until)
+    format = pause_until.to_date == Time.zone.today ? '%H:%M' : '%d.%m %H:%M'
+    key = pause_until.past? ? 'pause_overdue' : 'pause_until'
+    t("service_jobs.repair_status.#{key}", time: pause_until.strftime(format))
   end
 
   # Подстрочная длительность под событием: только «сколько лежало» (accepted)
@@ -31,7 +44,7 @@ module ServiceJobsHelper
   def repair_progress_duration_note(event)
     return if event.duration.to_i <= 0
 
-    key = { accepted: 'lay', paused: 'pause' }[event.kind]
+    key = { accepted: 'lay', expired: 'lay', paused: 'pause' }[event.kind]
     return if key.nil?
 
     t("service_jobs.repair_progress.durations.#{key}", value: human_repair_duration(event.duration))

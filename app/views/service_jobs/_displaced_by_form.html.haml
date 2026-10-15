@@ -25,6 +25,7 @@
                           class: 'repair-status-widget-modal__input',
                           autocomplete: 'off',
                           autofocus: true
+        = render 'pause_duration_field', service_job: service_job
 
       .repair-status-widget-modal__footer
         %button.btn{ type: 'button', data: { repair_status_widget_modal_close_for: service_job.id } }

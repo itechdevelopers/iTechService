@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20261014120000) do
+ActiveRecord::Schema.define(version: 20261015193553) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -1979,6 +1979,7 @@ ActiveRecord::Schema.define(version: 20261014120000) do
     t.datetime "updated_at", null: false
     t.bigint "displaced_by_service_job_id"
     t.integer "gluing_hours"
+    t.datetime "pause_until"
     t.index ["changed_at"], name: "index_repair_status_changes_on_changed_at"
     t.index ["displaced_by_service_job_id"], name: "index_repair_status_changes_on_displaced_by_service_job_id"
     t.index ["from_status_id"], name: "index_repair_status_changes_on_from_status_id"
