@@ -9,11 +9,12 @@
 # из его repair_tasks; временные метрики всё равно общие по ServiceJob, потому что
 # лог статусов привязан к работе целиком, а не к отдельной задаче.
 class RepairPassport
-  # Одно событие таймлайна. kind ∈ :accepted/:started/:paused/:resumed/:completed.
+  # Одно событие таймлайна. kind ∈ :accepted/:started/:paused/:resumed/:completed/:expired.
   # duration — длительность СЕГМЕНТА, начинающегося этим событием (сек):
-  #   :accepted → сколько устройство лежало до старта, :paused → сколько на паузе,
-  #   :started/:resumed → сколько активно работали до следующего события.
-  Event = Struct.new(:kind, :at, :user, :reason_name, :duration, keyword_init: true)
+  #   :accepted/:expired → сколько устройство лежало до старта, :paused → сколько
+  #   на паузе, :started/:resumed → сколько активно работали до следующего события.
+  # pause_for — на сколько ставили паузу (сек), если указан срок.
+  Event = Struct.new(:kind, :at, :user, :reason_name, :duration, :pause_for, keyword_init: true)
   Pause = Struct.new(:reason_name, :seconds, keyword_init: true)
 
   def initialize(service_job, device_task = nil)
@@ -77,7 +78,8 @@ class RepairPassport
         at: change.changed_at,
         user: change.user,
         reason_name: change.repair_pause_reason&.name,
-        duration: segments[i]&.fetch(:seconds, nil)
+        duration: segments[i]&.fetch(:seconds, nil),
+        pause_for: change.pause_until && (change.pause_until - change.changed_at)
       )
     end
   end
@@ -136,8 +138,10 @@ class RepairPassport
     end
   end
 
+  # Переход из паузы в ожидание без автора делает только RepairPauseExpiryJob.
   def event_kind(change)
     to = change.to_status
+    return :expired   if to&.waiting? && change.from_status&.paused? && change.user_id.nil?
     return :accepted  if to&.waiting?
     return :paused    if to&.paused?
     return :completed if to&.completed?
