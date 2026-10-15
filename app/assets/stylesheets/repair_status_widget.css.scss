@@ -185,6 +185,10 @@
   line-height: 16px;
 }
 
+.repair-pause-duration:not(:first-child) {
+  margin-top: 14px;
+}
+
 .repair-pause-duration__optional {
   margin-left: 4px;
   color: #999;
