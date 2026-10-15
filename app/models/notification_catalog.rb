@@ -148,8 +148,14 @@ module NotificationCatalog
     entry('repair_gluing',
           group: :repair,
           title: 'Устройство на проклейке',
-          hint: 'Заданное число часов на проклейке истекло — пора забирать',
+          hint: 'Срок проклейки истёк — пора забирать; устройство вернулось в ожидание ремонта',
           audience: 'тот, кто поставил статус проклейки'),
+
+    entry('repair_pause_expired',
+          group: :repair,
+          title: 'Срок паузы ремонта истёк',
+          hint: 'Устройство вернулось в ожидание ремонта; у теста и согласования — только напоминание',
+          audience: 'тот, кто поставил паузу'),
 
     entry('repair_master_day_off',
           group: :repair,

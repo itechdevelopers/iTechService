@@ -630,8 +630,8 @@ class ServiceJobsController < ApplicationController
           @service_job.approval_requests.create!(requester: current_user, question: approval_question)
       end
     end
-    if change&.pause_until && pause_reason&.gluing?
-      RepairGluingReminderJob.set(wait_until: change.pause_until).perform_later(change.id)
+    if change&.pause_until
+      RepairPauseExpiryJob.set(wait_until: change.pause_until).perform_later(change.id)
     end
     # Уведомления — после коммита транзакции (иначе Sidekiq может не найти ещё
     # не сохранённую сессию). Telegram (общий чат с @-тегами) + in-app (по записи
