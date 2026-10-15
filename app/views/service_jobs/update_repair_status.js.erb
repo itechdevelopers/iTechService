@@ -67,6 +67,7 @@
     $('#gluing_modal_<%= @service_job.id %>').remove();
     $('#testing_modal_<%= @service_job.id %>').remove();
     $('#approval_modal_<%= @service_job.id %>').remove();
+    $('#pause_modal_<%= @service_job.id %>').remove();
     $('#displace_confirm_modal_<%= @service_job.id %>').remove();
     <% if @approval_request.present? %>
       // Второе согласование подряд статус не меняет, поэтому подтверждением

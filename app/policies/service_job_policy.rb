@@ -76,6 +76,10 @@ class ServiceJobPolicy < CommonPolicy
     update_repair_status?
   end
 
+  def pause_prompt?
+    update_repair_status?
+  end
+
   def testing_prompt?
     update_repair_status?
   end

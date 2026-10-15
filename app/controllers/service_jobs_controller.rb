@@ -700,6 +700,14 @@ class ServiceJobsController < ApplicationController
     respond_to(&:js)
   end
 
+  # Окно срока для причин без собственного окна; у срочного ремонта,
+  # проклейки, теста и согласования поле срока живёт в их окнах.
+  def pause_prompt
+    @service_job = find_record ServiceJob
+    @pause_reason = RepairPauseReason.active.find(params[:repair_pause_reason_id])
+    respond_to(&:js)
+  end
+
   def testing_prompt
     @service_job = find_record ServiceJob
     respond_to(&:js)

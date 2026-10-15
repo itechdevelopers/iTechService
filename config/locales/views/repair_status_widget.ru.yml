@@ -11,6 +11,22 @@ ru:
       approval_question_required: 'Напишите, что нужно согласовать с клиентом'
       pause_until: 'до %{time}'
       pause_duration:
+        label: 'На какое время:'
+        optional: 'необязательно'
+        none: 'Без срока'
+        amount_placeholder: 'Своё значение'
+        presets:
+          minutes: '%{count} мин'
+          hours: '%{count} ч'
+          days:
+            one: '%{count} день'
+            few: '%{count} дня'
+            many: '%{count} дней'
+            other: '%{count} дня'
+        units:
+          minutes: 'мин'
+          hours: 'ч'
+          days: 'дн.'
         invalid_amount: 'Срок паузы — целое число больше 0'
         invalid_unit: 'Выберите единицу срока: минуты, часы или дни'
         too_long: 'Срок паузы — не больше %{days} дней'
@@ -19,6 +35,8 @@ ru:
       displaced_by_modal:
         title: 'Срочный ремонт'
         label: 'Номер ремонта (талона) который вытесняет текущий:'
+      pause_modal:
+        submit: 'Поставить на паузу'
       gluing_modal:
         title: 'На проклейке'
         label: 'Сколько часов устройство должно клеиться:'
