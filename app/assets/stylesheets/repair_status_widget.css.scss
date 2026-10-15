@@ -185,6 +185,58 @@
   line-height: 16px;
 }
 
+.repair-pause-duration:not(:first-child) {
+  margin-top: 14px;
+}
+
+.repair-pause-duration__optional {
+  margin-left: 4px;
+  color: #999;
+  font-weight: 400;
+}
+
+.repair-pause-duration__presets {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 5px;
+  margin-bottom: 8px;
+}
+
+.repair-pause-duration__preset {
+  padding: 3px 7px;
+  border: 1px solid #ccc;
+  border-radius: 12px;
+  background: #f7f7f7;
+  font-size: 13px;
+  line-height: 18px;
+  cursor: pointer;
+
+  &:hover { background: #ececec; }
+}
+
+.repair-pause-duration__preset--active,
+.repair-pause-duration__preset--active:hover {
+  border-color: #0088cc;
+  background: #0088cc;
+  color: #fff;
+}
+
+// Высоту и отступ задаём явно: у Bootstrap 2 input и select разной высоты
+// и с нижним отступом, и в одной строке они расходятся.
+.repair-pause-duration__custom {
+  display: flex;
+  gap: 6px;
+
+  .repair-pause-duration__amount,
+  .repair-pause-duration__unit {
+    height: 30px;
+    margin-bottom: 0;
+  }
+
+  .repair-pause-duration__amount { flex: 1 1 auto; }
+  .repair-pause-duration__unit { flex: 0 0 90px; }
+}
+
 .repair-status-widget-modal__error {
   background: #f2dede;
   color: #b94a48;

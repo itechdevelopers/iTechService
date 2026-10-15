@@ -512,6 +512,12 @@ module ApplicationHelper
                 .sort_by { |pause_reason, _jobs| pause_reason&.position || Float::INFINITY }
   end
 
+  # Pause deadlines for the paused cards, one query for the whole bar.
+  def user_paused_service_job_deadlines
+    @user_paused_service_job_deadlines ||=
+      ServiceJob.current_pause_untils(user_paused_service_job_groups.flat_map { |_reason, jobs| jobs.map(&:id) })
+  end
+
   # Starred/subscribed devices, minus any already shown in the "in progress"
   # or paused sections so a device never appears twice in the top bar.
   def user_favorite_service_jobs

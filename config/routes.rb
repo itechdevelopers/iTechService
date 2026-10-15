@@ -411,6 +411,7 @@ Rails.application.routes.draw do
     post :dismiss_reveal, on: :member, defaults: { format: 'js' }
     get :displaced_by_prompt, on: :member, defaults: { format: 'js' }
     get :gluing_prompt, on: :member, defaults: { format: 'js' }
+    get :pause_prompt, on: :member, defaults: { format: 'js' }
     get :testing_prompt, on: :member, defaults: { format: 'js' }
     get :approval_prompt, on: :member, defaults: { format: 'js' }
     get :repair_passport, on: :member, defaults: { format: 'js' }
