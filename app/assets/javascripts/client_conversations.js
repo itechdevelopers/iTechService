@@ -7,6 +7,23 @@ $(document).on('click', '#client_conversations_icon', function (event) {
   event.preventDefault();
 });
 
+// Строка списка открывает диалог по клику в любом её месте. Ссылки внутри
+// строки (карточка клиента) ведут своим адресом, а клик, которым выделили
+// текст, переходом не считается — из строки копируют номер и реплики.
+// Средняя кнопка и Ctrl/Cmd открывают диалог в новой вкладке, как у ссылки.
+$(document).on('click auxclick', '.client-chat-list__row', function (event) {
+  if (event.type === 'auxclick' && event.button !== 1) { return; }
+  if ($(event.target).closest('a, button, input, select, textarea').length) { return; }
+  if (String(window.getSelection()) !== '') { return; }
+
+  var url = $(this).data('href');
+  if (event.type === 'auxclick' || event.ctrlKey || event.metaKey) {
+    window.open(url, '_blank');
+  } else {
+    window.location.href = url;
+  }
+});
+
 $(function () {
   var timer = null;
 

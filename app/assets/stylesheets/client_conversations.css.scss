@@ -119,6 +119,11 @@
   }
 }
 
+// Строка списка диалогов кликабельна целиком (client_conversations.js).
+.client-chat-list__row {
+  cursor: pointer;
+}
+
 .client-chat__reply {
   margin-top: 12px;
 }
