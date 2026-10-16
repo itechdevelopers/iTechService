@@ -1,0 +1,33 @@
+- expandable = row[:details].any?
+-# HAML здесь рендерит nil-атрибут как пустой (tabindex=""), поэтому ключ добавляем условно.
+- row_attrs = { class: [('quack-control__row--clean' if row[:count].zero?),
+                        ('quack-control__row--expandable' if expandable)] }
+- row_attrs[:tabindex] = 0 if expandable
+%tr.quack-control__row{ row_attrs }
+  %td.quack-control__cell-name
+    - if expandable
+      %span.quack-control__chevron ▸
+    = row[:user].short_name
+  %td.quack-control__cell-count= row[:count]
+- if expandable
+  %tr.quack-control__details-row
+    %td{ colspan: 2 }
+      %table.quack-control__details
+        %thead
+          %tr
+            %th= t('quack_control.show.details.job')
+            %th= t('quack_control.show.details.device')
+            %th= t('quack_control.show.details.viewed_at')
+            %th= t('quack_control.show.details.outcome')
+        %tbody
+          - row[:details].each do |entry|
+            - job = entry[:service_job]
+            %tr
+              %td= link_to job.ticket_number, service_job_path(job), target: '_blank'
+              %td= job.decorate.device_name
+              %td
+                = l(entry[:first_viewed_at], format: '%d.%m %H:%M')
+                - if entry[:views] > 1
+                  %span.quack-control__views{ title: t('quack_control.show.details.views_hint', count: entry[:views]) }
+                    = "×#{entry[:views]}"
+              %td= entry[:outcomes].map { |o| t("quack_control.show.details.outcomes.#{o || 'none'}") }.join(', ')

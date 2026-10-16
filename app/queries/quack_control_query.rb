@@ -47,10 +47,29 @@ class QuackControlQuery
   #   3-я декада поглощает 31-й день (clamp к индексу 2).
   def decade_counts
     buckets = [0, 0, 0]
-    first_viewed_at_by_job.each_value do |viewed_at|
-      buckets[[(viewed_at.day - 1) / 10, 2].min] += 1
+    markers_by_job.each_value do |markers|
+      first_viewed_at = markers.first[2]
+      buckets[[(first_viewed_at.day - 1) / 10, 2].min] += 1
     end
     buckets
+  end
+
+  # @return [Hash{Integer => Array<Hash>}] расшифровка цифры: user_id =>
+  #   [{ service_job:, first_viewed_at:, views:, outcomes: }], свежие сверху.
+  #   views — сколько засчитанных маркеров дала работа (в счёт идёт 1);
+  #   outcomes — их processed_action по порядку без повторов (nil = без ответа).
+  def details
+    @details ||= begin
+      jobs = ServiceJob.includes(:item).where(id: markers_by_job.keys.map(&:last)).index_by(&:id)
+      entries = markers_by_job.map do |(user_id, job_id), markers|
+        { user_id: user_id,
+          service_job: jobs[job_id],
+          first_viewed_at: markers.first[2],
+          views: markers.size,
+          outcomes: markers.map(&:last).uniq }
+      end
+      entries.sort_by { |entry| -entry[:first_viewed_at].to_i }.group_by { |entry| entry[:user_id] }
+    end
   end
 
   private
@@ -70,12 +89,14 @@ class QuackControlQuery
     @counts ||= base_scope.group(:user_id).distinct.count(:service_job_id)
   end
 
-  # { [user_id, service_job_id] => самый ранний viewed_at в месяце }
-  # Сгруппированный minimum (в отличие от pluck) отдаёт голый UTC Time без перевода
-  # в Time.zone: без in_time_zone утро 1-го числа по местному времени читалось бы
-  # как 30-е/31-е и уезжало в 3-ю декаду.
-  def first_viewed_at_by_job
-    base_scope.group(:user_id, :service_job_id).minimum(:viewed_at).transform_values(&:in_time_zone)
+  # { [user_id, service_job_id] => [[user_id, service_job_id, viewed_at, processed_action], ...] }
+  # Маркеры внутри пары — по времени открытия. Берём pluck, а не сгруппированный
+  # minimum: тот отдаёт голый UTC Time без перевода в Time.zone, и утро 1-го числа
+  # по местному времени читалось бы как 30-е/31-е.
+  def markers_by_job
+    @markers_by_job ||= base_scope.order(:viewed_at)
+                                  .pluck(:user_id, :service_job_id, :viewed_at, :processed_action)
+                                  .group_by { |user_id, job_id, *| [user_id, job_id] }
   end
 
   # Активные сотрудники, чья текущая локация — любая ремонтная (code LIKE 'repair%')
@@ -86,9 +107,9 @@ class QuackControlQuery
                           .to_a
   end
 
-  # Общий билдер: собирает [{ user:, count: }] и сортирует count desc, затем имя.
+  # Общий билдер: собирает [{ user:, count:, details: }] и сортирует count desc, затем имя.
   def build_rows(users)
-    users.map { |user| { user: user, count: counts.fetch(user.id, 0) } }
+    users.map { |user| { user: user, count: counts.fetch(user.id, 0), details: details.fetch(user.id, []) } }
          .sort_by { |row| [-row[:count], row[:user].short_name.to_s.downcase] }
   end
 end

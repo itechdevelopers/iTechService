@@ -18,3 +18,17 @@ ru:
       summary:
         total: Всего за месяц
         vs_prev: к прошлому месяцу
+      details:
+        job: Работа
+        device: Устройство
+        viewed_at: Открыл
+        outcome: Чем кончилось
+        views_hint:
+          one: 'Открывал %{count} раз — засчитано один раз'
+          few: 'Открывал %{count} раза — засчитано один раз'
+          many: 'Открывал %{count} раз — засчитано один раз'
+          other: 'Открывал %{count} раза — засчитано один раз'
+        outcomes:
+          none: без ответа
+          dismissed: просто посмотрел
+          auto_resolved: статус сменился
