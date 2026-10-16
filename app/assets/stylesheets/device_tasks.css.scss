@@ -11,11 +11,18 @@
   }
 }
 
-// Что выбрали при приёмке (причины, свой текст, вид ремонта) — строка под задачей в таблице
-// задач ServiceJob. Цвет строки как у задачи, верхней границы нет: читается как её продолжение.
+// Что выбрали при приёмке (причины, свой текст, вид ремонта) — колонка «Приёмка» в таблице
+// задач ServiceJob; комментарий приёмщика — строка под задачей. Цвет строки как у задачи,
+// верхней границы нет: читается как её продолжение.
 .table .task-intake-choice td {
   border-top: 0;
   padding-top: 0;
+}
+
+// Без явной ширины длинный комментарий в строке с colspan растягивает соседние пустые
+// колонки, и выбор при приёмке сжимается в узкий столбик
+.task-intake-choice__column {
+  width: 40%;
 }
 
 .task-intake-choice__line {
@@ -30,6 +37,15 @@
 // Текст приёмщика из textarea: переносы строк сохраняем
 .task-intake-choice__manual {
   white-space: pre-line;
+}
+
+// Как текстовыделитель: фон идёт по каждой строке переноса, а не одним прямоугольником
+.task-intake-choice__comment {
+  background-color: #ffe94d;
+  padding: 1px 4px;
+  line-height: 1.8;
+  -webkit-box-decoration-break: clone;
+  box-decoration-break: clone;
 }
 
 .task-intake-choice__countdown {

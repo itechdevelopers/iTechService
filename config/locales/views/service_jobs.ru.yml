@@ -14,6 +14,8 @@ ru:
         confirm: 'Да, беру в работу'
         decline: 'Нет'
     device_tasks_show:
+      intake_column: 'Приёмка'
+      intake_comment: 'Комментарий приёмщика:'
       intake_causes: 'Причины:'
       intake_manual_causes: 'Своими словами:'
       intake_repair_services: 'Вид ремонта при приёмке:'

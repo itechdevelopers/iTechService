@@ -4,7 +4,7 @@
   %thead
     %tr
       %th= Task.human_attribute_name :name
-      %th= DeviceTask.human_attribute_name :comment
+      %th.task-intake-choice__column= t('.intake_column')
       %th= DeviceTask.human_attribute_name :user_comment
       %th= DeviceTask.human_attribute_name :cost
       %th= DeviceTask.human_attribute_name :done_at
@@ -12,23 +12,13 @@
       %th
   %tbody
     - service_job.device_tasks.ordered.includes(:expected_repair_causes, :expected_repair_services).each do |device_task|
-      %tr{class: row_class_for_task(device_task)}
-        %td= device_task.task_name
-        %td= h device_task.comment
-        %td
-          %strong.user_comment= h device_task.user_comment
-        %td.align_right= device_task.cost
-        %td= l device_task.done_at, format: :date_time unless device_task.done_at.blank?
-        %td= l device_task.created_at, format: :date_time
-        %td{style: "background:none; display: flex; flex-direction: column;"}
-          = history_link_to history_device_task_path(service_job, device_task)
-          = policy(device_task).edit? ? link_to_edit_device_task_colored(device_task) : nil
       -# Одну и ту же причину или ремонт можно отметить в двух блоках приёмки
       - intake_causes = device_task.expected_repair_causes.map(&:title).uniq
       - intake_services = device_task.expected_repair_services.map(&:name).uniq
-      - if intake_causes.any? || device_task.manual_repair_causes.present? || intake_services.any?
-        %tr.task-intake-choice{class: row_class_for_task(device_task)}
-          %td{colspan: 7}
+      %tr{class: row_class_for_task(device_task)}
+        %td= device_task.task_name
+        %td
+          - if intake_causes.any? || device_task.manual_repair_causes.present? || intake_services.any?
             - if intake_causes.any?
               .task-intake-choice__line
                 %span.task-intake-choice__label= t('.intake_causes')
@@ -47,6 +37,20 @@
                 = human_datetime(service_job.return_at)
                 -# Сколько осталось, важно, пока работа не сделана; после — только срок
                 = return_at_countdown_tag(service_job.return_at) if device_task.pending?
+        %td
+          %strong.user_comment= h device_task.user_comment
+        %td.align_right= device_task.cost
+        %td= l device_task.done_at, format: :date_time unless device_task.done_at.blank?
+        %td= l device_task.created_at, format: :date_time
+        %td{style: "background:none; display: flex; flex-direction: column;"}
+          = history_link_to history_device_task_path(service_job, device_task)
+          = policy(device_task).edit? ? link_to_edit_device_task_colored(device_task) : nil
+      -# Комментарий длинный, поэтому он на всю ширину под задачей, а не в узкой колонке
+      - if device_task.comment.present?
+        %tr.task-intake-choice{class: row_class_for_task(device_task)}
+          %td{colspan: 7}
+            .task-intake-choice__label= t('.intake_comment')
+            %span.task-intake-choice__comment= device_task.comment
       - if device_task.is_repair? && device_task.done?
         %tr.repair-passport-row
           %td{colspan: 7}
