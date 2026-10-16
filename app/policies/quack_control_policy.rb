@@ -7,4 +7,9 @@ class QuackControlPolicy < ApplicationPolicy
   def show?
     user.location&.is_any_repair? || superadmin?
   end
+
+  # Убрать работу из счёта сотрудника (QuackControlController#exclude).
+  def exclude?
+    superadmin?
+  end
 end

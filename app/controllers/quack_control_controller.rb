@@ -20,6 +20,28 @@ class QuackControlController < ApplicationController
     # Флаг отделяет «текущий месяц → бейдж скрыт» от «завершён, но прошлый пуст → прочерк».
     @month_completed = @month < current_month
     @delta_percent = month_over_month_delta(query)
+    # Строка, которую раскрыть сразу — после #exclude, чтобы убирать работы подряд.
+    @open_user_id = params[:open].to_i
+  end
+
+  # Убирает строку расшифровки из счёта: все засчитанные за месяц маркеры пары
+  # «сотрудник × работа». Маркеры не удаляем — кнопка «Взять в работу» из Telegram
+  # ищет маркер по start_token, и после destroy она отдавала бы 404.
+  def exclude
+    authorize :quack_control, :exclude?
+
+    month = parse_month
+    now = Time.current
+    excluded = QuackControlQuery.new(month)
+                                .counted_markers(user_id: params[:user_id], service_job_id: params[:service_job_id])
+                                .update_all(quack_excluded_at: now, quack_excluded_by_id: current_user.id, updated_at: now)
+
+    if excluded.positive?
+      flash[:notice] = t('.done', ticket: ServiceJob.find_by(id: params[:service_job_id])&.ticket_number)
+    else
+      flash[:alert] = t('.nothing')
+    end
+    redirect_to quack_control_path(month: month.strftime('%Y-%m'), open: params[:user_id])
   end
 
   private

@@ -70,6 +70,82 @@
     color: #aaa;
   }
 
+  // Строка с засчитанными работами раскрывается кликом (quack_control.js).
+  &__row--expandable {
+    cursor: pointer;
+
+    &:hover { background: #f7f7f7; }
+    // Рамка только при навигации с клавиатуры — после клика мышью она лишняя.
+    &:focus { outline: none; }
+    &:focus-visible { outline: 1px dotted #999; }
+  }
+
+  &__chevron {
+    display: inline-block;
+    width: 14px;
+    color: #999;
+    transition: transform 0.15s;
+  }
+
+  &__row--open &__chevron {
+    transform: rotate(90deg);
+  }
+
+  // Расшифровка — отдельная строка таблицы под сотрудником, скрыта до клика.
+  &__details-row {
+    display: none;
+
+    &--open { display: table-row; }
+  }
+
+  &__details {
+    width: 100%;
+    font-size: 12px;
+    color: #555;
+  }
+
+  // Bootstrap `.table th, .table td` (padding 8px + верхняя рамка) задевает и ячейки
+  // вложенной таблицы; селектор через родительскую таблицу перебивает его по
+  // specificity независимо от порядка подключения стилей.
+  &__table &__details-row > td {
+    border-top: none;
+    padding: 0 0 12px 14px;
+  }
+
+  &__table &__details {
+    th,
+    td {
+      border-top: none;
+      line-height: 16px;
+      padding: 3px 8px 3px 0;
+      vertical-align: top;
+    }
+
+    th {
+      font-weight: 600;
+      color: #888;
+      text-align: left;
+    }
+  }
+
+  // button_to оборачивает кнопку в <form>, а у Bootstrap 2 у form нижний отступ 20px.
+  &__exclude-form {
+    margin: 0;
+  }
+
+  &__table &__details td.quack-control__exclude-cell {
+    text-align: right;
+    white-space: nowrap;
+    padding-right: 0;
+  }
+
+  // «×N» — справка, а не отягчающее: в счёт работа всё равно идёт один раз.
+  &__views {
+    margin-left: 4px;
+    color: #999;
+    cursor: help;
+  }
+
   &__empty {
     text-align: center;
     color: #888;
