@@ -1,5 +1,5 @@
 import base64, hashlib, hmac, json, unittest
-from gateway import Denied, LeaseStore, verify_ticket
+from gateway import Denied, LeaseStore, verify_ticket, media_config
 from collector import browser_answers, call_from_cdr
 
 class GatewayTest(unittest.TestCase):
@@ -8,6 +8,19 @@ class GatewayTest(unittest.TestCase):
         claims.update(changes)
         encoded = base64.urlsafe_b64encode(json.dumps(claims).encode()).decode().rstrip('=')
         return encoded+'.'+hmac.new(b's'*48,encoded.encode(),hashlib.sha256).hexdigest()
+
+    def test_turn_credentials_refresh_after_an_hour(self):
+        config = {'turn_secret': 'test-secret', 'turn_url': 'turn:localhost:3478?transport=tcp'}
+        first = media_config(config, '7776', 1000)
+        renewed = media_config(config, '7776', 4700)
+        old = first['iceServers'][0]
+        fresh = renewed['iceServers'][0]
+        self.assertLess(int(old['username'].split(':')[0]), 4700)
+        self.assertEqual('8300:7776', fresh['username'])
+        expected = base64.b64encode(hmac.new(b'test-secret', b'8300:7776', hashlib.sha1).digest()).decode()
+        self.assertEqual(expected, fresh['credential'])
+        self.assertEqual('relay', renewed['iceTransportPolicy'])
+        self.assertNotEqual(old['credential'], fresh['credential'])
 
     def test_signed_ticket_and_tampering(self):
         self.assertEqual('7771',verify_ticket(self.ticket(),'s'*48,1001)['extension'])

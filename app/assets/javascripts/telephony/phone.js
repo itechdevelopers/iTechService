@@ -300,8 +300,10 @@ async function renew(currentUa,version){
  try{
   const context=await getTicket(0,version,abort.signal);
   if(ua!==currentUa||lease!==currentLease)return;
-  await api('/heartbeat',currentLease,0,context,abort.signal);
+  const renewed=await api('/heartbeat',currentLease,0,context,abort.signal);
   if(ua!==currentUa||lease!==currentLease||version!==generation)return;
+  // Refresh TURN credentials for subsequent dialogs without changing a live connection.
+  if(renewed.pcConfig)pcConfig=renewed.pcConfig;
   if(ua===currentUa&&renewalWarning&&$('error').textContent===renewalWarning)error('');
   renewalWarning=null;
  }catch(e){

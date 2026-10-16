@@ -51,6 +51,14 @@ def control(action, extension, password=None, until=0, contact_user=None):
         return json.loads(reply).get('result')
 
 
+def media_config(config, extension, now=None):
+    now = int(time.time()) if now is None else int(now)
+    username = str(now + 3600) + ':' + extension
+    credential = base64.b64encode(hmac.new(config['turn_secret'].encode(), username.encode(), hashlib.sha1).digest()).decode()
+    return {'iceTransportPolicy': 'relay', 'iceServers': [
+        {'urls': config['turn_url'], 'username': username, 'credential': credential}]}
+
+
 class LeaseStore:
     def __init__(self, controller=control, clock=time.time):
         self.leases = {}
@@ -150,13 +158,12 @@ def main():
                 claims = verify_ticket(payload.get('ticket'), config['shared_secret'])
                 if self.path == '/ais/enable':
                     result = store.enable(claims)
-                    username = str(int(time.time()) + 3600) + ':' + claims['extension']
-                    credential = base64.b64encode(hmac.new(config['turn_secret'].encode(), username.encode(), hashlib.sha1).digest()).decode()
                     result.update({'wss': config['wss'], 'uri': 'sip:' + claims['extension'] + '@localhost',
-                                   'pcConfig': {'iceTransportPolicy': 'relay', 'iceServers': [
-                                       {'urls': config['turn_url'], 'username': username, 'credential': credential}]}})
+                                   'pcConfig': media_config(config, claims['extension'])})
                 else:
                     result = store.update(self.path.split('/')[-1], claims, payload.get('token'))
+                    if self.path == '/ais/heartbeat':
+                        result['pcConfig'] = media_config(config, claims['extension'])
                 self.reply(200, result)
             except Denied as exc:
                 self.reply(409, {'error': str(exc) or 'Доступ к телефонии не подтверждён.'})
