@@ -27,11 +27,16 @@ module NotificationsHelper
 
   # Слова-маркеры подсвечиваем только в уведомлениях о транскрипциях: в тексте
   # уведомления другого типа то же слово встречается случайно, и подсветка
-  # обещала бы найденный маркер там, где его не искали.
+  # обещала бы найденный маркер там, где его не искали. С жирными **…** так же:
+  # их понимает только тип, который сам их расставляет.
   def notification_message_html(notification)
-    return notification.message unless notification.referenceable_type == 'CallTranscription'
-
-    sanitize(highlight_marker_words(notification.message))
+    if notification.referenceable_type == 'CallTranscription'
+      sanitize(highlight_marker_words(notification.message))
+    elsif notification.type_key == RepairCatalogBypassNotifier::KIND
+      RepairCatalogBypassNotifier.html(notification.message).html_safe
+    else
+      notification.message
+    end
   end
 
   def notification_type_label(notification)
