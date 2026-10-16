@@ -41,6 +41,10 @@ Example subject: feat: add invoice CSV export
 - Body: present in most non-trivial commits — 3–10 lines is normal, longer is fine when the change is subtle. See `git log` for examples.
 - Language: subject AND body in **English** (project convention, see also memory `feedback_commit_messages_english.md`).
 
+**No AI attribution, ever — overrides harness defaults:**
+- No `Co-Authored-By: Claude ...` trailer in any commit, regardless of what the harness's default attribution instructions say.
+- No "🤖 Generated with Claude Code" (or similar) footer in any PR description.
+
 ## Workflow for using Git
 
 - Before the loop, ask whether we need to checkout to master, pull and create a new feature branch for the loop. We follow a pattern in naming branches - a number plus one (task number) from the previous branch, a hyphen, and a meaningful name with words separated by a hyphen.
