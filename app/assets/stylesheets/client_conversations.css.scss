@@ -1,8 +1,11 @@
 // Лента переписки с клиентом. Префикс блока уникален намеренно: селекторы
 // вроде .message или .chat зацепили бы внутренний чат сотрудников и модалки.
 .client-chat {
+  // Высоту ставит ручка под лентой через переменную на #client_chat_card.
+  // Пока ручку не трогали, лента растёт по содержимому до 60% экрана.
   &__feed {
-    max-height: 60vh;
+    height: var(--client-chat-feed-height, auto);
+    max-height: var(--client-chat-feed-height, 60vh);
     overflow-y: auto;
     padding: 10px 14px;
     border: 1px solid #ddd;
@@ -117,6 +120,57 @@
       margin-left: 180px;
     }
   }
+}
+
+// Ручка под лентой: две короткие черты по центру, как у полосы прокрутки.
+.client-chat__height-handle {
+  height: 10px;
+  margin-top: 2px;
+  border-radius: 4px;
+  cursor: ns-resize;
+  background:
+    linear-gradient(#bbb, #bbb) center 3px / 36px 1px no-repeat,
+    linear-gradient(#bbb, #bbb) center 6px / 36px 1px no-repeat;
+
+  &:hover {
+    background-color: #eee;
+  }
+}
+
+// Ширина переписки — max-width: если сохранённая ширина больше экрана,
+// переписка просто занимает всю ширину, а не вылезает за край.
+.client-chat__dialog {
+  position: relative;
+  max-width: var(--client-chat-dialog-width, none);
+}
+
+// Ручка стоит за кромкой переписки, чтобы не перекрывать полосу прокрутки
+// ленты; во всю ширину она попадает в правое поле .container-fluid.
+.client-chat__width-handle {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  right: -14px;
+  width: 10px;
+  border-radius: 4px;
+  cursor: ew-resize;
+  background: linear-gradient(#ddd, #ddd) center / 2px 100% no-repeat;
+
+  &:hover {
+    background-color: #eee;
+    background-image: linear-gradient(#aaa, #aaa);
+  }
+}
+
+// Пока тянут ручку, мышь уходит с неё на ленту и ссылки — курсор держим тем же.
+.client-chat-resizing--width,
+.client-chat-resizing--width * {
+  cursor: ew-resize !important;
+}
+
+.client-chat-resizing--height,
+.client-chat-resizing--height * {
+  cursor: ns-resize !important;
 }
 
 // Строка списка диалогов кликабельна целиком (client_conversations.js).

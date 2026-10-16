@@ -24,6 +24,115 @@ $(document).on('click auxclick', '.client-chat-list__row', function (event) {
   }
 });
 
+// Размер переписки в карточке диалога: ширина ленты с формой ответа и высота
+// ленты. Хранится в браузере, а не у сотрудника — на ноутбуке и на широком
+// мониторе удобны разные размеры. localStorage бывает недоступен (приватный
+// режим), тогда размер просто не запоминается.
+//
+// Размер — CSS-переменные на #client_chat_card: взятие в работу и закрытие
+// заменяют его содержимое, а сам элемент остаётся, и новая разметка
+// подхватывает размер без повторного применения.
+(function () {
+  var STORAGE_KEY = 'clientChatWindowSize';
+  var MIN_WIDTH = 480;
+  var MIN_FEED_HEIGHT = 150;
+
+  function load() {
+    try {
+      return JSON.parse(window.localStorage.getItem(STORAGE_KEY)) || {};
+    } catch (e) {
+      return {};
+    }
+  }
+
+  function save(size) {
+    try {
+      window.localStorage.setItem(STORAGE_KEY, JSON.stringify(size));
+    } catch (e) { /* размер не запомнится, окно работает и так */ }
+  }
+
+  function setPx(element, name, value) {
+    if (value) {
+      element.style.setProperty(name, value + 'px');
+    } else {
+      element.style.removeProperty(name);
+    }
+  }
+
+  function apply(card, size) {
+    setPx(card, '--client-chat-dialog-width', size.width);
+    setPx(card, '--client-chat-feed-height', size.height);
+  }
+
+  function scrollFeedToBottom() {
+    var feed = document.getElementById('client_chat_feed');
+    if (feed) { feed.scrollTop = feed.scrollHeight; }
+  }
+
+  $(function () {
+    var card = document.getElementById('client_chat_card');
+    if (!card) { return; }
+
+    var size = load();
+    apply(card, size);
+    // Лента уже прокручена вниз подпиской канала, но до того, как ей сменили
+    // высоту: после сужения низ переписки ушёл бы из виду.
+    scrollFeedToBottom();
+
+    $(card).on('mousedown', '.client-chat__width-handle, .client-chat__height-handle', function (event) {
+      if (event.button !== 0) { return; }
+      // Иначе протяжка мышью выделяет текст переписки.
+      event.preventDefault();
+
+      var byWidth = $(this).hasClass('client-chat__width-handle');
+      var dialog = $(this).closest('.client-chat__dialog')[0];
+      var feed = document.getElementById('client_chat_feed');
+      // Смещение мыши — в координатах окна (client*), не страницы (page*):
+      // сжатая лента укорачивает прокрученную до низа страницу, браузер
+      // уменьшает scrollY, и page* добавил бы к ходу мыши этот сдвиг — ручка
+      // убегала бы от курсора.
+      var startX = event.clientX;
+      var startY = event.clientY;
+      var startWidth = dialog.offsetWidth;
+      var startHeight = $(feed).height();
+      var atBottom = feed.scrollTop + feed.clientHeight >= feed.scrollHeight - 2;
+      var cursorClass = byWidth ? 'client-chat-resizing--width' : 'client-chat-resizing--height';
+
+      $('body').addClass(cursorClass);
+
+      $(document).on('mousemove.clientChatResize', function (move) {
+        if (byWidth) {
+          var width = Math.max(MIN_WIDTH, startWidth + move.clientX - startX);
+          // Дотянули до края — снимаем ограничение, а не храним ширину экрана:
+          // на мониторе пошире переписка тоже должна занимать всё место.
+          size.width = width < dialog.parentNode.clientWidth ? width : null;
+        } else {
+          size.height = Math.max(MIN_FEED_HEIGHT, startHeight + move.clientY - startY);
+        }
+        apply(card, size);
+        if (atBottom) { scrollFeedToBottom(); }
+      });
+
+      $(document).one('mouseup', function () {
+        $(document).off('mousemove.clientChatResize');
+        $('body').removeClass(cursorClass);
+        save(size);
+      });
+    });
+
+    $(card).on('dblclick', '.client-chat__width-handle, .client-chat__height-handle', function () {
+      if ($(this).hasClass('client-chat__width-handle')) {
+        size.width = null;
+      } else {
+        size.height = null;
+      }
+      apply(card, size);
+      save(size);
+      scrollFeedToBottom();
+    });
+  });
+})();
+
 $(function () {
   var timer = null;
 
