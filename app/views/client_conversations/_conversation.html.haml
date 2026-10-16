@@ -2,7 +2,7 @@
 -# брать conversation.messages.last здесь нельзя — это N+1 на каждую строку.
 - waiting = conversation.waiting_seconds
 - overdue = waiting.present? && waiting > ClientConversation::WAITING_ALERT
-%tr{ id: "client_conversation_#{conversation.id}" }
+%tr.client-chat-list__row{ id: "client_conversation_#{conversation.id}", data: { href: client_conversation_path(conversation) } }
   %td
     = link_to conversation.contact_title, client_conversation_path(conversation)
     - if conversation.client
