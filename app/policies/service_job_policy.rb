@@ -3,14 +3,6 @@ class ServiceJobPolicy < CommonPolicy
     any_manager?(:software, :media, :universal)
   end
 
-  def new_v2?
-    create?
-  end
-
-  def create_v2?
-    create?
-  end
-
   def edit?
     read?
   end

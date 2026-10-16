@@ -142,26 +142,6 @@ class ServiceJobsController < ApplicationController
     prepare_check_list_data
 
     respond_to do |format|
-      format.html do
-        # Включённая новая приёмка заменяет старую целиком: сюда ведут и кнопки у клиента,
-        # и закладки. Параметры (клиент) уходят дальше как есть.
-        if Setting.new_intake_enabled?(current_department)
-          redirect_to new_v2_service_jobs_path(request.query_parameters)
-        else
-          render_form
-        end
-      end
-      format.json { render json: @service_job }
-    end
-  end
-
-  def new_v2
-    new_params = service_job_params rescue {}
-    @service_job = authorize ServiceJob.new(new_params), :new_v2?
-    @service_job.department_id = current_user.department_id
-    prepare_check_list_data
-
-    respond_to do |format|
       format.html { render_form }
       format.json { render json: @service_job }
     end
@@ -182,33 +162,6 @@ class ServiceJobsController < ApplicationController
 
   def create
     @service_job = authorize ServiceJob.new(service_job_params)
-    @service_job.initial_department = current_user.department
-
-    if (existing = recent_duplicate_of(@service_job))
-      return respond_with_duplicate(existing)
-    end
-
-    respond_to do |format|
-      if @service_job.save
-        create_phone_substitution if @service_job.phone_substituted?
-        Service::Feedback::Create.call(service_job: @service_job)
-
-        processor = CheckListResponsesProcessor.new(@service_job, 'service_job')
-        processor.process(params, strategy: :create)
-
-        format.html { redirect_to @service_job, notice: t('service_jobs.created') }
-        format.json { render json: @service_job, status: :created, location: @service_job }
-      else
-        prepare_check_list_data
-        @one_c_sold = params[:one_c_sold]
-        format.html { render_form }
-        format.json { render json: @service_job.errors, status: :unprocessable_entity }
-      end
-    end
-  end
-
-  def create_v2
-    @service_job = authorize ServiceJob.new(service_job_params), :create_v2?
     @service_job.initial_department = current_user.department
     fill_blank_task_costs(@service_job)
 
@@ -321,7 +274,7 @@ class ServiceJobsController < ApplicationController
   end
 
   def preview_work_order
-    authorize ServiceJob, :new_v2?
+    authorize ServiceJob, :new?
     data = build_preview_data(service_job_params)
     pdf = PreviewWorkOrderPdf.new(data, view_context)
 
@@ -864,7 +817,8 @@ class ServiceJobsController < ApplicationController
 
   def render_form
     set_job_templates
-    template = action_name.include?('v2') ? 'form_v2' : 'form'
+    # form_v2 — приёмка, form — карточка существующего заказа
+    template = @service_job.new_record? ? 'form_v2' : 'form'
     render template
   end
 

@@ -417,8 +417,9 @@ Rails.application.routes.draw do
     get :repair_passport, on: :member, defaults: { format: 'js' }
     put :archive, on: :member, defaults: { format: 'js' }
     patch :toggle_report_exclusion, on: :member
-    get :new_v2, on: :collection
-    post :create_v2, on: :collection
+    # Старый адрес приёмки живёт в закладках; без редиректа он уйдёт в show с id "new_v2".
+    # OptionRedirect переносит query string, так что клиент из ссылки не теряется.
+    get :new_v2, on: :collection, to: redirect(path: '/service_jobs/new')
     post :preview_work_order, on: :collection
     resources :device_notes, only: %i[index new create update], shallow: true
     scope module: :service_jobs do
