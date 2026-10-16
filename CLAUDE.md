@@ -44,6 +44,11 @@ Example subject: feat: add invoice CSV export
 ## Workflow for using Git
 
 - Before the loop, ask whether we need to checkout to master, pull and create a new feature branch for the loop. We follow a pattern in naming branches - a number plus one (task number) from the previous branch, a hyphen, and a meaningful name with words separated by a hyphen.
+- **Every task runs in its own git worktree**, never in the main checkout — the main checkout stays on master:
+  - pull master in the main checkout first, then create the worktree from it at `.claude/worktrees/NNN-name` on branch `NNN-name` (`EnterWorktree` names the branch `worktree-<name>` — rename it with `git branch -m`);
+  - symlink the gitignored files into the worktree: `.env.development.local` → `../../../.env.development.local` and `public/uploads` → `../../../../public/uploads` — without them the app boots without local env and serves 404 for the logo and uploaded files;
+  - `docs/` and `TODO.md` are gitignored and exist only in the main checkout — read and update them there;
+  - dev DB and Redis are shared by all worktrees: one branch's migrations end up in another branch's `db/schema.rb`, and Sidekiq started from one worktree runs jobs enqueued by another.
 - In the end of the loop, ask whether to add all the files (otherwise ask to specify which files to include), add if answer is yes, and provide with meaningfull commit message (I'll add the commit by myself after).
 
 ## Critical Reminders
@@ -83,15 +88,19 @@ Full recipe with working curl examples: **[docs/testing-endpoints-with-curl.md](
 Если цикл заканчивается ручной проверкой — поднять всё нужное самому, до того как звать
 к проверке.
 
-**1. Dev-сервер на :3000**
+**1. Dev-сервер**
+
+`:3000` — сервер основного каталога: он крутит код master и правок из worktree не видит.
+Ветку проверяем на своём сервере, поднятом из worktree на свободном порту (`:3001` и выше
+бывают заняты параллельными сессиями); после проверки гасить только его.
 
 ```bash
-curl -sS -o /dev/null --max-time 2 http://localhost:3000 && echo alive || echo down
+curl -sS -o /dev/null --max-time 2 http://localhost:<port> && echo alive || echo down
 ps -eo pid,etime,command | grep '[p]uma'   # etime = возраст процесса, формат dd-hh:mm:ss
 ```
 
-- Не отвечает → поднять `bin/rails server -p 3000 -e development` (фоном, `run_in_background: true`)
-  и дождаться отклика: `until curl -sS -o /dev/null --max-time 2 http://localhost:3000; do sleep 2; done`.
+- Не отвечает → поднять `bin/rails server -p <port> -e development` (фоном, `run_in_background: true`)
+  и дождаться отклика: `until curl -sS -o /dev/null --max-time 2 http://localhost:<port>; do sleep 2; done`.
 - Отвечает, но процессу больше 3 дней → перезапустить (`kill <PID>`, затем поднять заново):
   за это время накопились правки кода, локалей и инициализаторов, которых старый процесс
   не видит — I18n и инициализаторы читаются один раз на бут.
@@ -104,5 +113,7 @@ ps -eo pid,etime,command | grep '[p]uma'   # etime = возраст процес
 - Поднимать **строго на этой одной очереди**: `bundle exec sidekiq -q ise_development_<name> -c 2`.
   Никогда не на `mailers`/`reports`/полном наборе — в dev-Redis накоплен бэклог, и
   `letter_opener` откроет вкладку браузера на каждое письмо.
-- После теста Sidekiq надо гасить (`pkill -f sidekiq`) — **сказать об этом явно**, когда
-  передаёшь окружение на ручную проверку.
+- После теста гасить только свой Sidekiq — `kill <PID>`, не `pkill -f sidekiq`: тот убьёт
+  и процессы параллельных сессий. Свой виден по имени каталога worktree в заголовке процесса
+  (`ps -eo pid,command | grep '[s]idekiq'`). **Сказать об этом явно**, когда передаёшь
+  окружение на ручную проверку.
