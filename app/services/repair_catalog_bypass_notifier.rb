@@ -2,13 +2,19 @@
 
 # Приёмщик в новой приёмке обошёл справочник причин ремонта: разово выбрал вид ремонта
 # (у продукта он в справочнике неверный или не задан) или вписал причины вручную.
-# Суперадминам — чтобы поправить справочник. Одно уведомление на работу, даже если
-# так заполнено несколько задач.
+# Суперадминам и обладателям права — чтобы поправить справочник. Одно уведомление
+# на работу, даже если так заполнено несколько задач.
 class RepairCatalogBypassNotifier
   KIND = 'repair_catalog_bypass'
+  ABILITY = 'receive_repair_catalog_bypass_notifications'
 
   def self.call(service_job:, user:)
     new(service_job: service_job, user: user).call
+  end
+
+  # uniq — у суперадмина может стоять и галочка права.
+  def self.recipients
+    (User.superadmins.active.to_a + User.active.with_ability(ABILITY).to_a).uniq
   end
 
   def initialize(service_job:, user:)
@@ -19,7 +25,7 @@ class RepairCatalogBypassNotifier
   def call
     return if details.empty?
 
-    User.superadmins.active.find_each do |recipient|
+    self.class.recipients.each do |recipient|
       NotificationDispatcher.call(
         user: recipient,
         type_key: KIND,
