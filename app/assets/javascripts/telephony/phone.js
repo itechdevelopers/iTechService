@@ -7,11 +7,12 @@ let ua=null,session=null,stream=null,lease=null,heartbeat=null,started=null,ring
 JsSIP.debug.disable();
 let linkState='off',disableAfterCall=false,disableReason='',generation=0,renewingFor=null,renewalWarning=null,disableTask=null,renewalAbort=null;
 let waitingTimer=null,waitingRequest=null,waitingCount=0,waitingClients=new Map();
+function awaitingAnswer(s){return !!s&&s.direction==='incoming'&&!s.isEnded()&&!s.isEstablished()&&!s.data.aisAnswering;}
 function publish(){
  if(window.parent===window)return;
  const state=$('error').textContent?'error':session&&session.isEstablished()?'call':linkState;
  window.parent.postMessage({type:'ais-phone-state',state,status:$('status').textContent,error:$('error').textContent,
-  enabled:!!ua,call:!!session,waiting:waitingCount,incoming:!!session&&session.direction==='incoming'&&!session.isEstablished(),
+  enabled:!!ua,call:!!session,waiting:waitingCount,incoming:awaitingAnswer(session),
   callTitle:session?$('call-title').textContent+(consultSession?' · '+$('consult-title').textContent:''):'',duration:$('duration').textContent},location.origin);
 }
 function callReference(request){
@@ -43,7 +44,7 @@ function error(text){$('error').textContent=text||'';publish();}
 function audibleSession(){return consultSession||session;}
 function confirmedHold(s){return !!s&&s.isOnHold().local&&s.data.aisHoldConfirmed===true&&!s.data.aisHoldUncertain;}
 function controls(){
- const registered=!!ua&&ua.isRegistered(),call=!!session,incoming=call&&session.direction==='incoming'&&!session.isEstablished();
+ const registered=!!ua&&ua.isRegistered(),call=!!session,incoming=awaitingAnswer(session);
  const consulting=!!consultSession||!!consultIntent||consultReturning,established=call&&session.isEstablished(),active=audibleSession();
  $('enable').disabled=!!ua||busy;$('identity').disabled=!!ua||busy;$('microphone').disabled=!!ua||busy;
  $('disable').disabled=!ua||call;$('answer').disabled=!incoming;$('reject').disabled=!incoming;$('hangup').disabled=!call;
@@ -360,7 +361,12 @@ $('enable').onclick=async()=>{
  }finally{if(version===generation){busy=false;controls();}}
 };
 $('disable').onclick=disable;
-$('answer').onclick=()=>{error('');stopRing();try{const s=session,media=s.data.aisMicStream||callMedia();s.data.aisMicStream=media;s.answer({mediaStream:media,mediaConstraints:{audio:true,video:false},pcConfig:pcConfig});}catch(e){error(e.message);}};
+$('answer').onclick=()=>{
+ const s=session;if(!awaitingAnswer(s))return;
+ s.data.aisAnswering=true;error('');stopRing();controls();
+ try{const media=s.data.aisMicStream||callMedia();s.data.aisMicStream=media;s.answer({mediaStream:media,mediaConstraints:{audio:true,video:false},pcConfig:pcConfig});}
+ catch(e){if(session!==s)return;s.data.aisAnswering=false;controls();error('Не удалось ответить на звонок: '+e.message);}
+};
 $('reject').onclick=()=>{if(session)session.terminate({status_code:486,reason_phrase:'Busy Here'});};
 $('hangup').onclick=()=>{if(session)session.terminate();};
 $('mute').onclick=()=>{const s=audibleSession();if(!s)return;if(s.isMuted().audio)s.unmute({audio:true});else s.mute({audio:true});controls();};
