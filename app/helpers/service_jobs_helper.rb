@@ -274,10 +274,10 @@ module ServiceJobsHelper
                  .map { |group| ["#{'— ' * group.depth}#{group.name}", group.id] }
   end
 
-  # Таблица задач новой приёмки рисуется иначе, чем в старой. По action_name, а не по
-  # пути: после ошибки валидации форма перерисовывается уже на create_v2.
+  # Таблица задач приёмки рисуется иначе, чем на карточке заказа: новую запись
+  # рендерит только приёмка — и в new, и при ошибке валидации в create.
   def intake_v2_task_table?
-    @service_job&.new_record? && action_name.to_s.include?('v2')
+    @service_job&.new_record?
   end
 
   # Опции для f.input: чипы встают на место подсказки, то есть внутрь .controls
