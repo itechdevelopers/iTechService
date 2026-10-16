@@ -28,16 +28,21 @@
             %th.quack-control__col-name= t('.columns.technician')
             %th.quack-control__col-count= t('.columns.count')
         %tbody
-          = render partial: 'row', collection: @primary_rows
+          = render partial: 'row', collection: @primary_rows,
+                   locals: { can_exclude: can?(:exclude, :quack_control), month: @month, open_user_id: @open_user_id }
 
     - if @extended_rows.any?
-      %details.quack-control__extended
+      -# Раскрыт сразу, если в нём строка, открытая после QuackControlController#exclude.
+      - extended_attrs = {}
+      - extended_attrs[:open] = true if @extended_rows.any? { |row| row[:user].id == @open_user_id }
+      %details.quack-control__extended{ extended_attrs }
         %summary.quack-control__extended-toggle
           = t('.extended.toggle', count: @extended_rows.size)
         %p.quack-control__extended-hint= t('.extended.hint')
         %table.quack-control__table.table
           %tbody
-            = render partial: 'row', collection: @extended_rows
+            = render partial: 'row', collection: @extended_rows,
+                     locals: { can_exclude: can?(:exclude, :quack_control), month: @month, open_user_id: @open_user_id }
 
   .quack-control__summary
     - decade_labels = ['1–10', '11–20', "21–#{@month.end_of_month.day}"]

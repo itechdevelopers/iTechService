@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20261015193553) do
+ActiveRecord::Schema.define(version: 20261016202053) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -1857,8 +1857,11 @@ ActiveRecord::Schema.define(version: 20261015193553) do
     t.bigint "processed_by_id"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.datetime "quack_excluded_at"
+    t.bigint "quack_excluded_by_id"
     t.index ["dismiss_token"], name: "index_repair_attention_markers_on_dismiss_token", unique: true
     t.index ["processed_by_id"], name: "index_repair_attention_markers_on_processed_by_id"
+    t.index ["quack_excluded_by_id"], name: "index_repair_attention_markers_on_quack_excluded_by_id"
     t.index ["service_job_id", "processed_at"], name: "idx_ram_on_sj_and_processed_at"
     t.index ["service_job_id"], name: "index_repair_attention_markers_on_service_job_id"
     t.index ["start_token"], name: "index_repair_attention_markers_on_start_token", unique: true
@@ -3291,6 +3294,7 @@ ActiveRecord::Schema.define(version: 20261015193553) do
   add_foreign_key "repair_attention_markers", "service_jobs"
   add_foreign_key "repair_attention_markers", "users"
   add_foreign_key "repair_attention_markers", "users", column: "processed_by_id"
+  add_foreign_key "repair_attention_markers", "users", column: "quack_excluded_by_id"
   add_foreign_key "repair_prices", "departments"
   add_foreign_key "repair_prices", "repair_services"
   add_foreign_key "repair_services", "repair_service_marks"

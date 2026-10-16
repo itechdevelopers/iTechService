@@ -72,16 +72,24 @@ class QuackControlQuery
     end
   end
 
+  # Засчитанные за месяц маркеры одной строки расшифровки — их целиком
+  # исключают из счёта (QuackControlController#exclude).
+  def counted_markers(user_id:, service_job_id:)
+    base_scope.where(user_id: user_id, service_job_id: service_job_id)
+  end
+
   private
 
   # Общая выборка-метрика: айс догнал (notified_at есть), в работу не взяли
-  # (processed_action != 'started'), момент открытия (viewed_at) — внутри месяца.
-  # Один источник правды для rows / total / decade_counts.
+  # (processed_action != 'started'), момент открытия (viewed_at) — внутри месяца,
+  # маркер не исключён из счёта вручную. Один источник правды для rows / total /
+  # decade_counts / details.
   def base_scope
     RepairAttentionMarker
       .where.not(notified_at: nil)
       .where("repair_attention_markers.processed_action IS DISTINCT FROM ?", 'started')
       .where(viewed_at: @month_start..@month_end)
+      .where(quack_excluded_at: nil)
   end
 
   # { user_id => число разных работ } — та же метрика, сгруппированная по технарю

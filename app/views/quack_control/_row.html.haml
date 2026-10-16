@@ -1,7 +1,9 @@
 - expandable = row[:details].any?
+- open = expandable && row[:user].id == open_user_id
 -# HAML здесь рендерит nil-атрибут как пустой (tabindex=""), поэтому ключ добавляем условно.
 - row_attrs = { class: [('quack-control__row--clean' if row[:count].zero?),
-                        ('quack-control__row--expandable' if expandable)] }
+                        ('quack-control__row--expandable' if expandable),
+                        ('quack-control__row--open' if open)] }
 - row_attrs[:tabindex] = 0 if expandable
 %tr.quack-control__row{ row_attrs }
   %td.quack-control__cell-name
@@ -10,7 +12,7 @@
     = row[:user].short_name
   %td.quack-control__cell-count= row[:count]
 - if expandable
-  %tr.quack-control__details-row
+  %tr.quack-control__details-row{ class: ('quack-control__details-row--open' if open) }
     %td{ colspan: 2 }
       %table.quack-control__details
         %thead
@@ -19,6 +21,8 @@
             %th= t('quack_control.show.details.device')
             %th= t('quack_control.show.details.viewed_at')
             %th= t('quack_control.show.details.outcome')
+            - if can_exclude
+              %th
         %tbody
           - row[:details].each do |entry|
             - job = entry[:service_job]
@@ -31,3 +35,11 @@
                   %span.quack-control__views{ title: t('quack_control.show.details.views_hint', count: entry[:views]) }
                     = "×#{entry[:views]}"
               %td= entry[:outcomes].map { |o| t("quack_control.show.details.outcomes.#{o || 'none'}") }.join(', ')
+              - if can_exclude
+                %td.quack-control__exclude-cell
+                  = button_to t('quack_control.show.details.exclude'), exclude_quack_control_path,
+                      params: { user_id: row[:user].id, service_job_id: job.id, month: month.strftime('%Y-%m') },
+                      form_class: 'quack-control__exclude-form',
+                      class: 'btn btn-mini',
+                      data: { confirm: t('quack_control.show.details.exclude_confirm',
+                                         ticket: job.ticket_number, name: row[:user].short_name) }
