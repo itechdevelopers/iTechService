@@ -105,6 +105,10 @@ module NotificationCatalog
     user.superadmin? || user.able_to?('work_with_receipt_search_requests')
   end
 
+  REPAIR_CATALOG_BYPASS = lambda do |user|
+    user.superadmin? || user.able_to?('receive_repair_catalog_bypass_notifications')
+  end
+
   REPAIR_LOCATION = lambda do |user|
     user.location&.code.to_s.start_with?('repair')
   end
@@ -176,8 +180,8 @@ module NotificationCatalog
           group: :repair,
           title: 'Причины ремонта не из справочника',
           hint: 'В новой приёмке разово выбрали вид ремонта или вписали причины вручную',
-          audience: 'суперадмины',
-          visible_to: SUPERADMIN),
+          audience: 'суперадмины + право receive_repair_catalog_bypass_notifications',
+          visible_to: REPAIR_CATALOG_BYPASS),
 
     entry('location_overstay',
           group: :repair,

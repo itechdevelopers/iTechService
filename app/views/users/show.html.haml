@@ -376,7 +376,7 @@
                   %tr{class: notification.closed? ? 'notification-read' : 'notification-unread'}
                     %td= l notification.created_at, format: :date_time
                     %td
-                      = notification.message
+                      = notification_message_html(notification)
                       = link_to "Перейти", notification.url if notification.url.present?
                     %td= notification.closed? ? l(notification.closed_at, format: :date_time) : '-'
 
