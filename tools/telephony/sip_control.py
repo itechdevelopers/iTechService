@@ -23,13 +23,52 @@ def rotate(extension, password):
     os.replace(temporary, AUTH)
     cli('pjsip reload')
 
+def in_call(extension):
+    output = subprocess.check_output(['/usr/sbin/asterisk', '-rx', 'core show channels concise'], timeout=10).decode()
+    for line in output.splitlines():
+        if len(line.split('!')) < 10:
+            raise RuntimeError('Cannot confirm channel state')
+        channel = line.split('!')[0]
+        if channel.startswith('PJSIP/' + extension + '-') or channel.startswith('Local/' + extension + '@'):
+            return True
+    return False
+
+def registration_values(payload, extension):
+    password, contact, until = payload.get('password'), payload.get('contact_user'), payload.get('until')
+    if type(until) is not int or until <= 0:
+        raise ValueError()
+    if not isinstance(password, str) or not re.fullmatch(r'[A-Za-z0-9_-]{40,64}', password):
+        raise ValueError()
+    if not isinstance(contact, str) or not re.fullmatch(extension + r'-[0-9a-f]{32}', contact):
+        raise ValueError()
+    return password, contact
+
 def handle(payload):
     extension = payload.get('extension')
     action = payload.get('action')
-    if extension not in EXTENSIONS or action not in ('enable', 'heartbeat', 'disable', 'waiting'):
+    if extension not in EXTENSIONS or action not in ('enable', 'recover', 'heartbeat', 'disable', 'waiting'):
         raise ValueError()
+    credentials = registration_values(payload, extension) if action in ('enable', 'recover') else None
     if action == 'waiting':
         return snapshot(extension)
+    if action == 'recover':
+        if in_call(extension):
+            return {'busy': True}
+        previous = subprocess.check_output(['/usr/sbin/asterisk', '-rx', 'database get ais-telephony {}/active'.format(extension)], timeout=10).decode().strip()
+        match = re.fullmatch(r'Value: (\d+)', previous)
+        if not match:
+            raise RuntimeError('Cannot confirm admission state')
+        cli('database put ais-telephony {}/active 0'.format(extension))
+        try:
+            # Close call admission before the final check: a call starting during
+            # the first check must not be displaced by a new browser lease.
+            busy = in_call(extension)
+        except Exception:
+            cli('database put ais-telephony {}/active {}'.format(extension, match[1]))
+            raise
+        if busy:
+            cli('database put ais-telephony {}/active {}'.format(extension, match[1]))
+            return {'busy': True}
     if action == 'disable':
         cli('database put ais-telephony {}/active 0'.format(extension))
         rotate(extension, secrets.token_urlsafe(32))
@@ -42,13 +81,8 @@ def handle(payload):
         until = payload.get('until')
         if type(until) is not int or until <= 0:
             raise ValueError()
-        if action == 'enable':
-            password = payload.get('password')
-            if not isinstance(password, str) or not re.fullmatch(r'[A-Za-z0-9_-]{40,64}', password):
-                raise ValueError()
-            contact = payload.get('contact_user')
-            if not isinstance(contact, str) or not re.fullmatch(extension + r'-[0-9a-f]{32}', contact):
-                raise ValueError()
+        if action in ('enable', 'recover'):
+            password, contact = credentials
             cli('database put ais-telephony {}/active 0'.format(extension))
             rotate(extension, password)
             state = json.loads(STATE.read_text());state['contacts'][extension] = contact
@@ -87,6 +121,6 @@ def main():
                     if len(data) >= 4096:raise ValueError()
                     result = handle(json.loads(data))
                     client.sendall(json.dumps({'ok': True, 'result': result}).encode() + b'\n')
-                except (ValueError, TypeError, AttributeError, OSError, subprocess.SubprocessError):
+                except (ValueError, TypeError, AttributeError, OSError, RuntimeError, subprocess.SubprocessError):
                     client.sendall(b'{"ok":false}\n')
 if __name__ == '__main__':main()

@@ -1,4 +1,5 @@
 import base64, hashlib, hmac, json, unittest
+from unittest.mock import Mock
 from gateway import Denied, LeaseStore, verify_ticket, media_config
 from collector import browser_answers, call_from_cdr
 
@@ -38,6 +39,45 @@ class GatewayTest(unittest.TestCase):
         second=store.enable(claims)
         self.assertNotEqual(first['password'],second['password'])
         self.assertEqual('disable',events[1][0][0])
+
+    def test_recovery_rotates_own_lease_and_rejects_old_requests(self):
+        controller=Mock(return_value=None)
+        store=LeaseStore(controller=controller,clock=lambda:1001)
+        claims=verify_ticket(self.ticket(),'s'*48,1001)
+        old=store.enable(claims)
+        with self.assertRaises(Denied) as conflict:store.enable(claims)
+        self.assertEqual('session_conflict',conflict.exception.code)
+        new=store.enable(claims,recover=True)
+        self.assertNotEqual(old['token'],new['token'])
+        self.assertNotEqual(old['password'],new['password'])
+        self.assertEqual('recover',controller.call_args[0][0])
+        for action in ['heartbeat','disable','waiting']:
+            with self.assertRaises(Denied):store.update(action,claims,old['token'])
+        self.assertEqual(new['token'],store.leases['7771']['token'])
+        store.update('heartbeat',claims,new['token'])
+
+    def test_recovery_cannot_take_another_employees_lease(self):
+        controller=Mock(return_value=None)
+        store=LeaseStore(controller=controller,clock=lambda:1001)
+        claims=verify_ticket(self.ticket(),'s'*48,1001)
+        old=store.enable(claims)
+        with self.assertRaises(Denied) as denied:store.enable(dict(claims,user_id=2),recover=True)
+        self.assertEqual('extension_in_use',denied.exception.code)
+        self.assertEqual(1,controller.call_count)
+        self.assertEqual(old['token'],store.leases['7771']['token'])
+
+    def test_recovery_preserves_lease_when_in_call_or_control_fails(self):
+        controller=Mock(return_value=None)
+        store=LeaseStore(controller=controller,clock=lambda:1001)
+        claims=verify_ticket(self.ticket(),'s'*48,1001)
+        old=store.enable(claims)
+        controller.return_value={'busy':True}
+        with self.assertRaises(Denied) as denied:store.enable(claims,recover=True)
+        self.assertEqual('call_active',denied.exception.code)
+        self.assertEqual(old['token'],store.leases['7771']['token'])
+        controller.side_effect=RuntimeError('control unavailable')
+        with self.assertRaises(RuntimeError):store.enable(claims,recover=True)
+        self.assertEqual(old['token'],store.leases['7771']['token'])
 
     def test_expiry_revokes_sip_credential(self):
         now=[1001];events=[]

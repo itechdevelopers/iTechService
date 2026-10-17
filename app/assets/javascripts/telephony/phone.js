@@ -5,6 +5,7 @@ let gateway=null, activeTicket=null, callerGeneration=0, directoryEntries=null, 
 const csrf=()=>document.querySelector('meta[name=csrf-token]').content;
 let ua=null,session=null,stream=null,lease=null,heartbeat=null,started=null,ringTimer=null,audioContext=null,busy=false,pcConfig={iceServers:[]},micAnalyser=null,micSamples=null,remoteSource=null,remoteAnalyser=null,remoteSamples=null,remoteMedia=null,micSource=null,micSilentGain=null;
 JsSIP.debug.disable();
+let recoveryAvailable=false;
 let linkState='off',disableAfterCall=false,disableReason='',generation=0,renewingFor=null,renewalWarning=null,disableTask=null,renewalAbort=null;
 let waitingTimer=null,waitingRequest=null,waitingCount=0,waitingClients=new Map();
 function awaitingAnswer(s){return !!s&&s.direction==='incoming'&&!s.isEnded()&&!s.isEstablished()&&!s.data.aisAnswering;}
@@ -46,6 +47,7 @@ function confirmedHold(s){return !!s&&s.isOnHold().local&&s.data.aisHoldConfirme
 function controls(){
  const registered=!!ua&&ua.isRegistered(),call=!!session,incoming=awaitingAnswer(session);
  const consulting=!!consultSession||!!consultIntent||consultReturning,established=call&&session.isEstablished(),active=audibleSession();
+ $('recovery-panel').hidden=!recoveryAvailable;$('recover').disabled=!!ua||busy;
  $('enable').disabled=!!ua||busy;$('identity').disabled=!!ua||busy;$('microphone').disabled=!!ua||busy;
  $('disable').disabled=!ua||call;$('answer').disabled=!incoming;$('reject').disabled=!incoming;$('hangup').disabled=!call;
  $('hangup').textContent=consulting?'Завершить все разговоры':'Завершить';
@@ -83,7 +85,7 @@ async function getTicket(timeout=15000,version=generation,signal){
 async function api(path,data,timeout=15000,context={gateway,ticket:activeTicket},signal){
  const r=await request(context.gateway+'/ais'+path,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(Object.assign({},data,{ticket:context.ticket})),signal},timeout);
  let result={};try{result=await r.json();}catch(e){if(r.ok)throw new Error('Некорректный ответ шлюза.');}
- if(!r.ok){const message=result.error||'Ошибка шлюза';const e=[401,403,409].includes(r.status)?accessFailure(message):new Error(message);e.gatewayResponded=true;throw e;}
+ if(!r.ok){const message=result.error||'Ошибка шлюза';const e=[401,403,409].includes(r.status)?accessFailure(message):new Error(message);e.gatewayResponded=true;e.recoverable=['session_conflict','call_active'].includes(result.code);throw e;}
  return result;
 }
 function clientLink(title,url){
@@ -313,8 +315,9 @@ async function renew(currentUa,version){
   else{renewalWarning='Не удалось обновить доступ к телефонии. Повторяем проверку; текущий разговор продолжается.';error(renewalWarning);}
  }finally{if(renewingFor===currentUa){renewingFor=null;renewalAbort=null;}}
 }
-$('enable').onclick=async()=>{
- if(ua||busy)return;
+async function enablePhone(recover=false){
+ if(ua||busy||(recover&&!recoveryAvailable))return;
+ recoveryAvailable=false;
  const version=++generation;let stage='microphone';
  gateway=null;activeTicket=null;busy=true;controls();error('');
  status('Проверяем микрофон…','checking');$('gateway-help').hidden=true;
@@ -331,7 +334,7 @@ $('enable').onclick=async()=>{
   stage='ais';status('Проверяем доступ в АИС…','checking');
   const context=await getTicket(15000,version);
   stage='gateway';status('Проверяем защищённое соединение со шлюзом…','checking');check('gateway','Шлюз: проверяется','checking');
-  const c=await api('/enable',{},15000,context);
+  const c=await api('/enable',recover?{recover:true}:{},15000,context);
   if(version!==generation){await api('/disable',{user:c.user,token:c.token},15000,context).catch(()=>{});return;}
   stage='registration';check('gateway','Шлюз: защищённое соединение установлено','ok');check('registration','Регистрация: подключается','checking');
   lease={user:c.user,token:c.token};pcConfig=c.pcConfig||{iceServers:[]};
@@ -353,13 +356,16 @@ $('enable').onclick=async()=>{
  }catch(e){
   if(version!==generation)return;
   await disable();
+  recoveryAvailable=e.recoverable===true||(recover&&!e.accessDenied);
   if(stage==='gateway'){if(e.gatewayResponded){check('gateway','Шлюз: защищённое соединение установлено','ok');check('registration','Регистрация: шлюз отклонил включение','error');}else{check('gateway','Шлюз: соединение не установлено','error');$('gateway-help').hidden=false;}}
   else if(stage==='registration')check('registration','Регистрация: не выполнена','error');
   else if(stage==='microphone')check('microphone','Микрофон: нет доступа','error');
   else check('gateway','Шлюз: не проверен — нет ответа АИС','off');
-  error(stage==='microphone'?micError(e):e.message);
+  error(stage==='microphone'?micError(e):e.message);controls();
  }finally{if(version===generation){busy=false;controls();}}
-};
+}
+$('enable').onclick=()=>enablePhone();
+$('recover').onclick=()=>enablePhone(true);
 $('disable').onclick=disable;
 $('answer').onclick=()=>{
  const s=session;if(!awaitingAnswer(s))return;

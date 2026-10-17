@@ -6,7 +6,9 @@ from pathlib import Path
 EXTENSIONS = {str(n) for n in range(7771, 7781)}
 
 class Denied(Exception):
-    pass
+    def __init__(self, message='', code=None):
+        super().__init__(message)
+        self.code = code
 
 
 def verify_ticket(ticket, secret, now=None):
@@ -66,18 +68,26 @@ class LeaseStore:
         self.controller = controller
         self.clock = clock
 
-    def enable(self, claims):
+    def enable(self, claims, recover=False):
         extension = claims['extension']
         with self.lock:
             existing = self.leases.get(extension)
             if existing and existing['until'] > self.clock():
-                raise Denied('Телефон уже включён в другом окне.')
+                if existing['user_id'] != claims['user_id']:
+                    raise Denied('Номер занят другим сотрудником. Обратитесь к администратору.', 'extension_in_use')
+                if not recover:
+                    print('AIS_SESSION_CONFLICT extension={} remaining={}'.format(extension, int(existing['until'] - self.clock())), flush=True)
+                    raise Denied('Телефон уже включён в другом окне.', 'session_conflict')
             password = secrets.token_urlsafe(32)
             lease = {'user_id': claims['user_id'], 'token': secrets.token_urlsafe(32),
                      'until': min(self.clock() + 60, claims['exp'])}
             # A new SIP password is granted only to the current lease.
             contact_user = extension + '-' + secrets.token_hex(16)
-            self.controller('enable', extension, password, int(lease['until']), contact_user)
+            result = self.controller('recover' if recover else 'enable', extension, password, int(lease['until']), contact_user)
+            if recover and result and result.get('busy'):
+                raise Denied('На этом номере идёт звонок. Завершите его и повторите подключение здесь.', 'call_active')
+            if recover:
+                print('AIS_SESSION_RECOVERED extension={}'.format(extension), flush=True)
             self.leases[extension] = lease
             return {'user': extension, 'password': password, 'token': lease['token'], 'contact_uri': 'sip:' + contact_user + '@localhost;transport=ws'}
 
@@ -157,7 +167,7 @@ def main():
                 payload = json.loads(self.rfile.read(size))
                 claims = verify_ticket(payload.get('ticket'), config['shared_secret'])
                 if self.path == '/ais/enable':
-                    result = store.enable(claims)
+                    result = store.enable(claims, recover=payload.get('recover') is True)
                     result.update({'wss': config['wss'], 'uri': 'sip:' + claims['extension'] + '@localhost',
                                    'pcConfig': media_config(config, claims['extension'])})
                 else:
@@ -166,7 +176,7 @@ def main():
                         result['pcConfig'] = media_config(config, claims['extension'])
                 self.reply(200, result)
             except Denied as exc:
-                self.reply(409, {'error': str(exc) or 'Доступ к телефонии не подтверждён.'})
+                self.reply(409, {'error': str(exc) or 'Доступ к телефонии не подтверждён.', 'code': exc.code})
             except (ValueError, TypeError, AttributeError):
                 self.reply(400)
             except (OSError, RuntimeError):
